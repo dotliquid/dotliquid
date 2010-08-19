@@ -1,0 +1,64 @@
+body{
+	background:white;
+	margin:0;
+	padding:0;
+	font-family:Trebuchet MS,Arial;
+	font-size:80%;
+}
+img{
+	margin:0;
+	padding:0;
+	border:none;
+}
+
+h1{
+	padding:0;
+	margin:0;
+}
+a.logo {
+	position:absolute;
+	left:0;
+	top:68px;
+	background: url(logo.jpg) center no-repeat;
+	height:133px;
+	width:100%;
+	display:block;
+}
+h2{
+	float:left;
+	margin:5px 0 5px 20px!important;
+	margin:5px 0 5px 15px;
+	padding:0 10px 5px 7px;
+	width:840px;
+	font-weight:normal;
+	font-size:18px;
+	color:#666;
+	background: url(shad_bg.jpg) left bottom no-repeat;
+}
+h3{
+	float:left;
+	width:840px;
+	font-weight:normal;
+	font-size:16px;
+	color:#666;
+	margin:5px 0 5px 20px!important;
+	margin:5px 0 5px 15px;
+	padding:0 10px 5px 7px;
+	background: url(shad_bg.jpg) left bottom no-repeat;
+}
+a{	color:#cc0505; font-weight:700; text-decoration:none; outline:none;}
+a:hover{color:#777;text-decoration:none;outline:none;}
+
+.demo a{ float:left; margin:0; padding:0; margin:5px 10px 5px 20px!important; margin:5px 10px 5px 10px; display:block; background:url(bg_tms.jpg) no-repeat; width:90px; height:90px;}
+.demo a img{ float:left; margin:0; padding:0; margin:9px 0 0 10px; background:url(bg_tms.jpg) no-repeat; width:70px; height:70px;}
+ul,li,dl,dt,dd{
+	list-style-type:none;
+	margin:0;
+	padding:0;
+}
+.main_content_demo{
+	margin:0 auto;
+	padding:0;
+	width:900px;
+	display:block;
+}

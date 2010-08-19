@@ -1,0 +1,100 @@
+﻿<%@ Master Language="C#" Inherits="System.Web.Mvc.ViewMasterPage" %>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>DotLiquid - <asp:ContentPlaceHolder ID="TitleContent" runat="server" /></title>
+<meta name="keywords" content="extreme, services, css templates, website templates, web design" />
+<meta name="description" content="Extreme is a free website template that can be used for any purpose" />
+<link href="/content/css/templatemo_style.css" rel="stylesheet" type="text/css" />
+<link href="/content/css/jquery.ennui.contentslider.css" rel="stylesheet" type="text/css" media="screen,projection" />
+</head>
+<body>
+
+<div id="templatemo_header_wrapper">
+	<div id="templatemo_header">
+
+		<div id="site_title">
+            <h1><a href="index.html">
+                <strong>.Liquid</strong>
+                <span>Simple templating language for .NET</span>     
+            </a></h1>
+        </div>
+        
+        <div id="templatemo_menu">
+            <ul>
+							<li><%: Html.ActionLink("Home", "Index", "Home", new { @class = "current" })%></li>
+							<li><%: Html.ActionLink("About", "About", "Home")%></li>
+            </ul>    	
+    	</div> <!-- end of templatemo_menu -->
+        
+        <div class="cleaner"></div>
+	</div> <!-- end of header -->
+</div> <!-- end of header_wrapper -->
+
+<asp:ContentPlaceHolder ID="MainContent" runat="server" />
+
+<div id="templatemo_footer_wrapper">
+	<div id="templatemo_footer">
+    
+    	<div class="footer_box">
+        
+        	<h3>Partners</h3>
+        
+            <ul class="footer_menu">
+                <li><a href="http://www.templatemo.com/page/1" target="_parent">Free CSS Templates</a></li> 
+                <li><a href="http://www.flashmo.com/page/1" target="_parent">Free Flash Templates</a></li>
+                <li><a href="http://www.webdesignmo.com/blog" target="_parent">Web Design Blog</a></li>
+                <li><a href="http://www.koflash.com">Best Flash Gallery</a></li>               
+            </ul>
+
+        </div>
+        
+        <div class="footer_box">
+        
+            <div class="footer_menu">
+            
+                <h3>Navigation</h3>
+    
+                <ul class="footer_menu">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="services.html">Services</a></li>
+                    <li><a href="gallery.html">Gallery</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                </ul>
+                
+            </div>
+		</div>
+        
+        <div class="footer_box">
+        
+            <div class="footer_menu">
+            
+              <h3>About Us</h3>
+    			
+                <img src="/content/images/templatemo_image_04.jpg" alt="about us" />
+                <p>Nullam ultrices tempor nisi, ac egestas diam aliquam  mattis adipiscing imperdiet.</p>
+                
+                <div class="button"><a href="#">Read More</a></div>
+                
+            </div>
+            
+        </div>
+	
+    	<div class="cleaner"></div>
+    </div> <!-- end of footer -->
+</div> <!-- end of footer wrapper -->    
+
+<div id="templatemo_copyright_wrapper">
+	<div id="templatemo_copyright">
+    
+		Copyright © 2010 <a href="http://www.formosatek.com">FormosaTek</a> | 
+        Designed by <a href="http://www.templatemo.com" target="_parent">Free CSS Templates</a> | 
+        Validate <a href="http://validator.w3.org/check?uri=referer">XHTML</a> &amp; <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a>
+        
+    </div> <!-- end of templatemo_copyright -->
+</div> <!-- end of copyright wrapper -->
+</body>
+</html>

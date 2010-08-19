@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{CB9372CD-9C1D-47AB-92D8-702D4D68324F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DotLiquid</RootNamespace>
+    <AssemblyName>DotLiquid</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Exceptions\ArgumentException.cs" />
+    <Compile Include="Exceptions\FileSystemException.cs" />
+    <Compile Include="FileSystems\BlankFileSystem.cs" />
+    <Compile Include="Block.cs" />
+    <Compile Include="Condition.cs" />
+    <Compile Include="Context.cs" />
+    <Compile Include="Document.cs" />
+    <Compile Include="Drop.cs" />
+    <Compile Include="Exceptions\ContextException.cs" />
+    <Compile Include="Exceptions\FilterNotFoundException.cs" />
+    <Compile Include="Exceptions\StackLevelException.cs" />
+    <Compile Include="Exceptions\LiquidException.cs" />
+    <Compile Include="FileSystems\IFileSystem.cs" />
+    <Compile Include="FileSystems\LocalFileSystem.cs" />
+    <Compile Include="IContextAware.cs" />
+    <Compile Include="IIndexable.cs" />
+    <Compile Include="ILiquidizable.cs" />
+    <Compile Include="Liquid.cs" />
+    <Compile Include="IRenderable.cs" />
+    <Compile Include="NamingConventions\CSharpNamingConvention.cs" />
+    <Compile Include="NamingConventions\INamingConvention.cs" />
+    <Compile Include="NamingConventions\RubyNamingConvention.cs" />
+    <Compile Include="Proc.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StandardFilters.cs" />
+    <Compile Include="Strainer.cs" />
+    <Compile Include="Tags\Assign.cs" />
+    <Compile Include="Tags\Capture.cs" />
+    <Compile Include="Tags\Case.cs" />
+    <Compile Include="Tags\Comment.cs" />
+    <Compile Include="Tags\Html\TableRow.cs" />
+    <Compile Include="Tags\Unless.cs" />
+    <Compile Include="Tags\Include.cs" />
+    <Compile Include="Tags\IfChanged.cs" />
+    <Compile Include="Tags\If.cs" />
+    <Compile Include="Tags\For.cs" />
+    <Compile Include="Tags\Cycle.cs" />
+    <Compile Include="Template.cs" />
+    <Compile Include="Util\EnumerableExtensionMethods.cs" />
+    <Compile Include="Util\ExpressionUtility.cs" />
+    <Compile Include="Util\ListExtensionMethods.cs" />
+    <Compile Include="Util\ObjectExtensionMethods.cs" />
+    <Compile Include="Util\Range.cs" />
+    <Compile Include="Exceptions\SyntaxException.cs" />
+    <Compile Include="Tag.cs" />
+    <Compile Include="Util\R.cs" />
+    <Compile Include="Hash.cs" />
+    <Compile Include="Util\Symbol.cs" />
+    <Compile Include="Util\TypeUtility.cs" />
+    <Compile Include="Variable.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

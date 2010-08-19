@@ -1,0 +1,108 @@
+/*
+ * Color, Border, and Button Rules
+ */
+.contentslider {
+  padding: 0; /* This acts as a border for the content slider */
+  background: none; /* This is the color of said border */
+} 
+.cs_wrapper, .cs_article {
+/*  background-color: none;  Background color for the entries */
+}
+.cs_leftBtn, .cs_rightBtn {
+  width:43px; /* Should be as wide as the button graphic being used */
+  background: none; /* This will probably match the contentslider bg color */
+}
+
+/*
+ * Article styles (font, color, etc.)
+ *
+ * If textResize is set to TRUE, sizing shouldn't need to be touched. However,
+ * depending on the sizes you have defined, additional tweaking may be
+ * required in order to get the text to display properly.
+ */
+
+/*
+ ******************************************************************************
+ * These styles may be affected by the plugin, so avoid changing them if 
+ * it's not absolutely necessary.
+ ******************************************************************************
+ */
+.contentslider {
+  position:relative;
+  display:block;
+  width: 910px;
+  height: 210px;
+  margin:0 auto;
+  overflow:hidden;
+}
+.cs_wrapper {
+  position:relative;
+  display:block;
+  width: 910px;
+  height: 210px;
+  margin: 0;
+  padding: 0;
+  overflow:hidden;
+}
+.cs_slider {
+  position:absolute;
+  width:10000px;
+  height:100%;
+	margin: 0;
+  padding: 0;
+}
+.cs_article {
+  float:left;
+  position:relative;
+  top:0;
+  left:0;
+  display:block;
+  margin: 0 auto;
+/*  background-color: none; */
+}
+
+.cs_article .article {
+	padding: 0 80px;
+}
+.article .left {
+	float: left;
+	padding: 30px 0; 
+	width: 300px;
+}
+
+.article .right {
+	float: right;
+	width: 400px;
+}
+
+.article p {
+	margin-bottom: 20px;
+}
+
+.article img {
+	width: 380px;
+	height: 190px;
+	background: #b9b49d;
+	padding: 8px;
+	border: 1px solid #e8e5d9;
+}
+
+.cs_leftBtn, .cs_rightBtn {
+  position:absolute;
+  top: 30px;
+  padding:0;
+  z-index:10000;
+}
+.cs_leftBtn {
+  left : 0px;
+  outline:0;
+}
+.cs_rightBtn {
+  right : 0px;
+  outline:0;
+}
+.cs_leftBtn img, .cs_rightBtn img {
+  border:0;
+  position:relative;
+  margin:0;
+}

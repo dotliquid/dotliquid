@@ -11,7 +11,8 @@ about this .NET version, see <http://www.dotliquidmarkup.org>.
 
 1. Download the latest release from the [downloads page](http://github.com/formosatek/dotliquid/downloads).
    The zip file contains DotLiquid.dll, which is the only one you need.
-2. Coming soon...
+2. Read the [wiki](http://github.com/formosatek/dotliquid/wiki) for information on writing and using
+   DotLiquid templates.
 
 ### Why should i use DotLiquid
 

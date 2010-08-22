@@ -219,7 +219,7 @@ namespace DotLiquid
 					Convert.ToInt32(Resolve(match.Groups[2].Value)));
 
 			// Floats.
-			match = Regex.Match(key, R.Q(@"^([+-]?\d[\d\.]+)$"));
+			match = Regex.Match(key, R.Q(@"^([+-]?\d[\d\.|\,]+)$"));
 			if (match.Success)
 				return Convert.ToSingle(match.Groups[1].Value);
 

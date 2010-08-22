@@ -183,17 +183,18 @@ namespace DotLiquid.Tests.Tags
 		[Test]
 		public void TestIfWithCustomCondition()
 		{
-			Condition.Operators["contains"] = (left, right) => (left is IList) ? ((IList) left).Contains(right) : ((left is string) ? ((string) left).Contains((string) right) : false);
+            DotLiquid.ConditionOperatorDelegate oldCondition = Condition.Operators["contains"];
+            Condition.Operators["contains"] = (left, right) => (left is IList) ? ((IList)left).Contains(right) : ((left is string) ? ((string)left).Contains((string)right) : false);
 
-			try
-			{
-				Helper.AssertTemplateResult("yes", "{% if 'bob' contains 'o' %}yes{% endif %}");
-				Helper.AssertTemplateResult("no", "{% if 'bob' contains 'f' %}yes{% else %}no{% endif %}");
-			}
-			finally
-			{
-				Condition.Operators.Remove("contains");
-			}
-		}
+            try
+            {
+                Helper.AssertTemplateResult("yes", "{% if 'bob' contains 'o' %}yes{% endif %}");
+                Helper.AssertTemplateResult("no", "{% if 'bob' contains 'f' %}yes{% else %}no{% endif %}");
+            }
+            finally
+            {
+                Condition.Operators["contains"] = oldCondition;
+            }
+        }
 	}
 }

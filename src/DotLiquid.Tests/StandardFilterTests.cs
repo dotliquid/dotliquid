@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -97,13 +98,15 @@ namespace DotLiquid.Tests
 		[Test]
 		public void TestDate()
 		{
-			Assert.AreEqual("May", StandardFilters.Date(DateTime.Parse("2006-05-05 10:00:00"), "MMMM"));
-			Assert.AreEqual("June", StandardFilters.Date(DateTime.Parse("2006-06-05 10:00:00"), "MMMM"));
-			Assert.AreEqual("July", StandardFilters.Date(DateTime.Parse("2006-07-05 10:00:00"), "MMMM"));
+            DateTimeFormatInfo dateTimeFormat = CultureInfo.CurrentCulture.DateTimeFormat;
 
-			Assert.AreEqual("May", StandardFilters.Date("2006-05-05 10:00:00", "MMMM"));
-			Assert.AreEqual("June", StandardFilters.Date("2006-06-05 10:00:00", "MMMM"));
-			Assert.AreEqual("July", StandardFilters.Date("2006-07-05 10:00:00", "MMMM"));
+            Assert.AreEqual(dateTimeFormat.GetMonthName(5), StandardFilters.Date(DateTime.Parse("2006-05-05 10:00:00"), "MMMM"));
+            Assert.AreEqual(dateTimeFormat.GetMonthName(6), StandardFilters.Date(DateTime.Parse("2006-06-05 10:00:00"), "MMMM"));
+            Assert.AreEqual(dateTimeFormat.GetMonthName(7), StandardFilters.Date(DateTime.Parse("2006-07-05 10:00:00"), "MMMM"));
+
+            Assert.AreEqual(dateTimeFormat.GetMonthName(5), StandardFilters.Date("2006-05-05 10:00:00", "MMMM"));
+            Assert.AreEqual(dateTimeFormat.GetMonthName(6), StandardFilters.Date("2006-06-05 10:00:00", "MMMM"));
+            Assert.AreEqual(dateTimeFormat.GetMonthName(7), StandardFilters.Date("2006-07-05 10:00:00", "MMMM"));
 
 			Assert.AreEqual("05/07/2006 10:00:00", StandardFilters.Date("05/07/2006 10:00:00", string.Empty));
 			Assert.AreEqual("05/07/2006 10:00:00", StandardFilters.Date("05/07/2006 10:00:00", null));

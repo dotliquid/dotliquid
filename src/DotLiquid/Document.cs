@@ -16,7 +16,7 @@ namespace DotLiquid
 		}
 
 		/// <summary>
-		/// There isn't a real delimter
+		/// There isn't a real delimiter
 		/// </summary>
 		protected override string BlockDelimiter
 		{

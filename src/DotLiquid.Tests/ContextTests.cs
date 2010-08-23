@@ -296,7 +296,7 @@ namespace DotLiquid.Tests
 		public void TestDigits()
 		{
 			Assert.AreEqual(100, _context["100"]);
-			Assert.AreEqual(100.00, _context["100.00"]);
+			Assert.AreEqual(100.00, _context[string.Format("100{0}00", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)]);
 		}
 
 		[Test]

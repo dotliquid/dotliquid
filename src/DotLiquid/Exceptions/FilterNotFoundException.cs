@@ -1,5 +1,8 @@
+using System;
+
 namespace DotLiquid.Exceptions
 {
+    [Serializable]
 	public class FilterNotFoundException : LiquidException
 	{
 		public FilterNotFoundException(string message, FilterNotFoundException innerException)

@@ -52,7 +52,7 @@ namespace DotLiquid
 
 		public Hash()
 		{
-			_nestedDictionary = new Dictionary<string, object>();
+			_nestedDictionary = new Dictionary<string, object>(Template.NamingConvention.StringComparer);
 		}
 
 		#endregion

@@ -19,7 +19,7 @@ namespace DotLiquid
 	{
 		#region Condition operator delegates
 
-		public static readonly Dictionary<string, ConditionOperatorDelegate> Operators = new Dictionary<string, ConditionOperatorDelegate>
+		public static readonly Dictionary<string, ConditionOperatorDelegate> Operators = new Dictionary<string, ConditionOperatorDelegate>(Template.NamingConvention.StringComparer)
 		{
 			{ "==", (left, right) => EqualVariables(left, right) },
 			{ "!=", (left, right) => !EqualVariables(left, right) },

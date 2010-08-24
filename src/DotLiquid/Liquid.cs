@@ -7,8 +7,6 @@ namespace DotLiquid
 {
 	internal static class Liquid
 	{
-		public static INamingConvention NamingConvention = new RubyNamingConvention();
-
 		public static readonly string FilterSeparator = R.Q(@"\|");
 		public static readonly string ArgumentSeparator = R.Q(@",");
 		public static readonly string FilterArgumentSeparator = R.Q(@":");

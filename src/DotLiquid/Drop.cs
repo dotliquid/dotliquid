@@ -49,9 +49,9 @@ namespace DotLiquid
 			// Cache all methods and properties of this object, but don't include those defined at or above the base Drop class.
 			BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance;
 			_cachedMethods = GetType().GetMethods(bindingFlags).Where(mi => mi.GetParameters().Length == 0 && typeof(Drop).IsAssignableFrom(mi.DeclaringType.BaseType))
-				.ToDictionary(mi => Liquid.NamingConvention.GetMemberName(mi.Name));
+				.ToDictionary(mi => Template.NamingConvention.GetMemberName(mi.Name));
 			_cachedProperties = GetType().GetProperties(bindingFlags).Where(pi => typeof(Drop).IsAssignableFrom(pi.DeclaringType.BaseType))
-				.ToDictionary(pi => Liquid.NamingConvention.GetMemberName(pi.Name));
+				.ToDictionary(pi => Template.NamingConvention.GetMemberName(pi.Name));
 		}
 
 		/// <summary>

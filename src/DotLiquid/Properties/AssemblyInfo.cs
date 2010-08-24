@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("FormosaTek Ltd")]
 [assembly: AssemblyProduct("DotLiquid")]
-[assembly: AssemblyCopyright("Copyright © FormosaTek Ltd 2010")]
+[assembly: AssemblyCopyright("Copyright © FormosaTek Ltd and contributors 2010")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

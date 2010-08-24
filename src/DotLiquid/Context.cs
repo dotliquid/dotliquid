@@ -77,7 +77,8 @@ namespace DotLiquid
 		{
 			if (Strainer.RespondTo(method))
 				return Strainer.Invoke(method, args);
-			return args.First();
+			
+            return args.First();
 			//throw new FilterNotFoundException("Filter not found: '{0}'", method);
 		}
 
@@ -404,7 +405,7 @@ namespace DotLiquid
 
 		private void SquashInstanceAssignsWithEnvironments()
 		{
-			Dictionary<string, object> tempAssigns = new Dictionary<string, object>();
+			Dictionary<string, object> tempAssigns = new Dictionary<string, object>(Template.NamingConvention.StringComparer);
 
 			Hash lastScope = Scopes.Last();
 			foreach (string k in lastScope.Keys)

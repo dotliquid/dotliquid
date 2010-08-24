@@ -1,3 +1,4 @@
+using System;
 using System.Text.RegularExpressions;
 
 namespace DotLiquid.NamingConventions
@@ -15,6 +16,11 @@ namespace DotLiquid.NamingConventions
 	public class RubyNamingConvention : INamingConvention
 	{
 		private readonly Regex _regex = new Regex("(.)([A-Z])");
+
+		public StringComparer StringComparer
+		{
+			get { return StringComparer.OrdinalIgnoreCase; }
+		}
 
 		public string GetMemberName(string name)
 		{

@@ -29,7 +29,7 @@ namespace DotLiquid.Tags
 				R.Scan(markup, Liquid.TagAttributes, (key, value) => _attributes[key] = value);
 			}
 			else
-				throw new SyntaxException("Syntax Error in tag 'case' - Valid syntax: case [condition]");
+				throw new SyntaxException("Syntax Error in tag 'include' - Valid syntax: include [template]");
 
 			base.Initialize(tagName, markup, tokens);
 		}

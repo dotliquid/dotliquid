@@ -6,7 +6,7 @@ using DotLiquid.Exceptions;
 
 namespace DotLiquid.Tags
 {
-	public class Case : Block
+	public class Case : DotLiquid.Block
 	{
 		private static readonly Regex Syntax = new Regex(string.Format(@"({0})", Liquid.QuotedFragment));
 		private static readonly Regex WhenSyntax = new Regex(string.Format(@"({0})(?:(?:\s+or\s+|\s*\,\s*)({0}.*))?", Liquid.QuotedFragment));

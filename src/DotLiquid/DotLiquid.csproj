@@ -68,6 +68,8 @@
     <Compile Include="Tags\Capture.cs" />
     <Compile Include="Tags\Case.cs" />
     <Compile Include="Tags\Comment.cs" />
+    <Compile Include="Tags\Block.cs" />
+    <Compile Include="Tags\Extends.cs" />
     <Compile Include="Tags\Html\TableRow.cs" />
     <Compile Include="Tags\Unless.cs" />
     <Compile Include="Tags\Include.cs" />

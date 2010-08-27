@@ -51,7 +51,7 @@ namespace DotLiquid.Tags
   /// forloop.first:: Returns true if the item is the first item.
   /// forloop.last:: Returns true if the item is the last item.
 	/// </summary>
-	public class For : Block
+	public class For : DotLiquid.Block
 	{
 		private static readonly Regex Syntax = R.B(R.Q(@"(\w+)\s+in\s+({0}+)\s*(reversed)?"), Liquid.QuotedFragment);
 

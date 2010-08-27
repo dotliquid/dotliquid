@@ -3,7 +3,7 @@ using System.Text;
 
 namespace DotLiquid.Tags
 {
-	public class IfChanged : Block
+	public class IfChanged : DotLiquid.Block
 	{
 		public override void Render(Context context, StringBuilder result)
 		{

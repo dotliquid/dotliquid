@@ -11,11 +11,11 @@
 	</div>
 	<div id="side">
 		<h1>What does it look like?</h1>
-		<div id="sample-code">
+		<div class="sample-code">
 			<p>...</p>
 			<p>&lt;p&gt;<span class="code">{{ user.name }}</span> has to do:&lt;/p&gt;</p>
 			<p>&lt;ul&gt;</p>
-			<p>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">{% for item in user.todos %}</span></p>
+			<p>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">{% for item in user.tasks %}</span></p>
 			<p>&nbsp;&nbsp;&nbsp;&nbsp;&lt;li&gt;<span class="code">{{ item.name }}</span>&lt;/li&gt;</p>
 			<p>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">{% endfor %}</span></p>
 			<p>&lt;/ul&gt;</p>

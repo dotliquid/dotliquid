@@ -16,6 +16,15 @@ namespace DotLiquid.Website
 		{
 			routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
+			routes.MapRoute("PageNotFound", "error/page-not-found",
+											new { controller = "Error", action = "PageNotFound" });
+
+			routes.MapRoute("TryOnline1", "try-online/liquify",
+											new { controller = "TryOnline", action = "Liquify" });
+			
+			routes.MapRoute("TryOnline2", "try-online/{action}",
+			                new { controller = "TryOnline", action = "Index" });
+
 			routes.MapRoute(
 					"Default", // Route name
 					"{controller}/{action}/{id}", // URL with parameters

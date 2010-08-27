@@ -6,8 +6,8 @@
 <head>
 <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
 <meta name="description" content="DotLiquid is a templating system ported to the .net framework from Ruby’s Liquid Markup" />
-<link href="css/reset.css" rel="stylesheet" type="text/css" />
-<link href="css/main.css" rel="stylesheet" type="text/css" />
+<link href="/css/reset.css" rel="stylesheet" type="text/css" />
+<link href="/css/main.css" rel="stylesheet" type="text/css" />
 <!--[if !IE 7]>
 <style type="text/css">
 #wrap {
@@ -21,6 +21,20 @@
 	Welcome to DotLiquid, a safe templating system for .net
 </asp:ContentPlaceHolder>
 </title>
+
+<script type="text/javascript">
+
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', 'UA-5166698-3']);
+	_gaq.push(['_trackPageview']);
+
+	(function () {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	})();
+
+</script>
 </head>
 
 <body>
@@ -29,7 +43,7 @@
 	<div id="main" class="clearfix">
 		<div id="header" class="clearfix">
 			<div id="logo">
-				<img src="img/logo_big.png" alt="DotLiquid Logo" title="DotLiquid Home" />
+				<img src="/img/logo_big.png" alt="DotLiquid Logo" title="DotLiquid Home" />
 			</div>
 			<ul id="header-menu">
 				<li><a class="active" href="/">home</a></li>
@@ -37,7 +51,7 @@
 				<li><a href="http://github.com/formosatek/dotliquid/wiki/">learn</a></li>
 			</ul>
 			<div id="try">
-				<img src="img/try_btn.png" alt="Try it online" title="Try it online" />
+				<a href="<%= Url.Action("Index", "TryOnline") %>"><img src="/img/try_btn.png" alt="Try it online" title="Try it online" /></a>
 			</div>
 		</div>
 		<asp:ContentPlaceHolder runat="server" ID="MainContent" />

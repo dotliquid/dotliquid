@@ -88,13 +88,17 @@ blockquote {
 	padding: 20px 0;
 	text-align: center;
 }
-#sample-code {
+.sample-code {
 	-moz-border-radius: 10px;
 	border-radius: 10px;
 	background-color: #DCEDCA;
 	padding: 20px;
 	font-family: "Courier New", Courier, monospace;
 	font-size: 16px;
+}
+.smaller-code
+{
+	font-size: 12px;
 }
 p span.code {
 	color: #007777;
@@ -159,4 +163,11 @@ p span.code {
 .footer-col ul
 {
 	margin-bottom: 10px;
+}
+
+/* Try online */
+textarea
+{
+	width: 550px;
+	height: 200px;
 }

@@ -33,18 +33,20 @@ namespace DotLiquid
 
 		static Liquid()
 		{
-			Template.RegisterTag<Assign>("assign");
-			Template.RegisterTag<Capture>("capture");
-			Template.RegisterTag<Case>("case");
-			Template.RegisterTag<Comment>("comment");
-			Template.RegisterTag<Cycle>("cycle");
-			Template.RegisterTag<For>("for");
-			Template.RegisterTag<If>("if");
-			Template.RegisterTag<IfChanged>("ifchanged");
-			Template.RegisterTag<Include>("include");
-			Template.RegisterTag<Unless>("unless");
+            Template.RegisterTag<Tags.Assign>("assign");
+            Template.RegisterTag<Tags.Block>("block");
+            Template.RegisterTag<Tags.Capture>("capture");
+            Template.RegisterTag<Tags.Case>("case");
+            Template.RegisterTag<Tags.Comment>("comment");
+            Template.RegisterTag<Tags.Cycle>("cycle");
+            Template.RegisterTag<Tags.Extends>("extends");
+            Template.RegisterTag<Tags.For>("for");
+            Template.RegisterTag<Tags.If>("if");
+            Template.RegisterTag<Tags.IfChanged>("ifchanged");
+            Template.RegisterTag<Tags.Include>("include");
+            Template.RegisterTag<Tags.Unless>("unless");
 
-			Template.RegisterTag<TableRow>("tablerow");
+            Template.RegisterTag<Tags.Html.TableRow>("tablerow");
 
 			Template.RegisterFilter(typeof(StandardFilters));
 		}

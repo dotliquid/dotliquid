@@ -18,7 +18,7 @@ namespace DotLiquid.Tags
   /// Capture is useful for saving content for use later in your template, such as
   /// in a sidebar or footer.
 	/// </summary>
-	public class Capture : Block
+	public class Capture : DotLiquid.Block
 	{
 		private static readonly Regex Syntax = new Regex(@"(\w+)");
 

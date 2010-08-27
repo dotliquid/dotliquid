@@ -20,7 +20,7 @@ namespace DotLiquid.Tags
     ///
     ///  There are {% if count &lt; 5 %} less {% else %} more {% endif %} items than you need.
     /// </summary>
-    public class If : Block
+    public class If : DotLiquid.Block
     {
         private const string SyntaxHelp = "Syntax Error in tag 'if' - Valid syntax: if [expression]";
         private static readonly Regex Syntax = R.B(R.Q(@"({0})\s*([=!<>a-z_]+)?\s*({0})?"), Liquid.QuotedFragment);

@@ -9,7 +9,7 @@ using DotLiquid.Util;
 
 namespace DotLiquid.Tags.Html
 {
-	public class TableRow : Block
+	public class TableRow : DotLiquid.Block
 	{
 		private static readonly Regex Syntax = R.B(R.Q(@"(\w+)\s+in\s+({0}+)"), Liquid.VariableSignature);
 

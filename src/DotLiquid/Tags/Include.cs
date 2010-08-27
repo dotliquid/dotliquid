@@ -9,7 +9,7 @@ using DotLiquid.Util;
 
 namespace DotLiquid.Tags
 {
-	public class Include : Block
+	public class Include : DotLiquid.Block
 	{
 		private static readonly Regex Syntax = new Regex(string.Format(@"({0}+)(\s+(?:with|for)\s+({0}+))?", Liquid.QuotedFragment));
 

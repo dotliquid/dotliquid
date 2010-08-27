@@ -61,6 +61,7 @@
     <Compile Include="StandardFilterTests.cs" />
     <Compile Include="StatementTests.cs" />
     <Compile Include="Tags\AssignTests.cs" />
+    <Compile Include="Tags\InheritanceTests.cs" />
     <Compile Include="Tags\Html\TableRowTests.cs" />
     <Compile Include="Tags\IfElseTests.cs" />
     <Compile Include="Tags\IncludeTagTests.cs" />

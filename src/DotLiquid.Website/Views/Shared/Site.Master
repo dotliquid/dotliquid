@@ -1,100 +1,86 @@
 ﻿<%@ Master Language="C#" Inherits="System.Web.Mvc.ViewMasterPage" %>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html lang="en" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>DotLiquid - <asp:ContentPlaceHolder ID="TitleContent" runat="server" /></title>
-<meta name="keywords" content="extreme, services, css templates, website templates, web design" />
-<meta name="description" content="Extreme is a free website template that can be used for any purpose" />
-<link href="/content/css/templatemo_style.css" rel="stylesheet" type="text/css" />
-<link href="/content/css/jquery.ennui.contentslider.css" rel="stylesheet" type="text/css" media="screen,projection" />
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<meta name="description" content="DotLiquid is a templating system ported to the .net framework from Ruby’s Liquid Markup" />
+<link href="/css/reset.css" rel="stylesheet" type="text/css" />
+<link href="/css/main.css" rel="stylesheet" type="text/css" />
+<!--[if !IE 7]>
+<style type="text/css">
+#wrap {
+	display: table;
+	height: 100%;
+}
+</style>
+<![endif]-->
+<title>
+<asp:ContentPlaceHolder runat="server" ID="TitleContent">
+	Welcome to DotLiquid, a safe templating system for .net
+</asp:ContentPlaceHolder>
+</title>
+
+<script type="text/javascript">
+
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', 'UA-5166698-3']);
+	_gaq.push(['_trackPageview']);
+
+	(function () {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	})();
+
+</script>
 </head>
+
 <body>
 
-<div id="templatemo_header_wrapper">
-	<div id="templatemo_header">
-
-		<div id="site_title">
-            <h1><a href="index.html">
-                <strong>.Liquid</strong>
-                <span>Simple templating language for .NET</span>     
-            </a></h1>
-        </div>
-        
-        <div id="templatemo_menu">
-            <ul>
-							<li><%: Html.ActionLink("Home", "Index", "Home", new { @class = "current" })%></li>
-							<li><%: Html.ActionLink("About", "About", "Home")%></li>
-            </ul>    	
-    	</div> <!-- end of templatemo_menu -->
-        
-        <div class="cleaner"></div>
-	</div> <!-- end of header -->
-</div> <!-- end of header_wrapper -->
-
-<asp:ContentPlaceHolder ID="MainContent" runat="server" />
-
-<div id="templatemo_footer_wrapper">
-	<div id="templatemo_footer">
-    
-    	<div class="footer_box">
-        
-        	<h3>Partners</h3>
-        
-            <ul class="footer_menu">
-                <li><a href="http://www.templatemo.com/page/1" target="_parent">Free CSS Templates</a></li> 
-                <li><a href="http://www.flashmo.com/page/1" target="_parent">Free Flash Templates</a></li>
-                <li><a href="http://www.webdesignmo.com/blog" target="_parent">Web Design Blog</a></li>
-                <li><a href="http://www.koflash.com">Best Flash Gallery</a></li>               
-            </ul>
-
-        </div>
-        
-        <div class="footer_box">
-        
-            <div class="footer_menu">
-            
-                <h3>Navigation</h3>
-    
-                <ul class="footer_menu">
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="about.html">About Us</a></li>
-                    <li><a href="services.html">Services</a></li>
-                    <li><a href="gallery.html">Gallery</a></li>
-                    <li><a href="contact.html">Contact Us</a></li>
-                </ul>
-                
-            </div>
+<div id="wrap">
+	<div id="main" class="clearfix">
+		<div id="header" class="clearfix">
+			<div id="logo">
+				<img src="/img/logo_big.png" alt="DotLiquid Logo" title="DotLiquid Home" />
+			</div>
+			<ul id="header-menu">
+				<li><a class="active" href="/">home</a></li>
+				<li><a href="http://github.com/formosatek/dotliquid/downloads">download</a></li>
+				<li><a href="http://github.com/formosatek/dotliquid/wiki/">learn</a></li>
+			</ul>
+			<div id="try">
+				<a href="<%= Url.Action("Index", "TryOnline") %>"><img src="/img/try_btn.png" alt="Try it online" title="Try it online" /></a>
+			</div>
 		</div>
-        
-        <div class="footer_box">
-        
-            <div class="footer_menu">
-            
-              <h3>About Us</h3>
-    			
-                <img src="/content/images/templatemo_image_04.jpg" alt="about us" />
-                <p>Nullam ultrices tempor nisi, ac egestas diam aliquam  mattis adipiscing imperdiet.</p>
-                
-                <div class="button"><a href="#">Read More</a></div>
-                
-            </div>
-            
-        </div>
-	
-    	<div class="cleaner"></div>
-    </div> <!-- end of footer -->
-</div> <!-- end of footer wrapper -->    
+		<asp:ContentPlaceHolder runat="server" ID="MainContent" />
+	</div>
+</div>
+<div id="footer">
+	<div id="footer-content" class="clearfix">
+		<div class="footer-col">
+			<h5>Porting and Development</h5>
+			<ul>
+				<li><a href="http://formosatek.com">Formosatek</a></li>
+			</ul>
+			<h5>Contributors</h5>
+			<ul>
+				<li><a href="http://www.alessandropetrelli.com">Alessandro Petrelli</a></li>
+			</ul>
+		</div>
+		<div class="footer-col">
+			<h5>Documentation</h5>
+			<ul>
+				<li><a href="http://github.com/formosatek/dotliquid/wiki/DotLiquid-for-Developers">For Developers</a></li>
+				<li><a href="http://github.com/formosatek/dotliquid/wiki/DotLiquid-for-Designers">For Designers</a></li>
+			</ul>
+		</div>
 
-<div id="templatemo_copyright_wrapper">
-	<div id="templatemo_copyright">
-    
-		Copyright © 2010 <a href="http://www.formosatek.com">FormosaTek</a> | 
-        Designed by <a href="http://www.templatemo.com" target="_parent">Free CSS Templates</a> | 
-        Validate <a href="http://validator.w3.org/check?uri=referer">XHTML</a> &amp; <a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a>
-        
-    </div> <!-- end of templatemo_copyright -->
-</div> <!-- end of copyright wrapper -->
+		<div id="copyright">Copyright © 2010 <a href="http://formosatek.com">Formosatek</a> and contributors - All rights reserved. Site design by Alessandro Petrelli.</div>
+	</div>
+</div>
+
 </body>
+
 </html>

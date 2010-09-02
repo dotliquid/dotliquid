@@ -4,10 +4,15 @@
 	<div id="content">
 		<h1>What is DotLiquid?</h1>
 		<p>DotLiquid is a templating system ported to the .net framework from 
-		Ruby’s <a href="http://www.liquidmarkup.org">Liquid Markup</a>. <blockquote>It’s <strong>easy</strong> to learn, <strong>fast</strong> and <strong>safe</strong>.</blockquote> You can have 
+		Ruby’s <a href="http://www.liquidmarkup.org">Liquid Markup</a>. <blockquote>It’s <strong>easy</strong> to learn, <strong>fast</strong> and <strong>safe</strong></blockquote> You can have 
 		your users build their own templates without affecting your server security in any way.</p>
 		<h2>Requirements</h2>
 		<p>.NET Framework 4.0</p>
+		<h2>License</h2>
+		<p>DotLiquid is intended to be used in both open-source and commercial environments. To allow its use in as many
+situations as possible, DotLiquid is dual-licensed. You may choose to use DotLiquid under either the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a>
+, or the <a href="http://www.microsoft.com/opensource/licenses.mspx#Ms-PL">Microsoft Public License (Ms-PL)</a>. These licenses are essentially identical, but you are
+encouraged to evaluate both to determine which best fits your intended use.</p>
 	</div>
 	<div id="side">
 		<h1>What does it look like?</h1>

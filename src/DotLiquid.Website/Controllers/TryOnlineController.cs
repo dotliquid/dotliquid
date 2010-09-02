@@ -11,11 +11,12 @@ namespace DotLiquid.Website.Controllers
 		{
 			string templateCode =
 				@"{{ user.name }} has to do:
-
 {% for item in user.tasks %}
   * {{ item.name }}
 {% endfor %}";
+
 			ViewData["TemplateCode"] = templateCode;
+
 			return Liquify(templateCode);
 		}
 
@@ -42,6 +43,7 @@ namespace DotLiquid.Website.Controllers
 				.Replace(Environment.NewLine, "<br />");
 
 			ViewData["TemplateResult"] = templateResult;
+
 			return View("Index");
 		}
 	}

@@ -68,6 +68,7 @@
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\TryOnlineController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Extensions\ExtensionMethods.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

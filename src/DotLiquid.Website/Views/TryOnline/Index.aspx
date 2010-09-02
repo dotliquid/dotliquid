@@ -16,7 +16,7 @@
 		<% } %>
 		<br />
 		<h3>Result</h3>
-		<div class="sample-code"><%= ViewData["TemplateResult"] %></div>
+		<div class="result"><%= ViewData["TemplateResult"] %></div>
 	</div>
 	<div id="side">
 		<h1>Instructions</h1>

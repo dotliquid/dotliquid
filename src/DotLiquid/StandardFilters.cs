@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
@@ -42,7 +43,9 @@ namespace DotLiquid
         /// <returns></returns>
         public static string Upcase(string input)
         {
-            return input == null ? string.Empty : input.ToUpper();
+            return input == null
+                ? string.Empty
+                : input.ToUpper();
         }
 
         /// <summary>
@@ -54,11 +57,10 @@ namespace DotLiquid
         {
             if (string.IsNullOrWhiteSpace(input))
                 return input;
-
-            string result = char.ToUpper(input[0]).ToString();
-            if (input.Length > 1)
-                result += input.Substring(1);
-            return result;
+            
+            return string.IsNullOrEmpty(input)
+                ? input
+                : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input);
         }
 
         public static string Escape(string input)

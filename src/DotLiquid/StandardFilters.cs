@@ -32,9 +32,7 @@ namespace DotLiquid
         /// <returns></returns>
         public static string Downcase(string input)
         {
-            if (input == null)
-                return string.Empty;
-            return input.ToLower();
+            return input == null ? string.Empty : input.ToLower();
         }
 
         /// <summary>
@@ -44,9 +42,7 @@ namespace DotLiquid
         /// <returns></returns>
         public static string Upcase(string input)
         {
-            if (input == null)
-                return string.Empty;
-            return input.ToUpper();
+            return input == null ? string.Empty : input.ToUpper();
         }
 
         /// <summary>
@@ -56,7 +52,7 @@ namespace DotLiquid
         /// <returns></returns>
         public static string Capitalize(string input)
         {
-            if (string.IsNullOrEmpty(input))
+            if (string.IsNullOrWhiteSpace(input))
                 return input;
 
             string result = char.ToUpper(input[0]).ToString();
@@ -67,6 +63,9 @@ namespace DotLiquid
 
         public static string Escape(string input)
         {
+            if (string.IsNullOrWhiteSpace(input))
+                return input;
+
             try
             {
                 return HttpUtility.HtmlEncode(input);
@@ -96,7 +95,8 @@ namespace DotLiquid
             int l = length - truncateString.Length;
             if (l < 0)
                 l = 0;
-            return (input.Length > length)
+
+            return input.Length > length
                 ? input.Substring(0, l) + truncateString
                 : input;
         }
@@ -107,19 +107,18 @@ namespace DotLiquid
                 return input;
 
             string[] wordList = input.Split(' ');
-            int l = words;
-            if (l < 0)
-                l = 0;
-            return (wordList.Length > l)
+            int l = words < 0 ? 0 : words;
+
+            return wordList.Length > l
                 ? string.Join(" ", wordList.Take(l)) + truncateString
                 : input;
         }
 
         public static string StripHtml(string input)
         {
-            if (input == null)
-                return string.Empty;
-            return Regex.Replace(input, @"<.*?>", string.Empty);
+            return string.IsNullOrWhiteSpace(input)
+                ? string.Empty
+                : Regex.Replace(input, @"<.*?>", string.Empty);
         }
 
         /// <summary>
@@ -285,15 +284,10 @@ namespace DotLiquid
         /// <returns></returns>
         public static string Date(string input, string format)
         {
-            try
-            {
-                DateTime date = DateTime.Parse(input);
-                return Date(date, format);
-            }
-            catch
-            {
-                return input;
-            }
+            DateTime date;
+            return DateTime.TryParse(input, out date)
+                ? Date(date, format)
+                : input;
         }
 
         /// <summary>
@@ -341,9 +335,9 @@ namespace DotLiquid
         /// <returns></returns>
         public static object Plus(object input, object operand)
         {
-            if (input is string)
-                return string.Concat(input, operand);
-            return DoMathsOperation(input, operand, Expression.Add);
+            return input is string
+                ? string.Concat(input, operand)
+                : DoMathsOperation(input, operand, Expression.Add);
         }
 
         /// <summary>
@@ -365,9 +359,9 @@ namespace DotLiquid
         /// <returns></returns>
         public static object Times(object input, object operand)
         {
-            if (input is string && operand is int)
-                return Enumerable.Repeat((string)input, (int)operand);
-            return DoMathsOperation(input, operand, Expression.Multiply);
+            return input is string && operand is int
+                ? Enumerable.Repeat((string)input, (int)operand)
+                : DoMathsOperation(input, operand, Expression.Multiply);
         }
 
         /// <summary>
@@ -383,11 +377,10 @@ namespace DotLiquid
 
         private static object DoMathsOperation(object input, object operand, Func<Expression, Expression, BinaryExpression> operation)
         {
-            if (input == null || operand == null)
-                return null;
-
-            return ExpressionUtility.CreateExpression(operation, input.GetType(), operand.GetType(), input.GetType(), true)
-                .DynamicInvoke(input, operand);
+            return input == null || operand == null
+                ? null
+                : ExpressionUtility.CreateExpression(operation, input.GetType(), operand.GetType(), input.GetType(), true)
+                    .DynamicInvoke(input, operand);
         }
     }
 }

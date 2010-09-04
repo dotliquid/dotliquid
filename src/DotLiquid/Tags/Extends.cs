@@ -30,18 +30,19 @@ namespace DotLiquid.Tags
 
             base.Initialize(tagName, markup, tokens);
 
-
             Blocks = new List<Block>();
 
             if (NodeList != null)
             {
-                foreach (object o in NodeList)
+                NodeList.ForEach(n =>
                 {
-                    if (o is Block)
+                    Block block = n as Block;
+
+                    if (block != null)
                     {
-                        Blocks.Add((Block)o);
+                        Blocks.Add(block);
                     }
-                }
+                });
             }
         }
 
@@ -94,14 +95,16 @@ namespace DotLiquid.Tags
 
                     nodeList.ForEach(n =>
                     {
-                        if (n is Block)
-                        {
-                            Block block = b.Find(bl => bl.BlockName == ((Block)n).BlockName);
+                        Block block = n as Block;
 
-                            if (block != null)
-                                block = (Block)n;
+                        if (block != null)
+                        {
+                            Block found = b.Find(bl => bl.BlockName == block.BlockName);
+
+                            if (found != null)
+                                found = block;
                             else
-                                b.Add((Block)n);
+                                b.Add(block);
                         }
                         else
                             b.AddRange(FindBlocks(n, b));

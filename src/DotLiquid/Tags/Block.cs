@@ -59,20 +59,15 @@ namespace DotLiquid.Tags
             }
             else
             {
-                this.Parent = new Block();
-                this.Parent.Initialize(TagName, BlockName, null);
+                Parent = new Block();
+                Parent.Initialize(TagName, BlockName, null);
                 Parent.NodeList = new List<object>(nodeList);
             }
         }
 
         public string CallSuper(Context context)
         {
-            if (Parent != null)
-            {
-                return Parent.Render(context);
-            }
-
-            return "";
+            return Parent != null ? Parent.Render(context) : "";
         }
     }
 }

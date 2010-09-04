@@ -35,7 +35,7 @@ namespace DotLiquid
         {
             return input == null ? string.Empty : input.ToLower();
         }
-
+        
         /// <summary>
         /// convert a input string to UPCASE
         /// </summary>

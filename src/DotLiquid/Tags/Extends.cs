@@ -46,6 +46,25 @@ namespace DotLiquid.Tags
             }
         }
 
+        internal override void AssertTagRulesViolation(List<object> rootNodeList)
+        {
+            if (!(rootNodeList[0] is Extends))
+            {
+                throw new SyntaxException("Liquid Error: 'extends' must be the first tag in an extending template");
+            }
+
+            NodeList.ForEach(n =>
+            {
+                if (!((n is string && string.IsNullOrWhiteSpace((string)n)) || n is Block || n is Comment || n is Extends))
+                    throw new SyntaxException("Liquid Error: only 'comment' and 'block' tags are allowed in an extending template " + n.ToString());
+            });
+
+            if (NodeList.Count(o => o is Extends) > 0)
+            {
+                throw new SyntaxException("Liquid Error: 'extends' tag can be used only once");
+            }
+        }
+
         protected override void AssertMissingDelimitation()
         {
 

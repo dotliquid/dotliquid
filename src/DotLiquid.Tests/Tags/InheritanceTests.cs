@@ -56,8 +56,8 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void CanOutputTheContentsOfTheExtendedTemplate()
         {
-            Template template = Template.Parse(@"
-                    {% extends 'simple' %}
+            Template template = Template.Parse(
+                    @"{% extends 'simple' %}
                     {% block thing %}
                         yeah
                     {% endblock %}");
@@ -76,8 +76,8 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void CanInheritAndReplaceBlocks()
         {
-            Template template = Template.Parse(@"
-                    {% extends 'complex' %}
+            Template template = Template.Parse(
+                    @"{% extends 'complex' %}
                     {% block another %}
                         new content for another
                     {% endblock %}");
@@ -88,8 +88,8 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void CanProcessNestedInheritance()
         {
-            Template template = Template.Parse(@"
-                    {% extends 'nested' %}
+            Template template = Template.Parse(
+                    @"{% extends 'nested' %}
                     {% block thing %}
                         replacing block thing
                     {% endblock %}");
@@ -102,8 +102,8 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void CanRenderSuper()
         {
-            Template template = Template.Parse(@"
-                    {% extends 'complex' %}
+            Template template = Template.Parse(
+                    @"{% extends 'complex' %}
                     {% block another %}
                         {{ block.super }} + some other content
                     {% endblock %}");

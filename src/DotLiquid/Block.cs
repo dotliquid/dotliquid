@@ -44,6 +44,9 @@ namespace DotLiquid
                             Tag tag = (Tag)Activator.CreateInstance(tagType);
                             tag.Initialize(fullTokenMatch.Groups[1].Value, fullTokenMatch.Groups[2].Value, tokens);
                             NodeList.Add(tag);
+
+                            // If the tag has some rules (eg: it must occur once) then check for them
+                            tag.AssertTagRulesViolation(NodeList);
                         }
                         else
                         {

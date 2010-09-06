@@ -42,6 +42,28 @@ namespace DotLiquid.Tags
             }
         }
 
+        internal override void AssertTagRulesViolation(List<object> rootNodeList)
+        {
+            rootNodeList.ForEach(n =>
+            {
+                Block b1 = n as Block;
+
+                if (b1 != null)
+                {
+                    List<object> found = rootNodeList.FindAll(o =>
+                    {
+                        Block b2 = o as Block;
+                        return b2 != null && b1.BlockName == b2.BlockName;
+                    });
+
+                    if (found != null && found.Count > 1)
+                    {
+                        throw new SyntaxException("Liquid Error: block '{0}' already defined.", b1.BlockName);
+                    }
+                }
+            });
+        }
+
         public override void Render(Context context, StringBuilder result)
         {
             context.Stack(() =>

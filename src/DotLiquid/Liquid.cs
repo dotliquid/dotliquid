@@ -20,8 +20,8 @@ namespace DotLiquid
 		public static readonly string VariableIncompleteEnd = R.Q(@"\}\}?");
 		public static readonly string QuotedString = R.Q(@"""[^""]*""|'[^']*'");
 		public static readonly string QuotedFragment = string.Format(R.Q(@"{0}|(?:[^\s,\|'""]|{0})+"), QuotedString);
-		public static readonly string StrictQuotedFragment = R.Q(@"""[^""]+""|'[^']+'|[^\s,\|,\:,\,]+");
-		public static readonly string FirstFilterArgument = string.Format(R.Q(@"{0}(?:{1})"), FilterArgumentSeparator, StrictQuotedFragment);
+        public static readonly string StrictQuotedFragment = R.Q(@"""[^""]+""|'[^']+'|[^\s\|\:\,]+");
+        public static readonly string FirstFilterArgument = string.Format(R.Q(@"{0}(?:{1})"), FilterArgumentSeparator, StrictQuotedFragment);
 		public static readonly string OtherFilterArgument = string.Format(R.Q(@"{0}(?:{1})"), ArgumentSeparator, StrictQuotedFragment);
 		public static readonly string SpacelessFilter = string.Format(R.Q(@"{0}(?:{1})(?:{2}(?:{3})*)?"), FilterSeparator, StrictQuotedFragment, FirstFilterArgument, OtherFilterArgument);
 		public static readonly string Expression = string.Format(R.Q(@"(?:{0}(?:{1})*)"), QuotedFragment, SpacelessFilter);

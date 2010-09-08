@@ -39,7 +39,7 @@ namespace DotLiquid.Tags
 		{
 			StringBuilder temp = new StringBuilder();
 			base.Render(context, temp);
-			context[_to] = temp.ToString();
+			context.Scopes.Last()[_to] = temp.ToString();
 		}
 	}
 }

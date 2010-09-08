@@ -24,7 +24,7 @@ namespace DotLiquid.Tags
     {
         private const string SyntaxHelp = "Syntax Error in tag 'if' - Valid syntax: if [expression]";
         private static readonly Regex Syntax = R.B(R.Q(@"({0})\s*([=!<>a-z_]+)?\s*({0})?"), Liquid.QuotedFragment);
-        private static readonly string ExpressionsAndOperators = string.Format(R.Q(@"(?:and|or|(?:\s*(?!\b(?:and|or)\b)(?:{0}|\S+)\s*)+)"), Liquid.QuotedFragment);
+        private static readonly string ExpressionsAndOperators = string.Format(R.Q(@"(?:\b(?:\s?and\s?|\s?or\s?)\b|(?:\s*(?!\b(?:\s?and\s?|\s?or\s?)\b)(?:{0}|\S+)\s*)+)"), Liquid.QuotedFragment);
 
         protected List<Condition> Blocks { get; private set; }
 
@@ -82,7 +82,7 @@ namespace DotLiquid.Tags
 
                 while (expressions.Any())
                 {
-                    string @operator = expressions.Shift();
+                    string @operator = expressions.Shift().Trim();
 
                     Match expressionMatch = Syntax.Match(expressions.Shift());
                     if (!expressionMatch.Success)

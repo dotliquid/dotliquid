@@ -30,6 +30,8 @@ namespace DotLiquid
 		public static readonly string PartialTemplateParser = string.Format(R.Q(@"{0}.*?{1}|{2}.*?{3}"), TagStart, TagEnd, VariableStart, VariableIncompleteEnd);
 		public static readonly string TemplateParser = string.Format(R.Q(@"({0}|{1})"), PartialTemplateParser, AnyStartingTag);
 		public static readonly string VariableParser = string.Format(R.Q(@"\[[^\]]+\]|{0}+\??"), VariableSegment);
+        public static readonly string LiteralShorthand = R.Q(@"^(?:\{\{\{\s?)(.*?)(?:\s*\}\}\})$");
+        public static readonly string CommentShorthand = R.Q(@"^(?:\{\s?\#\s?)(.*?)(?:\s*\#\s?\})$");
 
 		static Liquid()
 		{
@@ -44,6 +46,7 @@ namespace DotLiquid
             Template.RegisterTag<Tags.If>("if");
             Template.RegisterTag<Tags.IfChanged>("ifchanged");
             Template.RegisterTag<Tags.Include>("include");
+            Template.RegisterTag<Tags.Literal>("literal");
             Template.RegisterTag<Tags.Unless>("unless");
 
             Template.RegisterTag<Tags.Html.TableRow>("tablerow");

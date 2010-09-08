@@ -113,6 +113,9 @@ namespace DotLiquid
         /// <returns></returns>
         internal Template ParseInternal(string source)
         {
+            source = DotLiquid.Tags.Literal.FromShortHand(source);
+            source = DotLiquid.Tags.Comment.FromShortHand(source);
+
             Root = new Document();
             Root.Initialize(null, null, Tokenize(source));
             return this;

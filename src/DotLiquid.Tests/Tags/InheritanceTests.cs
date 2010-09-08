@@ -94,7 +94,6 @@ namespace DotLiquid.Tests.Tags
                         replacing block thing
                     {% endblock %}");
 
-            Console.WriteLine(template.Render());
             StringAssert.Contains("replacing block thing", template.Render());
             StringAssert.DoesNotContain("thing block", template.Render());
         }

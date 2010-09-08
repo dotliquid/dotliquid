@@ -65,6 +65,7 @@
     <Compile Include="Tags\Html\TableRowTests.cs" />
     <Compile Include="Tags\IfElseTests.cs" />
     <Compile Include="Tags\IncludeTagTests.cs" />
+    <Compile Include="Tags\LiteralTests.cs" />
     <Compile Include="Tags\UnlessElseTests.cs" />
     <Compile Include="Tags\StandardTagTests.cs" />
     <Compile Include="TemplateTests.cs" />

@@ -12,8 +12,9 @@ namespace DotLiquid
     {
         private static readonly Regex IsTag = new Regex(string.Format(@"^{0}", Liquid.TagStart));
         private static readonly Regex IsVariable = new Regex(string.Format(@"^{0}", Liquid.VariableStart));
-        private static readonly Regex FullToken = new Regex(string.Format(@"^{0}\s*(\w+)\s*(.*)?{1}$", Liquid.TagStart, Liquid.TagEnd));
         private static readonly Regex ContentOfVariable = new Regex(string.Format(@"^{0}(.*){1}$", Liquid.VariableStart, Liquid.VariableEnd));
+
+        internal static readonly Regex FullToken = new Regex(string.Format(@"^{0}\s*(\w+)\s*(.*)?{1}$", Liquid.TagStart, Liquid.TagEnd));
 
         protected override void Parse(List<string> tokens)
         {

@@ -81,7 +81,7 @@ a {
 p {
 	color: #666;
 }
-blockquote {
+blockquote p {
 	color: #99CC66;
 	font-size: 24px;
 	font-style: italic;

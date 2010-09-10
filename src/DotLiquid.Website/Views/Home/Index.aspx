@@ -4,7 +4,7 @@
 	<div id="content">
 		<h1>What is DotLiquid?</h1>
 		<p>DotLiquid is a templating system ported to the .net framework from 
-		Ruby’s <a href="http://www.liquidmarkup.org">Liquid Markup</a>. <blockquote>It’s <strong>easy</strong> to learn, <strong>fast</strong> and <strong>safe</strong></blockquote> You can have 
+		Ruby’s <a href="http://www.liquidmarkup.org">Liquid Markup</a>.</p><blockquote><p>It’s <strong>easy</strong> to learn, <strong>fast</strong> and <strong>safe</strong></p></blockquote><p>You can have 
 		your users build their own templates without affecting your server security in any way.</p>
 		<h2>Requirements</h2>
 		<p>.NET Framework 4.0</p>

@@ -101,9 +101,9 @@ blockquote p {
 	font-size: 12px;
 }
 .result {
+	border: 2px solid #DDD;
 	-moz-border-radius: 10px;
 	border-radius: 10px;
-	border: 2px solid grey;
 	padding: 20px;
 	font-family: "Courier New", Courier, monospace;
 	font-size: 12px;

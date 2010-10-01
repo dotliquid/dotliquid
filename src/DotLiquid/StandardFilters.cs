@@ -94,12 +94,11 @@ namespace DotLiquid
         {
             if (string.IsNullOrEmpty(input))
                 return input;
+
             int l = length - truncateString.Length;
-            if (l < 0)
-                l = 0;
 
             return input.Length > length
-                ? input.Substring(0, l) + truncateString
+                ? input.Substring(0, l < 0 ? 0 : l) + truncateString
                 : input;
         }
 

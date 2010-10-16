@@ -37,4 +37,4 @@ For more information about the original Liquid project, see <http://www.liquidma
 DotLiquid supports a very simple API based around the DotLiquid.Template class. Generally, you can read the contents of a file into a template, and then render the template by passing it parameters in the form of a `Hash` object. There are several ways you can construct a `Hash` object, including from a Dictionary, or using the `Hash.FromAnonymousObject` method.
 
 	Template template = Template.Parse("hi {{name}}"); // Parses and compiles the template
-	template.Render(Hash.FromAnonymousObject(new { name = "tobi"})); // => "hi tobi" 
+	template.Render(Hash.FromAnonymousObject(new { name = "tobi" })); // => "hi tobi" 

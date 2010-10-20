@@ -10,10 +10,9 @@ namespace DotLiquid
         protected string Markup { get; private set; }
 
         /// <summary>
-        /// Only want to allow Tags to be created in tests - normal usage should
-        /// use inherited classes
+        /// Only want to allow Tags to be created in inherited classes or tests.
         /// </summary>
-        internal Tag()
+        protected internal Tag()
         {
 
         }

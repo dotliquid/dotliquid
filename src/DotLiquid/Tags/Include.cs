@@ -42,7 +42,7 @@ namespace DotLiquid.Tags
 		public override void Render(Context context, StringBuilder result)
 		{
 			IFileSystem fileSystem = context.Registers["file_system"] as IFileSystem ?? Template.FileSystem;
-			string source = fileSystem.ReadTemplateFile(context[_templateName] as string);
+			string source = fileSystem.ReadTemplateFile(context, _templateName);
 			Template partial = Template.Parse(source);
 
 			string shortenedTemplateName = _templateName.Substring(1, _templateName.Length - 2);
@@ -55,7 +55,7 @@ namespace DotLiquid.Tags
 
 				if (variable is IEnumerable)
 				{
-					((IEnumerable) variable).Cast<object>().ToList().ForEach(v =>
+					((IEnumerable)variable).Cast<object>().ToList().ForEach(v =>
 					{
 						context[shortenedTemplateName] = v;
 						result.Append(partial.Render(context));

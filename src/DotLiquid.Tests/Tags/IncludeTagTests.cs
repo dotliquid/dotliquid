@@ -9,8 +9,10 @@ namespace DotLiquid.Tests.Tags
 	{
 		private class TestFileSystem : IFileSystem
 		{
-			public string ReadTemplateFile(string templatePath)
+			public string ReadTemplateFile(Context context, string templateName)
 			{
+                string templatePath = (string)context[templateName];
+
 				switch (templatePath)
 				{
 					case "product":
@@ -45,7 +47,7 @@ namespace DotLiquid.Tests.Tags
 
 		private class OtherFileSystem : IFileSystem
 		{
-			public string ReadTemplateFile(string templatePath)
+			public string ReadTemplateFile(Context context, string templateName)
 			{
 				return "from OtherFileSystem";
 			}
@@ -53,7 +55,7 @@ namespace DotLiquid.Tests.Tags
 
 		private class InfiniteFileSystem : IFileSystem
 		{
-			public string ReadTemplateFile(string templatePath)
+			public string ReadTemplateFile(Context context, string templateName)
 			{
 				return "-{% include 'loop' %}";
 			}

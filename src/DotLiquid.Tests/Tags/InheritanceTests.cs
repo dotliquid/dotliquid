@@ -9,8 +9,10 @@ namespace DotLiquid.Tests.Tags
     {
         private class TestFileSystem : IFileSystem
         {
-            public string ReadTemplateFile(string templatePath)
+            public string ReadTemplateFile(Context context, string templateName)
             {
+                string templatePath = (string)context[templateName];
+
                 switch (templatePath)
                 {
                     case "simple":

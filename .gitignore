@@ -35,3 +35,4 @@ httpd.parse.errors
  
 # Exclude ALL DLLs? (
 # *.dll
+/build/TestResult.xml

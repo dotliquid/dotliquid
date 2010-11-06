@@ -117,7 +117,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="TestException" xml:space="preserve">
-    <value>test ecci</value>
+  <data name="AssignTagSyntaxException" xml:space="preserve">
+    <value>Syntax Error in 'assign' tag - Valid syntax: assign [var] = [source]</value>
+  </data>
+  <data name="BlankFileSystemDoesNotAllowIncludesException" xml:space="preserve">
+    <value>This liquid context does not allow includes.</value>
+  </data>
+  <data name="LocalFileSystemIlegalTemplateNameException" xml:space="preserve">
+    <value>Illegal template name '{0}'</value>
+  </data>
+  <data name="LocalFileSystemIlegalTemplatePathException" xml:space="preserve">
+    <value>Illegal template path '{0}'</value>
+  </data>
+  <data name="LocalFileSystemTemplateNotFoundException" xml:space="preserve">
+    <value>No such template '{0}'</value>
   </data>
 </root>

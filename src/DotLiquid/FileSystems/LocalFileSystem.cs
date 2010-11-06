@@ -31,21 +31,21 @@ namespace DotLiquid.FileSystems
             string templatePath = (string)context[templateName];
 			string fullPath = FullPath(templatePath);
 			if (!File.Exists(fullPath))
-				throw new FileSystemException("No such template '{0}'", templatePath);
+                throw new FileSystemException(Liquid.ResourceManager.GetString("LocalFileSystemTemplateNotFoundException"), templatePath);
 			return File.ReadAllText(fullPath);
 		}
 
 		public string FullPath(string templatePath)
 		{
 			if (!Regex.IsMatch(templatePath, @"^[^.\/][a-zA-Z0-9_\/]+$"))
-				throw new FileSystemException("Illegal template name '{0}'", templatePath);
+                throw new FileSystemException(Liquid.ResourceManager.GetString("LocalFileSystemIlegalTemplateNameException"), templatePath);
 
 			string fullPath = templatePath.Contains("/")
 				? Path.Combine(Path.Combine(Root, Path.GetDirectoryName(templatePath)), string.Format("_{0}.liquid", Path.GetFileName(templatePath)))
 				: Path.Combine(Root, string.Format("_{0}.liquid", templatePath));
 
 			if (!Regex.IsMatch(Path.GetFullPath(fullPath), string.Format("^{0}", Root.Replace(@"\", @"\\"))))
-				throw new FileSystemException("Illegal template path '{0}'", Path.GetFullPath(fullPath));
+                throw new FileSystemException(Liquid.ResourceManager.GetString("LocalFileSystemIlegalTemplatePathException"), Path.GetFullPath(fullPath));
 
 			return fullPath;
 		}

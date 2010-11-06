@@ -6,7 +6,7 @@ namespace DotLiquid.FileSystems
 	{
 		public string ReadTemplateFile(Context context, string templateName)
 		{
-			throw new FileSystemException("This liquid context does not allow includes.");
+			throw new FileSystemException(Liquid.ResourceManager.GetString("BlankFileSystemDoesNotAllowIncludesException"));
 		}
 	}
 }

@@ -32,7 +32,7 @@ namespace DotLiquid.Tags
             }
             else
             {
-                throw new SyntaxException("Syntax Error in 'assign' - Valid syntax: assign [var] = [source]");
+                throw new SyntaxException(Liquid.ResourceManager.GetString("AssignTagSyntaxException"));
             }
 
             base.Initialize(tagName, markup, tokens);

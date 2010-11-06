@@ -117,7 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="TestException" xml:space="preserve">
-    <value>una eccezione</value>
+  <data name="AssignTagSyntaxException" xml:space="preserve">
+    <value>Errore di sintassi nel tag 'assign' - La sintassi corretta è: assign [var] = [valore]</value>
   </data>
 </root>

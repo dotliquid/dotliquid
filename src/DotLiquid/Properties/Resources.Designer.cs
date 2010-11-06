@@ -61,11 +61,47 @@ namespace DotLiquid.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to test ecci.
+        ///   Looks up a localized string similar to Syntax Error in &apos;assign&apos; tag - Valid syntax: assign [var] = [source].
         /// </summary>
-        internal static string TestException {
+        internal static string AssignTagSyntaxException {
             get {
-                return ResourceManager.GetString("TestException", resourceCulture);
+                return ResourceManager.GetString("AssignTagSyntaxException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This liquid context does not allow includes..
+        /// </summary>
+        internal static string BlankFileSystemDoesNotAllowIncludesException {
+            get {
+                return ResourceManager.GetString("BlankFileSystemDoesNotAllowIncludesException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Illegal template name &apos;{0}&apos;.
+        /// </summary>
+        internal static string LocalFileSystemIlegalTemplateNameException {
+            get {
+                return ResourceManager.GetString("LocalFileSystemIlegalTemplateNameException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Illegal template path &apos;{0}&apos;.
+        /// </summary>
+        internal static string LocalFileSystemIlegalTemplatePathException {
+            get {
+                return ResourceManager.GetString("LocalFileSystemIlegalTemplatePathException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No such template &apos;{0}&apos;.
+        /// </summary>
+        internal static string LocalFileSystemTemplateNotFoundException {
+            get {
+                return ResourceManager.GetString("LocalFileSystemTemplateNotFoundException", resourceCulture);
             }
         }
     }

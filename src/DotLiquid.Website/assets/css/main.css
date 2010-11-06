@@ -100,7 +100,9 @@ blockquote p {
 {
 	font-size: 12px;
 }
-.result {
+.result, .result-html
+{
+	background-color: #EEEEEE;
 	border: 2px solid #DDD;
 	-moz-border-radius: 10px;
 	border-radius: 10px;

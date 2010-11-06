@@ -9,22 +9,37 @@ namespace DotLiquid.Website.Controllers
 	{
 		public ActionResult Index()
 		{
-			string templateCode =
-				@"{{ user.name }} has to do:
+			const string templateCode = @"&lt;p&gt;{{ user.name | upcase }} has to do:&lt;/p&gt;
+
+&lt;ul&gt;
 {% for item in user.tasks %}
-  * {{ item.name }}
-{% endfor %}";
+  &lt;li&gt;{{ item.name }}&lt;/li&gt;
+{% endfor %}
+&lt;/ul&gt;";
+
+			string result = LiquifyInternal(templateCode);
 
 			ViewData["TemplateCode"] = templateCode;
+			ViewData["Result"] = result;
 
-			return Liquify(templateCode);
+			return View();
 		}
 
 		[HttpPost]
 		public ActionResult Liquify(string templateCode)
 		{
+			string result = LiquifyInternal(templateCode);
+
+			return new ContentResult
+			{
+				Content = result
+			};
+		}
+
+		private static string LiquifyInternal(string templateCode)
+		{
 			Template template = Template.Parse(templateCode);
-			string templateResult = template.Render(Hash.FromAnonymousObject(new
+			return template.Render(Hash.FromAnonymousObject(new
 			{
 				user = new User
 				{
@@ -36,15 +51,6 @@ namespace DotLiquid.Website.Controllers
 					}
 				}
 			}));
-
-			// Replace line breaks with <br />'s for display.
-			templateResult = templateResult
-				.Replace(" ", "&nbsp;")
-				.Replace(Environment.NewLine, "<br />");
-
-			ViewData["TemplateResult"] = templateResult;
-
-			return View("Index");
 		}
 	}
 

@@ -1,22 +1,22 @@
 ﻿<%@ Page Language="C#" MasterPageFile="~/Views/Shared/Site.Master" Inherits="System.Web.Mvc.ViewPage" %>
 
-<asp:Content ID="Content2" ContentPlaceHolderID="MainContent" runat="server">
+<asp:Content ContentPlaceHolderID="MainContent" runat="server">
 	<div id="content">
 		<h1>Try DotLiquid Online</h1>
+
 		<p>This page lets you interactively try out the DotLiquid templating system. It's also proof
-		that it's okay to allow your users to edit their own templates - if we trust it so can you!
-		Just modify the template code below, click Liquify! and view the results below.
-		<strong>No HTML allowed, sorry.</strong> Line breaks will be converted into &lt;br /&gt;
-		tags for the purposes of this demo.</p>
+		that it's okay to allow your users to edit their own templates - if we trust it so can you!</p>
 		<br />
+
 		<h3>Template Code</h3>
-		<% using (Html.BeginForm("Liquify", "TryOnline")) { %>
-			<%= Html.TextArea("TemplateCode")%>
-			<input type="submit" value="Liquify!" />
-		<% } %>
+		<form action="#">
+			<textarea name="templateCode" id="templateCode"><%= ViewData["TemplateCode"] %></textarea>
+		</form>
 		<br />
+
 		<h3>Result</h3>
-		<div class="result"><%= ViewData["TemplateResult"] %></div>
+		<pre class="result"><%= ViewData["Result"] %></pre>
+		<br />
 	</div>
 	<div id="side">
 		<h1>Instructions</h1>
@@ -52,4 +52,26 @@
 		<h2>How does this work?</h2>
 		<p>Why not have a look at the <a href="http://github.com/formosatek/dotliquid/tree/master/src/DotLiquid.Website/Controllers/TryOnlineController.cs">source code</a> of the page you're looking at now?</p>
 	</div>
+</asp:Content>
+
+<asp:Content runat="server" ContentPlaceHolderID="ScriptContent">
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+	<script type="text/javascript" src="/assets/js/jquery.observe_field.js"></script>
+
+	<script type="text/javascript">
+		function liquify(textarea) {
+			var templateCode = $('<div/>').text(textarea.value).html();
+			$.post('<%= Url.Action("Liquify") %>', { templateCode: templateCode }, function (data) {
+				$(".result").html(data);
+			});
+		}
+
+		$(function () {
+			//$("#liquify").hide();
+
+			$("#templateCode").observe_field(0.5, function () {
+				liquify(this);
+			});
+		});
+	</script>
 </asp:Content>

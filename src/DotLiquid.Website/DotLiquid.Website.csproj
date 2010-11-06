@@ -76,15 +76,18 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="css\main.css" />
-    <Content Include="css\reset.css" />
+    <Content Include="assets\css\main.css" />
+    <Content Include="assets\css\reset.css" />
     <Content Include="Global.asax" />
-    <Content Include="img\bg.png" />
-    <Content Include="img\logo_big.png" />
-    <Content Include="img\try_btn.png" />
+    <Content Include="assets\img\bg.png" />
+    <Content Include="assets\img\logo_big.png" />
+    <Content Include="assets\img\try_btn.png" />
+    <Content Include="assets\js\jquery.observe_field.js" />
     <Content Include="Views\Error\PageNotFound.aspx" />
     <Content Include="Views\Error\Index.aspx" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </Content>

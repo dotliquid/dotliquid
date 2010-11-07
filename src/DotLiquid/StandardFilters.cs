@@ -283,23 +283,16 @@ namespace DotLiquid
         /// <param name="input"></param>
         /// <param name="format"></param>
         /// <returns></returns>
-        public static string Date(string input, string format)
+        public static string Date(object input, string format)
         {
+            if (input == null)
+                return null;
+            
             DateTime date;
-            return DateTime.TryParse(input, out date)
-                ? Date(date, format)
-                : input;
-        }
 
-        /// <summary>
-        /// Formats a date using a .NET date format string
-        /// </summary>
-        /// <param name="input"></param>
-        /// <param name="format"></param>
-        /// <returns></returns>
-        public static string Date(DateTime input, string format)
-        {
-            return input.ToString(format);
+            return DateTime.TryParse(input.ToString(), out date)
+                ? date.ToString(format)
+                : input.ToString();
         }
 
         /// <summary>

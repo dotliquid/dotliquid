@@ -66,7 +66,7 @@ namespace DotLiquid
                 for (int i = args.Count; i < parameterInfos.Length; ++i)
                 {
                     if ((parameterInfos[i].Attributes & ParameterAttributes.HasDefault) != ParameterAttributes.HasDefault)
-                        throw new SyntaxException("Filter '{0}' does not have a default value for '{1}' and no value was supplied");
+                        throw new SyntaxException("Filter '{0}' does not have a default value for '{1}' and no value was supplied", method, parameterInfos[i].Name);
                     args.Add(parameterInfos[i].DefaultValue);
                 }
 

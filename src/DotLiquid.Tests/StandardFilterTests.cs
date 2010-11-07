@@ -116,6 +116,11 @@ namespace DotLiquid.Tests
 			Assert.AreEqual("07/16/2004", StandardFilters.Date("Fri Jul 16 2004 01:00:00", "MM/dd/yyyy"));
 
 			Assert.AreEqual(null, StandardFilters.Date(null, "MMMM"));
+
+            Assert.AreEqual("hi", StandardFilters.Date("hi", "MMMM"));
+
+            Template template = Template.Parse(@"{{ hi | date:""MMMM"" }}");
+            Assert.AreEqual("hi", template.Render(Hash.FromAnonymousObject(new { hi = "hi" })));
 		}
 
 		[Test]

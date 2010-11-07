@@ -142,6 +142,9 @@ namespace DotLiquid
         /// <returns></returns>
         public static string Join(IEnumerable input, string glue = " ")
         {
+            if (input == null)
+                return null;
+
             IEnumerable<object> castInput = input.Cast<object>();
             return string.Join(glue, castInput);
         }
@@ -202,6 +205,9 @@ namespace DotLiquid
         /// <returns></returns>
         public static string Replace(string input, string @string, string replacement = "")
         {
+            if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(@string))
+                return input;
+
             return string.IsNullOrEmpty(input)
                 ? input
                 : Regex.Replace(input, @string, replacement);
@@ -216,6 +222,9 @@ namespace DotLiquid
         /// <returns></returns>
         public static string ReplaceFirst(string input, string @string, string replacement = "")
         {
+            if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(@string))
+                return input;
+
             bool doneReplacement = false;
             return Regex.Replace(input, @string, m =>
             {
@@ -302,6 +311,9 @@ namespace DotLiquid
             if (input == null)
                 return null;
 
+            if (format == null)
+                return input.ToString();
+
             DateTime date;
 
             return DateTime.TryParse(input.ToString(), out date)
@@ -319,6 +331,9 @@ namespace DotLiquid
         /// <returns></returns>
         public static object First(IEnumerable array)
         {
+            if (array == null)
+                return null;
+
             return array.Cast<object>().FirstOrDefault();
         }
 
@@ -332,6 +347,9 @@ namespace DotLiquid
         /// <returns></returns>
         public static object Last(IEnumerable array)
         {
+            if (array == null)
+                return null;
+
             return array.Cast<object>().LastOrDefault();
         }
 
@@ -343,9 +361,6 @@ namespace DotLiquid
         /// <returns></returns>
         public static object Plus(object input, object operand)
         {
-            if (input == null)
-                return null;
-
             return input is string
                 ? string.Concat(input, operand)
                 : DoMathsOperation(input, operand, Expression.Add);

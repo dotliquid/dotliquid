@@ -81,18 +81,18 @@ namespace DotLiquid.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Illegal template name &apos;{0}&apos;.
         /// </summary>
-        internal static string LocalFileSystemIlegalTemplateNameException {
+        internal static string LocalFileSystemIllegalTemplateNameException {
             get {
-                return ResourceManager.GetString("LocalFileSystemIlegalTemplateNameException", resourceCulture);
+                return ResourceManager.GetString("LocalFileSystemIllegalTemplateNameException", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Illegal template path &apos;{0}&apos;.
         /// </summary>
-        internal static string LocalFileSystemIlegalTemplatePathException {
+        internal static string LocalFileSystemIllegalTemplatePathException {
             get {
-                return ResourceManager.GetString("LocalFileSystemIlegalTemplatePathException", resourceCulture);
+                return ResourceManager.GetString("LocalFileSystemIllegalTemplatePathException", resourceCulture);
             }
         }
         

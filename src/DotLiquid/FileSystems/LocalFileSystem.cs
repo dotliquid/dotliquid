@@ -38,14 +38,14 @@ namespace DotLiquid.FileSystems
 		public string FullPath(string templatePath)
 		{
 			if (!Regex.IsMatch(templatePath, @"^[^.\/][a-zA-Z0-9_\/]+$"))
-                throw new FileSystemException(Liquid.ResourceManager.GetString("LocalFileSystemIlegalTemplateNameException"), templatePath);
+                throw new FileSystemException(Liquid.ResourceManager.GetString("LocalFileSystemIllegalTemplateNameException"), templatePath);
 
 			string fullPath = templatePath.Contains("/")
 				? Path.Combine(Path.Combine(Root, Path.GetDirectoryName(templatePath)), string.Format("_{0}.liquid", Path.GetFileName(templatePath)))
 				: Path.Combine(Root, string.Format("_{0}.liquid", templatePath));
 
 			if (!Regex.IsMatch(Path.GetFullPath(fullPath), string.Format("^{0}", Root.Replace(@"\", @"\\"))))
-                throw new FileSystemException(Liquid.ResourceManager.GetString("LocalFileSystemIlegalTemplatePathException"), Path.GetFullPath(fullPath));
+                throw new FileSystemException(Liquid.ResourceManager.GetString("LocalFileSystemIllegalTemplatePathException"), Path.GetFullPath(fullPath));
 
 			return fullPath;
 		}

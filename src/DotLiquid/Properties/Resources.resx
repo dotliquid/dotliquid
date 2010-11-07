@@ -123,10 +123,10 @@
   <data name="BlankFileSystemDoesNotAllowIncludesException" xml:space="preserve">
     <value>This liquid context does not allow includes.</value>
   </data>
-  <data name="LocalFileSystemIlegalTemplateNameException" xml:space="preserve">
+  <data name="LocalFileSystemIllegalTemplateNameException" xml:space="preserve">
     <value>Illegal template name '{0}'</value>
   </data>
-  <data name="LocalFileSystemIlegalTemplatePathException" xml:space="preserve">
+  <data name="LocalFileSystemIllegalTemplatePathException" xml:space="preserve">
     <value>Illegal template path '{0}'</value>
   </data>
   <data name="LocalFileSystemTemplateNotFoundException" xml:space="preserve">

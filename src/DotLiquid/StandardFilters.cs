@@ -33,9 +33,9 @@ namespace DotLiquid
         /// <returns></returns>
         public static string Downcase(string input)
         {
-            return input == null ? string.Empty : input.ToLower();
+            return input == null ? input : input.ToLower();
         }
-        
+
         /// <summary>
         /// convert a input string to UPCASE
         /// </summary>
@@ -44,7 +44,7 @@ namespace DotLiquid
         public static string Upcase(string input)
         {
             return input == null
-                ? string.Empty
+                ? input
                 : input.ToUpper();
         }
 
@@ -57,7 +57,7 @@ namespace DotLiquid
         {
             if (string.IsNullOrWhiteSpace(input))
                 return input;
-            
+
             return string.IsNullOrEmpty(input)
                 ? input
                 : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input);
@@ -65,7 +65,7 @@ namespace DotLiquid
 
         public static string Escape(string input)
         {
-            if (string.IsNullOrWhiteSpace(input))
+            if (string.IsNullOrEmpty(input))
                 return input;
 
             try
@@ -118,7 +118,7 @@ namespace DotLiquid
         public static string StripHtml(string input)
         {
             return string.IsNullOrWhiteSpace(input)
-                ? string.Empty
+                ? input
                 : Regex.Replace(input, @"<.*?>", string.Empty);
         }
 
@@ -129,7 +129,9 @@ namespace DotLiquid
         /// <returns></returns>
         public static string StripNewlines(string input)
         {
-            return Regex.Replace(input, Environment.NewLine, string.Empty);
+            return string.IsNullOrWhiteSpace(input)
+                ? input
+                : Regex.Replace(input, Environment.NewLine, string.Empty);
         }
 
         /// <summary>
@@ -200,7 +202,9 @@ namespace DotLiquid
         /// <returns></returns>
         public static string Replace(string input, string @string, string replacement = "")
         {
-            return Regex.Replace(input, @string, replacement);
+            return string.IsNullOrEmpty(input)
+                ? input
+                : Regex.Replace(input, @string, replacement);
         }
 
         /// <summary>
@@ -231,7 +235,9 @@ namespace DotLiquid
         /// <returns></returns>
         public static string Remove(string input, string @string)
         {
-            return input.Replace(@string, string.Empty);
+            return string.IsNullOrWhiteSpace(input)
+                ? input
+                : input.Replace(@string, string.Empty);
         }
 
         /// <summary>
@@ -242,7 +248,9 @@ namespace DotLiquid
         /// <returns></returns>
         public static string RemoveFirst(string input, string @string)
         {
-            return ReplaceFirst(input, @string, string.Empty);
+            return string.IsNullOrWhiteSpace(input)
+                ? input
+                : ReplaceFirst(input, @string, string.Empty);
         }
 
         /// <summary>
@@ -253,7 +261,9 @@ namespace DotLiquid
         /// <returns></returns>
         public static string Append(string input, string @string)
         {
-            return input + @string;
+            return input == null
+                ? input
+                : input + @string;
         }
 
         /// <summary>
@@ -264,7 +274,9 @@ namespace DotLiquid
         /// <returns></returns>
         public static string Prepend(string input, string @string)
         {
-            return @string + input;
+            return input == null
+                ? input
+                : @string + input;
         }
 
         /// <summary>
@@ -274,7 +286,9 @@ namespace DotLiquid
         /// <returns></returns>
         public static string NewlineToBr(string input)
         {
-            return Regex.Replace(input, Environment.NewLine, "<br />" + Environment.NewLine);
+            return string.IsNullOrWhiteSpace(input)
+                ? input
+                : Regex.Replace(input, Environment.NewLine, "<br />" + Environment.NewLine);
         }
 
         /// <summary>
@@ -287,7 +301,7 @@ namespace DotLiquid
         {
             if (input == null)
                 return null;
-            
+
             DateTime date;
 
             return DateTime.TryParse(input.ToString(), out date)
@@ -329,6 +343,9 @@ namespace DotLiquid
         /// <returns></returns>
         public static object Plus(object input, object operand)
         {
+            if (input == null)
+                return null;
+
             return input is string
                 ? string.Concat(input, operand)
                 : DoMathsOperation(input, operand, Expression.Add);

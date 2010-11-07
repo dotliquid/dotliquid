@@ -19,14 +19,14 @@ namespace DotLiquid.Tests
 		public void TestDowncase()
 		{
 			Assert.AreEqual("testing", StandardFilters.Downcase("Testing"));
-			Assert.AreEqual("", StandardFilters.Downcase(null));
+			Assert.AreEqual(null, StandardFilters.Downcase(null));
 		}
 
 		[Test]
 		public void TestUpcase()
 		{
 			Assert.AreEqual("TESTING", StandardFilters.Upcase("Testing"));
-			Assert.AreEqual("", StandardFilters.Upcase(null));
+			Assert.AreEqual(null, StandardFilters.Upcase(null));
 		}
 
 		[Test]
@@ -59,7 +59,7 @@ namespace DotLiquid.Tests
 		{
 			Assert.AreEqual("test", StandardFilters.StripHtml("<div>test</div>"));
 			Assert.AreEqual("test", StandardFilters.StripHtml("<div id='test'>test</div>"));
-			Assert.AreEqual("", StandardFilters.StripHtml(null));
+			Assert.AreEqual(null, StandardFilters.StripHtml(null));
 		}
 
 		[Test]

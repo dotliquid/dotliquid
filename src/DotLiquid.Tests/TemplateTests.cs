@@ -94,5 +94,12 @@ namespace DotLiquid.Tests
 			Assert.AreEqual("1", t.ParseInternal("{{number}}").Render(assigns));
 			Assert.AreEqual("1", t.Render(assigns));
 		}
+
+		[Test]
+		public void TestErbLikeTrimming()
+		{
+			Template t = Template.Parse("{% if true -%}\nhi tobi\n{% endif %}");
+			Assert.AreEqual("hi tobi\n", t.Render());
+		}
 	}
 }

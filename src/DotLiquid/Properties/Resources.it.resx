@@ -120,4 +120,16 @@
   <data name="AssignTagSyntaxException" xml:space="preserve">
     <value>Errore di sintassi nel tag 'assign' - La sintassi corretta è: assign [var] = [valore]</value>
   </data>
+  <data name="BlankFileSystemDoesNotAllowIncludesException" xml:space="preserve">
+    <value>Errore - Il contesto attuale non permette di utilizzare il tag 'include'.</value>
+  </data>
+  <data name="LocalFileSystemIllegalTemplateNameException" xml:space="preserve">
+    <value>Errore - '{0}' non è un nome di template valido</value>
+  </data>
+  <data name="LocalFileSystemIllegalTemplatePathException" xml:space="preserve">
+    <value>Errore - '{0}' non è un percorso valido</value>
+  </data>
+  <data name="LocalFileSystemTemplateNotFoundException" xml:space="preserve">
+    <value>Errore - Template '{0}' non trovato</value>
+  </data>
 </root>

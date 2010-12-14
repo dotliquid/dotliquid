@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
@@ -103,6 +104,23 @@ namespace DotLiquid.Tests
 				yield return 1;
 				yield return 2;
 				yield return 3;
+			}
+		}
+
+		internal class DataRowDrop : Drop
+		{
+			private readonly DataRow _dataRow;
+
+			public DataRowDrop(DataRow dataRow)
+			{
+				_dataRow = dataRow;
+			}
+
+			public override object BeforeMethod(string method)
+			{
+				if (_dataRow.Table.Columns.Contains(method))
+					return _dataRow[method];
+				return null;
 			}
 		}
 
@@ -222,5 +240,20 @@ namespace DotLiquid.Tests
         {
             Assert.AreEqual("", Template.Parse("{{ nulldrop.a_method }}").Render(Hash.FromAnonymousObject(new { nulldrop = new NullDrop() })));
         }
+
+		[Test]
+		public void TestDataRowDrop()
+		{
+			DataTable dataTable = new DataTable();
+			dataTable.Columns.Add("Column1");
+			dataTable.Columns.Add("Column2");
+			
+			DataRow dataRow = dataTable.NewRow();
+			dataRow["Column1"] = "Hello";
+			dataRow["Column2"] = "World";
+
+			Template tpl = Template.Parse(" {{ row.column1 }} ");
+			Assert.AreEqual(" Hello ", tpl.Render(Hash.FromAnonymousObject(new {row = new DataRowDrop(dataRow)})));
+		}
 	}
 }

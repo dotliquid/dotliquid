@@ -76,7 +76,7 @@ namespace DotLiquid
             }
 
             // Make sure that its ok to end parsing in the current block.
-            // Effectively this method will throw and exception unless the current block is
+            // Effectively this method will throw an exception unless the current block is
             // of type Document
             AssertMissingDelimitation();
         }

@@ -392,6 +392,8 @@ namespace DotLiquid
                 return obj;
             if (obj.GetType().IsPrimitive)
                 return obj;
+			if (obj is decimal)
+				return obj;
             if (obj is DateTime)
                 return obj;
             if (obj is TimeSpan)

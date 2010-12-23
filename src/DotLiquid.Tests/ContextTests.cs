@@ -144,6 +144,15 @@ namespace DotLiquid.Tests
 			_context["num"] = 5;
 			Assert.AreEqual(5, _context["num"]);
 
+			_context["decimal"] = 5m;
+			Assert.AreEqual(5m, _context["decimal"]);
+
+			_context["float"] = 5.0f;
+			Assert.AreEqual(5.0f, _context["float"]);
+
+			_context["double"] = 5.0;
+			Assert.AreEqual(5.0, _context["double"]);
+
 			_context["time"] = TimeSpan.FromDays(1);
 			Assert.AreEqual(TimeSpan.FromDays(1), _context["time"]);
 

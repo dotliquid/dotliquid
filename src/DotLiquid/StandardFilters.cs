@@ -311,13 +311,13 @@ namespace DotLiquid
             if (input == null)
                 return null;
 
-            if (format == null)
+            if (string.IsNullOrWhiteSpace(format))
                 return input.ToString();
 
             DateTime date;
-
+			
             return DateTime.TryParse(input.ToString(), out date)
-                ? date.ToString(format)
+				? Liquid.UseRubyDateFormat ? date.ToStrFTime(format) : date.ToString(format)
                 : input.ToString();
         }
 

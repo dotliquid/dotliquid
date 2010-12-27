@@ -38,7 +38,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="StrFTime.cs" />
+    <Compile Include="Util\StrFTime.cs" />
     <Compile Include="Exceptions\ArgumentException.cs" />
     <Compile Include="Exceptions\FileSystemException.cs" />
     <Compile Include="FileSystems\BlankFileSystem.cs" />

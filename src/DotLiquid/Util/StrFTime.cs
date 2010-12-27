@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
 
-namespace DotLiquid
+namespace DotLiquid.Util
 {
     public static class StrFTime
     {

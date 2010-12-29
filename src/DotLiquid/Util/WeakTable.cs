@@ -41,7 +41,7 @@ namespace DotLiquid.Util
         {
             int i = key.GetHashCode() % _buckets.Length;
             WeakReference wr;
-            if (!_buckets[i].Key.Equals(key) || (wr = _buckets[i].Value) == null)
+			if ((wr = _buckets[i].Value) == null || !_buckets[i].Key.Equals(key))
             {
                 value = null;
                 return false;

@@ -101,6 +101,7 @@
     <Compile Include="Hash.cs" />
     <Compile Include="Util\Symbol.cs" />
     <Compile Include="Util\TypeUtility.cs" />
+    <Compile Include="Util\WeakTable.cs" />
     <Compile Include="Variable.cs" />
   </ItemGroup>
   <ItemGroup>

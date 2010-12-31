@@ -70,7 +70,7 @@ namespace DotLiquid.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error - This liquid context does not allow includes..
+        ///   Looks up a localized string similar to This liquid context does not allow includes..
         /// </summary>
         internal static string BlankFileSystemDoesNotAllowIncludesException {
             get {
@@ -79,34 +79,7 @@ namespace DotLiquid.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Liquid Error - block &apos;{0}&apos; already defined..
-        /// </summary>
-        internal static string BlockTagAlreadyDefinedException {
-            get {
-                return ResourceManager.GetString("BlockTagAlreadyDefinedException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Syntax Error in &apos;block&apos; - Valid syntax: block [name].
-        /// </summary>
-        internal static string BlockTagSyntaxException {
-            get {
-                return ResourceManager.GetString("BlockTagSyntaxException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Syntax Error in &apos;capture&apos; - Valid syntax: capture [var].
-        /// </summary>
-        internal static string CapureTagSyntaxException {
-            get {
-                return ResourceManager.GetString("CapureTagSyntaxException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Error - Illegal template name &apos;{0}&apos;.
+        ///   Looks up a localized string similar to Illegal template name &apos;{0}&apos;.
         /// </summary>
         internal static string LocalFileSystemIllegalTemplateNameException {
             get {
@@ -115,7 +88,7 @@ namespace DotLiquid.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error - Illegal template path &apos;{0}&apos;.
+        ///   Looks up a localized string similar to Illegal template path &apos;{0}&apos;.
         /// </summary>
         internal static string LocalFileSystemIllegalTemplatePathException {
             get {
@@ -124,7 +97,7 @@ namespace DotLiquid.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error - No such template &apos;{0}&apos;.
+        ///   Looks up a localized string similar to No such template &apos;{0}&apos;.
         /// </summary>
         internal static string LocalFileSystemTemplateNotFoundException {
             get {

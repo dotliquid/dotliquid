@@ -121,24 +121,15 @@
     <value>Syntax Error in 'assign' tag - Valid syntax: assign [var] = [source]</value>
   </data>
   <data name="BlankFileSystemDoesNotAllowIncludesException" xml:space="preserve">
-    <value>Error - This liquid context does not allow includes.</value>
-  </data>
-  <data name="BlockTagAlreadyDefinedException" xml:space="preserve">
-    <value>Liquid Error - block '{0}' already defined.</value>
-  </data>
-  <data name="BlockTagSyntaxException" xml:space="preserve">
-    <value>Syntax Error in 'block' - Valid syntax: block [name]</value>
-  </data>
-  <data name="CapureTagSyntaxException" xml:space="preserve">
-    <value>Syntax Error in 'capture' - Valid syntax: capture [var]</value>
+    <value>This liquid context does not allow includes.</value>
   </data>
   <data name="LocalFileSystemIllegalTemplateNameException" xml:space="preserve">
-    <value>Error - Illegal template name '{0}'</value>
+    <value>Illegal template name '{0}'</value>
   </data>
   <data name="LocalFileSystemIllegalTemplatePathException" xml:space="preserve">
-    <value>Error - Illegal template path '{0}'</value>
+    <value>Illegal template path '{0}'</value>
   </data>
   <data name="LocalFileSystemTemplateNotFoundException" xml:space="preserve">
-    <value>Error - No such template '{0}'</value>
+    <value>No such template '{0}'</value>
   </data>
 </root>

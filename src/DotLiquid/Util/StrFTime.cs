@@ -53,7 +53,7 @@ namespace DotLiquid.Util
 					output += s;
 				else
 					output += s == "%"
-						? _formats.ContainsKey(pattern.Substring(++n, 1)) ? _formats[pattern.Substring(n, 1)].Invoke(dateTime) : "%" + pattern.Substring(n, 1) // GetSpecifierValue(dateTime, pattern.Substring(++n, 1))
+						? _formats.ContainsKey(pattern.Substring(++n, 1)) ? _formats[pattern.Substring(n, 1)].Invoke(dateTime) : "%" + pattern.Substring(n, 1)
 						: s;
 				n++;
 			}

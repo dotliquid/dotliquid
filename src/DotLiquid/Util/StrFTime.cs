@@ -19,7 +19,6 @@ namespace DotLiquid.Util
 			{ "A", (dateTime) => dateTime.ToString("dddd", CultureInfo.CurrentCulture) },
 			{ "b", (dateTime) => dateTime.ToString("MMM", CultureInfo.CurrentCulture) },
 			{ "B", (dateTime) => dateTime.ToString("MMMM", CultureInfo.CurrentCulture) },
-
 			{ "c", (dateTime) => dateTime.ToString("ddd MMM dd HH:mm:ss yyyy", CultureInfo.CurrentCulture) },
 			{ "d", (dateTime) => dateTime.ToString("dd", CultureInfo.CurrentCulture) },
 			{ "H", (dateTime) => dateTime.ToString("HH", CultureInfo.CurrentCulture) },

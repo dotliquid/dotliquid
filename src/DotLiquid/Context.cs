@@ -334,6 +334,9 @@ namespace DotLiquid
 
         private static bool IsHashOrArrayLikeObject(object obj, object part)
         {
+			if (obj == null)
+				return false;
+
             if ((obj is IDictionary && ((IDictionary)obj).Contains(part)))
                 return true;
 

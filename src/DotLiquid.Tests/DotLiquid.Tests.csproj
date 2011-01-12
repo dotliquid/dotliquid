@@ -44,7 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BlockTests.cs" />
-    <Compile Include="CasingTests.cs" />
+    <Compile Include="StudlyCapsTests.cs" />
     <Compile Include="ConditionTests.cs" />
     <Compile Include="ContextTests.cs" />
     <Compile Include="DropTests.cs" />

@@ -5,10 +5,10 @@ using DotLiquid.NamingConventions;
 namespace DotLiquid.Tests
 {
     [TestFixture]
-    public class CasingTests
+    public class StudlyCapsTests
     {
         [Test]
-        public void TestSimpleVariablesCasing()
+        public void TestSimpleVariablesStudlyCaps()
         {
             Template.NamingConvention = new RubyNamingConvention();
             Template template = Template.Parse("{{ Greeting }} {{ Name }}");
@@ -20,14 +20,14 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestTagsCasingIsNotAllowed()
+        public void TestTagsStudlyCapsAreNotAllowed()
         {
             Template.NamingConvention = new RubyNamingConvention();
             Assert.Throws<SyntaxException>(() => Template.Parse("{% IF user = 'tobi' %}Hello Tobi{% EndIf %}"));
         }
 
         [Test]
-        public void TestFiltersCasingIsNotAllowed()
+        public void TestFiltersStudlyCapsAreNotAllowed()
         {
             Template.NamingConvention = new RubyNamingConvention();
             Template template = Template.Parse("{{ 'hi tobi' | upcase }}");
@@ -39,7 +39,7 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestAssignsCasing()
+        public void TestAssignsStudlyCaps()
         {
             Template.NamingConvention = new RubyNamingConvention();
 

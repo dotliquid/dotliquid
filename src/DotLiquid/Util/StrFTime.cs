@@ -11,58 +11,33 @@ namespace DotLiquid.Util
 {
     public static class StrFTime
     {
-		private static string GetSpecifierValue(DateTime dateTime, string specifier)
+		public delegate string DateTimeDelegate(DateTime dateTime);
+
+		private static Dictionary<string, DateTimeDelegate> _formats = new Dictionary<string, DateTimeDelegate>()
 		{
-			switch (specifier)
-			{
-				case "a":
-					return dateTime.ToString("ddd", CultureInfo.CurrentCulture);
-				case "A":
-					return dateTime.ToString("dddd", CultureInfo.CurrentCulture);
-				case "b":
-					return dateTime.ToString("MMM", CultureInfo.CurrentCulture);
-				case "B":
-					return dateTime.ToString("MMMM", CultureInfo.CurrentCulture);
-				case "c":
-					return dateTime.ToString("ddd MMM dd HH:mm:ss yyyy", CultureInfo.CurrentCulture);
-				case "d":
-					return dateTime.ToString("dd", CultureInfo.CurrentCulture);
-				case "H":
-					return dateTime.ToString("HH", CultureInfo.CurrentCulture);
-				case "I":
-					return dateTime.ToString("hh", CultureInfo.CurrentCulture);
-				case "j":
-					return dateTime.DayOfYear.ToString().PadLeft(3, '0');
-				case "m":
-					return dateTime.ToString("MM", CultureInfo.CurrentCulture);
-				case "M":
-					return dateTime.Minute.ToString().PadLeft(2, '0');
-				case "p":
-					return dateTime.ToString("tt", CultureInfo.CurrentCulture);
-				case "S":
-					return dateTime.ToString("ss", CultureInfo.CurrentCulture);
-				case "U":
-					return CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(dateTime, CultureInfo.CurrentCulture.DateTimeFormat.CalendarWeekRule, DayOfWeek.Sunday).ToString().PadLeft(2, '0');
-				case "W":
-					return CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(dateTime, CultureInfo.CurrentCulture.DateTimeFormat.CalendarWeekRule, DayOfWeek.Monday).ToString().PadLeft(2, '0');
-				case "w":
-					return ((int)dateTime.DayOfWeek).ToString();
-				case "x":
-					return dateTime.ToString("d", CultureInfo.CurrentCulture);
-				case "X":
-					return dateTime.ToString("T", CultureInfo.CurrentCulture);
-				case "y":
-					return dateTime.ToString("yy", CultureInfo.CurrentCulture);
-				case "Y":
-					return dateTime.ToString("yyyy", CultureInfo.CurrentCulture);
-				case "Z":
-					return dateTime.ToString("zzz", CultureInfo.CurrentCulture);
-				case "%":
-					return "%";
-				default:
-					return "%" + specifier;
-			}
-		}
+			{ "a", (dateTime) => dateTime.ToString("ddd", CultureInfo.CurrentCulture) },
+			{ "A", (dateTime) => dateTime.ToString("dddd", CultureInfo.CurrentCulture) },
+			{ "b", (dateTime) => dateTime.ToString("MMM", CultureInfo.CurrentCulture) },
+			{ "B", (dateTime) => dateTime.ToString("MMMM", CultureInfo.CurrentCulture) },
+			{ "c", (dateTime) => dateTime.ToString("ddd MMM dd HH:mm:ss yyyy", CultureInfo.CurrentCulture) },
+			{ "d", (dateTime) => dateTime.ToString("dd", CultureInfo.CurrentCulture) },
+			{ "H", (dateTime) => dateTime.ToString("HH", CultureInfo.CurrentCulture) },
+			{ "I", (dateTime) => dateTime.ToString("hh", CultureInfo.CurrentCulture) },
+			{ "j", (dateTime) => dateTime.DayOfYear.ToString().PadLeft(3, '0') },
+			{ "m", (dateTime) => dateTime.ToString("MM", CultureInfo.CurrentCulture) },
+			{ "M", (dateTime) => dateTime.Minute.ToString().PadLeft(2, '0') },
+			{ "p", (dateTime) => dateTime.ToString("tt", CultureInfo.CurrentCulture) },
+			{ "S", (dateTime) => dateTime.ToString("ss", CultureInfo.CurrentCulture) },
+			{ "U", (dateTime) => CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(dateTime, CultureInfo.CurrentCulture.DateTimeFormat.CalendarWeekRule, DayOfWeek.Sunday).ToString().PadLeft(2, '0') },
+			{ "W", (dateTime) => CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(dateTime, CultureInfo.CurrentCulture.DateTimeFormat.CalendarWeekRule, DayOfWeek.Monday).ToString().PadLeft(2, '0') },
+			{ "w", (dateTime) => ((int)dateTime.DayOfWeek).ToString() },
+			{ "x", (dateTime) => dateTime.ToString("d", CultureInfo.CurrentCulture) },
+			{ "X", (dateTime) => dateTime.ToString("T", CultureInfo.CurrentCulture) },
+			{ "y", (dateTime) => dateTime.ToString("yy", CultureInfo.CurrentCulture) },
+			{ "Y", (dateTime) => dateTime.ToString("yyyy", CultureInfo.CurrentCulture) },
+			{ "Z", (dateTime) => dateTime.ToString("zzz", CultureInfo.CurrentCulture) },
+			{ "%", (dateTime) => "%" }
+		};
 
 		public static string ToStrFTime(this DateTime dateTime, string pattern)
 		{
@@ -78,7 +53,7 @@ namespace DotLiquid.Util
 					output += s;
 				else
 					output += s == "%"
-						? GetSpecifierValue(dateTime, pattern.Substring(++n, 1))
+						? _formats.ContainsKey(pattern.Substring(++n, 1)) ? _formats[pattern.Substring(n, 1)].Invoke(dateTime) : "%" + pattern.Substring(n, 1)
 						: s;
 				n++;
 			}

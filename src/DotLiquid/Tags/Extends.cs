@@ -26,7 +26,7 @@ namespace DotLiquid.Tags
                 _templateName = syntaxMatch.Groups[1].Value;
             }
             else
-                throw new SyntaxException("Syntax Error in tag 'extends' - Valid syntax: extends [template]");
+                throw new SyntaxException(Liquid.ResourceManager.GetString("ExtendsTagSyntaxException"));
 
             base.Initialize(tagName, markup, tokens);
 
@@ -50,18 +50,18 @@ namespace DotLiquid.Tags
         {
             if (!(rootNodeList[0] is Extends))
             {
-                throw new SyntaxException("Liquid Error: 'extends' must be the first tag in an extending template");
+				throw new SyntaxException(Liquid.ResourceManager.GetString("ExtendsTagMustBeFirstTagException"));
             }
 
             NodeList.ForEach(n =>
             {
                 if (!((n is string && string.IsNullOrWhiteSpace((string)n)) || n is Block || n is Comment || n is Extends))
-                    throw new SyntaxException("Liquid Error: only 'comment' and 'block' tags are allowed in an extending template " + n.ToString());
+                    throw new SyntaxException(Liquid.ResourceManager.GetString("ExtendsTagUnallowedTagsException"));
             });
 
             if (NodeList.Count(o => o is Extends) > 0)
             {
-                throw new SyntaxException("Liquid Error: 'extends' tag can be used only once");
+				throw new SyntaxException(Liquid.ResourceManager.GetString("ExtendsTagCanBeUsedOneException"));
             }
         }
 

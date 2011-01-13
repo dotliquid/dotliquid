@@ -126,7 +126,7 @@ namespace DotLiquid
             object rightObject = context[right];
 
             if (!Operators.ContainsKey(op))
-                throw new Exceptions.ArgumentException("Unknown operator {0}", op);
+                throw new Exceptions.ArgumentException(Liquid.ResourceManager.GetString("ConditionUnknownOperatorException"), op);
             return Operators[op](leftObject, rightObject);
         }
     }

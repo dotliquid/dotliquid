@@ -27,7 +27,7 @@ namespace DotLiquid.Tags.Html
 				R.Scan(markup, Liquid.TagAttributes, (key, value) => _attributes[key] = value);
 			}
 			else
-				throw new SyntaxException("Syntax Error in 'tablerow' loop - Valid syntax: tablerow [item] in [collection] cols=3");
+				throw new SyntaxException(Liquid.ResourceManager.GetString("TableRowTagSyntaxException"));
 
 			base.Initialize(tagName, markup, tokens);
 		}

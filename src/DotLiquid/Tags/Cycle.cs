@@ -46,7 +46,7 @@ namespace DotLiquid.Tags
 				}
 				else
 				{
-					throw new SyntaxException("Syntax Error in 'cycle' - Valid syntax: cycle [name :] var [, var2, var3 ...]");
+					throw new SyntaxException(Liquid.ResourceManager.GetString("CycleTagSyntaxException"));
 				}
 			}
 

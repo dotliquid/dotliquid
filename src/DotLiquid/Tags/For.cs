@@ -74,7 +74,7 @@ namespace DotLiquid.Tags
 			}
 			else
 			{
-				throw new SyntaxException("Syntax Error in 'for loop' - Valid syntax: for [item] in [collection]");
+				throw new SyntaxException(Liquid.ResourceManager.GetString("ForTagSyntaxException"));
 			}
 
 			base.Initialize(tagName, markup, tokens);

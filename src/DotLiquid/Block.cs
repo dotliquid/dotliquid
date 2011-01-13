@@ -58,7 +58,7 @@ namespace DotLiquid
                     }
                     else
                     {
-                        throw new SyntaxException("Tag '{0}' was not properly terminated with regexp: {1}", token, Liquid.TagEnd);
+						throw new SyntaxException(Liquid.ResourceManager.GetString("BlockTagNotTerminatedException"), token, Liquid.TagEnd);
                     }
                 }
                 else if (IsVariable.Match(token).Success)
@@ -91,11 +91,11 @@ namespace DotLiquid
             switch (tag)
             {
                 case "else":
-                    throw new SyntaxException("{0} tag does not expect else tag", BlockName);
+					throw new SyntaxException(Liquid.ResourceManager.GetString("BlockTagNoElseException"), BlockName);
                 case "end":
-                    throw new SyntaxException("'end' is not a valid delimiter for {0} tags. use {1}", BlockName, BlockDelimiter);
+					throw new SyntaxException(Liquid.ResourceManager.GetString("BlockTagNoEndException"), BlockName, BlockDelimiter);
                 default:
-                    throw new SyntaxException("Unknown tag '{0}'", tag);
+					throw new SyntaxException(Liquid.ResourceManager.GetString("BlockUnknownTagException"), tag);
             }
         }
 
@@ -114,7 +114,7 @@ namespace DotLiquid
             Match match = ContentOfVariable.Match(token);
             if (match.Success)
                 return new Variable(match.Groups[1].Value);
-            throw new SyntaxException("Variable '{0}' was not properly terminated with regexp: {1} ", token, Liquid.VariableEnd);
+			throw new SyntaxException(Liquid.ResourceManager.GetString("BlockVariableNotTerminatedException"), token, Liquid.VariableEnd);
         }
 
         public override void Render(Context context, StringBuilder result)
@@ -124,7 +124,7 @@ namespace DotLiquid
 
         protected virtual void AssertMissingDelimitation()
         {
-            throw new SyntaxException("{0} tag was never closed", BlockName);
+			throw new SyntaxException(Liquid.ResourceManager.GetString("BlockTagNotClosedException"), BlockName);
         }
 
         protected void RenderAll(List<object> list, Context context, StringBuilder result)

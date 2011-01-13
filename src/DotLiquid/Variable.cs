@@ -88,7 +88,7 @@ namespace DotLiquid
                 }
                 catch (FilterNotFoundException ex)
                 {
-                    throw new FilterNotFoundException(string.Format("Error - filter '{0}' in '{1}' could not be found.", filter.Name, _markup.Trim()), ex);
+                    throw new FilterNotFoundException(string.Format(Liquid.ResourceManager.GetString("VariableFilterNotFoundException"), filter.Name, _markup.Trim()), ex);
                 }
             });
 

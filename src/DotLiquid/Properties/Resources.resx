@@ -124,13 +124,79 @@
     <value>Error - This liquid context does not allow includes.</value>
   </data>
   <data name="BlockTagAlreadyDefinedException" xml:space="preserve">
-    <value>Liquid Error - block '{0}' already defined.</value>
+    <value>Liquid Error - Block '{0}' already defined.</value>
+  </data>
+  <data name="BlockTagNoElseException" xml:space="preserve">
+    <value>{0} tag does not expect else tag</value>
+  </data>
+  <data name="BlockTagNoEndException" xml:space="preserve">
+    <value>'end' is not a valid delimiter for {0} tags. Use {1}</value>
+  </data>
+  <data name="BlockTagNotClosedException" xml:space="preserve">
+    <value>{0} tag was never closed</value>
+  </data>
+  <data name="BlockTagNotTerminatedException" xml:space="preserve">
+    <value>Tag '{0}' was not properly terminated with regexp: {1}</value>
   </data>
   <data name="BlockTagSyntaxException" xml:space="preserve">
-    <value>Syntax Error in 'block' - Valid syntax: block [name]</value>
+    <value>Syntax Error in 'block' tag - Valid syntax: block [name]</value>
+  </data>
+  <data name="BlockUnknownTagException" xml:space="preserve">
+    <value>Unknown tag '{0}'</value>
+  </data>
+  <data name="BlockVariableNotTerminatedException" xml:space="preserve">
+    <value>Variable '{0}' was not properly terminated with regexp: {1}</value>
   </data>
   <data name="CapureTagSyntaxException" xml:space="preserve">
-    <value>Syntax Error in 'capture' - Valid syntax: capture [var]</value>
+    <value>Syntax Error in 'capture' tag - Valid syntax: capture [var]</value>
+  </data>
+  <data name="CaseTagElseSyntaxException" xml:space="preserve">
+    <value>Syntax Error in 'case' tag - Valid else condition: {{% else %}} (no parameters)</value>
+  </data>
+  <data name="CaseTagSyntaxException" xml:space="preserve">
+    <value>Syntax Error in 'case' tag - Valid syntax: case [condition]</value>
+  </data>
+  <data name="CaseTagWhenSyntaxException" xml:space="preserve">
+    <value>Syntax Error in 'case' tag - Valid when condition: {{% when [condition] [or condition2...] %}}</value>
+  </data>
+  <data name="ConditionUnknownOperatorException" xml:space="preserve">
+    <value>Unknown operator {0}</value>
+  </data>
+  <data name="ContextLiquidError" xml:space="preserve">
+    <value>Liquid error: {0}</value>
+  </data>
+  <data name="ContextLiquidSyntaxError" xml:space="preserve">
+    <value>Liquid syntax error: {0}</value>
+  </data>
+  <data name="ContextObjectInvalidException" xml:space="preserve">
+    <value>Object '{0}' is invalid because it is neither a built-in type nor implements ILiquidizable</value>
+  </data>
+  <data name="ContextStackException" xml:space="preserve">
+    <value>Nesting too deep</value>
+  </data>
+  <data name="CycleTagSyntaxException" xml:space="preserve">
+    <value>Syntax Error in 'cycle' tag - Valid syntax: cycle [name :] var [, var2, var3 ...]</value>
+  </data>
+  <data name="ExtendsTagCanBeUsedOneException" xml:space="preserve">
+    <value>Liquid Error - 'extends' tag can be used only once</value>
+  </data>
+  <data name="ExtendsTagMustBeFirstTagException" xml:space="preserve">
+    <value>Liquid Error - 'extends' must be the first tag in an extending template</value>
+  </data>
+  <data name="ExtendsTagSyntaxException" xml:space="preserve">
+    <value>Syntax Error in 'extends' tag - Valid syntax: extends [template]</value>
+  </data>
+  <data name="ExtendsTagUnallowedTagsException" xml:space="preserve">
+    <value>Liquid Error - Only 'comment' and 'block' tags are allowed in an extending template</value>
+  </data>
+  <data name="ForTagSyntaxException" xml:space="preserve">
+    <value>Syntax Error in 'for' tag - Valid syntax: for [item] in [collection]</value>
+  </data>
+  <data name="IfTagSyntaxException" xml:space="preserve">
+    <value>Syntax Error in 'if' tag - Valid syntax: if [expression]</value>
+  </data>
+  <data name="IncludeTagSyntaxException" xml:space="preserve">
+    <value>Syntax Error in 'include' tag - Valid syntax: include [template]</value>
   </data>
   <data name="LocalFileSystemIllegalTemplateNameException" xml:space="preserve">
     <value>Error - Illegal template name '{0}'</value>
@@ -140,5 +206,17 @@
   </data>
   <data name="LocalFileSystemTemplateNotFoundException" xml:space="preserve">
     <value>Error - No such template '{0}'</value>
+  </data>
+  <data name="StrainerFilterHasNoValueException" xml:space="preserve">
+    <value>Error - Filter '{0}' does not have a default value for '{1}' and no value was supplied</value>
+  </data>
+  <data name="TableRowTagSyntaxException" xml:space="preserve">
+    <value>Syntax Error in 'tablerow' tag - Valid syntax: tablerow [item] in [collection] cols=[number]</value>
+  </data>
+  <data name="VariableFilterNotFoundException" xml:space="preserve">
+    <value>Error - Filter '{0}' in '{1}' could not be found.</value>
+  </data>
+  <data name="WeakTableKeyNotFoundException" xml:space="preserve">
+    <value>key could not be found</value>
   </data>
 </root>

@@ -22,7 +22,7 @@ namespace DotLiquid.Tags
             if (syntaxMatch.Success)
                 _left = syntaxMatch.Groups[1].Value;
             else
-                throw new SyntaxException("Syntax Error in tag 'case' - Valid syntax: case [condition]");
+                throw new SyntaxException(Liquid.ResourceManager.GetString("CaseTagSyntaxException"));
 
             base.Initialize(tagName, markup, tokens);
         }
@@ -75,7 +75,7 @@ namespace DotLiquid.Tags
                 // Create a new nodelist and assign it to the new block
                 Match whenSyntaxMatch = WhenSyntax.Match(markup);
                 if (!whenSyntaxMatch.Success)
-                    throw new SyntaxException("Syntax Error in tag 'case' - Valid when condition: {{% when [condition] [or condition2...] %}}");
+					throw new SyntaxException(Liquid.ResourceManager.GetString("CaseTagWhenSyntaxException"));
 
                 markup = whenSyntaxMatch.Groups[2].Value;
                 if (string.IsNullOrEmpty(markup))
@@ -90,7 +90,7 @@ namespace DotLiquid.Tags
         private void RecordElseCondition(string markup)
         {
             if (markup.Trim() != string.Empty)
-                throw new SyntaxException("Syntax Error in tag 'case' - Valid else condition: {{% else %}} (no parameters)");
+				throw new SyntaxException(Liquid.ResourceManager.GetString("CaseTagElseSyntaxException"));
 
             ElseCondition block = new ElseCondition();
             block.Attach(NodeList);

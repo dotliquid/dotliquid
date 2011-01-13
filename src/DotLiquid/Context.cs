@@ -69,8 +69,8 @@ namespace DotLiquid
 				throw ex;
 
 			if (ex is SyntaxException)
-				return string.Format("Liquid syntax error: {0}", ex.Message);
-			return string.Format("Liquid error: {0}", ex.Message);
+				return string.Format(Liquid.ResourceManager.GetString("ContextLiquidSyntaxError"), ex.Message);
+			return string.Format(Liquid.ResourceManager.GetString("ContextLiquidError"), ex.Message);
 		}
 
 		public object Invoke(string method, List<object> args)
@@ -89,7 +89,7 @@ namespace DotLiquid
 		public void Push(Hash newScope)
 		{
 			if (Scopes.Count > 100)
-				throw new StackLevelException("Nesting too deep");
+				throw new StackLevelException(Liquid.ResourceManager.GetString("ContextStackException"));
 
 			Scopes.Insert(0, newScope);
 		}
@@ -405,7 +405,7 @@ namespace DotLiquid
 				return obj;
 			if (obj is KeyValuePair<string, object>)
 				return obj;
-			throw new SyntaxException("Object '{0}' is invalid because it is neither a built-in type nor implements ILiquidizable", obj.ToString());
+			throw new SyntaxException(Liquid.ResourceManager.GetString("ContextObjectInvalidException"), obj.ToString());
 		}
 
 		private void SquashInstanceAssignsWithEnvironments()

@@ -32,12 +32,30 @@ namespace DotLiquid.Tests
 
 		private static class FiltersWithArguments
 		{
+#if NET35
+            public static string Adjust(int input)
+            {
+                return Adjust(input, 10);
+            }
+
+            public static string Adjust(int input, int offset)
+#else
 			public static string Adjust(int input, int offset = 10)
+#endif                
 			{
 				return string.Format("[{0:d}]", input + offset);
 			}
 
+#if NET35
+            public static string AddSub(int input, int plus)
+            {
+                return AddSub(input, plus, 20);
+            }
+
+            public static string AddSub(int input, int plus, int minus)
+#else
 			public static string AddSub(int input, int plus, int minus = 20)
+#endif
 			{
 				return string.Format("[{0:d}]", input + plus - minus);
 			}
@@ -177,8 +195,13 @@ namespace DotLiquid.Tests
 			Template.RegisterFilter(typeof(MoneyFilter));
 
 			Assert.AreEqual(" 1000$ ", Template.Parse("{{1000 | money}}").Render());
+#if NET35
+			Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}").Render(null, new[] { typeof(CanadianMoneyFilter) }, null));
+			Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}").Render(null, new[] { typeof(CanadianMoneyFilter) }, null));
+#else
+            Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}").Render(filters: new[] { typeof(CanadianMoneyFilter) }));
 			Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}").Render(filters: new[] { typeof(CanadianMoneyFilter) }));
-			Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}").Render(filters: new[] { typeof(CanadianMoneyFilter) }));
+#endif
 		}
 	}
 }

@@ -126,7 +126,31 @@ namespace DotLiquid
             return RenderInternal(context, null, null);
         }
 
+#if NET35
+        public string Render()
+        {
+            return Render(null, null, null);
+        }
+
+        public string Render(IEnumerable<Type> filters)
+        {
+            return Render(null, filters, null);
+        }
+
+        public string Render(Hash hash)
+        {
+            return Render(hash, null, null);
+        }
+
+        public string Render(Hash hash, IEnumerable<Type> filters)
+        {
+            return Render(hash, filters, null);
+        }
+
+        public string Render(Hash localVariables, IEnumerable<Type> filters, Hash registers)
+#else
         public string Render(Hash localVariables = null, IEnumerable<Type> filters = null, Hash registers = null)
+#endif
         {
             List<Hash> environments = new List<Hash>();
             if (localVariables != null)
@@ -173,10 +197,19 @@ namespace DotLiquid
             }
         }
 
+#if NET35
+        public string RenderAndRethrowErrors()
+        {
+            return Render((Hash)null);
+        }
+
+        public string RenderAndRethrowErrors(Hash hash)
+#else
         public string RenderAndRethrowErrors(Hash hash = null)
+#endif
         {
             _rethrowErrors = true;
-            return Render(hash);
+            return Render(hash, null, null);
         }
 
         /// <summary>

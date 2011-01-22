@@ -1,0 +1,18 @@
+﻿<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>DotLiquid</id>
+    <version>1.0.0</version>
+    <title>DotLiquid</title>
+    <authors>Tim Jones, Alessandro Petrelli</authors>
+    <owners>Tim Jones</owners>
+    <description>DotLiquid is a templating system ported to the .NET framework from Ruby’s Liquid Markup.</description>
+    <summary>DotLiquid is a templating system ported to the .NET framework from Ruby’s Liquid Markup.</summary>
+    <language>en-US</language>
+    <projectUrl>http://dotliquidmarkup.org</projectUrl>
+    <!--iconUrl></iconUrl-->
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <tags>template templating language Liquid markup</tags>
+  </metadata>
+</package>

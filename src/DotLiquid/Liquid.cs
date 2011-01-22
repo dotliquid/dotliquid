@@ -7,9 +7,9 @@ using DotLiquid.Util;
 
 namespace DotLiquid
 {
-	internal static class Liquid
+	public static class Liquid
 	{
-        public static readonly ResourceManager ResourceManager = new ResourceManager(typeof(DotLiquid.Properties.Resources));
+        internal static readonly ResourceManager ResourceManager = new ResourceManager(typeof(DotLiquid.Properties.Resources));
 
 		public static readonly string FilterSeparator = R.Q(@"\|");
 		public static readonly string ArgumentSeparator = R.Q(@",");

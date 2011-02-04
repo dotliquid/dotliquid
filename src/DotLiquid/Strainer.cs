@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using DotLiquid.Exceptions;
 
@@ -29,11 +30,11 @@ namespace DotLiquid
         }
 
         private readonly Context _context;
-        private readonly Dictionary<string, MethodInfo> _methods = new Dictionary<string, MethodInfo>();
+        private readonly Dictionary<string, IList<MethodInfo>> _methods = new Dictionary<string, IList<MethodInfo>>();
 
         public IEnumerable<MethodInfo> Methods
         {
-            get { return _methods.Values; }
+            get { return _methods.Values.SelectMany(m => m); }
         }
 
         public Strainer(Context context)
@@ -48,8 +49,21 @@ namespace DotLiquid
         /// <param name="type"></param>
         public void Extend(Type type)
         {
-            foreach (MethodInfo methodInfo in type.GetMethods(BindingFlags.Public | BindingFlags.Static))
-                _methods[Template.NamingConvention.GetMemberName(methodInfo.Name)] = methodInfo;
+            // From what I can tell, calls to Extend should replace existing filters. So be it.
+            var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Static);
+            var methodNames = type.GetMethods(BindingFlags.Public | BindingFlags.Static).Select(m => Template.NamingConvention.GetMemberName(m.Name));
+
+            foreach(var methodName in methodNames)
+                _methods.Remove(methodName);
+
+            foreach(MethodInfo methodInfo in methods)
+            {
+                var name = Template.NamingConvention.GetMemberName(methodInfo.Name);
+                if(!_methods.ContainsKey(name)) 
+                    _methods[name] = new List<MethodInfo>();
+
+                _methods[name].Add(methodInfo);
+            } // foreach
         }
 
         public bool RespondTo(string method)
@@ -59,8 +73,16 @@ namespace DotLiquid
 
         public object Invoke(string method, List<object> args)
         {
+            // First, try to find a method with the same number of arguments.
+            var methodInfo = _methods[method].FirstOrDefault(m => m.GetParameters().Length == args.Count);
+            
+            // If we failed to do so, try one with max numbers of arguments, hoping
+            // that those not explicitly specified will be taken care of
+            // by default values
+            if(methodInfo == null)
+                methodInfo = _methods[method].OrderByDescending(m => m.GetParameters().Length).First();
+
             // Add in any default parameters - .NET won't do this for us.
-            MethodInfo methodInfo = _methods[method];
             ParameterInfo[] parameterInfos = methodInfo.GetParameters();
             if (parameterInfos.Length > args.Count)
                 for (int i = args.Count; i < parameterInfos.Length; ++i)

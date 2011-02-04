@@ -143,7 +143,7 @@ namespace DotLiquid
 
         public static string TruncateWords(string input, int words)
         {
-            return TruncateWords(input, 15, "...");
+            return TruncateWords(input, words, "...");
         }
 
         public static string TruncateWords(string input, int words, string truncateString)

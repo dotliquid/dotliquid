@@ -1,3 +1,5 @@
+using System.Runtime.Remoting.Contexts;
+
 using DotLiquid.Exceptions;
 using DotLiquid.FileSystems;
 using NUnit.Framework;
@@ -70,7 +72,11 @@ namespace DotLiquid.Tests.Tags
 		[Test]
 		public void TestIncludeTagLooksForFileSystemInRegistersFirst()
 		{
+#if NET35
+            Assert.AreEqual("from OtherFileSystem", Template.Parse("{% include 'pick_a_source' %}").Render(null, null, Hash.FromAnonymousObject(new { file_system = new OtherFileSystem() })));
+#else
 			Assert.AreEqual("from OtherFileSystem", Template.Parse("{% include 'pick_a_source' %}").Render(registers: Hash.FromAnonymousObject(new { file_system = new OtherFileSystem() })));
+#endif
 		}
 
 		[Test]

@@ -55,7 +55,7 @@ namespace DotLiquid.Tags
 
             NodeList.ForEach(n =>
             {
-                if (!((n is string && string.IsNullOrWhiteSpace((string)n)) || n is Block || n is Comment || n is Extends))
+                if (!((n is string && ((string)n).IsNullOrWhiteSpace()) || n is Block || n is Comment || n is Extends))
                     throw new SyntaxException(Liquid.ResourceManager.GetString("ExtendsTagUnallowedTagsException"));
             });
 
@@ -102,7 +102,16 @@ namespace DotLiquid.Tags
             return template.Root.NodeList.Any(node => node is Extends);
         }
 
+#if NET35
+        private List<Block> FindBlocks(object node)
+        {
+            return FindBlocks(node, null);
+        }
+
+        private List<Block> FindBlocks(object node, List<Block> blocks)
+#else
         private List<Block> FindBlocks(object node, List<Block> blocks = null)
+#endif
         {
             if (node.RespondTo("NodeList"))
             {

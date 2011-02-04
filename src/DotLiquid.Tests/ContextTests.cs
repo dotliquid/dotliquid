@@ -251,7 +251,11 @@ namespace DotLiquid.Tests
 		{
 			Template.RegisterFilter(typeof(GlobalFilters));
 			Assert.AreEqual("Global test", Template.Parse("{{'test' | notice }}").Render());
+#if NET35
+            Assert.AreEqual("Local test", Template.Parse("{{'test' | notice }}").Render(new[] { typeof(LocalFilters) }));
+#else
 			Assert.AreEqual("Local test", Template.Parse("{{'test' | notice }}").Render(filters: new[] { typeof(LocalFilters) }));
+#endif       
 		}
 
 		[Test]

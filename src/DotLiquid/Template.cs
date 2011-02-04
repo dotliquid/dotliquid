@@ -200,7 +200,7 @@ namespace DotLiquid
 #if NET35
         public string RenderAndRethrowErrors()
         {
-            return Render((Hash)null);
+            return RenderAndRethrowErrors((Hash)null);
         }
 
         public string RenderAndRethrowErrors(Hash hash)

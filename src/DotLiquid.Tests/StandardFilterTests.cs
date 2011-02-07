@@ -112,9 +112,9 @@ namespace DotLiquid.Tests
 			Assert.AreEqual("05/07/2006 10:00:00", StandardFilters.Date("05/07/2006 10:00:00", string.Empty));
 			Assert.AreEqual("05/07/2006 10:00:00", StandardFilters.Date("05/07/2006 10:00:00", null));
 
-			Assert.AreEqual("07/05/2006", StandardFilters.Date("2006-07-05 10:00:00", "MM/dd/yyyy"));
+			Assert.AreEqual(new DateTime(2006, 7, 5).ToString("MM/dd/yyyy"), StandardFilters.Date("2006-07-05 10:00:00", "MM/dd/yyyy"));
 
-			Assert.AreEqual("07/16/2004", StandardFilters.Date("Fri Jul 16 2004 01:00:00", "MM/dd/yyyy"));
+			Assert.AreEqual(new DateTime(2004, 7, 16).ToString("MM/dd/yyyy"), StandardFilters.Date("Fri Jul 16 2004 01:00:00", "MM/dd/yyyy"));
 
 			Assert.AreEqual(null, StandardFilters.Date(null, "MMMM"));
 

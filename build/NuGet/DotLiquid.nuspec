@@ -13,6 +13,6 @@
     <!--iconUrl></iconUrl-->
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <tags>template templating language Liquid markup</tags>
+    <tags>template templating language Liquid markup .net35 .net40</tags>
   </metadata>
 </package>

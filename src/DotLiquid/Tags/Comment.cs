@@ -1,4 +1,4 @@
-using System.Text;
+using System.IO;
 using System.Text.RegularExpressions;
 
 namespace DotLiquid.Tags
@@ -12,7 +12,7 @@ namespace DotLiquid.Tags
             return match.Success ? string.Format(@"{{% comment %}}{0}{{% endcomment %}}", match.Groups[1].Value) : @string;
         }
 
-        public override void Render(Context context, StringBuilder result)
+		public override void Render(Context context, StreamWriter result)
 		{
 			
 		}

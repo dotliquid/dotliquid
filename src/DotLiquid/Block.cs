@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
@@ -117,7 +117,7 @@ namespace DotLiquid
 			throw new SyntaxException(Liquid.ResourceManager.GetString("BlockVariableNotTerminatedException"), token, Liquid.VariableEnd);
         }
 
-        public override void Render(Context context, StringBuilder result)
+		public override void Render(Context context, StreamWriter result)
         {
             RenderAll(NodeList, context, result);
         }
@@ -127,7 +127,7 @@ namespace DotLiquid
 			throw new SyntaxException(Liquid.ResourceManager.GetString("BlockTagNotClosedException"), BlockName);
         }
 
-        protected void RenderAll(List<object> list, Context context, StringBuilder result)
+		protected void RenderAll(List<object> list, Context context, StreamWriter result)
         {
             list.ForEach(token =>
             {
@@ -136,13 +136,13 @@ namespace DotLiquid
                     if (token is IRenderable)
                         ((IRenderable)token).Render(context, result);
                     else
-                        result.Append(token.ToString());
+                        result.Write(token.ToString());
                 }
                 catch (Exception ex)
                 {
                     if (ex.InnerException is LiquidException)
                         ex = ex.InnerException;
-                    result.Append(context.HandleError(ex));
+                    result.Write(context.HandleError(ex));
                 }
             });
         }

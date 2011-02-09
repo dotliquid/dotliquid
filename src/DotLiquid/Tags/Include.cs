@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
 using DotLiquid.FileSystems;
@@ -39,7 +39,7 @@ namespace DotLiquid.Tags
 			
 		}
 
-		public override void Render(Context context, StringBuilder result)
+		public override void Render(Context context, StreamWriter result)
 		{
 			IFileSystem fileSystem = context.Registers["file_system"] as IFileSystem ?? Template.FileSystem;
 			string source = fileSystem.ReadTemplateFile(context, _templateName);
@@ -58,13 +58,13 @@ namespace DotLiquid.Tags
 					((IEnumerable)variable).Cast<object>().ToList().ForEach(v =>
 					{
 						context[shortenedTemplateName] = v;
-						result.Append(partial.Render(context));
+						result.Write(partial.Render(context));
 					});
 					return;
 				}
 
 				context[shortenedTemplateName] = variable;
-				result.Append(partial.Render(context));
+				result.Write(partial.Render(context));
 			});
 		}
 	}

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
@@ -64,7 +64,7 @@ namespace DotLiquid.Tags
 			}).ToArray();
 		}
 
-		public override void Render(Context context, StringBuilder result)
+		public override void Render(Context context, StreamWriter result)
 		{
 			context.Registers["cycle"] = context.Registers["cycle"] ?? new Hash(0);
 
@@ -72,7 +72,7 @@ namespace DotLiquid.Tags
 			{
 				string key = context[_name].ToString();
 				int iteration = (int) (((Hash) context.Registers["cycle"])[key] ?? 0);
-				result.Append(context[_variables[iteration]].ToString());
+				result.Write(context[_variables[iteration]].ToString());
 				++iteration;
 				if (iteration >= _variables.Length)
 					iteration = 0;

@@ -1,8 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
@@ -80,7 +80,7 @@ namespace DotLiquid.Tags
 			base.Initialize(tagName, markup, tokens);
 		}
 
-		public override void Render(Context context, StringBuilder result)
+		public override void Render(Context context, StreamWriter result)
 		{
 			context.Registers["for"] = context.Registers["for"] ?? new Hash(0);
 

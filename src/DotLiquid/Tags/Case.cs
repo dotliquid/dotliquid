@@ -1,6 +1,5 @@
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.IO;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
 
@@ -44,7 +43,7 @@ namespace DotLiquid.Tags
             }
         }
 
-        public override void Render(Context context, StringBuilder result)
+		public override void Render(Context context, StreamWriter result)
         {
             context.Stack(() =>
             {

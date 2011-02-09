@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using DotLiquid.FileSystems;
 using DotLiquid.Util;
@@ -187,7 +186,7 @@ namespace DotLiquid
 			{
 				// Render the nodelist.
 				// For performance reasons we use a StringBuilder.
-				StringBuilder result = new StringBuilder();
+				MemoryStreamWriter result = new MemoryStreamWriter();
 				Root.Render(context, result);
 				return result.ToString();
 			}

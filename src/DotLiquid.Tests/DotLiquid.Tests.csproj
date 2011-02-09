@@ -69,6 +69,7 @@
     <Compile Include="Tags\UnlessElseTests.cs" />
     <Compile Include="Tags\StandardTagTests.cs" />
     <Compile Include="TemplateTests.cs" />
+    <Compile Include="Util\MemoryStreamWriterTests.cs" />
     <Compile Include="VariableResolutionTests.cs" />
     <Compile Include="VariableTests.cs" />
   </ItemGroup>

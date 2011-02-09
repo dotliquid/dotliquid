@@ -30,7 +30,7 @@ namespace DotLiquid.Tags
 			if (syntaxMatch.Success)
 				_to = syntaxMatch.Groups[1].Value;
 			else
-				throw new SyntaxException("Syntax Error in 'capture' - Valid syntax: capture [var]");
+				throw new SyntaxException(Liquid.ResourceManager.GetString("CapureTagSyntaxException"));
 
 			base.Initialize(tagName, markup, tokens);
 		}

@@ -121,10 +121,10 @@
     <value>Syntax Error in 'assign' tag - Valid syntax: assign [var] = [source]</value>
   </data>
   <data name="BlankFileSystemDoesNotAllowIncludesException" xml:space="preserve">
-    <value>Error - This liquid context does not allow includes.</value>
+    <value>Error - This liquid context does not allow includes</value>
   </data>
   <data name="BlockTagAlreadyDefinedException" xml:space="preserve">
-    <value>Liquid Error - Block '{0}' already defined.</value>
+    <value>Liquid Error - Block '{0}' already defined</value>
   </data>
   <data name="BlockTagNoElseException" xml:space="preserve">
     <value>{0} tag does not expect else tag</value>

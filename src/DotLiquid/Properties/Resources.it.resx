@@ -120,4 +120,103 @@
   <data name="AssignTagSyntaxException" xml:space="preserve">
     <value>Errore di sintassi nel tag 'assign' - La sintassi corretta è: assign [var] = [valore]</value>
   </data>
+  <data name="BlankFileSystemDoesNotAllowIncludesException" xml:space="preserve">
+    <value>Errore - Il contesto attuale non permette l'inclusione di altri template</value>
+  </data>
+  <data name="BlockTagAlreadyDefinedException" xml:space="preserve">
+    <value>Errore Liquid- Blocco '{0}' già definito</value>
+  </data>
+  <data name="BlockTagNoElseException" xml:space="preserve">
+    <value>Il tag {0} non prevede un tag 'else'</value>
+  </data>
+  <data name="BlockTagNoEndException" xml:space="preserve">
+    <value>'end' non è un delimitatore valido per i tag {0}. Utilizzare {1}</value>
+  </data>
+  <data name="BlockTagNotClosedException" xml:space="preserve">
+    <value>Il tag {0} non è stato chiuso</value>
+  </data>
+  <data name="BlockTagNotTerminatedException" xml:space="preserve">
+    <value>Il tag '{0}' non è stato terminato correttamente con l'espressione regolare: {1}</value>
+  </data>
+  <data name="BlockTagSyntaxException" xml:space="preserve">
+    <value>Errore di sintassi nel tag 'block' - La sintassi corretta è: block [nome]</value>
+  </data>
+  <data name="BlockUnknownTagException" xml:space="preserve">
+    <value>Tag sconosciuto '{0}'</value>
+  </data>
+  <data name="BlockVariableNotTerminatedException" xml:space="preserve">
+    <value>La variable '{0}' non è stata terminata correttamente con l'espressione regolare: {1}</value>
+  </data>
+  <data name="CapureTagSyntaxException" xml:space="preserve">
+    <value>Errore di sintassi nel tag 'capture' - La sintassi corretta è: capture [var]</value>
+  </data>
+  <data name="CaseTagElseSyntaxException" xml:space="preserve">
+    <value>Errore di sintassi nel tag 'case' - La sintassi condizione 'else' valida è: {{% else %}} (nessun parametro)</value>
+  </data>
+  <data name="CaseTagSyntaxException" xml:space="preserve">
+    <value>Erorre di sintassi nel tag 'case' - La sintassi corretta è: case [condizione]</value>
+  </data>
+  <data name="CaseTagWhenSyntaxException" xml:space="preserve">
+    <value>Errore di sintassi nel tag 'case' - La condizione 'when' valida è: {{% when [condizione] [or condizione2...] %}}</value>
+  </data>
+  <data name="ConditionUnknownOperatorException" xml:space="preserve">
+    <value>Operatore sconosciuto {0}</value>
+  </data>
+  <data name="ContextLiquidError" xml:space="preserve">
+    <value>Errore Liquid: {0}</value>
+  </data>
+  <data name="ContextLiquidSyntaxError" xml:space="preserve">
+    <value>Errore di sintassi Liquid: {0}</value>
+  </data>
+  <data name="ContextObjectInvalidException" xml:space="preserve">
+    <value>L'oggetto '{0}' non è valido perchè non è un tipo built-in, né implementa l'interfaccia ILiquidizable</value>
+  </data>
+  <data name="ContextStackException" xml:space="preserve">
+    <value>Annidamento eccessivo</value>
+  </data>
+  <data name="CycleTagSyntaxException" xml:space="preserve">
+    <value>Syntax Error in 'cycle' tag - Valid syntax: cycle [name :] var [, var2, var3 ...]</value>
+  </data>
+  <data name="ExtendsTagCanBeUsedOneException" xml:space="preserve">
+    <value>Errore Liquid - il tag 'extends' può essere usato una sola volta</value>
+  </data>
+  <data name="ExtendsTagMustBeFirstTagException" xml:space="preserve">
+    <value>Errore Liquid - il tag 'extends' deve essere il primo tag definito all'interno di un template che estende un altro template</value>
+  </data>
+  <data name="ExtendsTagSyntaxException" xml:space="preserve">
+    <value>Errre di sintassi nel tag 'extends' - La sintassi corretta è: extends [template]</value>
+  </data>
+  <data name="ExtendsTagUnallowedTagsException" xml:space="preserve">
+    <value>Errore Liquid - Solo i tag 'comment' e 'block' sono consentiti in un template che estende un altro template</value>
+  </data>
+  <data name="ForTagSyntaxException" xml:space="preserve">
+    <value>Errore di sintassi nel tag 'for' - La sintassi corretta è: for [elemento] in [collezione]</value>
+  </data>
+  <data name="IfTagSyntaxException" xml:space="preserve">
+    <value>Errore di sintassi nel tag 'if' - La sintassi corretta è: if [espressione]</value>
+  </data>
+  <data name="IncludeTagSyntaxException" xml:space="preserve">
+    <value>Errore di sintassi nel tag 'include' - La sintassi corretta è: include [template]</value>
+  </data>
+  <data name="LocalFileSystemIllegalTemplateNameException" xml:space="preserve">
+    <value>Errore - Nome di template non valido '{0}'</value>
+  </data>
+  <data name="LocalFileSystemIllegalTemplatePathException" xml:space="preserve">
+    <value>Errore - Percorso del template non valido '{0}'</value>
+  </data>
+  <data name="LocalFileSystemTemplateNotFoundException" xml:space="preserve">
+    <value>Errore - Template non trovato '{0}'</value>
+  </data>
+  <data name="StrainerFilterHasNoValueException" xml:space="preserve">
+    <value>Errore - Il filtro '{0}' non ha un valore predefinito per '{1}' e nessun valore è stato fornito</value>
+  </data>
+  <data name="TableRowTagSyntaxException" xml:space="preserve">
+    <value>Errore di sintassi nel tag 'tablerow' - La sintassi corretta è: tablerow [elemento] in [collezione] cols=[numero]</value>
+  </data>
+  <data name="VariableFilterNotFoundException" xml:space="preserve">
+    <value>Errore - Il filtro '{0}' in '{1}' non è stato trovato</value>
+  </data>
+  <data name="WeakTableKeyNotFoundException" xml:space="preserve">
+    <value>la chiave non è essere trovata</value>
+  </data>
 </root>

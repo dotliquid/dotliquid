@@ -70,7 +70,7 @@ namespace DotLiquid.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error - This liquid context does not allow includes..
+        ///   Looks up a localized string similar to Error - This liquid context does not allow includes.
         /// </summary>
         internal static string BlankFileSystemDoesNotAllowIncludesException {
             get {
@@ -79,7 +79,7 @@ namespace DotLiquid.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Liquid Error - Block &apos;{0}&apos; already defined..
+        ///   Looks up a localized string similar to Liquid Error - Block &apos;{0}&apos; already defined.
         /// </summary>
         internal static string BlockTagAlreadyDefinedException {
             get {

@@ -7,7 +7,7 @@
 		Ruby’s <a href="http://www.liquidmarkup.org">Liquid Markup</a>.</p><blockquote><p>It’s <strong>easy</strong> to learn, <strong>fast</strong> and <strong>safe</strong></p></blockquote><p>You can have 
 		your users build their own templates without affecting your server security in any way.</p>
 		<h2>Requirements</h2>
-		<p>.NET Framework 4.0</p>
+		<p>.NET Framework 3.5 or above</p>
 		<h2>License</h2>
 		<p>DotLiquid is intended to be used in both open-source and commercial environments. To allow its use in as many
 situations as possible, DotLiquid is dual-licensed. You may choose to use DotLiquid under either the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a>

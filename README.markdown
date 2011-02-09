@@ -2,7 +2,7 @@
 
 ### What is this?
 
-DotLiquid is a .NET 4.0 port of the popular [Ruby Liquid templating language](http://www.liquidmarkup.org). It is a separate project that aims to retain the same template syntax as the original, while using .NET coding conventions where possible.
+DotLiquid is a .NET 3.5 port of the popular [Ruby Liquid templating language](http://www.liquidmarkup.org). It is a separate project that aims to retain the same template syntax as the original, while using .NET coding conventions where possible.
 
 For more information about the original Liquid project, see <http://www.liquidmarkup.org>.
 

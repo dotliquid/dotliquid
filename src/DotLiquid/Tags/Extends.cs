@@ -94,7 +94,7 @@ namespace DotLiquid.Tags
                         template.Root.NodeList.Add(block);
             });
 
-            result.Write(template.Render(context));
+            template.Render(result, context);
         }
 
         public bool IsExtending(Template template)

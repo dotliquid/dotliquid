@@ -12,15 +12,16 @@ namespace DotLiquid.Util
 
 		/// <summary>
 		/// Returns the text written to the stream so far.
-		/// After calling this property, no more text can be written because
-		/// the stream will be disposed.
 		/// </summary>
 		public override string ToString()
 		{
 			Flush();
 			StreamReader reader = new StreamReader(BaseStream);
+			long savedPosition = BaseStream.Position;
 			BaseStream.Position = 0;
-			return reader.ReadToEnd();
+			string result = reader.ReadToEnd();
+			BaseStream.Position = savedPosition;
+			return result;
 		}
 	}
 }

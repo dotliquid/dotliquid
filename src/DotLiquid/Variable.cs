@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
@@ -56,7 +56,7 @@ namespace DotLiquid
             }
         }
 
-        public void Render(Context context, StringBuilder result)
+		public void Render(Context context, StreamWriter result)
         {
             object output = RenderInternal(context);
             if (output != null)
@@ -72,7 +72,7 @@ namespace DotLiquid
                     outputString = output.ToString().ToLower();
                 else
                     outputString = output.ToString();
-                result.Append(outputString);
+                result.Write(outputString);
             }
         }
 

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -64,7 +65,7 @@ namespace DotLiquid.Tags
             });
         }
 
-        public override void Render(Context context, StringBuilder result)
+		public override void Render(Context context, StreamWriter result)
         {
             context.Stack(() =>
             {

@@ -1,5 +1,5 @@
+using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace DotLiquid.Tags
 {
@@ -10,7 +10,7 @@ namespace DotLiquid.Tags
 	/// </summary>
 	public class Unless : If
 	{
-		public override void Render(Context context, StringBuilder result)
+		public override void Render(Context context, StreamWriter result)
 		{
 			context.Stack(() =>
 			{

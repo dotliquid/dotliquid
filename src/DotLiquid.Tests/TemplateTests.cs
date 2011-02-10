@@ -1,3 +1,5 @@
+using System.IO;
+using DotLiquid.Util;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -100,6 +102,19 @@ namespace DotLiquid.Tests
 		{
 			Template t = Template.Parse("{% if true -%}\nhi tobi\n{% endif %}");
 			Assert.AreEqual("hi tobi\n", t.Render());
+		}
+
+		[Test]
+		public void TestRenderToStream()
+		{
+			Template template = Template.Parse("{{test}}");
+
+			MemoryStreamWriter streamWriter = new MemoryStreamWriter();
+			template.Render(streamWriter, Hash.FromAnonymousObject(new { test = "worked" }));
+
+			Assert.AreEqual("worked", streamWriter.ToString());
+
+			streamWriter.Dispose();
 		}
 	}
 }

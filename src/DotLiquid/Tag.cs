@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
+using DotLiquid.Util;
 
 namespace DotLiquid
 {
@@ -39,7 +41,7 @@ namespace DotLiquid
             get { return GetType().Name.ToLower(); }
         }
 
-        public virtual void Render(Context context, StringBuilder result)
+        public virtual void Render(Context context, StreamWriter result)
         {
 
         }
@@ -51,7 +53,7 @@ namespace DotLiquid
         /// <returns></returns>
         internal string Render(Context context)
         {
-            StringBuilder result = new StringBuilder();
+			MemoryStreamWriter result = new MemoryStreamWriter();
             Render(context, result);
             return result.ToString();
         }

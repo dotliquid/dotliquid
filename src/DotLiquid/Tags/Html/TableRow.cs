@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -32,7 +33,7 @@ namespace DotLiquid.Tags.Html
 			base.Initialize(tagName, markup, tokens);
 		}
 
-		public override void Render(Context context, StringBuilder result)
+		public override void Render(Context context, StreamWriter result)
 		{
 			object coll = context[_collectionName];
 
@@ -55,7 +56,7 @@ namespace DotLiquid.Tags.Html
 			int row = 1;
 			int col = 0;
 
-			result.AppendLine("<tr class=\"row1\">");
+			result.WriteLine("<tr class=\"row1\">");
 			context.Stack(() => collection.EachWithIndex((item, index) =>
 			{
 				context[_variableName] = item;
@@ -76,19 +77,19 @@ namespace DotLiquid.Tags.Html
 
 				++col;
 
-				StringBuilder temp = new StringBuilder();
+				MemoryStreamWriter temp = new MemoryStreamWriter();
 				RenderAll(NodeList, context, temp);
-				result.AppendFormat("<td class=\"col{0}\">{1}</td>", col, temp.ToString());
+				result.Write("<td class=\"col{0}\">{1}</td>", col, temp.ToString());
 
 				if (col == cols && index != length - 1)
 				{
 					col = 0;
 					++row;
-					result.AppendLine("</tr>");
-					result.AppendFormat("<tr class=\"row{0}\">", row);
+					result.WriteLine("</tr>");
+					result.Write("<tr class=\"row{0}\">", row);
 				}
 			}));
-			result.AppendLine("</tr>");
+			result.WriteLine("</tr>");
 		}
 	}
 }

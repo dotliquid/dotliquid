@@ -16,15 +16,16 @@ namespace DotLiquid.Tags
             _block = block;
         }
 
-        public string Super()
+        public void Super()
         {
-            return _block.CallSuper(Context);
+			_block.CallSuper(Context);
         }
     }
 
     public class Block : DotLiquid.Block
     {
         private static readonly Regex Syntax = new Regex(@"(\w+)");
+		private StreamWriter _result;
 
         internal Block Parent { get; set; }
         internal string BlockName { get; set; }
@@ -67,6 +68,8 @@ namespace DotLiquid.Tags
 
 		public override void Render(Context context, StreamWriter result)
         {
+			_result = result;
+
             context.Stack(() =>
             {
                 context["block"] = new BlockDrop(this);
@@ -88,9 +91,12 @@ namespace DotLiquid.Tags
             }
         }
 
-        public string CallSuper(Context context)
+        public void CallSuper(Context context)
         {
-            return Parent != null ? Parent.Render(context) : "";
+			if (Parent != null)
+			{
+				Parent.Render(context, _result);
+			}
         }
     }
 }

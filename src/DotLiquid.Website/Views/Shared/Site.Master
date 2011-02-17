@@ -65,7 +65,7 @@
 				<h5>
 					Porting and Development</h5>
 				<ul>
-					<li><a href="http://formosatek.com">Formosatek</a></li>
+					<li><a href="http://www.roastedamoeba.com">Tim Jones</a></li>
 				</ul>
 				<h5>
 					Contributors</h5>
@@ -91,7 +91,7 @@
 			</div>
 		</div>
 		<div id="copyright">
-			Copyright © 2010 <a href="http://formosatek.com">Formosatek</a> and contributors - All rights reserved. Site design by <a href="http://www.alessandropetrelli.com">Alessandro Petrelli</a>.</div>
+			Copyright ©2010-2011 <a href="http://formosatek.com">Formosatek</a> and contributors - All rights reserved. Site design by <a href="http://www.alessandropetrelli.com">Alessandro Petrelli</a>.</div>
 	</div>
 
 	<asp:ContentPlaceHolder runat="server" ID="ScriptContent" />

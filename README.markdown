@@ -13,7 +13,7 @@ For more information about the original Liquid project, see <http://www.liquidma
 2. Read the [wiki](http://github.com/formosatek/dotliquid/wiki) for information on writing and using
    DotLiquid templates.
 
-### Why should i use DotLiquid
+### Why should I use DotLiquid?
 
 * You want to allow your users to edit their own page templates, but want to ensure they don't run insecure code.
 * You want to render templates directly from the database

@@ -15,7 +15,8 @@ namespace DotLiquid.NamingConventions
 	/// </example>
 	public class RubyNamingConvention : INamingConvention
 	{
-		private readonly Regex _regex = new Regex("(.)([A-Z])");
+		private readonly Regex _regex1 = new Regex(@"([A-Z]+)([A-Z][a-z])"); 
+		private readonly Regex _regex2 = new Regex(@"([a-z\d])([A-Z])");
 
 		public StringComparer StringComparer
 		{
@@ -24,8 +25,8 @@ namespace DotLiquid.NamingConventions
 
 		public string GetMemberName(string name)
 		{
-			// Replace any capital letters, apart from the first character, with _x
-			return _regex.Replace(name, "$1_$2").ToLower();
+			// Replace any capital letters, apart from the first character, with _x, the same way Ruby does
+			return _regex2.Replace(_regex1.Replace(name, "$1_$2"), "$1_$2").ToLower();
 		}
 	}
 }

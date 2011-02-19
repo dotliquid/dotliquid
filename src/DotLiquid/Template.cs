@@ -31,7 +31,7 @@ namespace DotLiquid
 
 		static Template()
 		{
-			NamingConvention = new RubyNamingConvention();
+			NamingConvention = new CSharpNamingConvention(); // we live in a .net world baby!
 			FileSystem = new BlankFileSystem();
 			Tags = new Dictionary<string, Type>();
 		}

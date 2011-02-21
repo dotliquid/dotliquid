@@ -217,6 +217,6 @@
     <value>Errore - Il filtro '{0}' in '{1}' non è stato trovato</value>
   </data>
   <data name="WeakTableKeyNotFoundException" xml:space="preserve">
-    <value>la chiave non è essere trovata</value>
+    <value>la chiave non è stata trovata</value>
   </data>
 </root>

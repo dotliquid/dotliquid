@@ -28,6 +28,14 @@ namespace DotLiquid.Tests
 		}
 
 		[Test]
+		public void TestRubyFullUpperCase()
+		{
+			RubyNamingConvention namingConvention = new RubyNamingConvention();
+			Assert.AreEqual("id", namingConvention.GetMemberName("ID"));
+			Assert.AreEqual("hellocruelworld", namingConvention.GetMemberName("HELLOCRUELWORLD"));
+		}
+
+		[Test]
 		public void TestCSharpConventionDoesNothing()
 		{
 			CSharpNamingConvention namingConvention = new CSharpNamingConvention();

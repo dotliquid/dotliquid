@@ -9,10 +9,12 @@ namespace DotLiquid.Tests.Util
 		[Test]
 		public void CanWriteAndReadFromMemoryStreamWriter()
 		{
-			MemoryStreamWriter writer = new MemoryStreamWriter();
-			writer.Write("Hello world");
+			using (MemoryStreamWriter writer = new MemoryStreamWriter())
+			{
+				writer.Write("Hello world");
 
-			Assert.AreEqual("Hello world", writer.ToString());
+				Assert.AreEqual("Hello world", writer.ToString());
+			}
 		}
 	}
 }

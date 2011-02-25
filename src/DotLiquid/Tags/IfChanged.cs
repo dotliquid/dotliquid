@@ -9,9 +9,12 @@ namespace DotLiquid.Tags
 		{
 			context.Stack(() =>
 			{
-				MemoryStreamWriter temp = new MemoryStreamWriter();
-				RenderAll(NodeList, context, temp);
-				string tempString = temp.ToString();
+				string tempString;
+				using (MemoryStreamWriter temp = new MemoryStreamWriter())
+				{
+					RenderAll(NodeList, context, temp);
+					tempString = temp.ToString();
+				}
 
 				if (tempString != (context.Registers["ifchanged"] as string))
 				{

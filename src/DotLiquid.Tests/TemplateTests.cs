@@ -109,12 +109,12 @@ namespace DotLiquid.Tests
 		{
 			Template template = Template.Parse("{{test}}");
 
-			MemoryStreamWriter streamWriter = new MemoryStreamWriter();
-			template.Render(streamWriter, Hash.FromAnonymousObject(new { test = "worked" }));
+			using (MemoryStreamWriter streamWriter = new MemoryStreamWriter())
+			{
+				template.Render(streamWriter, Hash.FromAnonymousObject(new { test = "worked" }));
 
-			Assert.AreEqual("worked", streamWriter.ToString());
-
-			streamWriter.Dispose();
+				Assert.AreEqual("worked", streamWriter.ToString());
+			}
 		}
 	}
 }

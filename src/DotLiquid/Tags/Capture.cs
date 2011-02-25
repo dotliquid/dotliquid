@@ -39,9 +39,11 @@ namespace DotLiquid.Tags
 
 		public override void Render(Context context, StreamWriter result)
 		{
-			MemoryStreamWriter temp = new MemoryStreamWriter();
-			base.Render(context, temp);
-			context.Scopes.Last()[_to] = temp.ToString();
+			using (MemoryStreamWriter temp = new MemoryStreamWriter())
+			{
+				base.Render(context, temp);
+				context.Scopes.Last()[_to] = temp.ToString();
+			}
 		}
 	}
 }

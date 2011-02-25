@@ -77,9 +77,11 @@ namespace DotLiquid.Tags.Html
 
 				++col;
 
-				MemoryStreamWriter temp = new MemoryStreamWriter();
-				RenderAll(NodeList, context, temp);
-				result.Write("<td class=\"col{0}\">{1}</td>", col, temp.ToString());
+				using (MemoryStreamWriter temp = new MemoryStreamWriter())
+				{
+					RenderAll(NodeList, context, temp);
+					result.Write("<td class=\"col{0}\">{1}</td>", col, temp.ToString());
+				}
 
 				if (col == cols && index != length - 1)
 				{

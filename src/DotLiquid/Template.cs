@@ -123,9 +123,11 @@ namespace DotLiquid
 
 		public string Render(Context context)
 		{
-			MemoryStreamWriter streamWriter = new MemoryStreamWriter();
-			RenderInternal(streamWriter, context, null, null);
-			return streamWriter.ToString();
+			using (MemoryStreamWriter streamWriter = new MemoryStreamWriter())
+			{
+				RenderInternal(streamWriter, context, null, null);
+				return streamWriter.ToString();
+			}
 		}
 
 		public void Render(StreamWriter streamWriter, Context context)
@@ -159,9 +161,11 @@ namespace DotLiquid
 		public string Render(Hash localVariables = null, IEnumerable<Type> filters = null, Hash registers = null)
 #endif
 		{
-			MemoryStreamWriter streamWriter = new MemoryStreamWriter();
-			Render(streamWriter, localVariables, filters, registers);
-			return streamWriter.ToString();
+			using (MemoryStreamWriter streamWriter = new MemoryStreamWriter())
+			{
+				Render(streamWriter, localVariables, filters, registers);
+				return streamWriter.ToString();
+			}
 		}
 
 #if NET35

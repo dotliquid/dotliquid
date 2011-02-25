@@ -111,7 +111,7 @@ namespace DotLiquid.Tests
 
 			using (MemoryStreamWriter streamWriter = new MemoryStreamWriter())
 			{
-				template.Render(streamWriter, Hash.FromAnonymousObject(new { test = "worked" }));
+				template.Render(streamWriter, new RenderParameters { LocalVariables = Hash.FromAnonymousObject(new { test = "worked" })});
 
 				Assert.AreEqual("worked", streamWriter.ToString());
 			}

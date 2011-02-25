@@ -195,13 +195,8 @@ namespace DotLiquid.Tests
 			Template.RegisterFilter(typeof(MoneyFilter));
 
 			Assert.AreEqual(" 1000$ ", Template.Parse("{{1000 | money}}").Render());
-#if NET35
-			Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}").Render(null, new[] { typeof(CanadianMoneyFilter) }, null));
-			Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}").Render(null, new[] { typeof(CanadianMoneyFilter) }, null));
-#else
-            Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}").Render(filters: new[] { typeof(CanadianMoneyFilter) }));
-			Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}").Render(filters: new[] { typeof(CanadianMoneyFilter) }));
-#endif
+			Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}").Render(new RenderParameters { Filters = new[] { typeof(CanadianMoneyFilter) } }));
+			Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}").Render(new RenderParameters { Filters = new[] { typeof(CanadianMoneyFilter) } }));
 		}
 	}
 }

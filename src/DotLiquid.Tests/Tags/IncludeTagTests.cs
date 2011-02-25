@@ -72,11 +72,7 @@ namespace DotLiquid.Tests.Tags
 		[Test]
 		public void TestIncludeTagLooksForFileSystemInRegistersFirst()
 		{
-#if NET35
-            Assert.AreEqual("from OtherFileSystem", Template.Parse("{% include 'pick_a_source' %}").Render(null, null, Hash.FromAnonymousObject(new { file_system = new OtherFileSystem() })));
-#else
-			Assert.AreEqual("from OtherFileSystem", Template.Parse("{% include 'pick_a_source' %}").Render(registers: Hash.FromAnonymousObject(new { file_system = new OtherFileSystem() })));
-#endif
+			Assert.AreEqual("from OtherFileSystem", Template.Parse("{% include 'pick_a_source' %}").Render(new RenderParameters { Registers = Hash.FromAnonymousObject(new { file_system = new OtherFileSystem() })}));
 		}
 
 		[Test]
@@ -139,7 +135,7 @@ namespace DotLiquid.Tests.Tags
 		{
 			Template.FileSystem = new InfiniteFileSystem();
 
-			Assert.Throws<StackLevelException>(() => Template.Parse("{% include 'loop' %}").RenderAndRethrowErrors());
+			Assert.Throws<StackLevelException>(() => Template.Parse("{% include 'loop' %}").Render(new RenderParameters { RethrowErrors = true }));
 		}
 
 		[Test]

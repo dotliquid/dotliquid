@@ -73,7 +73,6 @@ namespace DotLiquid
 
 		private Hash _registers, _assigns, _instanceAssigns;
 		private List<Exception> _errors;
-		private bool _rethrowErrors;
 
 		public Document Root { get; set; }
 
@@ -121,86 +120,50 @@ namespace DotLiquid
 			return this;
 		}
 
-		public string Render(Context context)
+		/// <summary>
+		/// Renders the template using default parameters and returns a string containing the result.
+		/// </summary>
+		/// <returns></returns>
+		public string Render()
+		{
+			return Render(new RenderParameters());
+		}
+
+		/// <summary>
+		/// Renders the template using the specified local variables and returns a string containing the result.
+		/// </summary>
+		/// <param name="localVariables"></param>
+		/// <returns></returns>
+		public string Render(Hash localVariables)
+		{
+			return Render(new RenderParameters
+			{
+				LocalVariables = localVariables
+			});
+		}
+
+		/// <summary>
+		/// Renders the template using the specified parameters and returns a string containing the result.
+		/// </summary>
+		/// <param name="parameters"></param>
+		/// <returns></returns>
+		public string Render(RenderParameters parameters)
 		{
 			using (MemoryStreamWriter streamWriter = new MemoryStreamWriter())
 			{
-				RenderInternal(streamWriter, context, null, null);
+				Render(streamWriter, parameters);
 				return streamWriter.ToString();
 			}
 		}
 
-		public void Render(StreamWriter streamWriter, Context context)
+		/// <summary>
+		/// Renders the template into the specified StreamWriter.
+		/// </summary>
+		/// <param name="streamWriter"></param>
+		/// <param name="parameters"></param>
+		public void Render(StreamWriter streamWriter, RenderParameters parameters)
 		{
-			RenderInternal(streamWriter, context, null, null);
-		}
-
-#if NET35
-        public string Render()
-        {
-            return Render((Hash) null, null, null);
-        }
-
-        public string Render(IEnumerable<Type> filters)
-        {
-            return Render(null, filters, null);
-        }
-
-        public string Render(Hash hash)
-        {
-            return Render(hash, null, null);
-        }
-
-        public string Render(Hash hash, IEnumerable<Type> filters)
-        {
-            return Render(hash, filters, null);
-        }
-
-        public string Render(Hash localVariables, IEnumerable<Type> filters, Hash registers)
-#else
-		public string Render(Hash localVariables = null, IEnumerable<Type> filters = null, Hash registers = null)
-#endif
-		{
-			using (MemoryStreamWriter streamWriter = new MemoryStreamWriter())
-			{
-				Render(streamWriter, localVariables, filters, registers);
-				return streamWriter.ToString();
-			}
-		}
-
-#if NET35
-        public void Render(StreamWriter streamWriter)
-        {
-			Render(streamWriter, null, null, null);
-        }
-
-		public void Render(StreamWriter streamWriter, IEnumerable<Type> filters)
-        {
-            Render(streamWriter, null, filters, null);
-        }
-
-		public void Render(StreamWriter streamWriter, Hash hash)
-        {
-			Render(streamWriter, hash, null, null);
-        }
-
-		public void Render(StreamWriter streamWriter, Hash hash, IEnumerable<Type> filters)
-        {
-			Render(streamWriter, hash, filters, null);
-        }
-
-		public void Render(StreamWriter streamWriter, Hash localVariables, IEnumerable<Type> filters, Hash registers)
-#else
-		public void Render(StreamWriter streamWriter, Hash localVariables = null, IEnumerable<Type> filters = null, Hash registers = null)
-#endif
-		{
-			List<Hash> environments = new List<Hash>();
-			if (localVariables != null)
-				environments.Add(localVariables);
-			environments.Add(Assigns);
-			Context context = new Context(environments, InstanceAssigns, Registers, _rethrowErrors);
-
-			RenderInternal(streamWriter, context, registers, filters);
+			RenderInternal(streamWriter, parameters);
 		}
 
 		/// <summary>
@@ -215,10 +178,15 @@ namespace DotLiquid
 		/// * <tt>registers</tt> : hash with register variables. Those can be accessed from
 		/// filters and tags and might be useful to integrate liquid more with its host application
 		/// </summary>
-		private void RenderInternal(StreamWriter streamWriter, Context context, Hash registers, IEnumerable<Type> filters)
+		private void RenderInternal(StreamWriter streamWriter, RenderParameters parameters)
 		{
 			if (Root == null)
 				return;
+
+			Context context;
+			Hash registers;
+			IEnumerable<Type> filters;
+			parameters.Evaluate(this, out context, out registers, out filters);
 
 			if (registers != null)
 				Registers.Merge(registers);
@@ -235,36 +203,6 @@ namespace DotLiquid
 			{
 				_errors = context.Errors;
 			}
-		}
-
-#if NET35
-        public string RenderAndRethrowErrors()
-        {
-            return RenderAndRethrowErrors((Hash)null);
-        }
-
-        public string RenderAndRethrowErrors(Hash hash)
-#else
-		public string RenderAndRethrowErrors(Hash hash = null)
-#endif
-		{
-			_rethrowErrors = true;
-			return Render(hash, null, null);
-		}
-
-#if NET35
-        public void RenderAndRethrowErrors(StreamWriter streamWriter)
-        {
-			RenderAndRethrowErrors(streamWriter, (Hash)null);
-        }
-
-        public void RenderAndRethrowErrors(StreamWriter streamWriter, Hash hash)
-#else
-		public void RenderAndRethrowErrors(StreamWriter streamWriter, Hash hash = null)
-#endif
-		{
-			_rethrowErrors = true;
-			Render(streamWriter, hash, null, null);
 		}
 
 		/// <summary>

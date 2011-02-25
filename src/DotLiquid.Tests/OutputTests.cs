@@ -83,55 +83,55 @@ namespace DotLiquid.Tests
 		[Test]
 		public void TestVariablePiping()
 		{
-			Assert.AreEqual(" LOL ", Template.Parse(" {{ car.gm | make_funny }} ").Render(_assigns, new[] { typeof(FunnyFilter) }));
+			Assert.AreEqual(" LOL ", Template.Parse(" {{ car.gm | make_funny }} ").Render(new RenderParameters { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) }}));
 		}
 
 		[Test]
 		public void TestVariablePipingWithInput()
 		{
-			Assert.AreEqual(" LOL: bad ", Template.Parse(" {{ car.gm | cite_funny }} ").Render(_assigns, new[] { typeof(FunnyFilter) }));
+			Assert.AreEqual(" LOL: bad ", Template.Parse(" {{ car.gm | cite_funny }} ").Render(new RenderParameters { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
 		}
 
 		[Test]
 		public void TestVariablePipingWithArgs()
 		{
-			Assert.AreEqual(" bad :-( ", Template.Parse(" {{ car.gm | add_smiley : ':-(' }} ").Render(_assigns, new[] { typeof(FunnyFilter) }));
+			Assert.AreEqual(" bad :-( ", Template.Parse(" {{ car.gm | add_smiley : ':-(' }} ").Render(new RenderParameters { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
 		}
 
 		[Test]
 		public void TestVariablePipingWithNoArgs()
 		{
-			Assert.AreEqual(" bad :-) ", Template.Parse(" {{ car.gm | add_smiley }} ").Render(_assigns, new[] { typeof(FunnyFilter) }));
+			Assert.AreEqual(" bad :-) ", Template.Parse(" {{ car.gm | add_smiley }} ").Render(new RenderParameters { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
 		}
 
 		[Test]
 		public void TestMultipleVariablePipingWithArgs()
 		{
-			Assert.AreEqual(" bad :-( :-( ", Template.Parse(" {{ car.gm | add_smiley : ':-(' | add_smiley : ':-(' }} ").Render(_assigns, new[] { typeof(FunnyFilter) }));
+			Assert.AreEqual(" bad :-( :-( ", Template.Parse(" {{ car.gm | add_smiley : ':-(' | add_smiley : ':-(' }} ").Render(new RenderParameters { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
 		}
 
 		[Test]
 		public void TestVariablePipingWithArgs2()
 		{
-			Assert.AreEqual(" <span id=\"bar\">bad</span> ", Template.Parse(" {{ car.gm | add_tag : 'span', 'bar' }} ").Render(_assigns, new[] { typeof(FunnyFilter) }));
+			Assert.AreEqual(" <span id=\"bar\">bad</span> ", Template.Parse(" {{ car.gm | add_tag : 'span', 'bar' }} ").Render(new RenderParameters { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
 		}
 
 		[Test]
 		public void TestVariablePipingWithWithVariableArgs()
 		{
-			Assert.AreEqual(" <span id=\"good\">bad</span> ", Template.Parse(" {{ car.gm | add_tag : 'span', car.bmw }} ").Render(_assigns, new[] { typeof(FunnyFilter) }));
+			Assert.AreEqual(" <span id=\"good\">bad</span> ", Template.Parse(" {{ car.gm | add_tag : 'span', car.bmw }} ").Render(new RenderParameters { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
 		}
 
 		[Test]
 		public void TestMultiplePipings()
 		{
-			Assert.AreEqual(" <p>LOL: bmw</p> ", Template.Parse(" {{ best_cars | cite_funny | paragraph }} ").Render(_assigns, new[] { typeof(FunnyFilter) }));
+			Assert.AreEqual(" <p>LOL: bmw</p> ", Template.Parse(" {{ best_cars | cite_funny | paragraph }} ").Render(new RenderParameters { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
 		}
 
 		[Test]
 		public void TestLinkTo()
 		{
-			Assert.AreEqual(" <a href=\"http://typo.leetsoft.com\">Typo</a> ", Template.Parse(" {{ 'Typo' | link_to: 'http://typo.leetsoft.com' }} ").Render(_assigns, new[] { typeof(FunnyFilter) }));
+			Assert.AreEqual(" <a href=\"http://typo.leetsoft.com\">Typo</a> ", Template.Parse(" {{ 'Typo' | link_to: 'http://typo.leetsoft.com' }} ").Render(new RenderParameters { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
 		}
 	}
 }

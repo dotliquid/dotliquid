@@ -73,9 +73,17 @@ namespace DotLiquid.Tests
 			Template template = Template.Parse("Hello {{ test }}");
 			Hash assigns = new Hash((h, k) => { throw new Exception("Unknown variable '" + k + "'"); });
 			assigns["test"] = "Tobi";
-			Assert.AreEqual("Hello Tobi", template.RenderAndRethrowErrors(assigns));
+			Assert.AreEqual("Hello Tobi", template.Render(new RenderParameters
+			{
+				LocalVariables = assigns,
+				RethrowErrors = true
+			}));
 			assigns.Remove("test");
-			Exception ex = Assert.Throws<Exception>(() => template.RenderAndRethrowErrors(assigns));
+			Exception ex = Assert.Throws<Exception>(() => template.Render(new RenderParameters
+			{
+				LocalVariables = assigns,
+				RethrowErrors = true
+			}));
 			Assert.AreEqual("Unknown variable 'test'", ex.Message);
 		}
 	}

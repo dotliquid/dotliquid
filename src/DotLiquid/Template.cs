@@ -167,6 +167,20 @@ namespace DotLiquid
 		}
 
 		/// <summary>
+		/// Renders the template into the specified Stream.
+		/// </summary>
+		/// <param name="stream"></param>
+		/// <param name="parameters"></param>
+		public void Render(Stream stream, RenderParameters parameters)
+		{
+			// Can't dispose this new StreamWriter, because it would close the
+			// passed-in stream, which isn't up to us.
+			StreamWriter streamWriter = new StreamWriter(stream);
+			RenderInternal(streamWriter, parameters);
+			streamWriter.Flush();
+		}
+
+		/// <summary>
 		/// Render takes a hash with local variables.
 		/// 
 		/// if you use the same filters over and over again consider registering them globally

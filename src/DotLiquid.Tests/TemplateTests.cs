@@ -105,13 +105,26 @@ namespace DotLiquid.Tests
 		}
 
 		[Test]
-		public void TestRenderToStream()
+		public void TestRenderToStreamWriter()
 		{
 			Template template = Template.Parse("{{test}}");
 
 			using (MemoryStreamWriter streamWriter = new MemoryStreamWriter())
 			{
 				template.Render(streamWriter, new RenderParameters { LocalVariables = Hash.FromAnonymousObject(new { test = "worked" })});
+
+				Assert.AreEqual("worked", streamWriter.ToString());
+			}
+		}
+
+		[Test]
+		public void TestRenderToStream()
+		{
+			Template template = Template.Parse("{{test}}");
+
+			using (MemoryStreamWriter streamWriter = new MemoryStreamWriter())
+			{
+				template.Render(streamWriter.BaseStream, new RenderParameters { LocalVariables = Hash.FromAnonymousObject(new { test = "worked" }) });
 
 				Assert.AreEqual("worked", streamWriter.ToString());
 			}

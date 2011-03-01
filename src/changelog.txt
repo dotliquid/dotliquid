@@ -1,3 +1,13 @@
+v1.5.0.0 - 2011-03-01
+- Fix for RubyNamingConvention incorrectly handling full uppercase memebers. Let's do it the same way Ruby does!
+- Dispose MemoryStreamWriter correctly
+- BREAKING CHANGE: Refactored Template.Render(*) methods, because they were getting a little out of hand. I'm no longer using C# 4 optional parameters. Instead, I've simplified the primary (i.e. the one that returns a string) Render method to three overloads:
+  - Render()
+  - Render(Hash)
+  - Render(RenderParameters)
+  That last one is where you can specify filters, registers, and whether to rethrow errors. If any of the RenderParameters values are null, then default values will be used, as before.
+  For the Render() method that takes in a stream, I have not provided any overloads apart from the basic Render(StreamWriter streamWriter, RenderParameters parameters), because I want to keep it as simple as possible and I don't think this version will be commonly used.
+
 v1.2.1.0 - 2011-02-12
 - Signed DotLiquid assembly with strong name. DotLiquid.dll can now be placed in GAC.
 - Created changelog.txt :)

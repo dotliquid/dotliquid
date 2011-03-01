@@ -22,6 +22,10 @@ namespace DotLiquid.Tags
         }
     }
 
+	/// <summary>
+	/// The Block tag is used in conjunction with the Extends tag to provide template inheritance.
+	/// For an example please refer to the Extends tag.
+	/// </summary>
     public class Block : DotLiquid.Block
     {
         private static readonly Regex Syntax = new Regex(@"(\w+)");

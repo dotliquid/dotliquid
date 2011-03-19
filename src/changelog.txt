@@ -1,3 +1,6 @@
+v1.5.2.0 - 2011-03-19
+- "Assign" tag now works correctly with European (i.e. comma) decimal separators.
+
 v1.5.1.0 - 2011-03-19
 - Filters can now access the current context. To do this, modify your filter method(s) to take
   in a Context object as the first argument. DotLiquid will automatically pass the current

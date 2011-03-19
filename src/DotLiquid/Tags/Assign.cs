@@ -18,7 +18,7 @@ namespace DotLiquid.Tags
     /// </summary>
     public class Assign : Tag
     {
-        private static readonly Regex Syntax = R.B(R.Q(@"({0}+)\s*=\s*({1}+)"), Liquid.VariableSignature, Liquid.QuotedFragment);
+        private static readonly Regex Syntax = R.B(R.Q(@"({0}+)\s*=\s*({1}+)"), Liquid.VariableSignature, Liquid.QuotedAssignFragment);
 
         private string _to, _from;
 

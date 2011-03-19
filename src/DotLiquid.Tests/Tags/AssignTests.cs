@@ -1,3 +1,4 @@
+using System.Globalization;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests.Tags
@@ -17,8 +18,23 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestAssignDecimal()
         {
-            Helper.AssertTemplateResult(string.Format("10{0}05", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator), "{% assign foo = decimal %}{{ foo }}",
+            Helper.AssertTemplateResult(string.Format("10{0}05", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
+				"{% assign foo = decimal %}{{ foo }}",
                 Hash.FromAnonymousObject(new { @decimal = 10.05d }));
         }
+
+		[Test, SetCulture("en-GB")]
+		public void TestAssignDecimalInlineWithEnglishDecimalSeparator()
+		{
+			Helper.AssertTemplateResult(string.Format("2{0}5", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
+				"{% assign foo = 2.5 %}{{ foo }}");
+		}
+
+		[Test, SetCulture("fr-FR")]
+		public void TestAssignDecimalInlineWithFrenchDecimalSeparator()
+		{
+			Helper.AssertTemplateResult(string.Format("2{0}5", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
+				"{% assign foo = 2,5 %}{{ foo }}");
+		}
 	}
 }

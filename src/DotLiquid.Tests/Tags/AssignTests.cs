@@ -30,11 +30,25 @@ namespace DotLiquid.Tests.Tags
 				"{% assign foo = 2.5 %}{{ foo }}");
 		}
 
+		[Test, SetCulture("en-GB")]
+		public void TestAssignDecimalInlineWithEnglishGroupSeparator()
+		{
+			Helper.AssertTemplateResult("2500",
+				"{% assign foo = 2,500 %}{{ foo }}");
+		}
+
 		[Test, SetCulture("fr-FR")]
 		public void TestAssignDecimalInlineWithFrenchDecimalSeparator()
 		{
 			Helper.AssertTemplateResult(string.Format("2{0}5", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
 				"{% assign foo = 2,5 %}{{ foo }}");
+		}
+
+		[Test, SetCulture("fr-FR")]
+		public void TestAssignDecimalInlineWithInvariantDecimalSeparatorInFrenchCulture()
+		{
+			Helper.AssertTemplateResult(string.Format("2{0}5", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
+				"{% assign foo = 2.5 %}{{ foo }}");
 		}
 	}
 }

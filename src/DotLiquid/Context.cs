@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
@@ -222,7 +223,17 @@ namespace DotLiquid
 			// Floats.
 			match = Regex.Match(key, R.Q(@"^([+-]?\d[\d\.|\,]+)$"));
 			if (match.Success)
-				return Convert.ToSingle(match.Groups[1].Value);
+			{
+				// For cultures with "," as the decimal separator, allow
+				// both "," and "." to be used as the separator.
+				// First try to parse using current culture.
+				float result;
+				if (float.TryParse(match.Groups[1].Value, out result))
+					return result;
+
+				// If that fails, try to parse using invariant culture.
+				return float.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+			}
 
 			return Variable(key);
 		}

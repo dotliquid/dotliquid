@@ -61,6 +61,14 @@ namespace DotLiquid.Tests
 			}
 		}
 
+		private static class ContextFilters
+		{
+			public static string BankStatement(Context context, object input)
+			{
+				return string.Format(" " + context["name"] + " has {0:d}$ ", input);
+			}
+		}
+
 		#endregion
 
 		private Context _context;
@@ -197,6 +205,15 @@ namespace DotLiquid.Tests
 			Assert.AreEqual(" 1000$ ", Template.Parse("{{1000 | money}}").Render());
 			Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}").Render(new RenderParameters { Filters = new[] { typeof(CanadianMoneyFilter) } }));
 			Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}").Render(new RenderParameters { Filters = new[] { typeof(CanadianMoneyFilter) } }));
+		}
+
+		[Test]
+		public void TestContextFilter()
+		{
+			_context["var"] = 1000;
+			_context["name"] = "King Kong";
+			_context.AddFilters(typeof(ContextFilters));
+			Assert.AreEqual(" King Kong has 1000$ ", new Variable("var | bank_statement").Render(_context));
 		}
 	}
 }

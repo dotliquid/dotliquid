@@ -82,8 +82,13 @@ namespace DotLiquid
 			if (methodInfo == null)
 				methodInfo = _methods[method].OrderByDescending(m => m.GetParameters().Length).First();
 
-			// Add in any default parameters - .NET won't do this for us.
 			ParameterInfo[] parameterInfos = methodInfo.GetParameters();
+
+			// If first parameter is Context, send in actual context.
+			if (parameterInfos.Length > 0 && parameterInfos[0].ParameterType == typeof (Context))
+				args.Insert(0, _context);
+
+			// Add in any default parameters - .NET won't do this for us.
 			if (parameterInfos.Length > args.Count)
 				for (int i = args.Count; i < parameterInfos.Length; ++i)
 				{

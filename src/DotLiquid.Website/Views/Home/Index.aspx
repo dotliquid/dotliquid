@@ -20,14 +20,15 @@ encouraged to evaluate both to determine which best fits your intended use.</p>
 			<p>...</p>
 			<p>&lt;p&gt;<span class="code">{{ user.name }}</span> has to do:&lt;/p&gt;</p>
 			<p>&lt;ul&gt;</p>
-			<p>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">{% for item in user.tasks %}</span></p>
+			<p>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">{% for item in user.tasks -%}</span></p>
 			<p>&nbsp;&nbsp;&nbsp;&nbsp;&lt;li&gt;<span class="code">{{ item.name }}</span>&lt;/li&gt;</p>
-			<p>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">{% endfor %}</span></p>
+			<p>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">{% endfor -%}</span></p>
 			<p>&lt;/ul&gt;</p>
 			<p>...</p>
 		</div>
 		<h2>Get started</h2>
-		<p>Grab the current version from <a href="http://github.com/formosatek/dotliquid/downloads">here</a>
+		<p>If you use <a href="http://nuget.org">NuGet</a>, then the easiest way to get DotLiquid is to install the <a href="http://nuget.org/List/Packages/DotLiquid">DotLiquid NuGet package</a>.</p>
+		<p>Otherwise, grab the current version from <a href="http://github.com/formosatek/dotliquid/downloads">here</a>
 		or get the latest bits from <a href="http://github.com/formosatek/dotliquid">github</a> and compile it.
 		<br/>
 		<br/>

@@ -12,9 +12,9 @@ namespace DotLiquid.Website.Controllers
 			const string templateCode = @"&lt;p&gt;{{ user.name | upcase }} has to do:&lt;/p&gt;
 
 &lt;ul&gt;
-{% for item in user.tasks %}
+{% for item in user.tasks -%}
   &lt;li&gt;{{ item.name }}&lt;/li&gt;
-{% endfor %}
+{% endfor -%}
 &lt;/ul&gt;";
 
 			string result = LiquifyInternal(templateCode);

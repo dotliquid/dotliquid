@@ -20,6 +20,14 @@ namespace DotLiquid.Tests
 			}
 		}
 
+		private static class TestContextFilters
+		{
+			public static string Hi(Context context, string output)
+			{
+				return output + " hi from " + context["name"] + "!";
+			}
+		}
+
 		private static class GlobalFilters
 		{
 			public static string Notice(string output)
@@ -244,6 +252,19 @@ namespace DotLiquid.Tests
 
 			context.AddFilters(new[] { typeof(TestFilters) });
 			Assert.AreEqual("hi? hi!", context.Invoke("hi", new List<object> { "hi?" }));
+		}
+
+		[Test]
+		public void TestAddContextFilter()
+		{
+			Context context = new Context();
+			context["name"] = "King Kong";
+
+			context.AddFilters(new[] { typeof(TestContextFilters) });
+			Assert.AreEqual("hi? hi from King Kong!", context.Invoke("hi", new List<object> { "hi?" }));
+
+			context = new Context();
+			Assert.AreEqual("hi?", context.Invoke("hi", new List<object> { "hi?" }));
 		}
 
 		[Test]

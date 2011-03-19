@@ -1,3 +1,9 @@
+v1.5.1.0 - 2011-03-19
+- Filters can now access the current context. To do this, modify your filter method(s) to take
+  in a Context object as the first argument. DotLiquid will automatically pass the current
+  context to your filter.
+- Minor updates to website
+
 v1.5.0.0 - 2011-03-01
 - Fix for RubyNamingConvention incorrectly handling full uppercase memebers. Let's do it the same way Ruby does!
 - Dispose MemoryStreamWriter correctly

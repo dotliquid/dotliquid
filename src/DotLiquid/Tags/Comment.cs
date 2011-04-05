@@ -7,8 +7,10 @@ namespace DotLiquid.Tags
 	{
         public static string FromShortHand(string @string)
         {
-            Match match = Regex.Match(@string, Liquid.CommentShorthand);
+			if (@string == null)
+				return @string;
 
+            Match match = Regex.Match(@string, Liquid.CommentShorthand);
             return match.Success ? string.Format(@"{{% comment %}}{0}{{% endcomment %}}", match.Groups[1].Value) : @string;
         }
 

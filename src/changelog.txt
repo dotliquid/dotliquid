@@ -1,3 +1,7 @@
+v1.5.3.0 - 2011-04-05
+- Minor fixes to error handling in Include tag; now returns (or throws, if RenderParameters.RethrowErrors is true) correct error message.
+- Minor fixes to null template handling in LocalFileSystem
+
 v1.5.2.0 - 2011-03-19
 - "Assign" tag now works correctly with European (i.e. comma) decimal separators.
 - If "Assign" tag is used with a decimal (or float or double) value, and the decimal

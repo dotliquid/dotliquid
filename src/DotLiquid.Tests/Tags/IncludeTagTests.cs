@@ -1,5 +1,3 @@
-using System.Runtime.Remoting.Contexts;
-
 using DotLiquid.Exceptions;
 using DotLiquid.FileSystems;
 using NUnit.Framework;
@@ -63,7 +61,7 @@ namespace DotLiquid.Tests.Tags
 			}
 		}
 
-		[TestFixtureSetUp]
+		[SetUp]
 		public void SetUp()
 		{
 			Template.FileSystem = new TestFileSystem();
@@ -145,6 +143,32 @@ namespace DotLiquid.Tests.Tags
 			Assert.AreEqual("Test321", Template.Parse("{% include template %}").Render(Hash.FromAnonymousObject(new { template = "Test321" })));
 
 			Assert.AreEqual("Product: Draft 151cm ", Template.Parse("{% include template for product %}").Render(Hash.FromAnonymousObject(new { template = "product", product = Hash.FromAnonymousObject(new { title = "Draft 151cm" }) })));
+		}
+
+		[Test]
+		public void TestUndefinedTemplateVariableWithTestFileSystem()
+		{
+			Assert.AreEqual(" hello  world ", Template.Parse(" hello {% include notthere %} world ").Render());
+		}
+
+		[Test]
+		public void TestUndefinedTemplateVariableWithLocalFileSystem()
+		{
+			Template.FileSystem = new LocalFileSystem(string.Empty);
+			Assert.Throws<FileSystemException>(() => Template.Parse(" hello {% include notthere %} world ").Render(new RenderParameters
+			{
+				RethrowErrors = true
+			}));
+		}
+
+		[Test]
+		public void TestMissingTemplateWithLocalFileSystem()
+		{
+			Template.FileSystem = new LocalFileSystem(string.Empty);
+			Assert.Throws<FileSystemException>(() => Template.Parse(" hello {% include 'doesnotexist' %} world ").Render(new RenderParameters
+			{
+				RethrowErrors = true
+			}));
 		}
 	}
 }

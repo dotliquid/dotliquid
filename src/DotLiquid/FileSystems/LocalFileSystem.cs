@@ -37,7 +37,7 @@ namespace DotLiquid.FileSystems
 
 		public string FullPath(string templatePath)
 		{
-			if (!Regex.IsMatch(templatePath, @"^[^.\/][a-zA-Z0-9_\/]+$"))
+			if (templatePath == null || !Regex.IsMatch(templatePath, @"^[^.\/][a-zA-Z0-9_\/]+$"))
                 throw new FileSystemException(Liquid.ResourceManager.GetString("LocalFileSystemIllegalTemplateNameException"), templatePath);
 
 			string fullPath = templatePath.Contains("/")

@@ -23,8 +23,10 @@ namespace DotLiquid.Tags
 	{
 		public static string FromShortHand(string @string)
 		{
-			Match match = Regex.Match(@string, Liquid.LiteralShorthand);
+			if (@string == null)
+				return @string;
 
+			Match match = Regex.Match(@string, Liquid.LiteralShorthand);
 			return match.Success ? string.Format(@"{{% literal %}}{0}{{% endliteral %}}", match.Groups[1].Value) : @string;
 		}
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using DotLiquid.NamingConventions;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -121,6 +122,14 @@ namespace DotLiquid.Tests
 				if (_dataRow.Table.Columns.Contains(method))
 					return _dataRow[method];
 				return null;
+			}
+		}
+
+		internal class CamelCaseDrop : Drop
+		{
+			public int ProductID
+			{
+				get { return 1; }
 			}
 		}
 
@@ -254,6 +263,19 @@ namespace DotLiquid.Tests
 
 			Template tpl = Template.Parse(" {{ row.column1 }} ");
 			Assert.AreEqual(" Hello ", tpl.Render(Hash.FromAnonymousObject(new {row = new DataRowDrop(dataRow)})));
+		}
+
+		[Test]
+		public void TestRubyNamingConventionPrintsHelpfulErrorIfMissingPropertyWouldMatchCSharpNamingConvention()
+		{
+			INamingConvention savedNamingConvention = Template.NamingConvention;
+			Template.NamingConvention = new RubyNamingConvention();
+			Template template = Template.Parse("{{ value.ProductID }}");
+			Assert.AreEqual("Missing property. Did you mean 'product_id'?", template.Render(Hash.FromAnonymousObject(new
+			{
+				value = new CamelCaseDrop()
+			})));
+			Template.NamingConvention = savedNamingConvention;
 		}
 	}
 }

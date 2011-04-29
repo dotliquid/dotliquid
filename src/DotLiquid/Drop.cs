@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using DotLiquid.NamingConventions;
 
 namespace DotLiquid
 {
@@ -77,6 +78,22 @@ namespace DotLiquid
 		/// <returns></returns>
 		public virtual object BeforeMethod(string method)
 		{
+			// Quite a common (and easy) mistake is to use C#-style property names,
+			// without realising that the default naming convention is Ruby-style.
+			// To try to help with this, we check if the given name *would* match,
+			// if we were using Ruby-style names.
+			if (Template.NamingConvention is RubyNamingConvention)
+			{
+				string rubyMethod = Template.NamingConvention.GetMemberName(method);
+
+				MethodInfo mi;
+				PropertyInfo pi;
+				if (_resolution._cachedMethods.TryGetValue(rubyMethod, out mi)
+					|| _resolution._cachedProperties.TryGetValue(rubyMethod, out pi))
+				{
+					return string.Format(Liquid.ResourceManager.GetString("DropWrongNamingConventionMessage"), rubyMethod);
+				}
+			}
 			return null;
 		}
 

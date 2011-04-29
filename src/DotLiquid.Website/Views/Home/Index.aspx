@@ -32,7 +32,8 @@ encouraged to evaluate both to determine which best fits your intended use.</p>
 		Otherwise, grab the current version from <a href="http://github.com/formosatek/dotliquid/downloads">here</a>
 		or get the latest bits from <a href="http://github.com/formosatek/dotliquid">github</a> and compile it.
 		<br/><br/>
-		Read our <a href="http://github.com/formosatek/dotliquid/wiki">documentation</a>.
+		Read our <a href="http://github.com/formosatek/dotliquid/wiki">documentation</a>. Ask questions on the
+		<a href="http://groups.google.com/group/dotliquid">DotLiquid Google Group</a> or <a href="http://twitter.com/dotliquid">Twitter</a>.
 		</p>
 	</div>
 </asp:Content>

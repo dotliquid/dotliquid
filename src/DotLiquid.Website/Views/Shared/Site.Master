@@ -74,11 +74,16 @@
 				</ul>
 			</div>
 			<div class="footer-col">
-				<h5>
-					Documentation</h5>
+				<h5>Documentation</h5>
 				<ul>
 					<li><a href="http://github.com/formosatek/dotliquid/wiki/DotLiquid-for-Developers">For Developers</a></li>
 					<li><a href="http://github.com/formosatek/dotliquid/wiki/DotLiquid-for-Designers">For Designers</a></li>
+				</ul>
+
+				<h5>Support</h5>
+				<ul>
+					<li><a href="http://groups.google.com/group/dotliquid">Google Group</a></li>
+					<li><a href="http://twitter.com/dotliquid">Twitter</a></li>
 				</ul>
 			</div>
 			<div class="footer-col">

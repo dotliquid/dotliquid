@@ -177,6 +177,9 @@
   <data name="CycleTagSyntaxException" xml:space="preserve">
     <value>Syntax Error in 'cycle' tag - Valid syntax: cycle [name :] var [, var2, var3 ...]</value>
   </data>
+  <data name="DropWrongNamingConventionMessage" xml:space="preserve">
+    <value>Proprietà non riconosciuta. Forse intendevi '{0}'?</value>
+  </data>
   <data name="ExtendsTagCanBeUsedOneException" xml:space="preserve">
     <value>Errore Liquid - il tag 'extends' può essere usato una sola volta</value>
   </data>

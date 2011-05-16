@@ -124,6 +124,17 @@ namespace DotLiquid.Tests
 			}
 		}
 
+		[Test]
+		public void TestLessThanDecimal()
+		{
+			var model = new { value = new decimal(-10.5) };
+
+			string output = Template.Parse("{% if model.value < 0 %}passed{% endif %}")
+			  .Render(Hash.FromAnonymousObject(new { model }));
+
+			Assert.AreEqual("passed", output);
+		}
+
 		#region Helper methods
 
 		private void AssertEvaluatesTrue(string left, string op, string right)

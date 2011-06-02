@@ -108,7 +108,19 @@ namespace DotLiquid
             if (right is Symbol)
                 return ((Symbol)right).EvaluationFunction(left);
 
-            return Equals(left, right);
+			if (left != null && right != null && left.GetType() != right.GetType())
+			{
+				try
+				{
+					right = Convert.ChangeType(right, left.GetType());
+				}
+				catch (Exception)
+				{
+				
+				}
+			}
+
+			return Equals(left, right);
         }
 
         private static bool InterpretCondition(string left, string right, string op, Context context)

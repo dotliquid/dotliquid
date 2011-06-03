@@ -135,6 +135,20 @@ namespace DotLiquid.Tests
 			Assert.AreEqual("passed", output);
 		}
 
+		[Test]
+		public void TestCompareBetweenDifferentTypes()
+		{
+			var row = new System.Collections.Generic.Dictionary<string, object>();
+
+			short id = 1;
+			row.Add("MyID", id);
+
+			var current = "MyID is {% if MyID == 1 %}1{%endif%}";
+			var parse = DotLiquid.Template.Parse(current);
+			var parsedOutput = parse.Render(new RenderParameters() { LocalVariables = Hash.FromDictionary(row) });
+			Assert.AreEqual("MyID is 1", parsedOutput);
+		}
+
 		#region Helper methods
 
 		private void AssertEvaluatesTrue(string left, string op, string right)

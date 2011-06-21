@@ -229,7 +229,7 @@ namespace DotLiquid
 			if (string.IsNullOrEmpty(source))
 				return new List<string>();
 
-			source = Regex.Replace(source, string.Format(@"-({0}|{1})\n", Liquid.VariableEnd, Liquid.TagEnd), "$1");
+			source = Regex.Replace(source, string.Format(@"-({0}|{1})(\n|\r\n)", Liquid.VariableEnd, Liquid.TagEnd), "$1");
 
 			List<string> tokens = Regex.Split(source, Liquid.TemplateParser).ToList();
 

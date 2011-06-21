@@ -1,3 +1,6 @@
+v1.5.6.0 - 2011-06-21
+- ERB-like trimming now works correctly for \r\n newlines
+
 v1.5.4.0 - 2011-04-30
 - Because it's a common (and easy) mistake to use C# property names while Template.NamingConvention is set to
   RubyNamingConvention, and this situation is both surprising and difficult to debug, I have added

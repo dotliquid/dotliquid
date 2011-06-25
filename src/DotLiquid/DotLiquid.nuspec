@@ -1,16 +1,15 @@
 ﻿<?xml version="1.0"?>
-<package>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>DotLiquid</id>
-    <version>0.0.0</version>
+    <version>$version$</version>
     <title>DotLiquid</title>
     <authors>Tim Jones, Alessandro Petrelli</authors>
     <owners>Tim Jones</owners>
-    <description>DotLiquid is a templating system ported to the .NET framework from Ruby’s Liquid Markup.</description>
-    <summary>DotLiquid is a templating system ported to the .NET framework from Ruby’s Liquid Markup.</summary>
+    <description>$description$</description>
     <language>en-US</language>
     <projectUrl>http://dotliquidmarkup.org</projectUrl>
-    <iconUrl>https://github.com/formosatek/dotliquid/raw/master/build/logo_nuget.png</iconUrl>
+    <iconUrl>http://dotliquidmarkup.org/assets/img/logo_nuget.png</iconUrl>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <tags>template templating language Liquid markup .net35 .net40</tags>

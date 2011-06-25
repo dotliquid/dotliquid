@@ -1,3 +1,7 @@
+v1.6.0 - 2011-06-25
+- Added SymbolSource support to NuGet package generation script
+- Planning to use semantic versioning for future releases (http://semver.org/)
+
 v1.5.6.0 - 2011-06-21
 - ERB-like trimming now works correctly for \r\n newlines
 

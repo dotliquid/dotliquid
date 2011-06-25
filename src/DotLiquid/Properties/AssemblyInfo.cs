@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("DotLiquid")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("DotLiquid is a templating system ported to the .NET framework from Ruby’s Liquid Markup.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Formosatek Ltd")]
 [assembly: AssemblyProduct("DotLiquid")]
@@ -32,7 +32,7 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.5.6.0")]
-[assembly: AssemblyFileVersion("1.5.6.0")]
+[assembly: AssemblyVersion("1.6.0")]
+[assembly: AssemblyFileVersion("1.6.0")]
 
 [assembly: InternalsVisibleTo("DotLiquid.Tests, PublicKey=002400000480000094000000060200000024000052534131000400000100010093ae26e2c87851b659e9847a0a9c6088a4ad1988df9b176d56c3996e33458273df5c2138b5bf13b2352a99152f10ef1bc2564069179d5344ba723a875ea048b80fcb34c1c5ff7e3d131cb208140265e5144183570d1e0433c1a37959720e0d8d83a7ee870d5e0dd904afc62663103eb2e2105e1eddeadfe876c9ccc90a31cfbf")]

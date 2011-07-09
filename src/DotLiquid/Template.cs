@@ -150,10 +150,10 @@ namespace DotLiquid
 		/// <returns></returns>
 		public string Render(RenderParameters parameters)
 		{
-			using (MemoryStreamWriter streamWriter = new MemoryStreamWriter())
+			using (MemoryStreamWriter writer = new MemoryStreamWriter())
 			{
-				Render(streamWriter, parameters);
-				return streamWriter.ToString();
+				Render(writer, parameters);
+				return writer.ToString();
 			}
 		}
 

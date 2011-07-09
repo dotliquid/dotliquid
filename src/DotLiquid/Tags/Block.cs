@@ -27,7 +27,7 @@ namespace DotLiquid.Tags
 	public class Block : DotLiquid.Block
 	{
 		private static readonly Regex Syntax = new Regex(@"(\w+)");
-		private StreamWriter _result;
+		private TextWriter _result;
 
 		internal Block Parent { get; set; }
 		internal string BlockName { get; set; }
@@ -68,7 +68,7 @@ namespace DotLiquid.Tags
 			});
 		}
 
-		public override void Render(Context context, StreamWriter result)
+		public override void Render(Context context, TextWriter result)
 		{
 			_result = result;
 

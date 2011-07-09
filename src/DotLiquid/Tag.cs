@@ -40,7 +40,7 @@ namespace DotLiquid
 			get { return GetType().Name.ToLower(); }
 		}
 
-		public virtual void Render(Context context, StreamWriter result)
+		public virtual void Render(Context context, TextWriter result)
 		{
 
 		}

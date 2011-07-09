@@ -5,7 +5,7 @@ namespace DotLiquid.Tags
 {
 	public class IfChanged : DotLiquid.Block
 	{
-		public override void Render(Context context, StreamWriter result)
+		public override void Render(Context context, TextWriter result)
 		{
 			context.Stack(() =>
 			{

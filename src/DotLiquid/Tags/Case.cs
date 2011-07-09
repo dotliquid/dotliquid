@@ -43,7 +43,7 @@ namespace DotLiquid.Tags
 			}
 		}
 
-		public override void Render(Context context, StreamWriter result)
+		public override void Render(Context context, TextWriter result)
 		{
 			context.Stack(() =>
 			{

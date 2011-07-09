@@ -56,7 +56,7 @@ namespace DotLiquid
 			}
 		}
 
-		public void Render(Context context, StreamWriter result)
+		public void Render(Context context, TextWriter result)
 		{
 			object output = RenderInternal(context);
 			if (output != null)

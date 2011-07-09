@@ -36,7 +36,7 @@ namespace DotLiquid.Tags
 			base.Initialize(tagName, markup, tokens);
 		}
 
-		public override void Render(Context context, StreamWriter result)
+		public override void Render(Context context, TextWriter result)
 		{
 			using (MemoryStreamWriter temp = new MemoryStreamWriter())
 			{

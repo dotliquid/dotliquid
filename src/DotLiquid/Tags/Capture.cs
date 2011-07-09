@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
-using DotLiquid.Util;
 
 namespace DotLiquid.Tags
 {
@@ -39,7 +38,7 @@ namespace DotLiquid.Tags
 
 		public override void Render(Context context, TextWriter result)
 		{
-			using (TextWriter temp = new MemoryStreamWriter())
+			using (TextWriter temp = new StringWriter())
 			{
 				base.Render(context, temp);
 				context.Scopes.Last()[_to] = temp.ToString();

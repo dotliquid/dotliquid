@@ -149,7 +149,7 @@ namespace DotLiquid
 		/// <returns></returns>
 		public string Render(RenderParameters parameters)
 		{
-			using (TextWriter writer = new MemoryStreamWriter())
+			using (TextWriter writer = new StringWriter())
 			{
 				Render(writer, parameters);
 				return writer.ToString();

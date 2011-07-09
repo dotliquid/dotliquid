@@ -1,5 +1,4 @@
 using System.IO;
-using DotLiquid.Util;
 
 namespace DotLiquid.Tags
 {
@@ -10,7 +9,7 @@ namespace DotLiquid.Tags
 			context.Stack(() =>
 			{
 				string tempString;
-				using (TextWriter temp = new MemoryStreamWriter())
+				using (TextWriter temp = new StringWriter())
 				{
 					RenderAll(NodeList, context, temp);
 					tempString = temp.ToString();

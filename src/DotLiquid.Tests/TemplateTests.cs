@@ -109,11 +109,11 @@ namespace DotLiquid.Tests
 		{
 			Template template = Template.Parse("{{test}}");
 
-			using (MemoryStreamWriter streamWriter = new MemoryStreamWriter())
+			using (MemoryStreamWriter writer = new MemoryStreamWriter())
 			{
-				template.Render(streamWriter, new RenderParameters { LocalVariables = Hash.FromAnonymousObject(new { test = "worked" })});
+				template.Render(writer, new RenderParameters { LocalVariables = Hash.FromAnonymousObject(new { test = "worked" })});
 
-				Assert.AreEqual("worked", streamWriter.ToString());
+				Assert.AreEqual("worked", writer.ToString());
 			}
 		}
 
@@ -122,11 +122,11 @@ namespace DotLiquid.Tests
 		{
 			Template template = Template.Parse("{{test}}");
 
-			using (MemoryStreamWriter streamWriter = new MemoryStreamWriter())
+			using (MemoryStreamWriter writer = new MemoryStreamWriter())
 			{
-				template.Render(streamWriter.BaseStream, new RenderParameters { LocalVariables = Hash.FromAnonymousObject(new { test = "worked" }) });
+				template.Render(writer.BaseStream, new RenderParameters { LocalVariables = Hash.FromAnonymousObject(new { test = "worked" }) });
 
-				Assert.AreEqual("worked", streamWriter.ToString());
+				Assert.AreEqual("worked", writer.ToString());
 			}
 		}
 	}

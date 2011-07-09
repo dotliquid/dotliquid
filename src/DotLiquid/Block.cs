@@ -116,7 +116,7 @@ namespace DotLiquid
 			throw new SyntaxException(Liquid.ResourceManager.GetString("BlockVariableNotTerminatedException"), token, Liquid.VariableEnd);
 		}
 
-		public override void Render(Context context, StreamWriter result)
+		public override void Render(Context context, TextWriter result)
 		{
 			RenderAll(NodeList, context, result);
 		}
@@ -126,7 +126,7 @@ namespace DotLiquid
 			throw new SyntaxException(Liquid.ResourceManager.GetString("BlockTagNotClosedException"), BlockName);
 		}
 
-		protected void RenderAll(List<object> list, Context context, StreamWriter result)
+		protected void RenderAll(List<object> list, Context context, TextWriter result)
 		{
 			list.ForEach(token =>
 			{

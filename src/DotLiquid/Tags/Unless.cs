@@ -10,7 +10,7 @@ namespace DotLiquid.Tags
 	/// </summary>
 	public class Unless : If
 	{
-		public override void Render(Context context, StreamWriter result)
+		public override void Render(Context context, TextWriter result)
 		{
 			context.Stack(() =>
 			{

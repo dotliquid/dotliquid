@@ -8,7 +8,7 @@ namespace DotLiquid.Exceptions
 		public StackLevelException(string message)
 			: base(string.Format(message))
 		{
-			
+
 		}
 	}
 }

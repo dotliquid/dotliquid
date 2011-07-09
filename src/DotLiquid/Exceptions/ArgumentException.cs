@@ -8,12 +8,12 @@ namespace DotLiquid.Exceptions
 		public ArgumentException(string message, params string[] args)
 			: base(string.Format(message, args))
 		{
-			
+
 		}
 
 		public ArgumentException()
 		{
-			
+
 		}
 	}
 }

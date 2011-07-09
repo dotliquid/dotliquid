@@ -16,7 +16,7 @@ namespace DotLiquid.Tags
 
 		public override void Render(Context context, StreamWriter result)
 		{
-			
+
 		}
 	}
 }

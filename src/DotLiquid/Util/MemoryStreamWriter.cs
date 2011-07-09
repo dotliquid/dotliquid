@@ -7,7 +7,7 @@ namespace DotLiquid.Util
 		public MemoryStreamWriter()
 			: base(new MemoryStream())
 		{
-			
+
 		}
 
 		/// <summary>

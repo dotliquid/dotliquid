@@ -36,7 +36,7 @@ namespace DotLiquid.Util
 				}
 				catch (InvalidOperationException)
 				{
-					if (castArgsToResultOnFailure && !(         // if we show retry                                                        
+					if (castArgsToResultOnFailure && !(         // if we show retry
 									leftType == resultType &&  // and the args aren't
 									rightType == resultType))
 					{ // already "TValue, TValue, TValue"...

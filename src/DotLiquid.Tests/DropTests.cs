@@ -256,7 +256,7 @@ namespace DotLiquid.Tests
 			DataTable dataTable = new DataTable();
 			dataTable.Columns.Add("Column1");
 			dataTable.Columns.Add("Column2");
-			
+
 			DataRow dataRow = dataTable.NewRow();
 			dataRow["Column1"] = "Hello";
 			dataRow["Column2"] = "World";

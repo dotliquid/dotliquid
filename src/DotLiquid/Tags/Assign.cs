@@ -9,11 +9,11 @@ namespace DotLiquid.Tags
 {
 	/// <summary>
 	/// Assign sets a variable in your template.
-	/// 
+	///
 	/// {% assign foo = 'monkey' %}
-	/// 
+	///
 	/// You can then use the variable later in the page.
-	/// 
+	///
 	/// {{ foo }}
 	/// </summary>
 	public class Assign : Tag

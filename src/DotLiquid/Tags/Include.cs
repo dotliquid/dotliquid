@@ -36,7 +36,7 @@ namespace DotLiquid.Tags
 
 		protected override void Parse(List<string> tokens)
 		{
-			
+
 		}
 
 		public override void Render(Context context, StreamWriter result)

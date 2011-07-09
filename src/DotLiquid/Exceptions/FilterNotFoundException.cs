@@ -20,7 +20,7 @@ namespace DotLiquid.Exceptions
 		public FilterNotFoundException(string message)
 			: base(message)
 		{
-			
+
 		}
 	}
 }

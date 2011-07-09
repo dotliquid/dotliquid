@@ -17,12 +17,12 @@ namespace DotLiquid.Tags
 	/// </summary>
 	/// <example>
 	///	To see how Extends and Block can be used together, start by considering this example:
-	/// 
+	///
 	/// <html>
 	/// <head>
 	///   <title>{% block title %}My Website{% endblock %}</title>
 	/// </head>
-	/// 
+	///
 	/// <body>
 	///   <div id="sidebar">
 	///     {% block sidebar %}
@@ -32,30 +32,30 @@ namespace DotLiquid.Tags
 	///     </ul>
 	///     {% endblock %}
 	///   </div>
-	/// 
+	///
 	///   <div id="content">
 	///     {% block content %}{% endblock %}
 	///   </div>
 	/// </body>
 	/// </html>
-	/// 
+	///
 	/// We'll assume this is saved in a file called base.html. In ASP.NET MVC terminology, this file would
 	/// be the master page or layout, and each of the "blocks" would be a section. Child templates
 	/// (in ASP.NET MVC terminology, views) fill or override these blocks with content. If a child template
 	/// does not define a particular block, then the content from the parent template is used as a fallback.
-	/// 
+	///
 	/// A child template might look like this:
-	/// 
+	///
 	/// {% extends "base.html" %}
 	/// {% block title %}My AMAZING Website{% endblock %}
-	/// 
+	///
 	/// {% block content %}
 	/// {% for entry in blog_entries %}
 	///   <h2>{{ entry.title }}</h2>
 	///   <p>{{ entry.body }}</p>
 	/// {% endfor %}
 	/// {% endblock %}
-	/// 
+	///
 	/// The current IFileSystem will be used to locate "base.html".
 	/// </example>
 	public class Extends : DotLiquid.Block

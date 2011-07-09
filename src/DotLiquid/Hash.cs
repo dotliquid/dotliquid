@@ -11,7 +11,7 @@ namespace DotLiquid
 
 		private readonly Func<Hash, string, object> _lambda;
 		private readonly Dictionary<string, object> _nestedDictionary;
-		private readonly object _defaultValue; 
+		private readonly object _defaultValue;
 
 		#endregion
 

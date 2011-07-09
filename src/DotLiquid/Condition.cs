@@ -9,9 +9,9 @@ namespace DotLiquid
 {
 	/// <summary>
 	/// Container for liquid nodes which conveniently wraps decision making logic
-	/// 
+	///
 	/// Example:
-	/// 
+	///
 	/// c = Condition.new('1', '==', '1')
 	/// c.evaluate #=> true
 	/// </summary>
@@ -116,7 +116,7 @@ namespace DotLiquid
 				}
 				catch (Exception)
 				{
-				
+
 				}
 			}
 

@@ -41,7 +41,7 @@ namespace DotLiquid.Tests
 			public static string Adjust(int input, int offset)
 #else
 			public static string Adjust(int input, int offset = 10)
-#endif                
+#endif
 			{
 				return string.Format("[{0:d}]", input + offset);
 			}

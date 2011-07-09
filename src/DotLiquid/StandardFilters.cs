@@ -83,7 +83,7 @@ namespace DotLiquid
 			return Escape(input);
 		}
 
-		
+
 #if NET35
 		/// <summary>
 		/// Truncates a string down to 15 characters
@@ -453,15 +453,15 @@ namespace DotLiquid
 				return input.ToString();
 
 			DateTime date;
-			
+
 			return DateTime.TryParse(input.ToString(), out date)
 				? Liquid.UseRubyDateFormat ? date.ToStrFTime(format) : date.ToString(format)
 				: input.ToString();
 		}
 
 		/// <summary>
-		/// Get the first element of the passed in array 
-		/// 
+		/// Get the first element of the passed in array
+		///
 		/// Example:
 		///   {{ product.images | first | to_img }}
 		/// </summary>
@@ -476,8 +476,8 @@ namespace DotLiquid
 		}
 
 		/// <summary>
-		/// Get the last element of the passed in array 
-		/// 
+		/// Get the last element of the passed in array
+		///
 		/// Example:
 		///   {{ product.images | last | to_img }}
 		/// </summary>

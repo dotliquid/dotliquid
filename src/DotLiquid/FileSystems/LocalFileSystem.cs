@@ -7,13 +7,13 @@ namespace DotLiquid.FileSystems
 	/// <summary>
 	/// This implements an abstract file system which retrieves template files named in a manner similar to Rails partials,
 	/// ie. with the template name prefixed with an underscore. The extension ".liquid" is also added.
-	/// 
+	///
 	/// For security reasons, template paths are only allowed to contain letters, numbers, and underscore.
-	/// 
+	///
 	/// Example:
-	/// 
+	///
 	/// file_system = Liquid::LocalFileSystem.new("/some/path")
-	/// 
+	///
 	/// file_system.full_path("mypartial") # => "/some/path/_mypartial.liquid"
 	/// file_system.full_path("dir/mypartial") # => "/some/path/dir/_mypartial.liquid"
 	/// </summary>

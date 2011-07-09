@@ -11,12 +11,12 @@ namespace DotLiquid
 	/// <summary>
 	/// Holds variables. Variables are only loaded "just in time"
 	/// and are not evaluated as part of the render stage
-	/// 
+	///
 	/// {{ monkey }}
 	/// {{ user.name }}
-	/// 
+	///
 	/// Variables can be combined with filters:
-	/// 
+	///
 	/// {{ user | link }}
 	/// </summary>
 	public class Variable : IRenderable

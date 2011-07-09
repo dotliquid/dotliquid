@@ -14,12 +14,12 @@ namespace DotLiquid.Exceptions
 		protected LiquidException(string message)
 			: base(message)
 		{
-			
+
 		}
 
 		protected LiquidException()
 		{
-			
+
 		}
 	}
 }

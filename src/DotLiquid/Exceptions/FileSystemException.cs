@@ -8,7 +8,7 @@ namespace DotLiquid.Exceptions
 		public FileSystemException(string message, params string[] args)
 			: base(string.Format(message, args))
 		{
-			
+
 		}
 	}
 }

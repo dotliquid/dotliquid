@@ -1,4 +1,3 @@
-using System.IO;
 using DotLiquid.Util;
 using NUnit.Framework;
 

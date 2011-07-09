@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using DotLiquid.Util;
 
 namespace DotLiquid

@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using DotLiquid.FileSystems;
-using DotLiquid.Util;
 using DotLiquid.NamingConventions;
 using DotLiquid.Tags;
+using DotLiquid.Util;
 
 namespace DotLiquid
 {

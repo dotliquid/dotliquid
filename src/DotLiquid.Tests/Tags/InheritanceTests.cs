@@ -1,4 +1,3 @@
-using System;
 using DotLiquid.FileSystems;
 using NUnit.Framework;
 

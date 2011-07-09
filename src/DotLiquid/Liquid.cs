@@ -1,9 +1,5 @@
-using System.Reflection;
 using System.Resources;
-using DotLiquid.NamingConventions;
 using DotLiquid.Properties;
-using DotLiquid.Tags;
-using DotLiquid.Tags.Html;
 using DotLiquid.Util;
 
 namespace DotLiquid

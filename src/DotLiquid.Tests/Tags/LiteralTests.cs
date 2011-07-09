@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using DotLiquid.Exceptions;
+﻿using DotLiquid.Tags;
 using NUnit.Framework;
-using DotLiquid.Tags;
 
 namespace DotLiquid.Tests.Tags
 {

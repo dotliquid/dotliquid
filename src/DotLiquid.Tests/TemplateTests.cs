@@ -109,7 +109,7 @@ namespace DotLiquid.Tests
 		{
 			Template template = Template.Parse("{{test}}");
 
-			using (TextWriter writer = new MemoryStreamWriter())
+			using (TextWriter writer = new StringWriter())
 			{
 				template.Render(writer, new RenderParameters { LocalVariables = Hash.FromAnonymousObject(new { test = "worked" })});
 

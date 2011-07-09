@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using DotLiquid.Util;
 
 namespace DotLiquid
 {
@@ -52,7 +51,7 @@ namespace DotLiquid
 		/// <returns></returns>
 		internal string Render(Context context)
 		{
-			using (TextWriter result = new MemoryStreamWriter())
+			using (TextWriter result = new StringWriter())
 			{
 				Render(context, result);
 				return result.ToString();

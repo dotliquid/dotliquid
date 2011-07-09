@@ -2,7 +2,7 @@ using System;
 
 namespace DotLiquid.Exceptions
 {
-    [Serializable]
+	[Serializable]
 	public class ArgumentException : LiquidException
 	{
 		public ArgumentException(string message, params string[] args)

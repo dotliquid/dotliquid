@@ -9,8 +9,8 @@ using DotLiquid.Util;
 
 namespace DotLiquid.Util
 {
-    public static class StrFTime
-    {
+	public static class StrFTime
+	{
 		public delegate string DateTimeDelegate(DateTime dateTime);
 
 		private static Dictionary<string, DateTimeDelegate> _formats = new Dictionary<string, DateTimeDelegate>()

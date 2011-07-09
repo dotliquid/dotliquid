@@ -52,7 +52,7 @@ namespace DotLiquid
 		/// <returns></returns>
 		internal string Render(Context context)
 		{
-			using (MemoryStreamWriter result = new MemoryStreamWriter())
+			using (TextWriter result = new MemoryStreamWriter())
 			{
 				Render(context, result);
 				return result.ToString();

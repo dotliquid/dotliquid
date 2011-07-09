@@ -1,3 +1,4 @@
+using System.IO;
 using DotLiquid.Util;
 using NUnit.Framework;
 
@@ -108,7 +109,7 @@ namespace DotLiquid.Tests
 		{
 			Template template = Template.Parse("{{test}}");
 
-			using (MemoryStreamWriter writer = new MemoryStreamWriter())
+			using (TextWriter writer = new MemoryStreamWriter())
 			{
 				template.Render(writer, new RenderParameters { LocalVariables = Hash.FromAnonymousObject(new { test = "worked" })});
 

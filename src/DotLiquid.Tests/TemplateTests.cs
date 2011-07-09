@@ -1,5 +1,4 @@
 using System.IO;
-using DotLiquid.Util;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -122,11 +121,14 @@ namespace DotLiquid.Tests
 		{
 			Template template = Template.Parse("{{test}}");
 
-			using (MemoryStreamWriter writer = new MemoryStreamWriter())
-			{
-				template.Render(writer.BaseStream, new RenderParameters { LocalVariables = Hash.FromAnonymousObject(new { test = "worked" }) });
+			var output = new MemoryStream();
+			template.Render(output, new RenderParameters { LocalVariables = Hash.FromAnonymousObject(new { test = "worked" }) });
 
-				Assert.AreEqual("worked", writer.ToString());
+			output.Seek(0, SeekOrigin.Begin);
+
+			using (TextReader reader = new StreamReader(output))
+			{
+				Assert.AreEqual("worked", reader.ReadToEnd());
 			}
 		}
 	}

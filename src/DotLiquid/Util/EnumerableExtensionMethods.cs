@@ -23,7 +23,7 @@ namespace DotLiquid.Util
 
 		public static void EachWithIndex(this IEnumerable<object> array, Action<object,int> callback)
 		{
-			int index = 0; ;
+			int index = 0;
 			foreach (object item in array)
 			{
 				callback(item, index);

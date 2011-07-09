@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using DotLiquid.FileSystems;
 using DotLiquid.Util;
 using DotLiquid.NamingConventions;
+using DotLiquid.Tags;
 
 namespace DotLiquid
 {
@@ -112,8 +113,8 @@ namespace DotLiquid
 		/// <returns></returns>
 		internal Template ParseInternal(string source)
 		{
-			source = DotLiquid.Tags.Literal.FromShortHand(source);
-			source = DotLiquid.Tags.Comment.FromShortHand(source);
+			source = Literal.FromShortHand(source);
+			source = Comment.FromShortHand(source);
 
 			Root = new Document();
 			Root.Initialize(null, null, Tokenize(source));

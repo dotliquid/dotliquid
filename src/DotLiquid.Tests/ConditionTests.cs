@@ -144,7 +144,7 @@ namespace DotLiquid.Tests
 			row.Add("MyID", id);
 
 			var current = "MyID is {% if MyID == 1 %}1{%endif%}";
-			var parse = DotLiquid.Template.Parse(current);
+			var parse = Template.Parse(current);
 			var parsedOutput = parse.Render(new RenderParameters() { LocalVariables = Hash.FromDictionary(row) });
 			Assert.AreEqual("MyID is 1", parsedOutput);
 		}

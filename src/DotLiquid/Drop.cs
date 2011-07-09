@@ -8,47 +8,47 @@ namespace DotLiquid
 {
 	/// <summary>
 	/// A drop in liquid is a class which allows you to to export DOM like things to liquid
-  /// Methods of drops are callable.
-  /// The main use for liquid drops is the implement lazy loaded objects.
-  /// If you would like to make data available to the web designers which you don't want loaded unless needed then
-  /// a drop is a great way to do that
-  ///
-  /// Example:
-  ///
-  /// class ProductDrop &lt; Liquid::Drop
-  /// def top_sales
-  /// Shop.current.products.find(:all, :order => 'sales', :limit => 10 )
-  /// end
-  /// end
-  ///
-  /// tmpl = Liquid::Template.parse( ' {% for product in product.top_sales %} {{ product.name }} {%endfor%} ' )
-  /// tmpl.render('product' => ProductDrop.new ) # will invoke top_sales query.
-  ///
-  /// Your drop can either implement the methods sans any parameters or implement the before_method(name) method which is a
+	/// Methods of drops are callable.
+	/// The main use for liquid drops is the implement lazy loaded objects.
+	/// If you would like to make data available to the web designers which you don't want loaded unless needed then
+	/// a drop is a great way to do that
+	///
+	/// Example:
+	///
+	/// class ProductDrop &lt; Liquid::Drop
+	/// def top_sales
+	/// Shop.current.products.find(:all, :order => 'sales', :limit => 10 )
+	/// end
+	/// end
+	///
+	/// tmpl = Liquid::Template.parse( ' {% for product in product.top_sales %} {{ product.name }} {%endfor%} ' )
+	/// tmpl.render('product' => ProductDrop.new ) # will invoke top_sales query.
+	///
+	/// Your drop can either implement the methods sans any parameters or implement the before_method(name) method which is a
 	/// catch all
 	/// </summary>
 	public abstract class Drop : ILiquidizable, IIndexable, IContextAware
 	{
-        class TypeResolution
-        {
-            public Dictionary<string, MethodInfo> _cachedMethods;
-            public Dictionary<string, PropertyInfo> _cachedProperties;
+		class TypeResolution
+		{
+			public Dictionary<string, MethodInfo> _cachedMethods;
+			public Dictionary<string, PropertyInfo> _cachedProperties;
 
-            public TypeResolution(Type t)
-            {
-                // Cache all methods and properties of this object, but don't include those defined at or above the base Drop class.
-                BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance;
-                _cachedMethods = t.GetMethods(bindingFlags).Where(mi => mi.GetParameters().Length == 0 && typeof(Drop).IsAssignableFrom(mi.DeclaringType.BaseType))
-                    .ToDictionary(mi => Template.NamingConvention.GetMemberName(mi.Name), Template.NamingConvention.StringComparer);
-                _cachedProperties = t.GetProperties(bindingFlags).Where(pi => typeof(Drop).IsAssignableFrom(pi.DeclaringType.BaseType))
-                    .ToDictionary(pi => Template.NamingConvention.GetMemberName(pi.Name), Template.NamingConvention.StringComparer);
-            }
-        }
+			public TypeResolution(Type t)
+			{
+				// Cache all methods and properties of this object, but don't include those defined at or above the base Drop class.
+				BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance;
+				_cachedMethods = t.GetMethods(bindingFlags).Where(mi => mi.GetParameters().Length == 0 && typeof(Drop).IsAssignableFrom(mi.DeclaringType.BaseType))
+					.ToDictionary(mi => Template.NamingConvention.GetMemberName(mi.Name), Template.NamingConvention.StringComparer);
+				_cachedProperties = t.GetProperties(bindingFlags).Where(pi => typeof(Drop).IsAssignableFrom(pi.DeclaringType.BaseType))
+					.ToDictionary(pi => Template.NamingConvention.GetMemberName(pi.Name), Template.NamingConvention.StringComparer);
+			}
+		}
 
-        [ThreadStatic]
-        Util.WeakTable<Type, TypeResolution> _cache = new Util.WeakTable<Type, TypeResolution>(32);
+		[ThreadStatic]
+		Util.WeakTable<Type, TypeResolution> _cache = new Util.WeakTable<Type, TypeResolution>(32);
 
-        TypeResolution _resolution;
+		TypeResolution _resolution;
 
 		public Context Context { get; set; }
 
@@ -66,9 +66,9 @@ namespace DotLiquid
 
 		protected Drop()
 		{
-            Type t = GetType();
-            if (!_cache.TryGetValue(t, out _resolution))
-                _cache[t] = _resolution = new TypeResolution(t);
+			Type t = GetType();
+			if (!_cache.TryGetValue(t, out _resolution))
+				_cache[t] = _resolution = new TypeResolution(t);
 		}
 
 		/// <summary>
@@ -105,12 +105,12 @@ namespace DotLiquid
 		{
 			string method = (string) name;
 
-            MethodInfo mi;
-            if (_resolution._cachedMethods.TryGetValue(method, out mi))
-                return mi.Invoke(this, null);
-            PropertyInfo pi;
-            if (_resolution._cachedProperties.TryGetValue(method, out pi))
-                return pi.GetValue(this, null);
+			MethodInfo mi;
+			if (_resolution._cachedMethods.TryGetValue(method, out mi))
+				return mi.Invoke(this, null);
+			PropertyInfo pi;
+			if (_resolution._cachedProperties.TryGetValue(method, out pi))
+				return pi.GetValue(this, null);
 			return BeforeMethod(method);
 		}
 

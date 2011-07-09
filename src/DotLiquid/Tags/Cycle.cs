@@ -9,11 +9,11 @@ namespace DotLiquid.Tags
 {
 	/// <summary>
 	/// Cycle is usually used within a loop to alternate between values, like colors or DOM classes.
-	/// 
+	///
 	///   {% for item in items %}
 	///    <div class="{% cycle 'red', 'green', 'blue' %}"> {{ item }} </div>
 	///   {% end %}
-	/// 
+	///
 	///    <div class="red"> Item one </div>
 	///    <div class="green"> Item two </div>
 	///    <div class="blue"> Item three </div>

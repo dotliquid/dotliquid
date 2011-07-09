@@ -2,7 +2,7 @@ using System;
 
 namespace DotLiquid.Exceptions
 {
-    [Serializable]
+	[Serializable]
 	public class FilterNotFoundException : LiquidException
 	{
 		public FilterNotFoundException(string message, FilterNotFoundException innerException)
@@ -20,7 +20,7 @@ namespace DotLiquid.Exceptions
 		public FilterNotFoundException(string message)
 			: base(message)
 		{
-			
+
 		}
 	}
 }

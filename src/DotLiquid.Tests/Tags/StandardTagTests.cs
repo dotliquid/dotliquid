@@ -66,14 +66,14 @@ namespace DotLiquid.Tests.Tags
 			Helper.AssertTemplateResult(" yo ", "{%for item in array%} yo {%endfor%}", Hash.FromAnonymousObject(new { array = new[] { 1 } }));
 			Helper.AssertTemplateResult("", "{%for item in array%}{%endfor%}", Hash.FromAnonymousObject(new { array = new[] { 1, 2 } }));
 			const string expected = @"
-  yo
+	yo
 
-  yo
+	yo
 
-  yo
+	yo
 ";
 			const string template = @"{%for item in array%}
-  yo
+	yo
 {%endfor%}";
 			Helper.AssertTemplateResult(expected, template, Hash.FromAnonymousObject(new { array = new[] { 1, 2, 3 } }));
 		}

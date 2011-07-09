@@ -13,13 +13,13 @@ namespace DotLiquid.Tests
 	{
 		#region Classes used in tests
 
-        internal class NullDrop : Drop
-        {
-            public override object BeforeMethod(string method)
-            {
-                return null;
-            }
-        }
+		internal class NullDrop : Drop
+		{
+			public override object BeforeMethod(string method)
+			{
+				return null;
+			}
+		}
 
 		internal class ContextDrop : Drop
 		{
@@ -244,11 +244,11 @@ namespace DotLiquid.Tests
 			Assert.AreEqual("3", Template.Parse("{{collection.size}}").Render(Hash.FromAnonymousObject(new { collection = new EnumerableDrop() })));
 		}
 
-        [Test]
-        public void TestNullCatchAll()
-        {
-            Assert.AreEqual("", Template.Parse("{{ nulldrop.a_method }}").Render(Hash.FromAnonymousObject(new { nulldrop = new NullDrop() })));
-        }
+		[Test]
+		public void TestNullCatchAll()
+		{
+			Assert.AreEqual("", Template.Parse("{{ nulldrop.a_method }}").Render(Hash.FromAnonymousObject(new { nulldrop = new NullDrop() })));
+		}
 
 		[Test]
 		public void TestDataRowDrop()
@@ -256,7 +256,7 @@ namespace DotLiquid.Tests
 			DataTable dataTable = new DataTable();
 			dataTable.Columns.Add("Column1");
 			dataTable.Columns.Add("Column2");
-			
+
 			DataRow dataRow = dataTable.NewRow();
 			dataRow["Column1"] = "Hello";
 			dataRow["Column2"] = "World";

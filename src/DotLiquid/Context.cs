@@ -118,9 +118,9 @@ namespace DotLiquid
 
 		/// <summary>
 		/// pushes a new local scope on the stack, pops it at the end of the block
-		/// 
+		///
 		/// Example:
-		/// 
+		///
 		/// context.stack do
 		/// context['var'] = 'hi'
 		/// end
@@ -173,9 +173,9 @@ namespace DotLiquid
 		/// Strings, digits, floats and booleans (true,false). If no match is made we lookup the variable in the current scope and
 		/// later move up to the parent blocks to see if we can resolve the variable somewhere up the tree.
 		/// Some special keywords return symbols. Those symbols are to be called on the rhs object in expressions
-		/// 
+		///
 		/// Example:
-		/// 
+		///
 		/// products == empty #=> products.empty?
 		/// </summary>
 		/// <param name="key"></param>
@@ -268,9 +268,9 @@ namespace DotLiquid
 
 		/// <summary>
 		/// Resolves namespaced queries gracefully.
-		/// 
+		///
 		/// Example
-		/// 
+		///
 		/// @context['hash'] = {"name" => 'tobi'}
 		/// assert_equal 'tobi', @context['hash.name']
 		/// assert_equal 'tobi', @context['hash["name"]']

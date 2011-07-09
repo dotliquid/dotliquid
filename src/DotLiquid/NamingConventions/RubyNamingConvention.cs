@@ -9,13 +9,13 @@ namespace DotLiquid.NamingConventions
 	/// <example>
 	/// Input: Text
 	/// Output: text
-	/// 
+	///
 	/// Input: ScopesAsArray
 	/// Output: scopes_as_array
 	/// </example>
 	public class RubyNamingConvention : INamingConvention
 	{
-		private readonly Regex _regex1 = new Regex(@"([A-Z]+)([A-Z][a-z])"); 
+		private readonly Regex _regex1 = new Regex(@"([A-Z]+)([A-Z][a-z])");
 		private readonly Regex _regex2 = new Regex(@"([a-z\d])([A-Z])");
 
 		public StringComparer StringComparer

@@ -15,13 +15,13 @@ namespace DotLiquid.Tests.Tags
 				Hash.FromAnonymousObject(new { values = new[] { "foo", "bar", "baz" } }));
 		}
 
-        [Test]
-        public void TestAssignDecimal()
-        {
-            Helper.AssertTemplateResult(string.Format("10{0}05", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
+		[Test]
+		public void TestAssignDecimal()
+		{
+			Helper.AssertTemplateResult(string.Format("10{0}05", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
 				"{% assign foo = decimal %}{{ foo }}",
-                Hash.FromAnonymousObject(new { @decimal = 10.05d }));
-        }
+				Hash.FromAnonymousObject(new { @decimal = 10.05d }));
+		}
 
 		[Test, SetCulture("en-GB")]
 		public void TestAssignDecimalInlineWithEnglishDecimalSeparator()

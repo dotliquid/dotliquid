@@ -1,16 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using DotLiquid.Exceptions;
-using DotLiquid.Util;
 
 namespace DotLiquid.Util
 {
-    public static class StrFTime
-    {
+	public static class StrFTime
+	{
 		public delegate string DateTimeDelegate(DateTime dateTime);
 
 		private static Dictionary<string, DateTimeDelegate> _formats = new Dictionary<string, DateTimeDelegate>()

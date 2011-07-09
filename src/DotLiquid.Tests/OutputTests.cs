@@ -18,12 +18,12 @@ namespace DotLiquid.Tests
 			}
 
 #if NET35
-            public static string AddSmiley(string input)
-            {
-                return AddSmiley(input, ":-)");
-            }
+			public static string AddSmiley(string input)
+			{
+				return AddSmiley(input, ":-)");
+			}
 
-            public static string AddSmiley(string input, string smiley)
+			public static string AddSmiley(string input, string smiley)
 #else
 			public static string AddSmiley(string input, string smiley = ":-)")
 #endif
@@ -32,12 +32,12 @@ namespace DotLiquid.Tests
 			}
 
 #if NET35
-            public static string AddTag(string input)
-            {
-                return AddTag(input, "p", "foo");
-            }
+			public static string AddTag(string input)
+			{
+				return AddTag(input, "p", "foo");
+			}
 
-            public static string AddTag(string input, string tag, string id)
+			public static string AddTag(string input, string tag, string id)
 #else
 			public static string AddTag(string input, string tag = "p", string id = "foo")
 #endif

@@ -4,8 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using DotLiquid.FileSystems;
-using DotLiquid.Util;
 using DotLiquid.NamingConventions;
+using DotLiquid.Tags;
+using DotLiquid.Util;
 
 namespace DotLiquid
 {
@@ -14,12 +15,12 @@ namespace DotLiquid
 	/// Interpretating templates is a two step process. First you compile the
 	/// source code you got. During compile time some extensive error checking is performed.
 	/// your code should expect to get some SyntaxErrors.
-	/// 
+	///
 	/// After you have a compiled template you can then <tt>render</tt> it.
 	/// You can use a compiled template over and over again and keep it cached.
-	/// 
+	///
 	/// Example:
-	/// 
+	///
 	/// template = Liquid::Template.parse(source)
 	/// template.render('user_name' => 'bob')
 	/// </summary>
@@ -112,8 +113,8 @@ namespace DotLiquid
 		/// <returns></returns>
 		internal Template ParseInternal(string source)
 		{
-			source = DotLiquid.Tags.Literal.FromShortHand(source);
-			source = DotLiquid.Tags.Comment.FromShortHand(source);
+			source = Literal.FromShortHand(source);
+			source = Comment.FromShortHand(source);
 
 			Root = new Document();
 			Root.Initialize(null, null, Tokenize(source));
@@ -182,12 +183,12 @@ namespace DotLiquid
 
 		/// <summary>
 		/// Render takes a hash with local variables.
-		/// 
+		///
 		/// if you use the same filters over and over again consider registering them globally
 		/// with <tt>Template.register_filter</tt>
-		/// 
+		///
 		/// Following options can be passed:
-		/// 
+		///
 		/// * <tt>filters</tt> : array with local filters
 		/// * <tt>registers</tt> : hash with register variables. Those can be accessed from
 		/// filters and tags and might be useful to integrate liquid more with its host application

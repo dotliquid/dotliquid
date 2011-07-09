@@ -7,12 +7,12 @@ namespace DotLiquid.Util
 	public static class ObjectExtensionMethods
 	{
 #if NET35
-        public static bool RespondTo(this object value, string member)
-        {
-            return value.RespondTo(member, true);
-        }
+		public static bool RespondTo(this object value, string member)
+		{
+			return value.RespondTo(member, true);
+		}
 
-        public static bool RespondTo(this object value, string member, bool ensureNoParameters)
+		public static bool RespondTo(this object value, string member, bool ensureNoParameters)
 #else
 		public static bool RespondTo(this object value, string member, bool ensureNoParameters = true)
 #endif
@@ -34,12 +34,12 @@ namespace DotLiquid.Util
 		}
 
 #if NET35
-        public static object Send(this object value, string member)
-        {
-            return value.Send(member, null);
-        }
+		public static object Send(this object value, string member)
+		{
+			return value.Send(member, null);
+		}
 
-        public static object Send(this object value, string member, object[] parameters)
+		public static object Send(this object value, string member, object[] parameters)
 #else
 		public static object Send(this object value, string member, object[] parameters = null)
 #endif

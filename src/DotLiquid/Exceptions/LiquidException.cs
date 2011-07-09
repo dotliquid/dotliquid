@@ -2,7 +2,7 @@ using System;
 
 namespace DotLiquid.Exceptions
 {
-    [Serializable]
+	[Serializable]
 	public abstract class LiquidException : ApplicationException
 	{
 		protected LiquidException(string message, Exception innerException)
@@ -14,12 +14,12 @@ namespace DotLiquid.Exceptions
 		protected LiquidException(string message)
 			: base(message)
 		{
-			
+
 		}
 
 		protected LiquidException()
 		{
-			
+
 		}
 	}
 }

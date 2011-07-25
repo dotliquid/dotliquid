@@ -5,12 +5,12 @@ namespace DotLiquid.Tags
 {
 	/// <summary>
 	/// Unless is a conditional just like 'if' but works on the inverse logic.
-  /// 
+	///
 	///  {% unless x &lt; 0 %} x is greater than zero {% end %}
 	/// </summary>
 	public class Unless : If
 	{
-		public override void Render(Context context, StreamWriter result)
+		public override void Render(Context context, TextWriter result)
 		{
 			context.Stack(() =>
 			{

@@ -1,5 +1,4 @@
 using System.Collections;
-using DotLiquid.Exceptions;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -33,26 +32,26 @@ namespace DotLiquid.Tests
 		private static class FiltersWithArguments
 		{
 #if NET35
-            public static string Adjust(int input)
-            {
-                return Adjust(input, 10);
-            }
+			public static string Adjust(int input)
+			{
+				return Adjust(input, 10);
+			}
 
-            public static string Adjust(int input, int offset)
+			public static string Adjust(int input, int offset)
 #else
 			public static string Adjust(int input, int offset = 10)
-#endif                
+#endif
 			{
 				return string.Format("[{0:d}]", input + offset);
 			}
 
 #if NET35
-            public static string AddSub(int input, int plus)
-            {
-                return AddSub(input, plus, 20);
-            }
+			public static string AddSub(int input, int plus)
+			{
+				return AddSub(input, plus, 20);
+			}
 
-            public static string AddSub(int input, int plus, int minus)
+			public static string AddSub(int input, int plus, int minus)
 #else
 			public static string AddSub(int input, int plus, int minus = 20)
 #endif

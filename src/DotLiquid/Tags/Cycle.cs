@@ -9,11 +9,11 @@ namespace DotLiquid.Tags
 {
 	/// <summary>
 	/// Cycle is usually used within a loop to alternate between values, like colors or DOM classes.
-	/// 
+	///
 	///   {% for item in items %}
 	///    <div class="{% cycle 'red', 'green', 'blue' %}"> {{ item }} </div>
 	///   {% end %}
-	/// 
+	///
 	///    <div class="red"> Item one </div>
 	///    <div class="green"> Item two </div>
 	///    <div class="blue"> Item three </div>
@@ -64,7 +64,7 @@ namespace DotLiquid.Tags
 			}).ToArray();
 		}
 
-		public override void Render(Context context, StreamWriter result)
+		public override void Render(Context context, TextWriter result)
 		{
 			context.Registers["cycle"] = context.Registers["cycle"] ?? new Hash(0);
 

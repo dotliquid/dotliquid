@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using System.Web.Routing;
 
 namespace DotLiquid.Website
 {
-	// Note: For instructions on enabling IIS6 or IIS7 classic mode, 
+	// Note: For instructions on enabling IIS6 or IIS7 classic mode,
 	// visit http://go.microsoft.com/?LinkId=9394801
 
 	public class MvcApplication : System.Web.HttpApplication
@@ -21,9 +17,9 @@ namespace DotLiquid.Website
 
 			routes.MapRoute("TryOnline1", "try-online/liquify",
 											new { controller = "TryOnline", action = "Liquify" });
-			
+
 			routes.MapRoute("TryOnline2", "try-online/{action}",
-			                new { controller = "TryOnline", action = "Index" });
+											new { controller = "TryOnline", action = "Index" });
 
 			routes.MapRoute(
 					"Default", // Route name

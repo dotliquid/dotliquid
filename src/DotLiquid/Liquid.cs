@@ -54,6 +54,7 @@ namespace DotLiquid
 			Template.RegisterTag<Tags.Include>("include");
 			Template.RegisterTag<Tags.Literal>("literal");
 			Template.RegisterTag<Tags.Unless>("unless");
+			Template.RegisterTag<Tags.Raw>("raw");
 
 			Template.RegisterTag<Tags.Html.TableRow>("tablerow");
 

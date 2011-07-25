@@ -10,7 +10,7 @@ namespace DotLiquid.Tests
 		[Test]
 		public void TestDefault()
 		{
-			Assert.Throws<FileSystemException>(() => new BlankFileSystem().ReadTemplateFile(new Context(), "dummy"));
+			Assert.Throws<FileSystemException>(() => new BlankFileSystem().ReadTemplateFile("dummy", new Context()));
 		}
 
 		[Test]

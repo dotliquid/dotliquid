@@ -22,6 +22,6 @@
 		/// </summary>
 		/// <param name="templatePath"></param>
 		/// <returns></returns>
-		string ReadTemplateFile(Context context, string templateName);
+		string ReadTemplateFile(string templateName, Context context);
 	}
 }

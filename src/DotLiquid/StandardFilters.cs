@@ -2,10 +2,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+#if !NET35
+using System.Net;
+#endif
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+#if NET35
 using System.Web;
+#endif
 using DotLiquid.Util;
 
 namespace DotLiquid
@@ -70,8 +75,12 @@ namespace DotLiquid
 
             try
             {
+				#if NET35
                 return HttpUtility.HtmlEncode(input);
-            }
+				#else
+				return WebUtility.HtmlEncode(input);
+#endif
+			}
             catch
             {
                 return input;

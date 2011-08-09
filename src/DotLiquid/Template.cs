@@ -161,7 +161,7 @@ namespace DotLiquid
 		/// </summary>
 		/// <param name="result"></param>
 		/// <param name="parameters"></param>
-		public void Render(StreamWriter result, RenderParameters parameters)
+		public void Render(TextWriter result, RenderParameters parameters)
 		{
 			RenderInternal(result, parameters);
 		}
@@ -192,7 +192,7 @@ namespace DotLiquid
 		/// * <tt>registers</tt> : hash with register variables. Those can be accessed from
 		/// filters and tags and might be useful to integrate liquid more with its host application
 		/// </summary>
-		private void RenderInternal(StreamWriter result, RenderParameters parameters)
+		private void RenderInternal(TextWriter result, RenderParameters parameters)
 		{
 			if (Root == null)
 				return;

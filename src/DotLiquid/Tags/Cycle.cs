@@ -64,7 +64,7 @@ namespace DotLiquid.Tags
 			}).ToArray();
 		}
 
-		public override void Render(Context context, StreamWriter result)
+		public override void Render(Context context, TextWriter result)
 		{
 			context.Registers["cycle"] = context.Registers["cycle"] ?? new Hash(0);
 

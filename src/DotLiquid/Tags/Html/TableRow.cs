@@ -33,7 +33,7 @@ namespace DotLiquid.Tags.Html
 			base.Initialize(tagName, markup, tokens);
 		}
 
-		public override void Render(Context context, StreamWriter result)
+		public override void Render(Context context, TextWriter result)
 		{
 			object coll = context[_collectionName];
 

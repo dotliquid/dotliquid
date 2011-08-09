@@ -80,7 +80,7 @@ namespace DotLiquid.Tags
 			base.Initialize(tagName, markup, tokens);
 		}
 
-		public override void Render(Context context, StreamWriter result)
+		public override void Render(Context context, TextWriter result)
 		{
 			context.Registers["for"] = context.Registers["for"] ?? new Hash(0);
 

@@ -10,18 +10,55 @@ namespace DotLiquid.Util
 	{
 		#region Successor functions
 
-		internal static long Succ(long val) { return val + 1; }
-		internal static int Succ(int val) { return val + 1; }
-		internal static short Succ(short val) { return (short) (val + 1); }
-		internal static sbyte Succ(sbyte val) { return (sbyte) (val + 1); }
+		internal static long Succ(long val)
+		{
+			return val + 1;
+		}
 
-		internal static ulong Succ(ulong val) { return val + 1; }
-		internal static uint Succ(uint val) { return val + 1; }
-		internal static ushort Succ(ushort val) { return (ushort) (val + 1); }
-		internal static byte Succ(byte val) { return (byte) (val + 1); }
+		internal static int Succ(int val)
+		{
+			return val + 1;
+		}
 
-		internal static char Succ(char val) { return (char) (val + 1); }
-		internal static DateTime Succ(DateTime val) { return val.AddDays(1); }
+		internal static short Succ(short val)
+		{
+			return (short) (val + 1);
+		}
+
+		internal static sbyte Succ(sbyte val)
+		{
+			return (sbyte) (val + 1);
+		}
+
+		internal static ulong Succ(ulong val)
+		{
+			return val + 1;
+		}
+
+		internal static uint Succ(uint val)
+		{
+			return val + 1;
+		}
+
+		internal static ushort Succ(ushort val)
+		{
+			return (ushort) (val + 1);
+		}
+
+		internal static byte Succ(byte val)
+		{
+			return (byte) (val + 1);
+		}
+
+		internal static char Succ(char val)
+		{
+			return (char) (val + 1);
+		}
+
+		internal static DateTime Succ(DateTime val)
+		{
+			return val.AddDays(1);
+		}
 
 		internal static string Succ(string val)
 		{
@@ -35,6 +72,7 @@ namespace DotLiquid.Util
 				return Succ(val, val.Length);
 			return Succ(val, lastAlphaNumeric + 1) + val.Substring(lastAlphaNumeric + 1);
 		}
+
 		internal static string Succ(string val, int length)
 		{
 			char lastChar = val[length - 1];
@@ -80,10 +118,12 @@ namespace DotLiquid.Util
 		{
 			return Inclusive(start, finish, Succ, Comp);
 		}
+
 		public static IEnumerable<string> Inclusive(string start, string finish)
 		{
 			return Inclusive(start, finish, Succ, Comp);
 		}
+
 		public static IEnumerable<int> Inclusive(int start, int finish)
 		{
 			return Inclusive(start, finish, Succ, Comp);

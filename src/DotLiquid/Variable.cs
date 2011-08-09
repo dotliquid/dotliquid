@@ -66,7 +66,7 @@ namespace DotLiquid
 #if NET35
 					outputString = string.Join(string.Empty, ((IEnumerable)output).Cast<object>().Select(o => o.ToString()).ToArray());
 #else
-					outputString = string.Join(string.Empty, ((IEnumerable)output).Cast<object>());
+					outputString = string.Join(string.Empty, ((IEnumerable) output).Cast<object>());
 #endif
 				else if (output is bool)
 					outputString = output.ToString().ToLower();

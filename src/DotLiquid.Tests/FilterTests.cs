@@ -41,7 +41,7 @@ namespace DotLiquid.Tests
             public static string Adjust(int input, int offset)
 #else
 			public static string Adjust(int input, int offset = 10)
-#endif                
+#endif
 			{
 				return string.Format("[{0:d}]", input + offset);
 			}
@@ -177,7 +177,7 @@ namespace DotLiquid.Tests
 			_context["words"] = new[] { "expected", "as", "alphabetic" };
 			_context["arrays"] = new[] { new[] { "flattened" }, new[] { "are" } };
 
-			CollectionAssert.AreEqual(new[] { 1, 2, 3, 4}, new Variable("numbers | sort").Render(_context) as IEnumerable);
+			CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 }, new Variable("numbers | sort").Render(_context) as IEnumerable);
 			CollectionAssert.AreEqual(new[] { "alphabetic", "as", "expected" }, new Variable("words | sort").Render(_context) as IEnumerable);
 			CollectionAssert.AreEqual(new[] { 3 }, new Variable("value | sort").Render(_context) as IEnumerable);
 			CollectionAssert.AreEqual(new[] { "are", "flattened" }, new Variable("arrays | sort").Render(_context) as IEnumerable);

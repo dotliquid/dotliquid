@@ -83,7 +83,7 @@ namespace DotLiquid.Tests
 		[Test]
 		public void TestVariablePiping()
 		{
-			Assert.AreEqual(" LOL ", Template.Parse(" {{ car.gm | make_funny }} ").Render(new RenderParameters { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) }}));
+			Assert.AreEqual(" LOL ", Template.Parse(" {{ car.gm | make_funny }} ").Render(new RenderParameters { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
 		}
 
 		[Test]

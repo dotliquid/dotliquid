@@ -14,12 +14,10 @@ namespace DotLiquid
 		/// </summary>
 		protected internal Tag()
 		{
-
 		}
 
 		internal virtual void AssertTagRulesViolation(List<object> rootNodeList)
 		{
-
 		}
 
 		public virtual void Initialize(string tagName, string markup, List<string> tokens)
@@ -31,7 +29,6 @@ namespace DotLiquid
 
 		protected virtual void Parse(List<string> tokens)
 		{
-
 		}
 
 		public string Name
@@ -41,7 +38,6 @@ namespace DotLiquid
 
 		public virtual void Render(Context context, TextWriter result)
 		{
-
 		}
 
 		/// <summary>

@@ -41,7 +41,7 @@ namespace DotLiquid
 						Type tagType;
 						if ((tagType = Template.GetTagType(fullTokenMatch.Groups[1].Value)) != null)
 						{
-							Tag tag = (Tag)Activator.CreateInstance(tagType);
+							Tag tag = (Tag) Activator.CreateInstance(tagType);
 							tag.Initialize(fullTokenMatch.Groups[1].Value, fullTokenMatch.Groups[2].Value, tokens);
 							NodeList.Add(tag);
 
@@ -82,7 +82,6 @@ namespace DotLiquid
 
 		public virtual void EndTag()
 		{
-
 		}
 
 		public virtual void UnknownTag(string tag, string markup, List<string> tokens)
@@ -133,7 +132,7 @@ namespace DotLiquid
 				try
 				{
 					if (token is IRenderable)
-						((IRenderable)token).Render(context, result);
+						((IRenderable) token).Render(context, result);
 					else
 						result.Write(token.ToString());
 				}

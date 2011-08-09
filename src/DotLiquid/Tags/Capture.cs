@@ -9,15 +9,15 @@ namespace DotLiquid.Tags
 {
 	/// <summary>
 	/// Capture stores the result of a block into a variable without rendering it inplace.
-  /// 
-  /// {% capture heading %}
-  /// Monkeys!
-  /// {% endcapture %}
-  /// ...
-  /// <h1>{{ heading }}</h1>
-  /// 
-  /// Capture is useful for saving content for use later in your template, such as
-  /// in a sidebar or footer.
+	/// 
+	/// {% capture heading %}
+	/// Monkeys!
+	/// {% endcapture %}
+	/// ...
+	/// <h1>{{ heading }}</h1>
+	/// 
+	/// Capture is useful for saving content for use later in your template, such as
+	/// in a sidebar or footer.
 	/// </summary>
 	public class Capture : DotLiquid.Block
 	{

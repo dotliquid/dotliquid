@@ -110,7 +110,7 @@ namespace DotLiquid.Tests
 
 			using (TextWriter writer = new StringWriter())
 			{
-				template.Render(writer, new RenderParameters { LocalVariables = Hash.FromAnonymousObject(new { test = "worked" })});
+				template.Render(writer, new RenderParameters { LocalVariables = Hash.FromAnonymousObject(new { test = "worked" }) });
 
 				Assert.AreEqual("worked", writer.ToString());
 			}

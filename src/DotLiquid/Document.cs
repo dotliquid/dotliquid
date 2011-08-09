@@ -28,7 +28,6 @@ namespace DotLiquid
 		/// </summary>
 		protected override void AssertMissingDelimitation()
 		{
-			
 		}
 	}
 }

@@ -9,8 +9,8 @@ using DotLiquid.Util;
 
 namespace DotLiquid.Util
 {
-    public static class StrFTime
-    {
+	public static class StrFTime
+	{
 		public delegate string DateTimeDelegate(DateTime dateTime);
 
 		private static Dictionary<string, DateTimeDelegate> _formats = new Dictionary<string, DateTimeDelegate>()
@@ -30,7 +30,7 @@ namespace DotLiquid.Util
 			{ "S", (dateTime) => dateTime.ToString("ss", CultureInfo.CurrentCulture) },
 			{ "U", (dateTime) => CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(dateTime, CultureInfo.CurrentCulture.DateTimeFormat.CalendarWeekRule, DayOfWeek.Sunday).ToString().PadLeft(2, '0') },
 			{ "W", (dateTime) => CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(dateTime, CultureInfo.CurrentCulture.DateTimeFormat.CalendarWeekRule, DayOfWeek.Monday).ToString().PadLeft(2, '0') },
-			{ "w", (dateTime) => ((int)dateTime.DayOfWeek).ToString() },
+			{ "w", (dateTime) => ((int) dateTime.DayOfWeek).ToString() },
 			{ "x", (dateTime) => dateTime.ToString("d", CultureInfo.CurrentCulture) },
 			{ "X", (dateTime) => dateTime.ToString("T", CultureInfo.CurrentCulture) },
 			{ "y", (dateTime) => dateTime.ToString("yy", CultureInfo.CurrentCulture) },

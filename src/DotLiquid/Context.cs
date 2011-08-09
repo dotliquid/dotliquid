@@ -37,7 +37,6 @@ namespace DotLiquid
 		public Context()
 			: this(new List<Hash>(), new Hash(), new Hash(), false)
 		{
-
 		}
 
 		public Strainer Strainer
@@ -194,9 +193,9 @@ namespace DotLiquid
 				case "false":
 					return false;
 				case "blank":
-					return new Symbol(o => o is IEnumerable && !((IEnumerable)o).Cast<object>().Any());
+					return new Symbol(o => o is IEnumerable && !((IEnumerable) o).Cast<object>().Any());
 				case "empty":
-					return new Symbol(o => o is IEnumerable && !((IEnumerable)o).Cast<object>().Any());
+					return new Symbol(o => o is IEnumerable && !((IEnumerable) o).Cast<object>().Any());
 			}
 
 			// Single quoted strings.
@@ -262,7 +261,7 @@ namespace DotLiquid
 
 			variable = Liquidize(variable);
 			if (variable is IContextAware)
-				((IContextAware)variable).Context = this;
+				((IContextAware) variable).Context = this;
 			return variable;
 		}
 
@@ -301,25 +300,25 @@ namespace DotLiquid
 
 					// If object is a KeyValuePair, we treat it a bit differently - we might be rendering
 					// an included template.
-					if (@object is KeyValuePair<string, object> && ((KeyValuePair<string, object>)@object).Key == (string)part)
+					if (@object is KeyValuePair<string, object> && ((KeyValuePair<string, object>) @object).Key == (string) part)
 					{
-						object res = ((KeyValuePair<string, object>)@object).Value;
+						object res = ((KeyValuePair<string, object>) @object).Value;
 						@object = Liquidize(res);
 					}
-					// If object is a hash- or array-like object we look for the
-					// presence of the key and if its available we return it
+						// If object is a hash- or array-like object we look for the
+						// presence of the key and if its available we return it
 					else if (IsHashOrArrayLikeObject(@object, part))
 					{
 						// If its a proc we will replace the entry with the proc
 						object res = LookupAndEvaluate(@object, part);
 						@object = Liquidize(res);
 					}
-					// Some special cases. If the part wasn't in square brackets and
-					// no key with the same name was found we interpret following calls
-					// as commands and call them on the current object
+						// Some special cases. If the part wasn't in square brackets and
+						// no key with the same name was found we interpret following calls
+						// as commands and call them on the current object
 					else if (!partResolved && (@object is IEnumerable) && ((part as string) == "size" || (part as string) == "first" || (part as string) == "last"))
 					{
-						var castCollection = ((IEnumerable)@object).Cast<object>();
+						var castCollection = ((IEnumerable) @object).Cast<object>();
 						if ((part as string) == "size")
 							@object = castCollection.Count();
 						else if ((part as string) == "first")
@@ -327,8 +326,8 @@ namespace DotLiquid
 						else if ((part as string) == "last")
 							@object = castCollection.LastOrDefault();
 					}
-					// No key was present with the desired value and it wasn't one of the directly supported
-					// keywords either. The only thing we got left is to return nil
+						// No key was present with the desired value and it wasn't one of the directly supported
+						// keywords either. The only thing we got left is to return nil
 					else
 					{
 						return null;
@@ -336,7 +335,7 @@ namespace DotLiquid
 
 					// If we are dealing with a drop here we have to
 					if (@object is IContextAware)
-						((IContextAware)@object).Context = this;
+						((IContextAware) @object).Context = this;
 				}
 			}
 
@@ -348,16 +347,16 @@ namespace DotLiquid
 			if (obj == null)
 				return false;
 
-			if ((obj is IDictionary && ((IDictionary)obj).Contains(part)))
+			if ((obj is IDictionary && ((IDictionary) obj).Contains(part)))
 				return true;
 
 			if ((obj is IList) && (part is int))
 				return true;
 
-			if (TypeUtility.IsAnonymousType(obj.GetType()) && obj.GetType().GetProperty((string)part) != null)
+			if (TypeUtility.IsAnonymousType(obj.GetType()) && obj.GetType().GetProperty((string) part) != null)
 				return true;
 
-			if ((obj is IIndexable) && ((IIndexable)obj).ContainsKey((string)part))
+			if ((obj is IIndexable) && ((IIndexable) obj).ContainsKey((string) part))
 				return true;
 
 			return false;
@@ -367,25 +366,25 @@ namespace DotLiquid
 		{
 			object value;
 			if (obj is IDictionary)
-				value = ((IDictionary)obj)[key];
+				value = ((IDictionary) obj)[key];
 			else if (obj is IList)
-				value = ((IList)obj)[(int)key];
+				value = ((IList) obj)[(int) key];
 			else if (TypeUtility.IsAnonymousType(obj.GetType()))
-				value = obj.GetType().GetProperty((string)key).GetValue(obj, null);
+				value = obj.GetType().GetProperty((string) key).GetValue(obj, null);
 			else if (obj is IIndexable)
-				value = ((IIndexable)obj)[key];
+				value = ((IIndexable) obj)[key];
 			else
 				throw new NotSupportedException();
 
 			if (value is Proc)
 			{
-				object newValue = ((Proc)value).Invoke(this);
+				object newValue = ((Proc) value).Invoke(this);
 				if (obj is IDictionary)
-					((IDictionary)obj)[key] = newValue;
+					((IDictionary) obj)[key] = newValue;
 				else if (obj is IList)
-					((IList)obj)[(int)key] = newValue;
+					((IList) obj)[(int) key] = newValue;
 				else if (TypeUtility.IsAnonymousType(obj.GetType()))
-					obj.GetType().GetProperty((string)key).SetValue(obj, newValue, null);
+					obj.GetType().GetProperty((string) key).SetValue(obj, newValue, null);
 				else
 					throw new NotSupportedException();
 				return newValue;
@@ -399,7 +398,7 @@ namespace DotLiquid
 			if (obj == null)
 				return obj;
 			if (obj is ILiquidizable)
-				return ((ILiquidizable)obj).ToLiquid();
+				return ((ILiquidizable) obj).ToLiquid();
 			if (obj is string)
 				return obj;
 			if (obj is IEnumerable)

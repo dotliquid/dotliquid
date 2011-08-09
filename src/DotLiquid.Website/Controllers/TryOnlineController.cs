@@ -62,6 +62,6 @@ namespace DotLiquid.Website.Controllers
 
 	public class Task : Drop
 	{
-		public string Name { get; set;	 }
+		public string Name { get; set; }
 	}
 }

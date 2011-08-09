@@ -53,7 +53,8 @@ namespace DotLiquid.Tags
 						RenderAll(block.Attachment, context, result);
 						return;
 					}
-				};
+				}
+				;
 			});
 		}
 

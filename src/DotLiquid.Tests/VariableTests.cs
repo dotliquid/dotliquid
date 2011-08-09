@@ -27,11 +27,11 @@ namespace DotLiquid.Tests
 
 			var = new Variable(" hello | strftime: '%Y'");
 			Assert.AreEqual("hello", var.Name);
-			AssertFiltersAreEqual(new[] { new Variable.Filter("strftime", new [] { "'%Y'" }) }, var.Filters);
+			AssertFiltersAreEqual(new[] { new Variable.Filter("strftime", new[] { "'%Y'" }) }, var.Filters);
 
 			var = new Variable(" 'typo' | link_to: 'Typo', true ");
 			Assert.AreEqual("'typo'", var.Name);
-			AssertFiltersAreEqual(new[] { new Variable.Filter("link_to", new [] { "'Typo'", "true" }) }, var.Filters);
+			AssertFiltersAreEqual(new[] { new Variable.Filter("link_to", new[] { "'Typo'", "true" }) }, var.Filters);
 
 			var = new Variable(" 'typo' | link_to: 'Typo', false ");
 			Assert.AreEqual("'typo'", var.Name);

@@ -11,7 +11,7 @@ namespace DotLiquid.Tests.Tags
 		{
 			public string ReadTemplateFile(Context context, string templateName)
 			{
-                string templatePath = (string)context[templateName];
+				string templatePath = (string) context[templateName];
 
 				switch (templatePath)
 				{
@@ -70,7 +70,7 @@ namespace DotLiquid.Tests.Tags
 		[Test]
 		public void TestIncludeTagLooksForFileSystemInRegistersFirst()
 		{
-			Assert.AreEqual("from OtherFileSystem", Template.Parse("{% include 'pick_a_source' %}").Render(new RenderParameters { Registers = Hash.FromAnonymousObject(new { file_system = new OtherFileSystem() })}));
+			Assert.AreEqual("from OtherFileSystem", Template.Parse("{% include 'pick_a_source' %}").Render(new RenderParameters { Registers = Hash.FromAnonymousObject(new { file_system = new OtherFileSystem() }) }));
 		}
 
 		[Test]

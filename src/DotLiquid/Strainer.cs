@@ -85,7 +85,7 @@ namespace DotLiquid
 			ParameterInfo[] parameterInfos = methodInfo.GetParameters();
 
 			// If first parameter is Context, send in actual context.
-			if (parameterInfos.Length > 0 && parameterInfos[0].ParameterType == typeof (Context))
+			if (parameterInfos.Length > 0 && parameterInfos[0].ParameterType == typeof(Context))
 				args.Insert(0, _context);
 
 			// Add in any default parameters - .NET won't do this for us.

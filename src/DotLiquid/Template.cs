@@ -101,7 +101,6 @@ namespace DotLiquid
 		/// </summary>
 		internal Template()
 		{
-
 		}
 
 		/// <summary>

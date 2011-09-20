@@ -59,6 +59,12 @@ namespace DotLiquid
 			Strainer.GlobalFilter(filter);
 		}
 
+        internal static Dictionary<Type, Func<object, object>> simpleTypeTransformers = new Dictionary<Type, Func<object, object>>();
+        public static void RegisterSimpleType(Type t, Func<object, object> func)
+        {
+            simpleTypeTransformers.Add(t, func);
+        }
+
 		/// <summary>
 		/// Creates a new <tt>Template</tt> object from liquid source code
 		/// </summary>

@@ -145,13 +145,15 @@ namespace DotLiquid
         [ThreadStatic] private Util.WeakTable<Type, TypeResolution> _cache = new Util.WeakTable<Type, TypeResolution>(32);
 
         private readonly object proxiedObject;
-        public DropProxy(object obj)
+
+        public DropProxy(object obj, bool declaredOnly)
         {
             proxiedObject = obj;
             Type t = obj.GetType();
             if (!_cache.TryGetValue(t, out _resolution))
-                _cache[t] = _resolution = new TypeResolution(t, false, true);
+                _cache[t] = _resolution = new TypeResolution(t, false, declaredOnly);
         }
+        public DropProxy(object obj) : this(obj, true) {}
 
         public override object InvokeDrop(object name)
         {

@@ -6,5 +6,8 @@ using System.Text;
 namespace DotLiquid
 {
     [AttributeUsage(AttributeTargets.Class)]
-    public class LiquidTypeAttribute : Attribute {}
+    public class LiquidTypeAttribute : Attribute 
+    {
+        public bool DeclaredOnly { get; set; }
+    }
 }

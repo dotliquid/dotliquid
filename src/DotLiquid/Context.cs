@@ -418,11 +418,12 @@ namespace DotLiquid
             Func<object,object> f;
             if (Template.simpleTypeTransformers.TryGetValue(obj.GetType(), out f))
                 return f(obj);
-            /*if (obj.GetType().Name.Equals("ObjectId")) //HACK
-                //TODO - pluggable "simple types"
-                return obj.ToString();*/
             if (obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Count() > 0)
-                return new DropProxy(obj);
+            {
+                var attr = (LiquidTypeAttribute)obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Single();
+                return new DropProxy(obj, attr.DeclaredOnly);
+            }
+
 			throw new SyntaxException(Liquid.ResourceManager.GetString("ContextObjectInvalidException"), obj.ToString());
 		}
 

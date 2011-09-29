@@ -1,3 +1,4 @@
+v1.6.1 - 2011-09-30
 - Updated TypeUtility.IsAnonymousType to detect anonymous types when running on Mono
 - Removed System.Web reference for .NET 4.0 version because System.Web.HttpUtility can be replaced by System.Net.WebUtility
 - Changed the overload of Template.Render that takes in a stream to use TextWriter instead of StreamWriter. This change

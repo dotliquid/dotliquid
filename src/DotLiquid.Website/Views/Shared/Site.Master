@@ -91,8 +91,13 @@
 					License</h5>
 				<ul>
 					<li><a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></li>
-					<li><a href="http://www.microsoft.com/opensource/licenses.mspx#Ms-PL">Microsoft Public License (Ms-PL)</a></li>
+					<li><a href="http://www.microsoft.com/opensource/licenses.mspx#Ms-PL">Microsoft Public License<br />(Ms-PL)</a></li>
 				</ul>
+			</div>
+			<div class="footer-col last">
+				<h5>Sponsors</h5>
+				<p>Our thanks to <a href="http://www.jetbrains.com">JetBrains</a> for donating licenses for <a href="http://www.jetbrains.com/resharper/">ReSharper</a>,
+				<a href="http://www.jetbrains.com/profiler/">dotTrace</a> and <a href="http://www.jetbrains.com/dotcover/">dotCover</a>.</p>
 			</div>
 		</div>
 		<div id="copyright">

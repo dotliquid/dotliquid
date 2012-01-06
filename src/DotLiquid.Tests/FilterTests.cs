@@ -184,6 +184,13 @@ namespace DotLiquid.Tests
 		}
 
 		[Test]
+		public void TestSplit()
+		{
+			_context["var"] = "a~b";
+			Assert.AreEqual(new[] { "a", "b" }, new Variable("var | split:'~'").Render(_context));
+		}
+
+		[Test]
 		public void TestStripHtml()
 		{
 			_context["var"] = "<b>bla blub</a>";

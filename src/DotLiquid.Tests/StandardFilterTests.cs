@@ -55,6 +55,13 @@ namespace DotLiquid.Tests
 		}
 
 		[Test]
+		public void TestSplit()
+		{
+			Assert.AreEqual(new[] { "This", "is", "a", "sentence" }, StandardFilters.Split("This is a sentence", " "));
+			Assert.AreEqual(new string[] { null }, StandardFilters.Split(null, null));
+		}
+
+		[Test]
 		public void TestStripHtml()
 		{
 			Assert.AreEqual("test", StandardFilters.StripHtml("<div>test</div>"));

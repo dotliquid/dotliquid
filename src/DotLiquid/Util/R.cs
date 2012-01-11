@@ -38,7 +38,7 @@ namespace DotLiquid.Util
 		/// <param name="pattern"></param>
 		/// <param name="callback"></param>
 		/// <returns></returns>
-		public static void Scan(string input, string pattern, Action<string,string> callback)
+		public static void Scan(string input, string pattern, Action<string, string> callback)
 		{
 			foreach (Match match in Regex.Matches(input, pattern))
 				callback(match.Groups[1].Value, match.Groups[2].Value);

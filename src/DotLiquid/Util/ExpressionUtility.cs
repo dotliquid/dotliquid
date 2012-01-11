@@ -36,17 +36,14 @@ namespace DotLiquid.Util
 				}
 				catch (InvalidOperationException)
 				{
-					if (castArgsToResultOnFailure && !(         // if we show retry                                                        
-									leftType == resultType &&  // and the args aren't
-									rightType == resultType))
-					{ // already "TValue, TValue, TValue"...
+					if (castArgsToResultOnFailure && !( // if we show retry                                                        
+						leftType == resultType && // and the args aren't
+							rightType == resultType))
+					{
+						// already "TValue, TValue, TValue"...
 						// convert both lhs and rhs to TResult (as appropriate)
-						Expression castLhs = leftType == resultType ?
-										(Expression) lhs :
-										(Expression) Expression.Convert(lhs, resultType);
-						Expression castRhs = rightType == resultType ?
-										(Expression) rhs :
-										(Expression) Expression.Convert(rhs, resultType);
+						Expression castLhs = leftType == resultType ? lhs : (Expression) Expression.Convert(lhs, resultType);
+						Expression castRhs = rightType == resultType ? rhs : (Expression) Expression.Convert(rhs, resultType);
 
 						return Expression.Lambda(body(castLhs, castRhs), lhs, rhs).Compile();
 					}
@@ -56,7 +53,7 @@ namespace DotLiquid.Util
 			catch (Exception ex)
 			{
 				string msg = ex.Message; // avoid capture of ex itself
-				return (Action) (delegate { throw new InvalidOperationException(msg); });
+				return (Action)(delegate { throw new InvalidOperationException(msg); });
 			}
 		}
 	}

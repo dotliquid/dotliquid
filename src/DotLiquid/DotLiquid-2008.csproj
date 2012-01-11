@@ -44,7 +44,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="RenderParameters.cs" />
-    <Compile Include="Util\MemoryStreamWriter.cs" />
     <Compile Include="Util\StrFTime.cs" />
     <Compile Include="Exceptions\ArgumentException.cs" />
     <Compile Include="Exceptions\FileSystemException.cs" />

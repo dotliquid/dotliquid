@@ -1,5 +1,9 @@
+v1.6.1 - 2011-09-30
 - Updated TypeUtility.IsAnonymousType to detect anonymous types when running on Mono
 - Removed System.Web reference for .NET 4.0 version because System.Web.HttpUtility can be replaced by System.Net.WebUtility
+- Changed the overload of Template.Render that takes in a stream to use TextWriter instead of StreamWriter. This change
+  will not require code changes in client code, but will require a recompilation.
+- DotLiquid is now compatible with .NET 4.0 Client Profile
 
 v1.6.0 - 2011-06-25
 - Added SymbolSource support to NuGet package generation script

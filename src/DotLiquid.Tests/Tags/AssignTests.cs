@@ -10,18 +10,18 @@ namespace DotLiquid.Tests.Tags
 		public void TestAssignedVariable()
 		{
 			Helper.AssertTemplateResult(".foo.", "{% assign foo = values %}.{{ foo[0] }}.",
-				Hash.FromAnonymousObject(new { values = new[] { "foo", "bar", "baz" } } ));
+				Hash.FromAnonymousObject(new { values = new[] { "foo", "bar", "baz" } }));
 			Helper.AssertTemplateResult(".bar.", "{% assign foo = values %}.{{ foo[1] }}.",
 				Hash.FromAnonymousObject(new { values = new[] { "foo", "bar", "baz" } }));
 		}
 
-        [Test]
-        public void TestAssignDecimal()
-        {
-            Helper.AssertTemplateResult(string.Format("10{0}05", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
+		[Test]
+		public void TestAssignDecimal()
+		{
+			Helper.AssertTemplateResult(string.Format("10{0}05", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
 				"{% assign foo = decimal %}{{ foo }}",
-                Hash.FromAnonymousObject(new { @decimal = 10.05d }));
-        }
+				Hash.FromAnonymousObject(new { @decimal = 10.05d }));
+		}
 
 		[Test, SetCulture("en-GB")]
 		public void TestAssignDecimalInlineWithEnglishDecimalSeparator()

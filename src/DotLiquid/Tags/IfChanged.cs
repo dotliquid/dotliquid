@@ -1,16 +1,15 @@
 using System.IO;
-using DotLiquid.Util;
 
 namespace DotLiquid.Tags
 {
 	public class IfChanged : DotLiquid.Block
 	{
-		public override void Render(Context context, StreamWriter result)
+		public override void Render(Context context, TextWriter result)
 		{
 			context.Stack(() =>
 			{
 				string tempString;
-				using (MemoryStreamWriter temp = new MemoryStreamWriter())
+				using (TextWriter temp = new StringWriter())
 				{
 					RenderAll(NodeList, context, temp);
 					tempString = temp.ToString();

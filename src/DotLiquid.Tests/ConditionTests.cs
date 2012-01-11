@@ -130,7 +130,7 @@ namespace DotLiquid.Tests
 			var model = new { value = new decimal(-10.5) };
 
 			string output = Template.Parse("{% if model.value < 0 %}passed{% endif %}")
-			  .Render(Hash.FromAnonymousObject(new { model }));
+				.Render(Hash.FromAnonymousObject(new { model }));
 
 			Assert.AreEqual("passed", output);
 		}

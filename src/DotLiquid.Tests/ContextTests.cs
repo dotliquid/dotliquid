@@ -376,9 +376,9 @@ namespace DotLiquid.Tests
 			_context["colors"] = new
 			{
 				Blue = new[] { "003366", "336699", "6699CC", "99CCFF" },
-				Green = new[] { "003300","336633", "669966", "99CC99" },
-				Yellow = new[] { "CC9900","FFCC00", "FFFF99", "FFFFCC" },
-				Red = new[] { "660000","993333", "CC6666", "FF9999" }
+				Green = new[] { "003300", "336633", "669966", "99CC99" },
+				Yellow = new[] { "CC9900", "FFCC00", "FFFF99", "FFFFCC" },
+				Red = new[] { "660000", "993333", "CC6666", "FF9999" }
 			};
 
 			Assert.AreEqual("003366", _context["colors.Blue[0]"]);
@@ -434,7 +434,7 @@ namespace DotLiquid.Tests
 		{
 			_context["var"] = "tags";
 			_context["nested"] = new { var = "tags" };
-			_context["products"] = new { count = 5, tags = new[] { "deepsnow", "freestyle"} };
+			_context["products"] = new { count = 5, tags = new[] { "deepsnow", "freestyle" } };
 
 			Assert.AreEqual("deepsnow", _context["products[var].first"]);
 			Assert.AreEqual("freestyle", _context["products[nested.var].last"]);
@@ -465,7 +465,7 @@ namespace DotLiquid.Tests
 		[Test]
 		public void TestCents()
 		{
-			_context.Merge(Hash.FromAnonymousObject( new { cents = new HundredCents() }));
+			_context.Merge(Hash.FromAnonymousObject(new { cents = new HundredCents() }));
 			Assert.AreEqual(100, _context["cents"]);
 		}
 
@@ -589,7 +589,11 @@ namespace DotLiquid.Tests
 		public void TestLambdaIsCalledOnce()
 		{
 			int global = 0;
-			_context["callcount"] = (Proc) (c => { ++global; return global.ToString(); });
+			_context["callcount"] = (Proc) (c =>
+			{
+				++global;
+				return global.ToString();
+			});
 
 			Assert.AreEqual("1", _context["callcount"]);
 			Assert.AreEqual("1", _context["callcount"]);
@@ -600,7 +604,14 @@ namespace DotLiquid.Tests
 		public void TestNestedLambdaIsCalledOnce()
 		{
 			int global = 0;
-			_context["callcount"] = Hash.FromAnonymousObject(new { lambda = (Proc) (c => { ++global; return global.ToString(); }) });
+			_context["callcount"] = Hash.FromAnonymousObject(new
+			{
+				lambda = (Proc) (c =>
+				{
+					++global;
+					return global.ToString();
+				})
+			});
 
 			Assert.AreEqual("1", _context["callcount.lambda"]);
 			Assert.AreEqual("1", _context["callcount.lambda"]);
@@ -611,7 +622,13 @@ namespace DotLiquid.Tests
 		public void TestLambdaInArrayIsCalledOnce()
 		{
 			int global = 0;
-			_context["callcount"] = new object[] { 1, 2, (Proc) (c => { ++global; return global.ToString(); }), 4, 5 };
+			_context["callcount"] = new object[]
+			{ 1, 2, (Proc) (c =>
+			{
+				++global;
+				return global.ToString();
+			}), 4, 5
+			};
 
 			Assert.AreEqual("1", _context["callcount[2]"]);
 			Assert.AreEqual("1", _context["callcount[2]"]);

@@ -101,7 +101,6 @@ namespace DotLiquid
 		/// </summary>
 		internal Template()
 		{
-
 		}
 
 		/// <summary>
@@ -149,21 +148,21 @@ namespace DotLiquid
 		/// <returns></returns>
 		public string Render(RenderParameters parameters)
 		{
-			using (MemoryStreamWriter streamWriter = new MemoryStreamWriter())
+			using (TextWriter writer = new StringWriter())
 			{
-				Render(streamWriter, parameters);
-				return streamWriter.ToString();
+				Render(writer, parameters);
+				return writer.ToString();
 			}
 		}
 
 		/// <summary>
 		/// Renders the template into the specified StreamWriter.
 		/// </summary>
-		/// <param name="streamWriter"></param>
+		/// <param name="result"></param>
 		/// <param name="parameters"></param>
-		public void Render(StreamWriter streamWriter, RenderParameters parameters)
+		public void Render(TextWriter result, RenderParameters parameters)
 		{
-			RenderInternal(streamWriter, parameters);
+			RenderInternal(result, parameters);
 		}
 
 		/// <summary>
@@ -192,7 +191,7 @@ namespace DotLiquid
 		/// * <tt>registers</tt> : hash with register variables. Those can be accessed from
 		/// filters and tags and might be useful to integrate liquid more with its host application
 		/// </summary>
-		private void RenderInternal(StreamWriter streamWriter, RenderParameters parameters)
+		private void RenderInternal(TextWriter result, RenderParameters parameters)
 		{
 			if (Root == null)
 				return;
@@ -211,7 +210,7 @@ namespace DotLiquid
 			try
 			{
 				// Render the nodelist.
-				Root.Render(context, streamWriter);
+				Root.Render(context, result);
 			}
 			finally
 			{

@@ -49,9 +49,9 @@ namespace DotLiquid.Tests
 			ExtendedCollectionAssert.AllItemsAreInstancesOfTypes(template.Root.NodeList,
 				new[]
 				{
-					typeof (string), typeof (Variable), typeof (string),
-					typeof (Variable), typeof (string), typeof (Variable),
-					typeof (string)
+					typeof(string), typeof(Variable), typeof(string),
+					typeof(Variable), typeof(string), typeof(Variable),
+					typeof(string)
 				});
 		}
 
@@ -61,7 +61,7 @@ namespace DotLiquid.Tests
 			Template template = Template.Parse("  {% comment %} {% endcomment %} ");
 			Assert.AreEqual(3, template.Root.NodeList.Count);
 			ExtendedCollectionAssert.AllItemsAreInstancesOfTypes(template.Root.NodeList,
-				new[] { typeof (string), typeof (Comment), typeof (string) });
+				new[] { typeof(string), typeof(Comment), typeof(string) });
 		}
 
 		[Test]

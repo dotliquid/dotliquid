@@ -4,21 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
-using DotLiquid.Util;
 
 namespace DotLiquid.Tags
 {
 	/// <summary>
 	/// Capture stores the result of a block into a variable without rendering it inplace.
-  /// 
-  /// {% capture heading %}
-  /// Monkeys!
-  /// {% endcapture %}
-  /// ...
-  /// <h1>{{ heading }}</h1>
-  /// 
-  /// Capture is useful for saving content for use later in your template, such as
-  /// in a sidebar or footer.
+	/// 
+	/// {% capture heading %}
+	/// Monkeys!
+	/// {% endcapture %}
+	/// ...
+	/// <h1>{{ heading }}</h1>
+	/// 
+	/// Capture is useful for saving content for use later in your template, such as
+	/// in a sidebar or footer.
 	/// </summary>
 	public class Capture : DotLiquid.Block
 	{
@@ -37,9 +36,9 @@ namespace DotLiquid.Tags
 			base.Initialize(tagName, markup, tokens);
 		}
 
-		public override void Render(Context context, StreamWriter result)
+		public override void Render(Context context, TextWriter result)
 		{
-			using (MemoryStreamWriter temp = new MemoryStreamWriter())
+			using (TextWriter temp = new StringWriter())
 			{
 				base.Render(context, temp);
 				context.Scopes.Last()[_to] = temp.ToString();

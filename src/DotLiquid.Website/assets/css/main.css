@@ -1,32 +1,40 @@
 ﻿html, body {
 	height: 100%;
 }
+
 #wrap {
 	min-height: 100%;
 }
+
 #main {
 	overflow: auto;
 	padding-bottom: 250px;
 }
 /* must be same height as the footer */
+
 #footer {
 	position: relative;
-	margin-top: -250px; /* negative value of footer height */;
+	margin-top: -250px;
+	/* negative value of footer height */
+	;
 	height: 250px;
 	clear: both;
 	background-color: #ECECEC;
 	font-size: 14px;
 }
 /*Opera Fix*/
+
 body:before {
 	/* thanks to Maleika (Kohoutec)*/
 	content: "";
 	height: 100%;
 	float: left;
 	width: 0;
-	margin-top: -32767px;/* thank you Erik J - negate effect of float*/
+	margin-top: -32767px;
+	/* thank you Erik J - negate effect of float*/
 }
 /* new clearfix */
+
 .clearfix:after {
 	visibility: hidden;
 	display: block;
@@ -37,14 +45,17 @@ body:before {
 }
 /** html .clearfix             { zoom: 1; }  IE6 */
 /**:first-child+html .clearfix { zoom: 1; }  IE7 */
+
 * html .clearfix {
 	display: inline-block;
 }
 /* IE6 */
+
 *:first-child + html .clearfix {
 	display: inline-block;
 }
 /* IE7 */
+
 body {
 	font-family: Georgia, "Times New Roman", Times, serif;
 	font-size: 16px;
@@ -52,35 +63,43 @@ body {
 	color: black;
 	line-height: 1.5;
 }
+
 #wrap, #footer-content {
 	width: 960px;
 	margin-left: auto;
 	margin-right: auto;
 }
+
 #content {
 	float: left;
 	width: 570px;
 	color: #333;
 }
+
 a {
 	color: #00CCCC;
 }
+
 #content, #side {
 	padding-top: 50px;
 	padding-bottom: 20px;
 }
+
 #content h1, #side h1 {
 	font-weight: normal;
 	font-size: 24px;
 }
+
 #content h2, #side h2 {
 	font-weight: normal;
 	font-size: 24px;
 	padding-top: 20px;
 }
+
 p {
 	color: #666;
 }
+
 blockquote p {
 	color: #99CC66;
 	font-size: 24px;
@@ -88,6 +107,7 @@ blockquote p {
 	padding: 20px 0;
 	text-align: center;
 }
+
 .sample-code {
 	-moz-border-radius: 10px;
 	border-radius: 10px;
@@ -96,10 +116,12 @@ blockquote p {
 	font-family: "Courier New", Courier, monospace;
 	font-size: 16px;
 }
+
 .smaller-code
 {
 	font-size: 12px;
 }
+
 .result, .result-html
 {
 	background-color: #EEEEEE;
@@ -110,44 +132,55 @@ blockquote p {
 	font-family: "Courier New", Courier, monospace;
 	font-size: 12px;
 }
+
 p span.code {
 	color: #007777;
 	font-weight: bold;
 }
+
 #header {
 	padding-top: 30px;
 }
+
 #logo, #header-menu {
 	float: left;
 }
+
 #header-menu {
 	margin-left: 30px;
 }
+
 #header-menu li {
 	float: left;
 	padding: 0 30px;
 	line-height: 90px;
 	text-transform: uppercase;
 }
+
 #header-menu li a {
 	color: black;
 	text-decoration: none;
 	padding: 0 8px;
 }
+
 #header-menu li a:hover, #header-menu li a.active {
 	border-bottom: 3px #00CCCC solid;
 }
+
 #try {
 	line-height: 90px;
 	float: right;
 }
+
 #try img {
 	vertical-align: middle;
 }
+
 #side {
 	width: 370px;
 	float: right;
 }
+
 #copyright {
 	bottom: 0px;
 	width: 960px;
@@ -155,11 +188,13 @@ p span.code {
 	text-align: center;
 	padding: 20px 0;
 }
+
 #footer-content h5
 {
 	font-size: 14px;
 	font-weight: bold;
 }
+
 .footer-col
 {
 	float: left;
@@ -175,6 +210,7 @@ p span.code {
 }
 
 /* Try online */
+
 textarea
 {
 	width: 560px;

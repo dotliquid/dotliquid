@@ -146,6 +146,11 @@ namespace DotLiquid
 
         private readonly object proxiedObject;
 
+        /// <summary>
+        /// Create a new DropProxy object
+        /// </summary>
+        /// <param name="obj">The object to create a proxy for</param>
+        /// <param name="declaredOnly">Specifies that only members declared at the level of the supplied type's hierarchy should be considered. Inherited members are not considered.</param>
         public DropProxy(object obj, bool declaredOnly)
         {
             proxiedObject = obj;

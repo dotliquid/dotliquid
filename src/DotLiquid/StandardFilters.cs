@@ -171,6 +171,19 @@ namespace DotLiquid
 				: input;
 		}
 
+		/// <summary>
+		/// Split input string into an array of substrings separated by given pattern.
+		/// </summary>
+		/// <param name="input"></param>
+		/// <param name="pattern"></param>
+		/// <returns></returns>
+		public static string[] Split(string input, string pattern)
+		{
+			return input.IsNullOrWhiteSpace()
+				? new[] { input }
+				: input.Split(new[] { pattern }, StringSplitOptions.RemoveEmptyEntries);
+		}
+
 		public static string StripHtml(string input)
 		{
 			return input.IsNullOrWhiteSpace()

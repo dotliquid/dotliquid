@@ -202,12 +202,23 @@ p span.code {
 	padding: 10px;
 	background-color: #F6F6F6;
 	height: 150px;
+	width: 205px;
+}
+
+.footer-col.last
+{
+	margin-right: 0px;
 }
 
 .footer-col ul
 {
 	margin-bottom: 10px;
 }
+
+ .footer-col p
+ {
+ 	margin-bottom: 5px;
+ }
 
 /* Try online */
 

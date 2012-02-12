@@ -21,6 +21,7 @@ namespace DotLiquid.Util
 			{ "B", (dateTime) => dateTime.ToString("MMMM", CultureInfo.CurrentCulture) },
 			{ "c", (dateTime) => dateTime.ToString("ddd MMM dd HH:mm:ss yyyy", CultureInfo.CurrentCulture) },
 			{ "d", (dateTime) => dateTime.ToString("dd", CultureInfo.CurrentCulture) },
+			{ "e", (dateTime) => dateTime.ToString("d", CultureInfo.CurrentCulture) },
 			{ "H", (dateTime) => dateTime.ToString("HH", CultureInfo.CurrentCulture) },
 			{ "I", (dateTime) => dateTime.ToString("hh", CultureInfo.CurrentCulture) },
 			{ "j", (dateTime) => dateTime.DayOfYear.ToString().PadLeft(3, '0') },

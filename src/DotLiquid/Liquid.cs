@@ -9,7 +9,7 @@ namespace DotLiquid
 {
 	public static class Liquid
 	{
-        internal static readonly ResourceManager ResourceManager = new ResourceManager(typeof(DotLiquid.Properties.Resources));
+		internal static readonly ResourceManager ResourceManager = new ResourceManager(typeof(DotLiquid.Properties.Resources));
 
 		public static readonly string FilterSeparator = R.Q(@"\|");
 		public static readonly string ArgumentSeparator = R.Q(@",");
@@ -25,8 +25,8 @@ namespace DotLiquid
 		public static readonly string QuotedString = R.Q(@"""[^""]*""|'[^']*'");
 		public static readonly string QuotedFragment = string.Format(R.Q(@"{0}|(?:[^\s,\|'""]|{0})+"), QuotedString);
 		public static readonly string QuotedAssignFragment = string.Format(R.Q(@"{0}|(?:[^\s\|'""]|{0})+"), QuotedString);
-        public static readonly string StrictQuotedFragment = R.Q(@"""[^""]+""|'[^']+'|[^\s\|\:\,]+");
-        public static readonly string FirstFilterArgument = string.Format(R.Q(@"{0}(?:{1})"), FilterArgumentSeparator, StrictQuotedFragment);
+		public static readonly string StrictQuotedFragment = R.Q(@"""[^""]+""|'[^']+'|[^\s\|\:\,]+");
+		public static readonly string FirstFilterArgument = string.Format(R.Q(@"{0}(?:{1})"), FilterArgumentSeparator, StrictQuotedFragment);
 		public static readonly string OtherFilterArgument = string.Format(R.Q(@"{0}(?:{1})"), ArgumentSeparator, StrictQuotedFragment);
 		public static readonly string SpacelessFilter = string.Format(R.Q(@"^(?:'[^']+'|""[^""]+""|[^'""])*{0}(?:{1})(?:{2}(?:{3})*)?"), FilterSeparator, StrictQuotedFragment, FirstFilterArgument, OtherFilterArgument);
 		public static readonly string Expression = string.Format(R.Q(@"(?:{0}(?:{1})*)"), QuotedFragment, SpacelessFilter);
@@ -35,12 +35,13 @@ namespace DotLiquid
 		public static readonly string PartialTemplateParser = string.Format(R.Q(@"{0}.*?{1}|{2}.*?{3}"), TagStart, TagEnd, VariableStart, VariableIncompleteEnd);
 		public static readonly string TemplateParser = string.Format(R.Q(@"({0}|{1})"), PartialTemplateParser, AnyStartingTag);
 		public static readonly string VariableParser = string.Format(R.Q(@"\[[^\]]+\]|{0}+\??"), VariableSegment);
-        public static readonly string LiteralShorthand = R.Q(@"^(?:\{\{\{\s?)(.*?)(?:\s*\}\}\})$");
-        public static readonly string CommentShorthand = R.Q(@"^(?:\{\s?\#\s?)(.*?)(?:\s*\#\s?\})$");
+		public static readonly string LiteralShorthand = R.Q(@"^(?:\{\{\{\s?)(.*?)(?:\s*\}\}\})$");
+		public static readonly string CommentShorthand = R.Q(@"^(?:\{\s?\#\s?)(.*?)(?:\s*\#\s?\})$");
 		public static bool UseRubyDateFormat = false;
 
 		static Liquid()
 		{
+<<<<<<< HEAD
             Template.RegisterTag<Tags.Assign>("assign");
             Template.RegisterTag<Tags.Block>("block");
             Template.RegisterTag<Tags.Capture>("capture");
@@ -55,8 +56,24 @@ namespace DotLiquid
             Template.RegisterTag<Tags.Literal>("literal");
 			Template.RegisterTag<Tags.Raw>("raw");
 			Template.RegisterTag<Tags.Unless>("unless");
+=======
+			Template.RegisterTag<Tags.Assign>("assign");
+			Template.RegisterTag<Tags.Block>("block");
+			Template.RegisterTag<Tags.Capture>("capture");
+			Template.RegisterTag<Tags.Case>("case");
+			Template.RegisterTag<Tags.Comment>("comment");
+			Template.RegisterTag<Tags.Cycle>("cycle");
+			Template.RegisterTag<Tags.Extends>("extends");
+			Template.RegisterTag<Tags.For>("for");
+			Template.RegisterTag<Tags.If>("if");
+			Template.RegisterTag<Tags.IfChanged>("ifchanged");
+			Template.RegisterTag<Tags.Include>("include");
+			Template.RegisterTag<Tags.Literal>("literal");
+			Template.RegisterTag<Tags.Unless>("unless");
+			Template.RegisterTag<Tags.Raw>("raw");
+>>>>>>> cf6181022b76a9ba0fc8ff6b4a7356ba2ac6570d
 
-            Template.RegisterTag<Tags.Html.TableRow>("tablerow");
+			Template.RegisterTag<Tags.Html.TableRow>("tablerow");
 
 			Template.RegisterFilter(typeof(StandardFilters));
 		}

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ﻿using System;
 using System.Collections.Generic;
 using DotLiquid.Exceptions;
@@ -23,4 +24,27 @@ namespace DotLiquid.Tests.Tags
 			Assert.AreEqual("{{ test }}", t.Render());
 		}
 	}
+=======
+﻿using NUnit.Framework;
+
+namespace DotLiquid.Tests.Tags
+{
+    [TestFixture]
+    public class RawTests
+    {
+        [Test]
+        public void TestTagInRaw()
+        {
+			Helper.AssertTemplateResult("{% comment %} test {% endcomment %}",
+				"{% raw %}{% comment %} test {% endcomment %}{% endraw %}");
+        }
+
+		[Test]
+		public void TestOutputInRaw()
+		{
+			Helper.AssertTemplateResult("{{ test }}",
+				"{% raw %}{{ test }}{% endraw %}");
+		}
+	}
+>>>>>>> cf6181022b76a9ba0fc8ff6b4a7356ba2ac6570d
 }

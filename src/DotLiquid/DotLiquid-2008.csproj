@@ -44,6 +44,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="RenderParameters.cs" />
+<<<<<<< HEAD
+=======
+    <Compile Include="Tags\Raw.cs" />
+>>>>>>> cf6181022b76a9ba0fc8ff6b4a7356ba2ac6570d
     <Compile Include="Util\StrFTime.cs" />
     <Compile Include="Exceptions\ArgumentException.cs" />
     <Compile Include="Exceptions\FileSystemException.cs" />

@@ -171,6 +171,22 @@ namespace DotLiquid
 				: input;
 		}
 
+<<<<<<< HEAD
+=======
+		/// <summary>
+		/// Split input string into an array of substrings separated by given pattern.
+		/// </summary>
+		/// <param name="input"></param>
+		/// <param name="pattern"></param>
+		/// <returns></returns>
+		public static string[] Split(string input, string pattern)
+		{
+			return input.IsNullOrWhiteSpace()
+				? new[] { input }
+				: input.Split(new[] { pattern }, StringSplitOptions.RemoveEmptyEntries);
+		}
+
+>>>>>>> cf6181022b76a9ba0fc8ff6b4a7356ba2ac6570d
 		public static string StripHtml(string input)
 		{
 			return input.IsNullOrWhiteSpace()
@@ -548,6 +564,14 @@ namespace DotLiquid
 			return DoMathsOperation(input, operand, Expression.Divide);
 		}
 
+<<<<<<< HEAD
+=======
+		public static object Modulo(object input, object operand)
+		{
+			return DoMathsOperation(input, operand, Expression.Modulo);
+		}
+
+>>>>>>> cf6181022b76a9ba0fc8ff6b4a7356ba2ac6570d
 		private static object DoMathsOperation(object input, object operand, Func<Expression, Expression, BinaryExpression> operation)
 		{
 			return input == null || operand == null

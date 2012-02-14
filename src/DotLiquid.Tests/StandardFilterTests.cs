@@ -55,6 +55,13 @@ namespace DotLiquid.Tests
 		}
 
 		[Test]
+		public void TestSplit()
+		{
+			Assert.AreEqual(new[] { "This", "is", "a", "sentence" }, StandardFilters.Split("This is a sentence", " "));
+			Assert.AreEqual(new string[] { null }, StandardFilters.Split(null, null));
+		}
+
+		[Test]
 		public void TestStripHtml()
 		{
 			Assert.AreEqual("test", StandardFilters.StripHtml("<div>test</div>"));
@@ -211,6 +218,13 @@ namespace DotLiquid.Tests
 			Helper.AssertTemplateResult("4", "{{ input | minus:operand }}", Hash.FromAnonymousObject(new { input = 5, operand = 1 }));
 		}
 
+		[Test, SetCulture("fr-FR")]
+		public void TestMinusWithFrenchDecimalSeparator()
+		{
+			Helper.AssertTemplateResult(string.Format("1{0}2", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
+				"{{ 3,2 | minus:2 }}");
+		}
+
 		[Test]
 		public void TestTimes()
 		{
@@ -240,6 +254,12 @@ namespace DotLiquid.Tests
 			Helper.AssertTemplateResult("4", "{{ 12 | divided_by:3 }}");
 			Helper.AssertTemplateResult("4", "{{ 14 | divided_by:3 }}");
 			Helper.AssertTemplateResult("5", "{{ 15 | divided_by:3 }}");
+		}
+
+		[Test]
+		public void TestModulo()
+		{
+			Helper.AssertTemplateResult("1", "{{ 3 | modulo:2 }}");
 		}
 	}
 }

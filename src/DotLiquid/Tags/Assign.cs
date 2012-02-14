@@ -18,9 +18,10 @@ namespace DotLiquid.Tags
 	/// </summary>
 	public class Assign : Tag
 	{
-		private static readonly Regex Syntax = R.B(R.Q(@"({0}+)\s*=\s*({1}+)"), Liquid.VariableSignature, Liquid.QuotedAssignFragment);
+		private static readonly Regex Syntax = R.B(R.Q(@"({0}+)\s*=\s*(.*)\s*"), Liquid.VariableSignature);
 
-		private string _to, _from;
+		private string _to;
+		private Variable _from;
 
 		public override void Initialize(string tagName, string markup, List<string> tokens)
 		{
@@ -28,7 +29,7 @@ namespace DotLiquid.Tags
 			if (syntaxMatch.Success)
 			{
 				_to = syntaxMatch.Groups[1].Value;
-				_from = syntaxMatch.Groups[2].Value;
+				_from = new Variable(syntaxMatch.Groups[2].Value);
 			}
 			else
 			{
@@ -40,7 +41,7 @@ namespace DotLiquid.Tags
 
 		public override void Render(Context context, TextWriter result)
 		{
-			context.Scopes.Last()[_to] = context[_from];
+			context.Scopes.Last()[_to] = _from.Render(context);
 		}
 	}
 }

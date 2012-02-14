@@ -35,7 +35,7 @@ namespace DotLiquid
 			Name = null;
 			Filters = new List<Filter>();
 
-			Match match = Regex.Match(markup, string.Format(R.Q(@"\s*({0})(.*)"), Liquid.QuotedFragment));
+			Match match = Regex.Match(markup, string.Format(R.Q(@"\s*({0})(.*)"), Liquid.QuotedAssignFragment));
 			if (match.Success)
 			{
 				Name = match.Groups[1].Value;

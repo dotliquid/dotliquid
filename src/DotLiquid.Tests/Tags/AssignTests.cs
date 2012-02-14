@@ -50,5 +50,12 @@ namespace DotLiquid.Tests.Tags
 			Helper.AssertTemplateResult(string.Format("2{0}5", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
 				"{% assign foo = 2.5 %}{{ foo }}");
 		}
+
+		[Test]
+		public void TestAssignWithFilter()
+		{
+			Helper.AssertTemplateResult(".bar.", "{% assign foo = values | split: ',' %}.{{ foo[1] }}.", 
+				Hash.FromAnonymousObject(new { values = "foo,bar,baz" }));
+		}
 	}
 }

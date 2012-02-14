@@ -31,23 +31,32 @@ namespace DotLiquid
 	{
 		private class TypeResolution
 		{
-			public Dictionary<string, MethodInfo> _cachedMethods;
-			public Dictionary<string, PropertyInfo> _cachedProperties;
+			public readonly Dictionary<string, MethodInfo> CachedMethods;
+			public readonly Dictionary<string, PropertyInfo> CachedProperties;
 
 			public TypeResolution(Type t)
 			{
 				// Cache all methods and properties of this object, but don't include those defined at or above the base Drop class.
-				BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance;
-				_cachedMethods = t.GetMethods(bindingFlags).Where(mi => mi.GetParameters().Length == 0 && typeof(Drop).IsAssignableFrom(mi.DeclaringType.BaseType))
+				const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance;
+				CachedMethods = t.GetMethods(bindingFlags).Where(mi => mi.GetParameters().Length == 0 && typeof(Drop).IsAssignableFrom(mi.DeclaringType.BaseType))
 					.ToDictionary(mi => Template.NamingConvention.GetMemberName(mi.Name), Template.NamingConvention.StringComparer);
-				_cachedProperties = t.GetProperties(bindingFlags).Where(pi => typeof(Drop).IsAssignableFrom(pi.DeclaringType.BaseType))
+				CachedProperties = t.GetProperties(bindingFlags).Where(pi => typeof(Drop).IsAssignableFrom(pi.DeclaringType.BaseType))
 					.ToDictionary(pi => Template.NamingConvention.GetMemberName(pi.Name), Template.NamingConvention.StringComparer);
 			}
 		}
 
-		[ThreadStatic] private Util.WeakTable<Type, TypeResolution> _cache = new Util.WeakTable<Type, TypeResolution>(32);
+		private static class TypeResolutionCache
+		{
+			[ThreadStatic]
+			private static Util.WeakTable<Type, TypeResolution> _cache;
 
-		private TypeResolution _resolution;
+			public static Util.WeakTable<Type, TypeResolution> Instance
+			{
+				get { return _cache ?? (_cache = new Util.WeakTable<Type, TypeResolution>(32)); }
+			}
+		}
+
+		private readonly TypeResolution _resolution;
 
 		public Context Context { get; set; }
 
@@ -66,8 +75,8 @@ namespace DotLiquid
 		protected Drop()
 		{
 			Type t = GetType();
-			if (!_cache.TryGetValue(t, out _resolution))
-				_cache[t] = _resolution = new TypeResolution(t);
+			if (!TypeResolutionCache.Instance.TryGetValue(t, out _resolution))
+				TypeResolutionCache.Instance[t] = _resolution = new TypeResolution(t);
 		}
 
 		/// <summary>
@@ -87,8 +96,8 @@ namespace DotLiquid
 
 				MethodInfo mi;
 				PropertyInfo pi;
-				if (_resolution._cachedMethods.TryGetValue(rubyMethod, out mi)
-					|| _resolution._cachedProperties.TryGetValue(rubyMethod, out pi))
+				if (_resolution.CachedMethods.TryGetValue(rubyMethod, out mi)
+					|| _resolution.CachedProperties.TryGetValue(rubyMethod, out pi))
 				{
 					return string.Format(Liquid.ResourceManager.GetString("DropWrongNamingConventionMessage"), rubyMethod);
 				}
@@ -105,10 +114,10 @@ namespace DotLiquid
 			string method = (string) name;
 
 			MethodInfo mi;
-			if (_resolution._cachedMethods.TryGetValue(method, out mi))
+			if (_resolution.CachedMethods.TryGetValue(method, out mi))
 				return mi.Invoke(this, null);
 			PropertyInfo pi;
-			if (_resolution._cachedProperties.TryGetValue(method, out pi))
+			if (_resolution.CachedProperties.TryGetValue(method, out pi))
 				return pi.GetValue(this, null);
 			return BeforeMethod(method);
 		}

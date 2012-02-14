@@ -1,3 +1,4 @@
+- Add modulo filter
 - Allow filters in assign
 - Added %e date format code (thanks Paul Jenkins)
 - Added split filter

@@ -561,6 +561,11 @@ namespace DotLiquid
 			return DoMathsOperation(input, operand, Expression.Divide);
 		}
 
+		public static object Modulo(object input, object operand)
+		{
+			return DoMathsOperation(input, operand, Expression.Modulo);
+		}
+
 		private static object DoMathsOperation(object input, object operand, Func<Expression, Expression, BinaryExpression> operation)
 		{
 			return input == null || operand == null

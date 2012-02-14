@@ -255,5 +255,11 @@ namespace DotLiquid.Tests
 			Helper.AssertTemplateResult("4", "{{ 14 | divided_by:3 }}");
 			Helper.AssertTemplateResult("5", "{{ 15 | divided_by:3 }}");
 		}
+
+		[Test]
+		public void TestModulo()
+		{
+			Helper.AssertTemplateResult("1", "{{ 3 | modulo:2 }}");
+		}
 	}
 }

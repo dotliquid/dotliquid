@@ -71,9 +71,11 @@
     <Compile Include="Tags\IfElseTests.cs" />
     <Compile Include="Tags\IncludeTagTests.cs" />
     <Compile Include="Tags\LiteralTests.cs" />
+    <Compile Include="Tags\RawTests.cs" />
     <Compile Include="Tags\UnlessElseTests.cs" />
     <Compile Include="Tags\StandardTagTests.cs" />
     <Compile Include="TemplateTests.cs" />
+    <Compile Include="Util\StrFTimeTests.cs" />
     <Compile Include="VariableResolutionTests.cs" />
     <Compile Include="VariableTests.cs" />
   </ItemGroup>

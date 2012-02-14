@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using DotLiquid.Exceptions;
-using DotLiquid.Util;
 
 namespace DotLiquid.Util
 {
@@ -13,7 +8,7 @@ namespace DotLiquid.Util
 	{
 		public delegate string DateTimeDelegate(DateTime dateTime);
 
-		private static Dictionary<string, DateTimeDelegate> _formats = new Dictionary<string, DateTimeDelegate>()
+		private static readonly Dictionary<string, DateTimeDelegate> Formats = new Dictionary<string, DateTimeDelegate>
 		{
 			{ "a", (dateTime) => dateTime.ToString("ddd", CultureInfo.CurrentCulture) },
 			{ "A", (dateTime) => dateTime.ToString("dddd", CultureInfo.CurrentCulture) },
@@ -21,7 +16,7 @@ namespace DotLiquid.Util
 			{ "B", (dateTime) => dateTime.ToString("MMMM", CultureInfo.CurrentCulture) },
 			{ "c", (dateTime) => dateTime.ToString("ddd MMM dd HH:mm:ss yyyy", CultureInfo.CurrentCulture) },
 			{ "d", (dateTime) => dateTime.ToString("dd", CultureInfo.CurrentCulture) },
-			{ "e", (dateTime) => dateTime.ToString("d", CultureInfo.CurrentCulture) },
+			{ "e", (dateTime) => dateTime.ToString("%d", CultureInfo.CurrentCulture).PadLeft(2, ' ') },
 			{ "H", (dateTime) => dateTime.ToString("HH", CultureInfo.CurrentCulture) },
 			{ "I", (dateTime) => dateTime.ToString("hh", CultureInfo.CurrentCulture) },
 			{ "j", (dateTime) => dateTime.DayOfYear.ToString().PadLeft(3, '0') },
@@ -54,7 +49,7 @@ namespace DotLiquid.Util
 					output += s;
 				else
 					output += s == "%"
-						? _formats.ContainsKey(pattern.Substring(++n, 1)) ? _formats[pattern.Substring(n, 1)].Invoke(dateTime) : "%" + pattern.Substring(n, 1)
+						? Formats.ContainsKey(pattern.Substring(++n, 1)) ? Formats[pattern.Substring(n, 1)].Invoke(dateTime) : "%" + pattern.Substring(n, 1)
 						: s;
 				n++;
 			}

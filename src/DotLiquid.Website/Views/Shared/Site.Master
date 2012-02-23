@@ -98,10 +98,14 @@
 				<h5>Sponsors</h5>
 				<p>Our thanks to <a href="http://www.jetbrains.com">JetBrains</a> for donating licenses for <a href="http://www.jetbrains.com/resharper/">ReSharper</a>,
 				<a href="http://www.jetbrains.com/profiler/">dotTrace</a> and <a href="http://www.jetbrains.com/dotcover/">dotCover</a>.</p>
+				<p>Thanks also to <a href="http://appharbor.com">AppHarbor</a> for providing free hosting for this website.</p>
 			</div>
 		</div>
 		<div id="copyright">
-			Copyright ©2010-2011 <a href="http://formosatek.com">Formosatek</a> and contributors - All rights reserved. Site design by <a href="http://www.alessandropetrelli.com">Alessandro Petrelli</a>.</div>
+			Copyright ©2010-2012 <a href="http://formosatek.com">Formosatek</a> and contributors - All rights reserved. 
+			Site design by <a href="http://www.alessandropetrelli.com">Alessandro Petrelli</a>.
+			Hosted free by <a href="http://appharbor.com">AppHarbor</a>.
+		</div>
 	</div>
 
 	<asp:ContentPlaceHolder runat="server" ID="ScriptContent" />

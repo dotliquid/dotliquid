@@ -131,5 +131,39 @@ namespace DotLiquid.Tests
 				Assert.AreEqual("worked", reader.ReadToEnd());
 			}
 		}
+
+		public class MySimpleType
+		{
+			public string Name { get; set; }
+		}
+
+		public void TestRegisterSimpleType()
+		{
+			Template.RegisterSimpleType(typeof(MySimpleType), (x) => new DropProxy(x));
+			Template template = Template.Parse("{{context.Name}}");
+
+			var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType() { Name = "worked" } }));
+
+			Assert.AreEqual("worked", output);
+		}
+		
+		public void TestRegisterNamespace()
+		{
+			Template.RegisterSimpleNamespace("DotLiquid.Tests.RegisterNamespaceTests", true);
+			Template template = Template.Parse("{{context.Name}}");
+
+			var output = template.Render(Hash.FromAnonymousObject(new { context = new RegisterNamespaceTests.ShouldBeRegisteredType() { Name = "worked" } }));
+
+			Assert.AreEqual("worked", output);
+		}
+
+	}
+}
+
+namespace DotLiquid.Tests.RegisterNamespaceTests
+{
+	public class ShouldBeRegisteredType
+	{
+		public string Name { get; set; }
 	}
 }

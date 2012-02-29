@@ -60,10 +60,26 @@ namespace DotLiquid
 		}
 
         internal static Dictionary<Type, Func<object, object>> simpleTypeTransformers = new Dictionary<Type, Func<object, object>>();
+
+        /// <summary>
+        /// Registers a simple type. DotLiquid will wrap the object in a <see cref="DropProxy"/> object.
+        /// </summary>
+        /// <param name="t">The type to register</param>
+        public static void RegisterSimpleType(Type t)
+        {
+            RegisterSimpleType(t, (x) => new DropProxy(x));
+        }
+        
+        /// <summary>
+        /// Registers a simple type using the specified transformer.
+        /// </summary>
+        /// <param name="t">The type to register</param>
+        /// <param name="func">Function that converts the specified type into a Liquid Drop-compatible object (eg, implements ILiquidizable)</param>
         public static void RegisterSimpleType(Type t, Func<object, object> func)
         {
             simpleTypeTransformers.Add(t, func);
         }
+
 
         /// <summary>
         /// Dictionary that holds namespace=>declaredOnly 

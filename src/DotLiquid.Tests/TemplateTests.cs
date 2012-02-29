@@ -137,16 +137,36 @@ namespace DotLiquid.Tests
 			public string Name { get; set; }
 		}
 
+        [Test]
 		public void TestRegisterSimpleType()
 		{
-			Template.RegisterSimpleType(typeof(MySimpleType), (x) => new DropProxy(x));
+			Template.RegisterSimpleType(typeof(MySimpleType));
 			Template template = Template.Parse("{{context.Name}}");
 
 			var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType() { Name = "worked" } }));
 
 			Assert.AreEqual("worked", output);
 		}
-		
+
+
+        public class MySimpleType2
+        {
+            public string Name { get; set; }
+        }
+
+        [Test]
+        public void TestRegisterSimpleTypeTransform()
+        {
+            // specify a transform function
+            Template.RegisterSimpleType(typeof(MySimpleType2), (x) => new { Name = ((MySimpleType2)x).Name } );
+            Template template = Template.Parse("{{context.Name}}");
+
+            var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType2() { Name = "worked" } }));
+
+            Assert.AreEqual("worked", output);
+        }
+
+        [Test]
 		public void TestRegisterNamespace()
 		{
 			Template.RegisterSimpleNamespace("DotLiquid.Tests.RegisterNamespaceTests", true);

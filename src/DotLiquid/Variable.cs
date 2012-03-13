@@ -35,11 +35,7 @@ namespace DotLiquid
 			Name = null;
 			Filters = new List<Filter>();
 
-<<<<<<< HEAD
 			Match match = Regex.Match(markup, string.Format(R.Q(@"\s*({0})(.*)"), Liquid.QuotedFragment));
-=======
-			Match match = Regex.Match(markup, string.Format(R.Q(@"\s*({0})(.*)"), Liquid.QuotedAssignFragment));
->>>>>>> cf6181022b76a9ba0fc8ff6b4a7356ba2ac6570d
 			if (match.Success)
 			{
 				Name = match.Groups[1].Value;
@@ -70,7 +66,7 @@ namespace DotLiquid
 #if NET35
 					outputString = string.Join(string.Empty, ((IEnumerable)output).Cast<object>().Select(o => o.ToString()).ToArray());
 #else
-					outputString = string.Join(string.Empty, ((IEnumerable) output).Cast<object>());
+					outputString = string.Join(string.Empty, ((IEnumerable)output).Cast<object>());
 #endif
 				else if (output is bool)
 					outputString = output.ToString().ToLower();
@@ -86,6 +82,10 @@ namespace DotLiquid
 				return null;
 
 			object output = context[Name];
+
+			if (output is ILiquidizable)
+				return null;
+
 			Filters.ToList().ForEach(filter =>
 			{
 				List<object> filterArgs = filter.Arguments.Select(a => context[a]).ToList();

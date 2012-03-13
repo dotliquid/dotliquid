@@ -1,9 +1,12 @@
+<<<<<<< HEAD
+=======
 - Added raw tag
 - Added modulo filter
 - Allow filters in assign
 - Added %e date format code (thanks Paul Jenkins)
 - Added split filter
 
+>>>>>>> cf6181022b76a9ba0fc8ff6b4a7356ba2ac6570d
 v1.6.1 - 2011-09-30
 - Updated TypeUtility.IsAnonymousType to detect anonymous types when running on Mono
 - Removed System.Web reference for .NET 4.0 version because System.Web.HttpUtility can be replaced by System.Net.WebUtility

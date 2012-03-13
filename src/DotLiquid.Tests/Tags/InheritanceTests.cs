@@ -4,6 +4,16 @@ using NUnit.Framework;
 
 namespace DotLiquid.Tests.Tags
 {
+<<<<<<< HEAD
+    [TestFixture]
+    public class InheritanceTests
+    {
+        private class TestFileSystem : IFileSystem
+        {
+			public string ReadTemplateFile(string templateName, Context context)
+            {
+                string templatePath = (string)context[templateName];
+=======
 	[TestFixture]
 	public class InheritanceTests
 	{
@@ -12,6 +22,7 @@ namespace DotLiquid.Tests.Tags
 			public string ReadTemplateFile(Context context, string templateName)
 			{
 				string templatePath = (string) context[templateName];
+>>>>>>> cf6181022b76a9ba0fc8ff6b4a7356ba2ac6570d
 
 				switch (templatePath)
 				{

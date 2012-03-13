@@ -1,5 +1,15 @@
+<<<<<<< HEAD
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using DotLiquid.Exceptions;
+=======
 ﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
+>>>>>>> cf6181022b76a9ba0fc8ff6b4a7356ba2ac6570d
 using DotLiquid.Util;
 
 namespace DotLiquid.Tags

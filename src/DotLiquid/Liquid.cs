@@ -41,6 +41,22 @@ namespace DotLiquid
 
 		static Liquid()
 		{
+<<<<<<< HEAD
+            Template.RegisterTag<Tags.Assign>("assign");
+            Template.RegisterTag<Tags.Block>("block");
+            Template.RegisterTag<Tags.Capture>("capture");
+            Template.RegisterTag<Tags.Case>("case");
+            Template.RegisterTag<Tags.Comment>("comment");
+            Template.RegisterTag<Tags.Cycle>("cycle");
+            Template.RegisterTag<Tags.Extends>("extends");
+            Template.RegisterTag<Tags.For>("for");
+            Template.RegisterTag<Tags.If>("if");
+            Template.RegisterTag<Tags.IfChanged>("ifchanged");
+            Template.RegisterTag<Tags.Include>("include");
+            Template.RegisterTag<Tags.Literal>("literal");
+			Template.RegisterTag<Tags.Raw>("raw");
+			Template.RegisterTag<Tags.Unless>("unless");
+=======
 			Template.RegisterTag<Tags.Assign>("assign");
 			Template.RegisterTag<Tags.Block>("block");
 			Template.RegisterTag<Tags.Capture>("capture");
@@ -55,6 +71,7 @@ namespace DotLiquid
 			Template.RegisterTag<Tags.Literal>("literal");
 			Template.RegisterTag<Tags.Unless>("unless");
 			Template.RegisterTag<Tags.Raw>("raw");
+>>>>>>> cf6181022b76a9ba0fc8ff6b4a7356ba2ac6570d
 
 			Template.RegisterTag<Tags.Html.TableRow>("tablerow");
 

@@ -75,7 +75,10 @@
     <Compile Include="Tags\UnlessElseTests.cs" />
     <Compile Include="Tags\StandardTagTests.cs" />
     <Compile Include="TemplateTests.cs" />
+<<<<<<< HEAD
+=======
     <Compile Include="Util\StrFTimeTests.cs" />
+>>>>>>> cf6181022b76a9ba0fc8ff6b4a7356ba2ac6570d
     <Compile Include="VariableResolutionTests.cs" />
     <Compile Include="VariableTests.cs" />
   </ItemGroup>

@@ -146,6 +146,14 @@ namespace DotLiquid.Tests
 		}
 
 		[Test]
+		public void TestDropDoesNotOutputItself()
+		{
+			string output = Template.Parse(" {{ product }} ")
+				.Render(Hash.FromAnonymousObject(new { product = new ProductDrop() }));
+			Assert.AreEqual("  ", output);
+		}
+
+		[Test]
 		public void TestTextDrop()
 		{
 			string output = Template.Parse(" {{ product.texts.text }} ")

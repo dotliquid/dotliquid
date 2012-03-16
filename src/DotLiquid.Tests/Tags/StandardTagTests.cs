@@ -58,6 +58,18 @@ namespace DotLiquid.Tests.Tags
 		}
 
 		[Test]
+		public void TestForWithDictionary()
+		{
+			var dictionary = new Dictionary<string, string>
+			{
+				{ "Graham Greene", "English" },
+				{ "F. Scott Fitzgerald", "American" }
+			};
+			Helper.AssertTemplateResult(" English  American ", "{%for item in authors%} {{ item }} {%endfor%}",
+				Hash.FromAnonymousObject(new { authors = dictionary.Values }));
+		}
+
+		[Test]
 		public void TestFor()
 		{
 			Helper.AssertTemplateResult(" yo  yo  yo  yo ", "{%for item in array%} yo {%endfor%}",

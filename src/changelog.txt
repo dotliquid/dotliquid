@@ -1,3 +1,4 @@
+- Drop does not output itself
 - Added raw tag
 - Added modulo filter
 - Allow filters in assign

@@ -133,6 +133,14 @@ namespace DotLiquid.Tests
 			}
 		}
 
+		internal static class ProductFilter
+		{
+			public static string ProductText(object input)
+			{
+				return ((ProductDrop) input).Texts().Text;
+			}
+		}
+
 		#endregion
 
 		[Test]
@@ -151,6 +159,18 @@ namespace DotLiquid.Tests
 			string output = Template.Parse(" {{ product }} ")
 				.Render(Hash.FromAnonymousObject(new { product = new ProductDrop() }));
 			Assert.AreEqual("  ", output);
+		}
+
+		[Test]
+		public void TestDropWithFilters()
+		{
+			string output = Template.Parse(" {{ product | product_text }} ")
+				.Render(new RenderParameters
+				{
+					LocalVariables = Hash.FromAnonymousObject(new { product = new ProductDrop() }),
+					Filters = new[] { typeof(ProductFilter) }
+				});
+			Assert.AreEqual(" text1 ", output);
 		}
 
 		[Test]

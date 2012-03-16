@@ -83,9 +83,6 @@ namespace DotLiquid
 
 			object output = context[Name];
 
-			if (output is ILiquidizable)
-				return null;
-
 			Filters.ToList().ForEach(filter =>
 			{
 				List<object> filterArgs = filter.Arguments.Select(a => context[a]).ToList();
@@ -99,6 +96,9 @@ namespace DotLiquid
 					throw new FilterNotFoundException(string.Format(Liquid.ResourceManager.GetString("VariableFilterNotFoundException"), filter.Name, _markup.Trim()), ex);
 				}
 			});
+
+			if (output is ILiquidizable)
+				return null;
 
 			return output;
 		}

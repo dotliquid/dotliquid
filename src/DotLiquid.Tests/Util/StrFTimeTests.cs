@@ -30,6 +30,7 @@ namespace DotLiquid.Tests.Util
 		[TestCase("%X", Result = "14:32:14")]
 		[TestCase("%y", Result = "12")]
 		[TestCase("%Y", Result = "2012")]
+		[TestCase("%Z", Result = "+01:00")]
 		[TestCase("%", Result = "%")]
 		public string TestFormat(string format)
 		{
@@ -38,13 +39,6 @@ namespace DotLiquid.Tests.Util
 			var result = new DateTime(2012, 1, 9, 14, 32, 14).ToStrFTime(format);
 			Thread.CurrentThread.CurrentCulture = culture;
 			return result;
-		}
-
-		[Test]
-		public void TestTimeZone()
-		{
-			string timeZoneOffset = DateTime.Now.ToString("zzz");
-			Assert.That(TestFormat("%Z"), Is.EqualTo(timeZoneOffset));
 		}
 	}
 }

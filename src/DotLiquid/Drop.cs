@@ -11,21 +11,32 @@ namespace DotLiquid
     /// </summary>
     internal class TypeResolution
     {
-        public Dictionary<string, MethodInfo> _cachedMethods;
-        public Dictionary<string, PropertyInfo> _cachedProperties;
+        public readonly Dictionary<string, MethodInfo> CachedMethods;
+        public readonly Dictionary<string, PropertyInfo> CachedProperties;
 
         public TypeResolution(Type t) : this(t, true, false) { }
         public TypeResolution(Type t, bool dropDerived, bool declaredOnly)
         {
             // Cache all methods and properties of this object, but don't include those defined at or above the base Drop class.
-            BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance;
+            const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance;
             if (declaredOnly) { bindingFlags |= BindingFlags.DeclaredOnly; }
-            _cachedMethods = t.GetMethods(bindingFlags).Where(mi => mi.GetParameters().Length == 0 && (!dropDerived || typeof(Drop).IsAssignableFrom(mi.DeclaringType.BaseType)))
+            CachedMethods = t.GetMethods(bindingFlags).Where(mi => mi.GetParameters().Length == 0 && (!dropDerived || typeof(Drop).IsAssignableFrom(mi.DeclaringType.BaseType)))
                 .ToDictionary(mi => Template.NamingConvention.GetMemberName(mi.Name), Template.NamingConvention.StringComparer);
-            _cachedProperties = t.GetProperties(bindingFlags).Where(pi => !dropDerived || typeof(Drop).IsAssignableFrom(pi.DeclaringType.BaseType))
+            CachedProperties = t.GetProperties(bindingFlags).Where(pi => !dropDerived || typeof(Drop).IsAssignableFrom(pi.DeclaringType.BaseType))
                 .ToDictionary(pi => Template.NamingConvention.GetMemberName(pi.Name), Template.NamingConvention.StringComparer);
         }
     }
+	
+	internal static class TypeResolutionCache
+	{
+		[ThreadStatic]
+		private static Util.WeakTable<Type, TypeResolution> _cache;
+		
+		public static Util.WeakTable<Type, TypeResolution> Instance
+		{
+			get { return _cache ?? (_cache = new Util.WeakTable<Type, TypeResolution>(32)); }
+		}
+	}
 
 	/// <summary>
 	/// A drop in liquid is a class which allows you to to export DOM like things to liquid
@@ -50,7 +61,7 @@ namespace DotLiquid
 	/// </summary>
 	public abstract class DropBase : ILiquidizable, IIndexable, IContextAware
 	{
-		internal TypeResolution _resolution;
+		internal readonly TypeResolution _resolution;
 
 		public Context Context { get; set; }
 
@@ -83,8 +94,8 @@ namespace DotLiquid
 
 				MethodInfo mi;
 				PropertyInfo pi;
-				if (_resolution._cachedMethods.TryGetValue(rubyMethod, out mi)
-					|| _resolution._cachedProperties.TryGetValue(rubyMethod, out pi))
+				if (_resolution.CachedMethods.TryGetValue(rubyMethod, out mi)
+					|| _resolution.CachedProperties.TryGetValue(rubyMethod, out pi))
 				{
 					return string.Format(Liquid.ResourceManager.GetString("DropWrongNamingConventionMessage"), rubyMethod);
 				}
@@ -107,17 +118,17 @@ namespace DotLiquid
 		{
 			return this;
 		}
-	}
+	}	
 
     public abstract class Drop : DropBase
     {
-        [ThreadStatic] private Util.WeakTable<Type, TypeResolution> _cache = new Util.WeakTable<Type, TypeResolution>(32);
+        //[ThreadStatic] private Util.WeakTable<Type, TypeResolution> _cache = new Util.WeakTable<Type, TypeResolution>(32);
 
-        protected Drop() 
+		protected Drop() 
         {
             Type t = GetType();
-            if (!_cache.TryGetValue(t, out _resolution))
-                _cache[t] = _resolution = new TypeResolution(t);
+            if (!TypeResolutionCache.Instance.TryGetValue(t, out _resolution))
+                TypeResolutionCache.Instance[t] = _resolution = new TypeResolution(t);
         }
 
         /// <summary>
@@ -129,10 +140,10 @@ namespace DotLiquid
             string method = (string)name;
 
             MethodInfo mi;
-            if (_resolution._cachedMethods.TryGetValue(method, out mi))
+            if (_resolution.CachedMethods.TryGetValue(method, out mi))
                 return mi.Invoke(this, null);
             PropertyInfo pi;
-            if (_resolution._cachedProperties.TryGetValue(method, out pi))
+            if (_resolution.CachedProperties.TryGetValue(method, out pi))
                 return pi.GetValue(this, null);
             return BeforeMethod(method);
         }
@@ -142,7 +153,7 @@ namespace DotLiquid
     /// Proxy for types not derived from DropBase
     /// </summary>
     public class DropProxy : DropBase {
-        [ThreadStatic] private Util.WeakTable<Type, TypeResolution> _cache = new Util.WeakTable<Type, TypeResolution>(32);
+        //[ThreadStatic] private Util.WeakTable<Type, TypeResolution> _cache = new Util.WeakTable<Type, TypeResolution>(32);
 
         private readonly object proxiedObject;
 
@@ -155,8 +166,8 @@ namespace DotLiquid
         {
             proxiedObject = obj;
             Type t = obj.GetType();
-            if (!_cache.TryGetValue(t, out _resolution))
-                _cache[t] = _resolution = new TypeResolution(t, false, declaredOnly);
+            if (!TypeResolutionCache.Instance.TryGetValue(t, out _resolution))
+                TypeResolutionCache.Instance[t] = _resolution = new TypeResolution(t, false, declaredOnly);
         }
         public DropProxy(object obj) : this(obj, true) {}
 
@@ -165,10 +176,10 @@ namespace DotLiquid
             string method = (string)name;
 
             MethodInfo mi;
-            if (_resolution._cachedMethods.TryGetValue(method, out mi))
+            if (_resolution.CachedMethods.TryGetValue(method, out mi))
                 return mi.Invoke(proxiedObject, null);
             PropertyInfo pi;
-            if (_resolution._cachedProperties.TryGetValue(method, out pi))
+            if (_resolution.CachedProperties.TryGetValue(method, out pi))
                 return pi.GetValue(proxiedObject, null);
             return BeforeMethod(method);
         }

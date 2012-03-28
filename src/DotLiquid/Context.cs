@@ -392,7 +392,7 @@ namespace DotLiquid
 
 			return value;
 		}
-
+        
 		private static object Liquidize(object obj)
 		{
 			if (obj == null)
@@ -415,6 +415,18 @@ namespace DotLiquid
 				return obj;
 			if (obj is KeyValuePair<string, object>)
 				return obj;
+            Func<object,object> f;
+            if (Template.simpleTypeTransformers.TryGetValue(obj.GetType(), out f))
+                return f(obj);
+            if (obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Count() > 0)
+            {
+                var attr = (LiquidTypeAttribute)obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Single();
+                return new DropProxy(obj, attr.DeclaredOnly);
+            }
+            bool declaredOnly;
+            if (Template.simpleTypeNamespaces.TryGetValue(obj.GetType().Namespace, out declaredOnly))
+                return new DropProxy(obj, declaredOnly);
+            
 			throw new SyntaxException(Liquid.ResourceManager.GetString("ContextObjectInvalidException"), obj.ToString());
 		}
 

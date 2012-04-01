@@ -187,7 +187,7 @@
     <value>Errore Liquid - il tag 'extends' deve essere il primo tag definito all'interno di un template che estende un altro template</value>
   </data>
   <data name="ExtendsTagSyntaxException" xml:space="preserve">
-    <value>Errre di sintassi nel tag 'extends' - La sintassi corretta è: extends [template]</value>
+    <value>Errore di sintassi nel tag 'extends' - La sintassi corretta è: extends [template]</value>
   </data>
   <data name="ExtendsTagUnallowedTagsException" xml:space="preserve">
     <value>Errore Liquid - Solo i tag 'comment' e 'block' sono consentiti in un template che estende un altro template</value>

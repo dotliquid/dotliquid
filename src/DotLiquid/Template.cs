@@ -65,9 +65,9 @@ namespace DotLiquid
         /// Registers a simple type. DotLiquid will wrap the object in a <see cref="DropProxy"/> object.
         /// </summary>
         /// <param name="t">The type to register</param>
-        public static void RegisterSimpleType(Type t)
+        public static void RegisterSimpleType(Type t, string[] allowedMembers)
         {
-            RegisterSimpleType(t, (x) => new DropProxy(x));
+			RegisterSimpleType(t, (x) => new DropProxy(x, allowedMembers));
         }
         
         /// <summary>

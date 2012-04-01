@@ -56,7 +56,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AttributeTests.cs" />
+    <Compile Include="LiquidTypeAttributeTests.cs" />
     <Compile Include="BlockTests.cs" />
     <Compile Include="ConditionTests.cs" />
     <Compile Include="ContextTests.cs" />

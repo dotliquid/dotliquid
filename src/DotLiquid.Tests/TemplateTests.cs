@@ -140,7 +140,7 @@ namespace DotLiquid.Tests
         [Test]
 		public void TestRegisterSimpleType()
 		{
-			Template.RegisterSimpleType(typeof(MySimpleType));
+			Template.RegisterSimpleType(typeof(MySimpleType), new[] { "Name" });
 			Template template = Template.Parse("{{context.Name}}");
 
 			var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType() { Name = "worked" } }));

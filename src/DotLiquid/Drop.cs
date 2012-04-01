@@ -9,22 +9,31 @@ namespace DotLiquid
     /// <summary>
     /// Configurable typing metadata collection
     /// </summary>
-    public class TypeResolution
+    internal class TypeResolution
     {
-        public Dictionary<string, MethodInfo> _cachedMethods;
-        public Dictionary<string, PropertyInfo> _cachedProperties;
+		public Dictionary<string, MethodInfo> CachedMethods { get; private set; }
+		public Dictionary<string, PropertyInfo> CachedProperties { get; private set; }
 
-        public TypeResolution(Type t) : this(t, true, false) { }
-        public TypeResolution(Type t, bool dropDerived, bool declaredOnly)
-        {
-            // Cache all methods and properties of this object, but don't include those defined at or above the base Drop class.
-            BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance;
-            if (declaredOnly) { bindingFlags |= BindingFlags.DeclaredOnly; }
-            _cachedMethods = t.GetMethods(bindingFlags).Where(mi => mi.GetParameters().Length == 0 && (!dropDerived || typeof(Drop).IsAssignableFrom(mi.DeclaringType.BaseType)))
-                .ToDictionary(mi => Template.NamingConvention.GetMemberName(mi.Name), Template.NamingConvention.StringComparer);
-            _cachedProperties = t.GetProperties(bindingFlags).Where(pi => !dropDerived || typeof(Drop).IsAssignableFrom(pi.DeclaringType.BaseType))
-                .ToDictionary(pi => Template.NamingConvention.GetMemberName(pi.Name), Template.NamingConvention.StringComparer);
+    	public TypeResolution(Type type, Func<MemberInfo, bool> filterMemberCallback)
+		{
+            // Cache all methods and properties of this object, but don't include those 
+			// defined at or above the base Drop class.
+            const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance;
+    		CachedMethods = GetMemberDictionary(
+				type.GetMethods(bindingFlags).Where(mi => mi.GetParameters().Length == 0),
+				filterMemberCallback);
+            CachedProperties = GetMemberDictionary(type.GetProperties(bindingFlags),
+				filterMemberCallback);
         }
+
+		private Dictionary<string, T> GetMemberDictionary<T>(IEnumerable<T> members,
+			Func<MemberInfo, bool> filterMemberCallback)
+			where T : MemberInfo
+		{
+			return members.Where(filterMemberCallback).Cast<T>().ToDictionary(mi =>
+				Template.NamingConvention.GetMemberName(mi.Name),
+				Template.NamingConvention.StringComparer);
+		}
     }
 
 	internal static class TypeResolutionCache
@@ -87,8 +96,8 @@ namespace DotLiquid
 			get { return InvokeDrop(method); }
 		}
 
-		protected abstract object GetObject();
-		protected abstract TypeResolution CreateTypeResolution(Type type);
+		internal abstract object GetObject();
+		internal abstract TypeResolution CreateTypeResolution(Type type);
 
 		/// <summary>
 		/// Catch all for the method
@@ -107,8 +116,8 @@ namespace DotLiquid
 
 				MethodInfo mi;
 				PropertyInfo pi;
-				if (TypeResolution._cachedMethods.TryGetValue(rubyMethod, out mi)
-					|| TypeResolution._cachedProperties.TryGetValue(rubyMethod, out pi))
+				if (TypeResolution.CachedMethods.TryGetValue(rubyMethod, out mi)
+					|| TypeResolution.CachedProperties.TryGetValue(rubyMethod, out pi))
 				{
 					return string.Format(Liquid.ResourceManager.GetString("DropWrongNamingConventionMessage"), rubyMethod);
 				}
@@ -125,10 +134,10 @@ namespace DotLiquid
 			string method = (string)name;
 
 			MethodInfo mi;
-			if (TypeResolution._cachedMethods.TryGetValue(method, out mi))
+			if (TypeResolution.CachedMethods.TryGetValue(method, out mi))
 				return mi.Invoke(GetObject(), null);
 			PropertyInfo pi;
-			if (TypeResolution._cachedProperties.TryGetValue(method, out pi))
+			if (TypeResolution.CachedProperties.TryGetValue(method, out pi))
 				return pi.GetValue(GetObject(), null);
 			return BeforeMethod(method);
 		}
@@ -146,14 +155,14 @@ namespace DotLiquid
 
     public abstract class Drop : DropBase
     {
-		protected override object GetObject()
+		internal override object GetObject()
 		{
 			return this;
 		}
 
-		protected override TypeResolution CreateTypeResolution(Type type)
+		internal override TypeResolution CreateTypeResolution(Type type)
 		{
-			return new TypeResolution(type);
+			return new TypeResolution(type, mi => typeof(Drop).IsAssignableFrom(mi.DeclaringType.BaseType));
 		}
     }
 
@@ -163,33 +172,27 @@ namespace DotLiquid
     public class DropProxy : DropBase
 	{
         private readonly object _proxiedObject;
-    	private readonly bool _declaredOnly;
+    	private readonly string[] _allowedMembers;
 
     	/// <summary>
-        /// Create a new DropProxy object
-        /// </summary>
-        /// <param name="obj">The object to create a proxy for</param>
-        /// <param name="declaredOnly">Specifies that only members declared at the level of the supplied type's hierarchy should be considered. Inherited members are not considered.</param>
-        public DropProxy(object obj, bool declaredOnly)
+    	/// Create a new DropProxy object
+    	/// </summary>
+    	/// <param name="obj">The object to create a proxy for</param>
+    	/// <param name="allowedMembers">An array of property and method names that are allowed to be called on the object.</param>
+    	public DropProxy(object obj, string[] allowedMembers)
         {
             _proxiedObject = obj;
-        	_declaredOnly = declaredOnly;
+    		_allowedMembers = allowedMembers;
         }
 
-        public DropProxy(object obj)
-			: this(obj, true)
-        {
-        	
-        }
-
-		protected override object GetObject()
+		internal override object GetObject()
 		{
 			return _proxiedObject;
 		}
 
-		protected override TypeResolution CreateTypeResolution(Type type)
+		internal override TypeResolution CreateTypeResolution(Type type)
 		{
-			return new TypeResolution(type, false, _declaredOnly);
+			return new TypeResolution(type, mi => _allowedMembers.Contains(mi.Name));
 		}
     }
 }

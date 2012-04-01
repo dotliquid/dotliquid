@@ -37,12 +37,12 @@ namespace DotLiquid.Tests.Util
 			return new DateTime(2012, 1, 9, 14, 32, 14).ToStrFTime(format);
 		}
 
-		[SetCulture("en-GB")]
 		[Test]
 		public void TestTimeZone()
 		{
-			string timeZoneOffset = DateTime.UtcNow.ToString("zzz");
-			Assert.That(TestFormat("%Z"), Is.EqualTo(timeZoneOffset));
+			var now = DateTimeOffset.Now;
+			string timeZoneOffset = now.ToString("zzz");
+			Assert.That(now.DateTime.ToStrFTime("%Z"), Is.EqualTo(timeZoneOffset));
 		}
 	}
 }

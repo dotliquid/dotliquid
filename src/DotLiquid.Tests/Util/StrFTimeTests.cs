@@ -37,6 +37,7 @@ namespace DotLiquid.Tests.Util
 			return new DateTime(2012, 1, 9, 14, 32, 14).ToStrFTime(format);
 		}
 
+		[SetCulture("en-GB")]
 		[Test]
 		public void TestTimeZone()
 		{

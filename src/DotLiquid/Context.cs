@@ -415,9 +415,9 @@ namespace DotLiquid
 				return obj;
 			if (obj is KeyValuePair<string, object>)
 				return obj;
-            Func<object,object> f;
-            if (Template.simpleTypeTransformers.TryGetValue(obj.GetType(), out f))
-                return f(obj);
+            var safeTypeTransformer = Template.GetSafeTypeTransformer(obj.GetType());
+			if (safeTypeTransformer != null)
+				return safeTypeTransformer(obj);
             if (obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
             {
                 var attr = (LiquidTypeAttribute)obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();

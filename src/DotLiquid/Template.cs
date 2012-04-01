@@ -28,12 +28,14 @@ namespace DotLiquid
 		public static INamingConvention NamingConvention;
 		public static IFileSystem FileSystem { get; set; }
 		private static Dictionary<string, Type> Tags { get; set; }
+		private static readonly Dictionary<Type, Func<object, object>> SafeTypeTransformers;
 
 		static Template()
 		{
 			NamingConvention = new RubyNamingConvention();
 			FileSystem = new BlankFileSystem();
 			Tags = new Dictionary<string, Type>();
+			SafeTypeTransformers = new Dictionary<Type, Func<object, object>>();
 		}
 
 		public static void RegisterTag<T>(string name)
@@ -59,26 +61,32 @@ namespace DotLiquid
 			Strainer.GlobalFilter(filter);
 		}
 
-        internal static Dictionary<Type, Func<object, object>> simpleTypeTransformers = new Dictionary<Type, Func<object, object>>();
-
-        /// <summary>
-        /// Registers a simple type. DotLiquid will wrap the object in a <see cref="DropProxy"/> object.
-        /// </summary>
-        /// <param name="t">The type to register</param>
-        public static void RegisterSimpleType(Type t, string[] allowedMembers)
+		/// <summary>
+		/// Registers a simple type. DotLiquid will wrap the object in a <see cref="DropProxy"/> object.
+		/// </summary>
+		/// <param name="type">The type to register</param>
+		/// <param name="allowedMembers">An array of property and method names that are allowed to be called on the object.</param>
+		public static void RegisterSafeType(Type type, string[] allowedMembers)
         {
-			RegisterSimpleType(t, (x) => new DropProxy(x, allowedMembers));
+			RegisterSafeType(type, x => new DropProxy(x, allowedMembers));
         }
         
         /// <summary>
         /// Registers a simple type using the specified transformer.
         /// </summary>
-        /// <param name="t">The type to register</param>
+		/// <param name="type">The type to register</param>
         /// <param name="func">Function that converts the specified type into a Liquid Drop-compatible object (eg, implements ILiquidizable)</param>
-        public static void RegisterSimpleType(Type t, Func<object, object> func)
+		public static void RegisterSafeType(Type type, Func<object, object> func)
         {
-            simpleTypeTransformers.Add(t, func);
+			SafeTypeTransformers[type] = func;
         }
+
+		public static Func<object, object> GetSafeTypeTransformer(Type type)
+		{
+			if (SafeTypeTransformers.ContainsKey(type))
+				return SafeTypeTransformers[type];
+			return null;
+		}
 
 		/// <summary>
 		/// Creates a new <tt>Template</tt> object from liquid source code

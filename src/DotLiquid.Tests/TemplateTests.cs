@@ -140,7 +140,7 @@ namespace DotLiquid.Tests
         [Test]
 		public void TestRegisterSimpleType()
 		{
-			Template.RegisterSimpleType(typeof(MySimpleType), new[] { "Name" });
+			Template.RegisterSafeType(typeof(MySimpleType), new[] { "Name" });
 			Template template = Template.Parse("{{context.Name}}");
 
 			var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType() { Name = "worked" } }));
@@ -154,15 +154,32 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestRegisterSimpleTypeTransform()
+        public void TestRegisterSimpleTypeTransformIntoAnonymousType()
         {
             // specify a transform function
-            Template.RegisterSimpleType(typeof(MySimpleType2), (x) => new { Name = ((MySimpleType2)x).Name } );
+            Template.RegisterSafeType(typeof(MySimpleType2), x => new { Name = ((MySimpleType2)x).Name } );
             Template template = Template.Parse("{{context.Name}}");
 
-            var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType2() { Name = "worked" } }));
+            var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType2 { Name = "worked" } }));
 
             Assert.AreEqual("worked", output);
         }
+
+		public class MyUnsafeType2
+		{
+			public string Name { get; set; }
+		}
+
+		[Test]
+		public void TestRegisterSimpleTypeTransformIntoUnsafeType()
+		{
+			// specify a transform function
+			Template.RegisterSafeType(typeof(MySimpleType2), x => new MyUnsafeType2 { Name = ((MySimpleType2)x).Name });
+			Template template = Template.Parse("{{context.Name}}");
+
+			var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType2 { Name = "worked" } }));
+
+			Assert.AreEqual("", output);
+		}
 	}
 }

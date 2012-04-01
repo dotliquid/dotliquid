@@ -148,7 +148,6 @@ namespace DotLiquid.Tests
 			Assert.AreEqual("worked", output);
 		}
 
-
         public class MySimpleType2
         {
             public string Name { get; set; }
@@ -165,25 +164,5 @@ namespace DotLiquid.Tests
 
             Assert.AreEqual("worked", output);
         }
-
-        [Test]
-		public void TestRegisterNamespace()
-		{
-			Template.RegisterSimpleNamespace("DotLiquid.Tests.RegisterNamespaceTests", true);
-			Template template = Template.Parse("{{context.Name}}");
-
-			var output = template.Render(Hash.FromAnonymousObject(new { context = new RegisterNamespaceTests.ShouldBeRegisteredType() { Name = "worked" } }));
-
-			Assert.AreEqual("worked", output);
-		}
-
-	}
-}
-
-namespace DotLiquid.Tests.RegisterNamespaceTests
-{
-	public class ShouldBeRegisteredType
-	{
-		public string Name { get; set; }
 	}
 }

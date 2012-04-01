@@ -80,23 +80,6 @@ namespace DotLiquid
             simpleTypeTransformers.Add(t, func);
         }
 
-
-        /// <summary>
-        /// Dictionary that holds namespace=>declaredOnly 
-        /// </summary>
-        internal static IDictionary<string, bool> simpleTypeNamespaces = new Dictionary<string, bool>();
-        /// <summary>
-        /// Registers all types in the specified namespace (exact match) as renderable (equivalent to marking with [LiquidType] attribute).
-        /// DotLiquid will wrap in a <see cref="DropProxy"/> object.
-        /// </summary>
-        /// <param name="namespace">The namespace to add (case sensitive, exact match)</param>        
-        /// <param name="declaredOnly">Specifies that only members declared at the level of the supplied type's hierarchy should be considered. Inherited members are not considered.</param>
-        public static void RegisterSimpleNamespace(string @namespace, bool declaredOnly)
-        {
-            simpleTypeNamespaces.Add(@namespace, declaredOnly);
-        }
-
-
 		/// <summary>
 		/// Creates a new <tt>Template</tt> object from liquid source code
 		/// </summary>

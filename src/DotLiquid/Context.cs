@@ -423,9 +423,6 @@ namespace DotLiquid
                 var attr = (LiquidTypeAttribute)obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Single();
                 return new DropProxy(obj, attr.DeclaredOnly);
             }
-            bool declaredOnly;
-            if (Template.simpleTypeNamespaces.TryGetValue(obj.GetType().Namespace, out declaredOnly))
-                return new DropProxy(obj, declaredOnly);
             
 			throw new SyntaxException(Liquid.ResourceManager.GetString("ContextObjectInvalidException"), obj.ToString());
 		}

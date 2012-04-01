@@ -9,7 +9,7 @@ namespace DotLiquid
     /// <summary>
     /// Configurable typing metadata collection
     /// </summary>
-    internal class TypeResolution
+    public class TypeResolution
     {
         public Dictionary<string, MethodInfo> _cachedMethods;
         public Dictionary<string, PropertyInfo> _cachedProperties;
@@ -60,7 +60,18 @@ namespace DotLiquid
 	/// </summary>
 	public abstract class DropBase : ILiquidizable, IIndexable, IContextAware
 	{
-		internal TypeResolution _resolution;
+		private TypeResolution _resolution;
+
+		internal TypeResolution TypeResolution
+		{
+			get
+			{
+				Type dropType = GetObject().GetType();
+				if (!TypeResolutionCache.Instance.TryGetValue(dropType, out _resolution))
+					TypeResolutionCache.Instance[dropType] = _resolution = CreateTypeResolution(dropType);
+				return _resolution;
+			}
+		}
 
 		public Context Context { get; set; }
 
@@ -75,6 +86,9 @@ namespace DotLiquid
 		{
 			get { return InvokeDrop(method); }
 		}
+
+		protected abstract object GetObject();
+		protected abstract TypeResolution CreateTypeResolution(Type type);
 
 		/// <summary>
 		/// Catch all for the method
@@ -93,8 +107,8 @@ namespace DotLiquid
 
 				MethodInfo mi;
 				PropertyInfo pi;
-				if (_resolution._cachedMethods.TryGetValue(rubyMethod, out mi)
-					|| _resolution._cachedProperties.TryGetValue(rubyMethod, out pi))
+				if (TypeResolution._cachedMethods.TryGetValue(rubyMethod, out mi)
+					|| TypeResolution._cachedProperties.TryGetValue(rubyMethod, out pi))
 				{
 					return string.Format(Liquid.ResourceManager.GetString("DropWrongNamingConventionMessage"), rubyMethod);
 				}
@@ -106,7 +120,18 @@ namespace DotLiquid
         /// Called by liquid to invoke a drop
         /// </summary>
         /// <param name="name"></param>
-        public abstract object InvokeDrop(object name);
+		public object InvokeDrop(object name)
+		{
+			string method = (string)name;
+
+			MethodInfo mi;
+			if (TypeResolution._cachedMethods.TryGetValue(method, out mi))
+				return mi.Invoke(GetObject(), null);
+			PropertyInfo pi;
+			if (TypeResolution._cachedProperties.TryGetValue(method, out pi))
+				return pi.GetValue(GetObject(), null);
+			return BeforeMethod(method);
+		}
 
 		public virtual bool ContainsKey(object name)
 		{
@@ -121,62 +146,50 @@ namespace DotLiquid
 
     public abstract class Drop : DropBase
     {
-        protected Drop() 
-        {
-            Type t = GetType();
-			if (!TypeResolutionCache.Instance.TryGetValue(t, out _resolution))
-                TypeResolutionCache.Instance[t] = _resolution = new TypeResolution(t);
-        }
+		protected override object GetObject()
+		{
+			return this;
+		}
 
-        /// <summary>
-        /// Called by liquid to invoke a drop
-        /// </summary>
-        /// <param name="name"></param>
-        public override object InvokeDrop(object name)
-        {
-            string method = (string)name;
-
-            MethodInfo mi;
-            if (_resolution._cachedMethods.TryGetValue(method, out mi))
-                return mi.Invoke(this, null);
-            PropertyInfo pi;
-            if (_resolution._cachedProperties.TryGetValue(method, out pi))
-                return pi.GetValue(this, null);
-            return BeforeMethod(method);
-        }
+		protected override TypeResolution CreateTypeResolution(Type type)
+		{
+			return new TypeResolution(type);
+		}
     }
 
     /// <summary>
     /// Proxy for types not derived from DropBase
     /// </summary>
-    public class DropProxy : DropBase {
-        private readonly object proxiedObject;
+    public class DropProxy : DropBase
+	{
+        private readonly object _proxiedObject;
+    	private readonly bool _declaredOnly;
 
-        /// <summary>
+    	/// <summary>
         /// Create a new DropProxy object
         /// </summary>
         /// <param name="obj">The object to create a proxy for</param>
         /// <param name="declaredOnly">Specifies that only members declared at the level of the supplied type's hierarchy should be considered. Inherited members are not considered.</param>
         public DropProxy(object obj, bool declaredOnly)
         {
-            proxiedObject = obj;
-            Type t = obj.GetType();
-            if (!TypeResolutionCache.Instance.TryGetValue(t, out _resolution))
-				TypeResolutionCache.Instance[t] = _resolution = new TypeResolution(t, false, declaredOnly);
+            _proxiedObject = obj;
+        	_declaredOnly = declaredOnly;
         }
-        public DropProxy(object obj) : this(obj, true) {}
 
-        public override object InvokeDrop(object name)
+        public DropProxy(object obj)
+			: this(obj, true)
         {
-            string method = (string)name;
-
-            MethodInfo mi;
-            if (_resolution._cachedMethods.TryGetValue(method, out mi))
-                return mi.Invoke(proxiedObject, null);
-            PropertyInfo pi;
-            if (_resolution._cachedProperties.TryGetValue(method, out pi))
-                return pi.GetValue(proxiedObject, null);
-            return BeforeMethod(method);
+        	
         }
+
+		protected override object GetObject()
+		{
+			return _proxiedObject;
+		}
+
+		protected override TypeResolution CreateTypeResolution(Type type)
+		{
+			return new TypeResolution(type, false, _declaredOnly);
+		}
     }
 }

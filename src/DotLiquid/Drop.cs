@@ -21,16 +21,16 @@ namespace DotLiquid
             const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance;
     		CachedMethods = GetMemberDictionary(
 				type.GetMethods(bindingFlags).Where(mi => mi.GetParameters().Length == 0),
-				filterMemberCallback);
+				mi => filterMemberCallback(mi));
             CachedProperties = GetMemberDictionary(type.GetProperties(bindingFlags),
-				filterMemberCallback);
+				mi => filterMemberCallback(mi));
         }
 
 		private Dictionary<string, T> GetMemberDictionary<T>(IEnumerable<T> members,
-			Func<MemberInfo, bool> filterMemberCallback)
+			Func<T, bool> filterMemberCallback)
 			where T : MemberInfo
 		{
-			return members.Where(filterMemberCallback).Cast<T>().ToDictionary(mi =>
+			return members.Where(filterMemberCallback).ToDictionary(mi =>
 				Template.NamingConvention.GetMemberName(mi.Name),
 				Template.NamingConvention.StringComparer);
 		}

@@ -1,4 +1,4 @@
-v1.6.2-beta - 2012-04-01
+v1.7.0-beta1 - 2012-04-01
 - Drop does not output itself (thanks Alessandro Petrelli)
 - Added raw tag
 - Added modulo filter

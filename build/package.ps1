@@ -18,9 +18,8 @@ task Package {
     # Copy source files to package dir
     copy_files "$source_dir\DotLiquid" "$package_dir\src\DotLiquid" "*.cs"
 
-    # Get the version number of main DotLiquid.dll
-    $full_version = [Reflection.Assembly]::LoadFile("$source_dir\DotLiquid\bin\$config-3.5\DotLiquid.dll").GetName().Version
-    $version = $full_version.Major.ToString() + "." + $full_version.Minor.ToString() + "." + $full_version.Build.ToString()
+    # Version number is hard-coded so that we can add -beta suffix if necessary
+    $version = "1.7.0-beta1"
 
     # Build the NuGet package
     exec { & $nuget_dir\NuGet.exe pack -Symbols -Version "$version" -OutputDirectory "$package_dir" "$package_dir\DotLiquid.nuspec" }

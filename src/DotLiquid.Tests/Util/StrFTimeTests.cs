@@ -9,6 +9,7 @@ namespace DotLiquid.Tests.Util
 	[TestFixture]
 	public class StrFTimeTests
 	{
+		[SetCulture("en-GB")]
 		[TestCase("%a", Result = "Mon")]
 		[TestCase("%A", Result = "Monday")]
 		[TestCase("%b", Result = "Jan")]
@@ -30,15 +31,17 @@ namespace DotLiquid.Tests.Util
 		[TestCase("%X", Result = "14:32:14")]
 		[TestCase("%y", Result = "12")]
 		[TestCase("%Y", Result = "2012")]
-		[TestCase("%Z", Result = "+01:00")]
 		[TestCase("%", Result = "%")]
 		public string TestFormat(string format)
 		{
-			var culture = Thread.CurrentThread.CurrentCulture;
-			Thread.CurrentThread.CurrentCulture = CultureInfo.CreateSpecificCulture("en-GB");
-			var result = new DateTime(2012, 1, 9, 14, 32, 14).ToStrFTime(format);
-			Thread.CurrentThread.CurrentCulture = culture;
-			return result;
+			return new DateTime(2012, 1, 9, 14, 32, 14).ToStrFTime(format);
+		}
+
+		[Test]
+		public void TestTimeZone()
+		{
+			string timeZoneOffset = DateTime.Now.ToString("zzz");
+			Assert.That(TestFormat("%Z"), Is.EqualTo(timeZoneOffset));
 		}
 	}
 }

@@ -1,9 +1,19 @@
-- Drop does not output itself
+v1.6.2-beta - 2012-04-01
+- Drop does not output itself (thanks Alessandro Petrelli)
 - Added raw tag
 - Added modulo filter
 - Allow filters in assign
 - Added %e date format code (thanks Paul Jenkins)
 - Added split filter
+- Fixed bug in ERB-like trimming (thanks Alessandro Petrelli)
+- Added [LiquidType] attribute. Use it to decorate a POCO type, and specify the list of allowed members
+  (property or method names). If DotLiquid sees this attribute, it will treat the object as though it was a Drop
+  with the specified members. (thanks Benn Hoffman and Greg MacLellan)
+- Added Template.RegisterSafeType(Type type, string[] allowedMembers). Similar to [LiquidType], it can be
+  used if you can't / don't want to decorate a POCO with [LiquidType]. (thanks Benn Hoffman / Greg MacLellan)
+- Added Template.RegisterSafeType(Type type, Func<object, object> func). Similar to the other RegisterSafeType
+  overload, it can be used to transform an object into a "Liquidizable" type - i.e. an anonymous type or
+  one that implements ILiquidizable, such as Drop. (thanks Benn Hoffman / Greg MacLellan)
 
 v1.6.1 - 2011-09-30
 - Updated TypeUtility.IsAnonymousType to detect anonymous types when running on Mono

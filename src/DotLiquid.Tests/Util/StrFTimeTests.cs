@@ -41,7 +41,7 @@ namespace DotLiquid.Tests.Util
 		[Test]
 		public void TestTimeZone()
 		{
-			string timeZoneOffset = DateTime.Now.ToString("zzz");
+			string timeZoneOffset = DateTime.UtcNow.ToString("zzz");
 			Assert.That(TestFormat("%Z"), Is.EqualTo(timeZoneOffset));
 		}
 	}

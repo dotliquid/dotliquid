@@ -1,5 +1,5 @@
 properties {
-    $nunit_dir = "$base_dir\src\packages\NUnit.2.5.10.11092\tools"
+    $nunit_dir = "$base_dir\src\packages\NUnit.2.6.0.12054\tools"
 }
 
 task Default -depends Test

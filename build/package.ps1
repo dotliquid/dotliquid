@@ -1,5 +1,5 @@
 properties {
-    $nuget_dir = "$base_dir\src\packages\NuGet.CommandLine.1.5.21005.9019\tools"
+    $nuget_dir = "$base_dir\src\packages\NuGet.CommandLine.1.6.0\tools"
 }
 
 task Default -depends Package

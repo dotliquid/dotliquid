@@ -118,10 +118,10 @@ namespace DotLiquid.Tags
 		public override void Render(Context context, TextWriter result)
 		{
 			IFileSystem fileSystem = context.Registers["file_system"] as IFileSystem ?? Template.FileSystem;
-			string source = fileSystem.ReadTemplateFile(context, _templateName);
-			Template template = Template.Parse(source);
+            object file = fileSystem.ReadTemplateFile(context, _templateName);
+            Template template = file as Template ?? Template.Parse(file == null ? null : file.ToString());
 
-			List<Block> parentBlocks = FindBlocks(template.Root);
+		    List<Block> parentBlocks = FindBlocks(template.Root);
 
 			Blocks.ForEach(block =>
 			{

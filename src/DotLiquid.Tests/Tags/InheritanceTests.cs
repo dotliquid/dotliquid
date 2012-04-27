@@ -31,6 +31,11 @@ namespace DotLiquid.Tests.Tags
                                  {% block thing %}
                                     another thing (from nested)
                                  {% endblock %}";
+                    case "outer":
+                        return "A{% block outer %}{% endblock %}Z";
+                    case "middle":
+				        return @"{% extends 'outer' %}
+                                 {% block outer %}B{% block middle %}{% endblock %}Y{% endblock %}";
 					default:
 						return @"{% extends 'complex' %}
                                  {% block thing %}
@@ -112,5 +117,14 @@ namespace DotLiquid.Tests.Tags
 			StringAssert.Contains("another block", template.Render());
 			StringAssert.Contains("some other content", template.Render());
 		}
+
+	    [Test]
+	    public void CanDefineBlockInInheritedBlock()
+	    {
+	        Template template = Template.Parse(
+	            @"{% extends 'middle' %}
+                  {% block middle %}C{% endblock %}");
+            Assert.AreEqual("ABCYZ", template.Render());
+	    }
 	}
 }

@@ -25,15 +25,27 @@ namespace DotLiquid
 	/// </summary>
 	public class Template
 	{
-		public static INamingConvention NamingConvention;
-		public static IFileSystem FileSystem { get; set; }
 		private static Dictionary<string, Type> Tags { get; set; }
 		private static readonly Dictionary<Type, Func<object, object>> SafeTypeTransformers;
 
+        // Make sure we never set a null IFileSystem or INamingConvention (since users can change them)
+
+	    private static IFileSystem _fileSystem = new BlankFileSystem();
+	    public static IFileSystem FileSystem
+	    {
+	        get { return _fileSystem; }
+            set { if (value != null) _fileSystem = value; }
+	    }
+
+        private static INamingConvention _namingConvention = new RubyNamingConvention();
+	    public static  INamingConvention NamingConvention
+	    {
+            get { return _namingConvention; }
+            set { if (value != null) _namingConvention = value; }
+	    }
+
 		static Template()
 		{
-			NamingConvention = new RubyNamingConvention();
-			FileSystem = new BlankFileSystem();
 			Tags = new Dictionary<string, Type>();
 			SafeTypeTransformers = new Dictionary<Type, Func<object, object>>();
 		}
@@ -101,7 +113,6 @@ namespace DotLiquid
 		}
 
 		private Hash _registers, _assigns, _instanceAssigns;
-		private List<Exception> _errors;
 
 		public Document Root { get; set; }
 
@@ -118,11 +129,6 @@ namespace DotLiquid
 		public Hash InstanceAssigns
 		{
 			get { return (_instanceAssigns = _instanceAssigns ?? new Hash()); }
-		}
-
-		public List<Exception> Errors
-		{
-			get { return (_errors = _errors ?? new List<Exception>()); }
 		}
 
 		/// <summary>
@@ -153,33 +159,67 @@ namespace DotLiquid
 		/// </summary>
 		/// <returns></returns>
 		public string Render()
-		{
-			return Render(new RenderParameters());
+        {
+            List<Exception> errors;
+            return Render(out errors);
 		}
 
-		/// <summary>
-		/// Renders the template using the specified local variables and returns a string containing the result.
-		/// </summary>
-		/// <param name="localVariables"></param>
-		/// <returns></returns>
-		public string Render(Hash localVariables)
+        /// <summary>
+        /// Renders the template using default parameters and returns a string containing the result.
+        /// </summary>
+        /// <returns></returns>
+        public string Render(out List<Exception> errors)
+        {
+            return Render(new RenderParameters(), out errors);
+        }
+
+        /// <summary>
+        /// Renders the template using the specified local variables and returns a string containing the result.
+        /// </summary>
+        /// <param name="localVariables"></param>
+        /// <returns></returns>
+        public string Render(Hash localVariables)
+        {
+            List<Exception> errors;
+            return Render(localVariables, out errors);
+        }
+
+	    /// <summary>
+	    /// Renders the template using the specified local variables and returns a string containing the result.
+	    /// </summary>
+	    /// <param name="localVariables"></param>
+	    /// <param name="errors"></param>
+	    /// <returns></returns>
+	    public string Render(Hash localVariables, out List<Exception> errors)
 		{
 			return Render(new RenderParameters
 			{
 				LocalVariables = localVariables
-			});
+			}, out errors);
 		}
 
-		/// <summary>
-		/// Renders the template using the specified parameters and returns a string containing the result.
-		/// </summary>
-		/// <param name="parameters"></param>
-		/// <returns></returns>
-		public string Render(RenderParameters parameters)
+        /// <summary>
+        /// Renders the template using the specified parameters and returns a string containing the result.
+        /// </summary>
+        /// <param name="parameters"></param>
+        /// <returns></returns>
+        public string Render(RenderParameters parameters)
+        {
+            List<Exception> errors;
+            return Render(parameters, out errors);
+        }
+
+	    /// <summary>
+	    /// Renders the template using the specified parameters and returns a string containing the result.
+	    /// </summary>
+	    /// <param name="parameters"></param>
+	    /// <param name="errors"></param>
+	    /// <returns></returns>
+	    public string Render(RenderParameters parameters, out List<Exception> errors)
 		{
 			using (TextWriter writer = new StringWriter())
 			{
-				Render(writer, parameters);
+				errors = Render(writer, parameters);
 				return writer.ToString();
 			}
 		}
@@ -189,9 +229,9 @@ namespace DotLiquid
 		/// </summary>
 		/// <param name="result"></param>
 		/// <param name="parameters"></param>
-		public void Render(TextWriter result, RenderParameters parameters)
+        public List<Exception> Render(TextWriter result, RenderParameters parameters)
 		{
-			RenderInternal(result, parameters);
+			return Render(Root, result, parameters);
 		}
 
 		/// <summary>
@@ -199,13 +239,14 @@ namespace DotLiquid
 		/// </summary>
 		/// <param name="stream"></param>
 		/// <param name="parameters"></param>
-		public void Render(Stream stream, RenderParameters parameters)
+        public List<Exception> Render(Stream stream, RenderParameters parameters)
 		{
 			// Can't dispose this new StreamWriter, because it would close the
 			// passed-in stream, which isn't up to us.
 			StreamWriter streamWriter = new StreamWriter(stream);
-			RenderInternal(streamWriter, parameters);
+			List<Exception> errors = Render(Root, streamWriter, parameters);
 			streamWriter.Flush();
+		    return errors;
 		}
 
 		/// <summary>
@@ -220,10 +261,10 @@ namespace DotLiquid
 		/// * <tt>registers</tt> : hash with register variables. Those can be accessed from
 		/// filters and tags and might be useful to integrate liquid more with its host application
 		/// </summary>
-		private void RenderInternal(TextWriter result, RenderParameters parameters)
+		internal List<Exception> Render(Tag tag, TextWriter result, RenderParameters parameters)
 		{
-			if (Root == null)
-				return;
+            List<Exception> errors = new List<Exception>();
+			if (tag == null) return errors;
 
 			Context context;
 			Hash registers;
@@ -231,7 +272,7 @@ namespace DotLiquid
 			parameters.Evaluate(this, out context, out registers, out filters);
 
 			if (registers != null)
-				Registers.Merge(registers);
+				context.Registers.Merge(registers);
 
 			if (filters != null)
 				context.AddFilters(filters);
@@ -239,12 +280,13 @@ namespace DotLiquid
 			try
 			{
 				// Render the nodelist.
-				Root.Render(context, result);
+                tag.Render(context, result);
 			}
 			finally
 			{
-				_errors = context.Errors;
+				errors = context.Errors;
 			}
+		    return errors;
 		}
 
 		/// <summary>

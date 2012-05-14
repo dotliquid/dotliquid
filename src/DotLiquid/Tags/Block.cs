@@ -22,6 +22,26 @@ namespace DotLiquid.Tags
 		}
 	}
 
+    // Keeps track of the render-time state of all Blocks for a given Context
+    internal class BlockRenderState
+    {
+        public Dictionary<Block, Block> Parents { get; private set; }
+        public Dictionary<Block, List<object>> NodeLists { get; private set; }
+
+        public BlockRenderState()
+        {
+            Parents = new Dictionary<Block, Block>();
+            NodeLists = new Dictionary<Block, List<object>>();
+        }
+
+        public List<object> GetNodeList(Block block)
+        {
+            List<object> nodeList;
+            if (!NodeLists.TryGetValue(block, out nodeList)) nodeList = block.NodeList;
+            return nodeList;
+        }
+    }
+
 	/// <summary>
 	/// The Block tag is used in conjunction with the Extends tag to provide template inheritance.
 	/// For an example please refer to the Extends tag.
@@ -70,25 +90,19 @@ namespace DotLiquid.Tags
 
 		public override void Render(Context context, TextWriter result)
 		{
-			Dictionary<Block, List<object>> blockNodes
-                = ((Dictionary<Block, List<object>>)context.Scopes[0]["blocknodes"]);
-            Dictionary<Block, Block> blockParents
-                = ((Dictionary<Block, Block>)context.Scopes[0]["blockparents"]);
+			BlockRenderState blockState = ((BlockRenderState)context.Scopes[0]["blockstate"]);
 			context.Stack(() =>
 			{
 				context["block"] = new BlockDrop(this, result);
-			    context["blocknodes"] = blockNodes; // Copy the block node replacements into this scope (for nested blocks)
-			    context["blockparents"] = blockParents;
-				RenderAll(GetNodeList(blockNodes), context, result);
+			    context["blockstate"] = blockState; // Copy the block state into this scope (for nested blocks)
+				RenderAll(GetNodeList(blockState), context, result);
 			});
 		}
 
-        // Gets the render-time node list from the node list cache
-        public List<object> GetNodeList(Dictionary<Block, List<object>> blockNodes)
+        // Gets the render-time node list from the node state
+        internal List<object> GetNodeList(BlockRenderState blockState)
         {
-            List<object> nodeList;
-            if (blockNodes == null || !blockNodes.TryGetValue(this, out nodeList)) nodeList = NodeList;
-            return nodeList;
+            return blockState == null ? NodeList : blockState.GetNodeList(this);
         }
 
         public void AddParent(Dictionary<Block, Block> parents, List<object> nodeList)
@@ -109,10 +123,11 @@ namespace DotLiquid.Tags
 
 		public void CallSuper(Context context, TextWriter result)
 		{
-            Dictionary<Block, Block> blockParents
-                = ((Dictionary<Block, Block>)context.Scopes[0]["blockparents"]);
+            BlockRenderState blockState = ((BlockRenderState)context.Scopes[0]["blockstate"]);
 		    Block parent;
-		    if(blockParents != null && blockParents.TryGetValue(this, out parent) && parent != null)
+            if (blockState != null
+                && blockState.Parents.TryGetValue(this, out parent)
+                && parent != null)
 		    {
 		        parent.Render(context, result);
 		    }

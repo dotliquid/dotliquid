@@ -105,36 +105,45 @@ namespace DotLiquid.Tags
 			IFileSystem fileSystem = context.Registers["file_system"] as IFileSystem ?? Template.FileSystem;
             object file = fileSystem.ReadTemplateFile(context, _templateName);
 		    Template template = file as Template;
-            template = template != null ? (Template)template.Copy() : Template.Parse(file == null ? null : file.ToString());
+            template = template ?? Template.Parse(file == null ? null : file.ToString());
 
 		    List<Block> parentBlocks = FindBlocks(template.Root);
+            List<Block> orphanedBlocks = ((List<Block>)context.Scopes[0]["extends"]) ?? new List<Block>();
+            Dictionary<Block, Block> blockParents = ((Dictionary<Block, Block>)context.Scopes[0]["blockparents"])
+                ?? new Dictionary<Block, Block>();  // Block (key) -> Parent block (value)
+            Dictionary<Block, List<object>> blockNodes = ((Dictionary<Block, List<object>>)context.Scopes[0]["blocknodes"])
+                ?? new Dictionary<Block, List<object>>();  // Block (key) -> Node list (value)
 
-            // Defer resolution of Blocks in the NodeList to Render because some might be added from extended templates
-			foreach(Block block in NodeList.OfType<Block>())
-			{
-				Block pb = parentBlocks.Find(b => b.BlockName == block.BlockName);
-
-				if (pb != null)
-				{
-					pb.Parent = block.Parent;
-					pb.AddParent(pb.NodeList);
-					pb.NodeList.Clear();
-					pb.NodeList.AddRange(block.NodeList);
-				}
-                else
-				{
-				    Extends extends = GetExtends(template);
-                    if(extends != null) extends.NodeList.Add(block);
-				}
-			}
-
-			template.Render(result, RenderParameters.FromContext(context));
+            context.Stack(() =>
+            {
+                context["blockparents"] = blockParents;     // Copy the block parents down to this scope
+                context["blocknodes"] = blockNodes;         // Copy the block nodes down to this scope
+                context["extends"] = new List<Block>();     // Holds Blocks that were not found in the parent
+                foreach (Block block in NodeList.OfType<Block>().Concat(orphanedBlocks))
+                {
+                    Block pb = parentBlocks.Find(b => b.BlockName == block.BlockName);
+                    
+                    if (pb != null)
+                    {
+                        Block parent;
+                        if (blockParents.TryGetValue(block, out parent))
+                            blockParents[pb] = parent;
+                        pb.AddParent(blockParents, pb.GetNodeList(blockNodes));
+                        blockNodes[pb] = block.GetNodeList(blockNodes);
+                    }
+                    else if(IsExtending(template))
+                    {
+                        ((List<Block>)context.Scopes[0]["extends"]).Add(block);
+                    }
+                }
+			    template.Render(result, RenderParameters.FromContext(context));
+            });
 		}
 
-		public Extends GetExtends(Template template)
-		{
-			return template.Root.NodeList.OfType<Extends>().FirstOrDefault();
-		}
+        public bool IsExtending(Template template)
+        {
+            return template.Root.NodeList.Any(node => node is Extends);
+        }
 
 #if NET35
 		private List<Block> FindBlocks(object node)

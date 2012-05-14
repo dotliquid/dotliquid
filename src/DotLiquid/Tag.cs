@@ -17,27 +17,7 @@ namespace DotLiquid
 		protected internal Tag()
 		{
 		}
-
-        /// <summary>
-        /// Deep copies this instance by deep copying all ICopyable in the NodeList
-        /// (and reference copying all others). Any Tag that maintains internal state
-        /// should override this method (making sure to call the base version to get
-        /// the initial reference). All overriding methods should deep copy members
-        /// that are potentially modified during the render phase (all members are
-        /// automatically shallow copied using MemberwiseClone).
-        /// </summary>
-        /// <returns></returns>
-        public virtual object Copy()
-        {
-            Tag tag = (Tag) MemberwiseClone();
-            if (NodeList != null) tag.NodeList = new List<object>(NodeList.Select(n =>
-                {
-                    ICopyable copyable = n as ICopyable;
-                    return copyable == null ? n : copyable.Copy();
-                }));
-            return tag;
-        }
-
+        
 		internal virtual void AssertTagRulesViolation(List<object> rootNodeList)
 		{
 		}

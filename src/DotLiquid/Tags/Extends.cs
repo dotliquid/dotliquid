@@ -109,15 +109,11 @@ namespace DotLiquid.Tags
 
 		    List<Block> parentBlocks = FindBlocks(template.Root);
             List<Block> orphanedBlocks = ((List<Block>)context.Scopes[0]["extends"]) ?? new List<Block>();
-            Dictionary<Block, Block> blockParents = ((Dictionary<Block, Block>)context.Scopes[0]["blockparents"])
-                ?? new Dictionary<Block, Block>();  // Block (key) -> Parent block (value)
-            Dictionary<Block, List<object>> blockNodes = ((Dictionary<Block, List<object>>)context.Scopes[0]["blocknodes"])
-                ?? new Dictionary<Block, List<object>>();  // Block (key) -> Node list (value)
+		    BlockRenderState blockState = ((BlockRenderState) context.Scopes[0]["blockstate"]) ?? new BlockRenderState();
 
             context.Stack(() =>
             {
-                context["blockparents"] = blockParents;     // Copy the block parents down to this scope
-                context["blocknodes"] = blockNodes;         // Copy the block nodes down to this scope
+                context["blockstate"] = blockState;         // Copy the block state down to this scope
                 context["extends"] = new List<Block>();     // Holds Blocks that were not found in the parent
                 foreach (Block block in NodeList.OfType<Block>().Concat(orphanedBlocks))
                 {
@@ -126,10 +122,10 @@ namespace DotLiquid.Tags
                     if (pb != null)
                     {
                         Block parent;
-                        if (blockParents.TryGetValue(block, out parent))
-                            blockParents[pb] = parent;
-                        pb.AddParent(blockParents, pb.GetNodeList(blockNodes));
-                        blockNodes[pb] = block.GetNodeList(blockNodes);
+                        if (blockState.Parents.TryGetValue(block, out parent))
+                            blockState.Parents[pb] = parent;
+                        pb.AddParent(blockState.Parents, pb.GetNodeList(blockState));
+                        blockState.NodeLists[pb] = block.GetNodeList(blockState);
                     }
                     else if(IsExtending(template))
                     {

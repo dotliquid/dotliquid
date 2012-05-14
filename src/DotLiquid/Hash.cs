@@ -57,6 +57,10 @@ namespace DotLiquid
 
 		#endregion
 
+        /// <summary>
+        /// Performs a first-level deep copy of the hash by creating a new
+        /// nested dictionary but not copying any contained objects.
+        /// </summary>
         public Hash Copy()
         {
             Hash hash;

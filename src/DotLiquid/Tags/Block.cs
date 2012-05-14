@@ -7,16 +7,18 @@ namespace DotLiquid.Tags
 {
 	public class BlockDrop : Drop
 	{
-		private Block _block;
+		private readonly Block _block;
+	    private readonly TextWriter _result;
 
-		public BlockDrop(Block block)
+		public BlockDrop(Block block, TextWriter result)
 		{
-			_block = block;
+		    _block = block;
+		    _result = result;
 		}
 
-		public void Super()
+	    public void Super()
 		{
-			_block.CallSuper(Context);
+			_block.CallSuper(Context, _result);
 		}
 	}
 
@@ -27,9 +29,7 @@ namespace DotLiquid.Tags
 	public class Block : DotLiquid.Block
 	{
 		private static readonly Regex Syntax = new Regex(@"(\w+)");
-		private TextWriter _result;
 
-		internal Block Parent { get; set; }
 		internal string BlockName { get; set; }
 
 		public override void Initialize(string tagName, string markup, List<string> tokens)
@@ -70,35 +70,52 @@ namespace DotLiquid.Tags
 
 		public override void Render(Context context, TextWriter result)
 		{
-			_result = result;
-
+			Dictionary<Block, List<object>> blockNodes
+                = ((Dictionary<Block, List<object>>)context.Scopes[0]["blocknodes"]);
+            Dictionary<Block, Block> blockParents
+                = ((Dictionary<Block, Block>)context.Scopes[0]["blockparents"]);
 			context.Stack(() =>
 			{
-				context["block"] = new BlockDrop(this);
-				RenderAll(NodeList, context, result);
+				context["block"] = new BlockDrop(this, result);
+			    context["blocknodes"] = blockNodes; // Copy the block node replacements into this scope (for nested blocks)
+			    context["blockparents"] = blockParents;
+				RenderAll(GetNodeList(blockNodes), context, result);
 			});
 		}
 
-		public void AddParent(List<object> nodeList)
-		{
-			if (Parent != null)
-			{
-				Parent.AddParent(nodeList);
-			}
-			else
-			{
-				Parent = new Block();
-				Parent.Initialize(TagName, BlockName, null);
-				Parent.NodeList = new List<object>(nodeList);
-			}
-		}
+        // Gets the render-time node list from the node list cache
+        public List<object> GetNodeList(Dictionary<Block, List<object>> blockNodes)
+        {
+            List<object> nodeList;
+            if (blockNodes == null || !blockNodes.TryGetValue(this, out nodeList)) nodeList = NodeList;
+            return nodeList;
+        }
 
-		public void CallSuper(Context context)
+        public void AddParent(Dictionary<Block, Block> parents, List<object> nodeList)
+        {
+            Block parent;
+            if(parents.TryGetValue(this, out parent))
+            {
+                parent.AddParent(parents, nodeList);
+            }
+            else
+            {
+                parent = new Block();
+                parent.Initialize(TagName, BlockName, null);
+                parent.NodeList = new List<object>(nodeList);
+                parents[this] = parent;
+            }
+        }
+
+		public void CallSuper(Context context, TextWriter result)
 		{
-			if (Parent != null)
-			{
-				Parent.Render(context, _result);
-			}
+            Dictionary<Block, Block> blockParents
+                = ((Dictionary<Block, Block>)context.Scopes[0]["blockparents"]);
+		    Block parent;
+		    if(blockParents != null && blockParents.TryGetValue(this, out parent) && parent != null)
+		    {
+		        parent.Render(context, result);
+		    }
 		}
 	}
 }

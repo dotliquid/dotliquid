@@ -61,7 +61,6 @@ namespace DotLiquid.Tags
 		private static readonly Regex Syntax = new Regex(string.Format(@"^({0})", Liquid.QuotedFragment));
 
 		private string _templateName;
-		protected List<Block> Blocks { get; private set; }
 
 		public override void Initialize(string tagName, string markup, List<string> tokens)
 		{
@@ -75,21 +74,6 @@ namespace DotLiquid.Tags
 				throw new SyntaxException(Liquid.ResourceManager.GetString("ExtendsTagSyntaxException"));
 
 			base.Initialize(tagName, markup, tokens);
-
-			Blocks = new List<Block>();
-
-			if (NodeList != null)
-			{
-				NodeList.ForEach(n =>
-				{
-					Block block = n as Block;
-
-					if (block != null)
-					{
-						Blocks.Add(block);
-					}
-				});
-			}
 		}
 
 		internal override void AssertTagRulesViolation(List<object> rootNodeList)
@@ -117,34 +101,49 @@ namespace DotLiquid.Tags
 
 		public override void Render(Context context, TextWriter result)
 		{
+            // Get the template or template content and then either copy it (since it will be modified) or parse it
 			IFileSystem fileSystem = context.Registers["file_system"] as IFileSystem ?? Template.FileSystem;
-			string source = fileSystem.ReadTemplateFile(context, _templateName);
-			Template template = Template.Parse(source);
+            object file = fileSystem.ReadTemplateFile(context, _templateName);
+		    Template template = file as Template;
+            template = template ?? Template.Parse(file == null ? null : file.ToString());
 
-			List<Block> parentBlocks = FindBlocks(template.Root);
+		    List<Block> parentBlocks = FindBlocks(template.Root);
+            List<Block> orphanedBlocks = ((List<Block>)context.Scopes[0]["extends"]) ?? new List<Block>();
+            Dictionary<Block, Block> blockParents = ((Dictionary<Block, Block>)context.Scopes[0]["blockparents"])
+                ?? new Dictionary<Block, Block>();  // Block (key) -> Parent block (value)
+            Dictionary<Block, List<object>> blockNodes = ((Dictionary<Block, List<object>>)context.Scopes[0]["blocknodes"])
+                ?? new Dictionary<Block, List<object>>();  // Block (key) -> Node list (value)
 
-			Blocks.ForEach(block =>
-			{
-				Block pb = parentBlocks.Find(b => b.BlockName == block.BlockName);
-
-				if (pb != null)
-				{
-					pb.Parent = block.Parent;
-					pb.AddParent(pb.NodeList);
-					pb.NodeList.Clear();
-					pb.NodeList.AddRange(block.NodeList);
-				}
-				else if (IsExtending(template))
-					template.Root.NodeList.Add(block);
-			});
-
-			template.Render(result, RenderParameters.FromContext(context));
+            context.Stack(() =>
+            {
+                context["blockparents"] = blockParents;     // Copy the block parents down to this scope
+                context["blocknodes"] = blockNodes;         // Copy the block nodes down to this scope
+                context["extends"] = new List<Block>();     // Holds Blocks that were not found in the parent
+                foreach (Block block in NodeList.OfType<Block>().Concat(orphanedBlocks))
+                {
+                    Block pb = parentBlocks.Find(b => b.BlockName == block.BlockName);
+                    
+                    if (pb != null)
+                    {
+                        Block parent;
+                        if (blockParents.TryGetValue(block, out parent))
+                            blockParents[pb] = parent;
+                        pb.AddParent(blockParents, pb.GetNodeList(blockNodes));
+                        blockNodes[pb] = block.GetNodeList(blockNodes);
+                    }
+                    else if(IsExtending(template))
+                    {
+                        ((List<Block>)context.Scopes[0]["extends"]).Add(block);
+                    }
+                }
+			    template.Render(result, RenderParameters.FromContext(context));
+            });
 		}
 
-		public bool IsExtending(Template template)
-		{
-			return template.Root.NodeList.Any(node => node is Extends);
-		}
+        public bool IsExtending(Template template)
+        {
+            return template.Root.NodeList.Any(node => node is Extends);
+        }
 
 #if NET35
 		private List<Block> FindBlocks(object node)
@@ -157,32 +156,25 @@ namespace DotLiquid.Tags
 		private List<Block> FindBlocks(object node, List<Block> blocks = null)
 #endif
 		{
+			if(blocks == null) blocks = new List<Block>();
+
 			if (node.RespondTo("NodeList"))
 			{
 				List<object> nodeList = (List<object>) node.Send("NodeList");
 
 				if (nodeList != null)
 				{
-					List<Block> b = new List<Block>();
-
 					nodeList.ForEach(n =>
 					{
 						Block block = n as Block;
 
 						if (block != null)
 						{
-							Block found = b.Find(bl => bl.BlockName == block.BlockName);
-
-							if (found != null)
-								found = block;
-							else
-								b.Add(block);
+                            if (blocks.All(bl => bl.BlockName != block.BlockName)) blocks.Add(block);
 						}
 						
-						b.AddRange(FindBlocks(n, b));
+                        FindBlocks(n, blocks);
 					});
-
-					return b;
 				}
 			}
 

@@ -105,7 +105,7 @@ namespace DotLiquid.Tags
 			IFileSystem fileSystem = context.Registers["file_system"] as IFileSystem ?? Template.FileSystem;
             object file = fileSystem.ReadTemplateFile(context, _templateName);
 		    Template template = file as Template;
-            template = template != null ? template.Copy() : Template.Parse(file == null ? null : file.ToString());
+            template = template != null ? (Template)template.Copy() : Template.Parse(file == null ? null : file.ToString());
 
 		    List<Block> parentBlocks = FindBlocks(template.Root);
 

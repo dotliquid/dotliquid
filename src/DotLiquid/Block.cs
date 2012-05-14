@@ -14,18 +14,7 @@ namespace DotLiquid
 		private static readonly Regex ContentOfVariable = new Regex(string.Format(@"^{0}(.*){1}$", Liquid.VariableStart, Liquid.VariableEnd));
 
 		internal static readonly Regex FullToken = new Regex(string.Format(@"^{0}\s*(\w+)\s*(.*)?{1}$", Liquid.TagStart, Liquid.TagEnd));
-
-        public Block()
-        {
-        }
-
-        /// <summary>
-        /// Copy constructor (see Tag copy constructor).
-        /// </summary>
-        protected Block(Block block) : base(block)
-        {
-        }
-
+        
 		protected override void Parse(List<string> tokens)
 		{
 			NodeList = NodeList ?? new List<object>();

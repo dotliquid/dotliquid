@@ -135,5 +135,16 @@ namespace DotLiquid.Tests.Tags
                   {% block start %}!{% endblock %}");
             Assert.AreEqual("!ABYZ", template.Render());
         }
+
+        [Test]
+        public void RepeatedRendersProduceSameResult()
+        {
+            Template template = Template.Parse(
+                @"{% extends 'middle' %}
+                  {% block start %}!{% endblock %}
+                  {% block middle %}C{% endblock %}");
+            Assert.AreEqual("!ABCYZ", template.Render());
+            Assert.AreEqual("!ABCYZ", template.Render());
+        }
 	}
 }

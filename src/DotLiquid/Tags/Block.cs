@@ -7,16 +7,18 @@ namespace DotLiquid.Tags
 {
 	public class BlockDrop : Drop
 	{
-		private Block _block;
+		private readonly Block _block;
+	    private readonly TextWriter _result;
 
-		public BlockDrop(Block block)
+		public BlockDrop(Block block, TextWriter result)
 		{
-			_block = block;
+		    _block = block;
+		    _result = result;
 		}
 
-		public void Super()
+	    public void Super()
 		{
-			_block.CallSuper(Context);
+			_block.CallSuper(Context, _result);
 		}
 	}
 
@@ -27,7 +29,6 @@ namespace DotLiquid.Tags
 	public class Block : DotLiquid.Block
 	{
 		private static readonly Regex Syntax = new Regex(@"(\w+)");
-		private TextWriter _result;
 
 		internal Block Parent { get; set; }
 		internal string BlockName { get; set; }
@@ -70,11 +71,9 @@ namespace DotLiquid.Tags
 
 		public override void Render(Context context, TextWriter result)
 		{
-			_result = result;
-
 			context.Stack(() =>
 			{
-				context["block"] = new BlockDrop(this);
+				context["block"] = new BlockDrop(this, result);
 				RenderAll(NodeList, context, result);
 			});
 		}
@@ -93,11 +92,11 @@ namespace DotLiquid.Tags
 			}
 		}
 
-		public void CallSuper(Context context)
+		public void CallSuper(Context context, TextWriter result)
 		{
 			if (Parent != null)
 			{
-				Parent.Render(context, _result);
+				Parent.Render(context, result);
 			}
 		}
 	}

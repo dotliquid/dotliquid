@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace DotLiquid
 {
@@ -18,16 +19,23 @@ namespace DotLiquid
 		}
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Tag"/> class by copying values
-        /// from an existing Tag class. Creates a new NodeList that contains references
-        /// to the same nodes as the original one, but that can be modified independently.
+        /// Deep copies this instance by deep copying all ICopyable in the NodeList
+        /// (and reference copying all others). Any Tag that maintains internal state
+        /// should override this method (making sure to call the base version to get
+        /// the initial reference). All overriding methods should deep copy members
+        /// that are potentially modified during the render phase (all members are
+        /// automatically shallow copied using MemberwiseClone).
         /// </summary>
-        /// <param name="tag">The Tag to copy.</param>
-        protected Tag(Tag tag)
+        /// <returns></returns>
+        public virtual object Copy()
         {
-            if (tag.NodeList != null) NodeList = new List<object>(tag.NodeList);
-            TagName = tag.TagName;
-            Markup = tag.Markup;
+            Tag tag = (Tag) MemberwiseClone();
+            if (NodeList != null) tag.NodeList = new List<object>(NodeList.Select(n =>
+                {
+                    ICopyable copyable = n as ICopyable;
+                    return copyable == null ? n : copyable.Copy();
+                }));
+            return tag;
         }
 
 		internal virtual void AssertTagRulesViolation(List<object> rootNodeList)

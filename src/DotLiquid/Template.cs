@@ -23,7 +23,7 @@ namespace DotLiquid
 	/// template = Liquid::Template.parse(source)
 	/// template.render('user_name' => 'bob')
 	/// </summary>
-	public class Template
+	public class Template : ICopyable
 	{
 		private static Dictionary<string, Type> Tags { get; set; }
 		private static readonly Dictionary<Type, Func<object, object>> SafeTypeTransformers;
@@ -131,13 +131,13 @@ namespace DotLiquid
 			get { return (_instanceAssigns = _instanceAssigns ?? new Hash()); }
 		}
 
-        public Template Copy()
+        public object Copy()
         {
             Template template = new Template();
             if (_registers != null) template._registers = _registers.Copy();
             if (_assigns != null) template._assigns = _assigns.Copy();
             if (_instanceAssigns != null) template._instanceAssigns = _instanceAssigns.Copy();
-            if (Root != null) template.Root = new Document(Root);
+            if (Root != null) template.Root = (Document)Root.Copy();
             return template;
         }
 

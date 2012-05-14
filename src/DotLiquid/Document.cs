@@ -3,7 +3,18 @@ using System.Collections.Generic;
 namespace DotLiquid
 {
 	public class Document : Block
-	{
+    {
+        public Document()
+        {
+        }
+
+        /// <summary>
+        /// Copy constructor (see Tag copy constructor). Used primarily when copying a Template.
+        /// </summary>
+        protected internal Document(Document document) : base(document)
+        {
+        }
+
 		/// <summary>
 		/// We don't need markup to open this block
 		/// </summary>

@@ -157,13 +157,14 @@ namespace DotLiquid.Tags
 		private List<Block> FindBlocks(object node, List<Block> blocks = null)
 #endif
 		{
+			if(blocks == null) blocks = new List<Block>();
+
 			if (node.RespondTo("NodeList"))
 			{
 				List<object> nodeList = (List<object>) node.Send("NodeList");
 
 				if (nodeList != null)
 				{
-					List<Block> b = new List<Block>();
 
 					nodeList.ForEach(n =>
 					{
@@ -171,18 +172,11 @@ namespace DotLiquid.Tags
 
 						if (block != null)
 						{
-							Block found = b.Find(bl => bl.BlockName == block.BlockName);
-
-							if (found != null)
-								found = block;
-							else
-								b.Add(block);
+                            if (blocks.All(bl => bl.BlockName != block.BlockName)) blocks.Add(block);
 						}
 						
-                        b.AddRange(FindBlocks(n, b));
+                        FindBlocks(n, blocks);
 					});
-
-					return b;
 				}
 			}
 

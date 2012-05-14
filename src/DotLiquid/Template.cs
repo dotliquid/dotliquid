@@ -131,6 +131,16 @@ namespace DotLiquid
 			get { return (_instanceAssigns = _instanceAssigns ?? new Hash()); }
 		}
 
+        public Template Copy()
+        {
+            Template template = new Template();
+            if (_registers != null) template._registers = _registers.Copy();
+            if (_assigns != null) template._assigns = _assigns.Copy();
+            if (_instanceAssigns != null) template._instanceAssigns = _instanceAssigns.Copy();
+            if (Root != null) template.Root = new Document(Root);
+            return template;
+        }
+
 		/// <summary>
 		/// Creates a new <tt>Template</tt> from an array of tokens. Use <tt>Template.parse</tt> instead
 		/// </summary>
@@ -231,7 +241,7 @@ namespace DotLiquid
 		/// <param name="parameters"></param>
         public List<Exception> Render(TextWriter result, RenderParameters parameters)
 		{
-			return Render(Root, result, parameters);
+            return RenderInternal(result, parameters);
 		}
 
 		/// <summary>
@@ -244,7 +254,7 @@ namespace DotLiquid
 			// Can't dispose this new StreamWriter, because it would close the
 			// passed-in stream, which isn't up to us.
 			StreamWriter streamWriter = new StreamWriter(stream);
-			List<Exception> errors = Render(Root, streamWriter, parameters);
+            List<Exception> errors = RenderInternal(streamWriter, parameters);
 			streamWriter.Flush();
 		    return errors;
 		}
@@ -261,10 +271,10 @@ namespace DotLiquid
 		/// * <tt>registers</tt> : hash with register variables. Those can be accessed from
 		/// filters and tags and might be useful to integrate liquid more with its host application
 		/// </summary>
-		internal List<Exception> Render(Tag tag, TextWriter result, RenderParameters parameters)
+		private List<Exception> RenderInternal(TextWriter result, RenderParameters parameters)
 		{
             List<Exception> errors = new List<Exception>();
-			if (tag == null) return errors;
+			if (Root == null) return errors;
 
 			Context context;
 			Hash registers;
@@ -280,7 +290,7 @@ namespace DotLiquid
 			try
 			{
 				// Render the nodelist.
-                tag.Render(context, result);
+                Root.Render(context, result);
 			}
 			finally
 			{

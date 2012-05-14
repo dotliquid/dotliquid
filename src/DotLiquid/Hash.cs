@@ -57,7 +57,7 @@ namespace DotLiquid
 
 		#endregion
 
-        public Hash Clone()
+        public Hash Copy()
         {
             Hash hash;
             if(_lambda != null)

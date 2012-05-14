@@ -61,7 +61,6 @@ namespace DotLiquid.Tags
 		private static readonly Regex Syntax = new Regex(string.Format(@"^({0})", Liquid.QuotedFragment));
 
 		private string _templateName;
-		protected List<Block> Blocks { get; private set; }
 
 		public override void Initialize(string tagName, string markup, List<string> tokens)
 		{
@@ -75,21 +74,6 @@ namespace DotLiquid.Tags
 				throw new SyntaxException(Liquid.ResourceManager.GetString("ExtendsTagSyntaxException"));
 
 			base.Initialize(tagName, markup, tokens);
-
-			Blocks = new List<Block>();
-
-			if (NodeList != null)
-			{
-				NodeList.ForEach(n =>
-				{
-					Block block = n as Block;
-
-					if (block != null)
-					{
-						Blocks.Add(block);
-					}
-				});
-			}
 		}
 
 		internal override void AssertTagRulesViolation(List<object> rootNodeList)
@@ -117,13 +101,16 @@ namespace DotLiquid.Tags
 
 		public override void Render(Context context, TextWriter result)
 		{
+            // Get the template or template content and then either copy it (since it will be modified) or parse it
 			IFileSystem fileSystem = context.Registers["file_system"] as IFileSystem ?? Template.FileSystem;
             object file = fileSystem.ReadTemplateFile(context, _templateName);
-            Template template = file as Template ?? Template.Parse(file == null ? null : file.ToString());
+		    Template template = file as Template;
+            template = template != null ? template.Copy() : Template.Parse(file == null ? null : file.ToString());
 
 		    List<Block> parentBlocks = FindBlocks(template.Root);
 
-			Blocks.ForEach(block =>
+            // Defer resolution of Blocks in the NodeList to Render because some might be added from extended templates
+			foreach(Block block in NodeList.OfType<Block>())
 			{
 				Block pb = parentBlocks.Find(b => b.BlockName == block.BlockName);
 
@@ -134,16 +121,19 @@ namespace DotLiquid.Tags
 					pb.NodeList.Clear();
 					pb.NodeList.AddRange(block.NodeList);
 				}
-				else if (IsExtending(template))
-					template.Root.NodeList.Add(block);
-			});
+                else
+				{
+				    Extends extends = GetExtends(template);
+                    if(extends != null) extends.NodeList.Add(block);
+				}
+			}
 
 			template.Render(result, RenderParameters.FromContext(context));
 		}
 
-		public bool IsExtending(Template template)
+		public Extends GetExtends(Template template)
 		{
-			return template.Root.NodeList.Any(node => node is Extends);
+			return template.Root.NodeList.OfType<Extends>().FirstOrDefault();
 		}
 
 #if NET35
@@ -165,7 +155,6 @@ namespace DotLiquid.Tags
 
 				if (nodeList != null)
 				{
-
 					nodeList.ForEach(n =>
 					{
 						Block block = n as Block;

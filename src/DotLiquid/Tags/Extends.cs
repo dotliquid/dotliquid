@@ -107,13 +107,13 @@ namespace DotLiquid.Tags
 		    Template template = file as Template;
             template = template ?? Template.Parse(file == null ? null : file.ToString());
 
-		    List<Block> parentBlocks = FindBlocks(template.Root);
+		    List<Block> parentBlocks = FindBlocks(template.Root, null);
             List<Block> orphanedBlocks = ((List<Block>)context.Scopes[0]["extends"]) ?? new List<Block>();
-		    BlockRenderState blockState = ((BlockRenderState) context.Scopes[0]["blockstate"]) ?? new BlockRenderState();
+		    BlockRenderState blockState = BlockRenderState.Find(context) ?? new BlockRenderState();
 
             context.Stack(() =>
             {
-                context["blockstate"] = blockState;         // Copy the block state down to this scope
+                context["blockstate"] = blockState;         // Set or copy the block state down to this scope
                 context["extends"] = new List<Block>();     // Holds Blocks that were not found in the parent
                 foreach (Block block in NodeList.OfType<Block>().Concat(orphanedBlocks))
                 {
@@ -141,16 +141,7 @@ namespace DotLiquid.Tags
             return template.Root.NodeList.Any(node => node is Extends);
         }
 
-#if NET35
-		private List<Block> FindBlocks(object node)
-		{
-			return FindBlocks(node, null);
-		}
-
 		private List<Block> FindBlocks(object node, List<Block> blocks)
-#else
-		private List<Block> FindBlocks(object node, List<Block> blocks = null)
-#endif
 		{
 			if(blocks == null) blocks = new List<Block>();
 

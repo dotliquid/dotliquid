@@ -40,6 +40,20 @@ namespace DotLiquid.Tags
             if (!NodeLists.TryGetValue(block, out nodeList)) nodeList = block.NodeList;
             return nodeList;
         }
+
+        // Searches up the scopes for the inner-most BlockRenderState (though there should be only one)
+        public static BlockRenderState Find(Context context)
+        {
+            foreach (Hash scope in context.Scopes)
+            {
+                object blockState;
+                if (scope.TryGetValue("blockstate", out blockState))
+                {
+                    return blockState as BlockRenderState;
+                }
+            }
+            return null;
+        }
     }
 
 	/// <summary>
@@ -90,11 +104,10 @@ namespace DotLiquid.Tags
 
 		public override void Render(Context context, TextWriter result)
 		{
-			BlockRenderState blockState = ((BlockRenderState)context.Scopes[0]["blockstate"]);
+			BlockRenderState blockState = BlockRenderState.Find(context);
 			context.Stack(() =>
 			{
 				context["block"] = new BlockDrop(this, result);
-			    context["blockstate"] = blockState; // Copy the block state into this scope (for nested blocks)
 				RenderAll(GetNodeList(blockState), context, result);
 			});
 		}
@@ -123,7 +136,7 @@ namespace DotLiquid.Tags
 
 		public void CallSuper(Context context, TextWriter result)
 		{
-            BlockRenderState blockState = ((BlockRenderState)context.Scopes[0]["blockstate"]);
+            BlockRenderState blockState = BlockRenderState.Find(context);
 		    Block parent;
             if (blockState != null
                 && blockState.Parents.TryGetValue(this, out parent)

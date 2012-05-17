@@ -36,6 +36,9 @@ namespace DotLiquid.Tests.Tags
                     case "middle":
 				        return @"{% extends 'outer' %}
                                  {% block outer %}B{% block middle %}{% endblock %}Y{% endblock %}";
+                    case "middleunless":
+                        return @"{% extends 'outer' %}
+                                 {% block outer %}B{% unless nomiddle %}{% block middle %}{% endblock %}{% endunless %}Y{% endblock %}";
 					default:
 						return @"{% extends 'complex' %}
                                  {% block thing %}
@@ -134,6 +137,21 @@ namespace DotLiquid.Tests.Tags
                 @"{% extends 'middle' %}
                   {% block start %}!{% endblock %}");
             Assert.AreEqual("!ABYZ", template.Render());
+        }
+
+        [Test]
+        public void CanRenderBlockContainedInConditional()
+        {
+            Template template = Template.Parse(
+                @"{% extends 'middleunless' %}
+                  {% block middle %}C{% endblock %}");
+            Assert.AreEqual("ABCYZ", template.Render());
+
+            template = Template.Parse(
+                @"{% extends 'middleunless' %}
+                  {% block start %}{% assign nomiddle = true %}{% endblock %}
+                  {% block middle %}C{% endblock %}");
+            Assert.AreEqual("ABYZ", template.Render());
         }
 
         [Test]

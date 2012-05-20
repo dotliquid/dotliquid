@@ -31,29 +31,36 @@ namespace DotLiquid.Util
 			}
 			set
 			{
-				int i = key.GetHashCode() % _buckets.Length;
-				_buckets[i].Key = key;
+                int i = (int)((uint)key.GetHashCode() % (uint)_buckets.Length);
+                _buckets[i].Key = key;
 				_buckets[i].Value = new WeakReference(value);
 			}
 		}
 
 		public bool TryGetValue(TKey key, out TValue value)
 		{
-			int i = key.GetHashCode() % _buckets.Length;
-			WeakReference wr;
-			if ((wr = _buckets[i].Value) == null || !_buckets[i].Key.Equals(key))
-			{
-				value = null;
-				return false;
-			}
-			value = (TValue) wr.Target;
+            WeakReference wr;
+            try
+            {
+                int i = (int)((uint)key.GetHashCode() % (uint)_buckets.Length);
+                if ((wr = _buckets[i].Value) == null || !_buckets[i].Key.Equals(key))
+                {
+                    value = null;
+                    return false;
+                }
+                value = (TValue)wr.Target;
+            }
+            catch (IndexOutOfRangeException ex)
+            {
+                throw new IndexOutOfRangeException("Index Out Of Range, key was " + key.ToString() + ", hashcode was " + key.GetHashCode().ToString(), ex);
+            }
 			return wr.IsAlive;
 		}
 
 		public void Remove(TKey key)
 		{
-			int i = key.GetHashCode() % _buckets.Length;
-			if (_buckets[i].Key.Equals(key))
+            int i = (int)((uint)key.GetHashCode() % (uint)_buckets.Length);
+            if (_buckets[i].Key.Equals(key))
 				_buckets[i].Value = null;
 		}
 	}

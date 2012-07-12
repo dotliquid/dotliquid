@@ -31,7 +31,7 @@ namespace DotLiquid.Util
 			}
 			set
 			{
-				int i = key.GetHashCode() % _buckets.Length;
+				int i = Math.Abs(key.GetHashCode()) % _buckets.Length;
 				_buckets[i].Key = key;
 				_buckets[i].Value = new WeakReference(value);
 			}
@@ -39,7 +39,7 @@ namespace DotLiquid.Util
 
 		public bool TryGetValue(TKey key, out TValue value)
 		{
-			int i = key.GetHashCode() % _buckets.Length;
+			int i = Math.Abs(key.GetHashCode()) % _buckets.Length;
 			WeakReference wr;
 			if ((wr = _buckets[i].Value) == null || !_buckets[i].Key.Equals(key))
 			{
@@ -52,7 +52,7 @@ namespace DotLiquid.Util
 
 		public void Remove(TKey key)
 		{
-			int i = key.GetHashCode() % _buckets.Length;
+			int i = Math.Abs(key.GetHashCode()) % _buckets.Length;
 			if (_buckets[i].Key.Equals(key))
 				_buckets[i].Value = null;
 		}

@@ -1,29 +1,23 @@
-﻿<%@ Master Language="C#" Inherits="System.Web.Mvc.ViewMasterPage" %>
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html lang="en" xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+﻿<!DOCTYPE html>
+<html>
 <head>
-	<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+	<meta charset="utf-8" />
 	<meta name="description" content="DotLiquid is a templating system ported to the .net framework from Ruby’s Liquid Markup" />
 	<link href="/assets/css/reset.css" rel="stylesheet" type="text/css" />
 	<link href="/assets/css/main.css" rel="stylesheet" type="text/css" />
 	<!--[if !IE 7]>
-<style type="text/css">
-#wrap {
-	display: table;
-	height: 100%;
-}
-</style>
-<![endif]-->
-	<asp:ContentPlaceHolder runat="server" ID="StyleContent" />
+	<style type="text/css">
+	#wrap {
+		display: table;
+		height: 100%;
+	}
+	</style>
+	<![endif]-->
+	@RenderSection("StyleContent", false)
 
-	<title>
-		<asp:ContentPlaceHolder runat="server" ID="TitleContent">
-			Welcome to DotLiquid, a safe templating system for .net
-		</asp:ContentPlaceHolder>
-	</title>
+	<title>Welcome to DotLiquid, a safe templating system for .net</title>
 
-	<% if (!Request.IsLocal) { %>
+	@if (!Request.IsLocal) {
 	<script type="text/javascript">
 
 		var _gaq = _gaq || [];
@@ -37,7 +31,7 @@
 		})();
 
 	</script>
-	<% } %>
+	}
 </head>
 <body>
 	<div id="wrap">
@@ -47,28 +41,26 @@
 					<img src="/assets/img/logo_big.png" alt="DotLiquid Logo" title="DotLiquid Home" />
 				</div>
 				<ul id="header-menu">
-					<li><a class="<%= Html.IsCurrentAction("index", "home") ? "active" : "" %>" href="/">home</a></li>
+					<li><a class="@(Html.IsCurrentAction("index", "home") ? "active" : "")" href="/">home</a></li>
 					<li><a href="http://github.com/formosatek/dotliquid/downloads">download</a></li>
 					<li><a href="http://github.com/formosatek/dotliquid/wiki/">learn</a></li>
 				</ul>
 				<div id="try">
-					<a href="<%= Url.Action("Index", "TryOnline") %>">
+					<a href="@Url.Action("Index", "TryOnline")">
 						<img src="/assets/img/try_btn.png" alt="Try it online" title="Try it online" /></a>
 				</div>
 			</div>
-			<asp:ContentPlaceHolder runat="server" ID="MainContent" />
+			@RenderBody()
 		</div>
 	</div>
 	<div id="footer">
 		<div id="footer-content" class="clearfix">
 			<div class="footer-col">
-				<h5>
-					Porting and Development</h5>
+				<h5>Porting and Development</h5>
 				<ul>
 					<li><a href="http://www.roastedamoeba.com">Tim Jones</a></li>
 				</ul>
-				<h5>
-					Contributors</h5>
+				<h5>Contributors</h5>
 				<ul>
 					<li><a href="http://www.alessandropetrelli.com">Alessandro Petrelli</a></li>
 				</ul>
@@ -87,8 +79,7 @@
 				</ul>
 			</div>
 			<div class="footer-col">
-				<h5>
-					License</h5>
+				<h5>License</h5>
 				<ul>
 					<li><a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></li>
 					<li><a href="http://www.microsoft.com/opensource/licenses.mspx#Ms-PL">Microsoft Public License<br />(Ms-PL)</a></li>
@@ -107,7 +98,8 @@
 			Hosted free by <a href="http://appharbor.com">AppHarbor</a>.
 		</div>
 	</div>
-
-	<asp:ContentPlaceHolder runat="server" ID="ScriptContent" />
+	
+	@RenderSection("ScriptContent", false)
 </body>
 </html>
+

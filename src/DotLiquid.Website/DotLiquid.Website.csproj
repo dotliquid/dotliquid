@@ -68,8 +68,8 @@
     <Content Include="assets\img\logo_big.png" />
     <Content Include="assets\img\try_btn.png" />
     <Content Include="assets\js\jquery.observe_field.js" />
-    <Content Include="Views\Error\PageNotFound.aspx" />
-    <Content Include="Views\Error\Index.aspx" />
+    <None Include="Views\Error\PageNotFound.cshtml" />
+    <None Include="Views\Error\Index.cshtml" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -81,7 +81,6 @@
     </Content>
     <None Include="Views\TryOnline\Index.cshtml" />
     <None Include="Views\Home\Index.cshtml" />
-    <Content Include="Views\Shared\Site.Master" />
     <Content Include="Views\Web.config" />
   </ItemGroup>
   <ItemGroup>

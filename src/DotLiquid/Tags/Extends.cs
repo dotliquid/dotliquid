@@ -179,7 +179,7 @@ namespace DotLiquid.Tags
 								b.Add(block);
 						}
 						
-                        b.AddRange(FindBlocks(n, b));
+						b.AddRange(FindBlocks(n, b));
 					});
 
 					return b;

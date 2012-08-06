@@ -40,7 +40,7 @@
   overload, it can be used to transform an object into a "Liquidizable" type - i.e. an anonymous type or
   one that implements `ILiquidizable`, such as `Drop`. (Benn Hoffman / Greg MacLellan)
 
-### 1.6.1 - 2011-09-30
+## 1.6.1 - 2011-09-30
 
 * Updated `TypeUtility.IsAnonymousType` to detect anonymous types when running on Mono
 
@@ -51,31 +51,31 @@
 
 * DotLiquid is now compatible with .NET 4.0 Client Profile
 
-### 1.6.0 - 2011-06-25
+## 1.6.0 - 2011-06-25
 
 * Added SymbolSource support to NuGet package generation script
 
 * Planning to use semantic versioning for future releases (http://semver.org/)
 
-### 1.5.6 - 2011-06-21
+## 1.5.6 - 2011-06-21
 
 * ERB-like trimming now works correctly for `\r\n` newlines
 
-### 1.5.4 - 2011-04-30
+## 1.5.4 - 2011-04-30
 
 * Because it's a common (and easy) mistake to use C# property names while `Template.NamingConvention` is set to
   `RubyNamingConvention`, and this situation is both surprising and difficult to debug, I have added
   a "special case" error message when the code detects that the property name doesn't match, but would
   match if you used a Ruby-style name.
 
-### 1.5.3 - 2011-04-05
+## 1.5.3 - 2011-04-05
 
 * Minor fixes to error handling in Include tag; now returns (or throws, if `RenderParameters.RethrowErrors` is true)
   correct error message.
 
 * Minor fixes to null template handling in `LocalFileSystem`
 
-### 1.5.2 - 2011-03-19
+## 1.5.2 - 2011-03-19
 
 * "Assign" tag now works correctly with European (i.e. comma) decimal separators.
 
@@ -83,7 +83,7 @@
   separator for the current culture is ",", then the code will first try parsing
   using "," and then fallback to the invariant culture's decimal separator (".").
 
-### 1.5.1 - 2011-03-19
+## 1.5.1 - 2011-03-19
 
 * Filters can now access the current context. To do this, modify your filter method(s) to take
   in a `Context` object as the first argument. DotLiquid will automatically pass the current
@@ -91,7 +91,7 @@
 
 * Minor updates to website
 
-### 1.5.0 - 2011-03-01
+## 1.5.0 - 2011-03-01
 
 * Fix for `RubyNamingConvention` incorrectly handling full uppercase memebers.
   Let's do it the same way Ruby does!
@@ -115,7 +115,7 @@
   RenderParameters parameters)`, because I want to keep it as simple as possible
   and I don't think this version will be commonly used.
 
-### 1.2.1 - 2011-02-12
+## 1.2.1 - 2011-02-12
 
 * Signed DotLiquid assembly with strong name. DotLiquid.dll can now be placed in GAC.
 

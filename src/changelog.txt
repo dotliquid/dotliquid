@@ -1,5 +1,5 @@
 Trunk
-- Fixed bug #61: Nested template inheritance not correctly placing blocks (Dave Glick)
+- Fixed bug #60: Nested template inheritance not correctly placing blocks (Dave Glick)
 - Feature #63: Added startswith and endswith conditions for arrays and strings (Dave Glick)
 - Feature #64: Implemented ERB-like trimming for leading whitespace
 

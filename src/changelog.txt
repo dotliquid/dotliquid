@@ -1,5 +1,6 @@
 Trunk
-- Fixed bug: Nested template inheritance not correctly placing blocks (thanks Dave Glick)
+- Fixed bug #61: Nested template inheritance not correctly placing blocks (Dave Glick)
+- Feature #63: Added startswith and endswith conditions for arrays and strings (Dave Glick)
 
 v1.7.0 - 2012-08-03
 - Fixed bug: Handle negative result from GetHashCode (thanks Sam Listopad)

@@ -257,6 +257,10 @@ namespace DotLiquid
 			if (string.IsNullOrEmpty(source))
 				return new List<string>();
 
+			// Trim leading whitespace.
+			source = Regex.Replace(source, string.Format(@"([ \t]+)?({0}|{1})-", Liquid.VariableStart, Liquid.TagStart), "$2");
+
+			// Trim trailing whitespace.
 			source = Regex.Replace(source, string.Format(@"-({0}|{1})(\n|\r\n|[ \t]+)?", Liquid.VariableEnd, Liquid.TagEnd), "$1");
 
 			List<string> tokens = Regex.Split(source, Liquid.TemplateParser).ToList();

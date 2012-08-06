@@ -97,10 +97,34 @@ namespace DotLiquid.Tests
 		}
 
 		[Test]
-		public void TestErbLikeTrimming()
+		public void TestErbLikeTrimmingLeadingWhitespace()
+		{
+			Template t = Template.Parse("foo\n\t  {%- if true %}hi tobi{% endif %}");
+			Assert.AreEqual("foo\nhi tobi", t.Render());
+		}
+
+		[Test]
+		public void TestErbLikeTrimmingTrailingWhitespace()
 		{
 			Template t = Template.Parse("{% if true -%}\nhi tobi\n{% endif %}");
 			Assert.AreEqual("hi tobi\n", t.Render());
+		}
+
+		[Test]
+		public void TestErbLikeTrimmingLeadingAndTrailingWhitespace()
+		{
+			Template t = Template.Parse(@"<ul>
+{% for item in tasks -%}
+    {%- if true -%}
+	<li>{{ item }}</li>
+    {%- endif -%}
+{% endfor -%}
+</ul>");
+			Assert.AreEqual(@"<ul>
+	<li>foo</li>
+	<li>bar</li>
+	<li>baz</li>
+</ul>", t.Render(Hash.FromAnonymousObject(new { tasks = new [] { "foo", "bar", "baz" } })));
 		}
 
 		[Test]

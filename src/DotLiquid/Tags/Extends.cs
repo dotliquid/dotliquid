@@ -61,6 +61,7 @@ namespace DotLiquid.Tags
 		private static readonly Regex Syntax = new Regex(string.Format(@"^({0})", Liquid.QuotedFragment));
 
 		private string _templateName;
+		protected List<Block> Blocks { get; private set; }
 
 		public override void Initialize(string tagName, string markup, List<string> tokens)
 		{
@@ -74,6 +75,21 @@ namespace DotLiquid.Tags
 				throw new SyntaxException(Liquid.ResourceManager.GetString("ExtendsTagSyntaxException"));
 
 			base.Initialize(tagName, markup, tokens);
+
+			Blocks = new List<Block>();
+
+			if (NodeList != null)
+			{
+				NodeList.ForEach(n =>
+				{
+					Block block = n as Block;
+
+					if (block != null)
+					{
+						Blocks.Add(block);
+					}
+				});
+			}
 		}
 
 		internal override void AssertTagRulesViolation(List<object> rootNodeList)
@@ -101,67 +117,72 @@ namespace DotLiquid.Tags
 
 		public override void Render(Context context, TextWriter result)
 		{
-            // Get the template or template content and then either copy it (since it will be modified) or parse it
 			IFileSystem fileSystem = context.Registers["file_system"] as IFileSystem ?? Template.FileSystem;
-            object file = fileSystem.ReadTemplateFile(context, _templateName);
-		    Template template = file as Template;
-            template = template ?? Template.Parse(file == null ? null : file.ToString());
+			string source = fileSystem.ReadTemplateFile(context, _templateName);
+			Template template = Template.Parse(source);
 
-		    List<Block> parentBlocks = FindBlocks(template.Root, null);
-            List<Block> orphanedBlocks = ((List<Block>)context.Scopes[0]["extends"]) ?? new List<Block>();
-		    BlockRenderState blockState = BlockRenderState.Find(context) ?? new BlockRenderState();
+			List<Block> parentBlocks = FindBlocks(template.Root);
 
-            context.Stack(() =>
-            {
-                context["blockstate"] = blockState;         // Set or copy the block state down to this scope
-                context["extends"] = new List<Block>();     // Holds Blocks that were not found in the parent
-                foreach (Block block in NodeList.OfType<Block>().Concat(orphanedBlocks))
-                {
-                    Block pb = parentBlocks.Find(b => b.BlockName == block.BlockName);
-                    
-                    if (pb != null)
-                    {
-                        Block parent;
-                        if (blockState.Parents.TryGetValue(block, out parent))
-                            blockState.Parents[pb] = parent;
-                        pb.AddParent(blockState.Parents, pb.GetNodeList(blockState));
-                        blockState.NodeLists[pb] = block.GetNodeList(blockState);
-                    }
-                    else if(IsExtending(template))
-                    {
-                        ((List<Block>)context.Scopes[0]["extends"]).Add(block);
-                    }
-                }
-			    template.Render(result, RenderParameters.FromContext(context));
-            });
+			Blocks.ForEach(block =>
+			{
+				Block pb = parentBlocks.Find(b => b.BlockName == block.BlockName);
+
+				if (pb != null)
+				{
+					pb.Parent = block.Parent;
+					pb.AddParent(pb.NodeList);
+					pb.NodeList.Clear();
+					pb.NodeList.AddRange(block.NodeList);
+				}
+				else if (IsExtending(template))
+					template.Root.NodeList.Add(block);
+			});
+
+			template.Render(result, RenderParameters.FromContext(context));
 		}
 
-        public bool IsExtending(Template template)
-        {
-            return template.Root.NodeList.Any(node => node is Extends);
-        }
+		public bool IsExtending(Template template)
+		{
+			return template.Root.NodeList.Any(node => node is Extends);
+		}
+
+#if NET35
+		private List<Block> FindBlocks(object node)
+		{
+			return FindBlocks(node, null);
+		}
 
 		private List<Block> FindBlocks(object node, List<Block> blocks)
+#else
+		private List<Block> FindBlocks(object node, List<Block> blocks = null)
+#endif
 		{
-			if(blocks == null) blocks = new List<Block>();
-
 			if (node.RespondTo("NodeList"))
 			{
 				List<object> nodeList = (List<object>) node.Send("NodeList");
 
 				if (nodeList != null)
 				{
+					List<Block> b = new List<Block>();
+
 					nodeList.ForEach(n =>
 					{
 						Block block = n as Block;
 
 						if (block != null)
 						{
-                            if (blocks.All(bl => bl.BlockName != block.BlockName)) blocks.Add(block);
+							Block found = b.Find(bl => bl.BlockName == block.BlockName);
+
+							if (found != null)
+								found = block;
+							else
+								b.Add(block);
 						}
 						
-                        FindBlocks(n, blocks);
+						b.AddRange(FindBlocks(n, b));
 					});
+
+					return b;
 				}
 			}
 

@@ -9,7 +9,7 @@ namespace DotLiquid.Tests.Tags
 	{
 		private class TestFileSystem : IFileSystem
 		{
-			public object ReadTemplateFile(Context context, string templateName)
+			public string ReadTemplateFile(Context context, string templateName)
 			{
 				string templatePath = (string) context[templateName];
 
@@ -31,14 +31,11 @@ namespace DotLiquid.Tests.Tags
                                  {% block thing %}
                                     another thing (from nested)
                                  {% endblock %}";
-                    case "outer":
-                        return "{% block start %}{% endblock %}A{% block outer %}{% endblock %}Z";
-                    case "middle":
-				        return @"{% extends 'outer' %}
+					case "outer":
+						return "A{% block outer %}{% endblock %}Z";
+					case "middle":
+						return @"{% extends 'outer' %}
                                  {% block outer %}B{% block middle %}{% endblock %}Y{% endblock %}";
-                    case "middleunless":
-                        return @"{% extends 'outer' %}
-                                 {% block outer %}B{% unless nomiddle %}{% block middle %}{% endblock %}{% endunless %}Y{% endblock %}";
 					default:
 						return @"{% extends 'complex' %}
                                  {% block thing %}
@@ -121,48 +118,13 @@ namespace DotLiquid.Tests.Tags
 			StringAssert.Contains("some other content", template.Render());
 		}
 
-	    [Test]
-	    public void CanDefineBlockInInheritedBlock()
-	    {
-	        Template template = Template.Parse(
-	            @"{% extends 'middle' %}
+		[Test]
+		public void CanDefineBlockInInheritedBlock()
+		{
+			Template template = Template.Parse(
+				@"{% extends 'middle' %}
                   {% block middle %}C{% endblock %}");
-            Assert.AreEqual("ABCYZ", template.Render());
-	    }
-
-        [Test]
-        public void CanDefineContentInInheritedBlockFromAboveParent()
-        {
-            Template template = Template.Parse(
-                @"{% extends 'middle' %}
-                  {% block start %}!{% endblock %}");
-            Assert.AreEqual("!ABYZ", template.Render());
-        }
-
-        [Test]
-        public void CanRenderBlockContainedInConditional()
-        {
-            Template template = Template.Parse(
-                @"{% extends 'middleunless' %}
-                  {% block middle %}C{% endblock %}");
-            Assert.AreEqual("ABCYZ", template.Render());
-
-            template = Template.Parse(
-                @"{% extends 'middleunless' %}
-                  {% block start %}{% assign nomiddle = true %}{% endblock %}
-                  {% block middle %}C{% endblock %}");
-            Assert.AreEqual("ABYZ", template.Render());
-        }
-
-        [Test]
-        public void RepeatedRendersProduceSameResult()
-        {
-            Template template = Template.Parse(
-                @"{% extends 'middle' %}
-                  {% block start %}!{% endblock %}
-                  {% block middle %}C{% endblock %}");
-            Assert.AreEqual("!ABCYZ", template.Render());
-            Assert.AreEqual("!ABCYZ", template.Render());
-        }
+			Assert.AreEqual("ABCYZ", template.Render());
+		}
 	}
 }

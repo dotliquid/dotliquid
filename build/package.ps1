@@ -19,7 +19,7 @@ task Package {
     copy_files "$source_dir\DotLiquid" "$package_dir\src\DotLiquid" "*.cs"
 
     # Version number is hard-coded so that we can add -beta suffix if necessary
-    $version = "1.7.0-beta1"
+    $version = "1.7.0"
 
     # Build the NuGet package
     exec { & $nuget_dir\NuGet.exe pack -Symbols -Version "$version" -OutputDirectory "$package_dir" "$package_dir\DotLiquid.nuspec" }

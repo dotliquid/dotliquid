@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace DotLiquid.Util
 {
@@ -13,7 +10,7 @@ namespace DotLiquid.Util
 			public WeakReference Value;
 		}
 
-		private Bucket[] _buckets;
+		private readonly Bucket[] _buckets;
 
 		public WeakTable(int size)
 		{
@@ -46,7 +43,7 @@ namespace DotLiquid.Util
 				value = null;
 				return false;
 			}
-			value = (TValue) wr.Target;
+			value = (TValue)wr.Target;
 			return wr.IsAlive;
 		}
 

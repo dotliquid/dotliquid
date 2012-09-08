@@ -108,6 +108,15 @@ blockquote p {
 	text-align: center;
 }
 
+#content ul, #side ul {
+	margin-left: 5px;
+}
+
+#content ul li, #side ul li {
+	list-style-type: disc;
+	margin-left: 20px;
+}
+
 .sample-code {
 	-moz-border-radius: 10px;
 	border-radius: 10px;

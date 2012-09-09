@@ -7,18 +7,54 @@ namespace DotLiquid.Tags
 {
 	public class BlockDrop : Drop
 	{
-		private Block _block;
+		private readonly Block _block;
+	    private readonly TextWriter _result;
 
-		public BlockDrop(Block block)
+		public BlockDrop(Block block, TextWriter result)
 		{
-			_block = block;
+		    _block = block;
+		    _result = result;
 		}
 
-		public void Super()
+	    public void Super()
 		{
-			_block.CallSuper(Context);
+			_block.CallSuper(Context, _result);
 		}
 	}
+
+    // Keeps track of the render-time state of all Blocks for a given Context
+    internal class BlockRenderState
+    {
+        public Dictionary<Block, Block> Parents { get; private set; }
+        public Dictionary<Block, List<object>> NodeLists { get; private set; }
+
+        public BlockRenderState()
+        {
+            Parents = new Dictionary<Block, Block>();
+            NodeLists = new Dictionary<Block, List<object>>();
+        }
+
+        public List<object> GetNodeList(Block block)
+        {
+            List<object> nodeList;
+            if (!NodeLists.TryGetValue(block, out nodeList)) nodeList = block.NodeList;
+            return nodeList;
+        }
+
+        // Searches up the scopes for the inner-most BlockRenderState (though there should be only one)
+        public static BlockRenderState Find(Context context)
+        {
+            foreach (Hash scope in context.Scopes)
+            {
+                object blockState;
+                if (scope.TryGetValue("blockstate", out blockState))
+                {
+                    return blockState as BlockRenderState;
+                }
+            }
+            return null;
+        }
+    }
 
 	/// <summary>
 	/// The Block tag is used in conjunction with the Extends tag to provide template inheritance.
@@ -27,9 +63,7 @@ namespace DotLiquid.Tags
 	public class Block : DotLiquid.Block
 	{
 		private static readonly Regex Syntax = new Regex(@"(\w+)");
-		private TextWriter _result;
 
-		internal Block Parent { get; set; }
 		internal string BlockName { get; set; }
 
 		public override void Initialize(string tagName, string markup, List<string> tokens)
@@ -70,35 +104,46 @@ namespace DotLiquid.Tags
 
 		public override void Render(Context context, TextWriter result)
 		{
-			_result = result;
-
+			BlockRenderState blockState = BlockRenderState.Find(context);
 			context.Stack(() =>
 			{
-				context["block"] = new BlockDrop(this);
-				RenderAll(NodeList, context, result);
+				context["block"] = new BlockDrop(this, result);
+				RenderAll(GetNodeList(blockState), context, result);
 			});
 		}
 
-		public void AddParent(List<object> nodeList)
-		{
-			if (Parent != null)
-			{
-				Parent.AddParent(nodeList);
-			}
-			else
-			{
-				Parent = new Block();
-				Parent.Initialize(TagName, BlockName, null);
-				Parent.NodeList = new List<object>(nodeList);
-			}
-		}
+        // Gets the render-time node list from the node state
+        internal List<object> GetNodeList(BlockRenderState blockState)
+        {
+            return blockState == null ? NodeList : blockState.GetNodeList(this);
+        }
 
-		public void CallSuper(Context context)
+        public void AddParent(Dictionary<Block, Block> parents, List<object> nodeList)
+        {
+            Block parent;
+            if(parents.TryGetValue(this, out parent))
+            {
+                parent.AddParent(parents, nodeList);
+            }
+            else
+            {
+                parent = new Block();
+                parent.Initialize(TagName, BlockName, null);
+                parent.NodeList = new List<object>(nodeList);
+                parents[this] = parent;
+            }
+        }
+
+		public void CallSuper(Context context, TextWriter result)
 		{
-			if (Parent != null)
-			{
-				Parent.Render(context, _result);
-			}
+            BlockRenderState blockState = BlockRenderState.Find(context);
+		    Block parent;
+            if (blockState != null
+                && blockState.Parents.TryGetValue(this, out parent)
+                && parent != null)
+		    {
+		        parent.Render(context, result);
+		    }
 		}
 	}
 }

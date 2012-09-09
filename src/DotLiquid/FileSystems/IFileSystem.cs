@@ -18,10 +18,11 @@
 	public interface IFileSystem
 	{
 		/// <summary>
-		/// Called by Liquid to retrieve a template file
+		/// Called by Liquid to retrieve a template or template file.
 		/// </summary>
-		/// <param name="templatePath"></param>
-		/// <returns></returns>
-		string ReadTemplateFile(Context context, string templateName);
+        /// <param name="templateName">The name of the requested template.</param>
+		/// <returns>Either a string or a Template. If something else is returned, ToString() will be
+		/// used and the result will be parsed as a new template.</returns>
+		object ReadTemplateFile(Context context, string templateName);
 	}
 }

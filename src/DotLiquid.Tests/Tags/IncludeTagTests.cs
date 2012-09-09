@@ -9,7 +9,7 @@ namespace DotLiquid.Tests.Tags
 	{
 		private class TestFileSystem : IFileSystem
 		{
-			public string ReadTemplateFile(Context context, string templateName)
+			public object ReadTemplateFile(Context context, string templateName)
 			{
 				string templatePath = (string) context[templateName];
 
@@ -47,7 +47,7 @@ namespace DotLiquid.Tests.Tags
 
 		private class OtherFileSystem : IFileSystem
 		{
-			public string ReadTemplateFile(Context context, string templateName)
+			public object ReadTemplateFile(Context context, string templateName)
 			{
 				return "from OtherFileSystem";
 			}
@@ -55,11 +55,19 @@ namespace DotLiquid.Tests.Tags
 
 		private class InfiniteFileSystem : IFileSystem
 		{
-			public string ReadTemplateFile(Context context, string templateName)
+            public object ReadTemplateFile(Context context, string templateName)
 			{
 				return "-{% include 'loop' %}";
 			}
 		}
+
+        private class TemplateFileSystem : IFileSystem
+        {
+            public object ReadTemplateFile(Context context, string templateName)
+            {
+                return Template.Parse("from TemplateFileSystem");
+            }
+        }
 
 		[SetUp]
 		public void SetUp()
@@ -172,5 +180,11 @@ namespace DotLiquid.Tests.Tags
 				RethrowErrors = true
 			}));
 		}
+
+        [Test]
+        public void TestFileSystemReturnsTemplate()
+        {
+            Assert.AreEqual("from TemplateFileSystem", Template.Parse("{% include 'pick_a_source' %}").Render(new RenderParameters { Registers = Hash.FromAnonymousObject(new { file_system = new TemplateFileSystem() }) }));
+        }
 	}
 }

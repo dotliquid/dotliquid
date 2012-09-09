@@ -57,6 +57,32 @@ namespace DotLiquid
 
 		#endregion
 
+        /// <summary>
+        /// Performs a first-level deep copy of the hash by creating a new
+        /// nested dictionary but not copying any contained objects.
+        /// </summary>
+        public Hash Copy()
+        {
+            Hash hash;
+            if(_lambda != null)
+            {
+                hash = new Hash(_lambda);
+            }
+            else if(_defaultValue != null)
+            {
+                hash = new Hash(_defaultValue);
+            }
+            else
+            {
+                hash = new Hash();
+            }
+            foreach (KeyValuePair<string, object> kvp in _nestedDictionary)
+            {
+                hash._nestedDictionary.Add(kvp.Key, kvp.Value);
+            }
+            return hash;
+        }
+
 		public void Merge(IDictionary<string, object> otherValues)
 		{
 			foreach (string key in otherValues.Keys)

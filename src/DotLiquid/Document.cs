@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace DotLiquid
 {
 	public class Document : Block
-	{
+    {
 		/// <summary>
 		/// We don't need markup to open this block
 		/// </summary>

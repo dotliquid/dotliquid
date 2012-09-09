@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace DotLiquid
 {
@@ -15,7 +17,7 @@ namespace DotLiquid
 		protected internal Tag()
 		{
 		}
-
+        
 		internal virtual void AssertTagRulesViolation(List<object> rootNodeList)
 		{
 		}
@@ -26,7 +28,7 @@ namespace DotLiquid
 			Markup = markup;
 			Parse(tokens);
 		}
-
+        
 		protected virtual void Parse(List<string> tokens)
 		{
 		}

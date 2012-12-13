@@ -4,6 +4,8 @@
 
 ### New Features
 
+* \#68 Implemented Guid as a supported primitive type
+
 * \#64 Implemented ERB-like trimming for leading whitespace
 
 * \#63 Added `startswith` and `endswith` conditions for arrays and strings (Dave Glick)

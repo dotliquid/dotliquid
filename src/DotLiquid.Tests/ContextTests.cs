@@ -171,6 +171,10 @@ namespace DotLiquid.Tests
 			_context["datetime"] = now;
 			Assert.AreEqual(now, _context["datetime"]);
 
+			Guid guid = Guid.NewGuid();
+			_context["guid"] = guid;
+			Assert.AreEqual(guid, _context["guid"]);
+
 			_context["bool"] = true;
 			Assert.AreEqual(true, _context["bool"]);
 

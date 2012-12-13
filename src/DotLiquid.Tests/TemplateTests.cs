@@ -189,6 +189,22 @@ namespace DotLiquid.Tests
 			Assert.AreEqual(string.Empty, output);
 		}
 
+        [Test]
+        public void TestRegisterSimpleTypeToStringWhenTransformReturnsComplexType()
+        {
+            Template.RegisterSafeType(typeof(MySimpleType), o =>
+                {
+                    return o;
+                });
+
+            Template template = Template.Parse("{{context}}");
+
+            var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType() }));
+
+            // Does automatically call ToString because Variable.Render calls ToString on objects during rendering.
+            Assert.AreEqual("Foo", output);
+        }
+
 		[Test]
 		public void TestRegisterSimpleTypeTransformer()
 		{
@@ -200,6 +216,58 @@ namespace DotLiquid.Tests
 			// Uses safe type transformer.
 			Assert.AreEqual("Foo", output);
 		}
+
+        [Test]
+        public void TestRegisterRegisterSafeTypeWithValueTypeTransformer()
+        {
+            Template.RegisterSafeType(typeof(MySimpleType), new[] { "Name" }, m => m.ToString());
+
+            Template template = Template.Parse("{{context}}{{context.Name}}"); // 
+
+            var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType() { Name = "Bar" } }));
+
+            // Uses safe type transformer.
+            Assert.AreEqual("FooBar", output);
+        }
+
+        public class NestedMySimpleType
+        {
+            public string Name { get; set; }
+
+            public NestedMySimpleType Nested { get; set; }
+
+            public override string ToString()
+            {
+                return "Foo";
+            }
+        }
+
+        [Test]
+        public void TestNestedRegisterRegisterSafeTypeWithValueTypeTransformer()
+        {
+            Template.RegisterSafeType(typeof(NestedMySimpleType), new[] { "Name", "Nested" }, m => m.ToString());
+
+            Template template = Template.Parse("{{context}}{{context.Name}} {{context.Nested}}{{context.Nested.Name}}"); // 
+
+            var inner = new NestedMySimpleType() { Name = "Bar2" };
+
+            var output = template.Render(Hash.FromAnonymousObject(new { context = new NestedMySimpleType() { Nested = inner, Name = "Bar" } }));
+
+            // Uses safe type transformer.
+            Assert.AreEqual("FooBar FooBar2", output);
+        }
+
+        [Test]
+        public void TestOverrideDefaultBoolRenderingWithValueTypeTransformer()
+        {
+            Template.RegisterValueTypeTransformer(typeof(bool), m => (bool)m ? "Win" : "Fail");
+
+            Template template = Template.Parse("{{var1}} {{var2}}");
+
+            var output = template.Render(Hash.FromAnonymousObject(new { var1 = true, var2 = false }));
+
+            Assert.AreEqual("Win Fail", output);
+        }
 
         public class MySimpleType2
         {

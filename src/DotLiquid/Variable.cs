@@ -59,8 +59,14 @@ namespace DotLiquid
 		public void Render(Context context, TextWriter result)
 		{
 			object output = RenderInternal(context);
+
 			if (output != null)
 			{
+                var transformer = Template.GetValueTypeTransformer(output.GetType());
+                
+                if(transformer != null)
+                    output = transformer(output);
+
 				string outputString;
 				if (output is IEnumerable)
 #if NET35
@@ -96,6 +102,9 @@ namespace DotLiquid
 					throw new FilterNotFoundException(string.Format(Liquid.ResourceManager.GetString("VariableFilterNotFoundException"), filter.Name, _markup.Trim()), ex);
 				}
 			});
+
+            if(output is IValueTypeConvertable)
+                output = (output as IValueTypeConvertable).ConvertToValueType();
 
 			if (output is ILiquidizable)
 				return null;

@@ -107,7 +107,7 @@ namespace DotLiquid
 		public virtual object BeforeMethod(string method)
 		{
 			// Quite a common (and easy) mistake is to use C#-style property names,
-			// without realising that the default naming convention is Ruby-style.
+			// without realizing that the default naming convention is Ruby-style.
 			// To try to help with this, we check if the given name *would* match,
 			// if we were using Ruby-style names.
 			if (Template.NamingConvention is RubyNamingConvention)
@@ -169,10 +169,11 @@ namespace DotLiquid
     /// <summary>
     /// Proxy for types not derived from DropBase
     /// </summary>
-    public class DropProxy : DropBase
+    public class DropProxy : DropBase, IValueTypeConvertable
 	{
         private readonly object _proxiedObject;
     	private readonly string[] _allowedMembers;
+        private readonly Func<object, object> _value;
 
     	/// <summary>
     	/// Create a new DropProxy object
@@ -183,6 +184,21 @@ namespace DotLiquid
         {
             _proxiedObject = obj;
     		_allowedMembers = allowedMembers;
+        }
+
+        public DropProxy(object obj, string[] allowedMembers, Func<object, object> value)
+        {
+            _proxiedObject = obj;
+            _allowedMembers = allowedMembers;
+            _value = value;
+        }
+
+        public virtual object ConvertToValueType()
+        {
+            if(_value == null)
+                return null;
+
+            return _value(_proxiedObject);
         }
 
 		internal override object GetObject()

@@ -10,6 +10,11 @@
 
 ### Resolved Issues
 
+* Decreased maximum scope count from 100 to 80, because .NET 3.5 threw a StackOverflowException
+  before the maximum scope count was reached.
+
+* \#61 Nested template inheritance not working for blocks defined above parent (Dave Glick)
+
 * \#60 Nested template inheritance not correctly placing blocks (Dave Glick)
 
 ## 1.7.0 - 2012-08-03

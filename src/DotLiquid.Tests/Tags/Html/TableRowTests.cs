@@ -36,5 +36,14 @@ namespace DotLiquid.Tests.Tags.Html
 				"{% tablerow n in numbers cols:2%}{{tablerowloop.col}}{% endtablerow %}",
 				Hash.FromAnonymousObject(new { numbers = new[] { 1, 2, 3, 4, 5, 6 } }));
 		}
+
+		[Test]
+		public void TestHtmlOffsetLimit()
+		{
+			Helper.AssertTemplateResult(
+				string.Format("<tr class=\"row1\">{0}<td class=\"col1\">2</td><td class=\"col2\">3</td></tr>{0}<tr class=\"row2\"><td class=\"col1\">4</td></tr>{0}", Environment.NewLine),
+				"{% tablerow n in numbers cols:2 offset:1 limit:3 %}{{n}}{% endtablerow %}",
+				Hash.FromAnonymousObject(new { numbers = new[] { 1, 2, 3, 4, 5, 6 } }));
+		}
 	}
 }

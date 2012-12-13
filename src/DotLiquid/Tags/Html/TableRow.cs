@@ -41,11 +41,16 @@ namespace DotLiquid.Tags.Html
 				return;
 			IEnumerable<object> collection = ((IEnumerable) coll).Cast<object>();
 
-			if (_attributes.ContainsKey("limit") || _attributes.ContainsKey("offset"))
+			if (_attributes.ContainsKey("offset"))
 			{
-				int limit = _attributes.ContainsKey("limit") ? Convert.ToInt32("limit") : -1;
-				int offset = _attributes.ContainsKey("offset") ? Convert.ToInt32("offset") : 0;
-				collection = collection.Skip(offset).Take(limit);
+				int offset = Convert.ToInt32(_attributes["offset"]);
+				collection = collection.Skip(offset);
+			}
+
+			if (_attributes.ContainsKey("limit"))
+			{
+				int limit = Convert.ToInt32(_attributes["limit"]);
+				collection = collection.Take(limit);
 			}
 
 			collection = collection.ToList();

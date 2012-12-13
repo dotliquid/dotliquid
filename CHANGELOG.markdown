@@ -12,6 +12,8 @@
 
 ### Resolved Issues
 
+* \#66 Tablerow tag throws exception when specifying limit or offset attributes
+
 * Decreased maximum scope count from 100 to 80, because .NET 3.5 threw a StackOverflowException
   before the maximum scope count was reached.
 

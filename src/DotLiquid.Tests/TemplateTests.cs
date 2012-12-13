@@ -189,6 +189,18 @@ namespace DotLiquid.Tests
 			Assert.AreEqual(string.Empty, output);
 		}
 
+		[Test]
+		public void TestRegisterSimpleTypeTransformer()
+		{
+			Template.RegisterSafeType(typeof(MySimpleType), o => o.ToString());
+			Template template = Template.Parse("{{context}}");
+
+			var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType() }));
+
+			// Uses safe type transformer.
+			Assert.AreEqual("Foo", output);
+		}
+
         public class MySimpleType2
         {
             public string Name { get; set; }

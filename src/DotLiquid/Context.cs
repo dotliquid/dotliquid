@@ -88,7 +88,7 @@ namespace DotLiquid
 		/// <param name="newScope"></param>
 		public void Push(Hash newScope)
 		{
-			if (Scopes.Count > 100)
+			if (Scopes.Count > 95)
 				throw new StackLevelException(Liquid.ResourceManager.GetString("ContextStackException"));
 
 			Scopes.Insert(0, newScope);

@@ -159,6 +159,11 @@ namespace DotLiquid.Tests
 		public class MySimpleType
 		{
 			public string Name { get; set; }
+
+			public override string ToString()
+			{
+				return "Foo";
+			}
 		}
 
         [Test]
@@ -170,6 +175,18 @@ namespace DotLiquid.Tests
 			var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType() { Name = "worked" } }));
 
 			Assert.AreEqual("worked", output);
+		}
+
+		[Test]
+		public void TestRegisterSimpleTypeToString()
+		{
+			Template.RegisterSafeType(typeof(MySimpleType), new[] { "ToString" });
+			Template template = Template.Parse("{{context}}");
+
+			var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType() }));
+
+			// Doesn't automatically call ToString().
+			Assert.AreEqual(string.Empty, output);
 		}
 
         public class MySimpleType2

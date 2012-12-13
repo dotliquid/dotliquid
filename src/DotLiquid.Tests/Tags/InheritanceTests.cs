@@ -32,7 +32,7 @@ namespace DotLiquid.Tests.Tags
                                     another thing (from nested)
                                  {% endblock %}";
 					case "outer":
-						return "A{% block outer %}{% endblock %}Z";
+						return "{% block start %}{% endblock %}A{% block outer %}{% endblock %}Z";
 					case "middle":
 						return @"{% extends 'outer' %}
                                  {% block outer %}B{% block middle %}{% endblock %}Y{% endblock %}";
@@ -125,6 +125,26 @@ namespace DotLiquid.Tests.Tags
 				@"{% extends 'middle' %}
                   {% block middle %}C{% endblock %}");
 			Assert.AreEqual("ABCYZ", template.Render());
+		}
+
+		[Test]
+		public void CanDefineContentInInheritedBlockFromAboveParent()
+		{
+			Template template = Template.Parse(
+				@"{% extends 'middle' %}
+                  {% block start %}!{% endblock %}");
+			Assert.AreEqual("!ABYZ", template.Render());
+		}
+
+		[Test]
+		public void RepeatedRendersProduceSameResult()
+		{
+			Template template = Template.Parse(
+				@"{% extends 'middle' %}
+                  {% block start %}!{% endblock %}
+                  {% block middle %}C{% endblock %}");
+			Assert.AreEqual("!ABCYZ", template.Render());
+			Assert.AreEqual("!ABCYZ", template.Render());
 		}
 	}
 }

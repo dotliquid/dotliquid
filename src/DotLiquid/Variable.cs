@@ -103,8 +103,8 @@ namespace DotLiquid
 				}
 			});
 
-            if(output is IValueTypeConvertable)
-                output = (output as IValueTypeConvertable).ConvertToValueType();
+            if (output is IValueTypeConvertible)
+                output = ((IValueTypeConvertible) output).ConvertToValueType();
 
 			if (output is ILiquidizable)
 				return null;

@@ -4,6 +4,14 @@
 
 ### New Features
 
+* \#72 Added `Template.RegisterValueTypeTransformer(Type type, Func<object, object> func)`. It can be used to
+  override primitive-type rendering - i.e. to render custom strings for boolean values.
+
+* \#72 Added `Template.RegisterSafeType(Type type, string[] allowedMembers, Func<object, object> func)`. It acts as
+  a combination of the existing `RegisterSafeType` methods. It allows a single type to be registered with both
+  allowed members, and a transform function that is used as a post-filter after a variable of the specified type
+  is rendered.
+
 * \#68 Implemented Guid as a supported primitive type
 
 * \#64 Implemented ERB-like trimming for leading whitespace

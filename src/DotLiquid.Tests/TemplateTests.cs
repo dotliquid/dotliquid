@@ -1,4 +1,5 @@
 using System.IO;
+using System.Net;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -268,6 +269,18 @@ namespace DotLiquid.Tests
 
             Assert.AreEqual("Win Fail", output);
         }
+
+		[Test]
+		public void TestHtmlEncodingFilter()
+		{
+			Template.RegisterValueTypeTransformer(typeof(string), m => WebUtility.HtmlEncode((string) m));
+
+			Template template = Template.Parse("{{var1}} {{var2}}");
+
+			var output = template.Render(Hash.FromAnonymousObject(new { var1 = "<html>", var2 = "Some <b>bold</b> text." }));
+
+			Assert.AreEqual("&lt;html&gt; Some &lt;b&gt;bold&lt;/b&gt; text.", output);
+		}
 
         public class MySimpleType2
         {

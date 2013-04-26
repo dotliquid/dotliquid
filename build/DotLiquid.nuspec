@@ -15,4 +15,13 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <tags>template templating language Liquid markup .net35 .net40</tags>
   </metadata>
+  <files>
+    <file src="src\DotLiquid\bin\Release\DotLiquid.dll" target="lib\NET45" />
+	<file src="src\DotLiquid\bin\Release\DotLiquid.pdb" target="lib\NET45" />
+	<file src="src\DotLiquid\bin\Release-4.0\DotLiquid.dll" target="lib\NET40" />
+	<file src="src\DotLiquid\bin\Release-4.0\DotLiquid.pdb" target="lib\NET40" />
+	<file src="src\DotLiquid\bin\Release-3.5\DotLiquid.dll" target="lib\NET35" />
+	<file src="src\DotLiquid\bin\Release-3.5\DotLiquid.pdb" target="lib\NET35" />
+	<file src="src\**\*.cs" target="src" />
+  </files>
 </package>

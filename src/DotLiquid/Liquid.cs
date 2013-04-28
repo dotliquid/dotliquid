@@ -58,6 +58,8 @@ namespace DotLiquid
 
 			Template.RegisterTag<Tags.Html.TableRow>("tablerow");
 
+            Template.RegisterTag<Tags.Raw>("paginate");
+
 			Template.RegisterFilter(typeof(StandardFilters));
 		}
 	}

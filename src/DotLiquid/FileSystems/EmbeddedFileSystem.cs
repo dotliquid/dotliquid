@@ -38,9 +38,10 @@ namespace DotLiquid.FileSystems
                 throw new FileSystemException(
                     Liquid.ResourceManager.GetString("LocalFileSystemTemplateNotFoundException"), templatePath);
 
-            var reader = new StreamReader(stream);
-
-            return reader.ReadToEnd();
+            using (var reader = new StreamReader(stream))
+            {
+                return reader.ReadToEnd();
+            }
         }
 
         public string FullPath(string templatePath)

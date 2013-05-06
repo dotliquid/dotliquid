@@ -4,6 +4,8 @@ using NUnit.Framework;
 
 namespace DotLiquid.Tests
 {
+	using System.Reflection;
+
 	[TestFixture]
 	public class FileSystemTests
 	{
@@ -19,6 +21,20 @@ namespace DotLiquid.Tests
 			LocalFileSystem fileSystem = new LocalFileSystem(@"D:\Some\Path");
 			Assert.AreEqual(@"D:\Some\Path\_mypartial.liquid", fileSystem.FullPath("mypartial"));
 			Assert.AreEqual(@"D:\Some\Path\dir\_mypartial.liquid", fileSystem.FullPath("dir/mypartial"));
+
+			Assert.Throws<FileSystemException>(() => fileSystem.FullPath("../dir/mypartial"));
+			Assert.Throws<FileSystemException>(() => fileSystem.FullPath("/dir/../../dir/mypartial"));
+			Assert.Throws<FileSystemException>(() => fileSystem.FullPath("/etc/passwd"));
+			Assert.Throws<FileSystemException>(() => fileSystem.FullPath(@"C:\mypartial"));
+		}
+
+		[Test]
+		public void TestEmbeddedResource()
+		{
+			var assembly = Assembly.GetExecutingAssembly();
+			EmbeddedFileSystem fileSystem = new EmbeddedFileSystem(assembly, "DotLiquid.Tests.Embedded");
+			Assert.AreEqual(@"DotLiquid.Tests.Embedded._mypartial.liquid", fileSystem.FullPath("mypartial"));
+			Assert.AreEqual(@"DotLiquid.Tests.Embedded.dir._mypartial.liquid", fileSystem.FullPath("dir/mypartial"));
 
 			Assert.Throws<FileSystemException>(() => fileSystem.FullPath("../dir/mypartial"));
 			Assert.Throws<FileSystemException>(() => fileSystem.FullPath("/dir/../../dir/mypartial"));

@@ -174,6 +174,9 @@
   <data name="ContextStackException" xml:space="preserve">
     <value>Annidamento eccessivo</value>
   </data>
+  <data name="CurrentPageTagSyntaxException" xml:space="preserve">
+    <value>Errore di sintassi nel tag 'current_page' - La sintassi corretta è: current_page = [numero]</value>
+  </data>
   <data name="CycleTagSyntaxException" xml:space="preserve">
     <value>Syntax Error in 'cycle' tag - Valid syntax: cycle [name :] var [, var2, var3 ...]</value>
   </data>
@@ -209,6 +212,9 @@
   </data>
   <data name="LocalFileSystemTemplateNotFoundException" xml:space="preserve">
     <value>Errore - Template non trovato '{0}'</value>
+  </data>
+  <data name="PaginateSyntaxException" xml:space="preserve">
+    <value>Errore di sintassi nel tag 'paginate' - La sintassi corretta è: paginate [collezione] by [numero]</value>
   </data>
   <data name="StrainerFilterHasNoValueException" xml:space="preserve">
     <value>Errore - Il filtro '{0}' non ha un valore predefinito per '{1}' e nessun valore è stato fornito</value>

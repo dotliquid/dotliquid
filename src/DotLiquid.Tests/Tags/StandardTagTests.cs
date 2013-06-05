@@ -57,6 +57,35 @@ namespace DotLiquid.Tests.Tags
 				{%endcomment%}bar");
 		}
 
+        [Test]
+        public void TestPaginate()
+        {
+            Helper.AssertTemplateResult(" 3 ", "{%paginate items by 2%} {{paginate.size}} {%endpaginate%}",
+                Hash.FromAnonymousObject(new { items = new[] { 1, 2, 3 } }));
+            Helper.AssertTemplateResult(" 3 ", "{% paginate items by 2 %} {{paginate.size}} {% endpaginate %}",
+                Hash.FromAnonymousObject(new { items = new[] { 1, 2, 3 } }));
+            Helper.AssertTemplateResult(" 2 ", "{%paginate items by 2%} {{paginate.pages}} {%endpaginate%}",
+                Hash.FromAnonymousObject(new { items = new[] { 1, 2, 3 } }));
+            Helper.AssertTemplateResult(" false true ", "{%paginate items by 2%} {{paginate.previous}} {{paginate.next}} {%endpaginate%}",
+                Hash.FromAnonymousObject(new { items = new[] { 1, 2, 3 } }));
+            Helper.AssertTemplateResult(" false false ", "{%paginate items by 10%} {{paginate.previous}} {{paginate.next}} {%endpaginate%}",
+                Hash.FromAnonymousObject(new { items = new[] { 1, 2, 3 } }));
+            Helper.AssertTemplateResult(" true false ", "{%current_page = 2%}{%paginate items by 10%} {{paginate.previous}} {{paginate.next}} {%endpaginate%}",
+                Hash.FromAnonymousObject(new { items = new[] { 1, 2, 3 } }));
+            Helper.AssertTemplateResult(" true true ", "{% current_page = 2 %}{%paginate items by 1%} {{paginate.previous}} {{paginate.next}} {%endpaginate%}",
+               Hash.FromAnonymousObject(new { items = new[] { 1, 2, 3 } }));
+            Helper.AssertTemplateResult(" 1 ", "{% current_page = d %}{%paginate items by 1%} {{paginate.current_page}} {%endpaginate%}",
+               Hash.FromAnonymousObject(new { items = new[] { 1, 2, 3 } }));
+            Helper.AssertTemplateResult(" 1 ", "{%paginate items by 1%} {{paginate.current_page}} {%endpaginate%}",
+               Hash.FromAnonymousObject(new { items = new[] { 1, 2, 3 } }));
+            Helper.AssertTemplateResult(" 2 ", "{%paginate items by 2%} {{paginate.page_size}} {%endpaginate%}",
+               Hash.FromAnonymousObject(new { items = new[] { 1, 2, 3 } }));
+            Helper.AssertTemplateResult(" 2 ", "{% current_page = 2 %}{%paginate items by 2%} {{paginate.current_offset}} {%endpaginate%}",
+               Hash.FromAnonymousObject(new { items = new[] { 1, 2, 3 } }));
+            Helper.AssertTemplateResult(" 0 ", "{% current_page = 1 %}{%paginate items by 2%} {{paginate.current_offset}} {%endpaginate%}",
+               Hash.FromAnonymousObject(new { items = new[] { 1, 2, 3 } }));
+        }
+
 		[Test]
 		public void TestForWithDictionary()
 		{

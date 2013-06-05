@@ -17,6 +17,40 @@ namespace DotLiquid.Tags
     ///         {{ forloop.index }}: {{ item.name }}
     ///      {% endfor %}
     ///    {% endpaginate %}
+    /// 
+    /// == Exposed variables within the paginate tags:
+    /// 
+    ///    paginate.items -> returned paged items
+    ///    paginate.pages -> total page count
+    ///    paginate.previous -> previous true or false
+    ///    paginate.next -> next page true or false
+    ///    paginate.size -> total records
+    ///    paginate.current_offset -> offset of paged records
+    ///    paginate.current_page -> the current page number
+    ///    paginate.page_size -> records per page
+    /// 
+    /// == Example full markup with paging tags and current_page tag:
+    /// 
+    ///   {% current_page = 1 %}
+    ///   {% paginate collection by 2 %}
+    ///
+    ///     {% for item in paginate.items %}
+    ///       {{ item.name }}
+    ///     {% endfor %}
+    ///   
+    ///     {% if paginate.previous %}
+    ///       {% capture prev_page %}/?page={{ paginate.current_page | minus:1 }}{% endcapture %}
+    ///       <a href="{{ prev_page }}">Previous</a>
+    ///     {% endif %}
+    ///   
+    ///     Showing items {{ paginate.current_offset | plus: 1 }}-{% if paginate.next %}{{ paginate.current_offset | plus: paginate.page_size }}{% else %}{{ paginate.size }}{% endif %} of {{ paginate.size }}.
+    ///   
+    ///     {% if paginate.next %}
+    ///       {% capture next_page %}/?page={{ paginate.current_page | plus:1 }}{% endcapture %}
+    ///       <a href="{{ next_page }}">Next</a>
+    ///     {% endif %}
+    ///   			
+    ///   {% endpaginate %}
     /// </summary>
     public class Paginate : DotLiquid.Block
     {
@@ -34,14 +68,18 @@ namespace DotLiquid.Tags
             if (match.Success)
             {
                 _collectionName = match.Groups[1].Value;
-                _pageSize = !string.IsNullOrEmpty(match.Groups[2].Value) ? Convert.ToInt32(match.Groups[2].Value) : 20;
+
+                if (!string.IsNullOrEmpty(match.Groups[2].Value))
+                    if (!Int32.TryParse(match.Groups[2].Value, out _pageSize))
+                        _pageSize = 20;
+
                 _attributes = new Dictionary<string, string>(Template.NamingConvention.StringComparer);
 
                 R.Scan(markup, Liquid.TagAttributes, (key, value) => _attributes[key] = value);
             }
             else
             {
-                throw new SyntaxException("Syntax Error in tag 'Paginate' - Valid syntax: paginate [collection] by number");
+                throw new SyntaxException(Liquid.ResourceManager.GetString("PaginateSyntaxException"));
             }
 
             base.Initialize(tagName, markup, tokens);
@@ -51,8 +89,12 @@ namespace DotLiquid.Tags
         {
             context.Registers["paginate"] = context.Registers["paginate"] ?? new Hash(0);
 
-            // You'll need to make sure that you have already added the request querystring of page to the liquid hash
-            _currentPage = context["request.query.page"] != null ? Convert.ToInt32(context["request.query.page"]) : 1;
+            if (context.Registers["current_page"] != null)
+                if (!Int32.TryParse(context.Registers["current_page"].ToString(), out _currentPage))
+                    _currentPage = 1;
+
+            if (_currentPage == 0)
+                _currentPage = 1;
 
             object collection = context[_collectionName];
 
@@ -68,7 +110,6 @@ namespace DotLiquid.Tags
 
             var pageCount = Math.Ceiling((double)length / _pageSize);
 
-            // These are the variables available within the paginate block example: {{ paginate.next }}
             context["paginate"] = Hash.FromAnonymousObject(new
             {
                 items = segment,

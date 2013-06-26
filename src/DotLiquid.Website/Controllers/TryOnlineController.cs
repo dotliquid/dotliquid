@@ -49,6 +49,12 @@ namespace DotLiquid.Website.Controllers
 						new Task { Name = "Documentation" },
 						new Task { Name = "Code comments" }
 					}
+					Cities = new List<City>
+					{
+						new City { Name = "Rajkot" },
+						new City { Name = "Ahmedabad" }
+					}
+					
 				}
 			}));
 		}
@@ -58,10 +64,16 @@ namespace DotLiquid.Website.Controllers
 	{
 		public string Name { get; set; }
 		public List<Task> Tasks { get; set; }
+		public List<City> Cities {get; set;}
 	}
 
 	public class Task : Drop
 	{
 		public string Name { get; set; }
+	}
+	
+	public class City : Drop
+	{
+		public String Name { get; set;}
 	}
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using DotLiquid.Exceptions;
 using DotLiquid.NamingConventions;
 
 namespace DotLiquid
@@ -125,21 +126,38 @@ namespace DotLiquid
 			return null;
 		}
 
-        /// <summary>
+	    public virtual object BeforeMethod(int method)
+	    {
+	        return null;
+	    }
+
+	    /// <summary>
         /// Called by liquid to invoke a drop
         /// </summary>
         /// <param name="name"></param>
 		public object InvokeDrop(object name)
 		{
-			string method = (string)name;
+			if (name is string)
+			{
+			    string method = (string) name;
 
-			MethodInfo mi;
-			if (TypeResolution.CachedMethods.TryGetValue(method, out mi))
-				return mi.Invoke(GetObject(), null);
-			PropertyInfo pi;
-			if (TypeResolution.CachedProperties.TryGetValue(method, out pi))
-				return pi.GetValue(GetObject(), null);
-			return BeforeMethod(method);
+			    MethodInfo mi;
+			    if (TypeResolution.CachedMethods.TryGetValue(method, out mi))
+			        return mi.Invoke(GetObject(), null);
+			    PropertyInfo pi;
+			    if (TypeResolution.CachedProperties.TryGetValue(method, out pi))
+			        return pi.GetValue(GetObject(), null);
+			    return BeforeMethod(method);
+			}
+			else if(name is int)
+			{
+			    int index = (int)name;
+			    return BeforeMethod(index);
+			}
+			else
+			{
+			    return null;// throw new SyntaxException(Liquid.ResourceManager.GetString("BlockTagNotTerminatedException"), token, Liquid.TagEnd);
+			}
 		}
 
 		public virtual bool ContainsKey(object name)

@@ -261,5 +261,80 @@ namespace DotLiquid.Tests
 		{
 			Helper.AssertTemplateResult("1", "{{ 3 | modulo:2 }}");
 		}
+
+		[Test]
+		public void TestBlockquote()
+		{
+			Hash assigns = Hash.FromAnonymousObject(
+				new {
+					intro = 
+@"This is the README file for the latest git version of Subsurface.", 
+					quote = 
+@"Building the Qt version under Linux
+----------------------------------------------------------------------
+
+On Debian you need libqt4-dev, libmarble-dev, libzip-dev.
+Unfortunately the marble version in Debian stable (and possibly
+Ubuntu) appears broken and missing essential header files used in the
+current git version of Subsurface.", 
+					outro = 
+@"Building the Qt version under MacOSX
+------------------------------------
+
+You might have built MacPorts packages with +quartz dependencies to
+build the previous Subsurface/Gtk version."
+				});
+
+			Helper.AssertTemplateResult(
+@"This is the README file for the latest git version of Subsurface.
+
+	Building the Qt version under Linux
+	----------------------------------------------------------------------
+
+	On Debian you need libqt4-dev, libmarble-dev, libzip-dev.
+	Unfortunately the marble version in Debian stable (and possibly
+	Ubuntu) appears broken and missing essential header files used in the
+	current git version of Subsurface.
+
+Building the Qt version under MacOSX
+------------------------------------
+
+You might have built MacPorts packages with +quartz dependencies to
+build the previous Subsurface/Gtk version.", 
+
+@"{{ intro}}
+
+{{ quote | blockquote:4,80 }}
+
+{{ outro }}", assigns);
+
+			Helper.AssertTemplateResult(
+@"This is the README file for the latest git version of Subsurface.
+
+	Building the Qt version under Linux
+	----------------------------------------
+	------------------------------
+
+	On Debian you need libqt4-dev, 
+	libmarble-dev, libzip-dev. 
+	Unfortunately the marble version in 
+	Debian stable (and possibly 
+	Ubuntu) appears broken and missing 
+	essential header files used in the 
+	current git version of Subsurface.
+
+Building the Qt version under MacOSX
+------------------------------------
+
+You might have built MacPorts packages with +quartz dependencies to
+build the previous Subsurface/Gtk version.", 
+
+@"{{ intro}}
+
+{{ quote | blockquote:4,40 }}
+
+{{ outro }}", assigns);
+		}
+
 	}
 }

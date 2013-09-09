@@ -409,6 +409,8 @@ namespace DotLiquid
 				return obj;
 			if (obj is DateTime)
 				return obj;
+			if (obj is DateTimeOffset)
+				return obj;
 			if (obj is TimeSpan)
 				return obj;
 			if (obj is Guid)

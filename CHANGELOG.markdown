@@ -4,21 +4,29 @@
 
 ### New Features
 
+* \#82 Allow interfaces to be registered as safe types (Matt Brailsford)
+
+* \#79 Implemented `DateTimeOffset` as a supported primitive type (Rodrigo Dumont)
+
+* \#77 Added `EmbeddedFileSystem` to support loading includes from embedded resources (Rodrigo Dumont)
+
 * \#72 Added `Template.RegisterValueTypeTransformer(Type type, Func<object, object> func)`. It can be used to
-  override primitive-type rendering - i.e. to render custom strings for boolean values.
+  override primitive-type rendering - i.e. to render custom strings for boolean values. (grexican)
 
 * \#72 Added `Template.RegisterSafeType(Type type, string[] allowedMembers, Func<object, object> func)`. It acts as
   a combination of the existing `RegisterSafeType` methods. It allows a single type to be registered with both
   allowed members, and a transform function that is used as a post-filter after a variable of the specified type
-  is rendered.
+  is rendered. (grexican)
 
-* \#68 Implemented Guid as a supported primitive type
+* \#68 Implemented `Guid` as a supported primitive type
 
 * \#64 Implemented ERB-like trimming for leading whitespace
 
 * \#63 Added `startswith` and `endswith` conditions for arrays and strings (Dave Glick)
 
 ### Resolved Issues
+
+* \#80 Template path cannot contain round brackets
 
 * \#66 Tablerow tag throws exception when specifying limit or offset attributes
 

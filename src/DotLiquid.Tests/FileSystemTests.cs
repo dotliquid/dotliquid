@@ -29,6 +29,14 @@ namespace DotLiquid.Tests
 		}
 
 		[Test]
+		public void TestLocalWithBracketsInPath()
+		{
+			LocalFileSystem fileSystem = new LocalFileSystem(@"D:\Some (thing)\Path");
+			Assert.AreEqual(@"D:\Some (thing)\Path\_mypartial.liquid", fileSystem.FullPath("mypartial"));
+			Assert.AreEqual(@"D:\Some (thing)\Path\dir\_mypartial.liquid", fileSystem.FullPath("dir/mypartial"));
+		}
+
+		[Test]
 		public void TestEmbeddedResource()
 		{
 			var assembly = Assembly.GetExecutingAssembly();

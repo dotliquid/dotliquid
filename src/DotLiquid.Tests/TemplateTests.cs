@@ -286,10 +286,15 @@ namespace DotLiquid.Tests
 			Assert.AreEqual("&lt;html&gt; Some &lt;b&gt;bold&lt;/b&gt; text.", output);
 		}
 
-        public class MySimpleType2
-        {
-            public string Name { get; set; }
-        }
+		public interface IMySimpleInterface2
+		{
+			string Name { get; }
+		}
+
+		public class MySimpleType2 : IMySimpleInterface2
+		{
+			public string Name { get; set; }
+		}
 
         [Test]
         public void TestRegisterSimpleTypeTransformIntoAnonymousType()
@@ -302,6 +307,18 @@ namespace DotLiquid.Tests
 
             Assert.AreEqual("worked", output);
         }
+
+		[Test]
+		public void TestRegisterInterfaceTransformIntoAnonymousType()
+		{
+			// specify a transform function
+			Template.RegisterSafeType(typeof(IMySimpleInterface2), x => new { Name = ((IMySimpleInterface2) x).Name });
+			Template template = Template.Parse("{{context.Name}}");
+
+			var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType2 { Name = "worked" } }));
+
+			Assert.AreEqual("worked", output);
+		}
 
 		public class MyUnsafeType2
 		{

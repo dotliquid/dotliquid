@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -16,19 +17,21 @@ namespace DotLiquid
 	/// {{ user | link }}
 	/// </summary>
 	public class Variable : IRenderable
-	{
-		
-	    private readonly MarkupExpression _expression;
+	{		
+	    //private readonly MarkupExpression _expression;
+	    private readonly string _name;
+	    private readonly IList<FilterRequest> _filters;
 
-	    public Variable(string markup)
-	    {           
-	        _expression = new MarkupExpression(markup);			
-		}
+	    public Variable(string name, IList<FilterRequest> filters)
+	    {
+	        _name = name;
+	        _filters = filters;
+	    }
 
 	    public void Render(Context context, TextWriter result)
 	    {
-	        var expressionValue = _expression.Evaluate(context);
-	        //var output = EvaluateVariableExpression(context);
+	        var expression = new MarkupExpression(_name, _filters);
+            var expressionValue = expression.Evaluate(context);
 
 	        if (expressionValue != null)
 			{

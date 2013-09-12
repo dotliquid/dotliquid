@@ -72,6 +72,7 @@
     <Compile Include="StatementTests.cs" />
     <Compile Include="StudlyCapsTests.cs" />
     <Compile Include="Tags\AssignTests.cs" />
+    <Compile Include="Tags\CustomExpressionTagTests.cs" />
     <Compile Include="Tags\RawTests.cs" />
     <Compile Include="Tags\InheritanceTests.cs" />
     <Compile Include="Tags\Html\TableRowTests.cs" />

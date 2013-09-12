@@ -86,13 +86,21 @@ namespace DotLiquid.Tests
 			Assert.Throws<FilterNotFoundException>(() => new Variable("var | syzzy").Render(_context));
 		}*/
 
+        private MarkupExpression CreateExpression(string markup)
+        {
+            MarkupParser parser = new MarkupParser();
+            var parsingResult = parser.Parse(markup);
+            return new MarkupExpression(parsingResult.Name, parsingResult.Filters);
+
+        }
+
 		[Test]
 		public void TestLocalFilter()
 		{
 			_context["var"] = 1000;
 			_context.AddFilters(typeof(MoneyFilter));
 			//Assert.AreEqual(" 1000$ ", new Variable("var | money").Render(_context));
-            Assert.AreEqual(" 1000$ ", new MarkupExpression("var | money").Evaluate(_context));
+            Assert.AreEqual(" 1000$ ", CreateExpression("var | money").Evaluate(_context));
 		}
 
 		[Test]
@@ -101,7 +109,7 @@ namespace DotLiquid.Tests
 			_context["var"] = 1000;
 			_context.AddFilters(typeof(MoneyFilter));
 			//Assert.AreEqual(" 1000$ ", new Variable("var | money_with_underscore").Render(_context));
-            Assert.AreEqual(" 1000$ ", new MarkupExpression("var | money_with_underscore").Evaluate(_context));
+            Assert.AreEqual(" 1000$ ", CreateExpression("var | money_with_underscore").Evaluate(_context));
 		}
 
 		[Test]
@@ -110,7 +118,7 @@ namespace DotLiquid.Tests
 			_context["var"] = 1000;
 			_context.AddFilters(typeof(FiltersWithArguments));
 			//Assert.AreEqual("[1005]", new Variable("var | adjust: 5").Render(_context));
-            Assert.AreEqual("[1005]", new MarkupExpression("var | adjust: 5").Evaluate(_context));
+            Assert.AreEqual("[1005]", CreateExpression("var | adjust: 5").Evaluate(_context));
 		}
 
 		[Test]
@@ -119,7 +127,7 @@ namespace DotLiquid.Tests
 			_context["var"] = 1000;
 			_context.AddFilters(typeof(FiltersWithArguments));
 			//Assert.AreEqual("[995]", new Variable("var | adjust: -5").Render(_context));
-            Assert.AreEqual("[995]", new MarkupExpression("var | adjust: -5").Evaluate(_context));
+            Assert.AreEqual("[995]", CreateExpression("var | adjust: -5").Evaluate(_context));
 		}
 
 		[Test]
@@ -128,7 +136,7 @@ namespace DotLiquid.Tests
 			_context["var"] = 1000;
 			_context.AddFilters(typeof(FiltersWithArguments));
 			//Assert.AreEqual("[1010]", new Variable("var | adjust").Render(_context));
-            Assert.AreEqual("[1010]", new MarkupExpression("var | adjust").Evaluate(_context));
+            Assert.AreEqual("[1010]", CreateExpression("var | adjust").Evaluate(_context));
 		}
 
 		[Test]
@@ -137,7 +145,7 @@ namespace DotLiquid.Tests
 			_context["var"] = 1000;
 			_context.AddFilters(typeof(FiltersWithArguments));
 			//Assert.AreEqual("[1150]", new Variable("var | add_sub: 200, 50").Render(_context));
-            Assert.AreEqual("[1150]", new MarkupExpression("var | add_sub: 200, 50").Evaluate(_context));
+            Assert.AreEqual("[1150]", CreateExpression("var | add_sub: 200, 50").Evaluate(_context));
 		}
 
 		/*/// <summary>
@@ -158,7 +166,7 @@ namespace DotLiquid.Tests
 			_context.AddFilters(typeof(MoneyFilter));
 			_context.AddFilters(typeof(CanadianMoneyFilter));
 			//Assert.AreEqual(" 1000$ CAD ", new Variable("var | money").Render(_context));
-            Assert.AreEqual(" 1000$ CAD ", new MarkupExpression("var | money").Evaluate(_context));
+            Assert.AreEqual(" 1000$ CAD ", CreateExpression("var | money").Evaluate(_context));
 		}
 
 		[Test]
@@ -167,7 +175,7 @@ namespace DotLiquid.Tests
 			_context["var"] = "abcd";
 			_context.AddFilters(typeof(MoneyFilter));
 			//Assert.AreEqual(4, new Variable("var | size").Render(_context));
-            Assert.AreEqual(4, new MarkupExpression("var | size").Evaluate(_context));
+            Assert.AreEqual(4, CreateExpression("var | size").Evaluate(_context));
 		}
 
 		[Test]
@@ -175,7 +183,7 @@ namespace DotLiquid.Tests
 		{
 			_context["var"] = new[] { 1, 2, 3, 4 };
 			//Assert.AreEqual("1 2 3 4", new Variable("var | join").Render(_context));
-            Assert.AreEqual("1 2 3 4", new MarkupExpression("var | join").Evaluate(_context));
+            Assert.AreEqual("1 2 3 4", CreateExpression("var | join").Evaluate(_context));
 		}
 
 		[Test]
@@ -190,10 +198,10 @@ namespace DotLiquid.Tests
 //			CollectionAssert.AreEqual(new[] { "alphabetic", "as", "expected" }, new Variable("words | sort").Render(_context) as IEnumerable);
 //			CollectionAssert.AreEqual(new[] { 3 }, new Variable("value | sort").Render(_context) as IEnumerable);
 //			CollectionAssert.AreEqual(new[] { "are", "flattened" }, new Variable("arrays | sort").Render(_context) as IEnumerable);
-            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 }, new MarkupExpression("numbers | sort").Evaluate(_context) as IEnumerable);
-            CollectionAssert.AreEqual(new[] { "alphabetic", "as", "expected" }, new MarkupExpression("words | sort").Evaluate(_context) as IEnumerable);
-            CollectionAssert.AreEqual(new[] { 3 }, new MarkupExpression("value | sort").Evaluate(_context) as IEnumerable);
-            CollectionAssert.AreEqual(new[] { "are", "flattened" }, new MarkupExpression("arrays | sort").Evaluate(_context) as IEnumerable);
+            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 }, CreateExpression("numbers | sort").Evaluate(_context) as IEnumerable);
+            CollectionAssert.AreEqual(new[] { "alphabetic", "as", "expected" }, CreateExpression("words | sort").Evaluate(_context) as IEnumerable);
+            CollectionAssert.AreEqual(new[] { 3 }, CreateExpression("value | sort").Evaluate(_context) as IEnumerable);
+            CollectionAssert.AreEqual(new[] { "are", "flattened" }, CreateExpression("arrays | sort").Evaluate(_context) as IEnumerable);
 
 		}
 
@@ -202,7 +210,7 @@ namespace DotLiquid.Tests
 		{
 			_context["var"] = "a~b";
 			//Assert.AreEqual(new[] { "a", "b" }, new Variable("var | split:'~'").Render(_context));
-            Assert.AreEqual(new[] { "a", "b" }, new MarkupExpression("var | split:'~'").Evaluate(_context));
+            Assert.AreEqual(new[] { "a", "b" }, CreateExpression("var | split:'~'").Evaluate(_context));
 		}
 
 		[Test]
@@ -210,7 +218,7 @@ namespace DotLiquid.Tests
 		{
 			_context["var"] = "<b>bla blub</a>";
 			//Assert.AreEqual("bla blub", new Variable("var | strip_html").Render(_context));
-            Assert.AreEqual("bla blub", new MarkupExpression("var | strip_html").Evaluate(_context));
+            Assert.AreEqual("bla blub", CreateExpression("var | strip_html").Evaluate(_context));
 		}
 
 		[Test]
@@ -218,7 +226,7 @@ namespace DotLiquid.Tests
 		{
 			_context["var"] = "blub";
 			//Assert.AreEqual("Blub", new Variable("var | capitalize").Render(_context));
-            Assert.AreEqual("Blub", new MarkupExpression("var | capitalize").Evaluate(_context));
+            Assert.AreEqual("Blub", CreateExpression("var | capitalize").Evaluate(_context));
 		}
 
 		[Test]
@@ -238,7 +246,7 @@ namespace DotLiquid.Tests
 			_context["name"] = "King Kong";
 			_context.AddFilters(typeof(ContextFilters));
 			//Assert.AreEqual(" King Kong has 1000$ ", new Variable("var | bank_statement").Render(_context));
-            Assert.AreEqual(" King Kong has 1000$ ", new MarkupExpression("var | bank_statement").Evaluate(_context));
+            Assert.AreEqual(" King Kong has 1000$ ", CreateExpression("var | bank_statement").Evaluate(_context));
 		}
 	}
 }

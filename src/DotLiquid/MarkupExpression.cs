@@ -6,25 +6,22 @@ namespace DotLiquid
 {
     public class MarkupExpression
     {
-        private readonly String _markup;
+        private readonly String _name;
+        private readonly IEnumerable<FilterRequest> _filters;
 
-        public MarkupExpression(String markup)
+        public MarkupExpression(String name, IEnumerable<FilterRequest> filters)
         {
-            _markup = markup;
+            _filters = filters;
+            _name = name;
         }
 
 
         public object Evaluate(Context context)
         {
-            var markupParser = new MarkupParser();
-            var parserResult = markupParser.Parse(_markup);
 
-            if (parserResult == null || parserResult.Name == null)
-                return null;
+            var dereferencedValue = DereferenceNameFromContext(context, _name);
 
-            var dereferencedValue = DereferenceName(context, parserResult.Name);
-
-            var filteredValue = ApplyFilters(context, parserResult.Filters, dereferencedValue);
+            var filteredValue = ApplyFilters(context, _filters, dereferencedValue);
 
             return ApplyFinalTransformation(filteredValue);
         }
@@ -49,7 +46,7 @@ namespace DotLiquid
             return filters.Aggregate(result, (s, request) => request.Apply(context, s));            
         }
 
-        private static object DereferenceName(Context context, string name)
+        private static object DereferenceNameFromContext(Context context, string name)
         {
             return context[name];
         }

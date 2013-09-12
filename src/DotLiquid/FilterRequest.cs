@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using DotLiquid.Exceptions;
 
 namespace DotLiquid
 {
@@ -10,9 +9,13 @@ namespace DotLiquid
         public string Name { get; set; }
         public string[] Arguments { get; set; }
 
-        public FilterRequest(string name, string[] arguments)
+        public FilterRequest(string name, string[] arguments = null)
         {
             Name = name;
+            if (arguments == null)
+            {
+                arguments = new string[] { };
+            }
             Arguments = arguments;
         }
 

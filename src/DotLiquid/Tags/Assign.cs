@@ -31,7 +31,8 @@ namespace DotLiquid.Tags
 			{
 				_to = syntaxMatch.Groups[1].Value;
 				//_from = new Variable(syntaxMatch.Groups[2].Value);
-                _from = new MarkupExpression(syntaxMatch.Groups[2].Value);
+                var parserResult = new MarkupParser().Parse(syntaxMatch.Groups[2].Value);
+                _from = new MarkupExpression(parserResult.Name, parserResult.Filters);
 			}
 			else
 			{

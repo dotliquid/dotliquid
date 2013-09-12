@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -15,7 +12,11 @@ namespace DotLiquid.Tests
             Context context = new Context();
             context["test"] = "TEST";
             context.AddFilters(typeof (TestFilters));
-            MarkupExpression expression = new MarkupExpression("test | blah1 | blah2");
+            //MarkupExpression expression = new MarkupExpression("test | blah1 | blah2");
+            MarkupExpression expression = new MarkupExpression("test",new[] {
+                                                                        new FilterRequest("blah1"),
+                                                                        new FilterRequest("blah2")
+                                                                    });
             var result = expression.Evaluate(context);
 
             Assert.AreEqual("TEST BLAH1 BLAH2", result);

@@ -5,6 +5,7 @@ using DotLiquid.Util;
 
 namespace DotLiquid
 {
+
     public class MarkupParser
     {
         public static readonly string FilterParser = string.Format(R.Q(@"(?:{0}|(?:\s*(?!(?:{0}))(?:{1}|\S+)\s*)+)"), Liquid.FilterSeparator, Liquid.QuotedFragment);

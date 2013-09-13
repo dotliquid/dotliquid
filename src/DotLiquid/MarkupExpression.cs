@@ -6,22 +6,22 @@ namespace DotLiquid
 {
     public class MarkupExpression
     {
-        private readonly String _name;
-        private readonly IEnumerable<FilterRequest> _filters;
+        private readonly String Name;
+        private readonly IEnumerable<FilterRequest> Filters;
 
         public MarkupExpression(String name, IEnumerable<FilterRequest> filters)
         {
-            _filters = filters;
-            _name = name;
+            Filters = filters;
+            Name = name;
         }
 
 
         public object Evaluate(Context context)
         {
 
-            var dereferencedValue = DereferenceNameFromContext(context, _name);
+            var dereferencedValue = DereferenceNameFromContext(context, Name);
 
-            var filteredValue = ApplyFilters(context, _filters, dereferencedValue);
+            var filteredValue = ApplyFilters(context, Filters, dereferencedValue);
 
             return ApplyFinalTransformation(filteredValue);
         }

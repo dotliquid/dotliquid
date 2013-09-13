@@ -7,20 +7,20 @@ namespace DotLiquid.Tests
     [TestFixture]
     public class MarkupParserTests
     {
-        private readonly MarkupParser _markupParser = new MarkupParser();
+        private readonly MarkupParser MarkupParser = new MarkupParser();
 
 
         [Test]
         public void TestNameExtraction()
         {
-            var result = _markupParser.Parse("hello");
+            var result = MarkupParser.Parse("hello");
             Assert.AreEqual("hello", result.Name);
         }
 
         [Test]
         public void TestFilterExtraction()
         {
-            var result = _markupParser.Parse("hello | textileze");
+            var result = MarkupParser.Parse("hello | textileze");
             Assert.AreEqual("hello", result.Name);
             Assert.AreEqual(1, result.Filters.Count);
             Assert.AreEqual("textileze", result.Filters[0].Name);
@@ -31,7 +31,7 @@ namespace DotLiquid.Tests
         [Test, TestCaseSource("FilterCases")]
         public void TestFilters(String markup, String expectedName, FilterRequest[] filters)
         {
-            var result = _markupParser.Parse(markup);
+            var result = MarkupParser.Parse(markup);
             Assert.AreEqual(expectedName, result.Name);
             AssertFiltersAreEqual(filters, result.Filters);
 
@@ -40,7 +40,7 @@ namespace DotLiquid.Tests
         [Test, TestCaseSource("NameCases")]
         public void TestNames(String markup, String expectedName)
         {
-            var result = _markupParser.Parse(markup);
+            var result = MarkupParser.Parse(markup);
             Assert.AreEqual(expectedName, result.Name);
         }
 

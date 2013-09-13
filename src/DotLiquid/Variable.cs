@@ -19,18 +19,18 @@ namespace DotLiquid
 	public class Variable : IRenderable
 	{		
 	    //private readonly MarkupExpression _expression;
-	    private readonly string _name;
-	    private readonly IList<FilterRequest> _filters;
+	    private readonly string Name;
+	    private readonly IList<FilterRequest> Filters;
 
 	    public Variable(string name, IList<FilterRequest> filters)
 	    {
-	        _name = name;
-	        _filters = filters;
+	        Name = name;
+	        Filters = filters;
 	    }
 
 	    public void Render(Context context, TextWriter result)
 	    {
-	        var expression = new MarkupExpression(_name, _filters);
+	        var expression = new MarkupExpression(Name, Filters);
             var expressionValue = expression.Evaluate(context);
 
 	        if (expressionValue != null)

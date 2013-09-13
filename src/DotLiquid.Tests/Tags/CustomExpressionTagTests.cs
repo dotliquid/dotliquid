@@ -9,25 +9,64 @@ namespace DotLiquid.Tests.Tags
     [TestFixture]
     public class CustomExpressionTagTests
     {
-        private static readonly String _prefix = "I see the the dereferenced value: ";
+        private static readonly String _prefix = "The final value: ";
 
         [Test]
-        public void TestExpressionInTag()
+        public void TestDictionaryExpressionInTag()
         {
+
             const string template = "Test {% testtag test %}.";
+            var localVars = new Dictionary<string, object>
+                {
+                    { "test", "123" }
+                };
+            var result = RenderTemplate(template, localVars);
 
+            Assert.AreEqual("Test "+_prefix + "123.", result);
+        }
+
+        [Test]
+        public void TestNestedDictionaryExpressionInTag()
+        {
+            const string template = "Test {% testtag person.address %}.";
+            var localVars = new Dictionary<string, object>
+                {
+                    {"person", new Dictionary<String, Object> {{"address", "123 Main St"}}}
+                };
+            var result = RenderTemplate(template, localVars);
+
+            Assert.AreEqual("Test " + _prefix + "123 Main St.", result);
+        }
+
+
+
+        [Test]
+        public void TestNestedDictionaryExpressionWithFilterInTag()
+        {
+            const string template = "Test {% testtag person.address | toupper %}.";
+
+            var localVars = new Dictionary<string, object>
+                {
+                    { "person", new Dictionary<String, Object> { { "address", "123 Main St" } } }
+                };
+            var result = RenderTemplate(template, localVars);
+            Console.WriteLine(result);
+
+            Assert.AreEqual("Test " + _prefix + "123 MAIN ST.", result);
+        }
+
+
+        private static string RenderTemplate(string template, Dictionary<String, Object> localVariables)
+        {
             Template.RegisterTag<MyTagThatUsesAnExpression>("testtag");
-
+            Template.RegisterFilter(typeof(TestFilters));
             Template liquidTemplate = Template.Parse(template); // Parses and compiles the template
 
-            Dictionary<String, Object> localVariables = new Dictionary<string, object> { { "test", "123" } };
 
             var localVariableHash = Hash.FromDictionary(localVariables);
 
             var result = liquidTemplate.Render(localVariableHash);
-            Console.WriteLine(result);
-
-            Assert.AreEqual("Test "+_prefix + "123.", result);
+            return result;
         }
 
         private class MyTagThatUsesAnExpression : Tag
@@ -60,7 +99,10 @@ namespace DotLiquid.Tests.Tags
             {
                 return "hello, " +orig ;
             }
-
+            public static String Toupper(String orig)
+            {
+                return (orig ?? "").ToUpper();
+            }
         }
     }
 }

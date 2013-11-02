@@ -156,7 +156,7 @@ namespace DotLiquid
 			}
 			else
 			{
-			    return null;// throw new SyntaxException(Liquid.ResourceManager.GetString("BlockTagNotTerminatedException"), token, Liquid.TagEnd);
+			    return null;
 			}
 		}
 

@@ -11,7 +11,7 @@ namespace DotLiquid
 {
 	/// <summary>
 	/// Templates are central to liquid.
-	/// Interpretating templates is a two step process. First you compile the
+	/// Interpreting templates is a two step process. First you compile the
 	/// source code you got. During compile time some extensive error checking is performed.
 	/// your code should expect to get some SyntaxErrors.
 	/// 
@@ -105,15 +105,33 @@ namespace DotLiquid
 
 		public static Func<object, object> GetValueTypeTransformer(Type type)
 		{
+            // Check for concrete types
 			if (ValueTypeTransformers.ContainsKey(type))
 				return ValueTypeTransformers[type];
+
+            // Check for interfaces
+		    foreach (var interfaceType in ValueTypeTransformers.Where(x => x.Key.IsInterface))
+		    {
+                if (type.GetInterfaces().Contains(interfaceType.Key))
+                    return interfaceType.Value;
+		    }
+
 			return null;
 		}
 
         public static Func<object, object> GetSafeTypeTransformer(Type type)
 		{
+            // Check for concrete types
 			if (SafeTypeTransformers.ContainsKey(type))
-				return SafeTypeTransformers[type];
+                return SafeTypeTransformers[type];
+
+            // Check for interfaces
+            foreach (var interfaceType in SafeTypeTransformers.Where(x => x.Key.IsInterface))
+            {
+                if (type.GetInterfaces().Contains(interfaceType.Key))
+                    return interfaceType.Value;
+            }
+
 			return null;
 		}
 

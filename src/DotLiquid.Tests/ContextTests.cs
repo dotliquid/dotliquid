@@ -171,6 +171,10 @@ namespace DotLiquid.Tests
 			_context["datetime"] = now;
 			Assert.AreEqual(now, _context["datetime"]);
 
+			DateTimeOffset offset = new DateTimeOffset(2013, 9, 10, 0, 10, 32, new TimeSpan(1, 0, 0));
+			_context["datetimeoffset"] = offset;
+			Assert.AreEqual(offset, _context["datetimeoffset"]);
+
 			Guid guid = Guid.NewGuid();
 			_context["guid"] = guid;
 			Assert.AreEqual(guid, _context["guid"]);

@@ -200,7 +200,9 @@ namespace DotLiquid
 		{
 			return input.IsNullOrWhiteSpace()
 				? input
-				: Regex.Replace(input, Environment.NewLine, string.Empty);
+                : Regex.Replace(input, @"(\r?\n)", String.Empty);
+                
+                //: Regex.Replace(input, Environment.NewLine, string.Empty);
 		}
 
 #if NET35
@@ -455,9 +457,9 @@ namespace DotLiquid
 		/// <returns></returns>
 		public static string NewlineToBr(string input)
 		{
-			return input.IsNullOrWhiteSpace()
-				? input
-				: Regex.Replace(input, Environment.NewLine, "<br />" + Environment.NewLine);
+            return String.IsNullOrWhiteSpace(input)
+                    ? input
+                    : Regex.Replace(input, @"(\r?\n)", "<br />$1");
 		}
 
 		/// <summary>

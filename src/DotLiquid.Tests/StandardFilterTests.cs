@@ -192,18 +192,34 @@ namespace DotLiquid.Tests
 		}
 
 		[Test]
-		public void TestStripNewlines()
+		public void TestStripWindowsNewlines()
 		{
-			Helper.AssertTemplateResult("abc", "{{ source | strip_newlines }}", Hash.FromAnonymousObject(new { source = "a" + Environment.NewLine + "b" + Environment.NewLine + "c" }));
+			Helper.AssertTemplateResult("abc", "{{ source | strip_newlines }}", Hash.FromAnonymousObject(new { source = "a\r\nb\r\nc" }));
+            Helper.AssertTemplateResult("ab", "{{ source | strip_newlines }}", Hash.FromAnonymousObject(new { source = "a\r\n\r\n\r\nb" }));
 		}
 
+        [Test]
+        public void TestStripUnixNewlines()
+        {
+            Helper.AssertTemplateResult("abc", "{{ source | strip_newlines }}", Hash.FromAnonymousObject(new { source = "a\nb\nc" }));
+            Helper.AssertTemplateResult("ab", "{{ source | strip_newlines }}", Hash.FromAnonymousObject(new { source = "a\n\n\nb" }));
+        }
+
 		[Test]
-		public void TestNewlinesToBr()
+		public void TestWindowsNewlinesToBr()
 		{
-			Helper.AssertTemplateResult("a<br />" + Environment.NewLine + "b<br />" + Environment.NewLine + "c",
+            Helper.AssertTemplateResult("a<br />\r\nb<br />\r\nc",
 				"{{ source | newline_to_br }}",
 				Hash.FromAnonymousObject(new { source = "a" + Environment.NewLine + "b" + Environment.NewLine + "c" }));
 		}
+
+        [Test]
+        public void TestUnixNewlinesToBr()
+        {
+            Helper.AssertTemplateResult("a<br />\nb<br />\nc",
+                "{{ source | newline_to_br }}",
+                Hash.FromAnonymousObject(new { source = "a\nb\nc" }));
+        }
 
 		[Test]
 		public void TestPlus()

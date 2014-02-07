@@ -25,16 +25,23 @@ namespace DotLiquid
 	/// </summary>
 	public class Template
 	{
-		public static INamingConvention NamingConvention;
-		public static IFileSystem FileSystem { get; set; }
+	    public static INamingConvention NamingConvention;
+
+	    public static IFileSystem FileSystem
+	    {
+	        get { return TemplateConfiguration.Global.FileSystem; }
+            set { TemplateConfiguration.Global.FileSystem = value; }
+	    }
+
 		private static Dictionary<string, Type> Tags { get; set; }
         private static readonly Dictionary<Type, Func<object, object>> SafeTypeTransformers;
 		private static readonly Dictionary<Type, Func<object, object>> ValueTypeTransformers;
 
+        public TemplateConfiguration Configuration { get; private set; }
+
 		static Template()
 		{
-			NamingConvention = new RubyNamingConvention();
-			FileSystem = new BlankFileSystem();
+            NamingConvention = new RubyNamingConvention();
 			Tags = new Dictionary<string, Type>();
             SafeTypeTransformers = new Dictionary<Type, Func<object, object>>();
 			ValueTypeTransformers = new Dictionary<Type, Func<object, object>>();
@@ -139,12 +146,23 @@ namespace DotLiquid
 		/// Creates a new <tt>Template</tt> object from liquid source code
 		/// </summary>
 		/// <param name="source"></param>
+		/// <param name="configuration"></param>
+		/// <returns></returns>
+		public static Template Parse(string source, TemplateConfiguration configuration)
+		{
+			Template template = new Template(configuration);
+			template.ParseInternal(source);
+			return template;
+		}
+
+		/// <summary>
+		/// Creates a new <tt>Template</tt> object from liquid source code
+		/// </summary>
+		/// <param name="source"></param>
 		/// <returns></returns>
 		public static Template Parse(string source)
 		{
-			Template template = new Template();
-			template.ParseInternal(source);
-			return template;
+		    return Parse(source, TemplateConfiguration.Global);
 		}
 
 		private Hash _registers, _assigns, _instanceAssigns;
@@ -172,12 +190,20 @@ namespace DotLiquid
 			get { return (_errors = _errors ?? new List<Exception>()); }
 		}
 
-		/// <summary>
-		/// Creates a new <tt>Template</tt> from an array of tokens. Use <tt>Template.parse</tt> instead
-		/// </summary>
-		internal Template()
-		{
-		}
+        /// <summary>
+        /// Creates a new <tt>Template</tt> from an array of tokens. Use <tt>Template.parse</tt> instead
+        /// </summary>
+        public Template(TemplateConfiguration configuration)
+        {
+            this.Configuration = configuration;
+        }
+
+        /// <summary>
+        /// Creates a new <tt>Template</tt> from an array of tokens. Use <tt>Template.parse</tt> instead
+        /// </summary>
+        public Template() : this(TemplateConfiguration.Global)
+        {
+        }
 
 		/// <summary>
 		/// Parse source code.

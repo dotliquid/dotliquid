@@ -131,9 +131,9 @@ namespace DotLiquid.Tests.Tags
 		[Test]
 		public void TestRecursivelyIncludedTemplateDoesNotProductEndlessLoop()
 		{
-			Template.FileSystem = new InfiniteFileSystem();
+            var config = new TemplateConfiguration { FileSystem = new InfiniteFileSystem() };
 
-			Assert.Throws<StackLevelException>(() => Template.Parse("{% include 'loop' %}").Render(new RenderParameters { RethrowErrors = true }));
+			Assert.Throws<StackLevelException>(() => Template.Parse("{% include 'loop' %}", config).Render(new RenderParameters { RethrowErrors = true }));
 		}
 
 		[Test]
@@ -154,8 +154,8 @@ namespace DotLiquid.Tests.Tags
 		[Test]
 		public void TestUndefinedTemplateVariableWithLocalFileSystem()
 		{
-			Template.FileSystem = new LocalFileSystem(string.Empty);
-			Assert.Throws<FileSystemException>(() => Template.Parse(" hello {% include notthere %} world ").Render(new RenderParameters
+		    var config = new TemplateConfiguration {FileSystem = new LocalFileSystem(string.Empty)};
+            Assert.Throws<FileSystemException>(() => Template.Parse(" hello {% include notthere %} world ", config).Render(new RenderParameters
 			{
 				RethrowErrors = true
 			}));
@@ -164,8 +164,8 @@ namespace DotLiquid.Tests.Tags
 		[Test]
 		public void TestMissingTemplateWithLocalFileSystem()
 		{
-			Template.FileSystem = new LocalFileSystem(string.Empty);
-			Assert.Throws<FileSystemException>(() => Template.Parse(" hello {% include 'doesnotexist' %} world ").Render(new RenderParameters
+            var config = new TemplateConfiguration { FileSystem = new LocalFileSystem(string.Empty) };
+			Assert.Throws<FileSystemException>(() => Template.Parse(" hello {% include 'doesnotexist' %} world ", config).Render(new RenderParameters
 			{
 				RethrowErrors = true
 			}));

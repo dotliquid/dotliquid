@@ -17,11 +17,14 @@ namespace DotLiquid
 		public List<Hash> Environments { get; private set; }
 		public List<Hash> Scopes { get; private set; }
 		public Hash Registers { get; private set; }
-		public List<Exception> Errors { get; private set; }
+	    public TemplateConfiguration Configuration { get; private set; }
+	    public List<Exception> Errors { get; private set; }
 
-		public Context(List<Hash> environments, Hash outerScope, Hash registers, bool rethrowErrors)
+		public Context(List<Hash> environments, Hash outerScope, Hash registers, bool rethrowErrors,
+            TemplateConfiguration configuration)
 		{
 			Environments = environments;
+            Configuration = configuration;
 
 			Scopes = new List<Hash>();
 			if (outerScope != null)
@@ -29,13 +32,13 @@ namespace DotLiquid
 
 			Registers = registers;
 
-			Errors = new List<Exception>();
+		    Errors = new List<Exception>();
 			_rethrowErrors = rethrowErrors;
 			SquashInstanceAssignsWithEnvironments();
 		}
 
 		public Context()
-			: this(new List<Hash>(), new Hash(), new Hash(), false)
+			: this(new List<Hash>(), new Hash(), new Hash(), false, TemplateConfiguration.Global)
 		{
 		}
 

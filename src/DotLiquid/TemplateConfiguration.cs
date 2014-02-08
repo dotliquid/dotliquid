@@ -33,10 +33,11 @@ namespace DotLiquid
             RegisterFilter(typeof(StandardFilters));
         }
 
-        public void RegisterTag<T>(string name)
+        public TemplateConfiguration RegisterTag<T>(string name)
             where T : Tag, new()
         {
             _tags[name] = typeof(T);
+            return this;
         }
 
         public Type GetTagType(string name)
@@ -46,9 +47,10 @@ namespace DotLiquid
             return result;
         }
 
-        public void RegisterFilter(Type filter)
+        public TemplateConfiguration RegisterFilter(Type filter)
         {
             _filters[filter.AssemblyQualifiedName] = filter;
+            return this;
         }
 
         public IEnumerable<Type> GetFilters()
@@ -61,9 +63,9 @@ namespace DotLiquid
         /// </summary>
         /// <param name="type">The type to register</param>
         /// <param name="allowedMembers">An array of property and method names that are allowed to be called on the object.</param>
-        public void RegisterSafeType(Type type, string[] allowedMembers)
+        public TemplateConfiguration RegisterSafeType(Type type, string[] allowedMembers)
         {
-            RegisterSafeType(type, x => new DropProxy(x, allowedMembers));
+            return RegisterSafeType(type, x => new DropProxy(x, allowedMembers));
         }
 
         /// <summary>
@@ -71,9 +73,9 @@ namespace DotLiquid
         /// </summary>
         /// <param name="type">The type to register</param>
         /// <param name="allowedMembers">An array of property and method names that are allowed to be called on the object.</param>
-        public void RegisterSafeType(Type type, string[] allowedMembers, Func<object, object> func)
+        public TemplateConfiguration RegisterSafeType(Type type, string[] allowedMembers, Func<object, object> func)
         {
-            RegisterSafeType(type, x => new DropProxy(x, allowedMembers, func));
+            return RegisterSafeType(type, x => new DropProxy(x, allowedMembers, func));
         }
 
         /// <summary>
@@ -81,9 +83,10 @@ namespace DotLiquid
         /// </summary>
         /// <param name="type">The type to register</param>
         /// <param name="func">Function that converts the specified type into a Liquid Drop-compatible object (eg, implements ILiquidizable)</param>
-        public void RegisterSafeType(Type type, Func<object, object> func)
+        public TemplateConfiguration RegisterSafeType(Type type, Func<object, object> func)
         {
             _safeTypeTransformers[type] = func;
+            return this;
         }
 
         public Func<object, object> GetSafeTypeTransformer(Type type)
@@ -107,9 +110,10 @@ namespace DotLiquid
         /// </summary>
         /// <param name="type">The type to register</param>
         /// <param name="func">Function that converts the specified type into a Liquid Drop-compatible object (eg, implements ILiquidizable)</param>
-        public void RegisterValueTypeTransformer(Type type, Func<object, object> func)
+        public TemplateConfiguration RegisterValueTypeTransformer(Type type, Func<object, object> func)
         {
             _valueTypeTransformers[type] = func;
+            return this;
         }
 
         public Func<object, object> GetValueTypeTransformer(Type type)

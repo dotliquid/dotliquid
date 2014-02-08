@@ -19,6 +19,9 @@ namespace DotLiquid
         private readonly Dictionary<Type, Func<object, object>> _safeTypeTransformers =
             new Dictionary<Type, Func<object, object>>();
 
+        private readonly Dictionary<Type, Func<object, object>> _valueTypeTransformers =
+            new Dictionary<Type, Func<object, object>>();
+
         public IFileSystem FileSystem { get; set; }
 
         public TemplateConfiguration()
@@ -78,6 +81,32 @@ namespace DotLiquid
 
             // Check for interfaces
             foreach (var interfaceType in _safeTypeTransformers.Where(x => x.Key.IsInterface))
+            {
+                if (type.GetInterfaces().Contains(interfaceType.Key))
+                    return interfaceType.Value;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Registers a simple value type transformer.  Used for rendering a variable to the output stream
+        /// </summary>
+        /// <param name="type">The type to register</param>
+        /// <param name="func">Function that converts the specified type into a Liquid Drop-compatible object (eg, implements ILiquidizable)</param>
+        public void RegisterValueTypeTransformer(Type type, Func<object, object> func)
+        {
+            _valueTypeTransformers[type] = func;
+        }
+
+        public Func<object, object> GetValueTypeTransformer(Type type)
+        {
+            // Check for concrete types
+            if (_valueTypeTransformers.ContainsKey(type))
+                return _valueTypeTransformers[type];
+
+            // Check for interfaces
+            foreach (var interfaceType in _valueTypeTransformers.Where(x => x.Key.IsInterface))
             {
                 if (type.GetInterfaces().Contains(interfaceType.Key))
                     return interfaceType.Value;

@@ -33,7 +33,6 @@ namespace DotLiquid
             set { TemplateConfiguration.Global.FileSystem = value; }
 	    }
 
-        private static readonly Dictionary<Type, Func<object, object>> SafeTypeTransformers;
 		private static readonly Dictionary<Type, Func<object, object>> ValueTypeTransformers;
 
         public TemplateConfiguration Configuration { get; private set; }
@@ -41,7 +40,6 @@ namespace DotLiquid
 		static Template()
 		{
             NamingConvention = new RubyNamingConvention();
-            SafeTypeTransformers = new Dictionary<Type, Func<object, object>>();
 			ValueTypeTransformers = new Dictionary<Type, Func<object, object>>();
 		}
 
@@ -72,9 +70,9 @@ namespace DotLiquid
 		/// <param name="type">The type to register</param>
 		/// <param name="allowedMembers">An array of property and method names that are allowed to be called on the object.</param>
 		public static void RegisterSafeType(Type type, string[] allowedMembers)
-        {
-			RegisterSafeType(type, x => new DropProxy(x, allowedMembers));
-        }
+		{
+		    TemplateConfiguration.Global.RegisterSafeType(type, allowedMembers);
+		}
 
         /// <summary>
         /// Registers a simple type. DotLiquid will wrap the object in a <see cref="DropProxy"/> object.
@@ -83,7 +81,7 @@ namespace DotLiquid
         /// <param name="allowedMembers">An array of property and method names that are allowed to be called on the object.</param>
         public static void RegisterSafeType(Type type, string[] allowedMembers, Func<object, object> func)
         {
-            RegisterSafeType(type, x => new DropProxy(x, allowedMembers, func));
+            TemplateConfiguration.Global.RegisterSafeType(type, allowedMembers, func);
         }
 
         /// <summary>
@@ -93,7 +91,7 @@ namespace DotLiquid
         /// <param name="func">Function that converts the specified type into a Liquid Drop-compatible object (eg, implements ILiquidizable)</param>
 		public static void RegisterSafeType(Type type, Func<object, object> func)
         {
-			SafeTypeTransformers[type] = func;
+            TemplateConfiguration.Global.RegisterSafeType(type, func);
         }
 
         /// <summary>
@@ -123,20 +121,9 @@ namespace DotLiquid
 		}
 
         public static Func<object, object> GetSafeTypeTransformer(Type type)
-		{
-            // Check for concrete types
-			if (SafeTypeTransformers.ContainsKey(type))
-                return SafeTypeTransformers[type];
-
-            // Check for interfaces
-            foreach (var interfaceType in SafeTypeTransformers.Where(x => x.Key.IsInterface))
-            {
-                if (type.GetInterfaces().Contains(interfaceType.Key))
-                    return interfaceType.Value;
-            }
-
-			return null;
-		}
+        {
+            return TemplateConfiguration.Global.GetSafeTypeTransformer(type);
+        }
 
 		/// <summary>
 		/// Creates a new <tt>Template</tt> object from liquid source code

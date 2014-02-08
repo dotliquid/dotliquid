@@ -33,7 +33,6 @@ namespace DotLiquid
             set { TemplateConfiguration.Global.FileSystem = value; }
 	    }
 
-		private static Dictionary<string, Type> Tags { get; set; }
         private static readonly Dictionary<Type, Func<object, object>> SafeTypeTransformers;
 		private static readonly Dictionary<Type, Func<object, object>> ValueTypeTransformers;
 
@@ -42,7 +41,6 @@ namespace DotLiquid
 		static Template()
 		{
             NamingConvention = new RubyNamingConvention();
-			Tags = new Dictionary<string, Type>();
             SafeTypeTransformers = new Dictionary<Type, Func<object, object>>();
 			ValueTypeTransformers = new Dictionary<Type, Func<object, object>>();
 		}
@@ -50,14 +48,12 @@ namespace DotLiquid
 		public static void RegisterTag<T>(string name)
 			where T : Tag, new()
 		{
-			Tags[name] = typeof(T);
+            TemplateConfiguration.Global.RegisterTag<T>(name);
 		}
 
 		public static Type GetTagType(string name)
 		{
-			Type result;
-			Tags.TryGetValue(name, out result);
-			return result;
+		    return TemplateConfiguration.Global.GetTagType(name);
 		}
 
 		/// <summary>
@@ -216,8 +212,8 @@ namespace DotLiquid
 			source = DotLiquid.Tags.Literal.FromShortHand(source);
 			source = DotLiquid.Tags.Comment.FromShortHand(source);
 
-			Root = new Document();
-			Root.Initialize(null, null, Tokenize(source));
+		    Root = new Document {Configuration = this.Configuration};
+		    Root.Initialize(null, null, Tokenize(source));
 			return this;
 		}
 

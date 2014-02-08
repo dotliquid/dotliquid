@@ -1,8 +1,4 @@
-using System.Reflection;
 using System.Resources;
-using DotLiquid.NamingConventions;
-using DotLiquid.Tags;
-using DotLiquid.Tags.Html;
 using DotLiquid.Util;
 
 namespace DotLiquid
@@ -41,24 +37,7 @@ namespace DotLiquid
 
 		static Liquid()
 		{
-			Template.RegisterTag<Tags.Assign>("assign");
-			Template.RegisterTag<Tags.Block>("block");
-			Template.RegisterTag<Tags.Capture>("capture");
-			Template.RegisterTag<Tags.Case>("case");
-			Template.RegisterTag<Tags.Comment>("comment");
-			Template.RegisterTag<Tags.Cycle>("cycle");
-			Template.RegisterTag<Tags.Extends>("extends");
-			Template.RegisterTag<Tags.For>("for");
-			Template.RegisterTag<Tags.If>("if");
-			Template.RegisterTag<Tags.IfChanged>("ifchanged");
-			Template.RegisterTag<Tags.Include>("include");
-			Template.RegisterTag<Tags.Literal>("literal");
-			Template.RegisterTag<Tags.Unless>("unless");
-			Template.RegisterTag<Tags.Raw>("raw");
-
-			Template.RegisterTag<Tags.Html.TableRow>("tablerow");
-
-			Template.RegisterFilter(typeof(StandardFilters));
+            Template.RegisterFilter(typeof(StandardFilters));
 		}
 	}
 }

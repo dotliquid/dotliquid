@@ -36,12 +36,13 @@ namespace DotLiquid
 							EndTag();
 							return;
 						}
-
+                        
 						// Fetch the tag from registered blocks
 						Type tagType;
-						if ((tagType = Template.GetTagType(fullTokenMatch.Groups[1].Value)) != null)
+						if ((tagType = Configuration.GetTagType(fullTokenMatch.Groups[1].Value)) != null)
 						{
 							Tag tag = (Tag) Activator.CreateInstance(tagType);
+						    tag.Configuration = Configuration;
 							tag.Initialize(fullTokenMatch.Groups[1].Value, fullTokenMatch.Groups[2].Value, tokens);
 							NodeList.Add(tag);
 

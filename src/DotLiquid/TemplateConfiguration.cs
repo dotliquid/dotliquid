@@ -22,12 +22,15 @@ namespace DotLiquid
         private readonly Dictionary<Type, Func<object, object>> _valueTypeTransformers =
             new Dictionary<Type, Func<object, object>>();
 
+        private readonly Dictionary<string, Type> _filters = new Dictionary<string, Type>();
+
         public IFileSystem FileSystem { get; set; }
 
         public TemplateConfiguration()
         {
             FileSystem = new BlankFileSystem();
             RegisterDefaultTags();
+            RegisterFilter(typeof(StandardFilters));
         }
 
         public void RegisterTag<T>(string name)
@@ -41,6 +44,16 @@ namespace DotLiquid
             Type result;
             _tags.TryGetValue(name, out result);
             return result;
+        }
+
+        public void RegisterFilter(Type filter)
+        {
+            _filters[filter.AssemblyQualifiedName] = filter;
+        }
+
+        public IEnumerable<Type> GetFilters()
+        {
+            return _filters.Values;
         }
 
         /// <summary>

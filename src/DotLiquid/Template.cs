@@ -59,7 +59,7 @@ namespace DotLiquid
 		/// <param name="filter"></param>
 		public static void RegisterFilter(Type filter)
 		{
-			Strainer.GlobalFilter(filter);
+		    TemplateConfiguration.Global.RegisterFilter(filter);
 		}
 
 		/// <summary>

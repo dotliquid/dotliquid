@@ -34,10 +34,5 @@ namespace DotLiquid
 		public static readonly string LiteralShorthand = R.Q(@"^(?:\{\{\{\s?)(.*?)(?:\s*\}\}\})$");
 		public static readonly string CommentShorthand = R.Q(@"^(?:\{\s?\#\s?)(.*?)(?:\s*\#\s?\})$");
 		public static bool UseRubyDateFormat = false;
-
-		static Liquid()
-		{
-            Template.RegisterFilter(typeof(StandardFilters));
-		}
 	}
 }

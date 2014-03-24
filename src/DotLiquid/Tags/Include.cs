@@ -42,7 +42,7 @@ namespace DotLiquid.Tags
 		{
 		    IFileSystem fileSystem = context.Registers["file_system"] as IFileSystem ?? context.Configuration.FileSystem;
 			string source = fileSystem.ReadTemplateFile(context, _templateName);
-			Template partial = Template.Parse(source);
+			Template partial = Template.Parse(source, context.Configuration);
 
 			string shortenedTemplateName = _templateName.Substring(1, _templateName.Length - 2);
 			object variable = context[_variableName ?? shortenedTemplateName];

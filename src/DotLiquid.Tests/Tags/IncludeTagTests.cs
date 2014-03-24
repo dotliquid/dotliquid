@@ -1,3 +1,4 @@
+using System.IO;
 using DotLiquid.Exceptions;
 using DotLiquid.FileSystems;
 using NUnit.Framework;
@@ -38,6 +39,9 @@ namespace DotLiquid.Tests.Tags
 
 					case "pick_a_source":
 						return "from TestFileSystem";
+
+                    case "nested_config":
+				        return "custom tag: {% foo %}";
 
 					default:
 						return templatePath;
@@ -170,5 +174,23 @@ namespace DotLiquid.Tests.Tags
 				RethrowErrors = true
 			}));
 		}
+
+	    [Test]
+	    public void TestForwardingTemplateConfiguration()
+	    {
+	        var config = new TemplateConfiguration {FileSystem = new TestFileSystem()}
+	            .RegisterTag<FooTag>("foo");
+
+	        var template = Template.Parse("This comes from {% include 'nested_config' %}", config);
+	        Assert.AreEqual("This comes from custom tag: foo", template.Render());
+	    }
 	}
+
+    public class FooTag : Tag
+    {
+        public override void Render(Context context, TextWriter result)
+        {
+            result.Write("foo");
+        }
+    }
 }

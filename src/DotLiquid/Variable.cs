@@ -60,6 +60,9 @@ namespace DotLiquid
 		{
 			object output = RenderInternal(context);
 
+			if (output is ILiquidizable)
+				output = null;
+
 			if (output != null)
 			{
                 var transformer = Template.GetValueTypeTransformer(output.GetType());
@@ -105,9 +108,6 @@ namespace DotLiquid
 
             if (output is IValueTypeConvertible)
                 output = ((IValueTypeConvertible) output).ConvertToValueType();
-
-			if (output is ILiquidizable)
-				return null;
 
 			return output;
 		}

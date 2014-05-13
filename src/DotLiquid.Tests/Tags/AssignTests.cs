@@ -57,5 +57,20 @@ namespace DotLiquid.Tests.Tags
 			Helper.AssertTemplateResult(".bar.", "{% assign foo = values | split: ',' %}.{{ foo[1] }}.", 
 				Hash.FromAnonymousObject(new { values = "foo,bar,baz" }));
 		}
+
+		private class AssignDrop : Drop
+		{
+			public string MyProperty
+			{
+				get { return "MyValue"; }
+			}
+		}
+
+		[Test]
+		public void TestAssignWithDrop()
+		{
+			Helper.AssertTemplateResult(".MyValue.", @"{% assign foo = value %}.{{ foo.my_property }}.",
+				Hash.FromAnonymousObject(new { value = new AssignDrop() }));
+		}
 	}
 }

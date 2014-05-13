@@ -46,6 +46,12 @@ namespace DotLiquid.Tests
 		}
 
 		[Test]
+		public void TestUrlEscape()
+		{
+			Assert.AreEqual("%3Chello%3E+%26", StandardFilters.UrlEscape("<hello> &"));
+		}
+
+		[Test]
 		public void TestTruncateWords()
 		{
 			Assert.AreEqual("one two three", StandardFilters.TruncateWords("one two three", 4));

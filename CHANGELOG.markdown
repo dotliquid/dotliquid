@@ -1,6 +1,6 @@
 # Overview
 
-## 1.8.0 (branch: master)
+## 1.8.0 - 2014-05-13
 
 ### New Features
 

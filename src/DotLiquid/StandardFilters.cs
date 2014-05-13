@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Text;
 #if !NET35
 using System.Net;
 #endif
@@ -575,6 +576,79 @@ namespace DotLiquid
 				: ExpressionUtility.CreateExpression(operation, input.GetType(), operand.GetType(), input.GetType(), true)
 					.DynamicInvoke(input, operand);
 		}
+
+		/// <summary>
+		/// Offset all lines of <paramref name="input"/> by <paramref name="indent"/> characters
+		/// and wrap lines longer than <paramref name="width"/> characters.
+		/// </summary>
+		/// <param name="input"></param>
+		/// <param name="indent"></param>
+		/// <param name="width"></param>
+		/// <returns></returns>
+		public static object Blockquote(string input, int indent = 4, int width = 50)
+		{
+			if(string.IsNullOrWhiteSpace(input)) return input;
+
+			var indentation = new string(' ', indent);
+			var blockquote = new StringBuilder();
+
+			foreach(var line in GetBlockquoteLines(input, width))
+			{
+				if(string.IsNullOrWhiteSpace(line))
+					blockquote.AppendLine();
+				else
+					blockquote.AppendFormat("{0}{1}{2}", indentation, line, Environment.NewLine);
+			}
+
+			// FIXME: Somehow we need to strip
+			return blockquote.ToString().Trim(Environment.NewLine.ToCharArray());
+		}
+
+		private static IEnumerable<string> GetBlockquoteLines(string input, int width)
+		{
+			var lines = input.Split('\n');
+
+			foreach(var line in lines.Select(l => l.TrimEnd('\r')))
+			{
+				if(string.IsNullOrWhiteSpace(line))
+					yield return line;
+				else if(line.Length > width)
+				{
+					foreach(var fragment in GetBlockquoteLineFragments(line, width))
+						yield return fragment;
+				} 
+				else
+					yield return line;
+			}
+		}
+
+		private static IEnumerable<string> GetBlockquoteLineFragments(string line, int width)
+		{
+			var fragment = new StringBuilder();
+			var words = line.Split(' ');
+
+			foreach(var word in words)
+			{
+				if(word.Length > width)
+				{
+					foreach(var chunk in word.Chunk(width))
+						yield return chunk;
+				}
+				else
+				{
+					if(fragment.Length + word.Length > width)
+					{
+						yield return fragment.ToString();
+						fragment.Clear();
+					}
+
+					fragment.AppendFormat("{0} ", word);
+				}
+			}
+
+			if(fragment.Length > 0)
+				yield return fragment.ToString();
+		}
 	}
 
 	internal static class StringExtensions
@@ -582,6 +656,14 @@ namespace DotLiquid
 		public static bool IsNullOrWhiteSpace(this string s)
 		{
 			return string.IsNullOrEmpty(s) || s.Trim().Length == 0;
+		}
+
+		public static IEnumerable<string> Chunk(this string s, int chunkSize)
+		{
+			var count = (int)Math.Ceiling((double)s.Length / (double)chunkSize);
+			var offsets = Enumerable.Range(0, count).Select(i => new { offset = i * chunkSize}).ToList();
+			
+			return offsets.Select(i => s.Substring(i.offset, i.offset + chunkSize >= s.Length ? s.Length - i.offset : chunkSize));
 		}
 	}
 }

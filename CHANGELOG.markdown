@@ -26,6 +26,8 @@
 
 ### Resolved Issues
 
+* \#98 Assign tag now (once again) supports ILiquidizable objects
+
 * \#80 Template path cannot contain round brackets
 
 * \#66 Tablerow tag throws exception when specifying limit or offset attributes

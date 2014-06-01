@@ -1,5 +1,7 @@
 # DotLiquid
 
+[![Build status](https://ci.appveyor.com/api/projects/status/itsl3a6ludjah4o3)](https://ci.appveyor.com/project/tgjones/dotliquid)
+
 ### What is this?
 
 DotLiquid is a .NET 3.5 port of the popular [Ruby Liquid templating language](http://www.liquidmarkup.org). It is a separate project that aims to retain the same template syntax as the original, while using .NET coding conventions where possible.

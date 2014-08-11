@@ -7,19 +7,19 @@ namespace DotLiquid.Tags
 {
 	public class Case : DotLiquid.Block
 	{
-		private static readonly Regex Syntax = new Regex(string.Format(@"({0})", Liquid.QuotedFragment));
-		private static readonly Regex WhenSyntax = new Regex(string.Format(@"({0})(?:(?:\s+or\s+|\s*\,\s*)({0}.*))?", Liquid.QuotedFragment));
+		protected static readonly Regex Syntax = new Regex(string.Format(@"({0})", Liquid.QuotedFragment));
+		protected static readonly Regex WhenSyntax = new Regex(string.Format(@"({0})(?:(?:\s+or\s+|\s*\,\s*)({0}.*))?", Liquid.QuotedFragment));
 
-		private List<Condition> _blocks;
-		private string _left;
+		protected List<Condition> Blocks;
+		protected string Left;
 
 		public override void Initialize(string tagName, string markup, List<string> tokens)
 		{
-			_blocks = new List<Condition>();
+			Blocks = new List<Condition>();
 
 			Match syntaxMatch = Syntax.Match(markup);
 			if (syntaxMatch.Success)
-				_left = syntaxMatch.Groups[1].Value;
+				Left = syntaxMatch.Groups[1].Value;
 			else
 				throw new SyntaxException(Liquid.ResourceManager.GetString("CaseTagSyntaxException"));
 
@@ -48,7 +48,7 @@ namespace DotLiquid.Tags
 			context.Stack(() =>
 			{
 				bool executeElseBlock = true;
-				_blocks.ForEach(block =>
+				Blocks.ForEach(block =>
 				{
 					if (block.IsElse)
 					{
@@ -80,9 +80,9 @@ namespace DotLiquid.Tags
 				if (string.IsNullOrEmpty(markup))
 					markup = null;
 
-				Condition block = new Condition(_left, "==", whenSyntaxMatch.Groups[1].Value);
+				Condition block = new Condition(Left, "==", whenSyntaxMatch.Groups[1].Value);
 				block.Attach(NodeList);
-				_blocks.Add(block);
+				Blocks.Add(block);
 			}
 		}
 
@@ -93,7 +93,7 @@ namespace DotLiquid.Tags
 
 			ElseCondition block = new ElseCondition();
 			block.Attach(NodeList);
-			_blocks.Add(block);
+			Blocks.Add(block);
 		}
 	}
 }

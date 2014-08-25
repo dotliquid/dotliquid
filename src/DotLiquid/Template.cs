@@ -43,7 +43,7 @@ namespace DotLiquid
 		}
 
 		public static void RegisterTag<T>(string name)
-			where T : Tag, new()
+			where T : Tag
 		{
 			Tags[name] = typeof(T);
 		}

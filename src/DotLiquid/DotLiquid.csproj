@@ -47,9 +47,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Providers\ActivatorServiceProvider.cs" />
     <Compile Include="FileSystems\EmbeddedFileSystem.cs" />
     <Compile Include="IValueTypeConvertible.cs" />
     <Compile Include="LiquidTypeAttribute.cs" />
+    <Compile Include="Providers\FuncServiceProvider.cs" />
     <Compile Include="RenderParameters.cs" />
     <Compile Include="Tags\Raw.cs" />
     <Compile Include="Util\StrFTime.cs" />

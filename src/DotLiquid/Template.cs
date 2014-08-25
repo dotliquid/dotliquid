@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using DotLiquid.FileSystems;
+using DotLiquid.Providers;
 using DotLiquid.Util;
 using DotLiquid.NamingConventions;
 
@@ -30,7 +31,7 @@ namespace DotLiquid
 		private static Dictionary<string, Type> Tags { get; set; }
         private static readonly Dictionary<Type, Func<object, object>> SafeTypeTransformers;
 		private static readonly Dictionary<Type, Func<object, object>> ValueTypeTransformers;
-
+	    public static IServiceProvider ServiceProvider {  get; private set; }
 		static Template()
 		{
 			NamingConvention = new RubyNamingConvention();
@@ -38,6 +39,7 @@ namespace DotLiquid
 			Tags = new Dictionary<string, Type>();
             SafeTypeTransformers = new Dictionary<Type, Func<object, object>>();
 			ValueTypeTransformers = new Dictionary<Type, Func<object, object>>();
+		    ServiceProvider = new ActivatorServiceProvider();
 		}
 
 		public static void RegisterTag<T>(string name)
@@ -45,6 +47,16 @@ namespace DotLiquid
 		{
 			Tags[name] = typeof(T);
 		}
+
+	    public static void RegisterServiceProvider(IServiceProvider serviceProvider)
+	    {
+	        ServiceProvider = ServiceProvider;
+	    }
+
+        public static void RegisterServiceProvider(Func<Type,object> serviceProvider)
+        {
+            ServiceProvider = new FuncServiceProvider(serviceProvider);
+        }
 
 		public static Type GetTagType(string name)
 		{

@@ -239,6 +239,40 @@ namespace DotLiquid.Tests.Tags
 			Helper.AssertTemplateResult(expected, markup, assigns);
 		}
 
+        [Test]
+        public void TestForWithBreak()
+        {
+            var assigns = Hash.FromAnonymousObject(new { array = new { items = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 } } });
+            var markup = "{% for i in array.items %}{{ i }}{% if i > 3 %}{% break %}{% endif %}{% endfor %}";
+            var expected = "1234";
+            Helper.AssertTemplateResult(expected, markup, assigns);
+        }
+
+        [Test]
+        public void TestForWithContinue()
+        {
+            var assigns = Hash.FromAnonymousObject(new { array = new { items = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 } } });
+            var markup = "{% for i in array.items %}{% if i == 3 %}{% continue %}{% endif %}{{ i }}{% endfor %}";
+            var expected = "1245678910";
+            Helper.AssertTemplateResult(expected, markup, assigns);
+        }
+
+        [Test]
+        public void TestBreakOutsideFor()
+        {
+            var markup = "123{% break %}456";
+            var expected = "123";
+            Helper.AssertTemplateResult(expected, markup);
+        }
+
+        [Test]
+        public void TestContinueOutsideFor()
+        {
+        var markup = "123{% continue %}456";
+        var expected = "123";
+        Helper.AssertTemplateResult(expected, markup);
+        }
+
 		[Test]
 		public void TestAssign()
 		{

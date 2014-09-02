@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.IO;
+using DotLiquid.Exceptions;
 
 namespace DotLiquid
 {
@@ -29,5 +31,19 @@ namespace DotLiquid
 		protected override void AssertMissingDelimitation()
 		{
 		}
+
+	    public override void Render(Context context, TextWriter result)
+	    {
+	        try
+	        {
+	            base.Render(context, result);
+	        }
+	        catch (BreakInterrupt)
+	        {
+	        }
+	        catch (ContinueInterrupt)
+	        {
+	        }
+	    }
 	}
 }

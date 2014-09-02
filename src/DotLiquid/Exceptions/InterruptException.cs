@@ -6,4 +6,20 @@
         {
         }
     }
+
+    public class BreakInterrupt : InterruptException
+    {
+        public BreakInterrupt()
+            : base("Misplaced 'break' statement")
+        {
+        }
+    }
+
+    public class ContinueInterrupt : InterruptException
+    {
+        public ContinueInterrupt()
+            : base("Misplaced 'continue' statement")
+        {
+        }
+    }
 }

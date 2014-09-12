@@ -1,0 +1,16 @@
+version: 1.9.0-ci{build}
+
+branches:
+  only:
+    - master
+
+assembly_info:
+  patch: true
+  file: AssemblyInfo.*
+  assembly_version: "1.9.0"
+  assembly_file_version: "1.9.0"
+  assembly_informational_version: "1.9.0-ci{build}"
+
+build:
+  project: src/DotLiquid.sln
+  publish_nuget: true

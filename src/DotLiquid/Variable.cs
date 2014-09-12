@@ -65,7 +65,7 @@ namespace DotLiquid
 
 			if (output != null)
 			{
-                var transformer = Template.GetValueTypeTransformer(output.GetType());
+                var transformer = context.Configuration.GetValueTypeTransformer(output.GetType());
                 
                 if(transformer != null)
                     output = transformer(output);

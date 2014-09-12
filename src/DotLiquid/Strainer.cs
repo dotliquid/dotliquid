@@ -14,18 +14,16 @@ namespace DotLiquid
 	/// </summary>
 	public class Strainer
 	{
-		private static readonly Dictionary<string, Type> Filters = new Dictionary<string, Type>();
-
-		public static void GlobalFilter(Type filter)
+		public static void aGlobalFilter(Type filter)
 		{
-			Filters[filter.AssemblyQualifiedName] = filter;
+            TemplateConfiguration.Global.RegisterFilter(filter);
 		}
 
 		public static Strainer Create(Context context)
 		{
 			Strainer strainer = new Strainer(context);
-			foreach (var keyValue in Filters)
-				strainer.Extend(keyValue.Value);
+			foreach (var filter in context.Configuration.GetFilters())
+                strainer.Extend(filter);
 			return strainer;
 		}
 

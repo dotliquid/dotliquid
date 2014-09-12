@@ -25,32 +25,31 @@ namespace DotLiquid
 	/// </summary>
 	public class Template
 	{
-		public static INamingConvention NamingConvention;
-		public static IFileSystem FileSystem { get; set; }
-		private static Dictionary<string, Type> Tags { get; set; }
-        private static readonly Dictionary<Type, Func<object, object>> SafeTypeTransformers;
-		private static readonly Dictionary<Type, Func<object, object>> ValueTypeTransformers;
+	    public static INamingConvention NamingConvention;
+
+	    public static IFileSystem FileSystem
+	    {
+	        get { return TemplateConfiguration.Global.FileSystem; }
+            set { TemplateConfiguration.Global.FileSystem = value; }
+	    }
+
+
+        public TemplateConfiguration Configuration { get; private set; }
 
 		static Template()
 		{
-			NamingConvention = new RubyNamingConvention();
-			FileSystem = new BlankFileSystem();
-			Tags = new Dictionary<string, Type>();
-            SafeTypeTransformers = new Dictionary<Type, Func<object, object>>();
-			ValueTypeTransformers = new Dictionary<Type, Func<object, object>>();
+            NamingConvention = new RubyNamingConvention();
 		}
 
 		public static void RegisterTag<T>(string name)
 			where T : Tag, new()
 		{
-			Tags[name] = typeof(T);
+            TemplateConfiguration.Global.RegisterTag<T>(name);
 		}
 
 		public static Type GetTagType(string name)
 		{
-			Type result;
-			Tags.TryGetValue(name, out result);
-			return result;
+		    return TemplateConfiguration.Global.GetTagType(name);
 		}
 
 		/// <summary>
@@ -60,7 +59,7 @@ namespace DotLiquid
 		/// <param name="filter"></param>
 		public static void RegisterFilter(Type filter)
 		{
-			Strainer.GlobalFilter(filter);
+		    TemplateConfiguration.Global.RegisterFilter(filter);
 		}
 
 		/// <summary>
@@ -69,9 +68,9 @@ namespace DotLiquid
 		/// <param name="type">The type to register</param>
 		/// <param name="allowedMembers">An array of property and method names that are allowed to be called on the object.</param>
 		public static void RegisterSafeType(Type type, string[] allowedMembers)
-        {
-			RegisterSafeType(type, x => new DropProxy(x, allowedMembers));
-        }
+		{
+		    TemplateConfiguration.Global.RegisterSafeType(type, allowedMembers);
+		}
 
         /// <summary>
         /// Registers a simple type. DotLiquid will wrap the object in a <see cref="DropProxy"/> object.
@@ -80,7 +79,7 @@ namespace DotLiquid
         /// <param name="allowedMembers">An array of property and method names that are allowed to be called on the object.</param>
         public static void RegisterSafeType(Type type, string[] allowedMembers, Func<object, object> func)
         {
-            RegisterSafeType(type, x => new DropProxy(x, allowedMembers, func));
+            TemplateConfiguration.Global.RegisterSafeType(type, allowedMembers, func);
         }
 
         /// <summary>
@@ -90,7 +89,7 @@ namespace DotLiquid
         /// <param name="func">Function that converts the specified type into a Liquid Drop-compatible object (eg, implements ILiquidizable)</param>
 		public static void RegisterSafeType(Type type, Func<object, object> func)
         {
-			SafeTypeTransformers[type] = func;
+            TemplateConfiguration.Global.RegisterSafeType(type, func);
         }
 
         /// <summary>
@@ -100,39 +99,30 @@ namespace DotLiquid
         /// <param name="func">Function that converts the specified type into a Liquid Drop-compatible object (eg, implements ILiquidizable)</param>
         public static void RegisterValueTypeTransformer(Type type, Func<object, object> func)
         {
-            ValueTypeTransformers[type] = func;
+            TemplateConfiguration.Global.RegisterValueTypeTransformer(type, func);
         }
 
 		public static Func<object, object> GetValueTypeTransformer(Type type)
 		{
-            // Check for concrete types
-			if (ValueTypeTransformers.ContainsKey(type))
-				return ValueTypeTransformers[type];
-
-            // Check for interfaces
-		    foreach (var interfaceType in ValueTypeTransformers.Where(x => x.Key.IsInterface))
-		    {
-                if (type.GetInterfaces().Contains(interfaceType.Key))
-                    return interfaceType.Value;
-		    }
-
-			return null;
+		    return TemplateConfiguration.Global.GetValueTypeTransformer(type);
 		}
 
         public static Func<object, object> GetSafeTypeTransformer(Type type)
+        {
+            return TemplateConfiguration.Global.GetSafeTypeTransformer(type);
+        }
+
+		/// <summary>
+		/// Creates a new <tt>Template</tt> object from liquid source code
+		/// </summary>
+		/// <param name="source"></param>
+		/// <param name="configuration"></param>
+		/// <returns></returns>
+		public static Template Parse(string source, TemplateConfiguration configuration)
 		{
-            // Check for concrete types
-			if (SafeTypeTransformers.ContainsKey(type))
-                return SafeTypeTransformers[type];
-
-            // Check for interfaces
-            foreach (var interfaceType in SafeTypeTransformers.Where(x => x.Key.IsInterface))
-            {
-                if (type.GetInterfaces().Contains(interfaceType.Key))
-                    return interfaceType.Value;
-            }
-
-			return null;
+			Template template = new Template(configuration);
+			template.ParseInternal(source);
+			return template;
 		}
 
 		/// <summary>
@@ -142,9 +132,7 @@ namespace DotLiquid
 		/// <returns></returns>
 		public static Template Parse(string source)
 		{
-			Template template = new Template();
-			template.ParseInternal(source);
-			return template;
+		    return Parse(source, TemplateConfiguration.Global);
 		}
 
 		private Hash _registers, _assigns, _instanceAssigns;
@@ -172,12 +160,20 @@ namespace DotLiquid
 			get { return (_errors = _errors ?? new List<Exception>()); }
 		}
 
-		/// <summary>
-		/// Creates a new <tt>Template</tt> from an array of tokens. Use <tt>Template.parse</tt> instead
-		/// </summary>
-		internal Template()
-		{
-		}
+        /// <summary>
+        /// Creates a new <tt>Template</tt> from an array of tokens. Use <tt>Template.parse</tt> instead
+        /// </summary>
+        public Template(TemplateConfiguration configuration)
+        {
+            this.Configuration = configuration;
+        }
+
+        /// <summary>
+        /// Creates a new <tt>Template</tt> from an array of tokens. Use <tt>Template.parse</tt> instead
+        /// </summary>
+        public Template() : this(TemplateConfiguration.Global)
+        {
+        }
 
 		/// <summary>
 		/// Parse source code.
@@ -190,8 +186,8 @@ namespace DotLiquid
 			source = DotLiquid.Tags.Literal.FromShortHand(source);
 			source = DotLiquid.Tags.Comment.FromShortHand(source);
 
-			Root = new Document();
-			Root.Initialize(null, null, Tokenize(source));
+		    Root = new Document {Configuration = this.Configuration};
+		    Root.Initialize(null, null, Tokenize(source));
 			return this;
 		}
 

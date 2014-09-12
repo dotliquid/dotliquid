@@ -102,10 +102,10 @@ namespace DotLiquid.Tags
 		public override void Render(Context context, TextWriter result)
 		{
             // Get the template or template content and then either copy it (since it will be modified) or parse it
-			IFileSystem fileSystem = context.Registers["file_system"] as IFileSystem ?? Template.FileSystem;
+		    IFileSystem fileSystem = context.Registers["file_system"] as IFileSystem ?? context.Configuration.FileSystem;
             object file = fileSystem.ReadTemplateFile(context, _templateName);
 		    Template template = file as Template;
-            template = template ?? Template.Parse(file == null ? null : file.ToString());
+		    template = template ?? Template.Parse(file == null ? null : file.ToString(), context.Configuration);
 
 		    List<Block> parentBlocks = FindBlocks(template.Root, null);
             List<Block> orphanedBlocks = ((List<Block>)context.Scopes[0]["extends"]) ?? new List<Block>();

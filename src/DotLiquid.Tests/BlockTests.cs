@@ -67,8 +67,8 @@ namespace DotLiquid.Tests
 		[Test]
 		public void TestWithCustomTag()
 		{
-			Template.RegisterTag<Block>("testtag");
-			Assert.DoesNotThrow(() => Template.Parse("{% testtag %} {% endtesttag %}"));
+		    var config = new TemplateConfiguration().RegisterTag<Block>("testtag");
+			Assert.DoesNotThrow(() => Template.Parse("{% testtag %} {% endtesttag %}", config));
 		}
 	}
 }

@@ -207,11 +207,12 @@ namespace DotLiquid.Tests
 		[Test]
 		public void TestLocalGlobal()
 		{
-			Template.RegisterFilter(typeof(MoneyFilter));
+		    var config = new TemplateConfiguration();
+		    config.RegisterFilter(typeof (MoneyFilter));
 
-			Assert.AreEqual(" 1000$ ", Template.Parse("{{1000 | money}}").Render());
-			Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}").Render(new RenderParameters { Filters = new[] { typeof(CanadianMoneyFilter) } }));
-			Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}").Render(new RenderParameters { Filters = new[] { typeof(CanadianMoneyFilter) } }));
+			Assert.AreEqual(" 1000$ ", Template.Parse("{{1000 | money}}", config).Render());
+			Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}", config).Render(new RenderParameters { Filters = new[] { typeof(CanadianMoneyFilter) } }));
+			Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}", config).Render(new RenderParameters { Filters = new[] { typeof(CanadianMoneyFilter) } }));
 		}
 
 		[Test]

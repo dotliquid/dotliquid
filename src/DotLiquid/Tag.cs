@@ -8,6 +8,7 @@ namespace DotLiquid
 		public List<object> NodeList { get; protected set; }
 		protected string TagName { get; private set; }
 		protected string Markup { get; private set; }
+        internal TemplateConfiguration Configuration { get; set; }
 
 		/// <summary>
 		/// Only want to allow Tags to be created in inherited classes or tests.

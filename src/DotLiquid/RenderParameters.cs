@@ -33,7 +33,8 @@ namespace DotLiquid
 			if (LocalVariables != null)
 				environments.Add(LocalVariables);
 			environments.Add(template.Assigns);
-			context = new Context(environments, template.InstanceAssigns, template.Registers, RethrowErrors);
+			context = new Context(environments, template.InstanceAssigns, template.Registers, RethrowErrors,
+                template.Configuration);
 			registers = Registers;
 			filters = Filters;
 		}

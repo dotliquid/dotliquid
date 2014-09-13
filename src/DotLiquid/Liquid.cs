@@ -55,7 +55,8 @@ namespace DotLiquid
 			Template.RegisterTag<Tags.Literal>("literal");
 			Template.RegisterTag<Tags.Unless>("unless");
 			Template.RegisterTag<Tags.Raw>("raw");
-
+            Template.RegisterTag<Tags.Paginate>("paginate");
+            Template.RegisterTag<Tags.CurrentPage>("current_page");
 			Template.RegisterTag<Tags.Html.TableRow>("tablerow");
 
 			Template.RegisterFilter(typeof(StandardFilters));

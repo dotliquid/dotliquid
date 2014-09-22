@@ -41,7 +41,7 @@ namespace DotLiquid
 						Type tagType;
 						if ((tagType = Template.GetTagType(fullTokenMatch.Groups[1].Value)) != null)
 						{
-							Tag tag = (Tag) Activator.CreateInstance(tagType);
+							Tag tag = (Tag)Template.ServiceProvider.GetService(tagType);
 							tag.Initialize(fullTokenMatch.Groups[1].Value, fullTokenMatch.Groups[2].Value, tokens);
 							NodeList.Add(tag);
 

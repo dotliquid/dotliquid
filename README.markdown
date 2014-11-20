@@ -29,6 +29,8 @@ For more information about the original Liquid project, see
 
 ### Why should I use DotLiquid?
 
+* You want to leave business logic in your compiled controllers and out of your templates.
+* You're looking for a logic-less template language that also exists for other platforms (ie: node, python).
 * You want to allow your users to edit their own page templates, but want to
   ensure they don't run insecure code.
 * You want to render templates directly from the database.

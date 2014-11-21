@@ -58,9 +58,9 @@ namespace DotLiquid.Tags
 	/// </example>
 	public class Extends : DotLiquid.Block
 	{
-		private static readonly Regex Syntax = new Regex(string.Format(@"^({0})", Liquid.QuotedFragment));
+		protected static readonly Regex Syntax = new Regex(string.Format(@"^({0})", Liquid.QuotedFragment));
 
-		private string _templateName;
+		protected string TemplateName;
 
 		public override void Initialize(string tagName, string markup, List<string> tokens)
 		{
@@ -68,7 +68,7 @@ namespace DotLiquid.Tags
 
 			if (syntaxMatch.Success)
 			{
-				_templateName = syntaxMatch.Groups[1].Value;
+				TemplateName = syntaxMatch.Groups[1].Value;
 			}
 			else
 				throw new SyntaxException(Liquid.ResourceManager.GetString("ExtendsTagSyntaxException"));
@@ -103,7 +103,7 @@ namespace DotLiquid.Tags
 		{
             // Get the template or template content and then either copy it (since it will be modified) or parse it
 			IFileSystem fileSystem = context.Registers["file_system"] as IFileSystem ?? Template.FileSystem;
-            object file = fileSystem.ReadTemplateFile(context, _templateName);
+            object file = fileSystem.ReadTemplateFile(context, TemplateName);
 		    Template template = file as Template;
             template = template ?? Template.Parse(file == null ? null : file.ToString());
 

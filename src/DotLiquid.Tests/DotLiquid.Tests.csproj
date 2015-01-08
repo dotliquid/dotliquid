@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Embedded\_layout.liquid" />
+    <Compile Include="FilterRequestTests.cs" />
     <Compile Include="LiquidTypeAttributeTests.cs" />
     <Compile Include="BlockTests.cs" />
     <Compile Include="ConditionTests.cs" />
@@ -60,9 +61,10 @@
     <Compile Include="DropTests.cs" />
     <Compile Include="ExceptionHandlingTests.cs" />
     <Compile Include="FileSystemTests.cs" />
-    <Compile Include="FilterTests.cs" />
     <Compile Include="Framework\ExtendedCollectionAssert.cs" />
     <Compile Include="Helper.cs" />
+    <Compile Include="MarkupExpressionTests.cs" />
+    <Compile Include="MarkupParserTests.cs" />
     <Compile Include="NamingConventionTests.cs" />
     <Compile Include="OutputTests.cs" />
     <Compile Include="ParsingQuirksTests.cs" />
@@ -83,7 +85,6 @@
     <Compile Include="TemplateTests.cs" />
     <Compile Include="Util\StrFTimeTests.cs" />
     <Compile Include="VariableResolutionTests.cs" />
-    <Compile Include="VariableTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotLiquid\DotLiquid.csproj">

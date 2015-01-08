@@ -1,6 +1,6 @@
 # Overview
 
-## 1.8.0 (branch: master)
+## 1.8.0 - 2014-05-13
 
 ### New Features
 
@@ -25,6 +25,8 @@
 * \#63 Added `startswith` and `endswith` conditions for arrays and strings (Dave Glick)
 
 ### Resolved Issues
+
+* \#98 Assign tag now (once again) supports ILiquidizable objects
 
 * \#80 Template path cannot contain round brackets
 

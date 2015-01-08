@@ -48,8 +48,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FileSystems\EmbeddedFileSystem.cs" />
+    <Compile Include="FilterRequest.cs" />
     <Compile Include="IValueTypeConvertible.cs" />
     <Compile Include="LiquidTypeAttribute.cs" />
+    <Compile Include="MarkupExpression.cs" />
+    <Compile Include="MarkupParser.cs" />
     <Compile Include="RenderParameters.cs" />
     <Compile Include="Tags\Raw.cs" />
     <Compile Include="Util\StrFTime.cs" />

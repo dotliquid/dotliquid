@@ -192,18 +192,34 @@ namespace DotLiquid.Tests
 		}
 
 		[Test]
-		public void TestStripNewlines()
+		public void TestStripWindowsNewlines()
 		{
-			Helper.AssertTemplateResult("abc", "{{ source | strip_newlines }}", Hash.FromAnonymousObject(new { source = "a" + Environment.NewLine + "b" + Environment.NewLine + "c" }));
+			Helper.AssertTemplateResult("abc", "{{ source | strip_newlines }}", Hash.FromAnonymousObject(new { source = "a\r\nb\r\nc" }));
+            Helper.AssertTemplateResult("ab", "{{ source | strip_newlines }}", Hash.FromAnonymousObject(new { source = "a\r\n\r\n\r\nb" }));
 		}
 
+        [Test]
+        public void TestStripUnixNewlines()
+        {
+            Helper.AssertTemplateResult("abc", "{{ source | strip_newlines }}", Hash.FromAnonymousObject(new { source = "a\nb\nc" }));
+            Helper.AssertTemplateResult("ab", "{{ source | strip_newlines }}", Hash.FromAnonymousObject(new { source = "a\n\n\nb" }));
+        }
+
 		[Test]
-		public void TestNewlinesToBr()
+		public void TestWindowsNewlinesToBr()
 		{
-			Helper.AssertTemplateResult("a<br />" + Environment.NewLine + "b<br />" + Environment.NewLine + "c",
+            Helper.AssertTemplateResult("a<br />\r\nb<br />\r\nc",
 				"{{ source | newline_to_br }}",
 				Hash.FromAnonymousObject(new { source = "a" + Environment.NewLine + "b" + Environment.NewLine + "c" }));
 		}
+
+        [Test]
+        public void TestUnixNewlinesToBr()
+        {
+            Helper.AssertTemplateResult("a<br />\nb<br />\nc",
+                "{{ source | newline_to_br }}",
+                Hash.FromAnonymousObject(new { source = "a\nb\nc" }));
+        }
 
 		[Test]
 		public void TestPlus()
@@ -217,6 +233,49 @@ namespace DotLiquid.Tests
 		{
 			Helper.AssertTemplateResult("4", "{{ input | minus:operand }}", Hash.FromAnonymousObject(new { input = 5, operand = 1 }));
 		}
+
+        [Test]
+        public void TestTimesRounding()
+        {
+            Helper.AssertTemplateResult("1.5", "{{ input | times:operand }}", Hash.FromAnonymousObject(new { input = 3, operand = 0.5 }));
+        }
+
+      
+        [Test, TestCaseSource("MathCases")]
+        public void TestMath(String filter, object input, object operand, String expectedResult)
+        {
+            Helper.AssertTemplateResult(expectedResult, "{{ input | " + filter + ":operand }}", Hash.FromAnonymousObject(new { input, operand }));            
+        }
+
+
+        public static Object[] MathCases =
+        {
+            new Object[] {"plus", 5, 3, "8"},
+            new Object[] {"plus", "5", 3, "53"},
+            new Object[] {"plus", "5", "3", "53"},
+            new Object[] {"plus", 5, "3", "8"},
+
+            new Object[] {"times", 5, 3, "15"},
+            new Object[] {"times", "5", 3, "555"},
+            new Object[] {"times", "5", "3", "555"},
+            new Object[] {"times", 5, "3", "15"},
+
+            new Object[] {"divided_by", 6, 3, "2"},
+            new Object[] {"divided_by", "6", 3, "2"},
+            new Object[] {"divided_by", "6", "3", "2"},
+            new Object[] {"divided_by", 6, "3", "2"},
+
+            new Object[] {"divided_by", 7, 3, "2.3333"},
+            new Object[] {"divided_by", "7", 3, "2.3333"},
+            new Object[] {"divided_by", "7", "3", "2.3333"},
+            new Object[] {"divided_by", 7, "3", "2.3333"},
+
+            new Object[] {"minus", 5, 3, "2"},
+            new Object[] {"minus", "5", 3, "2"},
+            new Object[] {"minus", "5", "3", "2"},
+            new Object[] {"minus", 5, "3", "2"},
+        };
+
 
 		[Test, SetCulture("fr-FR")]
 		public void TestMinusWithFrenchDecimalSeparator()
@@ -252,7 +311,8 @@ namespace DotLiquid.Tests
 		public void TestDividedBy()
 		{
 			Helper.AssertTemplateResult("4", "{{ 12 | divided_by:3 }}");
-			Helper.AssertTemplateResult("4", "{{ 14 | divided_by:3 }}");
+			//Helper.AssertTemplateResult("4", "{{ 14 | divided_by:3 }}");
+            Helper.AssertTemplateResult("4.6667", "{{ 14 | divided_by:3 }}");
 			Helper.AssertTemplateResult("5", "{{ 15 | divided_by:3 }}");
 		}
 

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using DotLiquid.Exceptions;
 using DotLiquid.FileSystems;
 using NUnit.Framework;
@@ -12,7 +13,7 @@ namespace DotLiquid.Tests
 		[Test]
 		public void TestDefault()
 		{
-			Assert.Throws<FileSystemException>(() => new BlankFileSystem().ReadTemplateFile(new Context(), "dummy"));
+			Assert.Throws<FileSystemException>(() => new BlankFileSystem().ReadTemplateFile(new Context(new List<Hash>(), new Hash(), new Hash(), false), "dummy"));
 		}
 
 		[Test]

@@ -108,7 +108,7 @@ namespace DotLiquid.Tags
             template = template ?? Template.Parse(file == null ? null : file.ToString());
 
 		    List<Block> parentBlocks = FindBlocks(template.Root, null);
-            List<Block> orphanedBlocks = ((List<Block>)context.Scopes[0]["extends"]) ?? new List<Block>();
+            List<Block> orphanedBlocks = ((List<Block>)context.LocalScope["extends"]) ?? new List<Block>();
 		    BlockRenderState blockState = BlockRenderState.Find(context) ?? new BlockRenderState();
 
             context.Stack(() =>
@@ -129,7 +129,7 @@ namespace DotLiquid.Tags
                     }
                     else if(IsExtending(template))
                     {
-                        ((List<Block>)context.Scopes[0]["extends"]).Add(block);
+                        ((List<Block>)context.LocalScope["extends"]).Add(block);
                     }
                 }
 			    template.Render(result, RenderParameters.FromContext(context));

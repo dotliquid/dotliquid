@@ -140,7 +140,7 @@ namespace DotLiquid.Tests
 		[TestFixtureSetUp]
 		public void SetUp()
 		{
-			_context = new Context();
+			_context = new Context(new List<Hash>(), new Hash(), new Hash(), false);
 		}
 
 		[Test]
@@ -251,11 +251,11 @@ namespace DotLiquid.Tests
 		[Test]
 		public void TestAddFilter()
 		{
-			Context context = new Context();
+			Context context = new Context(new List<Hash>(), new Hash(), new Hash(), false);
 			context.AddFilters(new[] { typeof(TestFilters) });
 			Assert.AreEqual("hi? hi!", context.Invoke("hi", new List<object> { "hi?" }));
 
-			context = new Context();
+			context = new Context(new List<Hash>(), new Hash(), new Hash(), false);
 			Assert.AreEqual("hi?", context.Invoke("hi", new List<object> { "hi?" }));
 
 			context.AddFilters(new[] { typeof(TestFilters) });
@@ -265,13 +265,13 @@ namespace DotLiquid.Tests
 		[Test]
 		public void TestAddContextFilter()
 		{
-			Context context = new Context();
+			Context context = new Context(new List<Hash>(), new Hash(), new Hash(), false);
 			context["name"] = "King Kong";
 
 			context.AddFilters(new[] { typeof(TestContextFilters) });
 			Assert.AreEqual("hi? hi from King Kong!", context.Invoke("hi", new List<object> { "hi?" }));
 
-			context = new Context();
+			context = new Context(new List<Hash>(), new Hash(), new Hash(), false);
 			Assert.AreEqual("hi?", context.Invoke("hi", new List<object> { "hi?" }));
 		}
 
@@ -286,7 +286,7 @@ namespace DotLiquid.Tests
 		[Test]
 		public void TestOnlyIntendedFiltersMakeItThere()
 		{
-			Context context = new Context();
+			Context context = new Context(new List<Hash>(), new Hash(), new Hash(), false);
 			var methodsBefore = context.Strainer.Methods.Select(mi => mi.Name).ToList();
 			context.AddFilters(new[] { typeof(TestFilters) });
 			var methodsAfter = context.Strainer.Methods.Select(mi => mi.Name).ToList();

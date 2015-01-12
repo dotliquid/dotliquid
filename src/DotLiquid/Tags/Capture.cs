@@ -41,7 +41,7 @@ namespace DotLiquid.Tags
 			using (TextWriter temp = new StringWriter())
 			{
 				base.Render(context, temp);
-				context.Scopes.Last()[_to] = temp.ToString();
+				context.ApplicationScope[_to] = temp.ToString();
 			}
 		}
 	}

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using DotLiquid.Exceptions;
 using NUnit.Framework;
 
@@ -76,7 +77,7 @@ namespace DotLiquid.Tests
 		[TestFixtureSetUp]
 		public void SetUp()
 		{
-			_context = new Context();
+			_context = new Context(new List<Hash>(), new Hash(), new Hash(), false);
 		}
 
 		/*[Test]

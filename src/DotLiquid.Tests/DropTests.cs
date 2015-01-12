@@ -25,12 +25,12 @@ namespace DotLiquid.Tests
 		{
 			public int Scopes
 			{
-				get { return Context.Scopes.Count; }
+				get { return Context.AllScopes.Count; }
 			}
 
 			public IEnumerable<int> ScopesAsArray
 			{
-				get { return Enumerable.Range(1, Context.Scopes.Count); }
+                get { return Enumerable.Range(1, Context.AllScopes.Count); }
 			}
 
 			public int LoopPos

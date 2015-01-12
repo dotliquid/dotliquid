@@ -41,7 +41,7 @@ namespace DotLiquid.Tags
 
 		public override void Render(Context context, TextWriter result)
 		{
-			context.Scopes.Last()[_to] = _from.Render(context);
+			context.ApplicationScope[_to] = _from.Render(context);
 		}
 	}
 }

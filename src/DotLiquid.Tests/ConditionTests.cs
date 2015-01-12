@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 
@@ -60,7 +61,7 @@ namespace DotLiquid.Tests
 		[Test]
 		public void TestContainsWorksOnArrays()
 		{
-			_context = new Context();
+			_context = new Context(new List<Hash>(), new Hash(), new Hash(), false);
 			_context["array"] = new[] { 1, 2, 3, 4, 5 };
 
 			AssertEvaluatesFalse("array", "contains", "0");
@@ -97,7 +98,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestStartsWithWorksOnArrays()
         {
-            _context = new Context();
+            _context = new Context(new List<Hash>(), new Hash(), new Hash(), false);
             _context["array"] = new[] { 1, 2, 3, 4, 5 };
 
             AssertEvaluatesFalse("array", "startswith", "0");
@@ -127,7 +128,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestEndsWithWorksOnArrays()
         {
-            _context = new Context();
+            _context = new Context(new List<Hash>(), new Hash(), new Hash(), false);
             _context["array"] = new[] { 1, 2, 3, 4, 5 };
 
             AssertEvaluatesFalse("array", "endswith", "0");
@@ -213,13 +214,13 @@ namespace DotLiquid.Tests
 
 		private void AssertEvaluatesTrue(string left, string op, string right)
 		{
-			Assert.IsTrue(new Condition(left, op, right).Evaluate(_context ?? new Context()),
+			Assert.IsTrue(new Condition(left, op, right).Evaluate(_context ?? new Context(new List<Hash>(), new Hash(), new Hash(), false)),
 				"Evaluated false: {0} {1} {2}", left, op, right);
 		}
 
 		private void AssertEvaluatesFalse(string left, string op, string right)
 		{
-			Assert.IsFalse(new Condition(left, op, right).Evaluate(_context ?? new Context()),
+			Assert.IsFalse(new Condition(left, op, right).Evaluate(_context ?? new Context(new List<Hash>(), new Hash(), new Hash(), false)),
 				"Evaluated true: {0} {1} {2}", left, op, right);
 		}
 

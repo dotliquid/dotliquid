@@ -44,7 +44,7 @@ namespace DotLiquid.Tags
         // Searches up the scopes for the inner-most BlockRenderState (though there should be only one)
         public static BlockRenderState Find(Context context)
         {
-            foreach (Hash scope in context.Scopes)
+            foreach (Hash scope in context.AllScopes)
             {
                 object blockState;
                 if (scope.TryGetValue("blockstate", out blockState))

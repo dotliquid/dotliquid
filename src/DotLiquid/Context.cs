@@ -9,23 +9,42 @@ using DotLiquid.Util;
 
 namespace DotLiquid
 {
-	public class Context
+    [System.Runtime.InteropServices.GuidAttribute("46C14360-A3D1-4A75-B12C-ACC566CC64FB")]
+    public class Context
 	{
 		private readonly bool _rethrowErrors;
 		private Strainer _strainer;
 
 		public List<Hash> Environments { get; private set; }
-		public List<Hash> Scopes { get; private set; }
+
+        /// <summary>
+        /// The inner-most scope
+        /// </value>
+        public Hash LocalScope { get; private set; }
+
+        /// <summary>
+        /// The outer-most scope
+        /// </value>
+        public Hash ApplicationScope { get; private set; }
+
 		public Hash Registers { get; private set; }
 		public List<Exception> Errors { get; private set; }
 
+        public List<Hash> AllScopes { get; private set; }
+
 		public Context(List<Hash> environments, Hash outerScope, Hash registers, bool rethrowErrors)
 		{
-			Environments = environments;
+            if (registers == null)
+                throw new ArgumentNullException("registers");
 
-			Scopes = new List<Hash>();
-			if (outerScope != null)
-				Scopes.Add(outerScope);
+            if (environments == null)
+                throw new ArgumentNullException("environments");
+            
+			Environments = environments;
+            AllScopes = new List<Hash>();
+
+		    ApplicationScope = outerScope ?? new Hash();
+		    Push(ApplicationScope);
 
 			Registers = registers;
 
@@ -33,18 +52,13 @@ namespace DotLiquid
 			_rethrowErrors = rethrowErrors;
 			SquashInstanceAssignsWithEnvironments();
 		}
-
-		public Context()
-			: this(new List<Hash>(), new Hash(), new Hash(), false)
-		{
-		}
-
+        
 		public Strainer Strainer
 		{
 			get { return (_strainer = _strainer ?? Strainer.Create(this)); }
 		}
-
-		/// <summary>
+        
+	    /// <summary>
 		/// Adds filters to this context.
 		/// this does not register the filters with the main Template object. see <tt>Template.register_filter</tt>
 		/// for that
@@ -88,10 +102,11 @@ namespace DotLiquid
 		/// <param name="newScope"></param>
 		public void Push(Hash newScope)
 		{
-			if (Scopes.Count > 80)
+            if (AllScopes.Count > 80)
 				throw new StackLevelException(Liquid.ResourceManager.GetString("ContextStackException"));
-
-			Scopes.Insert(0, newScope);
+            
+		    LocalScope = newScope;
+            AllScopes.Insert(0, newScope);
 		}
 
 		/// <summary>
@@ -100,19 +115,16 @@ namespace DotLiquid
 		/// <param name="newScopes"></param>
 		public void Merge(Hash newScopes)
 		{
-			Scopes[0].Merge(newScopes);
+			LocalScope.Merge(newScopes);
 		}
 
 		/// <summary>
 		/// Pop from the stack. use <tt>Context#stack</tt> instead
 		/// </summary>
-		public Hash Pop()
+		public void Pop()
 		{
-			if (Scopes.Count == 1)
-				throw new ContextException();
-			Hash result = Scopes[0];
-			Scopes.RemoveAt(0);
-			return result;
+            AllScopes.RemoveAt(0);
+            LocalScope = AllScopes[0];
 		}
 
 		/// <summary>
@@ -148,7 +160,7 @@ namespace DotLiquid
 
 		public void ClearInstanceAssigns()
 		{
-			Scopes[0].Clear();
+			LocalScope.Clear();
 		}
 
 		/// <summary>
@@ -159,7 +171,7 @@ namespace DotLiquid
 		public object this[string key]
 		{
 			get { return Resolve(key); }
-			set { Scopes[0][key] = value; }
+			set { LocalScope[key] = value; }
 		}
 
 		public bool HasKey(string key)
@@ -245,7 +257,7 @@ namespace DotLiquid
 		/// <returns></returns>
 		private object FindVariable(string key)
 		{
-			Hash scope = Scopes.FirstOrDefault(s => s.ContainsKey(key));
+            Hash scope = AllScopes.FirstOrDefault(s => s.ContainsKey(key));
 			object variable = null;
 			if (scope == null)
 			{
@@ -256,7 +268,7 @@ namespace DotLiquid
 						break;
 					}
 			}
-			scope = scope ?? Environments.LastOrDefault() ?? Scopes.Last();
+			scope = scope ?? Environments.LastOrDefault() ?? ApplicationScope;
 			variable = variable ?? LookupAndEvaluate(scope, key);
 
 			variable = Liquidize(variable);
@@ -435,9 +447,9 @@ namespace DotLiquid
 		{
 			Dictionary<string, object> tempAssigns = new Dictionary<string, object>(Template.NamingConvention.StringComparer);
 
-			Hash lastScope = Scopes.Last();
-			foreach (string k in lastScope.Keys)
-				foreach (Hash env in Environments)
+			var applicationScope = ApplicationScope;
+			foreach (var k in applicationScope.Keys)
+				foreach (var env in Environments)
 					if (env.ContainsKey(k))
 					{
 						tempAssigns[k] = LookupAndEvaluate(env, k);
@@ -445,7 +457,7 @@ namespace DotLiquid
 					}
 
 			foreach (string k in tempAssigns.Keys)
-				lastScope[k] = tempAssigns[k];
+				applicationScope[k] = tempAssigns[k];
 		}
 	}
 }

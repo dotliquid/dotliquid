@@ -49,6 +49,8 @@ namespace DotLiquid
 			Template.RegisterTag<Tags.Cycle>("cycle");
 			Template.RegisterTag<Tags.Extends>("extends");
 			Template.RegisterTag<Tags.For>("for");
+			Template.RegisterTag<Tags.Break>("break");
+			Template.RegisterTag<Tags.Continue>("continue");
 			Template.RegisterTag<Tags.If>("if");
 			Template.RegisterTag<Tags.IfChanged>("ifchanged");
 			Template.RegisterTag<Tags.Include>("include");

@@ -111,22 +111,36 @@ namespace DotLiquid.Tags
 			// Store our progress through the collection for the continue flag
 			context.Registers.Get<Hash>("for")[_name] = from + length;
 
-			context.Stack(() => segment.EachWithIndex((item, index) =>
-			{
-				context[_variableName] = item;
-				context["forloop"] = Hash.FromAnonymousObject(new
-				{
-					name = _name,
-					length = length,
-					index = index + 1,
-					index0 = index,
-					rindex = length - index,
-					rindex0 = length - index - 1,
-					first = (index == 0),
-					last = (index == length - 1)
-				});
-				RenderAll(NodeList, context, result);
-			}));
+		    context.Stack(() =>
+		    {
+		        for (var index = 0; index < segment.Count; index++)
+		        {
+		            var item = segment[index];
+		            context[_variableName] = item;
+		            context["forloop"] = Hash.FromAnonymousObject(new
+		            {
+		                name = _name,
+		                length = length,
+		                index = index + 1,
+		                index0 = index,
+		                rindex = length - index,
+		                rindex0 = length - index - 1,
+		                first = (index == 0),
+		                last = (index == length - 1)
+		            });
+		            try
+		            {
+		                RenderAll(NodeList, context, result);
+		            }
+		            catch (BreakInterrupt)
+		            {
+		                break;
+		            }
+		            catch (ContinueInterrupt)
+		            {
+		            }
+		        }
+		    });
 		}
 
 		private static List<object> SliceCollectionUsingEach(IEnumerable collection, int from, int? to)

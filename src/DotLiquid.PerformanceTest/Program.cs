@@ -74,7 +74,7 @@ namespace DotLiquid.PerformanceTest
 {% endfor -%}
 {% for item in user.items reversed -%}
   <tr>
-     <td>
+     <td>e
         {% cycle 'one', 'two', 'three' %}
      </td>
      <td>
@@ -100,8 +100,8 @@ static void Main()
     // Real tests
     Console.WriteLine("Real tests");
     RunTest(2);
-    RunTest(10000);
     RunTest(1000);
+    RunTest(10000);
             
     Console.ReadKey();
 }

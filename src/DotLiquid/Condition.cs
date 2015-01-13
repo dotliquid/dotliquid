@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using DotLiquid.Exceptions;
 using DotLiquid.Util;
 
 namespace DotLiquid
@@ -43,9 +42,12 @@ namespace DotLiquid
 	        set
 	        {
 	            _operatorString = value;
-                if (string.IsNullOrEmpty(value))
-                    _operatorDelegate = null;
-                else
+	            if (string.IsNullOrEmpty(value))
+	            {
+	                _invalidOperatorString = false;
+	                _operatorDelegate = null;
+	            }
+	            else
 	                _invalidOperatorString = !Operators.TryGetValue(value, out _operatorDelegate);
 	        }
 	    }
@@ -56,7 +58,7 @@ namespace DotLiquid
 	    private string _left;
 	    private string _right;
 	    private string _operatorString;
-	    private bool _invalidOperatorString = false;
+	    private bool _invalidOperatorString;
 	    private ConditionOperatorDelegate _operatorDelegate;
 		private byte _childRelation;
 		private Condition _childCondition;

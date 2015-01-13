@@ -286,9 +286,9 @@ namespace DotLiquid
 			scope = scope ?? Environments.LastOrDefault() ?? GlobalScope;
 			variable = variable ?? LookupAndEvaluate(scope, key);
 
-			variable = Liquidize(variable);
-			if (variable is IContextAware)
-				((IContextAware) variable).Context = this;
+            variable = Liquidize(variable);
+            if (variable is IContextAware)
+                ((IContextAware) variable).Context = this;
 			return variable;
 		}
 
@@ -383,7 +383,8 @@ namespace DotLiquid
 			if (TypeUtility.IsAnonymousType(obj.GetType()) && obj.GetType().GetProperty((string) part) != null)
 				return true;
 
-			if ((obj is IIndexable) && ((IIndexable) obj).ContainsKey((string) part))
+		    var indexable = obj as IIndexable;
+			if (indexable != null && indexable.ContainsKey((string) part))
 				return true;
 
 			return false;

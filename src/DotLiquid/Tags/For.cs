@@ -89,13 +89,20 @@ namespace DotLiquid.Tags
 			if (!(collection is IEnumerable))
 				return;
 
-			int from = (_attributes.ContainsKey("offset"))
-				? (_attributes["offset"] == "continue")
-					? Convert.ToInt32(context.Registers.Get<Hash>("for")[_name])
-					: Convert.ToInt32(context[_attributes["offset"]])
-				: 0;
+		    string offsetString;
+		    int from = 0;
+		    if (_attributes.TryGetValue("offset", out offsetString))
+		    {
+		        from = (offsetString == "continue")
+		            ? Convert.ToInt32(context.Registers.Get<Hash>("for")[_name])
+		            : Convert.ToInt32(context[offsetString]);
+		    }
 
-			int? limit = _attributes.ContainsKey("limit") ? context[_attributes["limit"]] as int? : null;
+		    string limitString;
+		    int? limit = _attributes.TryGetValue("limit", out limitString)
+		                ? context[limitString] as int?
+		                : null;
+
 			int? to = (limit != null) ? (int?) (limit.Value + from) : null;
 
 			List<object> segment = SliceCollectionUsingEach((IEnumerable) collection, from, to);
@@ -114,17 +121,20 @@ namespace DotLiquid.Tags
 			context.Stack(() => segment.EachWithIndex((item, index) =>
 			{
 				context[_variableName] = item;
-				context["forloop"] = Hash.FromAnonymousObject(new
-				{
-					name = _name,
-					length = length,
-					index = index + 1,
-					index0 = index,
-					rindex = length - index,
-					rindex0 = length - index - 1,
-					first = (index == 0),
-					last = (index == length - 1)
-				});
+
+			    var forHash = new Hash();
+
+			    forHash["name"] = _name;
+                forHash["length"] = length;
+                forHash["index"] = index + 1;
+                forHash["index0"] = index;
+                forHash["rindex"] = length - index;
+                forHash["rindex0"] = length - index - 1;
+                forHash["first"] = (index == 0);
+                forHash["last"] = (index == length - 1);
+
+			    context["forloop"] = forHash;
+
 				RenderAll(NodeList, context, result);
 			}));
 		}

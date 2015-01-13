@@ -65,20 +65,22 @@ namespace DotLiquid.Tags.Html
 			context.Stack(() => collection.EachWithIndex((item, index) =>
 			{
 				context[_variableName] = item;
-				context["tablerowloop"] = Hash.FromAnonymousObject(new
-				{
-					length = length,
-					index = index + 1,
-					index0 = index,
-					col = col + 1,
-					col0 = col,
-					rindex = length - index,
-					rindex0 = length - index - 1,
-					first = (index == 0),
-					last = (index == length - 1),
-					col_first = (col == 0),
-					col_last = (col == cols - 1)
-				});
+
+			    var rowLoopHash = new Hash();
+
+			    rowLoopHash["length"] = length;
+                rowLoopHash["index"] = index + 1;
+                rowLoopHash["index0"] = index;
+                rowLoopHash["col"] = col + 1;
+                rowLoopHash["col0"] = col;
+                rowLoopHash["rindex"] = length - index;
+                rowLoopHash["rindex0"] = length - index - 1;
+                rowLoopHash["first"] = (index == 0);
+                rowLoopHash["last"] = (index == length - 1);
+                rowLoopHash["col_first"] = (col == 0);
+                rowLoopHash["col_last"] = (col == cols - 1);
+
+				context["tablerowloop"] = rowLoopHash;
 
 				++col;
 

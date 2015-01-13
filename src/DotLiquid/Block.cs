@@ -132,8 +132,9 @@ namespace DotLiquid
 			{
 				try
 				{
-					if (token is IRenderable)
-						((IRenderable) token).Render(context, result);
+				    var renderable = token as IRenderable;
+					if (renderable != null)
+						renderable.Render(context, result);
 					else
 						result.Write(token.ToString());
 				}

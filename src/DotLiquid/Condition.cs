@@ -43,10 +43,10 @@ namespace DotLiquid
 	        set
 	        {
 	            _operatorString = value;
-	            if (string.IsNullOrEmpty(value))
-	                _operatorDelegate = (l, r) => NoOperator(l);
-	            else if (!Operators.TryGetValue(value, out _operatorDelegate))
-	                throw new Exceptions.ArgumentException(Liquid.ResourceManager.GetString("ConditionUnknownOperatorException"), value);
+                if (string.IsNullOrEmpty(value))
+                    _operatorDelegate = null;
+                else
+	                _invalidOperatorString = !Operators.TryGetValue(value, out _operatorDelegate);
 	        }
 	    }
 
@@ -56,6 +56,7 @@ namespace DotLiquid
 	    private string _left;
 	    private string _right;
 	    private string _operatorString;
+	    private bool _invalidOperatorString = false;
 	    private ConditionOperatorDelegate _operatorDelegate;
 		private byte _childRelation;
 		private Condition _childCondition;
@@ -80,7 +81,12 @@ namespace DotLiquid
 
 	    public virtual bool Evaluate(Context context)
 	    {
-            var result = _operatorDelegate(context[_left], context[_right]);
+            if (_invalidOperatorString)
+                throw new Exceptions.ArgumentException(Liquid.ResourceManager.GetString("ConditionUnknownOperatorException"), _operatorString);
+
+	        var result = _operatorDelegate == null 
+                        ? NoOperator(context[_left]) 
+                        : _operatorDelegate(context[_left], context[_right]);
             
 	        if (_childRelation == OrCode)
                 return result || _childCondition.Evaluate(context);

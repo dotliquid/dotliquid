@@ -15,6 +15,14 @@ namespace DotLiquid
 		private readonly bool _rethrowErrors;
 		private Strainer _strainer;
 
+        private static Regex _squareBracketed = new Regex(R.Q(@"^\[(.*)\]$"), RegexOptions.Compiled);
+        private static Regex _floatRegex = new Regex(R.Q(@"^([+-]?\d[\d\.|\,]+)$"), RegexOptions.Compiled);
+        private static Regex _rangesRegex = new Regex(R.Q(@"^\((\S+)\.\.(\S+)\)$"), RegexOptions.Compiled);
+        private static Regex _integerRegex = new Regex(R.Q(@"^([+-]?\d+)$"), RegexOptions.Compiled);
+        private static Regex _doubleQuotesRegex = new Regex(R.Q(@"^""(.*)""$"), RegexOptions.Compiled);
+        private static Regex _singleQuotesRegex = new Regex(R.Q(@"^'(.*)'$"), RegexOptions.Compiled);
+        private static Regex _variableParserRegex = new Regex(Liquid.VariableParser, RegexOptions.Compiled);
+
 		public List<Hash> Environments { get; private set; }
 
         /// <summary>
@@ -25,12 +33,16 @@ namespace DotLiquid
         /// <summary>
         /// The outer-most scope
         /// </value>
-        public Hash ApplicationScope { get; private set; }
+        public Hash GlobalScope { get; private set; }
 
 		public Hash Registers { get; private set; }
 		public List<Exception> Errors { get; private set; }
 
         public List<Hash> AllScopes { get; private set; }
+
+        public Context()
+            : this(new List<Hash>(), new Hash(), new Hash(), true)
+        { }
 
 		public Context(List<Hash> environments, Hash outerScope, Hash registers, bool rethrowErrors)
 		{
@@ -43,8 +55,8 @@ namespace DotLiquid
 			Environments = environments;
             AllScopes = new List<Hash>();
 
-		    ApplicationScope = outerScope ?? new Hash();
-		    Push(ApplicationScope);
+		    GlobalScope = outerScope ?? new Hash();
+		    Push(GlobalScope);
 
 			Registers = registers;
 
@@ -123,6 +135,9 @@ namespace DotLiquid
 		/// </summary>
 		public void Pop()
 		{
+            if (LocalScope == GlobalScope)
+                throw new ContextException();
+
             AllScopes.RemoveAt(0);
             LocalScope = AllScopes[0];
 		}
@@ -211,28 +226,28 @@ namespace DotLiquid
 			}
 
 			// Single quoted strings.
-			Match match = Regex.Match(key, R.Q(@"^'(.*)'$"));
+			var match = _singleQuotesRegex.Match(key);
 			if (match.Success)
 				return match.Groups[1].Value;
 
 			// Double quoted strings.
-			match = Regex.Match(key, R.Q(@"^""(.*)""$"));
+			match = _doubleQuotesRegex.Match(key);
 			if (match.Success)
 				return match.Groups[1].Value;
 
 			// Integer.
-			match = Regex.Match(key, R.Q(@"^([+-]?\d+)$"));
+			match = _integerRegex.Match(key);
 			if (match.Success)
 				return Convert.ToInt32(match.Groups[1].Value);
 
 			// Ranges.
-			match = Regex.Match(key, R.Q(@"^\((\S+)\.\.(\S+)\)$"));
+			match = _rangesRegex.Match(key);
 			if (match.Success)
 				return Range.Inclusive(Convert.ToInt32(Resolve(match.Groups[1].Value)),
 					Convert.ToInt32(Resolve(match.Groups[2].Value)));
 
 			// Floats.
-			match = Regex.Match(key, R.Q(@"^([+-]?\d[\d\.|\,]+)$"));
+			match = _floatRegex.Match(key);
 			if (match.Success)
 			{
 				// For cultures with "," as the decimal separator, allow
@@ -268,7 +283,7 @@ namespace DotLiquid
 						break;
 					}
 			}
-			scope = scope ?? Environments.LastOrDefault() ?? ApplicationScope;
+			scope = scope ?? Environments.LastOrDefault() ?? GlobalScope;
 			variable = variable ?? LookupAndEvaluate(scope, key);
 
 			variable = Liquidize(variable);
@@ -290,11 +305,11 @@ namespace DotLiquid
 		/// <returns></returns>
 		private object Variable(string markup)
 		{
-			List<string> parts = R.Scan(markup, Liquid.VariableParser);
-			Regex squareBracketed = new Regex(R.Q(@"^\[(.*)\]$"));
-
+			List<string> parts = R.Scan(markup, _variableParserRegex);
+			
 			string firstPart = parts.Shift();
-			Match firstPartSquareBracketedMatch = squareBracketed.Match(firstPart);
+
+			Match firstPartSquareBracketedMatch = _squareBracketed.Match(firstPart);
 			if (firstPartSquareBracketedMatch.Success)
 				firstPart = Resolve(firstPartSquareBracketedMatch.Groups[1].Value).ToString();
 
@@ -303,7 +318,7 @@ namespace DotLiquid
 			{
 				foreach (string forEachPart in parts)
 				{
-					Match partSquareBracketedMatch = squareBracketed.Match(forEachPart);
+					Match partSquareBracketedMatch = _squareBracketed.Match(forEachPart);
 					bool partResolved = partSquareBracketedMatch.Success;
 
 					object part = forEachPart;
@@ -447,7 +462,7 @@ namespace DotLiquid
 		{
 			Dictionary<string, object> tempAssigns = new Dictionary<string, object>(Template.NamingConvention.StringComparer);
 
-			var applicationScope = ApplicationScope;
+			var applicationScope = GlobalScope;
 			foreach (var k in applicationScope.Keys)
 				foreach (var env in Environments)
 					if (env.ContainsKey(k))

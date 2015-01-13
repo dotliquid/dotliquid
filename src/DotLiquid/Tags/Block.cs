@@ -62,7 +62,7 @@ namespace DotLiquid.Tags
 	/// </summary>
 	public class Block : DotLiquid.Block
 	{
-		private static readonly Regex Syntax = new Regex(@"(\w+)");
+        private static readonly Regex Syntax = new Regex(@"(\w+)", RegexOptions.Compiled);
 
 		internal string BlockName { get; set; }
 

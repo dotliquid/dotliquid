@@ -58,7 +58,7 @@ namespace DotLiquid.Tags
 	/// </example>
 	public class Extends : DotLiquid.Block
 	{
-		private static readonly Regex Syntax = new Regex(string.Format(@"^({0})", Liquid.QuotedFragment));
+        private static readonly Regex Syntax = new Regex(string.Format(@"^({0})", Liquid.QuotedFragment), RegexOptions.Compiled);
 
 		private string _templateName;
 

@@ -116,9 +116,9 @@ namespace DotLiquid
 			throw new SyntaxException(Liquid.ResourceManager.GetString("BlockVariableNotTerminatedException"), token, Liquid.VariableEnd);
 		}
 
-		public override void Render(Context context, TextWriter result)
+		public override ReturnCode Render(Context context, TextWriter result)
 		{
-			RenderAll(NodeList, context, result);
+			return RenderAll(NodeList, context, result);
 		}
 
 		protected virtual void AssertMissingDelimitation()
@@ -126,17 +126,21 @@ namespace DotLiquid
 			throw new SyntaxException(Liquid.ResourceManager.GetString("BlockTagNotClosedException"), BlockName);
 		}
 
-		protected void RenderAll(List<object> list, Context context, TextWriter result)
+		protected ReturnCode RenderAll(List<object> list, Context context, TextWriter result)
 		{
-			list.ForEach(token =>
+			foreach (var token in list)
 			{
 				try
 				{
 				    var renderable = token as IRenderable;
-					if (renderable != null)
-						renderable.Render(context, result);
-					else
-						result.Write(token.ToString());
+				    if (renderable != null)
+				    {
+				        var retCode = renderable.Render(context, result);
+                        if (retCode != ReturnCode.Return)
+				            return retCode;
+				    }
+				    else
+				        result.Write(token.ToString());
 				}
 				catch (Exception ex)
 				{
@@ -144,7 +148,9 @@ namespace DotLiquid
 						ex = ex.InnerException;
 					result.Write(context.HandleError(ex));
 				}
-			});
+			}
+
+            return ReturnCode.Return;
 		}
 	}
 }

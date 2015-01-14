@@ -60,15 +60,15 @@ namespace DotLiquid
 			}
 		}
 
-		public void Render(Context context, TextWriter result)
+		public ReturnCode Render(Context context, TextWriter result)
 		{
 			object output = RenderInternal(context);
 
 		    if (output == null) 
-                return;
+                return ReturnCode.Return;
 
 		    if (output is ILiquidizable)
-		        return;
+                return ReturnCode.Return;
 
 		    var transformer = Template.GetValueTypeTransformer(output.GetType());
                 
@@ -88,6 +88,8 @@ namespace DotLiquid
 		    else
 		        outputString = output.ToString();
 		    result.Write(outputString);
+
+            return ReturnCode.Return;
 		}
 
 		private object RenderInternal(Context context)

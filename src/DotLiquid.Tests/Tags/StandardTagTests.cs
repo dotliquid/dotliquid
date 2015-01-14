@@ -8,15 +8,6 @@ namespace DotLiquid.Tests.Tags
 	public class StandardTagTests
 	{
 		[Test]
-		public void TestTag()
-		{
-			Tag tag = new Tag();
-			tag.Initialize("tag", null, null);
-			Assert.AreEqual("tag", tag.Name);
-			Assert.AreEqual(string.Empty, tag.Render(new Context(new List<Hash>(), new Hash(), new Hash(), false)));
-		}
-
-		[Test]
 		public void TestNoTransform()
 		{
 			Helper.AssertTemplateResult("this text should come out of the template without change...",

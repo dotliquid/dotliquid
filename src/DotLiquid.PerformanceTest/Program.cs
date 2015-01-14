@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 
 namespace DotLiquid.PerformanceTest
@@ -63,8 +64,16 @@ namespace DotLiquid.PerformanceTest
             Console.WriteLine(@"   Average: {0:0.00000}ms", timings.Average());
             Console.WriteLine(@"   Std Dev: {0:0.00000}ms", CalculateStdDev(timings));
             Console.WriteLine();
-            
-            //Console.WriteLine(template.Render(Hash.FromAnonymousObject(GetFreshTestObject())));
+
+            //WriteToFile(template.Render(Hash.FromAnonymousObject(GetFreshTestObject())));
+        }
+
+        private static void WriteToFile(string render)
+        {
+            using (var file = new StreamWriter(@"C:\templatetest.html"))
+            {
+                file.Write(render);
+            }
         }
 
         private static double CalculateStdDev(IList<double> values)

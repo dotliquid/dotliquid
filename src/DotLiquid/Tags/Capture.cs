@@ -36,13 +36,17 @@ namespace DotLiquid.Tags
 			base.Initialize(tagName, markup, tokens);
 		}
 
-		public override void Render(Context context, TextWriter result)
+		public override ReturnCode Render(Context context, TextWriter result)
 		{
 			using (TextWriter temp = new StringWriter())
 			{
-				base.Render(context, temp);
+				var retCode = base.Render(context, temp);
+			    if (retCode != ReturnCode.Return)
+			        return retCode;
 				context.GlobalScope[_to] = temp.ToString();
 			}
+
+            return ReturnCode.Return;
 		}
 	}
 }

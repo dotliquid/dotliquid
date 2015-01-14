@@ -99,7 +99,7 @@ namespace DotLiquid.Tags
 		{
 		}
 
-		public override void Render(Context context, TextWriter result)
+		public override ReturnCode Render(Context context, TextWriter result)
 		{
             // Get the template or template content and then either copy it (since it will be modified) or parse it
 			IFileSystem fileSystem = context.Registers["file_system"] as IFileSystem ?? Template.FileSystem;
@@ -111,7 +111,7 @@ namespace DotLiquid.Tags
             List<Block> orphanedBlocks = ((List<Block>)context.LocalScope["extends"]) ?? new List<Block>();
 		    BlockRenderState blockState = BlockRenderState.Find(context) ?? new BlockRenderState();
 
-            context.Stack(() =>
+            return context.Stack(() =>
             {
                 context["blockstate"] = blockState;         // Set or copy the block state down to this scope
                 context["extends"] = new List<Block>();     // Holds Blocks that were not found in the parent
@@ -133,6 +133,7 @@ namespace DotLiquid.Tags
                     }
                 }
 			    template.Render(result, RenderParameters.FromContext(context));
+                return ReturnCode.Return;
             });
 		}
 

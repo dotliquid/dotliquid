@@ -33,12 +33,12 @@ namespace DotLiquid.Tags.Html
 			base.Initialize(tagName, markup, tokens);
 		}
 
-		public override void Render(Context context, TextWriter result)
+		public override ReturnCode Render(Context context, TextWriter result)
 		{
 			object coll = context[_collectionName];
 
 			if (!(coll is IEnumerable))
-				return;
+                return ReturnCode.Return;
 			IEnumerable<object> collection = ((IEnumerable) coll).Cast<object>();
 
 			if (_attributes.ContainsKey("offset"))
@@ -62,43 +62,57 @@ namespace DotLiquid.Tags.Html
 			int col = 0;
 
 			result.WriteLine("<tr class=\"row1\">");
-			context.Stack(() => collection.EachWithIndex((item, index) =>
-			{
-				context[_variableName] = item;
+		    var returnCode = context.Stack(() =>
+		    {
+		        int index = 0;
+		        foreach (object item in collection)
+		        {
+		            context[_variableName] = item;
 
-			    var rowLoopHash = new Hash();
+		            var rowLoopHash = new Hash();
 
-			    rowLoopHash["length"] = length;
-                rowLoopHash["index"] = index + 1;
-                rowLoopHash["index0"] = index;
-                rowLoopHash["col"] = col + 1;
-                rowLoopHash["col0"] = col;
-                rowLoopHash["rindex"] = length - index;
-                rowLoopHash["rindex0"] = length - index - 1;
-                rowLoopHash["first"] = (index == 0);
-                rowLoopHash["last"] = (index == length - 1);
-                rowLoopHash["col_first"] = (col == 0);
-                rowLoopHash["col_last"] = (col == cols - 1);
+		            rowLoopHash["length"] = length;
+		            rowLoopHash["index"] = index + 1;
+		            rowLoopHash["index0"] = index;
+		            rowLoopHash["col"] = col + 1;
+		            rowLoopHash["col0"] = col;
+		            rowLoopHash["rindex"] = length - index;
+		            rowLoopHash["rindex0"] = length - index - 1;
+		            rowLoopHash["first"] = (index == 0);
+		            rowLoopHash["last"] = (index == length - 1);
+		            rowLoopHash["col_first"] = (col == 0);
+		            rowLoopHash["col_last"] = (col == cols - 1);
 
-				context["tablerowloop"] = rowLoopHash;
+		            context["tablerowloop"] = rowLoopHash;
 
-				++col;
+		            ++col;
 
-				using (TextWriter temp = new StringWriter())
-				{
-					RenderAll(NodeList, context, temp);
-					result.Write("<td class=\"col{0}\">{1}</td>", col, temp.ToString());
-				}
+		            using (TextWriter temp = new StringWriter())
+		            {
+		                var retCode = RenderAll(NodeList, context, temp);
+		                if (retCode != ReturnCode.Return)
+		                    return retCode;
 
-				if (col == cols && index != length - 1)
-				{
-					col = 0;
-					++row;
-					result.WriteLine("</tr>");
-					result.Write("<tr class=\"row{0}\">", row);
-				}
-			}));
+		                result.Write("<td class=\"col{0}\">{1}</td>", col, temp.ToString());
+		            }
+
+		            if (col == cols && index != length - 1)
+		            {
+		                col = 0;
+		                ++row;
+		                result.WriteLine("</tr>");
+		                result.Write("<tr class=\"row{0}\">", row);
+		            }
+
+		            ++index;
+		        }
+
+		        return ReturnCode.Return;
+		    });
+
 			result.WriteLine("</tr>");
+
+            return returnCode;
 		}
 	}
 }

@@ -38,7 +38,7 @@ namespace DotLiquid.Tags
 		{
 		}
 
-		public override void Render(Context context, TextWriter result)
+		public override ReturnCode Render(Context context, TextWriter result)
 		{
 			IFileSystem fileSystem = context.Registers["file_system"] as IFileSystem ?? Template.FileSystem;
 			string source = fileSystem.ReadTemplateFile(context, _templateName);
@@ -47,7 +47,7 @@ namespace DotLiquid.Tags
 			string shortenedTemplateName = _templateName.Substring(1, _templateName.Length - 2);
 			object variable = context[_variableName ?? shortenedTemplateName];
 
-			context.Stack(() =>
+			return context.Stack(() =>
 			{
 				foreach (var keyValue in _attributes)
 					context[keyValue.Key] = context[keyValue.Value];
@@ -59,11 +59,12 @@ namespace DotLiquid.Tags
 						context[shortenedTemplateName] = v;
 						partial.Render(result, RenderParameters.FromContext(context));
 					});
-					return;
+					return ReturnCode.Return;
 				}
 
 				context[shortenedTemplateName] = variable;
 				partial.Render(result, RenderParameters.FromContext(context));
+                return ReturnCode.Return;
 			});
 		}
 	}

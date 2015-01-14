@@ -43,26 +43,29 @@ namespace DotLiquid.Tags
 			}
 		}
 
-		public override void Render(Context context, TextWriter result)
+		public override ReturnCode Render(Context context, TextWriter result)
 		{
-			context.Stack(() =>
+			return context.Stack(() =>
 			{
 				bool executeElseBlock = true;
-				_blocks.ForEach(block =>
+			    var retCode = ReturnCode.Return;
+				foreach (var block in _blocks)
 				{
 					if (block.IsElse)
 					{
 						if (executeElseBlock)
 						{
-							RenderAll(block.Attachment, context, result);
+							retCode = RenderAll(block.Attachment, context, result);
 						}
 					}
 					else if (block.Evaluate(context))
 					{
 						executeElseBlock = false;
-						RenderAll(block.Attachment, context, result);
+						retCode = RenderAll(block.Attachment, context, result);
 					}
-				});
+				}
+
+                return retCode;
 			});
 		}
 

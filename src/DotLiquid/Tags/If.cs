@@ -42,19 +42,19 @@ namespace DotLiquid.Tags
 				base.UnknownTag(tag, markup, tokens);
 		}
 
-		public override void Render(Context context, TextWriter result)
+		public override ReturnCode Render(Context context, TextWriter result)
 		{
-			context.Stack(() =>
+			return context.Stack(() =>
 			{
 				foreach (Condition block in Blocks)
 				{
 					if (block.Evaluate(context))
 					{
-						RenderAll(block.Attachment, context, result);
-						return;
+						return RenderAll(block.Attachment, context, result);
 					}
 				}
-				;
+
+                return ReturnCode.Return;
 			});
 		}
 

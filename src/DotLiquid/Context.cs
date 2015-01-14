@@ -15,27 +15,28 @@ namespace DotLiquid
 		private readonly bool _rethrowErrors;
 		private Strainer _strainer;
 
-        private static Regex _squareBracketed = new Regex(R.Q(@"^\[(.*)\]$"), RegexOptions.Compiled);
-        private static Regex _floatRegex = new Regex(R.Q(@"^([+-]?\d[\d\.|\,]+)$"), RegexOptions.Compiled);
-        private static Regex _rangesRegex = new Regex(R.Q(@"^\((\S+)\.\.(\S+)\)$"), RegexOptions.Compiled);
-        private static Regex _integerRegex = new Regex(R.Q(@"^([+-]?\d+)$"), RegexOptions.Compiled);
-        private static Regex _doubleQuotesRegex = new Regex(R.Q(@"^""(.*)""$"), RegexOptions.Compiled);
-        private static Regex _singleQuotesRegex = new Regex(R.Q(@"^'(.*)'$"), RegexOptions.Compiled);
-        private static Regex _variableParserRegex = new Regex(Liquid.VariableParser, RegexOptions.Compiled);
+        private readonly static Regex SquareBracketed = new Regex(R.Q(@"^\[(.*)\]$"), RegexOptions.Compiled);
+        private readonly static Regex FloatRegex = new Regex(R.Q(@"^([+-]?\d[\d\.|\,]+)$"), RegexOptions.Compiled);
+        private readonly static Regex RangesRegex = new Regex(R.Q(@"^\((\S+)\.\.(\S+)\)$"), RegexOptions.Compiled);
+        private readonly static Regex IntegerRegex = new Regex(R.Q(@"^([+-]?\d+)$"), RegexOptions.Compiled);
+        private readonly static Regex DoubleQuotesRegex = new Regex(R.Q(@"^""(.*)""$"), RegexOptions.Compiled);
+        private readonly static Regex SingleQuotesRegex = new Regex(R.Q(@"^'(.*)'$"), RegexOptions.Compiled);
+        private readonly static Regex VariableParserRegex = new Regex(Liquid.VariableParser, RegexOptions.Compiled);
 
 		public List<Hash> Environments { get; private set; }
 
         /// <summary>
         /// The inner-most scope
-        /// </value>
+        /// </summary>
         public Hash LocalScope { get; private set; }
 
         /// <summary>
         /// The outer-most scope
-        /// </value>
+        /// </summary>
         public Hash GlobalScope { get; private set; }
 
 		public Hash Registers { get; private set; }
+
 		public List<Exception> Errors { get; private set; }
 
         public List<Hash> AllScopes { get; private set; }
@@ -90,9 +91,6 @@ namespace DotLiquid
 
 		public string HandleError(Exception ex)
 		{
-		    if (ex is InterruptException)
-		        throw ex;
-
 			Errors.Add(ex);
 			if (_rethrowErrors)
 				throw ex;
@@ -108,7 +106,6 @@ namespace DotLiquid
 				return Strainer.Invoke(method, args);
 
 			return args.First();
-			//throw new FilterNotFoundException("Filter not found: '{0}'", method);
 		}
 
 		/// <summary>
@@ -145,36 +142,36 @@ namespace DotLiquid
             LocalScope = AllScopes[0];
 		}
 
-		/// <summary>
-		/// pushes a new local scope on the stack, pops it at the end of the block
-		/// 
-		/// Example:
-		/// 
-		/// context.stack do
-		/// context['var'] = 'hi'
-		/// end
-		/// context['var] #=> nil
-		/// </summary>
-		/// <param name="newScope"></param>
-		/// <param name="callback"></param>
-		/// <returns></returns>
-		public void Stack(Hash newScope, Action callback)
-		{
-			Push(newScope);
-			try
-			{
-				callback();
-			}
-			finally
-			{
-				Pop();
-			}
-		}
+        /// <summary>
+        /// pushes a new local scope on the stack, pops it at the end of the block
+        /// 
+        /// Example:
+        /// 
+        /// context.stack do
+        /// context['var'] = 'hi'
+        /// end
+        /// context['var] #=> nil
+        /// </summary>
+        /// <param name="newScope"></param>
+        /// <param name="callback"></param>
+        /// <returns></returns>
+        public ReturnCode Stack(Hash newScope, Func<ReturnCode> callback)
+        {
+            Push(newScope);
+            try
+            {
+                return callback();
+            }
+            finally
+            {
+                Pop();
+            }
+        }
 
-		public void Stack(Action callback)
-		{
-			Stack(new Hash(), callback);
-		}
+        public ReturnCode Stack(Func<ReturnCode> callback)
+        {
+            return Stack(new Hash(), callback);
+        }
 
 		public void ClearInstanceAssigns()
 		{
@@ -229,28 +226,28 @@ namespace DotLiquid
 			}
 
 			// Single quoted strings.
-			var match = _singleQuotesRegex.Match(key);
+			var match = SingleQuotesRegex.Match(key);
 			if (match.Success)
 				return match.Groups[1].Value;
 
 			// Double quoted strings.
-			match = _doubleQuotesRegex.Match(key);
+			match = DoubleQuotesRegex.Match(key);
 			if (match.Success)
 				return match.Groups[1].Value;
 
 			// Integer.
-			match = _integerRegex.Match(key);
+			match = IntegerRegex.Match(key);
 			if (match.Success)
 				return Convert.ToInt32(match.Groups[1].Value);
 
 			// Ranges.
-			match = _rangesRegex.Match(key);
+			match = RangesRegex.Match(key);
 			if (match.Success)
 				return Range.Inclusive(Convert.ToInt32(Resolve(match.Groups[1].Value)),
 					Convert.ToInt32(Resolve(match.Groups[2].Value)));
 
 			// Floats.
-			match = _floatRegex.Match(key);
+			match = FloatRegex.Match(key);
 			if (match.Success)
 			{
 				// For cultures with "," as the decimal separator, allow
@@ -308,11 +305,11 @@ namespace DotLiquid
 		/// <returns></returns>
 		private object Variable(string markup)
 		{
-			List<string> parts = R.Scan(markup, _variableParserRegex);
+			List<string> parts = R.Scan(markup, VariableParserRegex);
 			
 			string firstPart = parts.Shift();
 
-			Match firstPartSquareBracketedMatch = _squareBracketed.Match(firstPart);
+			Match firstPartSquareBracketedMatch = SquareBracketed.Match(firstPart);
 			if (firstPartSquareBracketedMatch.Success)
 				firstPart = Resolve(firstPartSquareBracketedMatch.Groups[1].Value).ToString();
 
@@ -321,7 +318,7 @@ namespace DotLiquid
 			{
 				foreach (string forEachPart in parts)
 				{
-					Match partSquareBracketedMatch = _squareBracketed.Match(forEachPart);
+					Match partSquareBracketedMatch = SquareBracketed.Match(forEachPart);
 					bool partResolved = partSquareBracketedMatch.Success;
 
 					object part = forEachPart;

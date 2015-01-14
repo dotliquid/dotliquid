@@ -64,7 +64,7 @@ namespace DotLiquid.Tags
 			}).ToArray();
 		}
 
-		public override void Render(Context context, TextWriter result)
+		public override ReturnCode Render(Context context, TextWriter result)
 		{
 		    object cycleRegister = context.Registers["cycle"];
 		    if (cycleRegister == null)
@@ -74,7 +74,7 @@ namespace DotLiquid.Tags
 		    }
 		    var cycleRegisterHash = (Hash) cycleRegister;
 
-		    context.Stack(() =>
+		    return context.Stack(() =>
 			{
 				string key = context[_name].ToString();
                 int iteration = (int)(cycleRegisterHash[key] ?? 0);
@@ -83,6 +83,7 @@ namespace DotLiquid.Tags
 				if (iteration >= _variables.Length)
 					iteration = 0;
                 cycleRegisterHash[key] = iteration;
+                return ReturnCode.Return;
 			});
 		}
 	}

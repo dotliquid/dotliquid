@@ -80,7 +80,7 @@ namespace DotLiquid.Tags
 			base.Initialize(tagName, markup, tokens);
 		}
 
-		public override void Render(Context context, TextWriter result)
+		public override ReturnCode Render(Context context, TextWriter result)
 		{
             object forRegister = context.Registers["for"];
 		    if (forRegister == null)
@@ -92,7 +92,7 @@ namespace DotLiquid.Tags
 		    object collection = context[_collectionName];
 
 			if (!(collection is IEnumerable))
-				return;
+                return ReturnCode.Return;
 
 		    string offsetString;
 		    int from = 0;
@@ -113,7 +113,7 @@ namespace DotLiquid.Tags
 			List<object> segment = SliceCollectionUsingEach((IEnumerable) collection, from, to);
 
 			if (!segment.Any())
-				return;
+				return ReturnCode.Return;
 
 			if (_reversed)
 				segment.Reverse();
@@ -123,7 +123,7 @@ namespace DotLiquid.Tags
 			// Store our progress through the collection for the continue flag
 			context.Registers.Get<Hash>("for")[_name] = from + length;
 
-		    context.Stack(() =>
+		    return context.Stack(() =>
 			{
 		        for (var index = 0; index < segment.Count; ++index)
 		        {
@@ -142,18 +142,11 @@ namespace DotLiquid.Tags
 
 			        context["forloop"] = forHash;
 
-		            try
-		            {
-		                RenderAll(NodeList, context, result);
-		            }
-		            catch (BreakInterrupt)
-		            {
+		            if (RenderAll(NodeList, context, result) == ReturnCode.Break)
 		                break;
-		            }
-		            catch (ContinueInterrupt)
-		            {
-		            }
 		        }
+
+                return ReturnCode.Return;
 		    });
 		}
 

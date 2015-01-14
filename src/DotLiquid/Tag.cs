@@ -3,7 +3,7 @@ using System.IO;
 
 namespace DotLiquid
 {
-	public class Tag : IRenderable
+	public abstract class Tag : IRenderable
 	{
 		public List<object> NodeList { get; protected set; }
 		protected string TagName { get; private set; }
@@ -36,22 +36,6 @@ namespace DotLiquid
 			get { return GetType().Name.ToLower(); }
 		}
 
-		public virtual void Render(Context context, TextWriter result)
-		{
-		}
-
-		/// <summary>
-		/// Primarily intended for testing.
-		/// </summary>
-		/// <param name="context"></param>
-		/// <returns></returns>
-		internal string Render(Context context)
-		{
-			using (TextWriter result = new StringWriter())
-			{
-				Render(context, result);
-				return result.ToString();
-			}
-		}
+	    public abstract ReturnCode Render(Context context, TextWriter result);
 	}
 }

@@ -102,13 +102,13 @@ namespace DotLiquid.Tags
 			});
 		}
 
-		public override void Render(Context context, TextWriter result)
+		public override ReturnCode Render(Context context, TextWriter result)
 		{
 			BlockRenderState blockState = BlockRenderState.Find(context);
-			context.Stack(() =>
+			return context.Stack(() =>
 			{
 				context["block"] = new BlockDrop(this, result);
-				RenderAll(GetNodeList(blockState), context, result);
+				return RenderAll(GetNodeList(blockState), context, result);
 			});
 		}
 

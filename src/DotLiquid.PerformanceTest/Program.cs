@@ -19,124 +19,53 @@ namespace DotLiquid.PerformanceTest
             public string Description { get; set; }
             public double Cost { get; set; }
         }
+        
+        static void Main()
+        {
+            // Warm up
+            Console.WriteLine("Warm up");
+            RunTest(100);
 
-        private const string TemplateCode = @"
-<div>
-<p><b>
-{% if user.name == 'Steve Lillis' -%}
-  Welcome back
-{% else -%}
-  I don't know you!
-{% endif -%}
-</b></p>
-{% unless user.name == 'Steve Thompson' -%}
-  <i>Unless example</i>
-{% endunless -%}
-{% comment %}A comment for comments sake{% endcomment %}
-<ul>
-<li>This entry and something about baked goods</li>
-<li>
-{% assign handle = 'cake' -%}
-{% case handle -%}
-  {% when 'cake' -%}
-     This is a cake
-  {% when 'cookie' -%}
-     This is a cookie
-  {% else -%}
-     This is not a cake nor a cookie
-{% endcase -%}
-</li>
-</ul>
-</div>
-<p>{{ user.name | upcase }} has the following items:</p>
-<table>
-{% for item in user.items -%}
-  <tr>
-     <td>
-        {% cycle 'one', 'two', 'three' %}
-     </td>
-     <td>
-        {{ item.description }} 
-        {% assign handle = 'cake' -%}
-        {% case handle -%}
-          {% when 'cake' -%}
-             This is a cake
-          {% when 'cookie' -%}
-             This is a cookie
-          {% else -%}
-             This is not a cake nor a cookie
-        {% endcase -%}
-     </td>
-     <td>
-        {{ item.cost }}
-     </td>
-  </tr>
-{% endfor -%}
-{% for item in user.items reversed -%}
-  <tr>
-     <td>e
-        {% cycle 'one', 'two', 'three' %}
-     </td>
-     <td>
-        {% if item.description == 'First Item' -%}
-            {{ item.description | upcase }}
-        {% else %}
-            {{ item.description }}
-        {% endif %}
-     </td>
-     <td>
-        {{ item.cost }}
-     </td>
-  </tr>
-{% endfor -%}
-</table>";
-
-static void Main()
-{
-    // Warm up
-    Console.WriteLine("Warm up");
-    RunTest(100);
-
-    // Real tests
-    Console.WriteLine("Real tests");
-    RunTest(2);
-    RunTest(1000);
-    RunTest(10000);
+            // Real tests
+            Console.WriteLine("Real tests");
+            RunTest(2);
+            RunTest(1000);
+            RunTest(10000);
             
-    Console.ReadKey();
-}
+            Console.ReadKey();
+        }
 
-static void RunTest(int iterations)
-{
-    var template = Template.Parse(TemplateCode);
+        static void RunTest(int iterations)
+        {
+            var template = Template.Parse(TestTemplates.AdvancedTemplate);
 
-    var stopwatch = new Stopwatch();
-    var timings = new List<double>();
+            var stopwatch = new Stopwatch();
+            var timings = new List<double>();
             
-    for (var i = 0; i < iterations; ++i)
-    {
-        var hash = Hash.FromAnonymousObject(GetFreshTestObject());
+            for (var i = 0; i < iterations; ++i)
+            {
+                var hash = Hash.FromAnonymousObject(GetFreshTestObject());
 
-        stopwatch.Reset();
-        stopwatch.Start();
+                stopwatch.Reset();
+                stopwatch.Start();
 
-        template.Render(hash);
+                template.Render(hash);
 
-        stopwatch.Stop();
+                stopwatch.Stop();
 
-        timings.Add(stopwatch.Elapsed.TotalMilliseconds);
-    }
+                timings.Add(stopwatch.Elapsed.TotalMilliseconds);
+            }
 
-    Console.WriteLine(@"Iterations: {0}", iterations);
-    Console.WriteLine(@"   Minimum: {0:0.00000}ms", timings.Min());
-    Console.WriteLine(@"   Maximum: {0:0.00000}ms", timings.Max());
-    Console.WriteLine(@"     Range: {0:0.00000}ms", timings.Max() - timings.Min());
-    Console.WriteLine(@"   Average: {0:0.00000}ms", timings.Average());
-    Console.WriteLine(@"   Std Dev: {0:0.00000}ms", CalculateStdDev(timings));
-    Console.WriteLine();
+            Console.WriteLine(@"Iterations: {0}", iterations);
+            Console.WriteLine(@"   Minimum: {0:0.00000}ms", timings.Min());
+            Console.WriteLine(@"   Maximum: {0:0.00000}ms", timings.Max());
+            Console.WriteLine(@"     Range: {0:0.00000}ms", timings.Max() - timings.Min());
+            Console.WriteLine(@"   Average: {0:0.00000}ms", timings.Average());
+            Console.WriteLine(@"   Std Dev: {0:0.00000}ms", CalculateStdDev(timings));
+            Console.WriteLine();
             
-    //Console.WriteLine(template.Render(Hash.FromAnonymousObject(GetFreshTestObject())));
-}
+            //Console.WriteLine(template.Render(Hash.FromAnonymousObject(GetFreshTestObject())));
+        }
 
         private static double CalculateStdDev(IList<double> values)
         {

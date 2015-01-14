@@ -40,6 +40,10 @@ namespace DotLiquid
         /// <returns></returns>
         public static string Slice(string input, int start, int len)
         {
+            if (input == null || start > input.Length)
+                return null;
+            if (start + len > input.Length)
+                len = input.Length - start;
             return input.Substring(start, len);
         }
 

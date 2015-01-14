@@ -66,17 +66,23 @@ namespace DotLiquid.Tags
 
 		public override void Render(Context context, TextWriter result)
 		{
-			context.Registers["cycle"] = context.Registers["cycle"] ?? new Hash(0);
+		    object cycleRegister = context.Registers["cycle"];
+		    if (cycleRegister == null)
+		    {
+		        cycleRegister = new Hash(0);
+		        context.Registers["cycle"] = cycleRegister;
+		    }
+		    var cycleRegisterHash = (Hash) cycleRegister;
 
-			context.Stack(() =>
+		    context.Stack(() =>
 			{
 				string key = context[_name].ToString();
-				int iteration = (int) (((Hash) context.Registers["cycle"])[key] ?? 0);
+                int iteration = (int)(cycleRegisterHash[key] ?? 0);
 				result.Write(context[_variables[iteration]].ToString());
 				++iteration;
 				if (iteration >= _variables.Length)
 					iteration = 0;
-				((Hash) context.Registers["cycle"])[key] = iteration;
+                cycleRegisterHash[key] = iteration;
 			});
 		}
 	}

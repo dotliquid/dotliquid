@@ -82,9 +82,14 @@ namespace DotLiquid.Tags
 
 		public override void Render(Context context, TextWriter result)
 		{
-			context.Registers["for"] = context.Registers["for"] ?? new Hash(0);
+            object forRegister = context.Registers["for"];
+		    if (forRegister == null)
+		    {
+		        forRegister = new Hash(0);
+		        context.Registers["for"] = forRegister;
+		    }
 
-			object collection = context[_collectionName];
+		    object collection = context[_collectionName];
 
 			if (!(collection is IEnumerable))
 				return;

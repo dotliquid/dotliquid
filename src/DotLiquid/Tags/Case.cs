@@ -55,7 +55,6 @@ namespace DotLiquid.Tags
 						if (executeElseBlock)
 						{
 							RenderAll(block.Attachment, context, result);
-							return;
 						}
 					}
 					else if (block.Evaluate(context))

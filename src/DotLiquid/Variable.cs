@@ -64,29 +64,30 @@ namespace DotLiquid
 		{
 			object output = RenderInternal(context);
 
-			if (output is ILiquidizable)
-				output = null;
+		    if (output == null) 
+                return;
 
-			if (output != null)
-			{
-                var transformer = Template.GetValueTypeTransformer(output.GetType());
+		    if (output is ILiquidizable)
+		        return;
+
+		    var transformer = Template.GetValueTypeTransformer(output.GetType());
                 
-                if(transformer != null)
-                    output = transformer(output);
+		    if(transformer != null)
+		        output = transformer(output);
 
-				string outputString;
-				if (output is IEnumerable)
+		    string outputString;
+		    var enumerable = output as IEnumerable;
+		    if (enumerable != null)
 #if NET35
-					outputString = string.Join(string.Empty, ((IEnumerable)output).Cast<object>().Select(o => o.ToString()).ToArray());
+			    outputString = string.Join(string.Empty, enumerable.Cast<object>().Select(o => o.ToString()).ToArray());
 #else
-					outputString = string.Join(string.Empty, ((IEnumerable)output).Cast<object>());
+		        outputString = string.Join(string.Empty, enumerable.Cast<object>());
 #endif
-				else if (output is bool)
-					outputString = output.ToString().ToLower();
-				else
-					outputString = output.ToString();
-				result.Write(outputString);
-			}
+		    else if (output is bool)
+		        outputString = output.ToString().ToLower();
+		    else
+		        outputString = output.ToString();
+		    result.Write(outputString);
 		}
 
 		private object RenderInternal(Context context)
@@ -96,7 +97,7 @@ namespace DotLiquid
 
 			object output = context[Name];
 
-			Filters.ToList().ForEach(filter =>
+			Filters.ForEach(filter =>
 			{
 				List<object> filterArgs = filter.Arguments.Select(a => context[a]).ToList();
 				try
@@ -110,8 +111,9 @@ namespace DotLiquid
 				}
 			});
 
-            if (output is IValueTypeConvertible)
-                output = ((IValueTypeConvertible) output).ConvertToValueType();
+		    var convertible = output as IValueTypeConvertible;
+            if (convertible != null)
+                output = convertible.ConvertToValueType();
 
 			return output;
 		}

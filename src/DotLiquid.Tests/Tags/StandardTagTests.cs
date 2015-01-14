@@ -69,6 +69,21 @@ namespace DotLiquid.Tests.Tags
 				Hash.FromAnonymousObject(new { authors = dictionary.Values }));
 		}
 
+		public class TestDictObject : Drop {
+			public TestDictObject() {
+				testdict = new Dictionary<string, string>() { { "aa", "bb" }, { "dd", "ee" }, { "ff", "gg" } };
+			}
+			public Dictionary<string, string> testdict { get; set; }
+		}
+
+		[Test]
+		public void TestDictionaryFor()
+		{
+			var template = Template.Parse("{%for item in bla.testdict %}{{ item[0] }}-{{ item[1]}} {%endfor%}");
+			var result = template.Render(Hash.FromAnonymousObject(new { bla = new TestDictObject() }));
+			Assert.AreEqual("aa-bb dd-ee ff-gg ",result);
+		}
+
 		[Test]
 		public void TestFor()
 		{

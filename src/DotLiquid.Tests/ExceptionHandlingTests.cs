@@ -17,6 +17,11 @@ namespace DotLiquid.Tests
 			{
 				throw new SyntaxException("syntax exception");
 			}
+
+		    public void InterruptException()
+		    {
+		        throw new InterruptException("interrupted");
+		    }
 		}
 
 		[Test]
@@ -59,5 +64,16 @@ namespace DotLiquid.Tests
 			Assert.AreEqual(1, template.Errors.Count);
 			Assert.IsInstanceOf<ArgumentException>(template.Errors[0]);
 		}
+
+	    [Test]
+	    public void TestInterruptException()
+	    {
+	        Template template = null;
+	        Assert.DoesNotThrow(() => { template = Template.Parse(" {{ errors.interrupt_exception }} "); });
+	        var localVariables = Hash.FromAnonymousObject(new {errors = new ExceptionDrop()});
+	        var exception = Assert.Throws<InterruptException>(() => template.Render(localVariables));
+
+            Assert.AreEqual("interrupted", exception.Message);
+	    }
 	}
 }

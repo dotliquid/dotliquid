@@ -90,6 +90,9 @@ namespace DotLiquid
 
 		public string HandleError(Exception ex)
 		{
+		    if (ex is InterruptException)
+		        throw ex;
+
 			Errors.Add(ex);
 			if (_rethrowErrors)
 				throw ex;

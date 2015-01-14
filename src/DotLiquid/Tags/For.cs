@@ -94,7 +94,7 @@ namespace DotLiquid.Tags
 		    if (_attributes.TryGetValue("offset", out offsetString))
 		    {
 		        from = (offsetString == "continue")
-		            ? Convert.ToInt32(context.Registers.Get<Hash>("for")[_name])
+					? Convert.ToInt32(context.Registers.Get<Hash>("for")[_name])
 		            : Convert.ToInt32(context[offsetString]);
 		    }
 
@@ -118,25 +118,38 @@ namespace DotLiquid.Tags
 			// Store our progress through the collection for the continue flag
 			context.Registers.Get<Hash>("for")[_name] = from + length;
 
-			context.Stack(() => segment.EachWithIndex((item, index) =>
+		    context.Stack(() =>
 			{
-				context[_variableName] = item;
+		        for (var index = 0; index < segment.Count; ++index)
+		        {
+				    context[_variableName] = segment[index];
 
-			    var forHash = new Hash();
+			        var forHash = new Hash();
 
-			    forHash["name"] = _name;
-                forHash["length"] = length;
-                forHash["index"] = index + 1;
-                forHash["index0"] = index;
-                forHash["rindex"] = length - index;
-                forHash["rindex0"] = length - index - 1;
-                forHash["first"] = (index == 0);
-                forHash["last"] = (index == length - 1);
+			        forHash["name"] = _name;
+                    forHash["length"] = length;
+                    forHash["index"] = index + 1;
+                    forHash["index0"] = index;
+                    forHash["rindex"] = length - index;
+                    forHash["rindex0"] = length - index - 1;
+                    forHash["first"] = (index == 0);
+                    forHash["last"] = (index == length - 1);
 
-			    context["forloop"] = forHash;
+			        context["forloop"] = forHash;
 
-				RenderAll(NodeList, context, result);
-			}));
+		            try
+		            {
+		                RenderAll(NodeList, context, result);
+		            }
+		            catch (BreakInterrupt)
+		            {
+		                break;
+		            }
+		            catch (ContinueInterrupt)
+		            {
+		            }
+		        }
+		    });
 		}
 
 		private static List<object> SliceCollectionUsingEach(IEnumerable collection, int from, int? to)

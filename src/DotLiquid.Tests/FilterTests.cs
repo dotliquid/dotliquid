@@ -204,6 +204,13 @@ namespace DotLiquid.Tests
 			Assert.AreEqual("Blub", new Variable("var | capitalize").Render(_context));
 		}
 
+        [Test]
+        public void Slice()
+        {
+            _context["var"] = "blub";
+            Assert.AreEqual("b", new Variable("var | slice: 0, 1").Render(_context));
+        }
+
 		[Test]
 		public void TestLocalGlobal()
 		{

@@ -31,6 +31,18 @@ namespace DotLiquid
 			return 0;
 		}
 
+        /// <summary>
+        /// Return a Part of a String
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="start"></param>
+        /// <param name="len"></param>
+        /// <returns></returns>
+        public static string Slice(string input, int start, int len)
+        {
+            return input.Substring(start, len);
+        }
+
 		/// <summary>
 		/// convert a input string to DOWNCASE
 		/// </summary>

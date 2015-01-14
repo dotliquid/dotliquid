@@ -38,7 +38,7 @@ namespace DotLiquid
         /// <param name="start"></param>
         /// <param name="len"></param>
         /// <returns></returns>
-        public static string Slice(string input, int start, int len)
+        public static string Slice(string input, int start, int len = 1)
         {
             if (input == null || start > input.Length)
                 return null;

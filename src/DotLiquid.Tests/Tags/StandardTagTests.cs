@@ -79,7 +79,7 @@ namespace DotLiquid.Tests.Tags
 		[Test]
 		public void TestDictionaryFor()
 		{
-			var template = Template.Parse("{%for item in bla.testdict %}{{ item[0] }}-{{ item[1]}} {%endfor%}");
+			var template = Template.Parse("{%for item in bla.testdict %}{{ item.Key }}-{{ item[1]}} {%endfor%}");
 			var result = template.Render(Hash.FromAnonymousObject(new { bla = new TestDictObject() }));
 			Assert.AreEqual("aa-bb dd-ee ff-gg ",result);
 		}

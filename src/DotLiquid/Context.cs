@@ -301,12 +301,12 @@ namespace DotLiquid
 					if (partResolved)
 						part = Resolve(partSquareBracketedMatch.Groups[1].Value);
 
-					if (IsKeyValuePair(@object) && part.Equals(0))
+					if (IsKeyValuePair(@object) && (part.Equals(0) || part.Equals("Key")))
 					{
 						object res = @object.GetType().GetProperty("Key").GetValue(@object);
 						@object = Liquidize(res);
 					}
-					else if (IsKeyValuePair(@object) && part.Equals(1))
+					else if (IsKeyValuePair(@object) && (part.Equals(1) || part.Equals("Value")))
 					{
 						object res = @object.GetType().GetProperty("Value").GetValue(@object);
 						@object = Liquidize(res);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Web;
 using System.Web.Mvc;
 
 namespace DotLiquid.Website.Controllers
@@ -28,7 +29,7 @@ namespace DotLiquid.Website.Controllers
 		[HttpPost]
 		public ActionResult Liquify(string templateCode)
 		{
-			string result = LiquifyInternal(templateCode);
+			string result = LiquifyInternal(HttpUtility.HtmlDecode(templateCode));
 
 			return new ContentResult
 			{

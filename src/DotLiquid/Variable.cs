@@ -84,7 +84,7 @@ namespace DotLiquid
 		        outputString = string.Join(string.Empty, enumerable.Cast<object>());
 #endif
 		    else if (output is bool)
-		        outputString = output.ToString().ToLower();
+		        outputString = output.ToString().ToLowerInvariant();
 		    else
 		        outputString = output.ToString();
 		    result.Write(outputString);

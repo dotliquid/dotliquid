@@ -220,9 +220,8 @@ namespace DotLiquid
 				case "false":
 					return false;
 				case "blank":
-					return new Symbol(o => o is IEnumerable && !((IEnumerable) o).Cast<object>().Any());
 				case "empty":
-					return new Symbol(o => o is IEnumerable && !((IEnumerable) o).Cast<object>().Any());
+                    return new Symbol(SymbolEmptyEvaluator);
 			}
 
 			// Single quoted strings.
@@ -264,6 +263,12 @@ namespace DotLiquid
 			return Variable(key);
 		}
 
+        private bool SymbolEmptyEvaluator(object o)
+        {
+            var enumerable = o as IEnumerable;
+            return enumerable != null && !enumerable.Cast<object>().Any();
+        }
+
 		/// <summary>
 		/// Fetches an object starting at the local scope and then moving up
 		/// the hierarchy
@@ -287,8 +292,10 @@ namespace DotLiquid
 			variable = variable ?? LookupAndEvaluate(scope, key);
 
             variable = Liquidize(variable);
-            if (variable is IContextAware)
-                ((IContextAware) variable).Context = this;
+
+		    var contextAware = variable as IContextAware;
+            if (contextAware != null)
+                contextAware.Context = this;
 			return variable;
 		}
 

@@ -52,9 +52,10 @@ namespace DotLiquid.Tags
 				foreach (var keyValue in _attributes)
 					context[keyValue.Key] = context[keyValue.Value];
 
-				if (variable is IEnumerable)
+			    var enumerable = variable as IEnumerable;
+			    if (enumerable != null)
 				{
-					((IEnumerable) variable).Cast<object>().ToList().ForEach(v =>
+					enumerable.Cast<object>().ToList().ForEach(v =>
 					{
 						context[shortenedTemplateName] = v;
 						partial.Render(result, RenderParameters.FromContext(context));

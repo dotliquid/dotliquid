@@ -91,7 +91,8 @@ namespace DotLiquid.Tags
 
 		    object collection = context[_collectionName];
 
-			if (!(collection is IEnumerable))
+		    var enumerable = collection as IEnumerable;
+			if (enumerable == null)
                 return ReturnCode.Return;
 
 		    string offsetString;
@@ -110,7 +111,7 @@ namespace DotLiquid.Tags
 
 			int? to = (limit != null) ? (int?) (limit.Value + from) : null;
 
-			List<object> segment = SliceCollectionUsingEach((IEnumerable) collection, from, to);
+			List<object> segment = SliceCollectionUsingEach(enumerable, from, to);
 
 			if (!segment.Any())
 				return ReturnCode.Return;

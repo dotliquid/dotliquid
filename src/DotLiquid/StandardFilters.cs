@@ -38,7 +38,7 @@ namespace DotLiquid
 		/// <returns></returns>
 		public static string Downcase(string input)
 		{
-			return input == null ? input : input.ToLower();
+			return input == null ? null : input.ToLower();
 		}
 
 		/// <summary>
@@ -49,7 +49,7 @@ namespace DotLiquid
 		public static string Upcase(string input)
 		{
 			return input == null
-				? input
+				? null
 				: input.ToUpper();
 		}
 

@@ -57,7 +57,11 @@ namespace DotLiquid.Tags
 
 		private string _variableName, _collectionName, _name;
 		private bool _reversed;
-		private Dictionary<string, string> _attributes;
+
+	    private bool _hasLimit;
+	    private bool _hasOffset;
+	    private string _limitAttribute;
+	    private string _offsetAttribute;
 
 		public override void Initialize(string tagName, string markup, List<string> tokens)
 		{
@@ -68,9 +72,11 @@ namespace DotLiquid.Tags
 				_collectionName = match.Groups[2].Value;
 				_name = string.Format("{0}-{1}", _variableName, _collectionName);
 				_reversed = (!string.IsNullOrEmpty(match.Groups[3].Value));
-				_attributes = new Dictionary<string, string>(Template.NamingConvention.StringComparer);
-				R.Scan(markup, TagAttributesRegex,
-					(key, value) => _attributes[key] = value);
+				var attributes = new Dictionary<string, string>(Template.NamingConvention.StringComparer);
+				R.Scan(markup, TagAttributesRegex, (key, value) => attributes[key] = value);
+
+			    _hasOffset = attributes.TryGetValue("offset", out _offsetAttribute);
+			    _hasLimit = attributes.TryGetValue("limit", out _limitAttribute);
 			}
 			else
 			{
@@ -95,18 +101,16 @@ namespace DotLiquid.Tags
 			if (enumerable == null)
                 return ReturnCode.Return;
 
-		    string offsetString;
 		    int from = 0;
-		    if (_attributes.TryGetValue("offset", out offsetString))
+		    if (_hasOffset)
 		    {
-		        from = (offsetString == "continue")
+		        from = (_offsetAttribute == "continue")
 					? Convert.ToInt32(context.Registers.Get<Hash>("for")[_name])
-		            : Convert.ToInt32(context[offsetString]);
+		            : Convert.ToInt32(context[_offsetAttribute]);
 		    }
 
-		    string limitString;
-		    int? limit = _attributes.TryGetValue("limit", out limitString)
-		                ? context[limitString] as int?
+		    int? limit = _hasLimit
+		                ? context[_limitAttribute] as int?
 		                : null;
 
 			int? to = (limit != null) ? (int?) (limit.Value + from) : null;

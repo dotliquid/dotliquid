@@ -350,26 +350,38 @@ namespace DotLiquid
 						// Some special cases. If the part wasn't in square brackets and
 						// no key with the same name was found we interpret following calls
 						// as commands and call them on the current object
-					else if (!partResolved && (@object is IEnumerable) && ((part as string) == "size" || (part as string) == "first" || (part as string) == "last"))
-					{
-						var castCollection = ((IEnumerable) @object).Cast<object>();
-						if ((part as string) == "size")
-							@object = castCollection.Count();
-						else if ((part as string) == "first")
-							@object = castCollection.FirstOrDefault();
-						else if ((part as string) == "last")
-							@object = castCollection.LastOrDefault();
-					}
-						// No key was present with the desired value and it wasn't one of the directly supported
-						// keywords either. The only thing we got left is to return nil
 					else
 					{
-						return null;
-					}
-
+					    var partString = part as string;
+					    var enumerable = partResolved ? null : @object as IEnumerable;
+                        if (enumerable != null && (partString == "size" || partString == "first" || partString == "last"))
+                        {
+                            var castCollection = enumerable.Cast<object>();
+                            switch (partString)
+                            {
+                                case "size":
+                                    @object = castCollection.Count();
+                                    break;
+                                case "first":
+                                    @object = castCollection.FirstOrDefault();
+                                    break;
+                                case "last":
+                                    @object = castCollection.LastOrDefault();
+                                    break;
+                            }
+                        }
+                            // No key was present with the desired value and it wasn't one of the directly supported
+						    // keywords either. The only thing we got left is to return nil
+					    else
+					    {
+						    return null;
+					    }
+                    }
+                    
 					// If we are dealing with a drop here we have to
-					if (@object is IContextAware)
-						((IContextAware) @object).Context = this;
+				    var contextAware = @object as IContextAware;
+                    if (contextAware != null)
+                        contextAware.Context = this;
 				}
 			}
 
@@ -411,9 +423,10 @@ namespace DotLiquid
 			else
 				throw new NotSupportedException();
 
-			if (value is Proc)
+		    var proc = value as Proc;
+			if (proc != null)
 			{
-				object newValue = ((Proc) value).Invoke(this);
+				object newValue = proc.Invoke(this);
 				if (obj is IDictionary)
 					((IDictionary) obj)[key] = newValue;
 				else if (obj is IList)
@@ -432,8 +445,11 @@ namespace DotLiquid
 		{
 			if (obj == null)
 				return obj;
-			if (obj is ILiquidizable)
-				return ((ILiquidizable) obj).ToLiquid();
+
+		    var liquidizable = obj as ILiquidizable;
+			if (liquidizable != null)
+                return liquidizable.ToLiquid();
+
 			if (obj is string)
 				return obj;
 			if (obj is IEnumerable)

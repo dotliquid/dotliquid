@@ -15,7 +15,10 @@ namespace DotLiquid.Tags.Html
 		private static readonly Regex Syntax = R.B(R.Q(@"(\w+)\s+in\s+({0}+)"), Liquid.VariableSignature);
 
 		private string _variableName, _collectionName;
-		private Dictionary<string, string> _attributes;
+
+        private int? _limit = null;
+        private int? _offset = null;
+	    private string _colsAttribute;
 
 		public override void Initialize(string tagName, string markup, List<string> tokens)
 		{
@@ -24,8 +27,22 @@ namespace DotLiquid.Tags.Html
 			{
 				_variableName = syntaxMatch.Groups[1].Value;
 				_collectionName = syntaxMatch.Groups[2].Value;
-				_attributes = new Dictionary<string, string>(Template.NamingConvention.StringComparer);
-                R.Scan(markup, TagAttributesRegex, (key, value) => _attributes[key] = value);
+				var attributes = new Dictionary<string, string>(Template.NamingConvention.StringComparer);
+                R.Scan(markup, TagAttributesRegex, (key, value) => attributes[key] = value);
+
+			    string offsetString;
+                if (attributes.TryGetValue("offset", out offsetString))
+                {
+                    _offset = Convert.ToInt32(offsetString);
+                }
+
+			    string limitString;
+			    if (attributes.TryGetValue("limit", out limitString))
+			    {
+                    _limit = Convert.ToInt32(limitString);
+			    }
+
+			    _colsAttribute = attributes["cols"];
 			}
 			else
 				throw new SyntaxException(Liquid.ResourceManager.GetString("TableRowTagSyntaxException"));
@@ -37,26 +54,25 @@ namespace DotLiquid.Tags.Html
 		{
 			object coll = context[_collectionName];
 
-			if (!(coll is IEnumerable))
+		    var enumerable = coll as IEnumerable;
+			if (enumerable == null)
                 return ReturnCode.Return;
-			IEnumerable<object> collection = ((IEnumerable) coll).Cast<object>();
+            var collection = enumerable.Cast<object>();
 
-			if (_attributes.ContainsKey("offset"))
+			if (_offset.HasValue)
 			{
-				int offset = Convert.ToInt32(_attributes["offset"]);
-				collection = collection.Skip(offset);
+				collection = collection.Skip(_offset.Value);
 			}
 
-			if (_attributes.ContainsKey("limit"))
+			if (_limit.HasValue)
 			{
-				int limit = Convert.ToInt32(_attributes["limit"]);
-				collection = collection.Take(limit);
+				collection = collection.Take(_limit.Value);
 			}
 
 			collection = collection.ToList();
 			int length = collection.Count();
 
-			int cols = Convert.ToInt32(context[_attributes["cols"]]);
+			int cols = Convert.ToInt32(context[_colsAttribute]);
 
 			int row = 1;
 			int col = 0;

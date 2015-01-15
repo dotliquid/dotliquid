@@ -24,10 +24,13 @@ namespace DotLiquid
 		/// <returns></returns>
 		public static int Size(object input)
 		{
-			if (input is string)
-				return ((string) input).Length;
-			if (input is IEnumerable)
-				return ((IEnumerable) input).Cast<object>().Count();
+		    var str = input as string;
+			if (str != null)
+				return str.Length;
+
+		    var enumerable = input as IEnumerable;
+            if (enumerable != null)
+                return enumerable.Cast<object>().Count();
 			return 0;
 		}
 
@@ -275,11 +278,12 @@ namespace DotLiquid
 		public static IEnumerable Sort(object input, string property = null)
 #endif
 		{
-			List<object> ary;
-			if (input is IEnumerable)
-				ary = ((IEnumerable) input).Flatten().Cast<object>().ToList();
-			else
-				ary = new List<object>(new[] { input });
+		    var enumerable = input as IEnumerable;
+			
+            var ary = enumerable != null 
+			    ? enumerable.Flatten().Cast<object>().ToList() 
+			    : new List<object>(new[] { input });
+
 			if (!ary.Any())
 				return ary;
 

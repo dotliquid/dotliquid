@@ -27,13 +27,58 @@ namespace DotLiquid
 			{ ">", (left, right) => left != null && right != null && Comparer.Default.Compare(left, Convert.ChangeType(right, left.GetType())) == 1 },
 			{ "<=", (left, right) => left != null && right != null && Comparer.Default.Compare(left, Convert.ChangeType(right, left.GetType())) <= 0 },
 			{ ">=", (left, right) => left != null && right != null && Comparer.Default.Compare(left, Convert.ChangeType(right, left.GetType())) >= 0 },
-			{ "contains", (left, right) => (left is IList) ? ((IList) left).Contains(right) : ((left is string) ? ((string) left).Contains((string) right) : false) },
-            { "startswith", (left, right) => (left is IList) ? EqualVariables(((IList) left).OfType<object>().FirstOrDefault(), right) : ((left is string) ? ((string)left).StartsWith((string) right) : false) },
-            { "endswith", (left, right) => (left is IList) ? EqualVariables(((IList) left).OfType<object>().LastOrDefault(), right) : ((left is string) ? ((string)left).EndsWith((string) right) : false) },
-			{ "hasKey", (left, right) => (left is IDictionary) && ((IDictionary) left).Contains(right) },
-			{ "hasValue", (left, right) => (left is IDictionary) && ((IDictionary) left).OfType<object>().Contains(right) }
+			{ "contains",  Contains },
+            { "startswith", StartsWith },
+            { "endswith", EndsWith },
+			{ "hasKey", HasKey },
+			{ "hasValue", HasValue }
 		};
 
+	    private static bool HasValue(object left, object right)
+	    {
+	        var dictionary = left as IDictionary;
+	        return dictionary != null
+                && dictionary.OfType<object>().Contains(right);
+	    }
+
+	    private static bool HasKey(object left, object right)
+	    {
+	        var dictionary = left as IDictionary;
+	        return dictionary != null 
+                && dictionary.Contains(right);
+	    }
+
+	    private static bool StartsWith(object left, object right)
+	    {
+	        var list = left as IList;
+	        if (list != null)
+                return EqualVariables(list.OfType<object>().FirstOrDefault(), right);
+            
+	        var str = left as string;
+	        return str != null && str.StartsWith((string) right);
+	    }
+
+	    private static bool EndsWith(object left, object right)
+	    {
+            var list = left as IList;
+	        if (list != null)
+                return EqualVariables(list.OfType<object>().LastOrDefault(), right);
+            
+	        var str = left as string;
+	        return str != null && str.EndsWith((string) right);
+	    }
+
+	    private static bool Contains(object left, object right)
+	    {
+	        var list = left as IList;
+	        if (list != null)
+                return list.Contains(right);
+
+	        var str = left as string;
+            return str != null && str.Contains((string) right);
+	    }
+
+        
 		#endregion
 
 	    private string Operator

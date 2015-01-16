@@ -9,23 +9,50 @@ using DotLiquid.Util;
 
 namespace DotLiquid
 {
+	[System.Runtime.InteropServices.GuidAttribute("46C14360-A3D1-4A75-B12C-ACC566CC64FB")]
 	public class Context
 	{
 		private readonly bool _rethrowErrors;
 		private Strainer _strainer;
 
+		private readonly static Regex SquareBracketed = new Regex(R.Q(@"^\[(.*)\]$"), RegexOptions.Compiled);
+		private readonly static Regex FloatRegex = new Regex(R.Q(@"^([+-]?\d[\d\.|\,]+)$"), RegexOptions.Compiled);
+		private readonly static Regex RangesRegex = new Regex(R.Q(@"^\((\S+)\.\.(\S+)\)$"), RegexOptions.Compiled);
+		private readonly static Regex IntegerRegex = new Regex(R.Q(@"^([+-]?\d+)$"), RegexOptions.Compiled);
+		private readonly static Regex DoubleQuotesRegex = new Regex(R.Q(@"^""(.*)""$"), RegexOptions.Compiled);
+		private readonly static Regex SingleQuotesRegex = new Regex(R.Q(@"^'(.*)'$"), RegexOptions.Compiled);
+		private readonly static Regex VariableParserRegex = new Regex(Liquid.VariableParser, RegexOptions.Compiled);
+
 		public List<Hash> Environments { get; private set; }
 		public List<Hash> Scopes { get; private set; }
+
+		/// <summary>
+		/// The inner-most scope
+		/// </summary>
+		public Hash LocalScope { get; private set; }
+
+		/// <summary>
+		/// The outer-most scope
+		/// </summary>
+		public Hash GlobalScope { get; private set; }
+
 		public Hash Registers { get; private set; }
+
 		public List<Exception> Errors { get; private set; }
 
 		public Context(List<Hash> environments, Hash outerScope, Hash registers, bool rethrowErrors)
 		{
-			Environments = environments;
+			if (registers == null)
+				throw new ArgumentNullException("registers");
 
+			if (environments == null)
+				throw new ArgumentNullException("environments");
+			
+			Environments = environments;
 			Scopes = new List<Hash>();
-			if (outerScope != null)
-				Scopes.Add(outerScope);
+
+			GlobalScope = outerScope ?? new Hash();
+			Push(GlobalScope);
 
 			Registers = registers;
 
@@ -43,7 +70,7 @@ namespace DotLiquid
 		{
 			get { return (_strainer = _strainer ?? Strainer.Create(this)); }
 		}
-
+		
 		/// <summary>
 		/// Adds filters to this context.
 		/// this does not register the filters with the main Template object. see <tt>Template.register_filter</tt>
@@ -64,9 +91,6 @@ namespace DotLiquid
 
 		public string HandleError(Exception ex)
 		{
-		    if (ex is InterruptException)
-		        throw ex;
-
 			Errors.Add(ex);
 			if (_rethrowErrors)
 				throw ex;
@@ -82,7 +106,6 @@ namespace DotLiquid
 				return Strainer.Invoke(method, args);
 
 			return args.First();
-			//throw new FilterNotFoundException("Filter not found: '{0}'", method);
 		}
 
 		/// <summary>
@@ -93,7 +116,8 @@ namespace DotLiquid
 		{
 			if (Scopes.Count > 80)
 				throw new StackLevelException(Liquid.ResourceManager.GetString("ContextStackException"));
-
+			
+			LocalScope = newScope;
 			Scopes.Insert(0, newScope);
 		}
 
@@ -103,19 +127,19 @@ namespace DotLiquid
 		/// <param name="newScopes"></param>
 		public void Merge(Hash newScopes)
 		{
-			Scopes[0].Merge(newScopes);
+			LocalScope.Merge(newScopes);
 		}
 
 		/// <summary>
 		/// Pop from the stack. use <tt>Context#stack</tt> instead
 		/// </summary>
-		public Hash Pop()
+		public void Pop()
 		{
-			if (Scopes.Count == 1)
+			if (LocalScope == GlobalScope)
 				throw new ContextException();
-			Hash result = Scopes[0];
+
 			Scopes.RemoveAt(0);
-			return result;
+			LocalScope = Scopes[0];
 		}
 
 		/// <summary>
@@ -131,12 +155,12 @@ namespace DotLiquid
 		/// <param name="newScope"></param>
 		/// <param name="callback"></param>
 		/// <returns></returns>
-		public void Stack(Hash newScope, Action callback)
+		public ReturnCode Stack(Hash newScope, Func<ReturnCode> callback)
 		{
 			Push(newScope);
 			try
 			{
-				callback();
+				return callback();
 			}
 			finally
 			{
@@ -144,14 +168,14 @@ namespace DotLiquid
 			}
 		}
 
-		public void Stack(Action callback)
+		public ReturnCode Stack(Func<ReturnCode> callback)
 		{
-			Stack(new Hash(), callback);
+			return Stack(new Hash(), callback);
 		}
 
 		public void ClearInstanceAssigns()
 		{
-			Scopes[0].Clear();
+			LocalScope.Clear();
 		}
 
 		/// <summary>
@@ -162,7 +186,7 @@ namespace DotLiquid
 		public object this[string key]
 		{
 			get { return Resolve(key); }
-			set { Scopes[0][key] = value; }
+			set { LocalScope[key] = value; }
 		}
 
 		public bool HasKey(string key)
@@ -196,34 +220,33 @@ namespace DotLiquid
 				case "false":
 					return false;
 				case "blank":
-					return new Symbol(o => o is IEnumerable && !((IEnumerable) o).Cast<object>().Any());
 				case "empty":
-					return new Symbol(o => o is IEnumerable && !((IEnumerable) o).Cast<object>().Any());
+					return new Symbol(SymbolEmptyEvaluator);
 			}
 
 			// Single quoted strings.
-			Match match = Regex.Match(key, R.Q(@"^'(.*)'$"));
+			var match = SingleQuotesRegex.Match(key);
 			if (match.Success)
 				return match.Groups[1].Value;
 
 			// Double quoted strings.
-			match = Regex.Match(key, R.Q(@"^""(.*)""$"));
+			match = DoubleQuotesRegex.Match(key);
 			if (match.Success)
 				return match.Groups[1].Value;
 
 			// Integer.
-			match = Regex.Match(key, R.Q(@"^([+-]?\d+)$"));
+			match = IntegerRegex.Match(key);
 			if (match.Success)
 				return Convert.ToInt32(match.Groups[1].Value);
 
 			// Ranges.
-			match = Regex.Match(key, R.Q(@"^\((\S+)\.\.(\S+)\)$"));
+			match = RangesRegex.Match(key);
 			if (match.Success)
 				return Range.Inclusive(Convert.ToInt32(Resolve(match.Groups[1].Value)),
 					Convert.ToInt32(Resolve(match.Groups[2].Value)));
 
 			// Floats.
-			match = Regex.Match(key, R.Q(@"^([+-]?\d[\d\.|\,]+)$"));
+			match = FloatRegex.Match(key);
 			if (match.Success)
 			{
 				// For cultures with "," as the decimal separator, allow
@@ -238,6 +261,12 @@ namespace DotLiquid
 			}
 
 			return Variable(key);
+		}
+
+		private bool SymbolEmptyEvaluator(object o)
+		{
+			var enumerable = o as IEnumerable;
+			return enumerable != null && !enumerable.Cast<object>().Any();
 		}
 
 		/// <summary>
@@ -259,12 +288,14 @@ namespace DotLiquid
 						break;
 					}
 			}
-			scope = scope ?? Environments.LastOrDefault() ?? Scopes.Last();
+			scope = scope ?? Environments.LastOrDefault() ?? GlobalScope;
 			variable = variable ?? LookupAndEvaluate(scope, key);
 
 			variable = Liquidize(variable);
-			if (variable is IContextAware)
-				((IContextAware) variable).Context = this;
+
+			var contextAware = variable as IContextAware;
+			if (contextAware != null)
+				contextAware.Context = this;
 			return variable;
 		}
 
@@ -281,11 +312,11 @@ namespace DotLiquid
 		/// <returns></returns>
 		private object Variable(string markup)
 		{
-			List<string> parts = R.Scan(markup, Liquid.VariableParser);
-			Regex squareBracketed = new Regex(R.Q(@"^\[(.*)\]$"));
-
+			List<string> parts = R.Scan(markup, VariableParserRegex);
+			
 			string firstPart = parts.Shift();
-			Match firstPartSquareBracketedMatch = squareBracketed.Match(firstPart);
+
+			Match firstPartSquareBracketedMatch = SquareBracketed.Match(firstPart);
 			if (firstPartSquareBracketedMatch.Success)
 				firstPart = Resolve(firstPartSquareBracketedMatch.Groups[1].Value).ToString();
 
@@ -294,7 +325,7 @@ namespace DotLiquid
 			{
 				foreach (string forEachPart in parts)
 				{
-					Match partSquareBracketedMatch = squareBracketed.Match(forEachPart);
+					Match partSquareBracketedMatch = SquareBracketed.Match(forEachPart);
 					bool partResolved = partSquareBracketedMatch.Success;
 
 					object part = forEachPart;
@@ -319,26 +350,38 @@ namespace DotLiquid
 						// Some special cases. If the part wasn't in square brackets and
 						// no key with the same name was found we interpret following calls
 						// as commands and call them on the current object
-					else if (!partResolved && (@object is IEnumerable) && ((part as string) == "size" || (part as string) == "first" || (part as string) == "last"))
-					{
-						var castCollection = ((IEnumerable) @object).Cast<object>();
-						if ((part as string) == "size")
-							@object = castCollection.Count();
-						else if ((part as string) == "first")
-							@object = castCollection.FirstOrDefault();
-						else if ((part as string) == "last")
-							@object = castCollection.LastOrDefault();
-					}
-						// No key was present with the desired value and it wasn't one of the directly supported
-						// keywords either. The only thing we got left is to return nil
 					else
 					{
-						return null;
+						var partString = part as string;
+						var enumerable = partResolved ? null : @object as IEnumerable;
+						if (enumerable != null && (partString == "size" || partString == "first" || partString == "last"))
+						{
+							var castCollection = enumerable.Cast<object>();
+							switch (partString)
+							{
+								case "size":
+									@object = castCollection.Count();
+									break;
+								case "first":
+									@object = castCollection.FirstOrDefault();
+									break;
+								case "last":
+									@object = castCollection.LastOrDefault();
+									break;
+							}
+						}
+							// No key was present with the desired value and it wasn't one of the directly supported
+							// keywords either. The only thing we got left is to return nil
+						else
+						{
+							return null;
+						}
 					}
-
+					
 					// If we are dealing with a drop here we have to
-					if (@object is IContextAware)
-						((IContextAware) @object).Context = this;
+					var contextAware = @object as IContextAware;
+					if (contextAware != null)
+						contextAware.Context = this;
 				}
 			}
 
@@ -359,7 +402,8 @@ namespace DotLiquid
 			if (TypeUtility.IsAnonymousType(obj.GetType()) && obj.GetType().GetProperty((string) part) != null)
 				return true;
 
-			if ((obj is IIndexable) && ((IIndexable) obj).ContainsKey((string) part))
+			var indexable = obj as IIndexable;
+			if (indexable != null && indexable.ContainsKey((string) part))
 				return true;
 
 			return false;
@@ -379,9 +423,10 @@ namespace DotLiquid
 			else
 				throw new NotSupportedException();
 
-			if (value is Proc)
+			var proc = value as Proc;
+			if (proc != null)
 			{
-				object newValue = ((Proc) value).Invoke(this);
+				object newValue = proc.Invoke(this);
 				if (obj is IDictionary)
 					((IDictionary) obj)[key] = newValue;
 				else if (obj is IList)
@@ -395,13 +440,16 @@ namespace DotLiquid
 
 			return value;
 		}
-        
+		
 		private static object Liquidize(object obj)
 		{
 			if (obj == null)
 				return obj;
-			if (obj is ILiquidizable)
-				return ((ILiquidizable) obj).ToLiquid();
+
+			var liquidizable = obj as ILiquidizable;
+			if (liquidizable != null)
+				return liquidizable.ToLiquid();
+
 			if (obj is string)
 				return obj;
 			if (obj is IEnumerable)
@@ -422,15 +470,15 @@ namespace DotLiquid
 				return obj;
 			if (obj is KeyValuePair<string, object>)
 				return obj;
-            var safeTypeTransformer = Template.GetSafeTypeTransformer(obj.GetType());
+			var safeTypeTransformer = Template.GetSafeTypeTransformer(obj.GetType());
 			if (safeTypeTransformer != null)
 				return safeTypeTransformer(obj);
-            if (obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
-            {
-                var attr = (LiquidTypeAttribute)obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
-                return new DropProxy(obj, attr.AllowedMembers);
-            }
-            
+			if (obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
+			{
+				var attr = (LiquidTypeAttribute)obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
+				return new DropProxy(obj, attr.AllowedMembers);
+			}
+			
 			throw new SyntaxException(Liquid.ResourceManager.GetString("ContextObjectInvalidException"), obj.ToString());
 		}
 
@@ -438,7 +486,7 @@ namespace DotLiquid
 		{
 			Dictionary<string, object> tempAssigns = new Dictionary<string, object>(Template.NamingConvention.StringComparer);
 
-			Hash lastScope = Scopes.Last();
+			Hash lastScope = GlobalScope;
 			foreach (string k in lastScope.Keys)
 				foreach (Hash env in Environments)
 					if (env.ContainsKey(k))

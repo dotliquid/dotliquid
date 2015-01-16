@@ -4,6 +4,6 @@ namespace DotLiquid
 {
 	internal interface IRenderable
 	{
-		void Render(Context context, TextWriter result);
+		ReturnCode Render(Context context, TextWriter result);
 	}
 }

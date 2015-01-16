@@ -15,7 +15,12 @@ namespace DotLiquid.Tags.Html
 		private static readonly Regex Syntax = R.B(R.Q(@"(\w+)\s+in\s+({0}+)"), Liquid.VariableSignature);
 
 		private string _variableName, _collectionName;
-		private Dictionary<string, string> _attributes;
+
+		private bool _hasLimit;
+		private bool _hasOffset;
+		private string _limitAttribute;
+		private string _offsetAttribute;
+		private string _colsAttribute;
 
 		public override void Initialize(string tagName, string markup, List<string> tokens)
 		{
@@ -24,8 +29,12 @@ namespace DotLiquid.Tags.Html
 			{
 				_variableName = syntaxMatch.Groups[1].Value;
 				_collectionName = syntaxMatch.Groups[2].Value;
-				_attributes = new Dictionary<string, string>(Template.NamingConvention.StringComparer);
-				R.Scan(markup, Liquid.TagAttributes, (key, value) => _attributes[key] = value);
+				var attributes = new Dictionary<string, string>(Template.NamingConvention.StringComparer);
+				R.Scan(markup, TagAttributesRegex, (key, value) => attributes[key] = value);
+
+				_hasOffset = attributes.TryGetValue("offset", out _offsetAttribute);
+				_hasLimit = attributes.TryGetValue("limit", out _limitAttribute);
+				attributes.TryGetValue("cols", out _colsAttribute);
 			}
 			else
 				throw new SyntaxException(Liquid.ResourceManager.GetString("TableRowTagSyntaxException"));
@@ -33,70 +42,85 @@ namespace DotLiquid.Tags.Html
 			base.Initialize(tagName, markup, tokens);
 		}
 
-		public override void Render(Context context, TextWriter result)
+		public override ReturnCode Render(Context context, TextWriter result)
 		{
 			object coll = context[_collectionName];
 
-			if (!(coll is IEnumerable))
-				return;
-			IEnumerable<object> collection = ((IEnumerable) coll).Cast<object>();
+			var enumerable = coll as IEnumerable;
+			if (enumerable == null)
+				return ReturnCode.Return;
+			var collection = enumerable.Cast<object>();
 
-			if (_attributes.ContainsKey("offset"))
+			if (_hasOffset)
 			{
-				int offset = Convert.ToInt32(_attributes["offset"]);
-				collection = collection.Skip(offset);
+				collection = collection.Skip(Convert.ToInt32(context[_offsetAttribute]));
 			}
 
-			if (_attributes.ContainsKey("limit"))
+			if (_hasLimit)
 			{
-				int limit = Convert.ToInt32(_attributes["limit"]);
-				collection = collection.Take(limit);
+				collection = collection.Take(Convert.ToInt32(context[_limitAttribute]));
 			}
 
 			collection = collection.ToList();
 			int length = collection.Count();
 
-			int cols = Convert.ToInt32(context[_attributes["cols"]]);
+			int cols = Convert.ToInt32(context[_colsAttribute]);
 
 			int row = 1;
 			int col = 0;
 
 			result.WriteLine("<tr class=\"row1\">");
-			context.Stack(() => collection.EachWithIndex((item, index) =>
+			var returnCode = context.Stack(() =>
 			{
-				context[_variableName] = item;
-				context["tablerowloop"] = Hash.FromAnonymousObject(new
+				int index = 0;
+				foreach (object item in collection)
 				{
-					length = length,
-					index = index + 1,
-					index0 = index,
-					col = col + 1,
-					col0 = col,
-					rindex = length - index,
-					rindex0 = length - index - 1,
-					first = (index == 0),
-					last = (index == length - 1),
-					col_first = (col == 0),
-					col_last = (col == cols - 1)
-				});
+					context[_variableName] = item;
 
-				++col;
+					var rowLoopHash = new Hash();
 
-				using (TextWriter temp = new StringWriter())
-				{
-					RenderAll(NodeList, context, temp);
-					result.Write("<td class=\"col{0}\">{1}</td>", col, temp.ToString());
+					rowLoopHash["length"] = length;
+					rowLoopHash["index"] = index + 1;
+					rowLoopHash["index0"] = index;
+					rowLoopHash["col"] = col + 1;
+					rowLoopHash["col0"] = col;
+					rowLoopHash["rindex"] = length - index;
+					rowLoopHash["rindex0"] = length - index - 1;
+					rowLoopHash["first"] = (index == 0);
+					rowLoopHash["last"] = (index == length - 1);
+					rowLoopHash["col_first"] = (col == 0);
+					rowLoopHash["col_last"] = (col == cols - 1);
+
+					context["tablerowloop"] = rowLoopHash;
+
+					++col;
+
+					using (TextWriter temp = new StringWriter())
+					{
+						var retCode = RenderAll(NodeList, context, temp);
+						if (retCode != ReturnCode.Return)
+							return retCode;
+
+						result.Write("<td class=\"col{0}\">{1}</td>", col, temp.ToString());
+					}
+
+					if (col == cols && index != length - 1)
+					{
+						col = 0;
+						++row;
+						result.WriteLine("</tr>");
+						result.Write("<tr class=\"row{0}\">", row);
+					}
+
+					++index;
 				}
 
-				if (col == cols && index != length - 1)
-				{
-					col = 0;
-					++row;
-					result.WriteLine("</tr>");
-					result.Write("<tr class=\"row{0}\">", row);
-				}
-			}));
+				return ReturnCode.Return;
+			});
+
 			result.WriteLine("</tr>");
+
+			return returnCode;
 		}
 	}
 }

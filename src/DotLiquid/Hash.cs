@@ -65,16 +65,13 @@ namespace DotLiquid
 
 		private object GetValue(string key)
 		{
-			if (_nestedDictionary.ContainsKey(key))
-				return _nestedDictionary[key];
+			object result;
+			if (_nestedDictionary.TryGetValue(key, out result))
+				return result;
 
-			if (_lambda != null)
-				return _lambda(this, key);
-
-			if (_defaultValue != null)
-				return _defaultValue;
-
-			return null;
+			return _lambda != null 
+				? _lambda(this, key) 
+				: _defaultValue;
 		}
 
 		public T Get<T>(string key)
@@ -96,12 +93,7 @@ namespace DotLiquid
 
 		object IDictionary.this[object key]
 		{
-			get
-			{
-				if (!(key is string))
-					throw new NotSupportedException();
-				return GetValue((string) key);
-			}
+			get { return GetValue((string) key); }
 			set { ((IDictionary) _nestedDictionary)[key] = value; }
 		}
 

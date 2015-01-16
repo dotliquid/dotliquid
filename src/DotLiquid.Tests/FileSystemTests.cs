@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using DotLiquid.Exceptions;
 using DotLiquid.FileSystems;
 using NUnit.Framework;

@@ -10,25 +10,25 @@ namespace DotLiquid.Tags
 	/// </summary>
 	public class Unless : If
 	{
-		public override void Render(Context context, TextWriter result)
+		public override ReturnCode Render(Context context, TextWriter result)
 		{
-			context.Stack(() =>
+			return context.Stack(() =>
 			{
 				// First condition is interpreted backwards (if not)
 				Condition block = Blocks.First();
 				if (!block.Evaluate(context))
 				{
-					RenderAll(block.Attachment, context, result);
-					return;
+					return RenderAll(block.Attachment, context, result);
 				}
 
 				// After the first condition unless works just like if
 				foreach (Condition forEachBlock in Blocks.Skip(1))
 					if (forEachBlock.Evaluate(context))
 					{
-						RenderAll(forEachBlock.Attachment, context, result);
-						return;
+						return RenderAll(forEachBlock.Attachment, context, result);
 					}
+
+				return ReturnCode.Return;
 			});
 		}
 	}

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 
@@ -11,8 +12,8 @@ namespace DotLiquid.Tests
 		[Test]
 		public void TestBasicCondition()
 		{
-			Assert.AreEqual(false, new Condition("1", "==", "2").Evaluate(null));
-			Assert.AreEqual(true, new Condition("1", "==", "1").Evaluate(null));
+			Assert.AreEqual(false, new Condition("1", "==", "2").Evaluate(new Context()));
+			Assert.AreEqual(true, new Condition("1", "==", "1").Evaluate(new Context()));
 		}
 
 		[Test]
@@ -60,7 +61,7 @@ namespace DotLiquid.Tests
 		[Test]
 		public void TestContainsWorksOnArrays()
 		{
-			_context = new Context();
+			_context = new Context(new List<Hash>(), new Hash(), new Hash(), false);
 			_context["array"] = new[] { 1, 2, 3, 4, 5 };
 
 			AssertEvaluatesFalse("array", "contains", "0");
@@ -81,90 +82,90 @@ namespace DotLiquid.Tests
 			AssertEvaluatesFalse("0", "contains", "not_assigned");
 		}
 
-        [Test]
-        public void TestStartsWithWorksOnStrings()
-        {
-            AssertEvaluatesTrue("'dave'", "startswith", "'d'");
-            AssertEvaluatesTrue("'dave'", "startswith", "'da'");
-            AssertEvaluatesTrue("'dave'", "startswith", "'dav'");
-            AssertEvaluatesTrue("'dave'", "startswith", "'dave'");
+		[Test]
+		public void TestStartsWithWorksOnStrings()
+		{
+			AssertEvaluatesTrue("'dave'", "startswith", "'d'");
+			AssertEvaluatesTrue("'dave'", "startswith", "'da'");
+			AssertEvaluatesTrue("'dave'", "startswith", "'dav'");
+			AssertEvaluatesTrue("'dave'", "startswith", "'dave'");
 
-            AssertEvaluatesFalse("'dave'", "startswith", "'ave'");
-            AssertEvaluatesFalse("'dave'", "startswith", "'e'");
-            AssertEvaluatesFalse("'dave'", "startswith", "'---'");
-        }
+			AssertEvaluatesFalse("'dave'", "startswith", "'ave'");
+			AssertEvaluatesFalse("'dave'", "startswith", "'e'");
+			AssertEvaluatesFalse("'dave'", "startswith", "'---'");
+		}
 
-        [Test]
-        public void TestStartsWithWorksOnArrays()
-        {
-            _context = new Context();
-            _context["array"] = new[] { 1, 2, 3, 4, 5 };
+		[Test]
+		public void TestStartsWithWorksOnArrays()
+		{
+			_context = new Context(new List<Hash>(), new Hash(), new Hash(), false);
+			_context["array"] = new[] { 1, 2, 3, 4, 5 };
 
-            AssertEvaluatesFalse("array", "startswith", "0");
-            AssertEvaluatesTrue("array", "startswith", "1");
-        }
+			AssertEvaluatesFalse("array", "startswith", "0");
+			AssertEvaluatesTrue("array", "startswith", "1");
+		}
 
-        [Test]
-        public void TestStartsWithReturnsFalseForNilCommands()
-        {
-            AssertEvaluatesFalse("not_assigned", "startswith", "0");
-            AssertEvaluatesFalse("0", "startswith", "not_assigned");
-        }
+		[Test]
+		public void TestStartsWithReturnsFalseForNilCommands()
+		{
+			AssertEvaluatesFalse("not_assigned", "startswith", "0");
+			AssertEvaluatesFalse("0", "startswith", "not_assigned");
+		}
 
-        [Test]
-        public void TestEndsWithWorksOnStrings()
-        {
-            AssertEvaluatesTrue("'dave'", "endswith", "'e'");
-            AssertEvaluatesTrue("'dave'", "endswith", "'ve'");
-            AssertEvaluatesTrue("'dave'", "endswith", "'ave'");
-            AssertEvaluatesTrue("'dave'", "endswith", "'dave'");
+		[Test]
+		public void TestEndsWithWorksOnStrings()
+		{
+			AssertEvaluatesTrue("'dave'", "endswith", "'e'");
+			AssertEvaluatesTrue("'dave'", "endswith", "'ve'");
+			AssertEvaluatesTrue("'dave'", "endswith", "'ave'");
+			AssertEvaluatesTrue("'dave'", "endswith", "'dave'");
 
-            AssertEvaluatesFalse("'dave'", "endswith", "'dav'");
-            AssertEvaluatesFalse("'dave'", "endswith", "'d'");
-            AssertEvaluatesFalse("'dave'", "endswith", "'---'");
-        }
+			AssertEvaluatesFalse("'dave'", "endswith", "'dav'");
+			AssertEvaluatesFalse("'dave'", "endswith", "'d'");
+			AssertEvaluatesFalse("'dave'", "endswith", "'---'");
+		}
 
-        [Test]
-        public void TestEndsWithWorksOnArrays()
-        {
-            _context = new Context();
-            _context["array"] = new[] { 1, 2, 3, 4, 5 };
+		[Test]
+		public void TestEndsWithWorksOnArrays()
+		{
+			_context = new Context(new List<Hash>(), new Hash(), new Hash(), false);
+			_context["array"] = new[] { 1, 2, 3, 4, 5 };
 
-            AssertEvaluatesFalse("array", "endswith", "0");
-            AssertEvaluatesTrue("array", "endswith", "5");
-        }
+			AssertEvaluatesFalse("array", "endswith", "0");
+			AssertEvaluatesTrue("array", "endswith", "5");
+		}
 
-        [Test]
-        public void TestEndsWithReturnsFalseForNilCommands()
-        {
-            AssertEvaluatesFalse("not_assigned", "endswith", "0");
-            AssertEvaluatesFalse("0", "endswith", "not_assigned");
-        }
+		[Test]
+		public void TestEndsWithReturnsFalseForNilCommands()
+		{
+			AssertEvaluatesFalse("not_assigned", "endswith", "0");
+			AssertEvaluatesFalse("0", "endswith", "not_assigned");
+		}
 
 		[Test]
 		public void TestOrCondition()
 		{
 			Condition condition = new Condition("1", "==", "2");
-			Assert.IsFalse(condition.Evaluate(null));
+			Assert.IsFalse(condition.Evaluate(new Context()));
 
 			condition.Or(new Condition("2", "==", "1"));
-			Assert.IsFalse(condition.Evaluate(null));
+			Assert.IsFalse(condition.Evaluate(new Context()));
 
 			condition.Or(new Condition("1", "==", "1"));
-			Assert.IsTrue(condition.Evaluate(null));
+			Assert.IsTrue(condition.Evaluate(new Context()));
 		}
 
 		[Test]
 		public void TestAndCondition()
 		{
 			Condition condition = new Condition("1", "==", "1");
-			Assert.IsTrue(condition.Evaluate(null));
+			Assert.IsTrue(condition.Evaluate(new Context()));
 
 			condition.And(new Condition("2", "==", "2"));
-			Assert.IsTrue(condition.Evaluate(null));
+			Assert.IsTrue(condition.Evaluate(new Context()));
 
 			condition.And(new Condition("2", "==", "1"));
-			Assert.IsFalse(condition.Evaluate(null));
+			Assert.IsFalse(condition.Evaluate(new Context()));
 		}
 
 		[Test]
@@ -213,13 +214,13 @@ namespace DotLiquid.Tests
 
 		private void AssertEvaluatesTrue(string left, string op, string right)
 		{
-			Assert.IsTrue(new Condition(left, op, right).Evaluate(_context ?? new Context()),
+			Assert.IsTrue(new Condition(left, op, right).Evaluate(_context ?? new Context(new List<Hash>(), new Hash(), new Hash(), false)),
 				"Evaluated false: {0} {1} {2}", left, op, right);
 		}
 
 		private void AssertEvaluatesFalse(string left, string op, string right)
 		{
-			Assert.IsFalse(new Condition(left, op, right).Evaluate(_context ?? new Context()),
+			Assert.IsFalse(new Condition(left, op, right).Evaluate(_context ?? new Context(new List<Hash>(), new Hash(), new Hash(), false)),
 				"Evaluated true: {0} {1} {2}", left, op, right);
 		}
 

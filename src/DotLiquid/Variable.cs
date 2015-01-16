@@ -21,7 +21,11 @@ namespace DotLiquid
 	/// </summary>
 	public class Variable : IRenderable
 	{
-		public static readonly string FilterParser = string.Format(R.Q(@"(?:{0}|(?:\s*(?!(?:{0}))(?:{1}|\S+)\s*)+)"), Liquid.FilterSeparator, Liquid.QuotedFragment);
+		private static readonly Regex FilterParseRegex = new Regex(string.Format(R.Q(@"(?:{0}|(?:\s*(?!(?:{0}))(?:{1}|\S+)\s*)+)"), Liquid.FilterSeparator, Liquid.QuotedFragment), RegexOptions.Compiled);
+		private static readonly Regex VariableRegex = new Regex(string.Format(R.Q(@"\s*({0})(.*)"), Liquid.QuotedAssignFragment), RegexOptions.Compiled);
+		private static readonly Regex FilterRegex = new Regex(string.Format(R.Q(@"{0}\s*(.*)"), Liquid.FilterSeparator), RegexOptions.Compiled);
+		private static readonly Regex FilterNameRegex = new Regex(R.Q(@"\s*(\w+)"), RegexOptions.Compiled);
+		private static readonly Regex FilterArgsRegex = new Regex(string.Format(R.Q(@"(?:{0}|{1})\s*({2})"), Liquid.FilterArgumentSeparator, Liquid.ArgumentSeparator, Liquid.QuotedFragment), RegexOptions.Compiled);
 
 		public List<Filter> Filters { get; set; }
 		public string Name { get; set; }
@@ -35,20 +39,20 @@ namespace DotLiquid
 			Name = null;
 			Filters = new List<Filter>();
 
-			Match match = Regex.Match(markup, string.Format(R.Q(@"\s*({0})(.*)"), Liquid.QuotedAssignFragment));
+			Match match = VariableRegex.Match(markup);
 			if (match.Success)
 			{
 				Name = match.Groups[1].Value;
-				Match filterMatch = Regex.Match(match.Groups[2].Value, string.Format(R.Q(@"{0}\s*(.*)"), Liquid.FilterSeparator));
+				Match filterMatch = FilterRegex.Match(match.Groups[2].Value);
 				if (filterMatch.Success)
 				{
-					foreach (string f in R.Scan(filterMatch.Value, FilterParser))
+					foreach (string f in R.Scan(filterMatch.Value, FilterParseRegex))
 					{
-						Match filterNameMatch = Regex.Match(f, R.Q(@"\s*(\w+)"));
+						Match filterNameMatch = FilterNameRegex.Match(f);
 						if (filterNameMatch.Success)
 						{
 							string filterName = filterNameMatch.Groups[1].Value;
-							List<string> filterArgs = R.Scan(f, string.Format(R.Q(@"(?:{0}|{1})\s*({2})"), Liquid.FilterArgumentSeparator, Liquid.ArgumentSeparator, Liquid.QuotedFragment));
+							List<string> filterArgs = R.Scan(f, FilterArgsRegex);
 							Filters.Add(new Filter(filterName, filterArgs.ToArray()));
 						}
 					}
@@ -56,33 +60,36 @@ namespace DotLiquid
 			}
 		}
 
-		public void Render(Context context, TextWriter result)
+		public ReturnCode Render(Context context, TextWriter result)
 		{
 			object output = RenderInternal(context);
 
+			if (output == null) 
+				return ReturnCode.Return;
+
 			if (output is ILiquidizable)
-				output = null;
+				return ReturnCode.Return;
 
-			if (output != null)
-			{
-                var transformer = Template.GetValueTypeTransformer(output.GetType());
-                
-                if(transformer != null)
-                    output = transformer(output);
+			var transformer = Template.GetValueTypeTransformer(output.GetType());
+				
+			if(transformer != null)
+				output = transformer(output);
 
-				string outputString;
-				if (output is IEnumerable)
+			string outputString;
+			var enumerable = output as IEnumerable;
+			if (enumerable != null)
 #if NET35
-					outputString = string.Join(string.Empty, ((IEnumerable)output).Cast<object>().Select(o => o.ToString()).ToArray());
+				outputString = string.Join(string.Empty, enumerable.Cast<object>().Select(o => o.ToString()).ToArray());
 #else
-					outputString = string.Join(string.Empty, ((IEnumerable)output).Cast<object>());
+				outputString = string.Join(string.Empty, enumerable.Cast<object>());
 #endif
-				else if (output is bool)
-					outputString = output.ToString().ToLower();
-				else
-					outputString = output.ToString();
-				result.Write(outputString);
-			}
+			else if (output is bool)
+				outputString = output.ToString().ToLowerInvariant();
+			else
+				outputString = output.ToString();
+			result.Write(outputString);
+
+			return ReturnCode.Return;
 		}
 
 		private object RenderInternal(Context context)
@@ -92,7 +99,7 @@ namespace DotLiquid
 
 			object output = context[Name];
 
-			Filters.ToList().ForEach(filter =>
+			Filters.ForEach(filter =>
 			{
 				List<object> filterArgs = filter.Arguments.Select(a => context[a]).ToList();
 				try
@@ -106,8 +113,9 @@ namespace DotLiquid
 				}
 			});
 
-            if (output is IValueTypeConvertible)
-                output = ((IValueTypeConvertible) output).ConvertToValueType();
+			var convertible = output as IValueTypeConvertible;
+			if (convertible != null)
+				output = convertible.ConvertToValueType();
 
 			return output;
 		}

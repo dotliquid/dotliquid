@@ -4,14 +4,16 @@ namespace DotLiquid.Tags
 {
 	public class IfChanged : DotLiquid.Block
 	{
-		public override void Render(Context context, TextWriter result)
+		public override ReturnCode Render(Context context, TextWriter result)
 		{
-			context.Stack(() =>
+			return context.Stack(() =>
 			{
 				string tempString;
 				using (TextWriter temp = new StringWriter())
 				{
-					RenderAll(NodeList, context, temp);
+					var retCode = RenderAll(NodeList, context, temp);
+					if (retCode != ReturnCode.Return)
+						return retCode;
 					tempString = temp.ToString();
 				}
 
@@ -20,6 +22,8 @@ namespace DotLiquid.Tags
 					context.Registers["ifchanged"] = tempString;
 					result.Write(tempString);
 				}
+
+				return ReturnCode.Return;
 			});
 		}
 	}

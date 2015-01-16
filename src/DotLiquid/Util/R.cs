@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace DotLiquid.Util
 {
-	public static class R
+	internal static class R
 	{
 		public static string Q(string regex)
 		{
@@ -19,12 +19,12 @@ namespace DotLiquid.Util
 			//bool hasGAnchor;
 			//pattern = RegexpTransformer.Transform(pattern, out hasGAnchor);
 
-			return new Regex(pattern);
+			return new Regex(pattern, RegexOptions.Compiled);
 		}
 
-		public static List<string> Scan(string input, string pattern)
+		public static List<string> Scan(string input, Regex regex)
 		{
-			return Regex.Matches(input, pattern)
+			return regex.Matches(input)
 				.Cast<Match>()
 				.Select(m => (m.Groups.Count == 2) ? m.Groups[1].Value : m.Value)
 				.ToList();
@@ -38,9 +38,9 @@ namespace DotLiquid.Util
 		/// <param name="pattern"></param>
 		/// <param name="callback"></param>
 		/// <returns></returns>
-		public static void Scan(string input, string pattern, Action<string, string> callback)
+		public static void Scan(string input, Regex regex, Action<string, string> callback)
 		{
-			foreach (Match match in Regex.Matches(input, pattern))
+			foreach (Match match in regex.Matches(input))
 				callback(match.Groups[1].Value, match.Groups[2].Value);
 		}
 	}

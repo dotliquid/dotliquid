@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using DotLiquid.Exceptions;
 using NUnit.Framework;
 

@@ -9,32 +9,32 @@ using DotLiquid.Util;
 
 namespace DotLiquid
 {
-    [System.Runtime.InteropServices.GuidAttribute("46C14360-A3D1-4A75-B12C-ACC566CC64FB")]
-    public class Context
+	[System.Runtime.InteropServices.GuidAttribute("46C14360-A3D1-4A75-B12C-ACC566CC64FB")]
+	public class Context
 	{
 		private readonly bool _rethrowErrors;
 		private Strainer _strainer;
 
-        private readonly static Regex SquareBracketed = new Regex(R.Q(@"^\[(.*)\]$"), RegexOptions.Compiled);
-        private readonly static Regex FloatRegex = new Regex(R.Q(@"^([+-]?\d[\d\.|\,]+)$"), RegexOptions.Compiled);
-        private readonly static Regex RangesRegex = new Regex(R.Q(@"^\((\S+)\.\.(\S+)\)$"), RegexOptions.Compiled);
-        private readonly static Regex IntegerRegex = new Regex(R.Q(@"^([+-]?\d+)$"), RegexOptions.Compiled);
-        private readonly static Regex DoubleQuotesRegex = new Regex(R.Q(@"^""(.*)""$"), RegexOptions.Compiled);
-        private readonly static Regex SingleQuotesRegex = new Regex(R.Q(@"^'(.*)'$"), RegexOptions.Compiled);
-        private readonly static Regex VariableParserRegex = new Regex(Liquid.VariableParser, RegexOptions.Compiled);
+		private readonly static Regex SquareBracketed = new Regex(R.Q(@"^\[(.*)\]$"), RegexOptions.Compiled);
+		private readonly static Regex FloatRegex = new Regex(R.Q(@"^([+-]?\d[\d\.|\,]+)$"), RegexOptions.Compiled);
+		private readonly static Regex RangesRegex = new Regex(R.Q(@"^\((\S+)\.\.(\S+)\)$"), RegexOptions.Compiled);
+		private readonly static Regex IntegerRegex = new Regex(R.Q(@"^([+-]?\d+)$"), RegexOptions.Compiled);
+		private readonly static Regex DoubleQuotesRegex = new Regex(R.Q(@"^""(.*)""$"), RegexOptions.Compiled);
+		private readonly static Regex SingleQuotesRegex = new Regex(R.Q(@"^'(.*)'$"), RegexOptions.Compiled);
+		private readonly static Regex VariableParserRegex = new Regex(Liquid.VariableParser, RegexOptions.Compiled);
 
-        public List<Hash> Environments { get; private set; }
-        public List<Hash> Scopes { get; private set; }
+		public List<Hash> Environments { get; private set; }
+		public List<Hash> Scopes { get; private set; }
 
-        /// <summary>
-        /// The inner-most scope
-        /// </summary>
-        public Hash LocalScope { get; private set; }
+		/// <summary>
+		/// The inner-most scope
+		/// </summary>
+		public Hash LocalScope { get; private set; }
 
-        /// <summary>
-        /// The outer-most scope
-        /// </summary>
-        public Hash GlobalScope { get; private set; }
+		/// <summary>
+		/// The outer-most scope
+		/// </summary>
+		public Hash GlobalScope { get; private set; }
 
 		public Hash Registers { get; private set; }
 
@@ -42,17 +42,17 @@ namespace DotLiquid
 
 		public Context(List<Hash> environments, Hash outerScope, Hash registers, bool rethrowErrors)
 		{
-            if (registers == null)
-                throw new ArgumentNullException("registers");
+			if (registers == null)
+				throw new ArgumentNullException("registers");
 
-            if (environments == null)
-                throw new ArgumentNullException("environments");
-            
+			if (environments == null)
+				throw new ArgumentNullException("environments");
+			
 			Environments = environments;
-            Scopes = new List<Hash>();
+			Scopes = new List<Hash>();
 
-		    GlobalScope = outerScope ?? new Hash();
-		    Push(GlobalScope);
+			GlobalScope = outerScope ?? new Hash();
+			Push(GlobalScope);
 
 			Registers = registers;
 
@@ -61,17 +61,17 @@ namespace DotLiquid
 			SquashInstanceAssignsWithEnvironments();
 		}
 
-        public Context()
-            : this(new List<Hash>(), new Hash(), new Hash(), true)
-        {
-        }
+		public Context()
+			: this(new List<Hash>(), new Hash(), new Hash(), false)
+		{
+		}
 
 		public Strainer Strainer
 		{
 			get { return (_strainer = _strainer ?? Strainer.Create(this)); }
 		}
-        
-	    /// <summary>
+		
+		/// <summary>
 		/// Adds filters to this context.
 		/// this does not register the filters with the main Template object. see <tt>Template.register_filter</tt>
 		/// for that
@@ -114,11 +114,11 @@ namespace DotLiquid
 		/// <param name="newScope"></param>
 		public void Push(Hash newScope)
 		{
-            if (Scopes.Count > 80)
+			if (Scopes.Count > 80)
 				throw new StackLevelException(Liquid.ResourceManager.GetString("ContextStackException"));
-            
-		    LocalScope = newScope;
-            Scopes.Insert(0, newScope);
+			
+			LocalScope = newScope;
+			Scopes.Insert(0, newScope);
 		}
 
 		/// <summary>
@@ -135,43 +135,43 @@ namespace DotLiquid
 		/// </summary>
 		public void Pop()
 		{
-            if (LocalScope == GlobalScope)
-                throw new ContextException();
+			if (LocalScope == GlobalScope)
+				throw new ContextException();
 
-            Scopes.RemoveAt(0);
-            LocalScope = Scopes[0];
+			Scopes.RemoveAt(0);
+			LocalScope = Scopes[0];
 		}
 
-        /// <summary>
-        /// pushes a new local scope on the stack, pops it at the end of the block
-        /// 
-        /// Example:
-        /// 
-        /// context.stack do
-        /// context['var'] = 'hi'
-        /// end
-        /// context['var] #=> nil
-        /// </summary>
-        /// <param name="newScope"></param>
-        /// <param name="callback"></param>
-        /// <returns></returns>
-        public ReturnCode Stack(Hash newScope, Func<ReturnCode> callback)
-        {
-            Push(newScope);
-            try
-            {
-                return callback();
-            }
-            finally
-            {
-                Pop();
-            }
-        }
+		/// <summary>
+		/// pushes a new local scope on the stack, pops it at the end of the block
+		/// 
+		/// Example:
+		/// 
+		/// context.stack do
+		/// context['var'] = 'hi'
+		/// end
+		/// context['var] #=> nil
+		/// </summary>
+		/// <param name="newScope"></param>
+		/// <param name="callback"></param>
+		/// <returns></returns>
+		public ReturnCode Stack(Hash newScope, Func<ReturnCode> callback)
+		{
+			Push(newScope);
+			try
+			{
+				return callback();
+			}
+			finally
+			{
+				Pop();
+			}
+		}
 
-        public ReturnCode Stack(Func<ReturnCode> callback)
-        {
-            return Stack(new Hash(), callback);
-        }
+		public ReturnCode Stack(Func<ReturnCode> callback)
+		{
+			return Stack(new Hash(), callback);
+		}
 
 		public void ClearInstanceAssigns()
 		{
@@ -221,7 +221,7 @@ namespace DotLiquid
 					return false;
 				case "blank":
 				case "empty":
-                    return new Symbol(SymbolEmptyEvaluator);
+					return new Symbol(SymbolEmptyEvaluator);
 			}
 
 			// Single quoted strings.
@@ -263,11 +263,11 @@ namespace DotLiquid
 			return Variable(key);
 		}
 
-        private bool SymbolEmptyEvaluator(object o)
-        {
-            var enumerable = o as IEnumerable;
-            return enumerable != null && !enumerable.Cast<object>().Any();
-        }
+		private bool SymbolEmptyEvaluator(object o)
+		{
+			var enumerable = o as IEnumerable;
+			return enumerable != null && !enumerable.Cast<object>().Any();
+		}
 
 		/// <summary>
 		/// Fetches an object starting at the local scope and then moving up
@@ -277,7 +277,7 @@ namespace DotLiquid
 		/// <returns></returns>
 		private object FindVariable(string key)
 		{
-            Hash scope = Scopes.FirstOrDefault(s => s.ContainsKey(key));
+			Hash scope = Scopes.FirstOrDefault(s => s.ContainsKey(key));
 			object variable = null;
 			if (scope == null)
 			{
@@ -291,11 +291,11 @@ namespace DotLiquid
 			scope = scope ?? Environments.LastOrDefault() ?? GlobalScope;
 			variable = variable ?? LookupAndEvaluate(scope, key);
 
-            variable = Liquidize(variable);
+			variable = Liquidize(variable);
 
-		    var contextAware = variable as IContextAware;
-            if (contextAware != null)
-                contextAware.Context = this;
+			var contextAware = variable as IContextAware;
+			if (contextAware != null)
+				contextAware.Context = this;
 			return variable;
 		}
 
@@ -352,36 +352,36 @@ namespace DotLiquid
 						// as commands and call them on the current object
 					else
 					{
-					    var partString = part as string;
-					    var enumerable = partResolved ? null : @object as IEnumerable;
-                        if (enumerable != null && (partString == "size" || partString == "first" || partString == "last"))
-                        {
-                            var castCollection = enumerable.Cast<object>();
-                            switch (partString)
-                            {
-                                case "size":
-                                    @object = castCollection.Count();
-                                    break;
-                                case "first":
-                                    @object = castCollection.FirstOrDefault();
-                                    break;
-                                case "last":
-                                    @object = castCollection.LastOrDefault();
-                                    break;
-                            }
-                        }
-                            // No key was present with the desired value and it wasn't one of the directly supported
-						    // keywords either. The only thing we got left is to return nil
-					    else
-					    {
-						    return null;
-					    }
-                    }
-                    
+						var partString = part as string;
+						var enumerable = partResolved ? null : @object as IEnumerable;
+						if (enumerable != null && (partString == "size" || partString == "first" || partString == "last"))
+						{
+							var castCollection = enumerable.Cast<object>();
+							switch (partString)
+							{
+								case "size":
+									@object = castCollection.Count();
+									break;
+								case "first":
+									@object = castCollection.FirstOrDefault();
+									break;
+								case "last":
+									@object = castCollection.LastOrDefault();
+									break;
+							}
+						}
+							// No key was present with the desired value and it wasn't one of the directly supported
+							// keywords either. The only thing we got left is to return nil
+						else
+						{
+							return null;
+						}
+					}
+					
 					// If we are dealing with a drop here we have to
-				    var contextAware = @object as IContextAware;
-                    if (contextAware != null)
-                        contextAware.Context = this;
+					var contextAware = @object as IContextAware;
+					if (contextAware != null)
+						contextAware.Context = this;
 				}
 			}
 
@@ -402,7 +402,7 @@ namespace DotLiquid
 			if (TypeUtility.IsAnonymousType(obj.GetType()) && obj.GetType().GetProperty((string) part) != null)
 				return true;
 
-		    var indexable = obj as IIndexable;
+			var indexable = obj as IIndexable;
 			if (indexable != null && indexable.ContainsKey((string) part))
 				return true;
 
@@ -423,7 +423,7 @@ namespace DotLiquid
 			else
 				throw new NotSupportedException();
 
-		    var proc = value as Proc;
+			var proc = value as Proc;
 			if (proc != null)
 			{
 				object newValue = proc.Invoke(this);
@@ -440,15 +440,15 @@ namespace DotLiquid
 
 			return value;
 		}
-        
+		
 		private static object Liquidize(object obj)
 		{
 			if (obj == null)
 				return obj;
 
-		    var liquidizable = obj as ILiquidizable;
+			var liquidizable = obj as ILiquidizable;
 			if (liquidizable != null)
-                return liquidizable.ToLiquid();
+				return liquidizable.ToLiquid();
 
 			if (obj is string)
 				return obj;
@@ -470,15 +470,15 @@ namespace DotLiquid
 				return obj;
 			if (obj is KeyValuePair<string, object>)
 				return obj;
-            var safeTypeTransformer = Template.GetSafeTypeTransformer(obj.GetType());
+			var safeTypeTransformer = Template.GetSafeTypeTransformer(obj.GetType());
 			if (safeTypeTransformer != null)
 				return safeTypeTransformer(obj);
-            if (obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
-            {
-                var attr = (LiquidTypeAttribute)obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
-                return new DropProxy(obj, attr.AllowedMembers);
-            }
-            
+			if (obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
+			{
+				var attr = (LiquidTypeAttribute)obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
+				return new DropProxy(obj, attr.AllowedMembers);
+			}
+			
 			throw new SyntaxException(Liquid.ResourceManager.GetString("ContextObjectInvalidException"), obj.ToString());
 		}
 

@@ -15,8 +15,8 @@ namespace DotLiquid.NamingConventions
 	/// </example>
 	public class RubyNamingConvention : INamingConvention
 	{
-        private static readonly Regex _regex1 = new Regex(@"([A-Z]+)([A-Z][a-z])", RegexOptions.Compiled);
-        private static readonly Regex _regex2 = new Regex(@"([a-z\d])([A-Z])", RegexOptions.Compiled);
+		private static readonly Regex _regex1 = new Regex(@"([A-Z]+)([A-Z][a-z])", RegexOptions.Compiled);
+		private static readonly Regex _regex2 = new Regex(@"([a-z\d])([A-Z])", RegexOptions.Compiled);
 
 		public StringComparer StringComparer
 		{

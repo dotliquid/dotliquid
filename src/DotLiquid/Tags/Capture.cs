@@ -21,7 +21,7 @@ namespace DotLiquid.Tags
 	/// </summary>
 	public class Capture : DotLiquid.Block
 	{
-        private static readonly Regex Syntax = new Regex(@"(\w+)", RegexOptions.Compiled);
+		private static readonly Regex Syntax = new Regex(@"(\w+)", RegexOptions.Compiled);
 
 		private string _to;
 
@@ -41,12 +41,12 @@ namespace DotLiquid.Tags
 			using (TextWriter temp = new StringWriter())
 			{
 				var retCode = base.Render(context, temp);
-			    if (retCode != ReturnCode.Return)
-			        return retCode;
+				if (retCode != ReturnCode.Return)
+					return retCode;
 				context.GlobalScope[_to] = temp.ToString();
 			}
 
-            return ReturnCode.Return;
+			return ReturnCode.Return;
 		}
 	}
 }

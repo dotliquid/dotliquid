@@ -11,9 +11,9 @@ namespace DotLiquid.Tags
 				string tempString;
 				using (TextWriter temp = new StringWriter())
 				{
-				    var retCode = RenderAll(NodeList, context, temp);
-				    if (retCode != ReturnCode.Return)
-				        return retCode;
+					var retCode = RenderAll(NodeList, context, temp);
+					if (retCode != ReturnCode.Return)
+						return retCode;
 					tempString = temp.ToString();
 				}
 
@@ -23,7 +23,7 @@ namespace DotLiquid.Tags
 					result.Write(tempString);
 				}
 
-                return ReturnCode.Return;
+				return ReturnCode.Return;
 			});
 		}
 	}

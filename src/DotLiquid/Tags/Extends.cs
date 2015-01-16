@@ -58,7 +58,7 @@ namespace DotLiquid.Tags
 	/// </example>
 	public class Extends : DotLiquid.Block
 	{
-        private static readonly Regex Syntax = new Regex(string.Format(@"^({0})", Liquid.QuotedFragment), RegexOptions.Compiled);
+		private static readonly Regex Syntax = new Regex(string.Format(@"^({0})", Liquid.QuotedFragment), RegexOptions.Compiled);
 
 		private string _templateName;
 
@@ -101,46 +101,46 @@ namespace DotLiquid.Tags
 
 		public override ReturnCode Render(Context context, TextWriter result)
 		{
-            // Get the template or template content and then either copy it (since it will be modified) or parse it
+			// Get the template or template content and then either copy it (since it will be modified) or parse it
 			IFileSystem fileSystem = context.Registers["file_system"] as IFileSystem ?? Template.FileSystem;
-            object file = fileSystem.ReadTemplateFile(context, _templateName);
-		    Template template = file as Template;
-            template = template ?? Template.Parse(file == null ? null : file.ToString());
+			object file = fileSystem.ReadTemplateFile(context, _templateName);
+			Template template = file as Template;
+			template = template ?? Template.Parse(file == null ? null : file.ToString());
 
-		    List<Block> parentBlocks = FindBlocks(template.Root, null);
-            List<Block> orphanedBlocks = ((List<Block>)context.LocalScope["extends"]) ?? new List<Block>();
-		    BlockRenderState blockState = BlockRenderState.Find(context) ?? new BlockRenderState();
+			List<Block> parentBlocks = FindBlocks(template.Root, null);
+			List<Block> orphanedBlocks = ((List<Block>)context.LocalScope["extends"]) ?? new List<Block>();
+			BlockRenderState blockState = BlockRenderState.Find(context) ?? new BlockRenderState();
 
-            return context.Stack(() =>
-            {
-                context["blockstate"] = blockState;         // Set or copy the block state down to this scope
-                context["extends"] = new List<Block>();     // Holds Blocks that were not found in the parent
-                foreach (Block block in NodeList.OfType<Block>().Concat(orphanedBlocks))
-                {
-                    Block pb = parentBlocks.Find(b => b.BlockName == block.BlockName);
-                    
-                    if (pb != null)
-                    {
-                        Block parent;
-                        if (blockState.Parents.TryGetValue(block, out parent))
-                            blockState.Parents[pb] = parent;
-                        pb.AddParent(blockState.Parents, pb.GetNodeList(blockState));
-                        blockState.NodeLists[pb] = block.GetNodeList(blockState);
-                    }
-                    else if(IsExtending(template))
-                    {
-                        ((List<Block>)context.LocalScope["extends"]).Add(block);
-                    }
-                }
-			    template.Render(result, RenderParameters.FromContext(context));
-                return ReturnCode.Return;
-            });
+			return context.Stack(() =>
+			{
+				context["blockstate"] = blockState;         // Set or copy the block state down to this scope
+				context["extends"] = new List<Block>();     // Holds Blocks that were not found in the parent
+				foreach (Block block in NodeList.OfType<Block>().Concat(orphanedBlocks))
+				{
+					Block pb = parentBlocks.Find(b => b.BlockName == block.BlockName);
+					
+					if (pb != null)
+					{
+						Block parent;
+						if (blockState.Parents.TryGetValue(block, out parent))
+							blockState.Parents[pb] = parent;
+						pb.AddParent(blockState.Parents, pb.GetNodeList(blockState));
+						blockState.NodeLists[pb] = block.GetNodeList(blockState);
+					}
+					else if(IsExtending(template))
+					{
+						((List<Block>)context.LocalScope["extends"]).Add(block);
+					}
+				}
+				template.Render(result, RenderParameters.FromContext(context));
+				return ReturnCode.Return;
+			});
 		}
 
-        public bool IsExtending(Template template)
-        {
-            return template.Root.NodeList.Any(node => node is Extends);
-        }
+		public bool IsExtending(Template template)
+		{
+			return template.Root.NodeList.Any(node => node is Extends);
+		}
 
 		private List<Block> FindBlocks(object node, List<Block> blocks)
 		{
@@ -158,10 +158,10 @@ namespace DotLiquid.Tags
 
 						if (block != null)
 						{
-                            if (blocks.All(bl => bl.BlockName != block.BlockName)) blocks.Add(block);
+							if (blocks.All(bl => bl.BlockName != block.BlockName)) blocks.Add(block);
 						}
 						
-                        FindBlocks(n, blocks);
+						FindBlocks(n, blocks);
 					});
 				}
 			}

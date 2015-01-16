@@ -65,13 +65,13 @@ namespace DotLiquid
 
 		private object GetValue(string key)
 		{
-		    object result;
+			object result;
 			if (_nestedDictionary.TryGetValue(key, out result))
 				return result;
 
 			return _lambda != null 
-                ? _lambda(this, key) 
-                : _defaultValue;
+				? _lambda(this, key) 
+				: _defaultValue;
 		}
 
 		public T Get<T>(string key)

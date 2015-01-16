@@ -24,7 +24,7 @@ namespace DotLiquid.Tags
 	{
 		private static readonly Regex SimpleSyntax = R.B(R.Q(@"^{0}+"), Liquid.QuotedFragment);
 		private static readonly Regex NamedSyntax = R.B(R.Q(@"^({0})\s*\:\s*(.*)"), Liquid.QuotedFragment);
-        private static readonly Regex VariablesRegex = new Regex(string.Format(R.Q(@"\s*({0})\s*"), Liquid.QuotedFragment), RegexOptions.Compiled);
+		private static readonly Regex VariablesRegex = new Regex(string.Format(R.Q(@"\s*({0})\s*"), Liquid.QuotedFragment), RegexOptions.Compiled);
 		private string[] _variables;
 		private string _name;
 
@@ -57,7 +57,7 @@ namespace DotLiquid.Tags
 		{
 			return markup.Split(',').Select(var =>
 			{
-                Match match = VariablesRegex.Match(var);
+				Match match = VariablesRegex.Match(var);
 				return (match.Success && !string.IsNullOrEmpty(match.Groups[1].Value))
 					? match.Groups[1].Value
 					: null;
@@ -66,24 +66,24 @@ namespace DotLiquid.Tags
 
 		public override ReturnCode Render(Context context, TextWriter result)
 		{
-		    object cycleRegister = context.Registers["cycle"];
-		    if (cycleRegister == null)
-		    {
-		        cycleRegister = new Hash(0);
-		        context.Registers["cycle"] = cycleRegister;
-		    }
-		    var cycleRegisterHash = (Hash) cycleRegister;
+			object cycleRegister = context.Registers["cycle"];
+			if (cycleRegister == null)
+			{
+				cycleRegister = new Hash(0);
+				context.Registers["cycle"] = cycleRegister;
+			}
+			var cycleRegisterHash = (Hash) cycleRegister;
 
-		    return context.Stack(() =>
+			return context.Stack(() =>
 			{
 				string key = context[_name].ToString();
-                int iteration = (int)(cycleRegisterHash[key] ?? 0);
+				int iteration = (int)(cycleRegisterHash[key] ?? 0);
 				result.Write(context[_variables[iteration]].ToString());
 				++iteration;
 				if (iteration >= _variables.Length)
 					iteration = 0;
-                cycleRegisterHash[key] = iteration;
-                return ReturnCode.Return;
+				cycleRegisterHash[key] = iteration;
+				return ReturnCode.Return;
 			});
 		}
 	}

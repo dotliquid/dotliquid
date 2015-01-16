@@ -54,7 +54,7 @@ namespace DotLiquid.Tags
 					}
 				}
 
-                return ReturnCode.Return;
+				return ReturnCode.Return;
 			});
 		}
 
@@ -67,7 +67,7 @@ namespace DotLiquid.Tags
 			}
 			else
 			{
-                List<string> expressions = R.Scan(markup, ExpressionsAndOperatorsRegex);
+				List<string> expressions = R.Scan(markup, ExpressionsAndOperatorsRegex);
 				expressions.Reverse();
 				string syntax = expressions.Shift();
 				if (string.IsNullOrEmpty(syntax))

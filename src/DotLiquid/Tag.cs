@@ -36,6 +36,6 @@ namespace DotLiquid
 			get { return GetType().Name.ToLower(); }
 		}
 
-	    public abstract ReturnCode Render(Context context, TextWriter result);
+		public abstract ReturnCode Render(Context context, TextWriter result);
 	}
 }

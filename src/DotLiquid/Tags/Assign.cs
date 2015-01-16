@@ -42,7 +42,7 @@ namespace DotLiquid.Tags
 		public override ReturnCode Render(Context context, TextWriter result)
 		{
 			context.GlobalScope[_to] = _from.Render(context);
-            return ReturnCode.Return;
+			return ReturnCode.Return;
 		}
 	}
 }

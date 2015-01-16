@@ -11,7 +11,7 @@ namespace DotLiquid.Tags
 {
 	public class Include : DotLiquid.Block
 	{
-        private static readonly Regex Syntax = new Regex(string.Format(@"({0}+)(\s+(?:with|for)\s+({0}+))?", Liquid.QuotedFragment), RegexOptions.Compiled);
+		private static readonly Regex Syntax = new Regex(string.Format(@"({0}+)(\s+(?:with|for)\s+({0}+))?", Liquid.QuotedFragment), RegexOptions.Compiled);
 
 		private string _templateName, _variableName;
 		private Dictionary<string, string> _attributes;
@@ -52,8 +52,8 @@ namespace DotLiquid.Tags
 				foreach (var keyValue in _attributes)
 					context[keyValue.Key] = context[keyValue.Value];
 
-			    var enumerable = variable as IEnumerable;
-			    if (enumerable != null)
+				var enumerable = variable as IEnumerable;
+				if (enumerable != null)
 				{
 					enumerable.Cast<object>().ToList().ForEach(v =>
 					{
@@ -65,7 +65,7 @@ namespace DotLiquid.Tags
 
 				context[shortenedTemplateName] = variable;
 				partial.Render(result, RenderParameters.FromContext(context));
-                return ReturnCode.Return;
+				return ReturnCode.Return;
 			});
 		}
 	}

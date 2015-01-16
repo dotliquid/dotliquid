@@ -21,7 +21,7 @@ namespace DotLiquid.Tags
 	/// </summary>
 	public class Literal : DotLiquid.Block
 	{
-        private static readonly Regex BlockRegex = new Regex(Liquid.LiteralShorthand, RegexOptions.Compiled);
+		private static readonly Regex BlockRegex = new Regex(Liquid.LiteralShorthand, RegexOptions.Compiled);
 		public static string FromShortHand(string @string)
 		{
 			if (@string == null)

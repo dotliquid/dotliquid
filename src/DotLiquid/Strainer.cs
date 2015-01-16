@@ -51,26 +51,26 @@ namespace DotLiquid
 		{
 			// From what I can tell, calls to Extend should replace existing filters. So be it.
 			var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Static)
-                            .Select(m => new
-                            {
-                                Method = m,
-                                MethodName = Template.NamingConvention.GetMemberName(m.Name)
-                            })
-                            .ToList();
+							.Select(m => new
+							{
+								Method = m,
+								MethodName = Template.NamingConvention.GetMemberName(m.Name)
+							})
+							.ToList();
 
-            foreach (var method in methods)
+			foreach (var method in methods)
 				_methods.Remove(method.MethodName);
 
 			foreach (var method in methods)
 			{
-			    IList<MethodInfo> methodList;
-			    if (!_methods.TryGetValue(method.MethodName, out methodList))
-			    {
-                    methodList = new List<MethodInfo>();
-                    _methods[method.MethodName] = methodList;
-			    }
+				IList<MethodInfo> methodList;
+				if (!_methods.TryGetValue(method.MethodName, out methodList))
+				{
+					methodList = new List<MethodInfo>();
+					_methods[method.MethodName] = methodList;
+				}
 
-			    methodList.Add(method.Method);
+				methodList.Add(method.Method);
 			}
 		}
 
@@ -81,22 +81,22 @@ namespace DotLiquid
 
 		public object Invoke(string method, List<object> args)
 		{
-            var methodInfos = _methods[method].Select(s =>
-                new
-                {
-                    Method = s,
-                    Parameters = s.GetParameters()
-                })
-                .ToList();
+			var methodInfos = _methods[method].Select(s =>
+				new
+				{
+					Method = s,
+					Parameters = s.GetParameters()
+				})
+				.ToList();
 
 			// First, try to find a method with the same number of arguments.
-            var methodInfo = methodInfos.FirstOrDefault(m => m.Parameters.Length == args.Count);
+			var methodInfo = methodInfos.FirstOrDefault(m => m.Parameters.Length == args.Count);
 
 			// If we failed to do so, try one with max numbers of arguments, hoping
 			// that those not explicitly specified will be taken care of
 			// by default values
 			if (methodInfo == null)
-                methodInfo = methodInfos.OrderByDescending(m => m.Parameters.Length).First();
+				methodInfo = methodInfos.OrderByDescending(m => m.Parameters.Length).First();
 
 			var parameterInfos = methodInfo.Parameters;
 

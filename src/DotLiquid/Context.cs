@@ -486,9 +486,9 @@ namespace DotLiquid
 		{
 			Dictionary<string, object> tempAssigns = new Dictionary<string, object>(Template.NamingConvention.StringComparer);
 
-			var applicationScope = GlobalScope;
-			foreach (var k in applicationScope.Keys)
-				foreach (var env in Environments)
+			Hash lastScope = GlobalScope;
+			foreach (string k in lastScope.Keys)
+				foreach (Hash env in Environments)
 					if (env.ContainsKey(k))
 					{
 						tempAssigns[k] = LookupAndEvaluate(env, k);
@@ -496,7 +496,7 @@ namespace DotLiquid
 					}
 
 			foreach (string k in tempAssigns.Keys)
-				applicationScope[k] = tempAssigns[k];
+				lastScope[k] = tempAssigns[k];
 		}
 	}
 }

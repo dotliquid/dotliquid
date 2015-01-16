@@ -24,7 +24,7 @@ namespace DotLiquid.Util
 
 		public static List<string> Scan(string input, Regex regex)
 		{
-            return regex.Matches(input)
+			return regex.Matches(input)
 				.Cast<Match>()
 				.Select(m => (m.Groups.Count == 2) ? m.Groups[1].Value : m.Value)
 				.ToList();

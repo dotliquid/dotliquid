@@ -7,8 +7,8 @@ namespace DotLiquid.Tags
 {
 	public class Case : DotLiquid.Block
 	{
-        private static readonly Regex Syntax = new Regex(string.Format(@"({0})", Liquid.QuotedFragment), RegexOptions.Compiled);
-        private static readonly Regex WhenSyntax = new Regex(string.Format(@"({0})(?:(?:\s+or\s+|\s*\,\s*)({0}.*))?", Liquid.QuotedFragment), RegexOptions.Compiled);
+		private static readonly Regex Syntax = new Regex(string.Format(@"({0})", Liquid.QuotedFragment), RegexOptions.Compiled);
+		private static readonly Regex WhenSyntax = new Regex(string.Format(@"({0})(?:(?:\s+or\s+|\s*\,\s*)({0}.*))?", Liquid.QuotedFragment), RegexOptions.Compiled);
 
 		private List<Condition> _blocks;
 		private string _left;
@@ -48,24 +48,25 @@ namespace DotLiquid.Tags
 			return context.Stack(() =>
 			{
 				bool executeElseBlock = true;
-			    var retCode = ReturnCode.Return;
 				foreach (var block in _blocks)
 				{
 					if (block.IsElse)
 					{
 						if (executeElseBlock)
 						{
-							retCode = RenderAll(block.Attachment, context, result);
+							return RenderAll(block.Attachment, context, result);
 						}
 					}
 					else if (block.Evaluate(context))
 					{
 						executeElseBlock = false;
-						retCode = RenderAll(block.Attachment, context, result);
+						var retCode = RenderAll(block.Attachment, context, result);
+						if (retCode != ReturnCode.Return)
+							return retCode;
 					}
 				}
 
-                return retCode;
+				return ReturnCode.Return;
 			});
 		}
 

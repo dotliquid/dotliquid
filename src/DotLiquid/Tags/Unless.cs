@@ -28,7 +28,7 @@ namespace DotLiquid.Tags
 						return RenderAll(forEachBlock.Attachment, context, result);
 					}
 
-			    return ReturnCode.Return;
+				return ReturnCode.Return;
 			});
 		}
 	}

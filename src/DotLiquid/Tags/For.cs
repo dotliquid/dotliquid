@@ -58,10 +58,10 @@ namespace DotLiquid.Tags
 		private string _variableName, _collectionName, _name;
 		private bool _reversed;
 
-	    private bool _hasLimit;
-	    private bool _hasOffset;
-	    private string _limitAttribute;
-	    private string _offsetAttribute;
+		private bool _hasLimit;
+		private bool _hasOffset;
+		private string _limitAttribute;
+		private string _offsetAttribute;
 
 		public override void Initialize(string tagName, string markup, List<string> tokens)
 		{
@@ -75,8 +75,8 @@ namespace DotLiquid.Tags
 				var attributes = new Dictionary<string, string>(Template.NamingConvention.StringComparer);
 				R.Scan(markup, TagAttributesRegex, (key, value) => attributes[key] = value);
 
-			    _hasOffset = attributes.TryGetValue("offset", out _offsetAttribute);
-			    _hasLimit = attributes.TryGetValue("limit", out _limitAttribute);
+				_hasOffset = attributes.TryGetValue("offset", out _offsetAttribute);
+				_hasLimit = attributes.TryGetValue("limit", out _limitAttribute);
 			}
 			else
 			{
@@ -88,30 +88,30 @@ namespace DotLiquid.Tags
 
 		public override ReturnCode Render(Context context, TextWriter result)
 		{
-            object forRegister = context.Registers["for"];
-		    if (forRegister == null)
-		    {
-		        forRegister = new Hash(0);
-		        context.Registers["for"] = forRegister;
-		    }
+			object forRegister = context.Registers["for"];
+			if (forRegister == null)
+			{
+				forRegister = new Hash(0);
+				context.Registers["for"] = forRegister;
+			}
 
-		    object collection = context[_collectionName];
+			object collection = context[_collectionName];
 
-		    var enumerable = collection as IEnumerable;
+			var enumerable = collection as IEnumerable;
 			if (enumerable == null)
-                return ReturnCode.Return;
+				return ReturnCode.Return;
 
-		    int from = 0;
-		    if (_hasOffset)
-		    {
-		        from = (_offsetAttribute == "continue")
+			int from = 0;
+			if (_hasOffset)
+			{
+				from = (_offsetAttribute == "continue")
 					? Convert.ToInt32(context.Registers.Get<Hash>("for")[_name])
-		            : Convert.ToInt32(context[_offsetAttribute]);
-		    }
+					: Convert.ToInt32(context[_offsetAttribute]);
+			}
 
-		    int? limit = _hasLimit
-		                ? context[_limitAttribute] as int?
-		                : null;
+			int? limit = _hasLimit
+						? context[_limitAttribute] as int?
+						: null;
 
 			int? to = (limit != null) ? (int?) (limit.Value + from) : null;
 
@@ -128,31 +128,31 @@ namespace DotLiquid.Tags
 			// Store our progress through the collection for the continue flag
 			context.Registers.Get<Hash>("for")[_name] = from + length;
 
-		    return context.Stack(() =>
+			return context.Stack(() =>
 			{
-		        for (var index = 0; index < segment.Count; ++index)
-		        {
-				    context[_variableName] = segment[index];
+				for (var index = 0; index < segment.Count; ++index)
+				{
+					context[_variableName] = segment[index];
 
-			        var forHash = new Hash();
+					var forHash = new Hash();
 
-			        forHash["name"] = _name;
-                    forHash["length"] = length;
-                    forHash["index"] = index + 1;
-                    forHash["index0"] = index;
-                    forHash["rindex"] = length - index;
-                    forHash["rindex0"] = length - index - 1;
-                    forHash["first"] = (index == 0);
-                    forHash["last"] = (index == length - 1);
+					forHash["name"] = _name;
+					forHash["length"] = length;
+					forHash["index"] = index + 1;
+					forHash["index0"] = index;
+					forHash["rindex"] = length - index;
+					forHash["rindex0"] = length - index - 1;
+					forHash["first"] = (index == 0);
+					forHash["last"] = (index == length - 1);
 
-			        context["forloop"] = forHash;
+					context["forloop"] = forHash;
 
-		            if (RenderAll(NodeList, context, result) == ReturnCode.Break)
-		                break;
-		        }
+					if (RenderAll(NodeList, context, result) == ReturnCode.Break)
+						break;
+				}
 
-                return ReturnCode.Return;
-		    });
+				return ReturnCode.Return;
+			});
 		}
 
 		private static List<object> SliceCollectionUsingEach(IEnumerable collection, int from, int? to)

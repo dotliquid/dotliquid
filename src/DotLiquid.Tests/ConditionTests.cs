@@ -82,65 +82,65 @@ namespace DotLiquid.Tests
 			AssertEvaluatesFalse("0", "contains", "not_assigned");
 		}
 
-		[Test]
-		public void TestStartsWithWorksOnStrings()
-		{
-			AssertEvaluatesTrue("'dave'", "startswith", "'d'");
-			AssertEvaluatesTrue("'dave'", "startswith", "'da'");
-			AssertEvaluatesTrue("'dave'", "startswith", "'dav'");
-			AssertEvaluatesTrue("'dave'", "startswith", "'dave'");
+        [Test]
+        public void TestStartsWithWorksOnStrings()
+        {
+            AssertEvaluatesTrue("'dave'", "startswith", "'d'");
+            AssertEvaluatesTrue("'dave'", "startswith", "'da'");
+            AssertEvaluatesTrue("'dave'", "startswith", "'dav'");
+            AssertEvaluatesTrue("'dave'", "startswith", "'dave'");
 
-			AssertEvaluatesFalse("'dave'", "startswith", "'ave'");
-			AssertEvaluatesFalse("'dave'", "startswith", "'e'");
-			AssertEvaluatesFalse("'dave'", "startswith", "'---'");
-		}
+            AssertEvaluatesFalse("'dave'", "startswith", "'ave'");
+            AssertEvaluatesFalse("'dave'", "startswith", "'e'");
+            AssertEvaluatesFalse("'dave'", "startswith", "'---'");
+        }
 
-		[Test]
-		public void TestStartsWithWorksOnArrays()
-		{
-			_context = new Context();
-			_context["array"] = new[] { 1, 2, 3, 4, 5 };
+        [Test]
+        public void TestStartsWithWorksOnArrays()
+        {
+            _context = new Context();
+            _context["array"] = new[] { 1, 2, 3, 4, 5 };
 
-			AssertEvaluatesFalse("array", "startswith", "0");
-			AssertEvaluatesTrue("array", "startswith", "1");
-		}
+            AssertEvaluatesFalse("array", "startswith", "0");
+            AssertEvaluatesTrue("array", "startswith", "1");
+        }
 
-		[Test]
-		public void TestStartsWithReturnsFalseForNilCommands()
-		{
-			AssertEvaluatesFalse("not_assigned", "startswith", "0");
-			AssertEvaluatesFalse("0", "startswith", "not_assigned");
-		}
+        [Test]
+        public void TestStartsWithReturnsFalseForNilCommands()
+        {
+            AssertEvaluatesFalse("not_assigned", "startswith", "0");
+            AssertEvaluatesFalse("0", "startswith", "not_assigned");
+        }
 
-		[Test]
-		public void TestEndsWithWorksOnStrings()
-		{
-			AssertEvaluatesTrue("'dave'", "endswith", "'e'");
-			AssertEvaluatesTrue("'dave'", "endswith", "'ve'");
-			AssertEvaluatesTrue("'dave'", "endswith", "'ave'");
-			AssertEvaluatesTrue("'dave'", "endswith", "'dave'");
+        [Test]
+        public void TestEndsWithWorksOnStrings()
+        {
+            AssertEvaluatesTrue("'dave'", "endswith", "'e'");
+            AssertEvaluatesTrue("'dave'", "endswith", "'ve'");
+            AssertEvaluatesTrue("'dave'", "endswith", "'ave'");
+            AssertEvaluatesTrue("'dave'", "endswith", "'dave'");
 
-			AssertEvaluatesFalse("'dave'", "endswith", "'dav'");
-			AssertEvaluatesFalse("'dave'", "endswith", "'d'");
-			AssertEvaluatesFalse("'dave'", "endswith", "'---'");
-		}
+            AssertEvaluatesFalse("'dave'", "endswith", "'dav'");
+            AssertEvaluatesFalse("'dave'", "endswith", "'d'");
+            AssertEvaluatesFalse("'dave'", "endswith", "'---'");
+        }
 
-		[Test]
-		public void TestEndsWithWorksOnArrays()
-		{
-			_context = new Context();
-			_context["array"] = new[] { 1, 2, 3, 4, 5 };
+        [Test]
+        public void TestEndsWithWorksOnArrays()
+        {
+            _context = new Context();
+            _context["array"] = new[] { 1, 2, 3, 4, 5 };
 
-			AssertEvaluatesFalse("array", "endswith", "0");
-			AssertEvaluatesTrue("array", "endswith", "5");
-		}
+            AssertEvaluatesFalse("array", "endswith", "0");
+            AssertEvaluatesTrue("array", "endswith", "5");
+        }
 
-		[Test]
-		public void TestEndsWithReturnsFalseForNilCommands()
-		{
-			AssertEvaluatesFalse("not_assigned", "endswith", "0");
-			AssertEvaluatesFalse("0", "endswith", "not_assigned");
-		}
+        [Test]
+        public void TestEndsWithReturnsFalseForNilCommands()
+        {
+            AssertEvaluatesFalse("not_assigned", "endswith", "0");
+            AssertEvaluatesFalse("0", "endswith", "not_assigned");
+        }
 
 		[Test]
 		public void TestOrCondition()

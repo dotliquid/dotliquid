@@ -28,85 +28,85 @@ namespace DotLiquid
 			{ "<=", (left, right) => left != null && right != null && Comparer.Default.Compare(left, Convert.ChangeType(right, left.GetType())) <= 0 },
 			{ ">=", (left, right) => left != null && right != null && Comparer.Default.Compare(left, Convert.ChangeType(right, left.GetType())) >= 0 },
 			{ "contains",  Contains },
-            { "startswith", StartsWith },
-            { "endswith", EndsWith },
+			{ "startswith", StartsWith },
+			{ "endswith", EndsWith },
 			{ "hasKey", HasKey },
 			{ "hasValue", HasValue }
 		};
 
-	    private static bool HasValue(object left, object right)
-	    {
-	        var dictionary = left as IDictionary;
-	        return dictionary != null
-                && dictionary.OfType<object>().Contains(right);
-	    }
+		private static bool HasValue(object left, object right)
+		{
+			var dictionary = left as IDictionary;
+			return dictionary != null
+				&& dictionary.OfType<object>().Contains(right);
+		}
 
-	    private static bool HasKey(object left, object right)
-	    {
-	        var dictionary = left as IDictionary;
-	        return dictionary != null 
-                && dictionary.Contains(right);
-	    }
+		private static bool HasKey(object left, object right)
+		{
+			var dictionary = left as IDictionary;
+			return dictionary != null 
+				&& dictionary.Contains(right);
+		}
 
-	    private static bool StartsWith(object left, object right)
-	    {
-	        var list = left as IList;
-	        if (list != null)
-                return EqualVariables(list.OfType<object>().FirstOrDefault(), right);
-            
-	        var str = left as string;
-	        return str != null && str.StartsWith((string) right);
-	    }
+		private static bool StartsWith(object left, object right)
+		{
+			var list = left as IList;
+			if (list != null)
+				return EqualVariables(list.OfType<object>().FirstOrDefault(), right);
+			
+			var str = left as string;
+			return str != null && str.StartsWith((string) right);
+		}
 
-	    private static bool EndsWith(object left, object right)
-	    {
-            var list = left as IList;
-	        if (list != null)
-                return EqualVariables(list.OfType<object>().LastOrDefault(), right);
-            
-	        var str = left as string;
-	        return str != null && str.EndsWith((string) right);
-	    }
+		private static bool EndsWith(object left, object right)
+		{
+			var list = left as IList;
+			if (list != null)
+				return EqualVariables(list.OfType<object>().LastOrDefault(), right);
+			
+			var str = left as string;
+			return str != null && str.EndsWith((string) right);
+		}
 
-	    private static bool Contains(object left, object right)
-	    {
-	        var list = left as IList;
-	        if (list != null)
-                return list.Contains(right);
+		private static bool Contains(object left, object right)
+		{
+			var list = left as IList;
+			if (list != null)
+				return list.Contains(right);
 
-	        var str = left as string;
-            return str != null && str.Contains((string) right);
-	    }
+			var str = left as string;
+			return str != null && str.Contains((string) right);
+		}
 
-        
+		
 		#endregion
 
-        public string Left { get; set; }
+		public string Left { get; set; }
 
-	    private string Operator
-	    {
-	        get { return _operatorString; }
-	        set
-	        {
-	            _operatorString = value;
-	            if (string.IsNullOrEmpty(value))
-	            {
-	                _invalidOperatorString = false;
-	                _operatorDelegate = null;
-	            }
-	            else
-	                _invalidOperatorString = !Operators.TryGetValue(value, out _operatorDelegate);
-	        }
-	    }
-        
-        public string Right { get; set; }
+		private string Operator
+		{
+			get { return _operatorString; }
+			set
+			{
+				_operatorString = value;
+				if (string.IsNullOrEmpty(value))
+				{
+					_invalidOperatorString = false;
+					_operatorDelegate = null;
+				}
+				else
+					_invalidOperatorString = !Operators.TryGetValue(value, out _operatorDelegate);
+			}
+		}
+		
+		public string Right { get; set; }
 
-	    private const byte AndCode = 1;
-	    private const byte OrCode = 2;
+		private const byte AndCode = 1;
+		private const byte OrCode = 2;
 
-	    private string _operatorString;
-	    private bool _invalidOperatorString;
-	    private ConditionOperatorDelegate _operatorDelegate;
+		private string _operatorString;
+		private bool _invalidOperatorString;
+		private ConditionOperatorDelegate _operatorDelegate;
 		private byte _childRelation;
 		private Condition _childCondition;
 
@@ -128,22 +128,22 @@ namespace DotLiquid
 		{
 		}
 
-	    public virtual bool Evaluate(Context context)
-	    {
-            if (_invalidOperatorString)
-                throw new Exceptions.ArgumentException(Liquid.ResourceManager.GetString("ConditionUnknownOperatorException"), _operatorString);
+		public virtual bool Evaluate(Context context)
+		{
+			if (_invalidOperatorString)
+				throw new Exceptions.ArgumentException(Liquid.ResourceManager.GetString("ConditionUnknownOperatorException"), _operatorString);
 
-	        var result = _operatorDelegate == null 
-                        ? NoOperator(context[Left]) 
-                        : _operatorDelegate(context[Left], context[Right]);
-            
-	        if (_childRelation == OrCode)
-                return result || _childCondition.Evaluate(context);
-            
-            if (_childRelation == AndCode)
-                return result && _childCondition.Evaluate(context);
+			var result = _operatorDelegate == null 
+						? NoOperator(context[Left]) 
+						: _operatorDelegate(context[Left], context[Right]);
+			
+			if (_childRelation == OrCode)
+				return result || _childCondition.Evaluate(context);
+			
+			if (_childRelation == AndCode)
+				return result && _childCondition.Evaluate(context);
 
-	        return result;
+			return result;
 		}
 
 		public void Or(Condition condition)
@@ -171,33 +171,33 @@ namespace DotLiquid
 
 		private static bool EqualVariables(object left, object right)
 		{
-		    var leftSymbol = left as Symbol;
-		    if (leftSymbol != null)
+			var leftSymbol = left as Symbol;
+			if (leftSymbol != null)
 				return leftSymbol.EvaluationFunction(right);
 
-		    var rightSymbol = right as Symbol;
-		    if (rightSymbol != null)
+			var rightSymbol = right as Symbol;
+			if (rightSymbol != null)
 				return rightSymbol.EvaluationFunction(left);
 
-            if (left != null && right != null && left.GetType() != right.GetType())
-            {
-                try
-                {
-                    right = Convert.ChangeType(right, left.GetType());
-                }
-                catch (Exception)
-                {
-                }
-            }
+			if (left != null && right != null && left.GetType() != right.GetType())
+			{
+				try
+				{
+					right = Convert.ChangeType(right, left.GetType());
+				}
+				catch (Exception)
+				{
+				}
+			}
 
 			return Equals(left, right);
 		}
 
-	    private static bool NoOperator(object left)
-        {
-            return left != null 
-                && (!(left is bool) || (bool)left);
-	    }
+		private static bool NoOperator(object left)
+		{
+			return left != null 
+				&& (!(left is bool) || (bool)left);
+		}
 	}
 
 	public class ElseCondition : Condition

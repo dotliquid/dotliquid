@@ -30,7 +30,7 @@ namespace DotLiquid.Tests
 
 			public IEnumerable<int> ScopesAsArray
 			{
-                get { return Enumerable.Range(1, Context.Scopes.Count); }
+				get { return Enumerable.Range(1, Context.Scopes.Count); }
 			}
 
 			public int LoopPos

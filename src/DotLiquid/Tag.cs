@@ -5,7 +5,7 @@ namespace DotLiquid
 {
 	public abstract class Tag : IRenderable
 	{
-		public List<object> NodeList { get; protected set; }
+        public List<IRenderable> NodeList { get; protected set; }
 		protected string TagName { get; private set; }
 		protected string Markup { get; private set; }
 
@@ -16,7 +16,7 @@ namespace DotLiquid
 		{
 		}
 
-		internal virtual void AssertTagRulesViolation(List<object> rootNodeList)
+		internal virtual void AssertTagRulesViolation(List<IRenderable> rootNodeList)
 		{
 		}
 

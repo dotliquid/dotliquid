@@ -110,7 +110,7 @@ namespace DotLiquid
 		private byte _childRelation;
 		private Condition _childCondition;
 
-		public List<object> Attachment { get; private set; }
+        public List<IRenderable> Attachment { get; private set; }
 
 		public virtual bool IsElse
 		{
@@ -158,7 +158,7 @@ namespace DotLiquid
 			_childCondition = condition;
 		}
 
-		public List<object> Attach(List<object> attachment)
+        public List<IRenderable> Attach(List<IRenderable> attachment)
 		{
 			Attachment = attachment;
 			return attachment;

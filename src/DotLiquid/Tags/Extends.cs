@@ -76,7 +76,7 @@ namespace DotLiquid.Tags
 			base.Initialize(tagName, markup, tokens);
 		}
 
-		internal override void AssertTagRulesViolation(List<object> rootNodeList)
+        internal override void AssertTagRulesViolation(List<IRenderable> rootNodeList)
 		{
 			if (!(rootNodeList[0] is Extends))
 			{
@@ -85,7 +85,7 @@ namespace DotLiquid.Tags
 
 			NodeList.ForEach(n =>
 			{
-				if (!((n is string && ((string) n).IsNullOrWhiteSpace()) || n is Block || n is Comment || n is Extends))
+                if (!(n is StringRenderable || n is Block || n is Comment || n is Extends))
 					throw new SyntaxException(Liquid.ResourceManager.GetString("ExtendsTagUnallowedTagsException"));
 			});
 
@@ -148,7 +148,7 @@ namespace DotLiquid.Tags
 
 			if (node.RespondTo("NodeList"))
 			{
-				List<object> nodeList = (List<object>) node.Send("NodeList");
+				var nodeList = (List<IRenderable>) node.Send("NodeList");
 
 				if (nodeList != null)
 				{

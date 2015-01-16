@@ -18,7 +18,7 @@ namespace DotLiquid
 
 		protected override void Parse(List<string> tokens)
 		{
-			NodeList = NodeList ?? new List<object>();
+            NodeList = NodeList ?? new List<IRenderable>();
 			NodeList.Clear();
 
 			string token;
@@ -65,13 +65,13 @@ namespace DotLiquid
 				{
 					NodeList.Add(CreateVariable(token));
 				}
-				else if (token == string.Empty)
+				else if (string.IsNullOrEmpty(token))
 				{
 					// Pass
 				}
 				else
 				{
-					NodeList.Add(token);
+					NodeList.Add(new StringRenderable(token));
 				}
 			}
 
@@ -126,21 +126,15 @@ namespace DotLiquid
 			throw new SyntaxException(Liquid.ResourceManager.GetString("BlockTagNotClosedException"), BlockName);
 		}
 
-		protected ReturnCode RenderAll(List<object> list, Context context, TextWriter result)
+        protected ReturnCode RenderAll(List<IRenderable> list, Context context, TextWriter result)
 		{
 			foreach (var token in list)
 			{
 				try
 				{
-					var renderable = token as IRenderable;
-					if (renderable != null)
-					{
-						var retCode = renderable.Render(context, result);
-						if (retCode != ReturnCode.Return)
-							return retCode;
-					}
-					else
-						result.Write(token.ToString());
+					var retCode = token.Render(context, result);
+					if (retCode != ReturnCode.Return)
+						return retCode;
 				}
 				catch (Exception ex)
 				{

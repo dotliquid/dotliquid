@@ -28,7 +28,7 @@ namespace DotLiquid.Tags
 
 		public override void UnknownTag(string tag, string markup, List<string> tokens)
 		{
-			NodeList = new List<object>();
+            NodeList = new List<IRenderable>();
 			switch (tag)
 			{
 				case "when":

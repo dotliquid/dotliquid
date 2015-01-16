@@ -104,7 +104,7 @@ namespace DotLiquid.Tags
 			}
 
 			Blocks.Add(block);
-			NodeList = block.Attach(new List<object>());
+            NodeList = block.Attach(new List<IRenderable>());
 		}
 	}
 }

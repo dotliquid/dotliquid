@@ -11,7 +11,7 @@ namespace DotLiquid.Tests
 		public void TestBlankspace()
 		{
 			Template template = Template.Parse("  ");
-			CollectionAssert.AreEqual(new[] { "  " }, template.Root.NodeList);
+			Assert.AreEqual("  ", template.Render());
 		}
 
 		[Test]
@@ -20,7 +20,7 @@ namespace DotLiquid.Tests
 			Template template = Template.Parse("{{funk}}  ");
 			Assert.AreEqual(2, template.Root.NodeList.Count);
 			ExtendedCollectionAssert.AllItemsAreInstancesOfTypes(template.Root.NodeList,
-				new[] { typeof(Variable), typeof(string) });
+				new[] { typeof(Variable), typeof(StringRenderable) });
 		}
 
 		[Test]
@@ -29,7 +29,7 @@ namespace DotLiquid.Tests
 			Template template = Template.Parse("  {{funk}}");
 			Assert.AreEqual(2, template.Root.NodeList.Count);
 			ExtendedCollectionAssert.AllItemsAreInstancesOfTypes(template.Root.NodeList,
-				new[] { typeof(string), typeof(Variable) });
+                new[] { typeof(StringRenderable), typeof(Variable) });
 		}
 
 		[Test]
@@ -38,7 +38,7 @@ namespace DotLiquid.Tests
 			Template template = Template.Parse("  {{funk}}  ");
 			Assert.AreEqual(3, template.Root.NodeList.Count);
 			ExtendedCollectionAssert.AllItemsAreInstancesOfTypes(template.Root.NodeList,
-				new[] { typeof(string), typeof(Variable), typeof(string) });
+                new[] { typeof(StringRenderable), typeof(Variable), typeof(StringRenderable) });
 		}
 
 		[Test]
@@ -49,9 +49,9 @@ namespace DotLiquid.Tests
 			ExtendedCollectionAssert.AllItemsAreInstancesOfTypes(template.Root.NodeList,
 				new[]
 				{
-					typeof(string), typeof(Variable), typeof(string),
-					typeof(Variable), typeof(string), typeof(Variable),
-					typeof(string)
+					typeof(StringRenderable), typeof(Variable), typeof(StringRenderable),
+					typeof(Variable), typeof(StringRenderable), typeof(Variable),
+					typeof(StringRenderable)
 				});
 		}
 
@@ -61,7 +61,7 @@ namespace DotLiquid.Tests
 			Template template = Template.Parse("  {% comment %} {% endcomment %} ");
 			Assert.AreEqual(3, template.Root.NodeList.Count);
 			ExtendedCollectionAssert.AllItemsAreInstancesOfTypes(template.Root.NodeList,
-				new[] { typeof(string), typeof(Comment), typeof(string) });
+                new[] { typeof(StringRenderable), typeof(Comment), typeof(StringRenderable) });
 		}
 
 		[Test]

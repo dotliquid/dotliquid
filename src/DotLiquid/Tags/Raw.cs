@@ -14,7 +14,7 @@ namespace DotLiquid.Tags
 	{
 		protected override void Parse(List<string> tokens)
 		{
-			NodeList = NodeList ?? new List<object>();
+            NodeList = NodeList ?? new List<IRenderable>();
 			NodeList.Clear();
 
 			string token;
@@ -26,8 +26,8 @@ namespace DotLiquid.Tags
 					EndTag();
 					return;
 				}
-				else
-					NodeList.Add(token);
+
+				NodeList.Add(new StringRenderable(token));
 			}
 
 			AssertMissingDelimitation();

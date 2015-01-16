@@ -128,31 +128,31 @@ namespace DotLiquid.Tags
 			// Store our progress through the collection for the continue flag
 			context.Registers.Get<Hash>("for")[_name] = from + length;
 
-			return context.Stack(() =>
-			{
-				for (var index = 0; index < segment.Count; ++index)
-				{
-					context[_variableName] = segment[index];
+            return context.Stack(() =>
+            {
+                for (var index = 0; index < segment.Count; ++index)
+                {
+                    context[_variableName] = segment[index];
 
-					var forHash = new Hash();
+                    var forHash = new Hash();
 
-					forHash["name"] = _name;
-					forHash["length"] = length;
-					forHash["index"] = index + 1;
-					forHash["index0"] = index;
-					forHash["rindex"] = length - index;
-					forHash["rindex0"] = length - index - 1;
-					forHash["first"] = (index == 0);
-					forHash["last"] = (index == length - 1);
+                    forHash["name"] = _name;
+                    forHash["length"] = length;
+                    forHash["index"] = index + 1;
+                    forHash["index0"] = index;
+                    forHash["rindex"] = length - index;
+                    forHash["rindex0"] = length - index - 1;
+                    forHash["first"] = (index == 0);
+                    forHash["last"] = (index == length - 1);
 
-					context["forloop"] = forHash;
+                    context["forloop"] = forHash;
 
-					if (RenderAll(NodeList, context, result) == ReturnCode.Break)
-						break;
-				}
+                    if (RenderAll(NodeList, context, result) == ReturnCode.Break)
+                        break;
+                }
 
-				return ReturnCode.Return;
-			});
+                return ReturnCode.Return;
+            });
 		}
 
 		private static List<object> SliceCollectionUsingEach(IEnumerable collection, int from, int? to)

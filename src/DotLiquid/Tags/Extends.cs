@@ -137,10 +137,10 @@ namespace DotLiquid.Tags
             });
 		}
 
-		public bool IsExtending(Template template)
-		{
-			return template.Root.NodeList.Any(node => node is Extends);
-		}
+        public bool IsExtending(Template template)
+        {
+            return template.Root.NodeList.Any(node => node is Extends);
+        }
 
 		private List<Block> FindBlocks(object node, List<Block> blocks)
 		{

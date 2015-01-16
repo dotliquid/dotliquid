@@ -81,6 +81,8 @@ namespace DotLiquid
         
 		#endregion
 
+        public string Left { get; set; }
+
 	    private string Operator
 	    {
 	        get { return _operatorString; }
@@ -96,12 +98,12 @@ namespace DotLiquid
 	                _invalidOperatorString = !Operators.TryGetValue(value, out _operatorDelegate);
 	        }
 	    }
+        
+        public string Right { get; set; }
 
 	    private const byte AndCode = 1;
 	    private const byte OrCode = 2;
 
-	    private string _left;
-	    private string _right;
 	    private string _operatorString;
 	    private bool _invalidOperatorString;
 	    private ConditionOperatorDelegate _operatorDelegate;
@@ -117,9 +119,9 @@ namespace DotLiquid
 
 		public Condition(string left, string @operator, string right)
 		{
-			_left = left;
+			Left = left;
 			Operator = @operator;
-			_right = right;
+			Right = right;
 		}
 
 		public Condition()
@@ -132,8 +134,8 @@ namespace DotLiquid
                 throw new Exceptions.ArgumentException(Liquid.ResourceManager.GetString("ConditionUnknownOperatorException"), _operatorString);
 
 	        var result = _operatorDelegate == null 
-                        ? NoOperator(context[_left]) 
-                        : _operatorDelegate(context[_left], context[_right]);
+                        ? NoOperator(context[Left]) 
+                        : _operatorDelegate(context[Left], context[Right]);
             
 	        if (_childRelation == OrCode)
                 return result || _childCondition.Evaluate(context);
@@ -164,7 +166,7 @@ namespace DotLiquid
 
 		public override string ToString()
 		{
-			return string.Format("<Condition {0} {1} {2}>", _left, Operator, _right);
+			return string.Format("<Condition {0} {1} {2}>", Left, Operator, Right);
 		}
 
 		private static bool EqualVariables(object left, object right)

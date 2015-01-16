@@ -77,7 +77,7 @@ namespace DotLiquid.Tests
 		[TestFixtureSetUp]
 		public void SetUp()
 		{
-			_context = new Context(new List<Hash>(), new Hash(), new Hash(), false);
+			_context = new Context();
 		}
 
 		/*[Test]

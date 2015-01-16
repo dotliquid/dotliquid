@@ -23,7 +23,8 @@ namespace DotLiquid
         private readonly static Regex SingleQuotesRegex = new Regex(R.Q(@"^'(.*)'$"), RegexOptions.Compiled);
         private readonly static Regex VariableParserRegex = new Regex(Liquid.VariableParser, RegexOptions.Compiled);
 
-		public List<Hash> Environments { get; private set; }
+        public List<Hash> Environments { get; private set; }
+        public List<Hash> Scopes { get; private set; }
 
         /// <summary>
         /// The inner-most scope
@@ -39,12 +40,6 @@ namespace DotLiquid
 
 		public List<Exception> Errors { get; private set; }
 
-        public List<Hash> AllScopes { get; private set; }
-
-        public Context()
-            : this(new List<Hash>(), new Hash(), new Hash(), true)
-        { }
-
 		public Context(List<Hash> environments, Hash outerScope, Hash registers, bool rethrowErrors)
 		{
             if (registers == null)
@@ -54,7 +49,7 @@ namespace DotLiquid
                 throw new ArgumentNullException("environments");
             
 			Environments = environments;
-            AllScopes = new List<Hash>();
+            Scopes = new List<Hash>();
 
 		    GlobalScope = outerScope ?? new Hash();
 		    Push(GlobalScope);
@@ -65,7 +60,12 @@ namespace DotLiquid
 			_rethrowErrors = rethrowErrors;
 			SquashInstanceAssignsWithEnvironments();
 		}
-        
+
+        public Context()
+            : this(new List<Hash>(), new Hash(), new Hash(), true)
+        {
+        }
+
 		public Strainer Strainer
 		{
 			get { return (_strainer = _strainer ?? Strainer.Create(this)); }
@@ -114,11 +114,11 @@ namespace DotLiquid
 		/// <param name="newScope"></param>
 		public void Push(Hash newScope)
 		{
-            if (AllScopes.Count > 80)
+            if (Scopes.Count > 80)
 				throw new StackLevelException(Liquid.ResourceManager.GetString("ContextStackException"));
             
 		    LocalScope = newScope;
-            AllScopes.Insert(0, newScope);
+            Scopes.Insert(0, newScope);
 		}
 
 		/// <summary>
@@ -138,8 +138,8 @@ namespace DotLiquid
             if (LocalScope == GlobalScope)
                 throw new ContextException();
 
-            AllScopes.RemoveAt(0);
-            LocalScope = AllScopes[0];
+            Scopes.RemoveAt(0);
+            LocalScope = Scopes[0];
 		}
 
         /// <summary>
@@ -277,7 +277,7 @@ namespace DotLiquid
 		/// <returns></returns>
 		private object FindVariable(string key)
 		{
-            Hash scope = AllScopes.FirstOrDefault(s => s.ContainsKey(key));
+            Hash scope = Scopes.FirstOrDefault(s => s.ContainsKey(key));
 			object variable = null;
 			if (scope == null)
 			{

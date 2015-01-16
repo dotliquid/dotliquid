@@ -102,30 +102,30 @@ namespace DotLiquid
 	/// </summary>
 	/// <param name="input"></param>
 	/// <returns></returns>
-		public static string Truncate(string input)
-		{
-			return Truncate(input, 15, "...");
-		}
+        public static string Truncate(string input)
+        {
+            return Truncate(input, 15, "...");
+        }
 
-		/// <summary>
-		/// Truncates a string down to <paramref name="length"/> characters
-		/// </summary>
-		/// <param name="input"></param>
-		/// <param name="length"></param>
-		/// <returns></returns>
-		public static string Truncate(string input, int length)
-		{
-			return Truncate(input, length, "...");
-		}
+        /// <summary>
+        /// Truncates a string down to <paramref name="length"/> characters
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        public static string Truncate(string input, int length)
+        {
+            return Truncate(input, length, "...");
+        }
 
-		/// <summary>
-		/// Truncates a string down to x characters
-		/// </summary>
-		/// <param name="input"></param>
-		/// <param name="length"></param>
-		/// <param name="truncateString"></param>
-		/// <returns></returns>
-		public static string Truncate(string input, int length, string truncateString)
+        /// <summary>
+        /// Truncates a string down to x characters
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="length"></param>
+        /// <param name="truncateString"></param>
+        /// <returns></returns>
+        public static string Truncate(string input, int length, string truncateString)
 #else
 		/// <summary>
 		/// Truncates a string down to x characters
@@ -148,17 +148,17 @@ namespace DotLiquid
 		}
 
 #if NET35
-		public static string TruncateWords(string input)
-		{
-			return TruncateWords(input, 15);
-		}
+        public static string TruncateWords(string input)
+        {
+            return TruncateWords(input, 15);
+        }
 
-		public static string TruncateWords(string input, int words)
-		{
-			return TruncateWords(input, words, "...");
-		}
+        public static string TruncateWords(string input, int words)
+        {
+            return TruncateWords(input, words, "...");
+        }
 
-		public static string TruncateWords(string input, int words, string truncateString)
+        public static string TruncateWords(string input, int words, string truncateString)
 #else
 		public static string TruncateWords(string input, int words = 15, string truncateString = "...")
 #endif
@@ -203,29 +203,29 @@ namespace DotLiquid
 		{
 			return input.IsNullOrWhiteSpace()
 				? input
-				: Regex.Replace(input, @"(\r?\n)", String.Empty);
-				
-				//: Regex.Replace(input, Environment.NewLine, string.Empty);
+                : Regex.Replace(input, @"(\r?\n)", String.Empty);
+                
+                //: Regex.Replace(input, Environment.NewLine, string.Empty);
 		}
 
 #if NET35
-	/// <summary>
-	/// Join elements of the array with a certain character between them
-	/// </summary>
-	/// <param name="input"></param>
-	/// <returns></returns>
-		public static string Join(IEnumerable input)
-		{
-			return Join(input, " ");
-		}
+    /// <summary>
+    /// Join elements of the array with a certain character between them
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+        public static string Join(IEnumerable input)
+        {
+            return Join(input, " ");
+        }
 
-		/// <summary>
-		/// Join elements of the array with a certain character between them
-		/// </summary>
-		/// <param name="input"></param>
-		/// <param name="glue"></param>
-		/// <returns></returns>
-		public static string Join(IEnumerable input, string glue)
+        /// <summary>
+        /// Join elements of the array with a certain character between them
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="glue"></param>
+        /// <returns></returns>
+        public static string Join(IEnumerable input, string glue)
 #else
 		/// <summary>
 		/// Join elements of the array with a certain character between them
@@ -241,32 +241,32 @@ namespace DotLiquid
 
 			IEnumerable<object> castInput = input.Cast<object>();
 #if NET35
-			return string.Join(glue, castInput.Select(o => o.ToString()).ToArray());
+            return string.Join(glue, castInput.Select(o => o.ToString()).ToArray());
 #else
 			return string.Join(glue, castInput);
 #endif
 		}
 
 #if NET35
-	/// <summary>
-	/// Sort elements of the array
-	/// provide optional property with which to sort an array of hashes or drops
-	/// </summary>
-	/// <param name="input"></param>
-	/// <returns></returns>
-		public static IEnumerable Sort(object input)
-		{
-			return Sort(input, null);
-		}
+    /// <summary>
+    /// Sort elements of the array
+    /// provide optional property with which to sort an array of hashes or drops
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+        public static IEnumerable Sort(object input)
+        {
+            return Sort(input, null);
+        }
 
-		/// <summary>
-		/// Sort elements of the array
-		/// provide optional property with which to sort an array of hashes or drops
-		/// </summary>
-		/// <param name="input"></param>
-		/// <param name="property"></param>
-		/// <returns></returns>
-		public static IEnumerable Sort(object input, string property)
+        /// <summary>
+        /// Sort elements of the array
+        /// provide optional property with which to sort an array of hashes or drops
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="property"></param>
+        /// <returns></returns>
+        public static IEnumerable Sort(object input, string property)
 #else
 		/// <summary>
 		/// Sort elements of the array
@@ -318,25 +318,25 @@ namespace DotLiquid
 		}
 
 #if NET35
-	/// <summary>
-	/// Replace occurrences of a string with another
-	/// </summary>
-	/// <param name="input"></param>
-	/// <param name="string"></param>
-	/// <returns></returns>
-		public static string Replace(string input, string @string)
-		{
-			return Replace(input, @string, " ");
-		}
+    /// <summary>
+    /// Replace occurrences of a string with another
+    /// </summary>
+    /// <param name="input"></param>
+    /// <param name="string"></param>
+    /// <returns></returns>
+        public static string Replace(string input, string @string)
+        {
+            return Replace(input, @string, " ");
+        }
 
-		/// <summary>
-		/// Replace occurrences of a string with another
-		/// </summary>
-		/// <param name="input"></param>
-		/// <param name="string"></param>
-		/// <param name="replacement"></param>
-		/// <returns></returns>
-		public static string Replace(string input, string @string, string replacement)
+        /// <summary>
+        /// Replace occurrences of a string with another
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="string"></param>
+        /// <param name="replacement"></param>
+        /// <returns></returns>
+        public static string Replace(string input, string @string, string replacement)
 #else
 		/// <summary>
 		/// Replace occurrences of a string with another
@@ -357,26 +357,26 @@ namespace DotLiquid
 		}
 
 #if NET35
-	/// <summary>
-	/// Replace the first occurence of a string with another
-	/// </summary>
-	/// <param name="input"></param>
-	/// <param name="string"></param>
-	/// <param name="replacement"></param>
-	/// <returns></returns>
-		public static string ReplaceFirst(string input, string @string)
-		{
-			return ReplaceFirst(input, @string, "");
-		}
+    /// <summary>
+    /// Replace the first occurence of a string with another
+    /// </summary>
+    /// <param name="input"></param>
+    /// <param name="string"></param>
+    /// <param name="replacement"></param>
+    /// <returns></returns>
+        public static string ReplaceFirst(string input, string @string)
+        {
+            return ReplaceFirst(input, @string, "");
+        }
 
-		/// <summary>
-		/// Replace the first occurence of a string with another
-		/// </summary>
-		/// <param name="input"></param>
-		/// <param name="string"></param>
-		/// <param name="replacement"></param>
-		/// <returns></returns>
-		public static string ReplaceFirst(string input, string @string, string replacement)
+        /// <summary>
+        /// Replace the first occurence of a string with another
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="string"></param>
+        /// <param name="replacement"></param>
+        /// <returns></returns>
+        public static string ReplaceFirst(string input, string @string, string replacement)
 #else
 		/// <summary>
 		/// Replace the first occurence of a string with another
@@ -461,9 +461,9 @@ namespace DotLiquid
 		/// <returns></returns>
 		public static string NewlineToBr(string input)
 		{
-			return input.IsNullOrWhiteSpace()
-					? input
-					: Regex.Replace(input, @"(\r?\n)", "<br />$1");
+            return input.IsNullOrWhiteSpace()
+                    ? input
+                    : Regex.Replace(input, @"(\r?\n)", "<br />$1");
 		}
 
 		/// <summary>

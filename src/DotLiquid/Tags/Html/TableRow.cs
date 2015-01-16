@@ -16,8 +16,10 @@ namespace DotLiquid.Tags.Html
 
 		private string _variableName, _collectionName;
 
-        private int? _limit = null;
-        private int? _offset = null;
+        private bool _hasLimit;
+        private bool _hasOffset;
+        private string _limitAttribute;
+        private string _offsetAttribute;
 	    private string _colsAttribute;
 
 		public override void Initialize(string tagName, string markup, List<string> tokens)
@@ -30,19 +32,9 @@ namespace DotLiquid.Tags.Html
 				var attributes = new Dictionary<string, string>(Template.NamingConvention.StringComparer);
                 R.Scan(markup, TagAttributesRegex, (key, value) => attributes[key] = value);
 
-			    string offsetString;
-                if (attributes.TryGetValue("offset", out offsetString))
-                {
-                    _offset = Convert.ToInt32(offsetString);
-                }
-
-			    string limitString;
-			    if (attributes.TryGetValue("limit", out limitString))
-			    {
-                    _limit = Convert.ToInt32(limitString);
-			    }
-
-			    _colsAttribute = attributes["cols"];
+			    _hasOffset = attributes.TryGetValue("offset", out _offsetAttribute);
+			    _hasLimit = attributes.TryGetValue("limit", out _limitAttribute);
+			    attributes.TryGetValue("cols", out _colsAttribute);
 			}
 			else
 				throw new SyntaxException(Liquid.ResourceManager.GetString("TableRowTagSyntaxException"));
@@ -59,14 +51,14 @@ namespace DotLiquid.Tags.Html
                 return ReturnCode.Return;
             var collection = enumerable.Cast<object>();
 
-			if (_offset.HasValue)
+			if (_hasOffset)
 			{
-				collection = collection.Skip(_offset.Value);
+				collection = collection.Skip(Convert.ToInt32(context[_offsetAttribute]));
 			}
 
-			if (_limit.HasValue)
+            if (_hasLimit)
 			{
-				collection = collection.Take(_limit.Value);
+				collection = collection.Take(Convert.ToInt32(context[_limitAttribute]));
 			}
 
 			collection = collection.ToList();

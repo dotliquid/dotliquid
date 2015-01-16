@@ -1,6 +1,8 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotLiquid-2008", "DotLiquid\DotLiquid-2008.csproj", "{CB9372CD-9C1D-47AB-92D8-702D4D68324F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotLiquid.Tests-2008", "DotLiquid.Tests\DotLiquid.Tests-2008.csproj", "{C5B6DCA3-14DF-4295-B614-BC580BD386E0}"

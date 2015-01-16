@@ -470,14 +470,14 @@ namespace DotLiquid
 				return obj;
 			if (obj is KeyValuePair<string, object>)
 				return obj;
-			var safeTypeTransformer = Template.GetSafeTypeTransformer(obj.GetType());
+            var safeTypeTransformer = Template.GetSafeTypeTransformer(obj.GetType());
 			if (safeTypeTransformer != null)
 				return safeTypeTransformer(obj);
-			if (obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
-			{
-				var attr = (LiquidTypeAttribute)obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
-				return new DropProxy(obj, attr.AllowedMembers);
-			}
+            if (obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
+            {
+                var attr = (LiquidTypeAttribute)obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
+                return new DropProxy(obj, attr.AllowedMembers);
+            }
 			
 			throw new SyntaxException(Liquid.ResourceManager.GetString("ContextObjectInvalidException"), obj.ToString());
 		}

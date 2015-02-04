@@ -71,10 +71,10 @@ namespace DotLiquid.Tests
 					return "method: " + method;
 				}
 
-                public override object BeforeMethod(int index)
-                {
-                    return "index: " + index;
-                }
+		                public override object BeforeMethod(int index)
+		                {
+		                    return "index: " + index;
+		                }
 			}
 
 			public TextDrop Texts()

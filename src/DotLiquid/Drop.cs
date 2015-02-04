@@ -126,15 +126,15 @@ namespace DotLiquid
 			return null;
 		}
 
-	    public virtual object BeforeMethod(int method)
-	    {
-	        return null;
-	    }
+		public virtual object BeforeMethod(int method)
+		{
+			return null;
+		}
 
-	    /// <summary>
-        /// Called by liquid to invoke a drop
-        /// </summary>
-        /// <param name="name"></param>
+	    	/// <summary>
+	        /// Called by liquid to invoke a drop
+	        /// </summary>
+	        /// <param name="name"></param>
 		public object InvokeDrop(object name)
 		{
 			if (name is string)

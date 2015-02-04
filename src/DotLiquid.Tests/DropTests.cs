@@ -194,13 +194,13 @@ namespace DotLiquid.Tests
 			Assert.AreEqual(" method: unknown ", output);
 		}
 
-        [Test]
-        public void TestCatchallIndex()
-        {
-            string output = Template.Parse(" {{ product.catchall[5] }} ")
-                .Render(Hash.FromAnonymousObject(new { product = new ProductDrop() }));
-            Assert.AreEqual(" index: 5 ", output);
-        }
+	        [Test]
+	        public void TestCatchallIndex()
+	        {
+	            string output = Template.Parse(" {{ product.catchall[5] }} ")
+	                .Render(Hash.FromAnonymousObject(new { product = new ProductDrop() }));
+	            Assert.AreEqual(" index: 5 ", output);
+	        }
 
 		[Test]
 		public void TestTextArrayDrop()

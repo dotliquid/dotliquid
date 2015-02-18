@@ -150,6 +150,12 @@ namespace DotLiquid.Tests
 
 			Assert.AreEqual("07/05/2006", StandardFilters.Date("2006-07-05 10:00:00", "%m/%d/%Y"));
 
+            Assert.AreEqual("07/5/2006", StandardFilters.Date("2006-07-05 10:00:00", "%m/%-d/%Y"));
+
+            Assert.AreEqual("7/5/2006", StandardFilters.Date("2006-07-05 10:00:00", "%-m/%-d/%Y"));
+
+            Assert.AreEqual("7/         5/2006", StandardFilters.Date("2006-07-05 10:00:00", "%-m/%_10d/%Y"));
+
 			Assert.AreEqual("07/16/2004", StandardFilters.Date("Fri Jul 16 2004 01:00:00", "%m/%d/%Y"));
 
 			Assert.AreEqual(null, StandardFilters.Date(null, "%M"));
@@ -234,6 +240,49 @@ namespace DotLiquid.Tests
 			Helper.AssertTemplateResult("4", "{{ input | minus:operand }}", Hash.FromAnonymousObject(new { input = 5, operand = 1 }));
 		}
 
+        [Test]
+        public void TestTimesRounding()
+        {
+            Helper.AssertTemplateResult("1.5", "{{ input | times:operand }}", Hash.FromAnonymousObject(new { input = 3, operand = 0.5 }));
+        }
+
+      
+        [Test, TestCaseSource("MathCases")]
+        public void TestMath(String filter, object input, object operand, String expectedResult)
+        {
+            Helper.AssertTemplateResult(expectedResult, "{{ input | " + filter + ":operand }}", Hash.FromAnonymousObject(new { input, operand }));            
+        }
+
+
+        public static Object[] MathCases =
+        {
+            new Object[] {"plus", 5, 3, "8"},
+            new Object[] {"plus", "5", 3, "53"},
+            new Object[] {"plus", "5", "3", "53"},
+            new Object[] {"plus", 5, "3", "8"},
+
+            new Object[] {"times", 5, 3, "15"},
+            new Object[] {"times", "5", 3, "555"},
+            new Object[] {"times", "5", "3", "555"},
+            new Object[] {"times", 5, "3", "15"},
+
+            new Object[] {"divided_by", 6, 3, "2"},
+            new Object[] {"divided_by", "6", 3, "2"},
+            new Object[] {"divided_by", "6", "3", "2"},
+            new Object[] {"divided_by", 6, "3", "2"},
+
+            new Object[] {"divided_by", 7, 3, "2.3333"},
+            new Object[] {"divided_by", "7", 3, "2.3333"},
+            new Object[] {"divided_by", "7", "3", "2.3333"},
+            new Object[] {"divided_by", 7, "3", "2.3333"},
+
+            new Object[] {"minus", 5, 3, "2"},
+            new Object[] {"minus", "5", 3, "2"},
+            new Object[] {"minus", "5", "3", "2"},
+            new Object[] {"minus", 5, "3", "2"},
+        };
+
+
 		[Test, SetCulture("fr-FR")]
 		public void TestMinusWithFrenchDecimalSeparator()
 		{
@@ -268,7 +317,8 @@ namespace DotLiquid.Tests
 		public void TestDividedBy()
 		{
 			Helper.AssertTemplateResult("4", "{{ 12 | divided_by:3 }}");
-			Helper.AssertTemplateResult("4", "{{ 14 | divided_by:3 }}");
+			//Helper.AssertTemplateResult("4", "{{ 14 | divided_by:3 }}");
+            Helper.AssertTemplateResult("4.6667", "{{ 14 | divided_by:3 }}");
 			Helper.AssertTemplateResult("5", "{{ 15 | divided_by:3 }}");
 		}
 

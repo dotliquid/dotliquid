@@ -525,7 +525,8 @@ namespace DotLiquid
 		{
 			return input is string
 				? string.Concat(input, operand)
-				: DoMathsOperation(input, operand, Expression.Add);
+				: (object) RoundNumber(ConvertToDecimal(input) + ConvertToDecimal(operand));
+                //DoMathsOperation(input, operand, Expression.Add);
 		}
 
 		/// <summary>
@@ -536,10 +537,12 @@ namespace DotLiquid
 		/// <returns></returns>
 		public static object Minus(object input, object operand)
 		{
-			return DoMathsOperation(input, operand, Expression.Subtract);
+			//return DoMathsOperation(input, operand, Expression.Subtract);
+            return RoundNumber(ConvertToDecimal(input) - ConvertToDecimal(operand));
+
 		}
 
-		/// <summary>
+	    /// <summary>
 		/// Multiplication
 		/// </summary>
 		/// <param name="input"></param>
@@ -547,12 +550,13 @@ namespace DotLiquid
 		/// <returns></returns>
 		public static object Times(object input, object operand)
 		{
-			return input is string && operand is int
-				? Enumerable.Repeat((string) input, (int) operand)
-				: DoMathsOperation(input, operand, Expression.Multiply);
+			return input is string //&& operand is int
+				? Enumerable.Repeat((string) input,Convert.ToInt32(operand))
+                : (object)RoundNumber(ConvertToDecimal(input) * ConvertToDecimal(operand));
+				//: DoMathsOperation(input, operand, Expression.Multiply);
 		}
 
-		/// <summary>
+	    /// <summary>
 		/// Division
 		/// </summary>
 		/// <param name="input"></param>
@@ -560,20 +564,55 @@ namespace DotLiquid
 		/// <returns></returns>
 		public static object DividedBy(object input, object operand)
 		{
-			return DoMathsOperation(input, operand, Expression.Divide);
+			//return DoMathsOperation(input, operand, Expression.Divide);
+            return RoundNumber(ConvertToDecimal(input) / ConvertToDecimal(operand));
 		}
 
-		public static object Modulo(object input, object operand)
+	    private static decimal RoundNumber(decimal number)
+	    {
+	        return Math.Round(number, 4);
+	    }
+
+	    public static object Modulo(object input, object operand)
 		{
-			return DoMathsOperation(input, operand, Expression.Modulo);
+            return RoundNumber(ConvertToDecimal(input) % ConvertToDecimal(operand));
+			//return DoMathsOperation(input, operand, Expression.Modulo);
 		}
+
+	    private static decimal ConvertToDecimal(object obj)
+	    {
+	        try
+	        {
+	            return Convert.ToDecimal(obj);
+	        }
+	        catch (FormatException ex)
+	        {
+	            // If that fails, try to parse using invariant culture.
+	            return decimal.Parse(Convert.ToString(obj), CultureInfo.InvariantCulture);
+	        }
+	        throw new FormatException("Unable to convert " + obj + " to a number.");
+                     
+	    }
+
+	    private static object DoMathsOperationOrig(object input, object operand, Func<Expression, Expression, BinaryExpression> operation)
+        {
+            return input == null || operand == null
+                ? null
+                : ExpressionUtility.CreateExpression(operation, input.GetType(), operand.GetType(), input.GetType(), true)
+                    .DynamicInvoke(input, operand);
+        }
 
 		private static object DoMathsOperation(object input, object operand, Func<Expression, Expression, BinaryExpression> operation)
-		{
-			return input == null || operand == null
+		{            
+            var inputtype = typeof(decimal);
+            var outputtype = typeof(decimal);
+            var operandtype = typeof(decimal);
+		    var inputAsDecimal = Convert.ToDecimal(input);
+		    var operandAsDecimal = Convert.ToDecimal(operand);
+		    return input == null || operand == null
 				? null
-				: ExpressionUtility.CreateExpression(operation, input.GetType(), operand.GetType(), input.GetType(), true)
-					.DynamicInvoke(input, operand);
+                : ExpressionUtility.CreateExpression(operation, inputtype, operandtype, outputtype, true)
+                    .DynamicInvoke(inputAsDecimal, operandAsDecimal);
 		}
 	}
 

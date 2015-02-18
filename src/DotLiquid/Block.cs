@@ -110,9 +110,16 @@ namespace DotLiquid
 		public Variable CreateVariable(string token)
 		{
 			Match match = ContentOfVariable.Match(token);
-			if (match.Success)
-				return new Variable(match.Groups[1].Value);
-			throw new SyntaxException(Liquid.ResourceManager.GetString("BlockVariableNotTerminatedException"), token, Liquid.VariableEnd);
+			if (match.Success) {
+                var markupParser = new MarkupParser();
+                var parserResult = markupParser.Parse(match.Groups[1].Value);
+
+                if (parserResult == null || parserResult.Name == null)
+                    return null;
+				return new Variable(parserResult.Name, parserResult.Filters);
+		    }
+		    
+		    throw new SyntaxException(Liquid.ResourceManager.GetString("BlockVariableNotTerminatedException"), token, Liquid.VariableEnd);
 		}
 
 		public override void Render(Context context, TextWriter result)

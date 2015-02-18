@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace DotLiquid.Util
 {
@@ -37,24 +39,58 @@ namespace DotLiquid.Util
 
 		public static string ToStrFTime(this DateTime dateTime, string pattern)
 		{
-			string output = "";
+			// This doesn't implement the ':', or '#'flags.
+			return Regex.Replace(pattern, @"%(?<flag>[-_0^])*(?<width>[1-9][0-9]*)?(?<directive>[a-zA-Z%\+])",
+				x => StrFTimeMatchEvaluator(
+					x.Groups[0].Value,
+					x.Groups["flag"].Captures.Cast<Capture>().Select(y => y.Value).ToList(),
+					x.Groups["width"].Captures.Cast<Capture>().Select(y => (int?) Convert.ToInt32(y.Value)).FirstOrDefault(),
+					x.Groups["directive"].Captures.Cast<Capture>().Select(y => y.Value).FirstOrDefault(),
+					dateTime
+					));
+		}
 
-			int n = 0;
+		private static String StrFTimeMatchEvaluator(String orig, IEnumerable<String> flags, int? width, String directive,
+			DateTime datetime)
+		{
+			if (!Formats.ContainsKey(directive)) return orig;
 
-			while (n < pattern.Length)
+			var result = Formats[directive].Invoke(datetime);
+
+			return flags.ToList().Aggregate(result, (current, flag) => ApplyFlag(flag, width, current));
+		}
+
+		private static String ApplyFlag(String flag, int? padwidth, String str)
+		{
+			var result = str;
+			switch (flag)
 			{
-				string s = pattern.Substring(n, 1);
-
-				if (n + 1 >= pattern.Length)
-					output += s;
-				else
-					output += s == "%"
-						? Formats.ContainsKey(pattern.Substring(++n, 1)) ? Formats[pattern.Substring(n, 1)].Invoke(dateTime) : "%" + pattern.Substring(n, 1)
-						: s;
-				n++;
+				case "-":
+					result = str.TrimStart('0');
+					break;
+				case "^":
+					result = str.ToUpper();
+					break;
+				case "_":
+					result = PadLeft(str.TrimStart('0'), padwidth, ' ');
+					break;
+				case "0":
+					result = PadLeft(str.TrimStart('0'), padwidth, '0');
+					break;
+				// default: do nothing.
 			}
 
-			return output;
+			return result;
+		}
+
+		private static string PadLeft(string str, int? padwidth, char padChar)
+		{
+			var padCharsToAdd = (padwidth ?? 2) - str.Length;
+			if (padCharsToAdd < 1)
+			{
+				return str;
+			}
+			return new String(padChar, padCharsToAdd) + str;
 		}
 	}
 }

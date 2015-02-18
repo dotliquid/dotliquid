@@ -150,6 +150,12 @@ namespace DotLiquid.Tests
 
 			Assert.AreEqual("07/05/2006", StandardFilters.Date("2006-07-05 10:00:00", "%m/%d/%Y"));
 
+            Assert.AreEqual("07/5/2006", StandardFilters.Date("2006-07-05 10:00:00", "%m/%-d/%Y"));
+
+            Assert.AreEqual("7/5/2006", StandardFilters.Date("2006-07-05 10:00:00", "%-m/%-d/%Y"));
+
+            Assert.AreEqual("7/         5/2006", StandardFilters.Date("2006-07-05 10:00:00", "%-m/%_10d/%Y"));
+
 			Assert.AreEqual("07/16/2004", StandardFilters.Date("Fri Jul 16 2004 01:00:00", "%m/%d/%Y"));
 
 			Assert.AreEqual(null, StandardFilters.Date(null, "%M"));

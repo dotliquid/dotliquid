@@ -1,6 +1,8 @@
 using System.Collections;
+using System.Linq;
 using DotLiquid.Exceptions;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace DotLiquid.Tests
 {
@@ -204,16 +206,38 @@ namespace DotLiquid.Tests
 			Assert.AreEqual("Blub", new Variable("var | capitalize").Render(_context));
 		}
 
-        [Test]
-        public void Slice()
-        {
-            _context["var"] = "blub";
-            Assert.AreEqual("b", new Variable("var | slice: 0, 1").Render(_context));
-            Assert.AreEqual("bl", new Variable("var | slice: 0, 2").Render(_context));
-            Assert.AreEqual("l", new Variable("var | slice: 1").Render(_context));
-            Assert.AreEqual("", new Variable("var | slice: 4, 1").Render(_context));
-            Assert.AreEqual(null, new Variable("var | slice: 5, 1").Render(_context));
-        }
+		[Test]
+		public void Slice()
+		{
+			_context["var"] = "blub";
+			Assert.AreEqual("b", new Variable("var | slice: 0, 1").Render(_context));
+			Assert.AreEqual("bl", new Variable("var | slice: 0, 2").Render(_context));
+			Assert.AreEqual("l", new Variable("var | slice: 1").Render(_context));
+			Assert.AreEqual("", new Variable("var | slice: 4, 1").Render(_context));
+			Assert.AreEqual(null, new Variable("var | slice: 5, 1").Render(_context));
+		}
+
+		[Test]
+		public void Reverse()
+		{
+			_context["var"] = "blub";
+			Assert.AreEqual("bulb", new Variable("var | reverse").Render(_context));
+		}
+
+		public class TestUnique : Drop
+		{
+			public string Test { get; set; }
+			public string Hello { get; set; }
+		}
+
+		[Test]
+		public void Unique()
+		{
+			var testList = new List<TestUnique>() { new TestUnique() { Test = "aa", Hello = "bb" }, new TestUnique() { Test = "aa", Hello = "cc" }, new TestUnique() { Test = "dd", Hello = "ee" } };
+			_context["var"] = testList;
+			var ret = (new Variable("var | uniq:'Test'").Render(_context) as IEnumerable).Cast<TestUnique>().ToList();
+			CollectionAssert.AreEqual(new[] {testList[0],testList[2]}, ret);
+		}
 
 		[Test]
 		public void TestLocalGlobal()

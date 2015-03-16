@@ -212,6 +212,7 @@ namespace DotLiquid.Tests
             Assert.AreEqual("bl", new Variable("var | slice: 0, 2").Render(_context));
             Assert.AreEqual("l", new Variable("var | slice: 1").Render(_context));
             Assert.AreEqual("", new Variable("var | slice: 4, 1").Render(_context));
+            Assert.AreEqual("ub", new Variable("var | slice: -2, 2").Render(_context));
             Assert.AreEqual(null, new Variable("var | slice: 5, 1").Render(_context));
         }
 

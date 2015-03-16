@@ -42,6 +42,8 @@ namespace DotLiquid
         {
             if (input == null || start > input.Length)
                 return null;
+            if (start < 0)
+                start += input.Length;
             if (start + len > input.Length)
                 len = input.Length - start;
             return input.Substring(start, len);

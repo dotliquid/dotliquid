@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -80,8 +81,13 @@ namespace DotLiquid
 				else if (output is bool)
 					outputString = output.ToString().ToLower();
 				else
-					outputString = output.ToString();
-				result.Write(outputString);
+				{
+				    var formatable = output as IFormattable;
+                    outputString = formatable != null
+                        ? formatable.ToString(null, result.FormatProvider)
+                        : output.ToString();
+				}
+			    result.Write(outputString);
 			}
 		}
 

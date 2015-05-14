@@ -86,7 +86,7 @@ namespace DotLiquid
 #if NETCore
 				: input; // not supported, should implement on our own
 #else
-				 CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input);
+				: CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input);
 #endif
 		}
 

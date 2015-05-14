@@ -167,7 +167,7 @@ namespace DotLiquid
 #else
 			return new TypeResolution(type, mi => typeof(Drop).IsAssignableFrom(mi.DeclaringType.BaseType));
 #endif
-        }
+		}
     }
 
     /// <summary>

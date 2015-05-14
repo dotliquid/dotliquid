@@ -433,17 +433,17 @@ namespace DotLiquid
 			if (safeTypeTransformer != null)
 				return safeTypeTransformer(obj);
 #if NETCore
-			if (obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
-			{
-				var attr = (LiquidTypeAttribute)obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
-				return new DropProxy(obj, attr.AllowedMembers);
-			}
+            if (obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
+            {
+                var attr = (LiquidTypeAttribute)obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
+                return new DropProxy(obj, attr.AllowedMembers);
+            }
 #else
-			if (obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
-			{
-				var attr = (LiquidTypeAttribute)obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
-				return new DropProxy(obj, attr.AllowedMembers);
-			}
+            if (obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
+            {
+                var attr = (LiquidTypeAttribute)obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
+                return new DropProxy(obj, attr.AllowedMembers);
+            }
 #endif
 
 			throw new SyntaxException(Liquid.ResourceManager.GetString("ContextObjectInvalidException"), obj.ToString());

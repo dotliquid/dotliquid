@@ -15,6 +15,7 @@ bin
 *.cache
 Thumbs.db
 .vs
+project.lock.json
  
 # Other useful stuff
 *.bak

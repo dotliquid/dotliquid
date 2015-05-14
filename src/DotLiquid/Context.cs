@@ -3,6 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+#if NETCore
+using System.Reflection;
+#endif
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
@@ -406,8 +409,12 @@ namespace DotLiquid
 				return obj;
 			if (obj is IEnumerable)
 				return obj;
-			if (obj.GetType().IsPrimitive)
-				return obj;
+#if NETCore
+            if (obj.GetType().GetTypeInfo().IsPrimitive)
+#else
+            if (obj.GetType().IsPrimitive)
+#endif
+                return obj;
 			if (obj is decimal)
 				return obj;
 			if (obj is DateTime)
@@ -425,13 +432,21 @@ namespace DotLiquid
             var safeTypeTransformer = Template.GetSafeTypeTransformer(obj.GetType());
 			if (safeTypeTransformer != null)
 				return safeTypeTransformer(obj);
+#if NETCore
+            if (obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
+            {
+                var attr = (LiquidTypeAttribute)obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
+                return new DropProxy(obj, attr.AllowedMembers);
+            }
+#else
             if (obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
             {
                 var attr = (LiquidTypeAttribute)obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
                 return new DropProxy(obj, attr.AllowedMembers);
             }
-            
-			throw new SyntaxException(Liquid.ResourceManager.GetString("ContextObjectInvalidException"), obj.ToString());
+#endif
+
+            throw new SyntaxException(Liquid.ResourceManager.GetString("ContextObjectInvalidException"), obj.ToString());
 		}
 
 		private void SquashInstanceAssignsWithEnvironments()

@@ -2,8 +2,10 @@ using System;
 
 namespace DotLiquid.Exceptions
 {
-	[Serializable]
-	public class FilterNotFoundException : LiquidException
+#if !NETCore
+    [Serializable]
+#endif
+    public class FilterNotFoundException : LiquidException
 	{
 		public FilterNotFoundException(string message, FilterNotFoundException innerException)
 			: base(message, innerException)

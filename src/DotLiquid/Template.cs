@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+#if NETCore
+using System.Reflection;
+#endif
 using System.Text.RegularExpressions;
 using DotLiquid.FileSystems;
 using DotLiquid.Util;
@@ -110,13 +113,21 @@ namespace DotLiquid
 				return ValueTypeTransformers[type];
 
             // Check for interfaces
-		    foreach (var interfaceType in ValueTypeTransformers.Where(x => x.Key.IsInterface))
+#if NETCore
+            foreach (var interfaceType in ValueTypeTransformers.Where(x => x.Key.GetTypeInfo().IsInterface))
 		    {
                 if (type.GetInterfaces().Contains(interfaceType.Key))
                     return interfaceType.Value;
 		    }
+#else
+            foreach (var interfaceType in ValueTypeTransformers.Where(x => x.Key.IsInterface))
+		    {
+                if (type.GetInterfaces().Contains(interfaceType.Key))
+                    return interfaceType.Value;
+		    }
+#endif
 
-			return null;
+            return null;
 		}
 
         public static Func<object, object> GetSafeTypeTransformer(Type type)
@@ -126,11 +137,16 @@ namespace DotLiquid
                 return SafeTypeTransformers[type];
 
             // Check for interfaces
+#if NETCore
+            foreach (var interfaceType in SafeTypeTransformers.Where(x => x.Key.GetTypeInfo().IsInterface))
+#else
             foreach (var interfaceType in SafeTypeTransformers.Where(x => x.Key.IsInterface))
+#endif
             {
                 if (type.GetInterfaces().Contains(interfaceType.Key))
                     return interfaceType.Value;
             }
+
 
 			return null;
 		}

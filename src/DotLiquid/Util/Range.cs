@@ -89,10 +89,14 @@ namespace DotLiquid.Util
 			}
 		}
 
-		#endregion
+        #endregion
 
-		public static IEnumerable<T> Inclusive<T>(T start, T finish, Converter<T, T> succ, Comparison<T> comp)
-		{
+#if NETCore
+        public static IEnumerable<T> Inclusive<T>(T start, T finish, Func<T, T> succ, Comparison<T> comp)
+#else
+        public static IEnumerable<T> Inclusive<T>(T start, T finish, Converter<T, T> succ, Comparison<T> comp)
+#endif
+        {
 			T value = start;
 			while (comp(value, finish) <= 0)
 			{
@@ -108,9 +112,14 @@ namespace DotLiquid.Util
 			return (b == null) ? 0 : -1;
 		}
 
-		public static IEnumerable<T> Inclusive<T>(T start, T finish, Converter<T, T> succ)
+#if NETCore
+        public static IEnumerable<T> Inclusive<T>(T start, T finish, Func<T, T> succ)
 			where T : IComparable<T>
-		{
+#else
+        public static IEnumerable<T> Inclusive<T>(T start, T finish, Converter<T, T> succ)
+            where T : IComparable<T>
+#endif
+        {
 			return Inclusive<T>(start, finish, succ, Comp);
 		}
 

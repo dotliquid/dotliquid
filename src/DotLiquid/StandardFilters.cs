@@ -81,10 +81,14 @@ namespace DotLiquid
 			if (input.IsNullOrWhiteSpace())
 				return input;
 
-			return string.IsNullOrEmpty(input)
-				? input
-				: CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input);
-		}
+            return string.IsNullOrEmpty(input)
+                ? input
+#if NETCore
+                : input; // not supported, should implement on our own
+#else
+                : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input);
+#endif
+        }
 
 		public static string Escape(string input)
 		{
@@ -304,9 +308,9 @@ namespace DotLiquid
 			if (string.IsNullOrEmpty(property))
 				ary.Sort();
 			else if ((ary.All(o => o is IDictionary)) && ((IDictionary) ary.First()).Contains(property))
-				ary.Sort((a, b) => Comparer.Default.Compare(((IDictionary) a)[property], ((IDictionary) b)[property]));
+				ary.Sort((a, b) => Comparer<object>.Default.Compare(((IDictionary) a)[property], ((IDictionary) b)[property]));
 			else if (ary.All(o => o.RespondTo(property)))
-				ary.Sort((a, b) => Comparer.Default.Compare(a.Send(property), b.Send(property)));
+				ary.Sort((a, b) => Comparer<object>.Default.Compare(a.Send(property), b.Send(property)));
 
 			return ary;
 		}

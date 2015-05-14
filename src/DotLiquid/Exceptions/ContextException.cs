@@ -3,7 +3,7 @@ using System;
 namespace DotLiquid.Exceptions
 {
 #if !NETCore
-    [Serializable]
+	[Serializable]
 #endif
 	public class ContextException : LiquidException
 	{

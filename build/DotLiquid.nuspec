@@ -23,7 +23,7 @@
 	<file src="..\src\DotLiquid\bin\Release-4.0\DotLiquid.pdb" target="lib\NET40" />
 	<file src="..\src\DotLiquid\bin\Release-3.5\DotLiquid.dll" target="lib\NET35" />
 	<file src="..\src\DotLiquid\bin\Release-3.5\DotLiquid.pdb" target="lib\NET35" />
-    <file src="..\src\DotLiquid\bin\core\Release\aspnetcore50\DotLiquid.*" target="lib\aspnetcore50\" />
+	<file src="..\src\DotLiquid\bin\core\Release\aspnetcore50\DotLiquid.*" target="lib\aspnetcore50\" />
 	<file src="..\src\DotLiquid\**\*.cs" target="src\DotLiquid" />
   </files>
 </package>

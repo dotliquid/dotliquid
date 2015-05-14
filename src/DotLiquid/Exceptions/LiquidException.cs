@@ -3,15 +3,15 @@ using System;
 namespace DotLiquid.Exceptions
 {
 #if !NETCore
-    [Serializable]
+	[Serializable]
 #endif
-    public abstract class LiquidException :
+	public abstract class LiquidException :
 #if NETCore
-        Exception
+		Exception
 #else
-        ApplicationException
+		ApplicationException
 #endif
-    {
+	{
 		protected LiquidException(string message, Exception innerException)
 			: base(message, innerException)
 		{

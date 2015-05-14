@@ -114,20 +114,20 @@ namespace DotLiquid
 
             // Check for interfaces
 #if NETCore
-            foreach (var interfaceType in ValueTypeTransformers.Where(x => x.Key.GetTypeInfo().IsInterface))
-		    {
-                if (type.GetInterfaces().Contains(interfaceType.Key))
-                    return interfaceType.Value;
-		    }
+			foreach (var interfaceType in ValueTypeTransformers.Where(x => x.Key.GetTypeInfo().IsInterface))
+			{
+				if (type.GetInterfaces().Contains(interfaceType.Key))
+					return interfaceType.Value;
+			}
 #else
-            foreach (var interfaceType in ValueTypeTransformers.Where(x => x.Key.IsInterface))
-		    {
-                if (type.GetInterfaces().Contains(interfaceType.Key))
-                    return interfaceType.Value;
-		    }
+			foreach (var interfaceType in ValueTypeTransformers.Where(x => x.Key.IsInterface))
+			{
+				if (type.GetInterfaces().Contains(interfaceType.Key))
+					return interfaceType.Value;
+			}
 #endif
 
-            return null;
+			return null;
 		}
 
         public static Func<object, object> GetSafeTypeTransformer(Type type)
@@ -146,7 +146,6 @@ namespace DotLiquid
                 if (type.GetInterfaces().Contains(interfaceType.Key))
                     return interfaceType.Value;
             }
-
 
 			return null;
 		}

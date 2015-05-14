@@ -81,14 +81,14 @@ namespace DotLiquid
 			if (input.IsNullOrWhiteSpace())
 				return input;
 
-            return string.IsNullOrEmpty(input)
-                ? input
+			return string.IsNullOrEmpty(input)
+				? input
 #if NETCore
-                : input; // not supported, should implement on our own
+				: input; // not supported, should implement on our own
 #else
-                : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input);
+				 CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input);
 #endif
-        }
+		}
 
 		public static string Escape(string input)
 		{

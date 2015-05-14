@@ -410,11 +410,11 @@ namespace DotLiquid
 			if (obj is IEnumerable)
 				return obj;
 #if NETCore
-            if (obj.GetType().GetTypeInfo().IsPrimitive)
+			if (obj.GetType().GetTypeInfo().IsPrimitive)
 #else
-            if (obj.GetType().IsPrimitive)
+			if (obj.GetType().IsPrimitive)
 #endif
-                return obj;
+				return obj;
 			if (obj is decimal)
 				return obj;
 			if (obj is DateTime)
@@ -433,20 +433,20 @@ namespace DotLiquid
 			if (safeTypeTransformer != null)
 				return safeTypeTransformer(obj);
 #if NETCore
-            if (obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
-            {
-                var attr = (LiquidTypeAttribute)obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
-                return new DropProxy(obj, attr.AllowedMembers);
-            }
+			if (obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
+			{
+				var attr = (LiquidTypeAttribute)obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
+				return new DropProxy(obj, attr.AllowedMembers);
+			}
 #else
-            if (obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
-            {
-                var attr = (LiquidTypeAttribute)obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
-                return new DropProxy(obj, attr.AllowedMembers);
-            }
+			if (obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
+			{
+				var attr = (LiquidTypeAttribute)obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
+				return new DropProxy(obj, attr.AllowedMembers);
+			}
 #endif
 
-            throw new SyntaxException(Liquid.ResourceManager.GetString("ContextObjectInvalidException"), obj.ToString());
+			throw new SyntaxException(Liquid.ResourceManager.GetString("ContextObjectInvalidException"), obj.ToString());
 		}
 
 		private void SquashInstanceAssignsWithEnvironments()

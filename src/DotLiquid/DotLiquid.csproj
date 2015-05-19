@@ -47,8 +47,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActivatorTagFactory.cs" />
     <Compile Include="Exceptions\InterruptException.cs" />
     <Compile Include="FileSystems\EmbeddedFileSystem.cs" />
+    <Compile Include="ITagFactory.cs" />
     <Compile Include="IValueTypeConvertible.cs" />
     <Compile Include="LiquidTypeAttribute.cs" />
     <Compile Include="RenderParameters.cs" />

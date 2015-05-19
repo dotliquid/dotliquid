@@ -29,7 +29,7 @@ namespace DotLiquid
 
         public static IFileSystem FileSystem { get; set; }
 
-        private static Dictionary<string, Type> Tags { get; set; }
+        private static Dictionary<string, Tuple<ITagFactory, Type>> Tags { get; set; }
 
         private static readonly Dictionary<Type, Func<object, object>> SafeTypeTransformers;
         private static readonly Dictionary<Type, Func<object, object>> ValueTypeTransformers;
@@ -38,7 +38,7 @@ namespace DotLiquid
         {
             NamingConvention = new RubyNamingConvention();
             FileSystem = new BlankFileSystem();
-            Tags = new Dictionary<string, Type>();
+            Tags = new Dictionary<string, Tuple<ITagFactory, Type>>();
             SafeTypeTransformers = new Dictionary<Type, Func<object, object>>();
             ValueTypeTransformers = new Dictionary<Type, Func<object, object>>();
         }
@@ -46,14 +46,34 @@ namespace DotLiquid
         public static void RegisterTag<T>(string name)
             where T : Tag, new()
         {
-            Tags[name] = typeof(T);
+            var tagType = typeof(T);
+            Tags[name] = new Tuple<ITagFactory,Type>(new ActivatorTagFactory(tagType, name), tagType);
+        }
+
+        public static void RegisterTagFactory(ITagFactory tagFactory)
+        {
+            Tags[tagFactory.TagName] = new Tuple<ITagFactory, Type>(tagFactory, null);
         }
 
         public static Type GetTagType(string name)
         {
-            Type result;
+            Tuple<ITagFactory, Type> result;
             Tags.TryGetValue(name, out result);
-            return result;
+            return result.Item2;
+        }
+
+        internal static Tag CreateTag(string name)
+        {
+            Tag tagInstance = null;
+            Tuple<ITagFactory, Type> result;
+            Tags.TryGetValue(name, out result);
+
+            if(result != null)
+            {
+                tagInstance = result.Item1.Create();
+            }
+
+            return tagInstance;
         }
 
         /// <summary>

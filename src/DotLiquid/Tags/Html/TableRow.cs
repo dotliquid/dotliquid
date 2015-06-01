@@ -56,7 +56,11 @@ namespace DotLiquid.Tags.Html
 			collection = collection.ToList();
 			int length = collection.Count();
 
-			int cols = Convert.ToInt32(context[_attributes["cols"]]);
+			int cols = length;
+			if (_attributes.ContainsKey("cols"))
+			{
+				cols = Convert.ToInt32(context[_attributes["cols"]]);
+			}
 
 			int row = 1;
 			int col = 0;

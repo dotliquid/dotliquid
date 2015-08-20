@@ -34,6 +34,15 @@ namespace DotLiquid
 			return result;
 		}
 
+        public static Hash FromStrictDictionary(IDictionary<string, object> dictionary)
+        {
+            Hash result = new Hash((hash, key) => { throw new Exception(string.Format("'{0}' variable has not been found in hash dictionary.", key) ); });
+
+            foreach (var keyValue in dictionary)
+                result.Add(keyValue);
+            return result;             
+        }
+
 		#endregion
 
 		#region Constructors

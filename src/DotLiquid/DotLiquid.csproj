@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Exceptions\InterruptException.cs" />
+    <Compile Include="Exceptions\VariableResolutionException.cs" />
     <Compile Include="FileSystems\EmbeddedFileSystem.cs" />
     <Compile Include="IValueTypeConvertible.cs" />
     <Compile Include="LiquidTypeAttribute.cs" />

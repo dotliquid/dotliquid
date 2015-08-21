@@ -333,7 +333,7 @@ namespace DotLiquid
 						// keywords either. The only thing we got left is to return nil
 					else
 					{
-                        Errors.Add(new Exception(string.Format("Variable '{0}' not found", markup)));
+                        Errors.Add(new VariableResolutionException(string.Format("Variable '{0}' not found", markup)));
 						return null;
 					}
 
@@ -345,7 +345,7 @@ namespace DotLiquid
 
             if (@object == null)
             {
-                Errors.Add(new Exception(string.Format("Variable '{0}' not found", markup)));
+                Errors.Add(new VariableResolutionException(string.Format("Variable '{0}' not found", markup)));
             }
 
 			return @object;

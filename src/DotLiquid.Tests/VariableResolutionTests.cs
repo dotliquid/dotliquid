@@ -49,6 +49,15 @@ namespace DotLiquid.Tests
         }       
 
         [Test]
+        public void TestIncludeMustNotBeConsideredError()
+        {
+            Template.FileSystem = new DotLiquid.FileSystems.LocalFileSystem(Environment.CurrentDirectory);
+            Template template = Template.Parse("{% include \"dummy\" %}");
+            Assert.AreEqual("", template.Render());
+            Assert.AreEqual(0, template.Errors.Count);
+        } 
+       
+        [Test]
 		public void TestHashScoping()
 		{
 			Template template = Template.Parse("{{ test.test }}");

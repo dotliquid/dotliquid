@@ -32,7 +32,7 @@ namespace DotLiquid
 			foreach (var keyValue in dictionary)
 				result.Add(keyValue);
 			return result;
-		}
+		}       
 
 		#endregion
 

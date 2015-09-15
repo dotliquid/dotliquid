@@ -48,7 +48,7 @@ namespace DotLiquid
 						if (filterNameMatch.Success)
 						{
 							string filterName = filterNameMatch.Groups[1].Value;
-							List<string> filterArgs = R.Scan(f, string.Format(R.Q(@"(?:{0}|{1})\s*({2})"), Liquid.FilterArgumentSeparator, Liquid.ArgumentSeparator, Liquid.QuotedFragment));
+							List<string> filterArgs = R.Scan(f.TrimStart(), string.Format(R.Q(@"(?:{0}|{1})\s*({2})"), Liquid.FilterArgumentSeparator, Liquid.ArgumentSeparator, Liquid.QuotedFragment));
 							Filters.Add(new Filter(filterName, filterArgs.ToArray()));
 						}
 					}

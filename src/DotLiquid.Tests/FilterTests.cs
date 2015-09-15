@@ -169,7 +169,14 @@ namespace DotLiquid.Tests
 			Assert.AreEqual("1 2 3 4", new Variable("var | join").Render(_context));
 		}
 
-		[Test]
+        [Test]
+        public void TestJoinWithCharacter()
+        {
+            _context["var"] = new[] { 1, 2, 3, 4 };
+            Assert.AreEqual("1,2,3,4", new Variable("var | join: ','").Render(_context));
+        }
+
+        [Test]
 		public void TestSort()
 		{
 			_context["value"] = 3;

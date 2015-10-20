@@ -359,7 +359,7 @@ namespace DotLiquid
 			if (TypeUtility.IsAnonymousType(obj.GetType()) && obj.GetType().GetProperty((string) part) != null)
 				return true;
 
-			if ((obj is IIndexable) && ((IIndexable) obj).ContainsKey((string) part))
+			if ((obj is IIndexable) && ((IIndexable) obj).ContainsKey(part))
 				return true;
 
 			return false;

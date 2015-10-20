@@ -70,6 +70,11 @@ namespace DotLiquid.Tests
 				{
 					return "method: " + method;
 				}
+
+		                public override object BeforeMethod(int index)
+		                {
+		                    return "index: " + index;
+		                }
 			}
 
 			public TextDrop Texts()
@@ -188,6 +193,14 @@ namespace DotLiquid.Tests
 				.Render(Hash.FromAnonymousObject(new { product = new ProductDrop() }));
 			Assert.AreEqual(" method: unknown ", output);
 		}
+
+	        [Test]
+	        public void TestCatchallIndex()
+	        {
+	            string output = Template.Parse(" {{ product.catchall[5] }} ")
+	                .Render(Hash.FromAnonymousObject(new { product = new ProductDrop() }));
+	            Assert.AreEqual(" index: 5 ", output);
+	        }
 
 		[Test]
 		public void TestTextArrayDrop()

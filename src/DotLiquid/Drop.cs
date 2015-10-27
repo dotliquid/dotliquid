@@ -19,11 +19,14 @@ namespace DotLiquid
             // Cache all methods and properties of this object, but don't include those 
 			// defined at or above the base Drop class.
             const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance;
-    		CachedMethods = GetMemberDictionary(
-				type.GetMethods(bindingFlags).Where(mi => mi.GetParameters().Length == 0),
-				mi => filterMemberCallback(mi));
-            CachedProperties = GetMemberDictionary(type.GetProperties(bindingFlags),
-				mi => filterMemberCallback(mi));
+    		CachedMethods = GetMemberDictionary(type.GetMethods(bindingFlags)
+                                                    .Where(mi => mi.GetParameters().Length == 0
+                                                                && mi.DeclaringType == type),
+                                                mi => filterMemberCallback(mi));
+
+            CachedProperties = GetMemberDictionary(type.GetProperties(bindingFlags)
+                                                       .Where(pi => pi.DeclaringType == type),
+                    mi => filterMemberCallback(mi));
         }
 
 		private Dictionary<string, T> GetMemberDictionary<T>(IEnumerable<T> members,

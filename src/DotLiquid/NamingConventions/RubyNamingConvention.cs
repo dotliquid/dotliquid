@@ -26,7 +26,7 @@ namespace DotLiquid.NamingConventions
 		public string GetMemberName(string name)
 		{
 			// Replace any capital letters, apart from the first character, with _x, the same way Ruby does
-			return _regex2.Replace(_regex1.Replace(name, "$1_$2"), "$1_$2").ToLower();
+			return _regex2.Replace(_regex1.Replace(name, "$1_$2"), "$1_$2").ToLowerInvariant();
 		}
 	}
 }

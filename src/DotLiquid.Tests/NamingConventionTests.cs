@@ -1,3 +1,4 @@
+using System.Globalization;
 using DotLiquid.NamingConventions;
 using NUnit.Framework;
 
@@ -34,8 +35,20 @@ namespace DotLiquid.Tests
 			Assert.AreEqual("id", namingConvention.GetMemberName("ID"));
 			Assert.AreEqual("hellocruelworld", namingConvention.GetMemberName("HELLOCRUELWORLD"));
 		}
+        
+        [Test]
+        public void TestRubyWithTurkishCulture()
+        {
+            System.Threading.Thread.CurrentThread.CurrentCulture =
+             System.Threading.Thread.CurrentThread.CurrentUICulture = new CultureInfo("tr-TR");
 
-		[Test]
+            RubyNamingConvention namingConvention = new RubyNamingConvention();
+
+            // in Turkish ID.ToLower() returns a localized i, and this fails
+            Assert.AreEqual("id", namingConvention.GetMemberName("ID"));
+        }
+
+        [Test]
 		public void TestCSharpConventionDoesNothing()
 		{
 			CSharpNamingConvention namingConvention = new CSharpNamingConvention();

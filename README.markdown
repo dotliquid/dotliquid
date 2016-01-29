@@ -4,15 +4,15 @@
 
 ### What is this?
 
-DotLiquid is a .NET 3.5 port of the popular [Ruby Liquid templating language](http://www.liquidmarkup.org). It is a separate project that aims to retain the same template syntax as the original, while using .NET coding conventions where possible.
+DotLiquid is a .NET 3.5 port of the popular [Ruby Liquid templating language](http://liquidmarkup.org/). It is a separate project that aims to retain the same template syntax as the original, while using .NET coding conventions where possible.
 
 For more information about the original Liquid project, see <http://www.liquidmarkup.org>.
 
 ### Quick start
 
-1. Download the latest release from the [downloads page](http://github.com/formosatek/dotliquid/downloads).
+1. Download the latest release from the [downloads page](https://github.com/dotliquid/dotliquid/downloads).
    The zip file contains DotLiquid.dll, which is the only one you need.
-2. Read the [wiki](http://github.com/formosatek/dotliquid/wiki) for information on writing and using
+2. Read the [wiki](https://github.com/dotliquid/dotliquid/wiki) for information on writing and using
    DotLiquid templates.
 
 ### Why should I use DotLiquid?

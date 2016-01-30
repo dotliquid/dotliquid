@@ -8,15 +8,15 @@ namespace DotLiquid.Tags
 	public class BlockDrop : Drop
 	{
 		private readonly Block _block;
-	    private readonly TextWriter _result;
+		private readonly TextWriter _result;
 
 		public BlockDrop(Block block, TextWriter result)
 		{
-		    _block = block;
-		    _result = result;
+			_block = block;
+			_result = result;
 		}
 
-	    public void Super()
+		public void Super()
 		{
 			_block.CallSuper(Context, _result);
 		}
@@ -26,17 +26,17 @@ namespace DotLiquid.Tags
     internal class BlockRenderState
     {
         public Dictionary<Block, Block> Parents { get; private set; }
-        public Dictionary<Block, List<object>> NodeLists { get; private set; }
+        public Dictionary<Block, List<IRenderable>> NodeLists { get; private set; }
 
         public BlockRenderState()
         {
             Parents = new Dictionary<Block, Block>();
-            NodeLists = new Dictionary<Block, List<object>>();
+            NodeLists = new Dictionary<Block, List<IRenderable>>();
         }
 
-        public List<object> GetNodeList(Block block)
+        public List<IRenderable> GetNodeList(Block block)
         {
-            List<object> nodeList;
+            List<IRenderable> nodeList;
             if (!NodeLists.TryGetValue(block, out nodeList)) nodeList = block.NodeList;
             return nodeList;
         }
@@ -62,7 +62,7 @@ namespace DotLiquid.Tags
 	/// </summary>
 	public class Block : DotLiquid.Block
 	{
-		private static readonly Regex Syntax = new Regex(@"(\w+)");
+		private static readonly Regex Syntax = new Regex(@"(\w+)", RegexOptions.Compiled);
 
 		internal string BlockName { get; set; }
 
@@ -80,7 +80,7 @@ namespace DotLiquid.Tags
 			}
 		}
 
-		internal override void AssertTagRulesViolation(List<object> rootNodeList)
+        internal override void AssertTagRulesViolation(List<IRenderable> rootNodeList)
 		{
 			rootNodeList.ForEach(n =>
 			{
@@ -88,7 +88,7 @@ namespace DotLiquid.Tags
 
 				if (b1 != null)
 				{
-					List<object> found = rootNodeList.FindAll(o =>
+					var found = rootNodeList.FindAll(o =>
 					{
 						Block b2 = o as Block;
 						return b2 != null && b1.BlockName == b2.BlockName;
@@ -102,23 +102,23 @@ namespace DotLiquid.Tags
 			});
 		}
 
-		public override void Render(Context context, TextWriter result)
+		public override ReturnCode Render(Context context, TextWriter result)
 		{
 			BlockRenderState blockState = BlockRenderState.Find(context);
-			context.Stack(() =>
+			return context.Stack(() =>
 			{
 				context["block"] = new BlockDrop(this, result);
-				RenderAll(GetNodeList(blockState), context, result);
+				return RenderAll(GetNodeList(blockState), context, result);
 			});
 		}
 
         // Gets the render-time node list from the node state
-        internal List<object> GetNodeList(BlockRenderState blockState)
+        internal List<IRenderable> GetNodeList(BlockRenderState blockState)
         {
             return blockState == null ? NodeList : blockState.GetNodeList(this);
         }
 
-        public void AddParent(Dictionary<Block, Block> parents, List<object> nodeList)
+        public void AddParent(Dictionary<Block, Block> parents, List<IRenderable> nodeList)
         {
             Block parent;
             if(parents.TryGetValue(this, out parent))
@@ -129,7 +129,7 @@ namespace DotLiquid.Tags
             {
                 parent = new Block();
                 parent.Initialize(TagName, BlockName, null);
-                parent.NodeList = new List<object>(nodeList);
+                parent.NodeList = new List<IRenderable>(nodeList);
                 parents[this] = parent;
             }
         }
@@ -137,13 +137,13 @@ namespace DotLiquid.Tags
 		public void CallSuper(Context context, TextWriter result)
 		{
             BlockRenderState blockState = BlockRenderState.Find(context);
-		    Block parent;
+            Block parent;
             if (blockState != null
                 && blockState.Parents.TryGetValue(this, out parent)
                 && parent != null)
-		    {
-		        parent.Render(context, result);
-		    }
+            {
+                parent.Render(context, result);
+            }
 		}
 	}
 }

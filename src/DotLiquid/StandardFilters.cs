@@ -24,10 +24,13 @@ namespace DotLiquid
 		/// <returns></returns>
 		public static int Size(object input)
 		{
-			if (input is string)
-				return ((string) input).Length;
-			if (input is IEnumerable)
-				return ((IEnumerable) input).Cast<object>().Count();
+			var str = input as string;
+			if (str != null)
+				return str.Length;
+
+			var enumerable = input as IEnumerable;
+			if (enumerable != null)
+				return enumerable.Cast<object>().Count();
 			return 0;
 		}
 
@@ -94,7 +97,7 @@ namespace DotLiquid
 			try
 			{
 #if NET35
-                return HttpUtility.HtmlEncode(input);
+				return HttpUtility.HtmlEncode(input);
 #else
 				return WebUtility.HtmlEncode(input);
 #endif
@@ -224,11 +227,11 @@ namespace DotLiquid
 		}
 
 #if NET35
-	/// <summary>
-	/// Join elements of the array with a certain character between them
-	/// </summary>
-	/// <param name="input"></param>
-	/// <returns></returns>
+    /// <summary>
+    /// Join elements of the array with a certain character between them
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
         public static string Join(IEnumerable input)
         {
             return Join(input, " ");
@@ -263,12 +266,12 @@ namespace DotLiquid
 		}
 
 #if NET35
-	/// <summary>
-	/// Sort elements of the array
-	/// provide optional property with which to sort an array of hashes or drops
-	/// </summary>
-	/// <param name="input"></param>
-	/// <returns></returns>
+    /// <summary>
+    /// Sort elements of the array
+    /// provide optional property with which to sort an array of hashes or drops
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
         public static IEnumerable Sort(object input)
         {
             return Sort(input, null);
@@ -293,11 +296,12 @@ namespace DotLiquid
 		public static IEnumerable Sort(object input, string property = null)
 #endif
 		{
-			List<object> ary;
-			if (input is IEnumerable)
-				ary = ((IEnumerable) input).Flatten().Cast<object>().ToList();
-			else
-				ary = new List<object>(new[] { input });
+			var enumerable = input as IEnumerable;
+			
+			var ary = enumerable != null 
+				? enumerable.Flatten().Cast<object>().ToList() 
+				: new List<object>(new[] { input });
+
 			if (!ary.Any())
 				return ary;
 
@@ -332,12 +336,12 @@ namespace DotLiquid
 		}
 
 #if NET35
-	/// <summary>
-	/// Replace occurrences of a string with another
-	/// </summary>
-	/// <param name="input"></param>
-	/// <param name="string"></param>
-	/// <returns></returns>
+    /// <summary>
+    /// Replace occurrences of a string with another
+    /// </summary>
+    /// <param name="input"></param>
+    /// <param name="string"></param>
+    /// <returns></returns>
         public static string Replace(string input, string @string)
         {
             return Replace(input, @string, " ");
@@ -371,13 +375,13 @@ namespace DotLiquid
 		}
 
 #if NET35
-	/// <summary>
-	/// Replace the first occurence of a string with another
-	/// </summary>
-	/// <param name="input"></param>
-	/// <param name="string"></param>
-	/// <param name="replacement"></param>
-	/// <returns></returns>
+    /// <summary>
+    /// Replace the first occurence of a string with another
+    /// </summary>
+    /// <param name="input"></param>
+    /// <param name="string"></param>
+    /// <param name="replacement"></param>
+    /// <returns></returns>
         public static string ReplaceFirst(string input, string @string)
         {
             return ReplaceFirst(input, @string, "");

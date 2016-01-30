@@ -21,18 +21,19 @@ namespace DotLiquid.Tags
 	/// </summary>
 	public class Literal : DotLiquid.Block
 	{
+		private static readonly Regex BlockRegex = new Regex(Liquid.LiteralShorthand, RegexOptions.Compiled);
 		public static string FromShortHand(string @string)
 		{
 			if (@string == null)
 				return @string;
 
-			Match match = Regex.Match(@string, Liquid.LiteralShorthand);
+			Match match = BlockRegex.Match(@string);
 			return match.Success ? string.Format(@"{{% literal %}}{0}{{% endliteral %}}", match.Groups[1].Value) : @string;
 		}
 
 		protected override void Parse(List<string> tokens)
 		{
-			NodeList = NodeList ?? new List<object>();
+            NodeList = NodeList ?? new List<IRenderable>();
 			NodeList.Clear();
 
 			string token;
@@ -44,8 +45,8 @@ namespace DotLiquid.Tags
 					EndTag();
 					return;
 				}
-				else
-					NodeList.Add(token);
+				
+				NodeList.Add(new StringRenderable(token));
 			}
 
 			AssertMissingDelimitation();

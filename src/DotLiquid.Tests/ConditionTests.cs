@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 
@@ -11,8 +12,8 @@ namespace DotLiquid.Tests
 		[Test]
 		public void TestBasicCondition()
 		{
-			Assert.AreEqual(false, new Condition("1", "==", "2").Evaluate(null));
-			Assert.AreEqual(true, new Condition("1", "==", "1").Evaluate(null));
+			Assert.AreEqual(false, new Condition("1", "==", "2").Evaluate(new Context()));
+			Assert.AreEqual(true, new Condition("1", "==", "1").Evaluate(new Context()));
 		}
 
 		[Test]
@@ -145,26 +146,26 @@ namespace DotLiquid.Tests
 		public void TestOrCondition()
 		{
 			Condition condition = new Condition("1", "==", "2");
-			Assert.IsFalse(condition.Evaluate(null));
+			Assert.IsFalse(condition.Evaluate(new Context()));
 
 			condition.Or(new Condition("2", "==", "1"));
-			Assert.IsFalse(condition.Evaluate(null));
+			Assert.IsFalse(condition.Evaluate(new Context()));
 
 			condition.Or(new Condition("1", "==", "1"));
-			Assert.IsTrue(condition.Evaluate(null));
+			Assert.IsTrue(condition.Evaluate(new Context()));
 		}
 
 		[Test]
 		public void TestAndCondition()
 		{
 			Condition condition = new Condition("1", "==", "1");
-			Assert.IsTrue(condition.Evaluate(null));
+			Assert.IsTrue(condition.Evaluate(new Context()));
 
 			condition.And(new Condition("2", "==", "2"));
-			Assert.IsTrue(condition.Evaluate(null));
+			Assert.IsTrue(condition.Evaluate(new Context()));
 
 			condition.And(new Condition("2", "==", "1"));
-			Assert.IsFalse(condition.Evaluate(null));
+			Assert.IsFalse(condition.Evaluate(new Context()));
 		}
 
 		[Test]

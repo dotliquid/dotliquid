@@ -22,7 +22,7 @@ namespace DotLiquid.Tags
 	{
 		private string SyntaxHelp = Liquid.ResourceManager.GetString("IfTagSyntaxException");
 		private static readonly Regex Syntax = R.B(R.Q(@"({0})\s*([=!<>a-z_]+)?\s*({0})?"), Liquid.QuotedFragment);
-		private static readonly string ExpressionsAndOperators = string.Format(R.Q(@"(?:\b(?:\s?and\s?|\s?or\s?)\b|(?:\s*(?!\b(?:\s?and\s?|\s?or\s?)\b)(?:{0}|\S+)\s*)+)"), Liquid.QuotedFragment);
+		private static readonly Regex ExpressionsAndOperatorsRegex = new Regex(string.Format(R.Q(@"(?:\b(?:\s?and\s?|\s?or\s?)\b|(?:\s*(?!\b(?:\s?and\s?|\s?or\s?)\b)(?:{0}|\S+)\s*)+)"), Liquid.QuotedFragment), RegexOptions.Compiled);
 
 		protected List<Condition> Blocks { get; private set; }
 
@@ -42,19 +42,19 @@ namespace DotLiquid.Tags
 				base.UnknownTag(tag, markup, tokens);
 		}
 
-		public override void Render(Context context, TextWriter result)
+		public override ReturnCode Render(Context context, TextWriter result)
 		{
-			context.Stack(() =>
+			return context.Stack(() =>
 			{
 				foreach (Condition block in Blocks)
 				{
 					if (block.Evaluate(context))
 					{
-						RenderAll(block.Attachment, context, result);
-						return;
+						return RenderAll(block.Attachment, context, result);
 					}
 				}
-				;
+
+				return ReturnCode.Return;
 			});
 		}
 
@@ -67,7 +67,7 @@ namespace DotLiquid.Tags
 			}
 			else
 			{
-				List<string> expressions = R.Scan(markup, ExpressionsAndOperators);
+				List<string> expressions = R.Scan(markup, ExpressionsAndOperatorsRegex);
 				expressions.Reverse();
 				string syntax = expressions.Shift();
 				if (string.IsNullOrEmpty(syntax))
@@ -104,7 +104,7 @@ namespace DotLiquid.Tags
 			}
 
 			Blocks.Add(block);
-			NodeList = block.Attach(new List<object>());
+            NodeList = block.Attach(new List<IRenderable>());
 		}
 	}
 }

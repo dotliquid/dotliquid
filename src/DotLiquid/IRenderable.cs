@@ -2,8 +2,8 @@ using System.IO;
 
 namespace DotLiquid
 {
-	internal interface IRenderable
+	public interface IRenderable
 	{
-		void Render(Context context, TextWriter result);
+		ReturnCode Render(Context context, TextWriter result);
 	}
 }

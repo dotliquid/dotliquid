@@ -58,7 +58,7 @@ namespace DotLiquid.Tags
 	/// </example>
 	public class Extends : DotLiquid.Block
 	{
-		private static readonly Regex Syntax = new Regex(string.Format(@"^({0})", Liquid.QuotedFragment));
+		private static readonly Regex Syntax = new Regex(string.Format(@"^({0})", Liquid.QuotedFragment), RegexOptions.Compiled);
 
 		private string _templateName;
 
@@ -76,7 +76,7 @@ namespace DotLiquid.Tags
 			base.Initialize(tagName, markup, tokens);
 		}
 
-		internal override void AssertTagRulesViolation(List<object> rootNodeList)
+        internal override void AssertTagRulesViolation(List<IRenderable> rootNodeList)
 		{
 			if (!(rootNodeList[0] is Extends))
 			{
@@ -85,7 +85,7 @@ namespace DotLiquid.Tags
 
 			NodeList.ForEach(n =>
 			{
-				if (!((n is string && ((string) n).IsNullOrWhiteSpace()) || n is Block || n is Comment || n is Extends))
+                if (!(n is StringRenderable || n is Block || n is Comment || n is Extends))
 					throw new SyntaxException(Liquid.ResourceManager.GetString("ExtendsTagUnallowedTagsException"));
 			});
 
@@ -99,19 +99,19 @@ namespace DotLiquid.Tags
 		{
 		}
 
-		public override void Render(Context context, TextWriter result)
+		public override ReturnCode Render(Context context, TextWriter result)
 		{
-            // Get the template or template content and then either copy it (since it will be modified) or parse it
+			// Get the template or template content and then either copy it (since it will be modified) or parse it
 			IFileSystem fileSystem = context.Registers["file_system"] as IFileSystem ?? Template.FileSystem;
             object file = fileSystem.ReadTemplateFile(context, _templateName);
-		    Template template = file as Template;
+            Template template = file as Template;
             template = template ?? Template.Parse(file == null ? null : file.ToString());
 
-		    List<Block> parentBlocks = FindBlocks(template.Root, null);
-            List<Block> orphanedBlocks = ((List<Block>)context.Scopes[0]["extends"]) ?? new List<Block>();
-		    BlockRenderState blockState = BlockRenderState.Find(context) ?? new BlockRenderState();
+            List<Block> parentBlocks = FindBlocks(template.Root, null);
+            List<Block> orphanedBlocks = ((List<Block>)context.LocalScope["extends"]) ?? new List<Block>();
+            BlockRenderState blockState = BlockRenderState.Find(context) ?? new BlockRenderState();
 
-            context.Stack(() =>
+            return context.Stack(() =>
             {
                 context["blockstate"] = blockState;         // Set or copy the block state down to this scope
                 context["extends"] = new List<Block>();     // Holds Blocks that were not found in the parent
@@ -129,10 +129,11 @@ namespace DotLiquid.Tags
                     }
                     else if(IsExtending(template))
                     {
-                        ((List<Block>)context.Scopes[0]["extends"]).Add(block);
+                        ((List<Block>)context.LocalScope["extends"]).Add(block);
                     }
                 }
-			    template.Render(result, RenderParameters.FromContext(context));
+                template.Render(result, RenderParameters.FromContext(context));
+                return ReturnCode.Return;
             });
 		}
 
@@ -147,7 +148,7 @@ namespace DotLiquid.Tags
 
 			if (node.RespondTo("NodeList"))
 			{
-				List<object> nodeList = (List<object>) node.Send("NodeList");
+				var nodeList = (List<IRenderable>) node.Send("NodeList");
 
 				if (nodeList != null)
 				{
@@ -157,10 +158,10 @@ namespace DotLiquid.Tags
 
 						if (block != null)
 						{
-                            if (blocks.All(bl => bl.BlockName != block.BlockName)) blocks.Add(block);
+							if (blocks.All(bl => bl.BlockName != block.BlockName)) blocks.Add(block);
 						}
 						
-                        FindBlocks(n, blocks);
+						FindBlocks(n, blocks);
 					});
 				}
 			}

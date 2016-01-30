@@ -13,7 +13,7 @@ namespace DotLiquid.Tests
 			Template template = Template.Parse(text);
 			Assert.AreEqual(text, template.Render());
 			Assert.AreEqual(1, template.Root.NodeList.Count);
-			Assert.IsInstanceOf<string>(template.Root.NodeList[0]);
+			Assert.IsInstanceOf<StringRenderable>(template.Root.NodeList[0]);
 		}
 
 		[Test]

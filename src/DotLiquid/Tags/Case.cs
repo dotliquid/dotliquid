@@ -7,8 +7,8 @@ namespace DotLiquid.Tags
 {
 	public class Case : DotLiquid.Block
 	{
-		private static readonly Regex Syntax = new Regex(string.Format(@"({0})", Liquid.QuotedFragment));
-		private static readonly Regex WhenSyntax = new Regex(string.Format(@"({0})(?:(?:\s+or\s+|\s*\,\s*)({0}.*))?", Liquid.QuotedFragment));
+		private static readonly Regex Syntax = new Regex(string.Format(@"({0})", Liquid.QuotedFragment), RegexOptions.Compiled);
+		private static readonly Regex WhenSyntax = new Regex(string.Format(@"({0})(?:(?:\s+or\s+|\s*\,\s*)({0}.*))?", Liquid.QuotedFragment), RegexOptions.Compiled);
 
 		private List<Condition> _blocks;
 		private string _left;
@@ -28,7 +28,7 @@ namespace DotLiquid.Tags
 
 		public override void UnknownTag(string tag, string markup, List<string> tokens)
 		{
-			NodeList = new List<object>();
+            NodeList = new List<IRenderable>();
 			switch (tag)
 			{
 				case "when":
@@ -43,27 +43,30 @@ namespace DotLiquid.Tags
 			}
 		}
 
-		public override void Render(Context context, TextWriter result)
+		public override ReturnCode Render(Context context, TextWriter result)
 		{
-			context.Stack(() =>
+			return context.Stack(() =>
 			{
 				bool executeElseBlock = true;
-				_blocks.ForEach(block =>
+				foreach (var block in _blocks)
 				{
 					if (block.IsElse)
 					{
 						if (executeElseBlock)
 						{
-							RenderAll(block.Attachment, context, result);
-							return;
+							return RenderAll(block.Attachment, context, result);
 						}
 					}
 					else if (block.Evaluate(context))
 					{
 						executeElseBlock = false;
-						RenderAll(block.Attachment, context, result);
+						var retCode = RenderAll(block.Attachment, context, result);
+						if (retCode != ReturnCode.Return)
+							return retCode;
 					}
-				});
+				}
+
+				return ReturnCode.Return;
 			});
 		}
 

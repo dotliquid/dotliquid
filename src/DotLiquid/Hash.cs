@@ -1,15 +1,24 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace DotLiquid
 {
 	public class Hash : IDictionary<string, object>, IDictionary
-	{
-		#region Fields
+    {
+        #region Static fields
+#if !NET35
 
-		private readonly Func<Hash, string, object> _lambda;
+        private static System.Collections.Concurrent.ConcurrentDictionary<Type, Action<object, Hash>> mapperCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, Action<object, Hash>>(); 
+    
+#endif
+        #endregion
+
+        #region Fields
+
+        private readonly Func<Hash, string, object> _lambda;
 		private readonly Dictionary<string, object> _nestedDictionary;
 		private readonly object _defaultValue;
 
@@ -21,10 +30,79 @@ namespace DotLiquid
 		{
 			Hash result = new Hash();
 			if (anonymousObject != null)
-				foreach (PropertyInfo property in anonymousObject.GetType().GetProperties())
-					result[property.Name] = property.GetValue(anonymousObject, null);
+			{
+#if NET35
+				FromAnonymousObject35(anonymousObject, result);
+#else
+				FromAnonymousObject40(anonymousObject, result);
+#endif
+			}
 			return result;
 		}
+
+		private static void FromAnonymousObject35(object anonymousObject, Hash hash)
+		{
+			foreach (PropertyInfo property in anonymousObject.GetType().GetProperties())
+				hash[property.Name] = property.GetValue(anonymousObject, null);
+		}
+#if !NET35
+		private static void FromAnonymousObject40(object anonymousObject, Hash hash)
+		{
+			Action<object, Hash> mapper = GetObjToDictionaryMapper(anonymousObject.GetType());
+			mapper.Invoke(anonymousObject, hash);
+
+				
+		}
+
+		private static Action<object, Hash> GetObjToDictionaryMapper(Type type)
+		{
+			Action<object, Hash> mapper;
+			if (!mapperCache.TryGetValue(type, out mapper))
+			{
+				mapper = GenerateMapper(type);
+				mapperCache[type] = mapper;
+			}
+
+			return mapper;
+		}
+
+		private static Action<object, Hash> GenerateMapper(Type type)
+		{
+			ParameterExpression objParam = Expression.Parameter(typeof(object), "objParam");
+			ParameterExpression hashParam = Expression.Parameter(typeof(Hash), "hashParam");
+			List<Expression> bodyInstructions = new List<Expression>();
+
+			var castedObj = Expression.Variable(type,"castedObj");
+			
+			bodyInstructions.Add(
+				Expression.Assign(castedObj,Expression.Convert(objParam,type))
+			);
+
+			foreach (PropertyInfo property in type.GetProperties())
+			{
+				bodyInstructions.Add(
+					Expression.Assign(
+						Expression.MakeIndex(
+							hashParam,
+							typeof(Hash).GetProperty("Item"),
+							new []{Expression.Constant(property.Name, typeof(string))}
+						),
+						Expression.Convert(
+							Expression.Property(castedObj,property),
+							typeof(object)
+						)
+					)
+				);
+			}
+
+			var body = Expression.Block(typeof(void),new []{castedObj},bodyInstructions);
+
+			
+			var expr = Expression.Lambda < Action<object, Hash>>(body, objParam, hashParam);
+
+			return expr.Compile();
+		}
+#endif
 
 		public static Hash FromDictionary(IDictionary<string, object> dictionary)
 		{

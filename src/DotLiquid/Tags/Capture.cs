@@ -31,7 +31,7 @@ namespace DotLiquid.Tags
 			if (syntaxMatch.Success)
 				_to = syntaxMatch.Groups[1].Value;
 			else
-				throw new SyntaxException(Liquid.ResourceManager.GetString("CapureTagSyntaxException"));
+				throw new SyntaxException(Liquid.ResourceManager.GetString("CaptureTagSyntaxException"));
 
 			base.Initialize(tagName, markup, tokens);
 		}

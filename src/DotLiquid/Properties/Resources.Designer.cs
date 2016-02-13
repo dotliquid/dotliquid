@@ -153,9 +153,9 @@ namespace DotLiquid.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Syntax Error in &apos;capture&apos; tag - Valid syntax: capture [var].
         /// </summary>
-        internal static string CapureTagSyntaxException {
+        internal static string CaptureTagSyntaxException {
             get {
-                return ResourceManager.GetString("CapureTagSyntaxException", resourceCulture);
+                return ResourceManager.GetString("CaptureTagSyntaxException", resourceCulture);
             }
         }
         

@@ -161,14 +161,19 @@ namespace DotLiquid
 		/// <returns></returns>
 		public object this[string key]
 		{
-			get { return Resolve(key); }
+			get { return GetKey(key, true); }
 			set { Scopes[0][key] = value; }
 		}
 
 		public bool HasKey(string key)
 		{
-			return Resolve(key) != null;
+			return Resolve(key, false) != null;
 		}
+
+        public object GetKey(string key, bool reportMissingVariables = true)
+        {
+            return Resolve(key, reportMissingVariables);
+        }
 
 		/// <summary>
 		/// Look up variable, either resolve directly after considering the name. We can directly handle
@@ -182,7 +187,7 @@ namespace DotLiquid
 		/// </summary>
 		/// <param name="key"></param>
 		/// <returns></returns>
-		private object Resolve(string key)
+		private object Resolve(string key, bool reportMissingVariables = true)
 		{
 			switch (key)
 			{
@@ -237,7 +242,14 @@ namespace DotLiquid
 				return float.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
 			}
 
-			return Variable(key);
+			object v = Variable(key);
+
+            if (v == null && reportMissingVariables == true)
+            { 
+                Errors.Add(new VariableResolutionException(string.Format("Variable '{0}' not found", key)));
+            }
+
+            return v;
 		}
 
 		/// <summary>

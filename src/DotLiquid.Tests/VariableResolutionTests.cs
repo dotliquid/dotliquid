@@ -29,7 +29,35 @@ namespace DotLiquid.Tests
 			Assert.AreEqual("", template.Render());
 		}
 
-		[Test]
+        [Test]
+        public void TestReportMissingVariables()
+        {
+            Template template = Template.Parse("{{ test }}");
+            template.Render();
+            Assert.AreEqual("Variable 'test' not found", template.Errors[0].Message);
+            Assert.AreEqual(1, template.Errors.Count);
+        }
+
+        [Test]
+        public void TestReportMissingScopeVariables()
+        {
+            Template template = Template.Parse("{{ tes.test }}{{ test.test }}");
+            Assert.AreEqual("", template.Render(Hash.FromAnonymousObject(new { test = new { other = "you won't see mee" } })));
+            Assert.AreEqual("Variable 'tes.test' not found", template.Errors[0].Message);
+            Assert.AreEqual("Variable 'test.test' not found", template.Errors[1].Message);
+            Assert.AreEqual(2, template.Errors.Count);
+        }       
+
+        [Test]
+        public void TestIncludeMustNotBeConsideredError()
+        {
+            Template.FileSystem = new DotLiquid.FileSystems.LocalFileSystem(Environment.CurrentDirectory);
+            Template template = Template.Parse("{% include \"dummy\" %}");
+            Assert.AreEqual("", template.Render());
+            Assert.AreEqual(0, template.Errors.Count);
+        } 
+       
+        [Test]
 		public void TestHashScoping()
 		{
 			Template template = Template.Parse("{{ test.test }}");

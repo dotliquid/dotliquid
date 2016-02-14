@@ -10,11 +10,19 @@ namespace DotLiquid.Util
 
 		public static bool IsAnonymousType(Type t)
 		{
+#if NETCore
+			return t.GetTypeInfo().IsDefined(typeof(CompilerGeneratedAttribute), false)
+				&& t.GetTypeInfo().IsGenericType
+					&& (t.Name.Contains("AnonymousType") || t.Name.Contains("AnonType"))
+						&& (t.Name.StartsWith("<>") || t.Name.StartsWith("VB$"))
+							&& (t.GetTypeInfo().Attributes & AnonymousTypeAttributes) == AnonymousTypeAttributes;
+#else
 			return Attribute.IsDefined(t, typeof(CompilerGeneratedAttribute), false)
 				&& t.IsGenericType
 					&& (t.Name.Contains("AnonymousType") || t.Name.Contains("AnonType"))
 						&& (t.Name.StartsWith("<>") || t.Name.StartsWith("VB$"))
 							&& (t.Attributes & AnonymousTypeAttributes) == AnonymousTypeAttributes;
+#endif
 		}
 	}
 }

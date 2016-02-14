@@ -2,7 +2,9 @@ using System;
 
 namespace DotLiquid.Exceptions
 {
+#if !NETCore
 	[Serializable]
+#endif
 	public class ArgumentException : LiquidException
 	{
 		public ArgumentException(string message, params string[] args)

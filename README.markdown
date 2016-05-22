@@ -2,41 +2,64 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/itsl3a6ludjah4o3)](https://ci.appveyor.com/project/tgjones/dotliquid)
 
+## Maintainers wanted
+
+Have you sent a PR to this repository? In that case, would you consider getting
+in touch with me so I can give you commit access to this repository? Please ping
+me at [gitter/dotliquid](https://gitter.im/dotliquid/dotliquid) or here on
+github.
+
 ### What is this?
 
-DotLiquid is a .NET 3.5 port of the popular [Ruby Liquid templating language](http://liquidmarkup.org/). It is a separate project that aims to retain the same template syntax as the original, while using .NET coding conventions where possible.
+DotLiquid is a .Net port of the popular [Ruby Liquid templating
+language](http://liquidmarkup.org/). It is a separate project that aims to
+retain the same template syntax as the original, while using .NET coding
+conventions where possible.
 
-For more information about the original Liquid project, see <http://www.liquidmarkup.org>.
+For more information about the original Liquid project, see
+<http://www.liquidmarkup.org>.
 
 ### Quick start
 
-1. Download the latest release from the [downloads page](https://github.com/dotliquid/dotliquid/downloads).
-   The zip file contains DotLiquid.dll, which is the only one you need.
-2. Read the [wiki](https://github.com/dotliquid/dotliquid/wiki) for information on writing and using
-   DotLiquid templates.
+1. Download the latest release from the [downloads
+   page](https://github.com/dotliquid/dotliquid/downloads).  The zip file
+   contains DotLiquid.dll, which is the only one you need.
+2. Read the [wiki](https://github.com/dotliquid/dotliquid/wiki) for information
+   on writing and using DotLiquid templates.
 
 ### Why should I use DotLiquid?
 
-* You want to allow your users to edit their own page templates, but want to ensure they don't run insecure code.
-* You want to render templates directly from the database
-* You want a template engine for emails
+* You want to allow your users to edit their own page templates, but want to
+  ensure they don't run insecure code.
+* You want to render templates directly from the database.
+* You want a template engine for emails.
 
 ### What does it look like?
 
-	<ul id="products">
-		{% for product in products %}
-			<li>
-				<h2>{{product.name}}</h2>
-				Only {{product.price | price }}
+  <ul id="products">
+    {% for product in products %}
+      <li>
+        <h2>{{product.name}}</h2>
+        Only {{product.price | price }}
 
-				{{product.description | prettyprint | paragraph }}
-			</li>
-		{% endfor %}
-	</ul>
+        {{product.description | prettyprint | paragraph }}
+      </li>
+    {% endfor %}
+  </ul>
 
 ### How to use DotLiquid
 
-DotLiquid supports a very simple API based around the DotLiquid.Template class. Generally, you can read the contents of a file into a template, and then render the template by passing it parameters in the form of a `Hash` object. There are several ways you can construct a `Hash` object, including from a Dictionary, or using the `Hash.FromAnonymousObject` method.
+DotLiquid supports a very simple API based around the DotLiquid.Template class.
+Generally, you can read the contents of a file into a template, and then render
+the template by passing it parameters in the form of a `Hash` object. There are
+several ways you can construct a `Hash` object, including from a Dictionary, or
+using the `Hash.FromAnonymousObject` method.
 
-	Template template = Template.Parse("hi {{name}}"); // Parses and compiles the template
-	template.Render(Hash.FromAnonymousObject(new { name = "tobi" })); // => "hi tobi" 
+  Template template = Template.Parse("hi {{name}}"); // Parses and compiles the template
+  template.Render(Hash.FromAnonymousObject(new { name = "tobi" })); // => "hi tobi"
+
+### Projects using DotLiquid
+
+Are you using DotLiquid in an open source project? Tell us with a PR!
+
+ - [Suave.DotLiquid](https://github.com/SuaveIO/suave#introduction)

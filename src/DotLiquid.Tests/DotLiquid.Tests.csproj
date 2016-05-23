@@ -66,6 +66,7 @@
     <Compile Include="NamingConventionTests.cs" />
     <Compile Include="OutputTests.cs" />
     <Compile Include="ParsingQuirksTests.cs" />
+    <Compile Include="PocoTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegexpTests.cs" />
     <Compile Include="StandardFilterTests.cs" />

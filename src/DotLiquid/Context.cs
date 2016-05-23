@@ -430,8 +430,8 @@ namespace DotLiquid
                 var attr = (LiquidTypeAttribute)obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
                 return new DropProxy(obj, attr.AllowedMembers);
             }
-            
-			throw new SyntaxException(Liquid.ResourceManager.GetString("ContextObjectInvalidException"), obj.ToString());
+		    return obj;
+		    //throw new SyntaxException(Liquid.ResourceManager.GetString("ContextObjectInvalidException"), obj.ToString());
 		}
 
 		private void SquashInstanceAssignsWithEnvironments()

@@ -65,10 +65,10 @@ namespace DotLiquid
 
 			if (output != null)
 			{
-                var transformer = Template.GetValueTypeTransformer(output.GetType());
-                
-                if(transformer != null)
-                    output = transformer(output);
+				var transformer = Template.GetValueTypeTransformer(output.GetType());
+				
+				if(transformer != null)
+				output = transformer(output);
 
 				string outputString;
 				//treating Strings as IEnumerable, and was joining Chars in loop
@@ -109,8 +109,8 @@ namespace DotLiquid
 				}
 			});
 
-            if (output is IValueTypeConvertible)
-                output = ((IValueTypeConvertible) output).ConvertToValueType();
+			if (output is IValueTypeConvertible)
+				output = ((IValueTypeConvertible) output).ConvertToValueType();
 
 			return output;
 		}

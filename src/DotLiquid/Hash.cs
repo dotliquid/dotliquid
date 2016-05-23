@@ -7,18 +7,18 @@ using System.Reflection;
 namespace DotLiquid
 {
 	public class Hash : IDictionary<string, object>, IDictionary
-    {
-        #region Static fields
+	{
+		#region Static fields
 #if !NET35
 
-        private static System.Collections.Concurrent.ConcurrentDictionary<Type, Action<object, Hash>> mapperCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, Action<object, Hash>>(); 
-    
+		private static System.Collections.Concurrent.ConcurrentDictionary<Type, Action<object, Hash>> mapperCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, Action<object, Hash>>(); 
+
 #endif
-        #endregion
+		#endregion
 
-        #region Fields
+		#region Fields
 
-        private readonly Func<Hash, string, object> _lambda;
+		private readonly Func<Hash, string, object> _lambda;
 		private readonly Dictionary<string, object> _nestedDictionary;
 		private readonly object _defaultValue;
 
@@ -97,7 +97,6 @@ namespace DotLiquid
 
 			var body = Expression.Block(typeof(void),new []{castedObj},bodyInstructions);
 
-			
 			var expr = Expression.Lambda < Action<object, Hash>>(body, objParam, hashParam);
 
 			return expr.Compile();

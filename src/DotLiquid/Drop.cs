@@ -171,20 +171,20 @@ namespace DotLiquid
     /// </summary>
     public class DropProxy : DropBase, IValueTypeConvertible
 	{
-        private readonly object _proxiedObject;
-    	private readonly string[] _allowedMembers;
-        private readonly Func<object, object> _value;
+		private readonly object _proxiedObject;
+		private readonly string[] _allowedMembers;
+		private readonly Func<object, object> _value;
 
-    	/// <summary>
-    	/// Create a new DropProxy object
-    	/// </summary>
-    	/// <param name="obj">The object to create a proxy for</param>
-    	/// <param name="allowedMembers">An array of property and method names that are allowed to be called on the object.</param>
-    	public DropProxy(object obj, string[] allowedMembers)
-        {
-            _proxiedObject = obj;
-    		_allowedMembers = allowedMembers;
-        }
+		/// <summary>
+		/// Create a new DropProxy object
+		/// </summary>
+		/// <param name="obj">The object to create a proxy for</param>
+		/// <param name="allowedMembers">An array of property and method names that are allowed to be called on the object.</param>
+		public DropProxy(object obj, string[] allowedMembers)
+		{
+			_proxiedObject = obj;
+			_allowedMembers = allowedMembers;
+		}
 
         public DropProxy(object obj, string[] allowedMembers, Func<object, object> value)
         {

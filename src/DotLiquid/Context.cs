@@ -64,8 +64,8 @@ namespace DotLiquid
 
 		public string HandleError(Exception ex)
 		{
-		    if (ex is InterruptException)
-		        throw ex;
+			if (ex is InterruptException)
+				throw ex;
 
 			Errors.Add(ex);
 			if (_rethrowErrors)
@@ -120,9 +120,9 @@ namespace DotLiquid
 
 		/// <summary>
 		/// pushes a new local scope on the stack, pops it at the end of the block
-		/// 
+		///
 		/// Example:
-		/// 
+		///
 		/// context.stack do
 		/// context['var'] = 'hi'
 		/// end
@@ -175,9 +175,9 @@ namespace DotLiquid
 		/// Strings, digits, floats and booleans (true,false). If no match is made we lookup the variable in the current scope and
 		/// later move up to the parent blocks to see if we can resolve the variable somewhere up the tree.
 		/// Some special keywords return symbols. Those symbols are to be called on the rhs object in expressions
-		/// 
+		///
 		/// Example:
-		/// 
+		///
 		/// products == empty #=> products.empty?
 		/// </summary>
 		/// <param name="key"></param>
@@ -270,9 +270,9 @@ namespace DotLiquid
 
 		/// <summary>
 		/// Resolves namespaced queries gracefully.
-		/// 
+		///
 		/// Example
-		/// 
+		///
 		/// @context['hash'] = {"name" => 'tobi'}
 		/// assert_equal 'tobi', @context['hash.name']
 		/// assert_equal 'tobi', @context['hash["name"]']
@@ -395,7 +395,7 @@ namespace DotLiquid
 
 			return value;
 		}
-        
+
 		private static object Liquidize(object obj)
 		{
 			if (obj == null)
@@ -422,15 +422,17 @@ namespace DotLiquid
 				return obj;
 			if (obj is KeyValuePair<string, object>)
 				return obj;
-            var safeTypeTransformer = Template.GetSafeTypeTransformer(obj.GetType());
+
+			var safeTypeTransformer = Template.GetSafeTypeTransformer(obj.GetType());
 			if (safeTypeTransformer != null)
 				return safeTypeTransformer(obj);
-            if (obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
-            {
-                var attr = (LiquidTypeAttribute)obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
-                return new DropProxy(obj, attr.AllowedMembers);
-            }
-            
+
+			if (obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
+			{
+				var attr = (LiquidTypeAttribute)obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
+				return new DropProxy(obj, attr.AllowedMembers);
+			}
+
 			throw new SyntaxException(Liquid.ResourceManager.GetString("ContextObjectInvalidException"), obj.ToString());
 		}
 

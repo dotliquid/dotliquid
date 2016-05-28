@@ -36,16 +36,18 @@ For more information about the original Liquid project, see
 
 ### What does it look like?
 
-  <ul id="products">
-    {% for product in products %}
-      <li>
-        <h2>{{product.name}}</h2>
-        Only {{product.price | price }}
+``` liquid
+<ul id="products">
+  {% for product in products %}
+    <li>
+      <h2>{{product.name}}</h2>
+      Only {{product.price | price }}
 
-        {{product.description | prettyprint | paragraph }}
-      </li>
-    {% endfor %}
-  </ul>
+      {{product.description | prettyprint | paragraph }}
+    </li>
+  {% endfor %}
+</ul>
+```
 
 ### How to use DotLiquid
 

@@ -8,6 +8,16 @@ namespace DotLiquid.Tests
 	[TestFixture]
 	public class TemplateTests
 	{
+        [Test]
+	    public void TestRenderFromTokens()
+        {
+            var tokens = Template.GetReusableTokens("hello {{name}}");
+            var template = Template.ParseTokens(tokens);
+            var rendered = template.Render(Hash.FromAnonymousObject(new { name = "dude" }));
+            Assert.That(rendered, Is.EqualTo("hello dude"));
+        }
+
+
 		[Test]
 		public void TestTokenizeStrings()
 		{

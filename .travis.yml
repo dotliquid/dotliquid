@@ -1,0 +1,6 @@
+---
+language: csharp
+mono:
+ - latest
+ - 4.2.3
+solution: src/DotLiquid.sln

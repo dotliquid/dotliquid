@@ -38,6 +38,15 @@ namespace DotLiquid.Tests.Tags.Html
 		}
 
 		[Test]
+		public void TestHtmlNoColCounter()
+		{
+			Helper.AssertTemplateResult(
+				string.Format("<tr class=\"row1\">{0}<td class=\"col1\">1</td><td class=\"col2\">2</td><td class=\"col3\">3</td><td class=\"col4\">4</td><td class=\"col5\">5</td><td class=\"col6\">6</td></tr>{0}", Environment.NewLine),
+				"{% tablerow n in numbers %}{{tablerowloop.col}}{% endtablerow %}",
+				Hash.FromAnonymousObject(new { numbers = new[] { 1, 2, 3, 4, 5, 6 } }));
+		}
+
+		[Test]
 		public void TestHtmlOffsetLimit()
 		{
 			Helper.AssertTemplateResult(

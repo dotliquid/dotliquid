@@ -32,11 +32,11 @@ namespace DotLiquid
 		{
 		}
 
-	    public override void Render(Context context, TextWriter result)
+	    public override void Render(Context context, TextWriter result, bool restrictTypes)
 	    {
 	        try
 	        {
-	            base.Render(context, result);
+	            base.Render(context, result, restrictTypes);
 	        }
 	        catch (BreakInterrupt)
 	        {

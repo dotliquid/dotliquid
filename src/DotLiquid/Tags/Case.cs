@@ -43,7 +43,7 @@ namespace DotLiquid.Tags
 			}
 		}
 
-		public override void Render(Context context, TextWriter result)
+		public override void Render(Context context, TextWriter result, bool restrictTypes)
 		{
 			context.Stack(() =>
 			{
@@ -54,14 +54,14 @@ namespace DotLiquid.Tags
 					{
 						if (executeElseBlock)
 						{
-							RenderAll(block.Attachment, context, result);
+							RenderAll(block.Attachment, context, result, restrictTypes);
 							return;
 						}
 					}
 					else if (block.Evaluate(context))
 					{
 						executeElseBlock = false;
-						RenderAll(block.Attachment, context, result);
+						RenderAll(block.Attachment, context, result, restrictTypes);
 					}
 				});
 			});

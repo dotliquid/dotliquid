@@ -39,7 +39,7 @@ namespace DotLiquid.Tags
 			base.Initialize(tagName, markup, tokens);
 		}
 
-		public override void Render(Context context, TextWriter result)
+		public override void Render(Context context, TextWriter result, bool restrictTypes)
 		{
 			context.Scopes.Last()[_to] = _from.Render(context);
 		}

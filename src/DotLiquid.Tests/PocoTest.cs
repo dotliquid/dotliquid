@@ -27,7 +27,7 @@ namespace DotLiquid.Tests
             dic.Add("C", new Customer());
             var hash = Hash.FromDictionary(dic);
 
-            var result = t.Render(hash);
+            var result = t.Render(hash, false);
 
             Assert.AreEqual("Max", result);
         }

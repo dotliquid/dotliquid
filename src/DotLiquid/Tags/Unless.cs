@@ -10,7 +10,7 @@ namespace DotLiquid.Tags
 	/// </summary>
 	public class Unless : If
 	{
-		public override void Render(Context context, TextWriter result)
+		public override void Render(Context context, TextWriter result, bool restrictTypes)
 		{
 			context.Stack(() =>
 			{
@@ -18,7 +18,7 @@ namespace DotLiquid.Tags
 				Condition block = Blocks.First();
 				if (!block.Evaluate(context))
 				{
-					RenderAll(block.Attachment, context, result);
+					RenderAll(block.Attachment, context, result, restrictTypes);
 					return;
 				}
 
@@ -26,7 +26,7 @@ namespace DotLiquid.Tags
 				foreach (Condition forEachBlock in Blocks.Skip(1))
 					if (forEachBlock.Evaluate(context))
 					{
-						RenderAll(forEachBlock.Attachment, context, result);
+						RenderAll(forEachBlock.Attachment, context, result, restrictTypes);
 						return;
 					}
 			});

@@ -80,7 +80,7 @@ namespace DotLiquid.Tags
 			base.Initialize(tagName, markup, tokens);
 		}
 
-		public override void Render(Context context, TextWriter result)
+		public override void Render(Context context, TextWriter result, bool restrictTypes)
 		{
 			context.Registers["for"] = context.Registers["for"] ?? new Hash(0);
 
@@ -130,7 +130,7 @@ namespace DotLiquid.Tags
 		            });
 		            try
 		            {
-		                RenderAll(NodeList, context, result);
+		                RenderAll(NodeList, context, result, restrictTypes);
 		            }
 		            catch (BreakInterrupt)
 		            {

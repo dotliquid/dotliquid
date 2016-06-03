@@ -64,10 +64,10 @@ namespace DotLiquid
                 AddFilters(filters.AsEnumerable());
         }
 
-        public string HandleError(Exception ex)
-        {
-            if (ex is InterruptException)
-                throw ex;
+		public string HandleError(Exception ex)
+		{
+			if (ex is InterruptException)
+				throw ex;
 
             Errors.Add(ex);
             if (_rethrowErrors)
@@ -120,31 +120,31 @@ namespace DotLiquid
             return result;
         }
 
-        /// <summary>
-        /// pushes a new local scope on the stack, pops it at the end of the block
-        /// 
-        /// Example:
-        /// 
-        /// context.stack do
-        /// context['var'] = 'hi'
-        /// end
-        /// context['var] #=> nil
-        /// </summary>
-        /// <param name="newScope"></param>
-        /// <param name="callback"></param>
-        /// <returns></returns>
-        public void Stack(Hash newScope, Action callback)
-        {
-            Push(newScope);
-            try
-            {
-                callback();
-            }
-            finally
-            {
-                Pop();
-            }
-        }
+		/// <summary>
+		/// pushes a new local scope on the stack, pops it at the end of the block
+		///
+		/// Example:
+		///
+		/// context.stack do
+		/// context['var'] = 'hi'
+		/// end
+		/// context['var] #=> nil
+		/// </summary>
+		/// <param name="newScope"></param>
+		/// <param name="callback"></param>
+		/// <returns></returns>
+		public void Stack(Hash newScope, Action callback)
+		{
+			Push(newScope);
+			try
+			{
+				callback();
+			}
+			finally
+			{
+				Pop();
+			}
+		}
 
         public void Stack(Action callback)
         {
@@ -426,7 +426,8 @@ namespace DotLiquid
                 return obj;
             if (obj is KeyValuePair<string, object>)
                 return obj;
-            var safeTypeTransformer = Template.GetSafeTypeTransformer(obj.GetType());
+
+			var safeTypeTransformer = Template.GetSafeTypeTransformer(obj.GetType());
             if (safeTypeTransformer != null)
                 return safeTypeTransformer(obj);
             if (obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())

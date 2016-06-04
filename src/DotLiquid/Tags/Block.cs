@@ -9,16 +9,18 @@ namespace DotLiquid.Tags
 	{
 		private readonly Block _block;
 	    private readonly TextWriter _result;
+	    private readonly bool _restrictTypes;
 
-		public BlockDrop(Block block, TextWriter result)
+	    public BlockDrop(Block block, TextWriter result, bool restrictTypes)
 		{
 		    _block = block;
 		    _result = result;
+	        _restrictTypes = restrictTypes;
 		}
 
 	    public void Super()
 		{
-			_block.CallSuper(Context, _result);
+			_block.CallSuper(Context, _result, _restrictTypes);
 		}
 	}
 
@@ -102,13 +104,13 @@ namespace DotLiquid.Tags
 			});
 		}
 
-		public override void Render(Context context, TextWriter result)
+		public override void Render(Context context, TextWriter result, bool restrictTypes)
 		{
 			BlockRenderState blockState = BlockRenderState.Find(context);
 			context.Stack(() =>
 			{
-				context["block"] = new BlockDrop(this, result);
-				RenderAll(GetNodeList(blockState), context, result);
+				context["block"] = new BlockDrop(this, result, restrictTypes);
+				RenderAll(GetNodeList(blockState), context, result, restrictTypes);
 			});
 		}
 
@@ -134,7 +136,7 @@ namespace DotLiquid.Tags
             }
         }
 
-		public void CallSuper(Context context, TextWriter result)
+		public void CallSuper(Context context, TextWriter result, bool restrictTypes)
 		{
             BlockRenderState blockState = BlockRenderState.Find(context);
 		    Block parent;
@@ -142,7 +144,7 @@ namespace DotLiquid.Tags
                 && blockState.Parents.TryGetValue(this, out parent)
                 && parent != null)
 		    {
-		        parent.Render(context, result);
+		        parent.Render(context, result, restrictTypes);
 		    }
 		}
 	}

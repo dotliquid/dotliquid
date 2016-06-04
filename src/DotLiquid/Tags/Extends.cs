@@ -99,7 +99,7 @@ namespace DotLiquid.Tags
 		{
 		}
 
-		public override void Render(Context context, TextWriter result)
+		public override void Render(Context context, TextWriter result, bool restrictTypes)
 		{
             // Get the template or template content and then either copy it (since it will be modified) or parse it
 			IFileSystem fileSystem = context.Registers["file_system"] as IFileSystem ?? Template.FileSystem;
@@ -132,7 +132,7 @@ namespace DotLiquid.Tags
                         ((List<Block>)context.Scopes[0]["extends"]).Add(block);
                     }
                 }
-			    template.Render(result, RenderParameters.FromContext(context));
+			    template.Render(result, RenderParameters.FromContext(context), restrictTypes);
             });
 		}
 

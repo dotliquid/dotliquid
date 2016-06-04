@@ -56,7 +56,7 @@ namespace DotLiquid
 			}
 		}
 
-		public void Render(Context context, TextWriter result)
+		public void Render(Context context, TextWriter result, bool restrictTypes)
 		{
 			object output = RenderInternal(context);
 

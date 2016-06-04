@@ -42,7 +42,7 @@ namespace DotLiquid.Tags
 				base.UnknownTag(tag, markup, tokens);
 		}
 
-		public override void Render(Context context, TextWriter result)
+		public override void Render(Context context, TextWriter result, bool restrictTypes)
 		{
 			context.Stack(() =>
 			{
@@ -50,7 +50,7 @@ namespace DotLiquid.Tags
 				{
 					if (block.Evaluate(context))
 					{
-						RenderAll(block.Attachment, context, result);
+						RenderAll(block.Attachment, context, result, restrictTypes);
 						return;
 					}
 				}

@@ -33,7 +33,7 @@ namespace DotLiquid.Tags.Html
 			base.Initialize(tagName, markup, tokens);
 		}
 
-		public override void Render(Context context, TextWriter result)
+		public override void Render(Context context, TextWriter result, bool restrictTypes)
 		{
 			object coll = context[_collectionName];
 
@@ -84,7 +84,7 @@ namespace DotLiquid.Tags.Html
 
 				using (TextWriter temp = new StringWriter())
 				{
-					RenderAll(NodeList, context, temp);
+					RenderAll(NodeList, context, temp, restrictTypes);
 					result.Write("<td class=\"col{0}\">{1}</td>", col, temp.ToString());
 				}
 

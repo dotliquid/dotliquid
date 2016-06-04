@@ -36,11 +36,11 @@ namespace DotLiquid.Tags
 			base.Initialize(tagName, markup, tokens);
 		}
 
-		public override void Render(Context context, TextWriter result)
+		public override void Render(Context context, TextWriter result, bool restrictTypes)
 		{
 			using (TextWriter temp = new StringWriter())
 			{
-				base.Render(context, temp);
+				base.Render(context, temp, restrictTypes);
 				context.Scopes.Last()[_to] = temp.ToString();
 			}
 		}

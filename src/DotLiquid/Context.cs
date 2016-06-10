@@ -11,6 +11,14 @@ namespace DotLiquid
 {
 	public class Context
 	{
+		private static readonly Regex SingleQuotedRegex = R.C(R.Q(@"^'(.*)'$"));
+		private static readonly Regex DoubleQuotedRegex = R.C(R.Q(@"^""(.*)""$"));
+		private static readonly Regex IntegerRegex = R.C(R.Q(@"^([+-]?\d+)$"));
+		private static readonly Regex RangeRegex = R.C(R.Q(@"^\((\S+)\.\.(\S+)\)$"));
+		private static readonly Regex FloatRegex = R.C(R.Q(@"^([+-]?\d[\d\.|\,]+)$"));
+		private static readonly Regex SquareBracketedRegex = R.C(R.Q(@"^\[(.*)\]$"));
+		private static readonly Regex VariableParserRegex = R.C(Liquid.VariableParser);
+
 		private readonly bool _rethrowErrors;
 		private Strainer _strainer;
 
@@ -202,28 +210,28 @@ namespace DotLiquid
 			}
 
 			// Single quoted strings.
-			Match match = Regex.Match(key, R.Q(@"^'(.*)'$"));
+			Match match = SingleQuotedRegex.Match(key);
 			if (match.Success)
 				return match.Groups[1].Value;
 
 			// Double quoted strings.
-			match = Regex.Match(key, R.Q(@"^""(.*)""$"));
+			match = DoubleQuotedRegex.Match(key);
 			if (match.Success)
 				return match.Groups[1].Value;
 
 			// Integer.
-			match = Regex.Match(key, R.Q(@"^([+-]?\d+)$"));
+			match = IntegerRegex.Match(key);
 			if (match.Success)
 				return Convert.ToInt32(match.Groups[1].Value);
 
 			// Ranges.
-			match = Regex.Match(key, R.Q(@"^\((\S+)\.\.(\S+)\)$"));
+			match = RangeRegex.Match(key);
 			if (match.Success)
 				return Range.Inclusive(Convert.ToInt32(Resolve(match.Groups[1].Value)),
 					Convert.ToInt32(Resolve(match.Groups[2].Value)));
 
 			// Floats.
-			match = Regex.Match(key, R.Q(@"^([+-]?\d[\d\.|\,]+)$"));
+			match = FloatRegex.Match(key);
 			if (match.Success)
 			{
 				// For cultures with "," as the decimal separator, allow
@@ -281,11 +289,10 @@ namespace DotLiquid
 		/// <returns></returns>
 		private object Variable(string markup)
 		{
-			List<string> parts = R.Scan(markup, Liquid.VariableParser);
-			Regex squareBracketed = new Regex(R.Q(@"^\[(.*)\]$"));
+			List<string> parts = R.Scan(markup, VariableParserRegex);
 
 			string firstPart = parts.Shift();
-			Match firstPartSquareBracketedMatch = squareBracketed.Match(firstPart);
+			Match firstPartSquareBracketedMatch = SquareBracketedRegex.Match(firstPart);
 			if (firstPartSquareBracketedMatch.Success)
 				firstPart = Resolve(firstPartSquareBracketedMatch.Groups[1].Value).ToString();
 
@@ -294,7 +301,7 @@ namespace DotLiquid
 			{
 				foreach (string forEachPart in parts)
 				{
-					Match partSquareBracketedMatch = squareBracketed.Match(forEachPart);
+					Match partSquareBracketedMatch = SquareBracketedRegex.Match(forEachPart);
 					bool partResolved = partSquareBracketedMatch.Success;
 
 					object part = forEachPart;
@@ -352,7 +359,7 @@ namespace DotLiquid
 
 			if ((obj is IDictionary && ((IDictionary) obj).Contains(part)))
 				return true;
-
+			
 			if ((obj is IList) && (part is int))
 				return true;
 

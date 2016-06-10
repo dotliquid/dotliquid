@@ -11,7 +11,7 @@ namespace DotLiquid.Tags
 {
 	public class Include : DotLiquid.Block
 	{
-		private static readonly Regex Syntax = new Regex(string.Format(@"({0}+)(\s+(?:with|for)\s+({0}+))?", Liquid.QuotedFragment));
+		private static readonly Regex Syntax = R.B(@"({0}+)(\s+(?:with|for)\s+({0}+))?", Liquid.QuotedFragment);
 
 		private string _templateName, _variableName;
 		private Dictionary<string, string> _attributes;

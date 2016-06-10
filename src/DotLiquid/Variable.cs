@@ -21,7 +21,11 @@ namespace DotLiquid
 	/// </summary>
 	public class Variable : IRenderable
 	{
-		public static readonly string FilterParser = string.Format(R.Q(@"(?:{0}|(?:\s*(?!(?:{0}))(?:{1}|\S+)\s*)+)"), Liquid.FilterSeparator, Liquid.QuotedFragment);
+		private static readonly Regex FilterParserRegex = R.B(R.Q(@"(?:{0}|(?:\s*(?!(?:{0}))(?:{1}|\S+)\s*)+)"), Liquid.FilterSeparator, Liquid.QuotedFragment);
+		private static readonly Regex FilterArgRegex = R.B(R.Q(@"(?:{0}|{1})\s*({2})"), Liquid.FilterArgumentSeparator, Liquid.ArgumentSeparator, Liquid.QuotedFragment);
+		private static readonly Regex QuotedAssignFragmentRegex = R.B(R.Q(@"\s*({0})(.*)"), Liquid.QuotedAssignFragment);
+		private static readonly Regex FilterSeparatorRegex = R.B(R.Q(@"{0}\s*(.*)"), Liquid.FilterSeparator);
+		private static readonly Regex FilterNameRegex = R.B(R.Q(@"\s*(\w+)"));
 
 		public List<Filter> Filters { get; set; }
 		public string Name { get; set; }
@@ -35,20 +39,20 @@ namespace DotLiquid
 			Name = null;
 			Filters = new List<Filter>();
 
-			Match match = Regex.Match(markup, string.Format(R.Q(@"\s*({0})(.*)"), Liquid.QuotedAssignFragment));
+			Match match = QuotedAssignFragmentRegex.Match(markup);
 			if (match.Success)
 			{
 				Name = match.Groups[1].Value;
-				Match filterMatch = Regex.Match(match.Groups[2].Value, string.Format(R.Q(@"{0}\s*(.*)"), Liquid.FilterSeparator));
+				Match filterMatch = FilterSeparatorRegex.Match(match.Groups[2].Value);
 				if (filterMatch.Success)
 				{
-					foreach (string f in R.Scan(filterMatch.Value, FilterParser))
+					foreach (string f in R.Scan(filterMatch.Value, FilterParserRegex))
 					{
-						Match filterNameMatch = Regex.Match(f, R.Q(@"\s*(\w+)"));
+						Match filterNameMatch = FilterNameRegex.Match(f);
 						if (filterNameMatch.Success)
 						{
 							string filterName = filterNameMatch.Groups[1].Value;
-							List<string> filterArgs = R.Scan(f, string.Format(R.Q(@"(?:{0}|{1})\s*({2})"), Liquid.FilterArgumentSeparator, Liquid.ArgumentSeparator, Liquid.QuotedFragment));
+							List<string> filterArgs = R.Scan(f, FilterArgRegex);
 							Filters.Add(new Filter(filterName, filterArgs.ToArray()));
 						}
 					}
@@ -65,10 +69,10 @@ namespace DotLiquid
 
 			if (output != null)
 			{
-                var transformer = Template.GetValueTypeTransformer(output.GetType());
-                
-                if(transformer != null)
-                    output = transformer(output);
+				var transformer = Template.GetValueTypeTransformer(output.GetType());
+				
+				if(transformer != null)
+					output = transformer(output);
 
 				string outputString;
 				if (output is IEnumerable)
@@ -106,8 +110,8 @@ namespace DotLiquid
 				}
 			});
 
-            if (output is IValueTypeConvertible)
-                output = ((IValueTypeConvertible) output).ConvertToValueType();
+			if (output is IValueTypeConvertible)
+				output = ((IValueTypeConvertible) output).ConvertToValueType();
 
 			return output;
 		}

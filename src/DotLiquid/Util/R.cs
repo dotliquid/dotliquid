@@ -19,12 +19,28 @@ namespace DotLiquid.Util
 			//bool hasGAnchor;
 			//pattern = RegexpTransformer.Transform(pattern, out hasGAnchor);
 
-			return new Regex(pattern);
+			return R.C(pattern);
 		}
 
-		public static List<string> Scan(string input, string pattern)
+		/// <summary>
+		/// All regexes in DotLiquid use fixed known patterns and are used repeatedly, many times repeatedly within a single template.
+		/// Compiled regexes should be used in these cases to avoid calling the Regex constructor needlessly.
+		/// The .NET Regex constructor contains a static cache lookup that requires acquisition of a lock, so in a multithreaded system
+		/// under high load, there will be severe lock contention if regexes are constantly being constructed by different threads.
+		/// Using compiled regexes and making them "static readonly" completely avoids this problem.
+		/// In recent versions of .NET, compiled regexes also generally perform measurably faster than uncompiled ones when used repeatedly.
+		/// </summary>
+		/// <param name="pattern">regex pattern</param>
+		/// <param name="options">regex options; use the default (Compiled) unless there is a good reason not to</param>
+		/// <returns>the regex</returns>
+		public static Regex C(string pattern, RegexOptions options = RegexOptions.Compiled)
 		{
-			return Regex.Matches(input, pattern)
+			return new Regex(pattern, options);
+		}
+
+		public static List<string> Scan(string input, Regex regex)
+		{
+			return regex.Matches(input)
 				.Cast<Match>()
 				.Select(m => (m.Groups.Count == 2) ? m.Groups[1].Value : m.Value)
 				.ToList();

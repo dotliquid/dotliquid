@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
+using DotLiquid.Util;
 
 namespace DotLiquid.Tags
 {
@@ -21,7 +22,7 @@ namespace DotLiquid.Tags
 	/// </summary>
 	public class Capture : DotLiquid.Block
 	{
-		private static readonly Regex Syntax = new Regex(@"(\w+)");
+		private static readonly Regex Syntax = R.C(@"(\w+)");
 
 		private string _to;
 

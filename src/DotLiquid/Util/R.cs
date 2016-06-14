@@ -28,16 +28,31 @@ namespace DotLiquid.Util
 		/// The .NET Regex constructor contains a static cache lookup that requires acquisition of a lock, so in a multithreaded system
 		/// under high load, there will be severe lock contention if regexes are constantly being constructed by different threads.
 		/// Using compiled regexes and making them "static readonly" completely avoids this problem.
-		/// In recent versions of .NET, compiled regexes also generally perform measurably faster than uncompiled ones when used repeatedly.
+		/// In recent versions of .NET, compiled regexes also generally perform measurably faster than uncompiled ones (when used a large number of times).
+		/// There is of course an initial cost for compilation, but the benefits for high-scale applications far outweigh the initial cost and
+		/// low-scale applications are unlikely to care about the difference anyway.
 		/// </summary>
 		/// <param name="pattern">regex pattern</param>
 		/// <param name="options">regex options; use the default (Compiled) unless there is a good reason not to</param>
 		/// <returns>the regex</returns>
 		public static Regex C(string pattern, RegexOptions options = RegexOptions.Compiled)
 		{
-			return new Regex(pattern, options);
+			var regex = new Regex(pattern, options);
+			
+			// execute once to trigger the lazy compilation (not strictly necessary, but avoids the first real execution taking a longer time than subsequent ones)
+			regex.IsMatch(string.Empty);
+
+			return regex;
 		}
 
+		/// <summary>
+		/// Scan the input text finding all matches for the given regex.
+		/// Passing in the regex instead of the pattern avoids problems with Regex construction.
+		/// See associated comments above for the C() method.
+		/// </summary>
+		/// <param name="input">input text</param>
+		/// <param name="regex">regex</param>
+		/// <returns>matches</returns>
 		public static List<string> Scan(string input, Regex regex)
 		{
 			return regex.Matches(input)

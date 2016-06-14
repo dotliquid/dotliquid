@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 using DotLiquid.Util;
@@ -9,6 +12,31 @@ namespace DotLiquid.Tests
 	[TestFixture]
 	public class RegexpTests
 	{
+		[Test]
+		public void TestAllRegexesAreCompiled()
+		{
+			var assembly = typeof (Template).Assembly;
+			foreach (Type parent in assembly.GetTypes())
+			{
+				foreach (var t in parent.GetFields(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
+				{
+					if (t.FieldType == typeof(Regex))
+					{
+						if (t.IsStatic)
+						{
+							Assert.AreNotEqual(0, RegexOptions.Compiled & ((Regex) t.GetValue(null)).Options);
+						}
+						else
+						{
+							Assert.AreNotEqual(0, RegexOptions.Compiled & ((Regex)t.GetValue(parent)).Options);
+						}
+
+						Trace.TraceInformation(parent.Name + ": " + t.Name);
+					}
+				}
+			}
+		}
+
 		[Test]
 		public void TestEmpty()
 		{
@@ -64,9 +92,9 @@ namespace DotLiquid.Tests
 			CollectionAssert.AreEqual(new[] { "var", "[method]", "[0]", "method" }, Run("var[method][0].method", Liquid.VariableParser));
 		}
 
-	    private static List<string> Run(string input, string pattern)
-	    {
-	        return R.Scan(input, new Regex(pattern));
-	    }
+		private static List<string> Run(string input, string pattern)
+		{
+			return R.Scan(input, new Regex(pattern));
+		}
 	}
 }

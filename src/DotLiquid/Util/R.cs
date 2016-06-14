@@ -62,6 +62,19 @@ namespace DotLiquid.Util
 		}
 
 		/// <summary>
+		/// Deprecated for performance reasons. New code should not use this.
+		/// See comments for Scan(string, Regex) above.
+		/// </summary>
+		/// <param name="input">input text</param>
+		/// <param name="pattern">regex pattern</param>
+		/// <returns>matches</returns>
+		[Obsolete("Use Scan(string, Regex) instead.")]
+		public static List<string> Scan(string input, string pattern)
+		{
+			return Scan(input, new Regex(pattern));
+		}
+
+		/// <summary>
 		/// Overload that only works when the pattern contains two groups. The callback
 		/// is called for each match, passing the two group values.
 		/// </summary>

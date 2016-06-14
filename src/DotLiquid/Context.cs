@@ -359,7 +359,7 @@ namespace DotLiquid
 
 			if ((obj is IDictionary && ((IDictionary) obj).Contains(part)))
 				return true;
-			
+
 			if ((obj is IList) && (part is int))
 				return true;
 

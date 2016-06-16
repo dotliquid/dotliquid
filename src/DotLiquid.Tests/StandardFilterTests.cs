@@ -208,9 +208,9 @@ namespace DotLiquid.Tests
 		[Test]
 		public void TestWindowsNewlinesToBr()
 		{
-            Helper.AssertTemplateResult("a<br />\r\nb<br />\r\nc",
+            Helper.AssertTemplateResult("a<br />\nb<br />\nc",
 				"{{ source | newline_to_br }}",
-				Hash.FromAnonymousObject(new { source = "a" + Environment.NewLine + "b" + Environment.NewLine + "c" }));
+				Hash.FromAnonymousObject(new { source = "a\nb\nc" }));
 		}
 
         [Test]

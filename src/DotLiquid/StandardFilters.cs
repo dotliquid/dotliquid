@@ -7,6 +7,7 @@ using System.Net;
 #endif
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text;
 using System.Text.RegularExpressions;
 #if NET35
 using System.Web;
@@ -593,6 +594,18 @@ namespace DotLiquid
 				: ExpressionUtility.CreateExpression(operation, input.GetType(), operand.GetType(), input.GetType(), true)
 					.DynamicInvoke(input, operand);
 		}
+
+		public static string UrlEscape(string input)
+		{
+			if (input.IsNullOrWhiteSpace())
+				return input;
+#if NET35
+			return HttpUtility.UrlEncode(input);
+#else
+			return WebUtility.UrlEncode(input);
+#endif
+		}
+
 	}
 
 	internal static class StringExtensions

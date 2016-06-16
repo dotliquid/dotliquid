@@ -1,6 +1,6 @@
 # DotLiquid
 
-[![Build status](https://ci.appveyor.com/api/projects/status/itsl3a6ludjah4o3)](https://ci.appveyor.com/project/tgjones/dotliquid)
+Build status here: https://ci.appveyor.com/project/haf/dotliquid
 
 ## Maintainers wanted
 

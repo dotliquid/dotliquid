@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using DotLiquid.Exceptions;
 
 namespace DotLiquid.Tags

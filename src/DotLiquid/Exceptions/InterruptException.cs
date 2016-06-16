@@ -1,8 +1,9 @@
-﻿namespace DotLiquid.Exceptions
+namespace DotLiquid.Exceptions
 {
     public class InterruptException : LiquidException
     {
-        public InterruptException(string message) : base(message)
+        public InterruptException(string message)
+            : base(message)
         {
         }
     }

@@ -31,6 +31,7 @@ namespace DotLiquid
 
         private readonly Context _context;
         private readonly Dictionary<string, IList<MethodInfo>> _methods = new Dictionary<string, IList<MethodInfo>>();
+        private readonly Dictionary<string, Func<object, object>> _funcs = new Dictionary<string, Func<object, object>>();
 
         public IEnumerable<MethodInfo> Methods
         {
@@ -54,11 +55,15 @@ namespace DotLiquid
             var methodNames = type.GetMethods(BindingFlags.Public | BindingFlags.Static).Select(m => Template.NamingConvention.GetMemberName(m.Name));
 
             foreach (var methodName in methodNames)
+            {
                 _methods.Remove(methodName);
+                _funcs.Remove(methodName);
+            }
 
             foreach (MethodInfo methodInfo in methods)
             {
                 var name = Template.NamingConvention.GetMemberName(methodInfo.Name);
+
                 if (!_methods.ContainsKey(name))
                     _methods[name] = new List<MethodInfo>();
 
@@ -66,13 +71,25 @@ namespace DotLiquid
             } // foreach
         }
 
+        public void AddFunction<TIn, TOut>(string rawName, Func<TIn, TOut> func)
+        {
+            var name = Template.NamingConvention.GetMemberName(rawName);
+
+            _methods.Remove(name);
+            _funcs[name] = o => (object)func((TIn)o);
+        }
+
         public bool RespondTo(string method)
         {
-            return _methods.ContainsKey(method);
+            return _methods.ContainsKey(method) || _funcs.ContainsKey(method);
         }
 
         public object Invoke(string method, List<object> args)
         {
+            Func<object, object> func;
+            if (args.Count == 1 && _funcs.TryGetValue(method, out func))
+                return func(args[0]);
+
             // First, try to find a method with the same number of arguments.
             var methodInfo = _methods[method].FirstOrDefault(m => m.GetParameters().Length == args.Count);
 

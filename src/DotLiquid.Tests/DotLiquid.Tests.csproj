@@ -81,6 +81,7 @@
     <Compile Include="Util\StrFTimeTests.cs" />
     <Compile Include="VariableResolutionTests.cs" />
     <Compile Include="VariableTests.cs" />
+    <Compile Include="FunctionFilterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotLiquid\DotLiquid.csproj">

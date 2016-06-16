@@ -70,7 +70,7 @@ namespace DotLiquid.Tags
                 List<string> expressions = R.Scan(markup, ExpressionsAndOperatorsRegex);
 
                 // last item in list
-                string syntax = expressions.TryGetAtIndex(expressions.Count - 1);
+                string syntax = expressions.TryGetAtIndexReverse(0);
 
                 if (string.IsNullOrEmpty(syntax))
                     throw new SyntaxException(SyntaxHelp);
@@ -81,12 +81,12 @@ namespace DotLiquid.Tags
                 Condition condition = new Condition(syntaxMatch.Groups[1].Value,
                     syntaxMatch.Groups[2].Value, syntaxMatch.Groups[3].Value);
 
-                // read pairs of item, starting from second-last item in list, backwards to the beginning of the list
-                for (int i = expressions.Count - 2; i >= 0; i = i - 2)
+                // continue to process remaining items in the list backwards, in pairs
+                for (int i = 1; i < expressions.Count; i = i + 2)
                 {
-                    string @operator = expressions.TryGetAtIndex(i).Trim();
+                    string @operator = expressions.TryGetAtIndexReverse(i).Trim();
 
-                    Match expressionMatch = Syntax.Match(expressions.TryGetAtIndex(i - 1));
+                    Match expressionMatch = Syntax.Match(expressions.TryGetAtIndexReverse(i + 1));
                     if (!expressionMatch.Success)
                         throw new SyntaxException(SyntaxHelp);
 

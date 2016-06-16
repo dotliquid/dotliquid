@@ -5,12 +5,13 @@ namespace DotLiquid.Util
     public static class ListExtensionMethods
     {
         /// <summary>
-        /// Returns the element at a certain position in the list, or null if there is no such element.
+        /// Returns the element at a certain position in the list.
+        /// Returns null if there is no such element.
         /// The list is not modified.
         /// </summary>
         /// <typeparam name="T">type</typeparam>
         /// <param name="list">list</param>
-        /// <param name="index">reverse index</param>
+        /// <param name="index">index (0 is the first element in the list)</param>
         /// <returns>element</returns>
         public static T TryGetAtIndex<T>(this List<T> list, int index)
             where T : class
@@ -24,10 +25,30 @@ namespace DotLiquid.Util
         }
 
         /// <summary>
+        /// Returns the element at a certain position in the list, but in reverse.
+        /// Returns null if there is no such element.
+        /// The list is not modified.
+        /// </summary>
+        /// <typeparam name="T">type</typeparam>
+        /// <param name="list">list</param>
+        /// <param name="rindex">reverse index (0 is the last element in the list)</param>
+        /// <returns>element</returns>
+        public static T TryGetAtIndexReverse<T>(this List<T> list, int rindex)
+            where T : class
+        {
+            if (list != null && list.Count > rindex && rindex >= 0)
+            {
+                return list[list.Count - 1 - rindex];
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Removes the first element from the list and returns it,
         /// or null if the list is empty.
         /// WARNING: The RemoveAt() operation is O(N). 
-        /// If the element does not actually need to be removed from the list, use TryGetAtIndex() instead.ed
+        /// If the element does not actually need to be removed from the list, use TryGetAtIndex() instead.
         /// </summary>
         /// <param name="list"></param>
         /// <returns></returns>

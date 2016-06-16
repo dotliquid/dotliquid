@@ -15,10 +15,18 @@ namespace DotLiquid
     public class Strainer
     {
         private static readonly Dictionary<string, Type> Filters = new Dictionary<string, Type>();
+        private static readonly Dictionary<string, Func<object, object>> FilterFuncs = new Dictionary<string, Func<object, object>>();
 
         public static void GlobalFilter(Type filter)
         {
             Filters[filter.AssemblyQualifiedName] = filter;
+        }
+
+        public static void GlobalFunction<TIn, TOut>(string rawName, Func<TIn, TOut> func)
+        {
+            var name = Template.NamingConvention.GetMemberName(rawName);
+
+            FilterFuncs[name] = i => (object)func((TIn)i);
         }
 
         public static Strainer Create(Context context)
@@ -26,6 +34,10 @@ namespace DotLiquid
             Strainer strainer = new Strainer(context);
             foreach (var keyValue in Filters)
                 strainer.Extend(keyValue.Value);
+
+            foreach (var keyValue in FilterFuncs)
+                strainer._funcs[keyValue.Key] = keyValue.Value;
+            
             return strainer;
         }
 

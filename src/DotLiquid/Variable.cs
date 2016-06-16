@@ -74,10 +74,10 @@ namespace DotLiquid
                 if(transformer != null)
                 output = transformer(output);
 
-                string outputString;
                 //treating Strings as IEnumerable, and was joining Chars in loop
-                if (output is string)
-                    outputString = (string)output;
+                string outputString = output as string;
+
+                if (outputString != null) {}
                 else if (output is IEnumerable)
 #if NET35
                     outputString = string.Join(string.Empty, ((IEnumerable)output).Cast<object>().Select(o => o.ToString()).ToArray());

@@ -5,8 +5,29 @@ namespace DotLiquid.Util
     public static class ListExtensionMethods
     {
         /// <summary>
+        /// Returns the element at a certain position in the list, or null if there is no such element.
+        /// The list is not modified.
+        /// </summary>
+        /// <typeparam name="T">type</typeparam>
+        /// <param name="list">list</param>
+        /// <param name="index">reverse index</param>
+        /// <returns>element</returns>
+        public static T TryGetAtIndex<T>(this List<T> list, int index)
+            where T : class
+        {
+            if (list != null && list.Count > index && index >= 0)
+            {
+                return list[index];
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Removes the first element from the list and returns it,
         /// or null if the list is empty.
+        /// WARNING: The RemoveAt() operation is O(N). 
+        /// If the element does not actually need to be removed from the list, use TryGetAtIndex() instead.ed
         /// </summary>
         /// <param name="list"></param>
         /// <returns></returns>

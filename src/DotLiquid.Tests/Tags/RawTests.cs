@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 
 namespace DotLiquid.Tests.Tags
 {
@@ -6,17 +6,17 @@ namespace DotLiquid.Tests.Tags
     public class RawTests
     {
         [Test]
-        public void TestTagInRaw()
+        public void TestTagInRaw ()
         {
-			Helper.AssertTemplateResult("{% comment %} test {% endcomment %}",
-				"{% raw %}{% comment %} test {% endcomment %}{% endraw %}");
+            Helper.AssertTemplateResult ("{% comment %} test {% endcomment %}",
+                "{% raw %}{% comment %} test {% endcomment %}{% endraw %}");
         }
 
-		[Test]
-		public void TestOutputInRaw()
-		{
-			Helper.AssertTemplateResult("{{ test }}",
-				"{% raw %}{{ test }}{% endraw %}");
-		}
-	}
+        [Test]
+        public void TestOutputInRaw ()
+        {
+            Helper.AssertTemplateResult ("{{ test }}",
+                "{% raw %}{{ test }}{% endraw %}");
+        }
+    }
 }

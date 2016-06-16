@@ -56,6 +56,22 @@ namespace DotLiquid
             Action<object, Hash> mapper;
             if (!mapperCache.TryGetValue(type, out mapper))
             {
+                /* Bogdan Mart: Note regarding concurrency:
+                 * This is concurrent dictionary, but if this will be called from two threads
+                 * this code would generate two same mappers, which will cause some CPU overhead.
+                 * But I have no idea on what I can lock here, first thought was to use lock(type),
+                 * but that could cause deadlock, if some outside code will lock Type.
+                 * Only correct solution would be to use ConcurrentDictionary<Type, Action<object, Hash>>
+                 * with some CAS race, and then locking, or Semaphore, but first will add complexity, 
+                 * second would add overhead in locking on Kernel-level named object.
+                 * 
+                 * So I assume tradeoff in not using locks here is better, 
+                 * we at most will waste some CPU cycles on code generation, 
+                 * but RAM would be collected, due to http://stackoverflow.com/questions/5340201/
+                 * 
+                 * If someone have conserns, than one can lock(mapperCache) but that would 
+                 * create bottleneck, as only one mapper could be generated at a time.
+                 */
                 mapper = GenerateMapper(type);
                 mapperCache[type] = mapper;
             }

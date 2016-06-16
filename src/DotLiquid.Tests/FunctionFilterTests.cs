@@ -21,5 +21,13 @@ namespace DotLiquid.Tests
             _context.AddFilter<int, string>("AddTwo", i => (i + 2).ToString(CultureInfo.InvariantCulture));
             Assert.That(new Variable("var | add_two").Render(_context), Is.EqualTo("4"));
         }
+
+        [Test]
+        public void AddingMethodInfo()
+        {
+            _context["var"] = 2;
+            _context.AddFilter<int, string>("AddTwo", i => (i + 2).ToString(CultureInfo.InvariantCulture));
+            Assert.That(new Variable("var | add_two").Render(_context), Is.EqualTo("4"));
+        }
     }
 }

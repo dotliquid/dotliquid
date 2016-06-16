@@ -60,6 +60,11 @@ namespace DotLiquid
             Strainer.AddFunction(filterName, func);
         }
 
+        public void AddFilter<TIn, TIn2, TOut>(string filterName, Func<TIn, TIn2, TOut> func)
+        {
+            Strainer.AddFunction(filterName, func);
+        }
+
         /// <summary>
         /// Adds filters to this context.
         /// this does not register the filters with the main Template object. see <tt>Template.register_filter</tt>

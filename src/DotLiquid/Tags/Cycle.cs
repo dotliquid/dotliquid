@@ -22,8 +22,9 @@ namespace DotLiquid.Tags
 	/// </summary>
 	public class Cycle : Tag
 	{
-		private static readonly Regex SimpleSyntax = R.B(R.Q(@"^{0}+"), Liquid.QuotedFragment);
+	    private static readonly Regex SimpleSyntax = R.B(R.Q(@"^{0}+"), Liquid.QuotedFragment);
 		private static readonly Regex NamedSyntax = R.B(R.Q(@"^({0})\s*\:\s*(.*)"), Liquid.QuotedFragment);
+	    private static readonly Regex QuotedFragmentRegex = R.B(R.Q(@"\s*({0})\s*"), Liquid.QuotedFragment);
 
 		private string[] _variables;
 		private string _name;
@@ -57,7 +58,7 @@ namespace DotLiquid.Tags
 		{
 			return markup.Split(',').Select(var =>
 			{
-				Match match = Regex.Match(var, string.Format(R.Q(@"\s*({0})\s*"), Liquid.QuotedFragment));
+				Match match = QuotedFragmentRegex.Match(var);
 				return (match.Success && !string.IsNullOrEmpty(match.Groups[1].Value))
 					? match.Groups[1].Value
 					: null;

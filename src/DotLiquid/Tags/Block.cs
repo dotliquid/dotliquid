@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
+using DotLiquid.Util;
 
 namespace DotLiquid.Tags
 {
@@ -62,7 +63,7 @@ namespace DotLiquid.Tags
 	/// </summary>
 	public class Block : DotLiquid.Block
 	{
-		private static readonly Regex Syntax = new Regex(@"(\w+)");
+		private static readonly Regex Syntax = R.C(@"(\w+)");
 
 		internal string BlockName { get; set; }
 

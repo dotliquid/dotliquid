@@ -1,3 +1,9 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Reflection;
+using System.Text.RegularExpressions;
+
 using DotLiquid.Util;
 using NUnit.Framework;
 
@@ -7,58 +13,88 @@ namespace DotLiquid.Tests
 	public class RegexpTests
 	{
 		[Test]
+		public void TestAllRegexesAreCompiled()
+		{
+			var assembly = typeof (Template).Assembly;
+			foreach (Type parent in assembly.GetTypes())
+			{
+				foreach (var t in parent.GetFields(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
+				{
+					if (t.FieldType == typeof(Regex))
+					{
+						if (t.IsStatic)
+						{
+							Assert.AreNotEqual(0, RegexOptions.Compiled & ((Regex) t.GetValue(null)).Options);
+						}
+						else
+						{
+							Assert.AreNotEqual(0, RegexOptions.Compiled & ((Regex)t.GetValue(parent)).Options);
+						}
+
+						Trace.TraceInformation(parent.Name + ": " + t.Name);
+					}
+				}
+			}
+		}
+
+		[Test]
 		public void TestEmpty()
 		{
-			CollectionAssert.IsEmpty(R.Scan(string.Empty, Liquid.QuotedFragment));
+			CollectionAssert.IsEmpty(Run(string.Empty, Liquid.QuotedFragment));
 		}
 
 		[Test]
 		public void TestQuote()
 		{
-			CollectionAssert.AreEqual(new[] { "\"arg 1\"" }, R.Scan("\"arg 1\"", Liquid.QuotedFragment));
+			CollectionAssert.AreEqual(new[] { "\"arg 1\"" }, Run("\"arg 1\"", Liquid.QuotedFragment));
 		}
 
 		[Test]
 		public void TestWords()
 		{
-			CollectionAssert.AreEqual(new[] { "arg1", "arg2" }, R.Scan("arg1 arg2", Liquid.QuotedFragment));
+			CollectionAssert.AreEqual(new[] { "arg1", "arg2" }, Run("arg1 arg2", Liquid.QuotedFragment));
 		}
 
 		[Test]
 		public void TestTags()
 		{
-			CollectionAssert.AreEqual(new[] { "<tr>", "</tr>" }, R.Scan("<tr> </tr>", Liquid.QuotedFragment));
-			CollectionAssert.AreEqual(new[] { "<tr></tr>" }, R.Scan("<tr></tr>", Liquid.QuotedFragment));
-			CollectionAssert.AreEqual(new[] { "<style", "class=\"hello\">", "</style>" }, R.Scan("<style class=\"hello\">' </style>", Liquid.QuotedFragment));
+			CollectionAssert.AreEqual(new[] { "<tr>", "</tr>" }, Run("<tr> </tr>", Liquid.QuotedFragment));
+			CollectionAssert.AreEqual(new[] { "<tr></tr>" }, Run("<tr></tr>", Liquid.QuotedFragment));
+			CollectionAssert.AreEqual(new[] { "<style", "class=\"hello\">", "</style>" }, Run("<style class=\"hello\">' </style>", Liquid.QuotedFragment));
 		}
 
 		[Test]
 		public void TestQuotedWords()
 		{
-			CollectionAssert.AreEqual(new[] { "arg1", "arg2", "\"arg 3\"" }, R.Scan("arg1 arg2 \"arg 3\"", Liquid.QuotedFragment));
+			CollectionAssert.AreEqual(new[] { "arg1", "arg2", "\"arg 3\"" }, Run("arg1 arg2 \"arg 3\"", Liquid.QuotedFragment));
 		}
 
 		[Test]
 		public void TestQuotedWords2()
 		{
-			CollectionAssert.AreEqual(new[] { "arg1", "arg2", "'arg 3'" }, R.Scan("arg1 arg2 'arg 3'", Liquid.QuotedFragment));
+			CollectionAssert.AreEqual(new[] { "arg1", "arg2", "'arg 3'" }, Run("arg1 arg2 'arg 3'", Liquid.QuotedFragment));
 		}
 
 		[Test]
 		public void TestQuotedWordsInTheMiddle()
 		{
-			CollectionAssert.AreEqual(new[] { "arg1", "arg2", "\"arg 3\"", "arg4" }, R.Scan("arg1 arg2 \"arg 3\" arg4", Liquid.QuotedFragment));
+			CollectionAssert.AreEqual(new[] { "arg1", "arg2", "\"arg 3\"", "arg4" }, Run("arg1 arg2 \"arg 3\" arg4", Liquid.QuotedFragment));
 		}
 
 		[Test]
 		public void TestVariableParser()
 		{
-			CollectionAssert.AreEqual(new[] { "var" }, R.Scan("var", Liquid.VariableParser));
-			CollectionAssert.AreEqual(new[] { "var", "method" }, R.Scan("var.method", Liquid.VariableParser));
-			CollectionAssert.AreEqual(new[] { "var", "[method]" }, R.Scan("var[method]", Liquid.VariableParser));
-			CollectionAssert.AreEqual(new[] { "var", "[method]", "[0]" }, R.Scan("var[method][0]", Liquid.VariableParser));
-			CollectionAssert.AreEqual(new[] { "var", "[\"method\"]", "[0]" }, R.Scan("var[\"method\"][0]", Liquid.VariableParser));
-			CollectionAssert.AreEqual(new[] { "var", "[method]", "[0]", "method" }, R.Scan("var[method][0].method", Liquid.VariableParser));
+			CollectionAssert.AreEqual(new[] { "var" }, Run("var", Liquid.VariableParser));
+			CollectionAssert.AreEqual(new[] { "var", "method" }, Run("var.method", Liquid.VariableParser));
+			CollectionAssert.AreEqual(new[] { "var", "[method]" }, Run("var[method]", Liquid.VariableParser));
+			CollectionAssert.AreEqual(new[] { "var", "[method]", "[0]" }, Run("var[method][0]", Liquid.VariableParser));
+			CollectionAssert.AreEqual(new[] { "var", "[\"method\"]", "[0]" }, Run("var[\"method\"][0]", Liquid.VariableParser));
+			CollectionAssert.AreEqual(new[] { "var", "[method]", "[0]", "method" }, Run("var[method][0].method", Liquid.VariableParser));
+		}
+
+		private static List<string> Run(string input, string pattern)
+		{
+			return R.Scan(input, new Regex(pattern));
 		}
 	}
 }

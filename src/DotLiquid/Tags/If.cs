@@ -22,7 +22,9 @@ namespace DotLiquid.Tags
 	{
 		private string SyntaxHelp = Liquid.ResourceManager.GetString("IfTagSyntaxException");
 		private static readonly Regex Syntax = R.B(R.Q(@"({0})\s*([=!<>a-z_]+)?\s*({0})?"), Liquid.QuotedFragment);
+		
 		private static readonly string ExpressionsAndOperators = string.Format(R.Q(@"(?:\b(?:\s?and\s?|\s?or\s?)\b|(?:\s*(?!\b(?:\s?and\s?|\s?or\s?)\b)(?:{0}|\S+)\s*)+)"), Liquid.QuotedFragment);
+		private static readonly Regex ExpressionsAndOperatorsRegex = R.C(ExpressionsAndOperators);
 
 		protected List<Condition> Blocks { get; private set; }
 
@@ -67,7 +69,7 @@ namespace DotLiquid.Tags
 			}
 			else
 			{
-				List<string> expressions = R.Scan(markup, ExpressionsAndOperators);
+				List<string> expressions = R.Scan(markup, ExpressionsAndOperatorsRegex);
 				expressions.Reverse();
 				string syntax = expressions.Shift();
 				if (string.IsNullOrEmpty(syntax))

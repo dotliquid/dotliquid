@@ -21,12 +21,14 @@ namespace DotLiquid.Tags
 	/// </summary>
 	public class Literal : DotLiquid.Block
 	{
+		private static readonly Regex LiteralRegex = R.C(Liquid.LiteralShorthand);
+	
 		public static string FromShortHand(string @string)
 		{
 			if (@string == null)
 				return @string;
 
-			Match match = Regex.Match(@string, Liquid.LiteralShorthand);
+			Match match = LiteralRegex.Match(@string);
 			return match.Success ? string.Format(@"{{% literal %}}{0}{{% endliteral %}}", match.Groups[1].Value) : @string;
 		}
 

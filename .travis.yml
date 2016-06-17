@@ -7,6 +7,6 @@ solution: src/DotLiquid.sln
 before_install:
   - sudo apt-get install nunit-console
 script:
- - xbuild src/DotLiquid.sln
+ - xbuild /p:Configuration=Release src/DotLiquid.sln
  - nunit-console src/DotLiquid.Tests/bin/Release/DotLiquid.Tests.dll
  

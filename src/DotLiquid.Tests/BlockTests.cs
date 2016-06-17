@@ -1,3 +1,4 @@
+using System;
 using DotLiquid.Tags;
 using DotLiquid.Tests.Framework;
 using NUnit.Framework;
@@ -77,7 +78,7 @@ namespace DotLiquid.Tests
             Template.RegisterTagFactory(new CustomTagFactory());
             Template result = null;
             Assert.DoesNotThrow(() => result = Template.Parse("{% custom %}"));
-            Assert.AreEqual("I am a custom tag\r\n", result.Render());
+            Assert.AreEqual("I am a custom tag"+Environment.NewLine, result.Render());
         }
 
         public class CustomTagFactory : ITagFactory

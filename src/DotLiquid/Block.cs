@@ -38,10 +38,9 @@ namespace DotLiquid
                         }
 
                         // Fetch the tag from registered blocks
-                        Type tagType;
-                        if ((tagType = Template.GetTagType(fullTokenMatch.Groups[1].Value)) != null)
+                        Tag tag;
+                        if ((tag = Template.CreateTag(fullTokenMatch.Groups[1].Value)) != null)
                         {
-                            Tag tag = (Tag)Activator.CreateInstance(tagType);
                             tag.Initialize(fullTokenMatch.Groups[1].Value, fullTokenMatch.Groups[2].Value, tokens);
                             NodeList.Add(tag);
 

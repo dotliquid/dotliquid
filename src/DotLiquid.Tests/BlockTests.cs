@@ -70,5 +70,36 @@ namespace DotLiquid.Tests
             Template.RegisterTag<Block>("testtag");
             Assert.DoesNotThrow(() => Template.Parse("{% testtag %} {% endtesttag %}"));
         }
+
+        [Test]
+        public void TestWithCustomTagFactory()
+        {
+            Template.RegisterTagFactory(new CustomTagFactory());
+            Template result = null;
+            Assert.DoesNotThrow(() => result = Template.Parse("{% custom %}"));
+            Assert.AreEqual("I am a custom tag\r\n", result.Render());
+        }
+
+        public class CustomTagFactory : ITagFactory
+        {
+            public string TagName
+            {
+                get { return "custom"; }
+            }
+
+            public Tag Create()
+            {
+                return new CustomTag();
+            }
+
+            public class CustomTag : Tag
+            {
+                public override void Render(Context context, System.IO.TextWriter result)
+                {
+                    result.WriteLine("I am a custom tag");
+                }
+            }
+        }
+
     }
 }

@@ -4,3 +4,9 @@ mono:
  - latest
  - 4.2.3
 solution: src/DotLiquid.sln
+before_install:
+  - sudo apt-get install nunit-console
+script:
+ - xbuild src/DotLiquid.sln
+ - nunit-console src/DotLiquid.Tests/bin/Release/DotLiquid.Tests.dll
+ 

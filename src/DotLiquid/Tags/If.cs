@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
@@ -56,7 +55,6 @@ namespace DotLiquid.Tags
                         return;
                     }
                 }
-                ;
             });
         }
 
@@ -70,8 +68,10 @@ namespace DotLiquid.Tags
             else
             {
                 List<string> expressions = R.Scan(markup, ExpressionsAndOperatorsRegex);
-                expressions.Reverse();
-                string syntax = expressions.Shift();
+
+                // last item in list
+                string syntax = expressions.TryGetAtIndexReverse(0);
+
                 if (string.IsNullOrEmpty(syntax))
                     throw new SyntaxException(SyntaxHelp);
                 Match syntaxMatch = Syntax.Match(syntax);
@@ -81,11 +81,12 @@ namespace DotLiquid.Tags
                 Condition condition = new Condition(syntaxMatch.Groups[1].Value,
                     syntaxMatch.Groups[2].Value, syntaxMatch.Groups[3].Value);
 
-                while (expressions.Any())
+                // continue to process remaining items in the list backwards, in pairs
+                for (int i = 1; i < expressions.Count; i = i + 2)
                 {
-                    string @operator = expressions.Shift().Trim();
+                    string @operator = expressions.TryGetAtIndexReverse(i).Trim();
 
-                    Match expressionMatch = Syntax.Match(expressions.Shift());
+                    Match expressionMatch = Syntax.Match(expressions.TryGetAtIndexReverse(i + 1));
                     if (!expressionMatch.Success)
                         throw new SyntaxException(SyntaxHelp);
 

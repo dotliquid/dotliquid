@@ -291,7 +291,9 @@ namespace DotLiquid
         {
             List<string> parts = R.Scan(markup, VariableParserRegex);
 
-            string firstPart = parts.Shift();
+            // first item in list, if any
+            string firstPart = parts.TryGetAtIndex(0);
+
             Match firstPartSquareBracketedMatch = SquareBracketedRegex.Match(firstPart);
             if (firstPartSquareBracketedMatch.Success)
                 firstPart = Resolve(firstPartSquareBracketedMatch.Groups[1].Value).ToString();
@@ -299,8 +301,10 @@ namespace DotLiquid
             object @object;
             if ((@object = FindVariable(firstPart)) != null)
             {
-                foreach (string forEachPart in parts)
+                // try to resolve the rest of the parts (starting from the second item in the list)
+                for (int i = 1; i < parts.Count; ++i)
                 {
+                    var forEachPart = parts[i];
                     Match partSquareBracketedMatch = SquareBracketedRegex.Match(forEachPart);
                     bool partResolved = partSquareBracketedMatch.Success;
 

@@ -1,7 +1,7 @@
-﻿namespace DotLiquid
+namespace DotLiquid
 {
-	public interface IContextAware
-	{
-		Context Context { set; }
-	}
+    public interface IContextAware
+    {
+        Context Context { set; }
+    }
 }

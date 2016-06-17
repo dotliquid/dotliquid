@@ -147,7 +147,7 @@
   <data name="BlockVariableNotTerminatedException" xml:space="preserve">
     <value>La variable '{0}' non è stata terminata correttamente con l'espressione regolare: {1}</value>
   </data>
-  <data name="CapureTagSyntaxException" xml:space="preserve">
+  <data name="CaptureTagSyntaxException" xml:space="preserve">
     <value>Errore di sintassi nel tag 'capture' - La sintassi corretta è: capture [var]</value>
   </data>
   <data name="CaseTagElseSyntaxException" xml:space="preserve">

@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
 
@@ -6,20 +6,21 @@ namespace DotLiquid.FileSystems
 {
     /// <summary>
     /// This implements a file system which retrieves template files from embedded resources in .NET assemblies.
-    /// 
+    ///
     /// Its behavior is the same as with the Local File System, except this uses namespaces and embedded resources
     /// instead of directories and files.
-    /// 
+    ///
     /// Example:
-    /// 
+    ///
     /// var fileSystem = new EmbeddedFileSystem("My.Base.Namespace");
-    /// 
+    ///
     /// fileSystem.FullPath("mypartial") # => "My.Base.Namespace._mypartial.liquid"
     /// fileSystem.FullPath("dir/mypartial") # => "My.Base.Namespace.dir._mypartial.liquid"
     /// </summary>
     public class EmbeddedFileSystem : IFileSystem
     {
         protected System.Reflection.Assembly Assembly { get; private set; }
+
         public string Root { get; private set; }
 
         public EmbeddedFileSystem(System.Reflection.Assembly assembly, string root)

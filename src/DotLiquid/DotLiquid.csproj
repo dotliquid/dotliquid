@@ -3,8 +3,6 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{CB9372CD-9C1D-47AB-92D8-702D4D68324F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -47,8 +45,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActivatorTagFactory.cs" />
     <Compile Include="Exceptions\InterruptException.cs" />
     <Compile Include="FileSystems\EmbeddedFileSystem.cs" />
+    <Compile Include="ITagFactory.cs" />
     <Compile Include="IValueTypeConvertible.cs" />
     <Compile Include="LiquidTypeAttribute.cs" />
     <Compile Include="RenderParameters.cs" />

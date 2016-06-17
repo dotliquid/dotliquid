@@ -1,21 +1,25 @@
 using System.IO;
 using System.Text.RegularExpressions;
 
+using DotLiquid.Util;
+
 namespace DotLiquid.Tags
 {
-	public class Comment : DotLiquid.Block
-	{
-		public static string FromShortHand(string @string)
-		{
-			if (@string == null)
-				return @string;
+    public class Comment : DotLiquid.Block
+    {
+        private static readonly Regex ShortHandRegex = R.C(Liquid.CommentShorthand);
 
-			Match match = Regex.Match(@string, Liquid.CommentShorthand);
-			return match.Success ? string.Format(@"{{% comment %}}{0}{{% endcomment %}}", match.Groups[1].Value) : @string;
-		}
+        public static string FromShortHand(string @string)
+        {
+            if (@string == null)
+                return @string;
 
-		public override void Render(Context context, TextWriter result)
-		{
-		}
-	}
+            Match match = ShortHandRegex.Match(@string);
+            return match.Success ? string.Format(@"{{% comment %}}{0}{{% endcomment %}}", match.Groups[1].Value) : @string;
+        }
+
+        public override void Render(Context context, TextWriter result)
+        {
+        }
+    }
 }

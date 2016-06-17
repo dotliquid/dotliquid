@@ -4,20 +4,20 @@ using NUnit.Framework;
 
 namespace DotLiquid.Website.Tests.Controllers
 {
-	[TestFixture]
-	public class HomeControllerTests
-	{
-		[Test]
-		public void IndexActionTest()
-		{
-			// Arrange
-			HomeController controller = new HomeController();
+    [TestFixture]
+    public class HomeControllerTests
+    {
+        [Test]
+        public void IndexActionTest()
+        {
+            // Arrange
+            HomeController controller = new HomeController();
 
-			// Act
-			ViewResult result = controller.Index() as ViewResult;
+            // Act
+            ViewResult result = controller.Index() as ViewResult;
 
-			// Assert
-			Assert.IsNotNull(result);
-		}
-	}
+            // Assert
+            Assert.IsNotNull(result);
+        }
+    }
 }

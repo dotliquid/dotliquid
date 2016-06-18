@@ -23,8 +23,11 @@ namespace DotLiquid
         private Strainer _strainer;
 
         public List<Hash> Environments { get; private set; }
+
         public List<Hash> Scopes { get; private set; }
+
         public Hash Registers { get; private set; }
+
         public List<Exception> Errors { get; private set; }
 
         public Context(List<Hash> environments, Hash outerScope, Hash registers, bool rethrowErrors)
@@ -50,6 +53,16 @@ namespace DotLiquid
         public Strainer Strainer
         {
             get { return (_strainer = _strainer ?? Strainer.Create(this)); }
+        }
+
+        public void AddFilter<TIn, TOut>(string filterName, Func<TIn, TOut> func)
+        {
+            Strainer.AddFunction(filterName, func);
+        }
+
+        public void AddFilter<TIn, TIn2, TOut>(string filterName, Func<TIn, TIn2, TOut> func)
+        {
+            Strainer.AddFunction(filterName, func);
         }
 
         /// <summary>
@@ -167,7 +180,7 @@ namespace DotLiquid
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public object this[string key]
+        public object this [string key]
         {
             get { return Resolve(key); }
             set { Scopes[0][key] = value; }
@@ -204,9 +217,9 @@ namespace DotLiquid
                 case "false":
                     return false;
                 case "blank":
-                    return new Symbol(o => o is IEnumerable && !((IEnumerable) o).Cast<object>().Any());
+                    return new Symbol(o => o is IEnumerable && !((IEnumerable)o).Cast<object>().Any());
                 case "empty":
-                    return new Symbol(o => o is IEnumerable && !((IEnumerable) o).Cast<object>().Any());
+                    return new Symbol(o => o is IEnumerable && !((IEnumerable)o).Cast<object>().Any());
             }
 
             // Single quoted strings.
@@ -272,7 +285,7 @@ namespace DotLiquid
 
             variable = Liquidize(variable);
             if (variable is IContextAware)
-                ((IContextAware) variable).Context = this;
+                ((IContextAware)variable).Context = this;
             return variable;
         }
 
@@ -314,9 +327,9 @@ namespace DotLiquid
 
                     // If object is a KeyValuePair, we treat it a bit differently - we might be rendering
                     // an included template.
-                    if (@object is KeyValuePair<string, object> && ((KeyValuePair<string, object>) @object).Key == (string) part)
+                    if (@object is KeyValuePair<string, object> && ((KeyValuePair<string, object>)@object).Key == (string)part)
                     {
-                        object res = ((KeyValuePair<string, object>) @object).Value;
+                        object res = ((KeyValuePair<string, object>)@object).Value;
                         @object = Liquidize(res);
                     }
                         // If object is a hash- or array-like object we look for the
@@ -332,7 +345,7 @@ namespace DotLiquid
                         // as commands and call them on the current object
                     else if (!partResolved && (@object is IEnumerable) && ((part as string) == "size" || (part as string) == "first" || (part as string) == "last"))
                     {
-                        var castCollection = ((IEnumerable) @object).Cast<object>();
+                        var castCollection = ((IEnumerable)@object).Cast<object>();
                         if ((part as string) == "size")
                             @object = castCollection.Count();
                         else if ((part as string) == "first")
@@ -349,7 +362,7 @@ namespace DotLiquid
 
                     // If we are dealing with a drop here we have to
                     if (@object is IContextAware)
-                        ((IContextAware) @object).Context = this;
+                        ((IContextAware)@object).Context = this;
                 }
             }
 
@@ -361,16 +374,16 @@ namespace DotLiquid
             if (obj == null)
                 return false;
 
-            if ((obj is IDictionary && ((IDictionary) obj).Contains(part)))
+            if ((obj is IDictionary && ((IDictionary)obj).Contains(part)))
                 return true;
 
             if ((obj is IList) && (part is int))
                 return true;
 
-            if (TypeUtility.IsAnonymousType(obj.GetType()) && obj.GetType().GetProperty((string) part) != null)
+            if (TypeUtility.IsAnonymousType(obj.GetType()) && obj.GetType().GetProperty((string)part) != null)
                 return true;
 
-            if ((obj is IIndexable) && ((IIndexable) obj).ContainsKey((string) part))
+            if ((obj is IIndexable) && ((IIndexable)obj).ContainsKey((string)part))
                 return true;
 
             return false;
@@ -380,25 +393,25 @@ namespace DotLiquid
         {
             object value;
             if (obj is IDictionary)
-                value = ((IDictionary) obj)[key];
+                value = ((IDictionary)obj)[key];
             else if (obj is IList)
-                value = ((IList) obj)[(int) key];
+                value = ((IList)obj)[(int)key];
             else if (TypeUtility.IsAnonymousType(obj.GetType()))
-                value = obj.GetType().GetProperty((string) key).GetValue(obj, null);
+                value = obj.GetType().GetProperty((string)key).GetValue(obj, null);
             else if (obj is IIndexable)
-                value = ((IIndexable) obj)[key];
+                value = ((IIndexable)obj)[key];
             else
                 throw new NotSupportedException();
 
             if (value is Proc)
             {
-                object newValue = ((Proc) value).Invoke(this);
+                object newValue = ((Proc)value).Invoke(this);
                 if (obj is IDictionary)
-                    ((IDictionary) obj)[key] = newValue;
+                    ((IDictionary)obj)[key] = newValue;
                 else if (obj is IList)
-                    ((IList) obj)[(int) key] = newValue;
+                    ((IList)obj)[(int)key] = newValue;
                 else if (TypeUtility.IsAnonymousType(obj.GetType()))
-                    obj.GetType().GetProperty((string) key).SetValue(obj, newValue, null);
+                    obj.GetType().GetProperty((string)key).SetValue(obj, newValue, null);
                 else
                     throw new NotSupportedException();
                 return newValue;
@@ -412,7 +425,7 @@ namespace DotLiquid
             if (obj == null)
                 return obj;
             if (obj is ILiquidizable)
-                return ((ILiquidizable) obj).ToLiquid();
+                return ((ILiquidizable)obj).ToLiquid();
             if (obj is string)
                 return obj;
             if (obj is IEnumerable)

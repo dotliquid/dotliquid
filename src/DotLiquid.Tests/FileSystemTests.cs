@@ -15,6 +15,9 @@ namespace DotLiquid.Tests
             Assert.Throws<FileSystemException>(() => new BlankFileSystem().ReadTemplateFile(new Context(), "dummy"));
         }
 
+//TODO fix this test on Mono
+#if !__MonoCS__
+
         [Test]
         public void TestLocal()
         {
@@ -35,6 +38,8 @@ namespace DotLiquid.Tests
             Assert.AreEqual(@"D:\Some (thing)\Path\_mypartial.liquid", fileSystem.FullPath("mypartial"));
             Assert.AreEqual(@"D:\Some (thing)\Path\dir\_mypartial.liquid", fileSystem.FullPath("dir/mypartial"));
         }
+
+#endif
 
         [Test]
         public void TestEmbeddedResource()

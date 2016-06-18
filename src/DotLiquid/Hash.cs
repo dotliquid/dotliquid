@@ -1,14 +1,22 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace DotLiquid
 {
     public class Hash : IDictionary<string, object>, IDictionary
     {
-        #region Fields
+        #region Static fields
+#if !NET35
 
+        private static System.Collections.Concurrent.ConcurrentDictionary<Type, Action<object, Hash>> mapperCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, Action<object, Hash>>();
+
+#endif
+        #endregion
+
+        #region Fields
         private readonly Func<Hash, string, object> _lambda;
         private readonly Dictionary<string, object> _nestedDictionary;
         private readonly object _defaultValue;
@@ -21,10 +29,92 @@ namespace DotLiquid
         {
             Hash result = new Hash();
             if (anonymousObject != null)
-                foreach (PropertyInfo property in anonymousObject.GetType().GetProperties())
-                    result[property.Name] = property.GetValue(anonymousObject, null);
+            {
+#if NET35
+                FromAnonymousObject35(anonymousObject, result);
+#else
+                FromAnonymousObject40(anonymousObject, result);
+#endif
+            }
             return result;
         }
+
+        private static void FromAnonymousObject35(object anonymousObject, Hash hash)
+        {
+            foreach (PropertyInfo property in anonymousObject.GetType().GetProperties())
+                hash[property.Name] = property.GetValue(anonymousObject, null);
+        }
+#if !NET35
+        private static void FromAnonymousObject40(object anonymousObject, Hash hash)
+        {
+            Action<object, Hash> mapper = GetObjToDictionaryMapper(anonymousObject.GetType());
+            mapper.Invoke(anonymousObject, hash);                
+        }
+
+        private static Action<object, Hash> GetObjToDictionaryMapper(Type type)
+        {
+            Action<object, Hash> mapper;
+            if (!mapperCache.TryGetValue(type, out mapper))
+            {
+                /* Bogdan Mart: Note regarding concurrency:
+                 * This is concurrent dictionary, but if this will be called from two threads
+                 * this code would generate two same mappers, which will cause some CPU overhead.
+                 * But I have no idea on what I can lock here, first thought was to use lock(type),
+                 * but that could cause deadlock, if some outside code will lock Type.
+                 * Only correct solution would be to use ConcurrentDictionary<Type, Action<object, Hash>>
+                 * with some CAS race, and then locking, or Semaphore, but first will add complexity, 
+                 * second would add overhead in locking on Kernel-level named object.
+                 * 
+                 * So I assume tradeoff in not using locks here is better, 
+                 * we at most will waste some CPU cycles on code generation, 
+                 * but RAM would be collected, due to http://stackoverflow.com/questions/5340201/
+                 * 
+                 * If someone have conserns, than one can lock(mapperCache) but that would 
+                 * create bottleneck, as only one mapper could be generated at a time.
+                 */
+                mapper = GenerateMapper(type);
+                mapperCache[type] = mapper;
+            }
+
+            return mapper;
+        }
+
+        private static Action<object, Hash> GenerateMapper(Type type)
+        {
+            ParameterExpression objParam = Expression.Parameter(typeof(object), "objParam");
+            ParameterExpression hashParam = Expression.Parameter(typeof(Hash), "hashParam");
+            List<Expression> bodyInstructions = new List<Expression>();
+
+            var castedObj = Expression.Variable(type,"castedObj");
+            
+            bodyInstructions.Add(
+                Expression.Assign(castedObj,Expression.Convert(objParam,type))
+            );
+
+            foreach (PropertyInfo property in type.GetProperties())
+            {
+                bodyInstructions.Add(
+                    Expression.Assign(
+                        Expression.MakeIndex(
+                            hashParam,
+                            typeof(Hash).GetProperty("Item"),
+                            new []{Expression.Constant(property.Name, typeof(string))}
+                        ),
+                        Expression.Convert(
+                            Expression.Property(castedObj,property),
+                            typeof(object)
+                        )
+                    )
+                );
+            }
+
+            var body = Expression.Block(typeof(void),new []{castedObj},bodyInstructions);
+
+            var expr = Expression.Lambda < Action<object, Hash>>(body, objParam, hashParam);
+
+            return expr.Compile();
+        }
+#endif
 
         public static Hash FromDictionary(IDictionary<string, object> dictionary)
         {

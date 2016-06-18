@@ -70,12 +70,15 @@ namespace DotLiquid
             if (output != null)
             {
                 var transformer = Template.GetValueTypeTransformer(output.GetType());
-
+                
                 if(transformer != null)
-                    output = transformer(output);
+                output = transformer(output);
 
-                string outputString;
-                if (output is IEnumerable)
+                //treating Strings as IEnumerable, and was joining Chars in loop
+                string outputString = output as string;
+
+                if (outputString != null) {}
+                else if (output is IEnumerable)
 #if NET35
                     outputString = string.Join(string.Empty, ((IEnumerable)output).Cast<object>().Select(o => o.ToString()).ToArray());
 #else

@@ -67,3 +67,4 @@ using the `Hash.FromAnonymousObject` method.
 Are you using DotLiquid in an open source project? Tell us with a PR!
 
  - [Suave.DotLiquid](https://github.com/SuaveIO/suave#introduction)
+ - [Pretzel](https://github.com/Code52/Pretzel)

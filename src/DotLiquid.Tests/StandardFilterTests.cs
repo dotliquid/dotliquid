@@ -95,10 +95,10 @@ namespace DotLiquid.Tests
                     {
                         ary =
                             new[]
-                    {
-                        Hash.FromAnonymousObject(new { foo = Hash.FromAnonymousObject(new { bar = "a" }) }), Hash.FromAnonymousObject(new { foo = Hash.FromAnonymousObject(new { bar = "b" }) }),
-                        Hash.FromAnonymousObject(new { foo = Hash.FromAnonymousObject(new { bar = "c" }) })
-                    }
+                            {
+                                Hash.FromAnonymousObject(new { foo = Hash.FromAnonymousObject(new { bar = "a" }) }), Hash.FromAnonymousObject(new { foo = Hash.FromAnonymousObject(new { bar = "b" }) }),
+                                Hash.FromAnonymousObject(new { foo = Hash.FromAnonymousObject(new { bar = "c" }) })
+                            }
                     }));
         }
 
@@ -149,6 +149,12 @@ namespace DotLiquid.Tests
             Assert.AreEqual("05/07/2006 10:00:00", StandardFilters.Date("05/07/2006 10:00:00", null));
 
             Assert.AreEqual("07/05/2006", StandardFilters.Date("2006-07-05 10:00:00", "%m/%d/%Y"));
+
+            Assert.AreEqual("07/5/2006", StandardFilters.Date("2006-07-05 10:00:00", "%m/%-d/%Y"));
+
+            Assert.AreEqual("7/5/2006", StandardFilters.Date("2006-07-05 10:00:00", "%-m/%-d/%Y"));
+
+            Assert.AreEqual("7/         5/2006", StandardFilters.Date("2006-07-05 10:00:00", "%-m/%_10d/%Y"));
 
             Assert.AreEqual("07/16/2004", StandardFilters.Date("Fri Jul 16 2004 01:00:00", "%m/%d/%Y"));
 
@@ -210,7 +216,7 @@ namespace DotLiquid.Tests
         {
             Helper.AssertTemplateResult("a<br />\r\nb<br />\r\nc",
                 "{{ source | newline_to_br }}",
-                Hash.FromAnonymousObject(new { source = "a\r\nb\r\nc" }));
+                Hash.FromAnonymousObject(new { source = "a" + Environment.NewLine + "b" + Environment.NewLine + "c" }));
         }
 
         [Test]

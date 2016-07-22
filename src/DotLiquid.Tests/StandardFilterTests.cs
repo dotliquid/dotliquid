@@ -277,5 +277,12 @@ namespace DotLiquid.Tests
         {
             Helper.AssertTemplateResult("1", "{{ 3 | modulo:2 }}");
         }
+
+        [Test]
+        public void TestUrlencode()
+        {
+            Assert.AreEqual("http%3a%2f%2fdotliquidmarkup.org%2f", StandardFilters.UrlEncode("http://dotliquidmarkup.org/"));
+            Assert.AreEqual(null, StandardFilters.UrlEncode(null));
+        }
     }
 }

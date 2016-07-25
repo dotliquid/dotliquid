@@ -1,5 +1,5 @@
 # Build script for dotliquid, see https://www.appveyor.com/docs/appveyor-yml for reference
-version: 2.0.0
+version: 2.0.{build}
 
 branches:
   only:
@@ -10,7 +10,7 @@ assembly_info:
   file: AssemblyInfo.*
   assembly_version: "{version}"
   assembly_file_version: "{version}"
-  assembly_informational_version: "2.0.0-ci{build}"
+  assembly_informational_version: "{version}-$(GIT_HASH)"
 
 build:
   verbosity: minimal # quiet|minimal|normal|detailed

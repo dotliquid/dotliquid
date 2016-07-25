@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>DotLiquid</id>
-    <version>0.0.0</version>
+    <version>$version$</version>
     <title>DotLiquid</title>
     <authors>Tim Jones, Alessandro Petrelli</authors>
     <owners>Tim Jones</owners>

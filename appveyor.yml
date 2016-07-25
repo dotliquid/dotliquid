@@ -1,3 +1,4 @@
+# Build script for dotliquid, see https://www.appveyor.com/docs/appveyor-yml for reference
 version: 2.0.0
 
 branches:
@@ -12,8 +13,10 @@ assembly_info:
   assembly_informational_version: "2.0.0-ci{build}"
 
 build:
+  verbosity: minimal # quiet|minimal|normal|detailed
   project: src/DotLiquid.sln
   publish_nuget: true
+  publish_nuget_symbols: true
 
 artifacts:
 - path: build\pkg\*.nupkg

@@ -1,4 +1,4 @@
-version: 1.9.0-ci{build}
+version: 2.0.0
 
 branches:
   only:
@@ -7,9 +7,9 @@ branches:
 assembly_info:
   patch: true
   file: AssemblyInfo.*
-  assembly_version: "1.9.0"
-  assembly_file_version: "1.9.0"
-  assembly_informational_version: "1.9.0-ci{build}"
+  assembly_version: "{version}"
+  assembly_file_version: "{version}"
+  assembly_informational_version: "2.0.0-ci{build}"
 
 build:
   project: src/DotLiquid.sln
@@ -18,11 +18,13 @@ build:
 artifacts:
 - path: build\pkg\*.nupkg
   name: Nuget Package
-- path: '**\*.nuspec'
+
+nuget:
+  project_feed: true
 
 deploy:
 - provider: NuGet
   api_key:
     secure: LrIeQprS+E5FzLkdKGYIYHXy/86Kt8YVhTa4J/VhLzGUO+yXnqI+GxDR+K5Wj/VL
-  skip_symbols: true
+  skip_symbols: false
   artifact: /.*\.nupkg/

@@ -116,7 +116,15 @@ namespace DotLiquid.Tags
                 for (var index = 0; index < segment.Count; index++)
                 {
                     var item = segment[index];
-                    context[_variableName] = item;
+                    if (item is KeyValuePair<string,object>)
+                    {
+                        var itemKey = ((KeyValuePair<string, object>) item).Key;
+                        var itemValue = ((KeyValuePair<string, object>) item).Value;
+                        buildContext(context, _variableName, itemKey, itemValue);
+
+                    } else 
+                        context[_variableName] = item;
+                    
                     context["forloop"] = Hash.FromAnonymousObject(new
                     {
                         name = _name,
@@ -158,6 +166,25 @@ namespace DotLiquid.Tags
                 ++index;
             }
             return segments;
+        }
+
+        private void buildContext(Context context, string parent, string key, object value)
+        {
+            if (value is Hash)
+            {
+
+                ((Hash)value)["itemName"] = key;
+                context[parent] = value;
+                
+                foreach (var hashItem in (Hash)value)
+                {
+                    if (hashItem.Value is Hash)
+                    {
+                        buildContext(context, parent + "." + key, hashItem.Key, hashItem.Value);
+                    }
+                }
+
+            }
         }
     }
 }

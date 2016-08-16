@@ -119,8 +119,19 @@ namespace DotLiquid
         public static Hash FromDictionary(IDictionary<string, object> dictionary)
         {
             Hash result = new Hash();
+
             foreach (var keyValue in dictionary)
-                result.Add(keyValue);
+            {
+                    if (keyValue.Value is Dictionary<string, object>)
+                    {
+                        result.Add(keyValue.Key, FromDictionary((IDictionary<string, object>) keyValue.Value));
+                    }
+                    else
+                    {
+                        result.Add(keyValue);
+                    }
+            }
+                
             return result;
         }
 

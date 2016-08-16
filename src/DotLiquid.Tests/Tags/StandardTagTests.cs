@@ -70,6 +70,21 @@ namespace DotLiquid.Tests.Tags
         }
 
         [Test]
+        public void TestForWithNestedDictionary()
+        {
+            var dictionary = new Dictionary<string, object> { {
+            "People", 
+            new Dictionary<string, object> {
+                    { "ID1", new Dictionary<string, object>{ { "First", "Jane" }, { "Last", "Green" } } },
+                    { "ID2", new Dictionary<string, object>{ { "First", "Mike" }, { "Last", "Doe" } } }
+                }
+            } };
+
+            Helper.AssertTemplateResult("JaneMike", "{% for item in People %}{{ item.First }}{%endfor%}",
+                Hash.FromDictionary(dictionary));
+        }
+
+        [Test]
         public void TestFor()
         {
             Helper.AssertTemplateResult(" yo  yo  yo  yo ", "{%for item in array%} yo {%endfor%}",

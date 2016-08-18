@@ -58,7 +58,7 @@ namespace DotLiquid.Tests
 
         private Hash _assigns;
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void SetUp()
         {
             _assigns = Hash.FromAnonymousObject(new

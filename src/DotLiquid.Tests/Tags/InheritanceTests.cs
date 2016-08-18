@@ -48,14 +48,14 @@ namespace DotLiquid.Tests.Tags
 
         private IFileSystem _originalFileSystem;
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void SetUp ()
         {
             _originalFileSystem = Template.FileSystem;
             Template.FileSystem = new TestFileSystem ();
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void TearDown ()
         {
             Template.FileSystem = _originalFileSystem;

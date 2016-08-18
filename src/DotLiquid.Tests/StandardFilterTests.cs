@@ -281,7 +281,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestUrlencode()
         {
-            Assert.AreEqual("http%3a%2f%2fdotliquidmarkup.org%2f", StandardFilters.UrlEncode("http://dotliquidmarkup.org/"));
+            Assert.AreEqual("http%3A%2F%2Fdotliquidmarkup.org%2F", StandardFilters.UrlEncode("http://dotliquidmarkup.org/"));
             Assert.AreEqual(null, StandardFilters.UrlEncode(null));
         }
 

@@ -8,7 +8,6 @@ using System.Net;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
-using System.Web;
 #if NET35
 using System.Web;
 #endif
@@ -81,7 +80,7 @@ namespace DotLiquid
         {
             return input == null
                 ? input
-                : HttpUtility.UrlEncode(input);
+                : Uri.EscapeDataString(input);
         }
 
         /// <summary>
@@ -96,7 +95,11 @@ namespace DotLiquid
 
             return string.IsNullOrEmpty(input)
                 ? input
+#if CORE
+                : input;
+#else
                 : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input);
+#endif
         }
 
         public static string Escape(string input)
@@ -317,9 +320,9 @@ namespace DotLiquid
             if (string.IsNullOrEmpty(property))
                 ary.Sort();
             else if ((ary.All(o => o is IDictionary)) && ((IDictionary) ary.First()).Contains(property))
-                ary.Sort((a, b) => Comparer.Default.Compare(((IDictionary) a)[property], ((IDictionary) b)[property]));
+                ary.Sort((a, b) => Comparer<object>.Default.Compare(((IDictionary) a)[property], ((IDictionary) b)[property]));
             else if (ary.All(o => o.RespondTo(property)))
-                ary.Sort((a, b) => Comparer.Default.Compare(a.Send(property), b.Send(property)));
+                ary.Sort((a, b) => Comparer<object>.Default.Compare(a.Send(property), b.Send(property)));
 
             return ary;
         }

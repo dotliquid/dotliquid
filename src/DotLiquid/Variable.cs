@@ -99,7 +99,7 @@ namespace DotLiquid
 
             object output = context[Name];
 
-            Filters.ToList().ForEach(filter =>
+            foreach(var filter in Filters.ToList())
             {
                 List<object> filterArgs = filter.Arguments.Select(a => context[a]).ToList();
                 try
@@ -111,7 +111,7 @@ namespace DotLiquid
                 {
                     throw new FilterNotFoundException(string.Format(Liquid.ResourceManager.GetString("VariableFilterNotFoundException"), filter.Name, _markup.Trim()), ex);
                 }
-            });
+            };
 
             if (output is IValueTypeConvertible)
                 output = ((IValueTypeConvertible) output).ConvertToValueType();

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -39,12 +40,13 @@ namespace DotLiquid
             return result;
         }
 
+#if NET35
         private static void FromAnonymousObject35(object anonymousObject, Hash hash)
         {
             foreach (PropertyInfo property in anonymousObject.GetType().GetProperties())
                 hash[property.Name] = property.GetValue(anonymousObject, null);
         }
-#if !NET35
+#else
         private static void FromAnonymousObject40(object anonymousObject, Hash hash)
         {
             Action<object, Hash> mapper = GetObjToDictionaryMapper(anonymousObject.GetType());
@@ -91,13 +93,13 @@ namespace DotLiquid
                 Expression.Assign(castedObj,Expression.Convert(objParam,type))
             );
 
-            foreach (PropertyInfo property in type.GetProperties())
+            foreach (PropertyInfo property in type.GetTypeInfo().DeclaredProperties.Where(p => p.CanRead && p.GetMethod.IsPublic && !p.GetMethod.IsStatic))
             {
                 bodyInstructions.Add(
                     Expression.Assign(
                         Expression.MakeIndex(
                             hashParam,
-                            typeof(Hash).GetProperty("Item"),
+                            typeof(Hash).GetTypeInfo().GetDeclaredProperty("Item"),
                             new []{Expression.Constant(property.Name, typeof(string))}
                         ),
                         Expression.Convert(

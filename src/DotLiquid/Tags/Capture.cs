@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
@@ -32,7 +31,7 @@ namespace DotLiquid.Tags
             if (syntaxMatch.Success)
                 _to = syntaxMatch.Groups[1].Value;
             else
-                throw new SyntaxException(Liquid.ResourceManager.GetString("CaptureTagSyntaxException"));
+                throw new SyntaxException(ResourceManager.CaptureTagSyntaxException);
 
             base.Initialize(tagName, markup, tokens);
         }

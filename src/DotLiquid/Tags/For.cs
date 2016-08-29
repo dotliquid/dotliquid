@@ -74,7 +74,7 @@ namespace DotLiquid.Tags
             }
             else
             {
-                throw new SyntaxException(Liquid.ResourceManager.GetString("ForTagSyntaxException"));
+                throw new SyntaxException(ResourceManager.ForTagSyntaxException);
             }
 
             base.Initialize(tagName, markup, tokens);

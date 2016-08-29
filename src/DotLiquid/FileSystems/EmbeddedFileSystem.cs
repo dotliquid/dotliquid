@@ -36,8 +36,7 @@ namespace DotLiquid.FileSystems
 
             var stream = Assembly.GetManifestResourceStream(fullPath);
             if (stream == null)
-                throw new FileSystemException(
-                    Liquid.ResourceManager.GetString("LocalFileSystemTemplateNotFoundException"), templatePath);
+                throw new FileSystemException(ResourceManager.LocalFileSystemTemplateNotFoundException, templatePath);
 
             using (var reader = new StreamReader(stream))
             {
@@ -48,8 +47,7 @@ namespace DotLiquid.FileSystems
         public string FullPath(string templatePath)
         {
             if (templatePath == null || !Regex.IsMatch(templatePath, @"^[^.\/][a-zA-Z0-9_\/]+$"))
-                throw new FileSystemException(
-                    Liquid.ResourceManager.GetString("LocalFileSystemIllegalTemplateNameException"), templatePath);
+                throw new FileSystemException(ResourceManager.LocalFileSystemIllegalTemplateNameException, templatePath);
 
             var basePath = templatePath.Contains("/")
                 ? Path.Combine(Root, Path.GetDirectoryName(templatePath))

@@ -71,7 +71,7 @@ namespace DotLiquid.Tags
                 _templateName = syntaxMatch.Groups[1].Value;
             }
             else
-                throw new SyntaxException(Liquid.ResourceManager.GetString("ExtendsTagSyntaxException"));
+                throw new SyntaxException(ResourceManager.ExtendsTagSyntaxException);
 
             base.Initialize(tagName, markup, tokens);
         }
@@ -80,18 +80,18 @@ namespace DotLiquid.Tags
         {
             if (!(rootNodeList[0] is Extends))
             {
-                throw new SyntaxException(Liquid.ResourceManager.GetString("ExtendsTagMustBeFirstTagException"));
+                throw new SyntaxException(ResourceManager.ExtendsTagMustBeFirstTagException);
             }
 
             NodeList.ForEach(n =>
             {
                 if (!((n is string && ((string) n).IsNullOrWhiteSpace()) || n is Block || n is Comment || n is Extends))
-                    throw new SyntaxException(Liquid.ResourceManager.GetString("ExtendsTagUnallowedTagsException"));
+                    throw new SyntaxException(ResourceManager.ExtendsTagUnallowedTagsException);
             });
 
             if (NodeList.Count(o => o is Extends) > 0)
             {
-                throw new SyntaxException(Liquid.ResourceManager.GetString("ExtendsTagCanBeUsedOneException"));
+                throw new SyntaxException(ResourceManager.ExtendsTagCanBeUsedOneException);
             }
         }
 

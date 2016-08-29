@@ -29,7 +29,7 @@ namespace DotLiquid.Tags
                 R.Scan(markup, Liquid.TagAttributes, (key, value) => _attributes[key] = value);
             }
             else
-                throw new SyntaxException(Liquid.ResourceManager.GetString("IncludeTagSyntaxException"));
+                throw new SyntaxException(ResourceManager.IncludeTagSyntaxException);
 
             base.Initialize(tagName, markup, tokens);
         }

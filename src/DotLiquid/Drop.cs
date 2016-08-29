@@ -44,7 +44,7 @@ namespace DotLiquid
         /// <param name="bindingFlags">Binding flags for properties</param>
         /// <param name="predicate">Any additional filtering on properties</param>
         /// <returns>Filtered properties</returns>
-        private static IEnumerable<PropertyInfo> GetPropertiesWithoutDuplicateNames(IReflect type, BindingFlags bindingFlags, Func<PropertyInfo, bool> predicate = null)
+        private static IEnumerable<PropertyInfo> GetPropertiesWithoutDuplicateNames(Type type, BindingFlags bindingFlags, Func<PropertyInfo, bool> predicate = null)
         {
             IList<MemberInfo> properties = predicate != null
                                                ? type.GetProperties(bindingFlags)
@@ -67,7 +67,7 @@ namespace DotLiquid
         /// <param name="bindingFlags">Binding flags for methods</param>
         /// <param name="predicate">Any additional filtering on methods</param>
         /// <returns>Filtered methods</returns>
-        private static IEnumerable<MethodInfo> GetMethodsWithoutDuplicateNames(IReflect type, BindingFlags bindingFlags, Func<MethodInfo, bool> predicate = null)
+        private static IEnumerable<MethodInfo> GetMethodsWithoutDuplicateNames(Type type, BindingFlags bindingFlags, Func<MethodInfo, bool> predicate = null)
         {
             IList<MemberInfo> methods = predicate != null
                                             ? type.GetMethods(bindingFlags)
@@ -207,7 +207,7 @@ namespace DotLiquid
                 PropertyInfo pi;
                 if (TypeResolution.CachedMethods.TryGetValue(rubyMethod, out mi) || TypeResolution.CachedProperties.TryGetValue(rubyMethod, out pi))
                 {
-                    return string.Format(Liquid.ResourceManager.GetString("DropWrongNamingConventionMessage"), rubyMethod);
+                    return string.Format(ResourceManager.DropWrongNamingConventionMessage, rubyMethod);
                 }
             }
             return null;
@@ -235,7 +235,7 @@ namespace DotLiquid
     {
         internal override object GetObject() { return this; }
 
-        internal override TypeResolution CreateTypeResolution(Type type) { return new TypeResolution(type, mi => typeof (Drop).IsAssignableFrom(mi.DeclaringType.BaseType)); }
+        internal override TypeResolution CreateTypeResolution(Type type) { return new TypeResolution(type, mi => typeof(Drop).IsAssignableFrom(mi.DeclaringType.GetTypeInfo().BaseType)); }
     }
 
     /// <summary>

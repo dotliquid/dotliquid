@@ -22,9 +22,8 @@ namespace DotLiquid.Tags
             if (syntaxMatch.Success)
                 _left = syntaxMatch.Groups[1].Value;
             else
-                throw new SyntaxException(Liquid.ResourceManager.GetString("CaseTagSyntaxException"));
-
-            base.Initialize(tagName, markup, tokens);
+                throw new SyntaxException(ResourceManager.CaseTagSyntaxException);
+                    base.Initialize(tagName, markup, tokens);
         }
 
         public override void UnknownTag(string tag, string markup, List<string> tokens)
@@ -75,7 +74,7 @@ namespace DotLiquid.Tags
                 // Create a new nodelist and assign it to the new block
                 Match whenSyntaxMatch = WhenSyntax.Match(markup);
                 if (!whenSyntaxMatch.Success)
-                    throw new SyntaxException(Liquid.ResourceManager.GetString("CaseTagWhenSyntaxException"));
+                    throw new SyntaxException(ResourceManager.CaseTagWhenSyntaxException);
 
                 markup = whenSyntaxMatch.Groups[2].Value;
                 if (string.IsNullOrEmpty(markup))
@@ -90,7 +89,7 @@ namespace DotLiquid.Tags
         private void RecordElseCondition(string markup)
         {
             if (markup.Trim() != string.Empty)
-                throw new SyntaxException(Liquid.ResourceManager.GetString("CaseTagElseSyntaxException"));
+                throw new SyntaxException(ResourceManager.CaseTagElseSyntaxException);
 
             ElseCondition block = new ElseCondition();
             block.Attach(NodeList);

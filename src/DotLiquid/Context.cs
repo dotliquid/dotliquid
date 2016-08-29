@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
+using System.Reflection;
 
 namespace DotLiquid
 {
@@ -93,8 +94,8 @@ namespace DotLiquid
                 throw ex;
 
             if (ex is SyntaxException)
-                return string.Format(Liquid.ResourceManager.GetString("ContextLiquidSyntaxError"), ex.Message);
-            return string.Format(Liquid.ResourceManager.GetString("ContextLiquidError"), ex.Message);
+                return string.Format(ResourceManager.ContextLiquidSyntaxError, ex.Message);
+            return string.Format(ResourceManager.ContextLiquidError, ex.Message);
         }
 
         public object Invoke(string method, List<object> args)
@@ -113,7 +114,7 @@ namespace DotLiquid
         public void Push(Hash newScope)
         {
             if (Scopes.Count > 80)
-                throw new StackLevelException(Liquid.ResourceManager.GetString("ContextStackException"));
+                throw new StackLevelException(ResourceManager.ContextStackException);
 
             Scopes.Insert(0, newScope);
         }
@@ -430,7 +431,7 @@ namespace DotLiquid
                 return obj;
             if (obj is IEnumerable)
                 return obj;
-            if (obj.GetType().IsPrimitive)
+            if (obj.GetType().GetTypeInfo().IsPrimitive)
                 return obj;
             if (obj is decimal)
                 return obj;
@@ -451,13 +452,13 @@ namespace DotLiquid
             if (safeTypeTransformer != null)
                 return safeTypeTransformer(obj);
 
-            if (obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
+            if (obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
             {
-                var attr = (LiquidTypeAttribute)obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
+                var attr = (LiquidTypeAttribute)obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
                 return new DropProxy(obj, attr.AllowedMembers);
             }
 
-            throw new SyntaxException(Liquid.ResourceManager.GetString("ContextObjectInvalidException"), obj.ToString());
+            throw new SyntaxException(ResourceManager.ContextObjectInvalidException, obj.ToString());
         }
 
         private void SquashInstanceAssignsWithEnvironments()

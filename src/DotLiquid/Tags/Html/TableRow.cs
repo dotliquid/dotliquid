@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
@@ -28,7 +27,7 @@ namespace DotLiquid.Tags.Html
                 R.Scan(markup, Liquid.TagAttributes, (key, value) => _attributes[key] = value);
             }
             else
-                throw new SyntaxException(Liquid.ResourceManager.GetString("TableRowTagSyntaxException"));
+                throw new SyntaxException(ResourceManager.TableRowTagSyntaxException);
 
             base.Initialize(tagName, markup, tokens);
         }

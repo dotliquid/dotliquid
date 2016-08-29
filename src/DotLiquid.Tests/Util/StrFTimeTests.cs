@@ -26,7 +26,7 @@ namespace DotLiquid.Tests.Util
         [TestCase("%p", Result = "PM")]
         [TestCase("%S", Result = "14")]
         [TestCase("%U", Result = "02")]
-        [TestCase("%W", Result = "02")]
+        [TestCase("%W", Result = "01")]
         [TestCase("%w", Result = "0")]
         [TestCase("%x", Result = "08/01/2012")]
         [TestCase("%X", Result = "14:32:14")]

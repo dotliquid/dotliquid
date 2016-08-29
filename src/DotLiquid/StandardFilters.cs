@@ -599,6 +599,17 @@ namespace DotLiquid
             return DoMathsOperation(input, operand, Expression.Modulo);
         }
 
+        /// <summary>
+        /// If a value isn't set for a variable in the template, allow the user to specify a default value for that variable
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public static string Default(string input, string @defaultValue)
+        {
+            return !string.IsNullOrWhiteSpace(input) ? input : defaultValue;
+        }
+
         private static object DoMathsOperation(object input, object operand, Func<Expression, Expression, BinaryExpression> operation)
         {
             return input == null || operand == null

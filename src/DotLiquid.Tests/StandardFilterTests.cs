@@ -284,5 +284,14 @@ namespace DotLiquid.Tests
             Assert.AreEqual("http%3a%2f%2fdotliquidmarkup.org%2f", StandardFilters.UrlEncode("http://dotliquidmarkup.org/"));
             Assert.AreEqual(null, StandardFilters.UrlEncode(null));
         }
+
+        [Test]
+        public void TestDefault()
+        {
+            Hash assigns = Hash.FromAnonymousObject(new { var1 = "foo", var2 = "bar" });
+            Helper.AssertTemplateResult("foo", "{{ var1 | default: 'foobar' }}", assigns);
+            Helper.AssertTemplateResult("bar", "{{ var2 | default: 'foobar' }}", assigns);
+            Helper.AssertTemplateResult("foobar", "{{ unknownvariable | default: 'foobar' }}", assigns);
+        }
     }
 }

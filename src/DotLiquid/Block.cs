@@ -56,7 +56,7 @@ namespace DotLiquid
                     }
                     else
                     {
-                        throw new SyntaxException(Liquid.ResourceManager.GetString("BlockTagNotTerminatedException"), token, Liquid.TagEnd);
+                        throw new SyntaxException(ResourceManager.BlockTagNotTerminatedException, token, Liquid.TagEnd);
                     }
                 }
                 else if (IsVariable.Match(token).Success)
@@ -88,11 +88,11 @@ namespace DotLiquid
             switch (tag)
             {
                 case "else":
-                    throw new SyntaxException(Liquid.ResourceManager.GetString("BlockTagNoElseException"), BlockName);
+                    throw new SyntaxException(ResourceManager.BlockTagNoElseException, BlockName);
                 case "end":
-                    throw new SyntaxException(Liquid.ResourceManager.GetString("BlockTagNoEndException"), BlockName, BlockDelimiter);
+                    throw new SyntaxException(ResourceManager.BlockTagNoEndException, BlockName, BlockDelimiter);
                 default:
-                    throw new SyntaxException(Liquid.ResourceManager.GetString("BlockUnknownTagException"), tag);
+                    throw new SyntaxException(ResourceManager.BlockUnknownTagException, tag);
             }
         }
 
@@ -111,7 +111,7 @@ namespace DotLiquid
             Match match = ContentOfVariable.Match(token);
             if (match.Success)
                 return new Variable(match.Groups[1].Value);
-            throw new SyntaxException(Liquid.ResourceManager.GetString("BlockVariableNotTerminatedException"), token, Liquid.VariableEnd);
+            throw new SyntaxException(ResourceManager.BlockVariableNotTerminatedException, token, Liquid.VariableEnd);
         }
 
         public override void Render(Context context, TextWriter result)
@@ -121,7 +121,7 @@ namespace DotLiquid
 
         protected virtual void AssertMissingDelimitation()
         {
-            throw new SyntaxException(Liquid.ResourceManager.GetString("BlockTagNotClosedException"), BlockName);
+            throw new SyntaxException(ResourceManager.BlockTagNotClosedException, BlockName);
         }
 
         protected void RenderAll(List<object> list, Context context, TextWriter result)

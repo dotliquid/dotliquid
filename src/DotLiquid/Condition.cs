@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using DotLiquid.Exceptions;
 using DotLiquid.Util;
 
 namespace DotLiquid
@@ -138,7 +137,7 @@ namespace DotLiquid
             object rightObject = context[right];
 
             if (!Operators.ContainsKey(op))
-                throw new Exceptions.ArgumentException(Liquid.ResourceManager.GetString("ConditionUnknownOperatorException"), op);
+                throw new Exceptions.ArgumentException(ResourceManager.ConditionUnknownOperatorException, op);
             return Operators[op](leftObject, rightObject);
         }
     }

@@ -47,7 +47,7 @@ namespace DotLiquid.Tags
                 }
                 else
                 {
-                    throw new SyntaxException(Liquid.ResourceManager.GetString("CycleTagSyntaxException"));
+                    throw new SyntaxException(ResourceManager.CycleTagSyntaxException);
                 }
             }
 

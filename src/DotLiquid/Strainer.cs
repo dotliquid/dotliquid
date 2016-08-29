@@ -88,12 +88,12 @@ namespace DotLiquid
 
         public void AddFunction<TIn, TOut>(string rawName, Func<TIn, TOut> func)
         {
-            AddMethodInfo(rawName, func.Target, func.Method);
+            AddMethodInfo(rawName, func.Target, func.GetMethodInfo());
         }
 
         public void AddFunction<TIn, TIn2, TOut>(string rawName, Func<TIn, TIn2, TOut> func)
         {
-            AddMethodInfo(rawName, func.Target, func.Method);
+            AddMethodInfo(rawName, func.Target, func.GetMethodInfo());
         }
 
         public void AddMethodInfo(string rawName, object target, MethodInfo method)
@@ -129,7 +129,7 @@ namespace DotLiquid
                 for (int i = args.Count; i < parameterInfos.Length; ++i)
                 {
                     if ((parameterInfos[i].Attributes & ParameterAttributes.HasDefault) != ParameterAttributes.HasDefault)
-                        throw new SyntaxException(Liquid.ResourceManager.GetString("StrainerFilterHasNoValueException"), method, parameterInfos[i].Name);
+                        throw new SyntaxException(ResourceManager.StrainerFilterHasNoValueException, method, parameterInfos[i].Name);
                     args.Add(parameterInfos[i].DefaultValue);
                 }
 

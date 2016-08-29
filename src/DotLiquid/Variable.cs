@@ -109,7 +109,7 @@ namespace DotLiquid
                 }
                 catch (FilterNotFoundException ex)
                 {
-                    throw new FilterNotFoundException(string.Format(Liquid.ResourceManager.GetString("VariableFilterNotFoundException"), filter.Name, _markup.Trim()), ex);
+                    throw new FilterNotFoundException(string.Format(ResourceManager.VariableFilterNotFoundException, filter.Name, _markup.Trim()), ex);
                 }
             });
 

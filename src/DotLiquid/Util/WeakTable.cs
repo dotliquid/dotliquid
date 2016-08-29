@@ -23,7 +23,7 @@ namespace DotLiquid.Util
             {
                 TValue ret;
                 if (!TryGetValue(key, out ret))
-                    throw new ArgumentException(Liquid.ResourceManager.GetString("WeakTableKeyNotFoundException"));
+                    throw new ArgumentException(ResourceManager.WeakTableKeyNotFoundException);
                 return ret;
             }
             set

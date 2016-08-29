@@ -6,6 +6,7 @@ namespace DotLiquid.Util
     /// <summary>
     /// Taken from code at http://www.pluralsight-training.net/community/blogs/dbox/archive/2005/04/24/7690.aspx.
     /// </summary>
+    public delegate TOutput Converter<in TInput, out TOutput>(TInput input);
     internal static class Range
     {
         #region Successor functions
@@ -22,12 +23,12 @@ namespace DotLiquid.Util
 
         internal static short Succ(short val)
         {
-            return (short) (val + 1);
+            return (short)(val + 1);
         }
 
         internal static sbyte Succ(sbyte val)
         {
-            return (sbyte) (val + 1);
+            return (sbyte)(val + 1);
         }
 
         internal static ulong Succ(ulong val)
@@ -42,17 +43,17 @@ namespace DotLiquid.Util
 
         internal static ushort Succ(ushort val)
         {
-            return (ushort) (val + 1);
+            return (ushort)(val + 1);
         }
 
         internal static byte Succ(byte val)
         {
-            return (byte) (val + 1);
+            return (byte)(val + 1);
         }
 
         internal static char Succ(char val)
         {
-            return (char) (val + 1);
+            return (char)(val + 1);
         }
 
         internal static DateTime Succ(DateTime val)
@@ -85,7 +86,7 @@ namespace DotLiquid.Util
                 case 'Z':
                     return ((length > 1) ? Succ(val, length - 1) : "A") + 'A';
                 default:
-                    return val.Substring(0, length - 1) + (char) (lastChar + 1);
+                    return val.Substring(0, length - 1) + (char)(lastChar + 1);
             }
         }
 

@@ -75,7 +75,7 @@ namespace DotLiquid.Tags
             if (syntaxMatch.Success)
                 BlockName = syntaxMatch.Groups[1].Value;
             else
-                throw new SyntaxException(Liquid.ResourceManager.GetString("BlockTagSyntaxException"));
+                throw new SyntaxException(ResourceManager.BlockTagSyntaxException);
 
             if (tokens != null)
             {
@@ -99,7 +99,7 @@ namespace DotLiquid.Tags
 
                         if (found != null && found.Count > 1)
                         {
-                            throw new SyntaxException(Liquid.ResourceManager.GetString("BlockTagAlreadyDefinedException"), b1.BlockName);
+                            throw new SyntaxException(ResourceManager.BlockTagAlreadyDefinedException, b1.BlockName);
                         }
                     }
                 });

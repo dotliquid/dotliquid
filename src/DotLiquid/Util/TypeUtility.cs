@@ -10,11 +10,11 @@ namespace DotLiquid.Util
 
         public static bool IsAnonymousType(Type t)
         {
-            return Attribute.IsDefined(t, typeof(CompilerGeneratedAttribute), false)
-                && t.IsGenericType
+            return t.GetTypeInfo().GetCustomAttribute(typeof(CompilerGeneratedAttribute), false) != null
+                && t.GetTypeInfo().IsGenericType
                     && (t.Name.Contains("AnonymousType") || t.Name.Contains("AnonType"))
-                        && (t.Name.StartsWith("<>") || t.Name.StartsWith("VB$"))
-                            && (t.Attributes & AnonymousTypeAttributes) == AnonymousTypeAttributes;
+                        && (t.Name.StartsWith("<>", StringComparison.Ordinal) || t.Name.StartsWith("VB$", StringComparison.Ordinal))
+                            && (t.GetTypeInfo().Attributes & AnonymousTypeAttributes) == AnonymousTypeAttributes;
         }
     }
 }

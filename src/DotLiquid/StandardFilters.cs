@@ -1,14 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 #if !NET35
 using System.Net;
 #endif
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
-using System.Web;
 #if NET35
 using System.Web;
 #endif
@@ -70,33 +68,6 @@ namespace DotLiquid
             return input == null
                 ? input
                 : input.ToUpper();
-        }
-
-        /// <summary>
-        /// convert a input string to URLENCODE
-        /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        public static string UrlEncode(string input)
-        {
-            return input == null
-                ? input
-                : HttpUtility.UrlEncode(input);
-        }
-
-        /// <summary>
-        /// capitalize words in the input sentence
-        /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        public static string Capitalize(string input)
-        {
-            if (input.IsNullOrWhiteSpace())
-                return input;
-
-            return string.IsNullOrEmpty(input)
-                ? input
-                : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input);
         }
 
         public static string Escape(string input)

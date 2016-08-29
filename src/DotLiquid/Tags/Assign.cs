@@ -33,7 +33,7 @@ namespace DotLiquid.Tags
             }
             else
             {
-                throw new SyntaxException(Liquid.ResourceManager.GetString("AssignTagSyntaxException"));
+                throw new SyntaxException(ResourceManager.AssignTagSyntaxException);
             }
 
             base.Initialize(tagName, markup, tokens);

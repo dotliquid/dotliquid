@@ -14,11 +14,10 @@ namespace DotLiquid.Tests
         {
             Assert.Throws<FileSystemException>(() => new BlankFileSystem().ReadTemplateFile(new Context(), "dummy"));
         }
-
-//TODO fix this test on Mono
-#if !__MonoCS__
+        
 
         [Test]
+        [Platform(Exclude = "Linux,Mono", Reason = "Path format specific to windows")]
         public void TestLocal()
         {
             LocalFileSystem fileSystem = new LocalFileSystem(@"D:\Some\Path");
@@ -32,14 +31,14 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        [Platform(Exclude = "Linux,Mono", Reason = "Path format specific to windows")]
         public void TestLocalWithBracketsInPath()
         {
             LocalFileSystem fileSystem = new LocalFileSystem(@"D:\Some (thing)\Path");
             Assert.AreEqual(@"D:\Some (thing)\Path\_mypartial.liquid", fileSystem.FullPath("mypartial"));
             Assert.AreEqual(@"D:\Some (thing)\Path\dir\_mypartial.liquid", fileSystem.FullPath("dir/mypartial"));
         }
-
-#endif
+        
 
         [Test]
         public void TestEmbeddedResource()

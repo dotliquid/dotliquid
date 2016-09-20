@@ -32,6 +32,10 @@ test:
     # Disabled: ‍‍Could not load file or assembly 'nunit.framework' or one of its dependencies. The system cannot find the file specified.
     # - '**\bin\Release\netcoreapp1.0\*.Tests.dll'
     - '**\bin\Release\net451\win7-x64\*.Tests.dll'
+  categories:
+    except:
+      - windows
+
 
 artifacts:
 - path: build\pkg\*.nupkg

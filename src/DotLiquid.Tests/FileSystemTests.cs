@@ -17,7 +17,7 @@ namespace DotLiquid.Tests
         
 
         [Test]
-        [Platform(Exclude = "Linux,Mono", Reason = "Path format specific to windows")]
+        [Category("windows")]
         public void TestLocal()
         {
             LocalFileSystem fileSystem = new LocalFileSystem(@"D:\Some\Path");
@@ -31,7 +31,7 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        [Platform(Exclude = "Linux,Mono", Reason = "Path format specific to windows")]
+        [Category("windows")]
         public void TestLocalWithBracketsInPath()
         {
             LocalFileSystem fileSystem = new LocalFileSystem(@"D:\Some (thing)\Path");

@@ -24,6 +24,11 @@ build:
   publish_nuget: true
   publish_nuget_symbols: true
 
+test:
+  assemblies:
+    - '**\bin\Release\netcoreapp1.0\win7-x64\*.Tests.dll'
+    - '**\bin\Release\net451\win7-x64\*.Tests.dll'
+
 artifacts:
 - path: build\pkg\*.nupkg
   name: Nuget Package

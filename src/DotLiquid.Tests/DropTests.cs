@@ -283,11 +283,11 @@ namespace DotLiquid.Tests
         [Test]
         public void TestDataRowDrop()
         {
-            DataTable dataTable = new DataTable();
+            System.Data.DataTable dataTable = new System.Data.DataTable();
             dataTable.Columns.Add("Column1");
             dataTable.Columns.Add("Column2");
 
-            DataRow dataRow = dataTable.NewRow();
+            System.Data.DataRow dataRow = dataTable.NewRow();
             dataRow["Column1"] = "Hello";
             dataRow["Column2"] = "World";
 

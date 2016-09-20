@@ -2,7 +2,6 @@
   "version": "1.0.0-*",
 
   "buildOptions": {
-    "define": [ "CORE" ],
     "keyFile": "..\\Formosatek-OpenSource.snk"
   },
 
@@ -15,11 +14,19 @@
   "testRunner": "nunit",
 
   "frameworks": {
+    "net451": {
+      "frameworkAssemblies": {
+        "System.Data": "4.0.0.0"
+      }
+    },
     "netcoreapp1.0": {
       "imports": [
         "portable-net451+win8",
         "dnxcore5"
       ],
+      "buildOptions": {
+        "define": [ "CORE" ]
+      },
       "dependencies": {
         "Microsoft.NETCore.App": {
           "version": "1.0.0",

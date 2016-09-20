@@ -2,7 +2,6 @@
   "version": "1.0.0-*",
 
   "buildOptions": {
-    "define": [ "CORE" ],
     "keyFile": "..\\Formosatek-OpenSource.snk"
   },
 
@@ -12,9 +11,11 @@
 
   "frameworks": {
     "netstandard1.3": {
+      "buildOptions": {
+        "define": [ "CORE" ]
+      }
     },
-    "net45": {
-
+    "net451": {
     }
   }
 }

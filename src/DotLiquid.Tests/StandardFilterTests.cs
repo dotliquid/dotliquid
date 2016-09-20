@@ -234,11 +234,14 @@ namespace DotLiquid.Tests
             Helper.AssertTemplateResult("4", "{{ input | minus:operand }}", Hash.FromAnonymousObject(new { input = 5, operand = 1 }));
         }
 
-        [Test, Culture("fr-FR")]
+        [Test]
         public void TestMinusWithFrenchDecimalSeparator()
         {
-            Helper.AssertTemplateResult(string.Format("1{0}2", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
-                "{{ 3,2 | minus:2 }}");
+            using (CultureHelper.SetCulture("fr-FR"))
+            {
+                Helper.AssertTemplateResult(string.Format("1{0}2", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
+                    "{{ 3,2 | minus:2 }}");
+            }
         }
 
         [Test]

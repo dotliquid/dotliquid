@@ -54,11 +54,14 @@ namespace DotLiquid.Tests.Tags
             }
         }
 
-        [Test, Culture("fr-FR")]
+        [Test]
         public void TestAssignDecimalInlineWithInvariantDecimalSeparatorInFrenchCulture()
         {
-            Helper.AssertTemplateResult(string.Format("2{0}5", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
-                "{% assign foo = 2.5 %}{{ foo }}");
+            using (CultureHelper.SetCulture("fr-FR"))
+            {
+                Helper.AssertTemplateResult(string.Format("2{0}5", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
+                    "{% assign foo = 2.5 %}{{ foo }}");
+            }
         }
 
         [Test]

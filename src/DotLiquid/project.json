@@ -2,7 +2,7 @@
   "version": "1.0.0-*",
 
   "buildOptions": {
-    "keyFile": "..\\Formosatek-OpenSource.snk"
+    "keyFile": "../Formosatek-OpenSource.snk"
   },
 
   "dependencies": {

@@ -1,7 +1,15 @@
 ---
 language: csharp
-dotnet: 1.0.0-preview2-003121
-mono: none
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty # Ubuntu 14.04
+      sudo: required
+      dotnet: 1.0.0-preview2-003121
+      mono: none
+      env: DOTNETCORE=1
+
 before_install:
   - sudo apt-get install nunit-console
 script:

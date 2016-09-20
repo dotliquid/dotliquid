@@ -17,6 +17,9 @@ Thumbs.db
 .vs
 project.lock.json
 *.project.lock.json
+
+# packages
+src/packages/
  
 # Other useful stuff
 *.bak

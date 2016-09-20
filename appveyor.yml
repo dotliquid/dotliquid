@@ -26,7 +26,7 @@ build:
 
 after_build:
   - cmd: md build\pkg
-  - cmd: nuget pack src/DotLiquid/DotLiquid.nuspec -Symbols -Version "{version}" -OutputDirectory build\pkg
+  - cmd: nuget pack src/DotLiquid/DotLiquid.nuspec -Symbols -Version "%APPVEYOR_BUILD_VERSION%" -OutputDirectory build\pkg
 
 test:
   assemblies:

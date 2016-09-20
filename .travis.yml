@@ -15,5 +15,6 @@ before_install:
 script:
   - dotnet restore
   - dotnet build **/project.json --configuration Release
-  - nunit-console src/DotLiquid.Tests/bin/Release/netcoreapp1.0/DotLiquid.Tests.dll src/DotLiquid.Tests/bin/Release/net451/win7-x64/DotLiquid.Tests.dll
+  - dotnet test src/DotLiquid.Tests
+  - dotnet test src/DotLiquid.Website.Tests
  

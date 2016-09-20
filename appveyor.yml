@@ -24,7 +24,7 @@ build:
   publish_nuget: true
   publish_nuget_symbols: true
 
-after-build:
+after_build:
   - cmd: dotnet pack src\DotLiquid -o .\build\pkg
 
 test:

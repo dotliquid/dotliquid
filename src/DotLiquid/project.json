@@ -12,6 +12,9 @@
 
   "frameworks": {
     "netstandard1.3": {
+    },
+    "net45": {
+
     }
   }
 }

@@ -18,6 +18,6 @@ script:
   - dotnet build src/DotLiquid.Website/project.json --configuration Release --framework netcoreapp1.0
   - dotnet build src/DotLiquid.Tests/project.json --configuration Release --framework netcoreapp1.0
   - dotnet build src/DotLiquid.Website.Tests/project.json --configuration Release --framework netcoreapp1.0
-  - dotnet test src/DotLiquid.Tests
-  - dotnet test src/DotLiquid.Website.Tests
+  - dotnet test src/DotLiquid.Tests --framework netcoreapp1.0
+  - dotnet test src/DotLiquid.Website.Tests --framework netcoreapp1.0
  

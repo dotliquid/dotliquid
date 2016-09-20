@@ -44,7 +44,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestEmbeddedResource()
         {
-            var assembly = Assembly.GetExecutingAssembly();
+            var assembly = typeof(FileSystemTests).GetTypeInfo().Assembly;
             EmbeddedFileSystem fileSystem = new EmbeddedFileSystem(assembly, "DotLiquid.Tests.Embedded");
             Assert.AreEqual(@"DotLiquid.Tests.Embedded._mypartial.liquid", fileSystem.FullPath("mypartial"));
             Assert.AreEqual(@"DotLiquid.Tests.Embedded.dir._mypartial.liquid", fileSystem.FullPath("dir/mypartial"));

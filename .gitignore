@@ -31,6 +31,9 @@ httpd.parse.errors
  
 # Office Temp Files
 ~$*
+
+# NUnit test results
+TestResult.xml
  
 # If you have a deploy folder
 # deploy

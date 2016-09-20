@@ -234,7 +234,7 @@ namespace DotLiquid.Tests
             Helper.AssertTemplateResult("4", "{{ input | minus:operand }}", Hash.FromAnonymousObject(new { input = 5, operand = 1 }));
         }
 
-        [Test, SetCulture("fr-FR")]
+        [Test, Culture("fr-FR")]
         public void TestMinusWithFrenchDecimalSeparator()
         {
             Helper.AssertTemplateResult(string.Format("1{0}2", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),

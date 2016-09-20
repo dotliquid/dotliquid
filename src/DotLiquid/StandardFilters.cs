@@ -96,7 +96,7 @@ namespace DotLiquid
             return string.IsNullOrEmpty(input)
                 ? input
 #if CORE
-                : input;
+                : Regex.Replace(input, @"\b(\w)", m => m.Value.ToUpper());
 #else
                 : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input);
 #endif

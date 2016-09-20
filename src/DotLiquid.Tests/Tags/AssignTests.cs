@@ -1,5 +1,6 @@
 using System.Globalization;
 using NUnit.Framework;
+using NUnit.Framework.Internal;
 
 namespace DotLiquid.Tests.Tags
 {
@@ -23,28 +24,37 @@ namespace DotLiquid.Tests.Tags
                 Hash.FromAnonymousObject(new { @decimal = 10.05d }));
         }
 
-        [Test, SetCulture("en-GB")]
+        [Test]
         public void TestAssignDecimalInlineWithEnglishDecimalSeparator()
         {
-            Helper.AssertTemplateResult(string.Format("2{0}5", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
-                "{% assign foo = 2.5 %}{{ foo }}");
+            using (CultureHelper.SetCulture("en-GB"))
+            {
+                Helper.AssertTemplateResult(string.Format("2{0}5", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
+                    "{% assign foo = 2.5 %}{{ foo }}");
+            }
         }
 
-        [Test, SetCulture("en-GB")]
+        [Test]
         public void TestAssignDecimalInlineWithEnglishGroupSeparator()
         {
-            Helper.AssertTemplateResult("2500",
-                "{% assign foo = 2,500 %}{{ foo }}");
+            using (CultureHelper.SetCulture("en-GB"))
+            {
+                Helper.AssertTemplateResult("2500",
+                    "{% assign foo = 2,500 %}{{ foo }}");
+            }
         }
 
-        [Test, SetCulture("fr-FR")]
+        [Test]
         public void TestAssignDecimalInlineWithFrenchDecimalSeparator()
         {
-            Helper.AssertTemplateResult(string.Format("2{0}5", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
-                "{% assign foo = 2,5 %}{{ foo }}");
+            using (CultureHelper.SetCulture("fr-FR"))
+            {
+                Helper.AssertTemplateResult(string.Format("2{0}5", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
+                    "{% assign foo = 2,5 %}{{ foo }}");
+            }
         }
 
-        [Test, SetCulture("fr-FR")]
+        [Test, Culture("fr-FR")]
         public void TestAssignDecimalInlineWithInvariantDecimalSeparatorInFrenchCulture()
         {
             Helper.AssertTemplateResult(string.Format("2{0}5", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),

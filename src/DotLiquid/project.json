@@ -2,7 +2,8 @@
   "version": "1.0.0-*",
 
   "buildOptions": {
-    "define": [ "CORE" ]
+    "define": [ "CORE" ],
+    "keyFile": "..\\Formosatek-OpenSource.snk"
   },
 
   "dependencies": {

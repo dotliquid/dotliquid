@@ -10,7 +10,6 @@ namespace DotLiquid.Tests.Util
     [TestFixture]
     public class StrFTimeTests
     {
-        [SetCulture("en-GB")]
         [TestCase("%a", ExpectedResult = "Sun")]
         [TestCase("%A", ExpectedResult = "Sunday")]
         [TestCase("%b", ExpectedResult = "Jan")]
@@ -35,8 +34,11 @@ namespace DotLiquid.Tests.Util
         [TestCase("%", ExpectedResult = "%")]
         public string TestFormat(string format)
         {
-            Assert.That(CultureInfo.CurrentCulture, Is.EqualTo(new CultureInfo("en-GB")));
-            return new DateTime(2012, 1, 8, 14, 32, 14).ToStrFTime(format);
+            using (CultureHelper.SetCulture("en-GB"))
+            {
+                Assert.That(CultureInfo.CurrentCulture, Is.EqualTo(new CultureInfo("en-GB")));
+                return new DateTime(2012, 1, 8, 14, 32, 14).ToStrFTime(format);
+            }
         }
 
         [Test]

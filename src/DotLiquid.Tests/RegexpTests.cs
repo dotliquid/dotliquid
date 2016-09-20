@@ -15,10 +15,10 @@ namespace DotLiquid.Tests
         [Test]
         public void TestAllRegexesAreCompiled()
         {
-            var assembly = typeof (Template).Assembly;
+            var assembly = typeof (Template).GetTypeInfo().Assembly;
             foreach (Type parent in assembly.GetTypes())
             {
-                foreach (var t in parent.GetFields(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
+                foreach (var t in parent.GetTypeInfo().GetFields(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
                 {
                     if (t.FieldType == typeof(Regex))
                     {
@@ -31,7 +31,7 @@ namespace DotLiquid.Tests
                             Assert.AreNotEqual(0, RegexOptions.Compiled & ((Regex)t.GetValue(parent)).Options);
                         }
 
-                        Trace.TraceInformation(parent.Name + ": " + t.Name);
+                        //Trace.TraceInformation(parent.Name + ": " + t.Name);
                     }
                 }
             }

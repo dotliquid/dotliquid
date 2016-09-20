@@ -15,6 +15,9 @@ assembly_info:
   assembly_file_version: "{version}"
   assembly_informational_version: "{version}-$(GIT_HASH)"
 
+install:
+  - cmd: dotnet restore
+
 build:
   verbosity: minimal # quiet|minimal|normal|detailed
   project: src/DotLiquid.sln

@@ -1,12 +1,11 @@
 ---
 language: csharp
-mono:
- - latest
- - 4.2.3
-solution: src/DotLiquid.sln
+dotnet: 1.0.0-preview2-003121
+mono: none
 before_install:
   - sudo apt-get install nunit-console
 script:
- - xbuild /p:Configuration=Release src/DotLiquid.sln
- - nunit-console src/DotLiquid.Tests/bin/Release/DotLiquid.Tests.dll
+  - dotnet restore
+  - dotnet build **/project.json --configuration Release
+  - nunit-console src/DotLiquid.Tests/bin/Release/netcoreapp1.0/DotLiquid.Tests.dll src/DotLiquid.Tests/bin/Release/net451/win7-x64/DotLiquid.Tests.dll
  

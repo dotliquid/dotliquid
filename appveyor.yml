@@ -24,6 +24,9 @@ build:
   publish_nuget: true
   publish_nuget_symbols: true
 
+after-build:
+  - cmd: dotnet pack src\DotLiquid -o .\build\pkg
+
 test:
   assemblies:
     # Disabled: ‍‍Could not load file or assembly 'nunit.framework' or one of its dependencies. The system cannot find the file specified.

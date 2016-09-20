@@ -35,10 +35,8 @@ httpd.parse.errors
 # NUnit test results
 TestResult.xml
  
-# If you have a deploy folder
-# deploy
-# deploy/*
+# build directory
+build/
  
 # Exclude ALL DLLs? (
 # *.dll
-/build/TestResult.xml

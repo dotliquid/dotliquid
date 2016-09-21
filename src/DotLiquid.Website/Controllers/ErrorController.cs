@@ -1,8 +1,7 @@
-using System.Web.Mvc;
+using Microsoft.AspNetCore.Mvc;
 
 namespace DotLiquid.Website.Controllers
 {
-    [HandleError]
     public class ErrorController : Controller
     {
         public ActionResult Index()

@@ -1,5 +1,5 @@
-using System.Web.Mvc;
 using DotLiquid.Website.Controllers;
+using Microsoft.AspNetCore.Mvc;
 using NUnit.Framework;
 
 namespace DotLiquid.Website.Tests.Controllers

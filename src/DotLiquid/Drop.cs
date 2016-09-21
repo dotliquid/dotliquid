@@ -20,14 +20,10 @@ namespace DotLiquid
         {
             // Cache all methods and properties of this object, but don't include those
             // defined at or above the base Drop class.
-            const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance;
-            CachedMethods = GetMemberDictionary(GetMethodsWithoutDuplicateNames(type,
-                                                                                bindingFlags,
-                                                                                mi => mi.GetParameters()
-                                                                                        .Length == 0),
+            CachedMethods = GetMemberDictionary(GetMethodsWithoutDuplicateNames(type, mi => mi.GetParameters().Length == 0),
                                                 mi => filterMemberCallback(mi));
 
-            CachedProperties = GetMemberDictionary(GetPropertiesWithoutDuplicateNames(type, bindingFlags), mi => filterMemberCallback(mi));
+            CachedProperties = GetMemberDictionary(GetPropertiesWithoutDuplicateNames(type), mi => filterMemberCallback(mi));
         }
 
         private Dictionary<string, T> GetMemberDictionary<T>(IEnumerable<T> members, Func<T, bool> filterMemberCallback) where T : MemberInfo
@@ -44,14 +40,16 @@ namespace DotLiquid
         /// <param name="bindingFlags">Binding flags for properties</param>
         /// <param name="predicate">Any additional filtering on properties</param>
         /// <returns>Filtered properties</returns>
-        private static IEnumerable<PropertyInfo> GetPropertiesWithoutDuplicateNames(IReflect type, BindingFlags bindingFlags, Func<PropertyInfo, bool> predicate = null)
+        private static IEnumerable<PropertyInfo> GetPropertiesWithoutDuplicateNames(Type type, Func<PropertyInfo, bool> predicate = null)
         {
             IList<MemberInfo> properties = predicate != null
-                                               ? type.GetProperties(bindingFlags)
+                                               ? type.GetRuntimeProperties()
+                                                     .Where(p => p.CanRead && p.GetMethod.IsPublic && !p.GetMethod.IsStatic)
                                                      .Where(predicate)
                                                      .Cast<MemberInfo>()
                                                      .ToList()
-                                               : type.GetProperties(bindingFlags)
+                                               : type.GetRuntimeProperties()
+                                                     .Where(p => p.CanRead && p.GetMethod.IsPublic && !p.GetMethod.IsStatic)
                                                      .Cast<MemberInfo>()
                                                      .ToList();
 
@@ -67,14 +65,18 @@ namespace DotLiquid
         /// <param name="bindingFlags">Binding flags for methods</param>
         /// <param name="predicate">Any additional filtering on methods</param>
         /// <returns>Filtered methods</returns>
-        private static IEnumerable<MethodInfo> GetMethodsWithoutDuplicateNames(IReflect type, BindingFlags bindingFlags, Func<MethodInfo, bool> predicate = null)
+        private static IEnumerable<MethodInfo> GetMethodsWithoutDuplicateNames(Type type, Func<MethodInfo, bool> predicate = null)
         {
             IList<MemberInfo> methods = predicate != null
-                                            ? type.GetMethods(bindingFlags)
+                                            ? type
+                                                  .GetRuntimeMethods()
+                                                  .Where(m => m.IsPublic && !m.IsStatic)
                                                   .Where(predicate)
                                                   .Cast<MemberInfo>()
                                                   .ToList()
-                                            : type.GetMethods(bindingFlags)
+                                            : type
+                                                  .GetRuntimeMethods()
+                                                  .Where(m => m.IsPublic && !m.IsStatic)
                                                   .Cast<MemberInfo>()
                                                   .ToList();
 
@@ -100,7 +102,7 @@ namespace DotLiquid
                 var declaringTypes = duplicates.Select(d => d.DeclaringType)
                                                .ToList();
 
-                var mostDerived = declaringTypes.Single(t => !declaringTypes.Any(o => t.IsAssignableFrom(o) && (o != t)));
+                var mostDerived = declaringTypes.Single(t => !declaringTypes.Any(o => t.GetTypeInfo().IsAssignableFrom(o.GetTypeInfo()) && (o != t)));
 
                 foreach (var duplicate in duplicates)
                 {
@@ -113,7 +115,7 @@ namespace DotLiquid
         }
     }
 
-    internal static class TypeResolutionCache
+        internal static class TypeResolutionCache
     {
         [ThreadStatic]
         private static WeakTable<Type, TypeResolution> _cache;
@@ -172,17 +174,17 @@ namespace DotLiquid
             get { return InvokeDrop(method); }
         }
 
-        #region IIndexable
+#region IIndexable
 
         public virtual bool ContainsKey(object name) { return true; }
 
-        #endregion
+#endregion
 
-        #region ILiquidizable
+#region ILiquidizable
 
         public virtual object ToLiquid() { return this; }
 
-        #endregion
+#endregion
 
         internal abstract object GetObject();
 
@@ -235,7 +237,7 @@ namespace DotLiquid
     {
         internal override object GetObject() { return this; }
 
-        internal override TypeResolution CreateTypeResolution(Type type) { return new TypeResolution(type, mi => typeof (Drop).IsAssignableFrom(mi.DeclaringType.BaseType)); }
+        internal override TypeResolution CreateTypeResolution(Type type) { return new TypeResolution(type, mi => mi.DeclaringType.GetTypeInfo().BaseType != null && typeof(Drop).GetTypeInfo().IsAssignableFrom(mi.DeclaringType.GetTypeInfo().BaseType.GetTypeInfo())); }
     }
 
     /// <summary>
@@ -265,7 +267,7 @@ namespace DotLiquid
             _value = value;
         }
 
-        #region IValueTypeConvertible
+#region IValueTypeConvertible
 
         public virtual object ConvertToValueType()
         {
@@ -275,7 +277,7 @@ namespace DotLiquid
             return _value(_proxiedObject);
         }
 
-        #endregion IValueTypeConvertible
+#endregion IValueTypeConvertible
 
         internal override object GetObject() { return _proxiedObject; }
 

@@ -74,8 +74,8 @@ namespace DotLiquid
         public void Extend(Type type)
         {
             // From what I can tell, calls to Extend should replace existing filters. So be it.
-            var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Static);
-            var methodNames = type.GetMethods(BindingFlags.Public | BindingFlags.Static).Select(m => Template.NamingConvention.GetMemberName(m.Name));
+            var methods = type.GetRuntimeMethods().Where(m => m.IsPublic && m.IsStatic);
+            var methodNames = methods.Select(m => Template.NamingConvention.GetMemberName(m.Name));
 
             foreach (var methodName in methodNames)
                 _methods.Remove(methodName);
@@ -88,12 +88,12 @@ namespace DotLiquid
 
         public void AddFunction<TIn, TOut>(string rawName, Func<TIn, TOut> func)
         {
-            AddMethodInfo(rawName, func.Target, func.Method);
+            AddMethodInfo(rawName, func.Target, func.GetMethodInfo());
         }
 
         public void AddFunction<TIn, TIn2, TOut>(string rawName, Func<TIn, TIn2, TOut> func)
         {
-            AddMethodInfo(rawName, func.Target, func.Method);
+            AddMethodInfo(rawName, func.Target, func.GetMethodInfo());
         }
 
         public void AddMethodInfo(string rawName, object target, MethodInfo method)

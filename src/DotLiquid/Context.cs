@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
@@ -380,7 +381,7 @@ namespace DotLiquid
             if ((obj is IList) && (part is int))
                 return true;
 
-            if (TypeUtility.IsAnonymousType(obj.GetType()) && obj.GetType().GetProperty((string)part) != null)
+            if (TypeUtility.IsAnonymousType(obj.GetType()) && obj.GetType().GetRuntimeProperty((string)part) != null)
                 return true;
 
             if ((obj is IIndexable) && ((IIndexable)obj).ContainsKey((string)part))
@@ -397,7 +398,7 @@ namespace DotLiquid
             else if (obj is IList)
                 value = ((IList)obj)[(int)key];
             else if (TypeUtility.IsAnonymousType(obj.GetType()))
-                value = obj.GetType().GetProperty((string)key).GetValue(obj, null);
+                value = obj.GetType().GetRuntimeProperty((string)key).GetValue(obj, null);
             else if (obj is IIndexable)
                 value = ((IIndexable)obj)[key];
             else
@@ -411,7 +412,7 @@ namespace DotLiquid
                 else if (obj is IList)
                     ((IList)obj)[(int)key] = newValue;
                 else if (TypeUtility.IsAnonymousType(obj.GetType()))
-                    obj.GetType().GetProperty((string)key).SetValue(obj, newValue, null);
+                    obj.GetType().GetRuntimeProperty((string)key).SetValue(obj, newValue, null);
                 else
                     throw new NotSupportedException();
                 return newValue;
@@ -430,7 +431,7 @@ namespace DotLiquid
                 return obj;
             if (obj is IEnumerable)
                 return obj;
-            if (obj.GetType().IsPrimitive)
+            if (obj.GetType().GetTypeInfo().IsPrimitive)
                 return obj;
             if (obj is decimal)
                 return obj;
@@ -451,9 +452,9 @@ namespace DotLiquid
             if (safeTypeTransformer != null)
                 return safeTypeTransformer(obj);
 
-            if (obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
+            if (obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
             {
-                var attr = (LiquidTypeAttribute)obj.GetType().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
+                var attr = (LiquidTypeAttribute)obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
                 return new DropProxy(obj, attr.AllowedMembers);
             }
 

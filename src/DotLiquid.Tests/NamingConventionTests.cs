@@ -39,13 +39,13 @@ namespace DotLiquid.Tests
         [Test]
         public void TestRubyWithTurkishCulture()
         {
-            System.Threading.Thread.CurrentThread.CurrentCulture =
-             System.Threading.Thread.CurrentThread.CurrentUICulture = new CultureInfo("tr-TR");
+            using (CultureHelper.SetCulture("tr-TR"))
+            {
+                RubyNamingConvention namingConvention = new RubyNamingConvention();
 
-            RubyNamingConvention namingConvention = new RubyNamingConvention();
-
-            // in Turkish ID.ToLower() returns a localized i, and this fails
-            Assert.AreEqual("id", namingConvention.GetMemberName("ID"));
+                // in Turkish ID.ToLower() returns a localized i, and this fails
+                Assert.AreEqual("id", namingConvention.GetMemberName("ID"));
+            }
         }
 
         [Test]

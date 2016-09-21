@@ -1,10 +1,8 @@
-using System;
 using System.Collections.Generic;
-using System.Web.Mvc;
+using Microsoft.AspNetCore.Mvc;
 
 namespace DotLiquid.Website.Controllers
 {
-    [HandleError]
     public class TryOnlineController : Controller
     {
         public ActionResult Index()

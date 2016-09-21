@@ -234,11 +234,14 @@ namespace DotLiquid.Tests
             Helper.AssertTemplateResult("4", "{{ input | minus:operand }}", Hash.FromAnonymousObject(new { input = 5, operand = 1 }));
         }
 
-        [Test, SetCulture("fr-FR")]
+        [Test]
         public void TestMinusWithFrenchDecimalSeparator()
         {
-            Helper.AssertTemplateResult(string.Format("1{0}2", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
-                "{{ 3,2 | minus:2 }}");
+            using (CultureHelper.SetCulture("fr-FR"))
+            {
+                Helper.AssertTemplateResult(string.Format("1{0}2", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
+                    "{{ 3,2 | minus:2 }}");
+            }
         }
 
         [Test]
@@ -281,7 +284,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestUrlencode()
         {
-            Assert.AreEqual("http%3a%2f%2fdotliquidmarkup.org%2f", StandardFilters.UrlEncode("http://dotliquidmarkup.org/"));
+            Assert.AreEqual("http%3A%2F%2Fdotliquidmarkup.org%2F", StandardFilters.UrlEncode("http://dotliquidmarkup.org/"));
             Assert.AreEqual(null, StandardFilters.UrlEncode(null));
         }
 

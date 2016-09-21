@@ -22,11 +22,11 @@ namespace DotLiquid.Util
 
             Type type = value.GetType();
 
-            MethodInfo methodInfo = type.GetMethod(member);
+            MethodInfo methodInfo = type.GetRuntimeMethod(member, Type.EmptyTypes);
             if (methodInfo != null && (!ensureNoParameters || !methodInfo.GetParameters().Any()))
                 return true;
 
-            PropertyInfo propertyInfo = type.GetProperty(member);
+            PropertyInfo propertyInfo = type.GetRuntimeProperty(member);
             if (propertyInfo != null && propertyInfo.CanRead)
                 return true;
 
@@ -49,11 +49,11 @@ namespace DotLiquid.Util
 
             Type type = value.GetType();
 
-            MethodInfo methodInfo = type.GetMethod(member);
+            MethodInfo methodInfo = type.GetRuntimeMethod(member, Type.EmptyTypes);
             if (methodInfo != null)
                 return methodInfo.Invoke(value, parameters);
 
-            PropertyInfo propertyInfo = type.GetProperty(member);
+            PropertyInfo propertyInfo = type.GetRuntimeProperty(member);
             if (propertyInfo != null)
                 return propertyInfo.GetValue(value, null);
 

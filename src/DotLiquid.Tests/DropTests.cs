@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using DotLiquid.NamingConventions;
@@ -35,7 +34,7 @@ namespace DotLiquid.Tests
 
             public int LoopPos
             {
-                get { return (int) Context["forloop.index"]; }
+                get { return (int)Context["forloop.index"]; }
             }
 
             public void Break()
@@ -108,11 +107,12 @@ namespace DotLiquid.Tests
             }
         }
 
+#if !CORE
         internal class DataRowDrop : Drop
         {
-            private readonly DataRow _dataRow;
+            private readonly System.Data.DataRow _dataRow;
 
-            public DataRowDrop(DataRow dataRow)
+            public DataRowDrop(System.Data.DataRow dataRow)
             {
                 _dataRow = dataRow;
             }
@@ -124,6 +124,7 @@ namespace DotLiquid.Tests
                 return null;
             }
         }
+#endif
 
         internal class CamelCaseDrop : Drop
         {
@@ -137,7 +138,7 @@ namespace DotLiquid.Tests
         {
             public static string ProductText(object input)
             {
-                return ((ProductDrop) input).Texts().Text;
+                return ((ProductDrop)input).Texts().Text;
             }
         }
 
@@ -232,9 +233,9 @@ namespace DotLiquid.Tests
         [Test]
         public void TestScopeThroughProc()
         {
-            Assert.AreEqual("1", Template.Parse("{{ s }}").Render(Hash.FromAnonymousObject(new { context = new ContextDrop(), s = (Proc) (c => c["context.scopes"]) })));
-            Assert.AreEqual("2", Template.Parse("{%for i in dummy%}{{ s }}{%endfor%}").Render(Hash.FromAnonymousObject(new { context = new ContextDrop(), s = (Proc) (c => c["context.scopes"]), dummy = new[] { 1 } })));
-            Assert.AreEqual("3", Template.Parse("{%for i in dummy%}{%for i in dummy%}{{ s }}{%endfor%}{%endfor%}").Render(Hash.FromAnonymousObject(new { context = new ContextDrop(), s = (Proc) (c => c["context.scopes"]), dummy = new[] { 1 } })));
+            Assert.AreEqual("1", Template.Parse("{{ s }}").Render(Hash.FromAnonymousObject(new { context = new ContextDrop(), s = (Proc)(c => c["context.scopes"]) })));
+            Assert.AreEqual("2", Template.Parse("{%for i in dummy%}{{ s }}{%endfor%}").Render(Hash.FromAnonymousObject(new { context = new ContextDrop(), s = (Proc)(c => c["context.scopes"]), dummy = new[] { 1 } })));
+            Assert.AreEqual("3", Template.Parse("{%for i in dummy%}{%for i in dummy%}{{ s }}{%endfor%}{%endfor%}").Render(Hash.FromAnonymousObject(new { context = new ContextDrop(), s = (Proc)(c => c["context.scopes"]), dummy = new[] { 1 } })));
         }
 
         [Test]
@@ -278,20 +279,22 @@ namespace DotLiquid.Tests
             Assert.AreEqual("", Template.Parse("{{ nulldrop.a_method }}").Render(Hash.FromAnonymousObject(new { nulldrop = new NullDrop() })));
         }
 
+#if !CORE
         [Test]
         public void TestDataRowDrop()
         {
-            DataTable dataTable = new DataTable();
+            System.Data.DataTable dataTable = new System.Data.DataTable();
             dataTable.Columns.Add("Column1");
             dataTable.Columns.Add("Column2");
 
-            DataRow dataRow = dataTable.NewRow();
+            System.Data.DataRow dataRow = dataTable.NewRow();
             dataRow["Column1"] = "Hello";
             dataRow["Column2"] = "World";
 
             Template tpl = Template.Parse(" {{ row.column1 }} ");
             Assert.AreEqual(" Hello ", tpl.Render(Hash.FromAnonymousObject(new { row = new DataRowDrop(dataRow) })));
         }
+#endif
 
         [Test]
         public void TestRubyNamingConventionPrintsHelpfulErrorIfMissingPropertyWouldMatchCSharpNamingConvention()

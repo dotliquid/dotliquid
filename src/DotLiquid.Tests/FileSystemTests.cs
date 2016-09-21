@@ -14,11 +14,10 @@ namespace DotLiquid.Tests
         {
             Assert.Throws<FileSystemException>(() => new BlankFileSystem().ReadTemplateFile(new Context(), "dummy"));
         }
-
-//TODO fix this test on Mono
-#if !__MonoCS__
+        
 
         [Test]
+        [Category("windows")]
         public void TestLocal()
         {
             LocalFileSystem fileSystem = new LocalFileSystem(@"D:\Some\Path");
@@ -32,19 +31,19 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        [Category("windows")]
         public void TestLocalWithBracketsInPath()
         {
             LocalFileSystem fileSystem = new LocalFileSystem(@"D:\Some (thing)\Path");
             Assert.AreEqual(@"D:\Some (thing)\Path\_mypartial.liquid", fileSystem.FullPath("mypartial"));
             Assert.AreEqual(@"D:\Some (thing)\Path\dir\_mypartial.liquid", fileSystem.FullPath("dir/mypartial"));
         }
-
-#endif
+        
 
         [Test]
         public void TestEmbeddedResource()
         {
-            var assembly = Assembly.GetExecutingAssembly();
+            var assembly = typeof(FileSystemTests).GetTypeInfo().Assembly;
             EmbeddedFileSystem fileSystem = new EmbeddedFileSystem(assembly, "DotLiquid.Tests.Embedded");
             Assert.AreEqual(@"DotLiquid.Tests.Embedded._mypartial.liquid", fileSystem.FullPath("mypartial"));
             Assert.AreEqual(@"DotLiquid.Tests.Embedded.dir._mypartial.liquid", fileSystem.FullPath("dir/mypartial"));

@@ -14,6 +14,12 @@ bin
 *.suo
 *.cache
 Thumbs.db
+.vs
+project.lock.json
+*.project.lock.json
+
+# packages
+src/packages/
  
 # Other useful stuff
 *.bak
@@ -28,11 +34,12 @@ httpd.parse.errors
  
 # Office Temp Files
 ~$*
+
+# NUnit test results
+TestResult.xml
  
-# If you have a deploy folder
-# deploy
-# deploy/*
+# build directory
+build/
  
 # Exclude ALL DLLs? (
 # *.dll
-/build/TestResult.xml

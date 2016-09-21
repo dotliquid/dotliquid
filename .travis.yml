@@ -1,12 +1,23 @@
 ---
 language: csharp
-mono:
- - latest
- - 4.2.3
-solution: src/DotLiquid.sln
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty # Ubuntu 14.04
+      sudo: required
+      dotnet: 1.0.0-preview2-003121
+      mono: none
+      env: DOTNETCORE=1
+
 before_install:
   - sudo apt-get install nunit-console
 script:
- - xbuild /p:Configuration=Release src/DotLiquid.sln
- - nunit-console src/DotLiquid.Tests/bin/Release/DotLiquid.Tests.dll
+  - dotnet restore
+  - dotnet build src/DotLiquid/project.json --configuration Release --framework netstandard1.3
+  - dotnet build src/DotLiquid.Website/project.json --configuration Release --framework netcoreapp1.0
+  - dotnet build src/DotLiquid.Tests/project.json --configuration Release --framework netcoreapp1.0
+  - dotnet build src/DotLiquid.Website.Tests/project.json --configuration Release --framework netcoreapp1.0
+  - dotnet test src/DotLiquid.Tests --framework netcoreapp1.0 --where "cat != windows"
+  - dotnet test src/DotLiquid.Website.Tests --framework netcoreapp1.0 --where "cat != windows"
  

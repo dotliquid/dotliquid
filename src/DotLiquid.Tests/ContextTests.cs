@@ -137,7 +137,7 @@ namespace DotLiquid.Tests
 
         private Context _context;
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void SetUp()
         {
             _context = new Context();

@@ -16,9 +16,13 @@
     <tags>template templating language liquid markup</tags>
   </metadata>
   <files>
-	<file src="LICENSE.txt" target="." />
-	<file src="bin\Release\DotLiquid.dll" target="lib\NET45" />
-	<file src="bin\Release\DotLiquid.pdb" target="lib\NET45" />
-	<file src="**\*.cs" target="src\DotLiquid" />
+    <file src="LICENSE.txt" target="" />
+    <file src="bin\Release\netstandard1.3\DotLiquid.dll" target="lib\netstandard1.3" />
+    <file src="bin\Release\netstandard1.3\it\DotLiquid.resources.dll" target="lib\netstandard1.3\it" />
+    <file src="bin\Release\netstandard1.3\DotLiquid.pdb" target="lib\netstandard1.3" />
+    <file src="bin\Release\net451\DotLiquid.dll" target="lib\net451" />
+    <file src="bin\Release\net451\it\DotLiquid.resources.dll" target="lib\net451\it" />
+    <file src="bin\Release\net451\DotLiquid.pdb" target="lib\net451" />
+    <file src="**\*.cs" target="src" />
   </files>
 </package>

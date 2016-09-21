@@ -126,22 +126,22 @@ namespace DotLiquid
 
         protected void RenderAll(List<object> list, Context context, TextWriter result)
         {
-            list.ForEach(token =>
+            foreach (var token in list)
+            {
+                try
                 {
-                    try
-                    {
-                        if (token is IRenderable)
-                            ((IRenderable)token).Render(context, result);
-                        else
-                            result.Write(token.ToString());
-                    }
-                    catch (Exception ex)
-                    {
-                        if (ex.InnerException is LiquidException)
-                            ex = ex.InnerException;
-                        result.Write(context.HandleError(ex));
-                    }
-                });
+                    if (token is IRenderable)
+                        ((IRenderable)token).Render(context, result);
+                    else
+                        result.Write(token.ToString());
+                }
+                catch (Exception ex)
+                {
+                    if (ex.InnerException is LiquidException)
+                        ex = ex.InnerException;
+                    result.Write(context.HandleError(ex));
+                }
+            }
         }
     }
 }

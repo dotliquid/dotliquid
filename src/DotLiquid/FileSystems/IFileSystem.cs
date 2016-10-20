@@ -22,6 +22,6 @@ namespace DotLiquid.FileSystems
         /// </summary>
         /// <param name="templatePath"></param>
         /// <returns></returns>
-        string ReadTemplateFile(Context context, string templateName);
+        object ReadTemplateFile(Context context, string templateName);
     }
 }

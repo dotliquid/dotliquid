@@ -31,15 +31,14 @@ namespace DotLiquid
 
         public List<Exception> Errors { get; private set; }
 
-        public Context(List<Hash> environments, Hash outerScope, Hash registers, bool rethrowErrors)
+        public Context(List<Hash> environments, Hash registers, bool rethrowErrors)
         {
             Environments = environments;
 
             Scopes = new List<Hash>();
-            if (outerScope != null)
-                Scopes.Add(outerScope);
-
-            Registers = registers;
+            
+            Scopes.Add(new Hash());
+            Registers = registers ?? new Hash();
 
             Errors = new List<Exception>();
             _rethrowErrors = rethrowErrors;
@@ -47,7 +46,7 @@ namespace DotLiquid
         }
 
         public Context()
-            : this(new List<Hash>(), new Hash(), new Hash(), false)
+            : this(new List<Hash>(), new Hash(), false)
         {
         }
 

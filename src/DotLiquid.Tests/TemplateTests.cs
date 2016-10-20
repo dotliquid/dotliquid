@@ -35,19 +35,19 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestInstanceAssignsPersistOnSameTemplateObjectBetweenParses()
+        public void TestInstanceAssignsDoNotPersistOnSameTemplateObjectBetweenParses()
         {
             Template t = new Template();
             Assert.AreEqual("from instance assigns", t.ParseInternal("{% assign foo = 'from instance assigns' %}{{ foo }}").Render());
-            Assert.AreEqual("from instance assigns", t.ParseInternal("{{ foo }}").Render());
+            Assert.AreEqual("", t.ParseInternal("{{ foo }}").Render());
         }
 
         [Test]
-        public void TestInstanceAssignsPersistOnSameTemplateParsingBetweenRenders()
+        public void TestInstanceAssignsDoNotPersistOnSameTemplateParsingBetweenRenders()
         {
             Template t = Template.Parse("{{ foo }}{% assign foo = 'foo' %}{{ foo }}");
             Assert.AreEqual("foo", t.Render());
-            Assert.AreEqual("foofoo", t.Render());
+            Assert.AreEqual("foo", t.Render());
         }
 
         [Test]
@@ -65,28 +65,7 @@ namespace DotLiquid.Tests
             Assert.AreEqual("from instance assigns", t.ParseInternal("{% assign foo = 'from instance assigns' %}{{ foo }}").Render());
             Assert.AreEqual("from custom assigns", t.ParseInternal("{{ foo }}").Render(Hash.FromAnonymousObject(new { foo = "from custom assigns" })));
         }
-
-        [Test]
-        public void TestPersistentAssignsSquashInstanceAssigns()
-        {
-            Template t = new Template();
-            Assert.AreEqual("from instance assigns",
-                t.ParseInternal("{% assign foo = 'from instance assigns' %}{{ foo }}").Render());
-            t.Assigns["foo"] = "from persistent assigns";
-            Assert.AreEqual("from persistent assigns", t.ParseInternal("{{ foo }}").Render());
-        }
-
-        [Test]
-        public void TestLambdaIsCalledOnceFromPersistentAssignsOverMultipleParsesAndRenders()
-        {
-            Template t = new Template();
-            int global = 0;
-            t.Assigns["number"] = (Proc) (c => ++global);
-            Assert.AreEqual("1", t.ParseInternal("{{number}}").Render());
-            Assert.AreEqual("1", t.ParseInternal("{{number}}").Render());
-            Assert.AreEqual("1", t.Render());
-        }
-
+        
         [Test]
         public void TestLambdaIsCalledOnceFromCustomAssignsOverMultipleParsesAndRenders()
         {

@@ -37,37 +37,6 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestPresetAssigns()
-        {
-            Template template = Template.Parse("{{ test }}");
-            template.Assigns["test"] = "worked";
-            Assert.AreEqual("worked", template.Render());
-        }
-
-        [Test]
-        public void TestReuseParsedTemplate()
-        {
-            Template template = Template.Parse("{{ greeting }} {{ name }}");
-            template.Assigns["greeting"] = "Goodbye";
-            Assert.AreEqual("Hello Tobi", template.Render(Hash.FromAnonymousObject(new { greeting = "Hello", name = "Tobi" })));
-            Assert.AreEqual("Hello ", template.Render(Hash.FromAnonymousObject(new { greeting = "Hello", unknown = "Tobi" })));
-            Assert.AreEqual("Hello Brian", template.Render(Hash.FromAnonymousObject(new { greeting = "Hello", name = "Brian" })));
-            Assert.AreEqual("Goodbye Brian", template.Render(Hash.FromAnonymousObject(new { name = "Brian" })));
-            CollectionAssert.AreEqual(Hash.FromAnonymousObject(new { greeting = "Goodbye" }), template.Assigns);
-        }
-
-        [Test]
-        public void TestAssignsNotPollutedFromTemplate()
-        {
-            Template template = Template.Parse("{{ test }}{% assign test = 'bar' %}{{ test }}");
-            template.Assigns["test"] = "baz";
-            Assert.AreEqual("bazbar", template.Render());
-            Assert.AreEqual("bazbar", template.Render());
-            Assert.AreEqual("foobar", template.Render(Hash.FromAnonymousObject(new { test = "foo" })));
-            Assert.AreEqual("bazbar", template.Render());
-        }
-
-        [Test]
         public void TestHashWithDefaultProc()
         {
             Template template = Template.Parse("Hello {{ test }}");

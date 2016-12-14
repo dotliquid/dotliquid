@@ -22,7 +22,7 @@ build:
   verbosity: minimal # quiet|minimal|normal|detailed
   project: src/DotLiquid.sln
   publish_nuget: false
-  publish_nuget_symbols: true
+  publish_nuget_symbols: false
 
 after_build:
   - cmd: md build\pkg

@@ -248,6 +248,12 @@ namespace DotLiquid.Tests
         public void TestTimes()
         {
             Helper.AssertTemplateResult("12", "{{ 3 | times:4 }}");
+
+            Helper.AssertTemplateResult("125", "{{ 10 | times:12.5 }}");
+            Helper.AssertTemplateResult("125", "{{ 10.0 | times:12.5 }}");
+            Helper.AssertTemplateResult("125", "{{ 12.5 | times:10 }}");
+            Helper.AssertTemplateResult("125", "{{ 12.5 | times:10.0 }}");
+
             Helper.AssertTemplateResult("foofoofoofoo", "{{ 'foo' | times:4 }}");
         }
 

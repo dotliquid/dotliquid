@@ -21,7 +21,7 @@ install:
 build:
   verbosity: minimal # quiet|minimal|normal|detailed
   project: src/DotLiquid.sln
-  publish_nuget: true
+  publish_nuget: false
   publish_nuget_symbols: true
 
 after_build:

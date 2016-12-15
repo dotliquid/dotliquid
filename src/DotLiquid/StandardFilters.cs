@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 #if !NET35
 using System.Net;
@@ -579,11 +580,24 @@ namespace DotLiquid
         /// <param name="input"></param>
         /// <param name="operand"></param>
         /// <returns></returns>
-        public static object Times(object input, object operand)
-        {
+        public static object Times(object input, object operand) {
             return input is string && operand is int
                 ? Enumerable.Repeat((string) input, (int) operand)
                 : DoMathsOperation(input, operand, Expression.Multiply);
+        }
+
+        public static object Round(object input, object places = null)
+        {
+            try
+            {
+                var p = places == null ? 0 : Convert.ToInt32(places);
+                var i = Convert.ToDecimal(input);
+                return Math.Round(i, p);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         /// <summary>
@@ -613,12 +627,22 @@ namespace DotLiquid
             return !string.IsNullOrWhiteSpace(input) ? input : defaultValue;
         }
 
+        private static bool IsReal(object o) => o is double || o is float;
+
         private static object DoMathsOperation(object input, object operand, Func<Expression, Expression, BinaryExpression> operation)
         {
-            return input == null || operand == null
-                ? null
-                : ExpressionUtility.CreateExpression(operation, input.GetType(), operand.GetType(), input.GetType(), true)
-                    .DynamicInvoke(input, operand);
+            if (input == null || operand == null)
+                return null;
+
+            if (IsReal(input) || IsReal(operand))
+            {
+                input = Convert.ToDouble(input);
+                operand = Convert.ToDouble(operand);
+            }
+
+            return ExpressionUtility.CreateExpression
+                                    (operation, input.GetType(), operand.GetType(), input.GetType(), true)
+                                    .DynamicInvoke(input, operand);
         }
     }
 

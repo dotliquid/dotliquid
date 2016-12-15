@@ -225,6 +225,8 @@ namespace DotLiquid.Tests
         public void TestPlus()
         {
             Helper.AssertTemplateResult("2", "{{ 1 | plus:1 }}");
+            Helper.AssertTemplateResult("5.5", "{{ 2  | plus:3.5 }}");
+            Helper.AssertTemplateResult("5.5", "{{ 3.5 | plus:2 }}");
             Helper.AssertTemplateResult("11", "{{ '1' | plus:'1' }}");
         }
 
@@ -232,6 +234,8 @@ namespace DotLiquid.Tests
         public void TestMinus()
         {
             Helper.AssertTemplateResult("4", "{{ input | minus:operand }}", Hash.FromAnonymousObject(new { input = 5, operand = 1 }));
+            Helper.AssertTemplateResult("-1.5", "{{ 2  | minus:3.5 }}");
+            Helper.AssertTemplateResult("1.5", "{{ 3.5 | minus:2 }}");
         }
 
         [Test]
@@ -240,15 +244,29 @@ namespace DotLiquid.Tests
             using (CultureHelper.SetCulture("fr-FR"))
             {
                 Helper.AssertTemplateResult(string.Format("1{0}2", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
-                    "{{ 3,2 | minus:2 }}");
+                    "{{ 3,2 | minus:2 | round:1 }}");
             }
+        }
+
+        [Test]
+        public void TestRound()
+        {
+            Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round:3 }}");
+            Helper.AssertTemplateResult("1", "{{ 1 | round }}");
         }
 
         [Test]
         public void TestTimes()
         {
-            Helper.AssertTemplateResult("12", "{{ 3 | times:4 }}");
-            Helper.AssertTemplateResult("foofoofoofoo", "{{ 'foo' | times:4 }}");
+            //Helper.AssertTemplateResult("12", "{{ 3 | times:4 }}");
+
+            Console.WriteLine("CHHHHHHHH");
+            Helper.AssertTemplateResult("125", "{{ 10 | times:12.5 }}");
+            Helper.AssertTemplateResult("125", "{{ 10.0 | times:12.5 }}");
+            Helper.AssertTemplateResult("125", "{{ 12.5 | times:10 }}");
+            Helper.AssertTemplateResult("125", "{{ 12.5 | times:10.0 }}");
+
+            //Helper.AssertTemplateResult("foofoofoofoo", "{{ 'foo' | times:4 }}");
         }
 
         [Test]

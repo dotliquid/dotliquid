@@ -130,32 +130,40 @@ namespace DotLiquid
         public static Func<object, object> GetValueTypeTransformer(Type type)
         {
             // Check for concrete types
-            if (ValueTypeTransformers.ContainsKey(type))
-                return ValueTypeTransformers[type];
+            Func<object, object> transformer;
+            if (ValueTypeTransformers.TryGetValue(type, out transformer))
+                return transformer;
 
             // Check for interfaces
-            foreach (var interfaceType in ValueTypeTransformers.Where(x => x.Key.GetTypeInfo().IsInterface))
+            var interfaces = type.GetTypeInfo().ImplementedInterfaces;
+            foreach (var interfaceType in interfaces)
             {
-                if (type.GetTypeInfo().ImplementedInterfaces.Contains(interfaceType.Key))
-                    return interfaceType.Value;
+                if (ValueTypeTransformers.TryGetValue(interfaceType, out transformer))
+                    return transformer;
+                if (interfaceType.GetTypeInfo().IsGenericType && ValueTypeTransformers.TryGetValue(
+                    interfaceType.GetGenericTypeDefinition(), out transformer))
+                    return transformer;
             }
-
             return null;
         }
 
         public static Func<object, object> GetSafeTypeTransformer(Type type)
         {
             // Check for concrete types
-            if (SafeTypeTransformers.ContainsKey(type))
-                return SafeTypeTransformers[type];
+            Func<object, object> transformer;
+            if (SafeTypeTransformers.TryGetValue(type, out transformer))
+                return transformer;
 
             // Check for interfaces
-            foreach (var interfaceType in SafeTypeTransformers.Where(x => x.Key.GetTypeInfo().IsInterface))
+            var interfaces = type.GetTypeInfo().ImplementedInterfaces;
+            foreach (var interfaceType in interfaces)
             {
-                if (type.GetTypeInfo().ImplementedInterfaces.Contains(interfaceType.Key))
-                    return interfaceType.Value;
+                if (SafeTypeTransformers.TryGetValue(interfaceType, out transformer))
+                    return transformer;
+                if (interfaceType.GetTypeInfo().IsGenericType && SafeTypeTransformers.TryGetValue(
+                    interfaceType.GetGenericTypeDefinition(), out transformer))
+                    return transformer;
             }
-
             return null;
         }
 

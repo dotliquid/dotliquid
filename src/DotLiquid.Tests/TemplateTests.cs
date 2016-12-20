@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Net;
 using System.Web;
@@ -335,6 +336,27 @@ namespace DotLiquid.Tests
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType2 { Name = "worked" } }));
 
             Assert.AreEqual("", output);
+        }
+
+        public interface MyGenericInterface<T>
+        {
+            T Value { get; set; }
+        }
+
+        public class MyGenericImpl<T> : MyGenericInterface<T>
+        {
+            public T Value { get; set; }
+        }
+
+        [Test]
+        public void TestRegisterGenericInterface()
+        {
+            Template.RegisterSafeType(typeof(MyGenericInterface<>), new[] { "Value" });
+            Template template = Template.Parse("{{context.Value}}");
+
+            var output = template.Render(Hash.FromAnonymousObject(new { context = new MyGenericImpl<string> { Value = "worked" } }));
+
+            Assert.AreEqual("worked", output);
         }
     }
 }

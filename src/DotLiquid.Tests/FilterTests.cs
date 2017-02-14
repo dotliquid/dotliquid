@@ -61,6 +61,32 @@ namespace DotLiquid.Tests
             }
         }
 
+        private static class FiltersWithMulitpleMethodSignatures
+        {
+            public static string Concat(string one, string two)
+            {
+                return string.Concat(one, two);
+            }
+
+            public static string Concat(string one, string two, string three)
+            {
+                return string.Concat(one, two, three);
+            }
+        }
+
+        private static class FiltersWithMultipleMethodSignaturesAndContextParam
+        {
+            public static string ConcatWithContext(Context context, string one, string two)
+            {
+                return string.Concat(one, two);
+            }
+
+            public static string ConcatWithContext(Context context, string one, string two, string three)
+            {
+                return string.Concat(one, two, three);
+            }
+        }
+
         private static class ContextFilters
         {
             public static string BankStatement(Context context, object input)
@@ -132,6 +158,24 @@ namespace DotLiquid.Tests
             _context["var"] = 1000;
             _context.AddFilters(typeof(FiltersWithArguments));
             Assert.AreEqual("[1150]", new Variable("var | add_sub: 200, 50").Render(_context));
+        }
+
+        [Test]
+        public void TestFilterWithMultipleMethodSignatures()
+        {
+            Template.RegisterFilter(typeof(FiltersWithMulitpleMethodSignatures));
+
+            Assert.AreEqual("AB", Template.Parse("{{'A' | concat : 'B'}}").Render());
+            Assert.AreEqual("ABC", Template.Parse("{{'A' | concat : 'B', 'C'}}").Render());
+        }
+
+        [Test]
+        public void TestFilterWithMultipleMethodSignaturesAndContextParam()
+        {
+            Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignaturesAndContextParam));
+
+            Assert.AreEqual("AB", Template.Parse("{{'A' | concat_with_context : 'B'}}").Render());
+            Assert.AreEqual("ABC", Template.Parse("{{'A' | concat_with_context : 'B', 'C'}}").Render());
         }
 
         /*/// <summary>

@@ -195,6 +195,7 @@ namespace DotLiquid.Tests
         {
             Assert.AreEqual(null, _context["does_not_exist"]);
         }
+
         [Test]
         public void TestVariableNotFoundErrors()
         {

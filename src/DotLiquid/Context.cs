@@ -181,9 +181,9 @@ namespace DotLiquid
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public object this [string key]
+        public object this [string key, bool notifyNotFound = true]
         {
-            get { return Resolve(key, true); }
+            get { return Resolve(key, notifyNotFound); }
             set { Scopes[0][key] = value; }
         }
 
@@ -203,9 +203,9 @@ namespace DotLiquid
         /// products == empty #=> products.empty?
         /// </summary>
         /// <param name="key"></param>
-        /// <param name="notifyVariableNotFound"></param>
+        /// <param name="notifyNotFound"></param>
         /// <returns></returns>
-        private object Resolve(string key, bool notifyVariableNotFound = true)
+        private object Resolve(string key, bool notifyNotFound = true)
         {
             switch (key)
             {
@@ -260,10 +260,7 @@ namespace DotLiquid
                 return float.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
             }
 
-            object variable = Variable(key);
-            if (variable == null && notifyVariableNotFound == true)
-                Errors.Add(new VariableNotFoundException(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), key)));
-            return variable;
+            return Variable(key, notifyNotFound);
         }
 
         /// <summary>
@@ -304,8 +301,9 @@ namespace DotLiquid
         /// assert_equal 'tobi', @context['hash["name"]']
         /// </summary>
         /// <param name="markup"></param>
+        /// <param name="notifyNotFound"></param>
         /// <returns></returns>
-        private object Variable(string markup)
+        private object Variable(string markup, bool notifyNotFound)
         {
             List<string> parts = R.Scan(markup, VariableParserRegex);
 
@@ -317,58 +315,64 @@ namespace DotLiquid
                 firstPart = Resolve(firstPartSquareBracketedMatch.Groups[1].Value).ToString();
 
             object @object;
-            if ((@object = FindVariable(firstPart)) != null)
+            if ((@object = FindVariable(firstPart)) == null)
             {
-                // try to resolve the rest of the parts (starting from the second item in the list)
-                for (int i = 1; i < parts.Count; ++i)
+                if (notifyNotFound)
+                    Errors.Add(new VariableNotFoundException(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), markup)));
+                return null;
+            }
+
+            // try to resolve the rest of the parts (starting from the second item in the list)
+            for (int i = 1; i < parts.Count; ++i)
+            {
+                var forEachPart = parts[i];
+                Match partSquareBracketedMatch = SquareBracketedRegex.Match(forEachPart);
+                bool partResolved = partSquareBracketedMatch.Success;
+
+                object part = forEachPart;
+                if (partResolved)
+                    part = Resolve(partSquareBracketedMatch.Groups[1].Value);
+
+                // If object is a KeyValuePair, we treat it a bit differently - we might be rendering
+                // an included template.
+                if (@object is KeyValuePair<string, object> && ((KeyValuePair<string, object>)@object).Key == (string)part)
                 {
-                    var forEachPart = parts[i];
-                    Match partSquareBracketedMatch = SquareBracketedRegex.Match(forEachPart);
-                    bool partResolved = partSquareBracketedMatch.Success;
-
-                    object part = forEachPart;
-                    if (partResolved)
-                        part = Resolve(partSquareBracketedMatch.Groups[1].Value);
-
-                    // If object is a KeyValuePair, we treat it a bit differently - we might be rendering
-                    // an included template.
-                    if (@object is KeyValuePair<string, object> && ((KeyValuePair<string, object>)@object).Key == (string)part)
-                    {
-                        object res = ((KeyValuePair<string, object>)@object).Value;
-                        @object = Liquidize(res);
-                    }
-                        // If object is a hash- or array-like object we look for the
-                        // presence of the key and if its available we return it
-                    else if (IsHashOrArrayLikeObject(@object, part))
-                    {
-                        // If its a proc we will replace the entry with the proc
-                        object res = LookupAndEvaluate(@object, part);
-                        @object = Liquidize(res);
-                    }
-                        // Some special cases. If the part wasn't in square brackets and
-                        // no key with the same name was found we interpret following calls
-                        // as commands and call them on the current object
-                    else if (!partResolved && (@object is IEnumerable) && ((part as string) == "size" || (part as string) == "first" || (part as string) == "last"))
-                    {
-                        var castCollection = ((IEnumerable)@object).Cast<object>();
-                        if ((part as string) == "size")
-                            @object = castCollection.Count();
-                        else if ((part as string) == "first")
-                            @object = castCollection.FirstOrDefault();
-                        else if ((part as string) == "last")
-                            @object = castCollection.LastOrDefault();
-                    }
-                        // No key was present with the desired value and it wasn't one of the directly supported
-                        // keywords either. The only thing we got left is to return nil
-                    else
-                    {
-                        return null;
-                    }
-
-                    // If we are dealing with a drop here we have to
-                    if (@object is IContextAware)
-                        ((IContextAware)@object).Context = this;
+                    object res = ((KeyValuePair<string, object>)@object).Value;
+                    @object = Liquidize(res);
                 }
+                    // If object is a hash- or array-like object we look for the
+                    // presence of the key and if its available we return it
+                else if (IsHashOrArrayLikeObject(@object, part))
+                {
+                    // If its a proc we will replace the entry with the proc
+                    object res = LookupAndEvaluate(@object, part);
+                    @object = Liquidize(res);
+                }
+                    // Some special cases. If the part wasn't in square brackets and
+                    // no key with the same name was found we interpret following calls
+                    // as commands and call them on the current object
+                else if (!partResolved && (@object is IEnumerable) && ((part as string) == "size" || (part as string) == "first" || (part as string) == "last"))
+                {
+                    var castCollection = ((IEnumerable)@object).Cast<object>();
+                    if ((part as string) == "size")
+                        @object = castCollection.Count();
+                    else if ((part as string) == "first")
+                        @object = castCollection.FirstOrDefault();
+                    else if ((part as string) == "last")
+                        @object = castCollection.LastOrDefault();
+                }
+                    // No key was present with the desired value and it wasn't one of the directly supported
+                    // keywords either. The only thing we got left is to return nil
+                else
+                {
+                    if (notifyNotFound)
+                        Errors.Add(new VariableNotFoundException(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), markup)));
+                    return null;
+                }
+
+                // If we are dealing with a drop here we have to
+                if (@object is IContextAware)
+                    ((IContextAware)@object).Context = this;
             }
 
             return @object;

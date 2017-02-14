@@ -183,13 +183,13 @@ namespace DotLiquid
         /// <returns></returns>
         public object this [string key]
         {
-            get { return Resolve(key); }
+            get { return Resolve(key, true); }
             set { Scopes[0][key] = value; }
         }
 
         public bool HasKey(string key)
         {
-            return Resolve(key) != null;
+            return Resolve(key, false) != null;
         }
 
         /// <summary>
@@ -203,8 +203,9 @@ namespace DotLiquid
         /// products == empty #=> products.empty?
         /// </summary>
         /// <param name="key"></param>
+        /// <param name="notifyVariableNotFound"></param>
         /// <returns></returns>
-        private object Resolve(string key)
+        private object Resolve(string key, bool notifyVariableNotFound = true)
         {
             switch (key)
             {
@@ -259,7 +260,10 @@ namespace DotLiquid
                 return float.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
             }
 
-            return Variable(key);
+            object variable = Variable(key);
+            if (variable == null && notifyVariableNotFound == true)
+                Errors.Add(new VariableNotFoundException(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), key)));
+            return variable;
         }
 
         /// <summary>

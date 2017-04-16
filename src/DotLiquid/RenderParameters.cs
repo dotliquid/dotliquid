@@ -19,23 +19,22 @@ namespace DotLiquid
         /// </summary>
         public bool RethrowErrors { get; set; }
 
-        internal void Evaluate(Template template, out Context context, out Hash registers, out IEnumerable<Type> filters)
+        internal void Evaluate(Template template, out Context context)
         {
             if (Context != null)
             {
                 context = Context;
-                registers = null;
-                filters = null;
                 return;
             }
 
             List<Hash> environments = new List<Hash>();
             if (LocalVariables != null)
                 environments.Add(LocalVariables);
-            environments.Add(template.Assigns);
-            context = new Context(environments, template.InstanceAssigns, template.Registers, RethrowErrors);
-            registers = Registers;
-            filters = Filters;
+            context = new Context(environments, Registers, RethrowErrors);
+            if (Filters != null)
+            {
+                context.AddFilters(Filters);
+            }
         }
 
         public static RenderParameters FromContext(Context context)

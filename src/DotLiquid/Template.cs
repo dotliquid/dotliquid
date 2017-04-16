@@ -178,32 +178,9 @@ namespace DotLiquid
             template.ParseInternal(source);
             return template;
         }
-
-        private Hash _registers, _assigns, _instanceAssigns;
-        private List<Exception> _errors;
-
+        
         public Document Root { get; set; }
-
-        public Hash Registers
-        {
-            get { return (_registers = _registers ?? new Hash()); }
-        }
-
-        public Hash Assigns
-        {
-            get { return (_assigns = _assigns ?? new Hash()); }
-        }
-
-        public Hash InstanceAssigns
-        {
-            get { return (_instanceAssigns = _instanceAssigns ?? new Hash()); }
-        }
-
-        public List<Exception> Errors
-        {
-            get { return (_errors = _errors ?? new List<Exception>()); }
-        }
-
+        
         /// <summary>
         /// Creates a new <tt>Template</tt> from an array of tokens. Use <tt>Template.parse</tt> instead
         /// </summary>
@@ -305,25 +282,10 @@ namespace DotLiquid
                 return;
 
             Context context;
-            Hash registers;
-            IEnumerable<Type> filters;
-            parameters.Evaluate(this, out context, out registers, out filters);
-
-            if (registers != null)
-                Registers.Merge(registers);
-
-            if (filters != null)
-                context.AddFilters(filters);
-
-            try
-            {
-                // Render the nodelist.
-                Root.Render(context, result);
-            }
-            finally
-            {
-                _errors = context.Errors;
-            }
+            parameters.Evaluate(this, out context);
+            
+            // Render the nodelist.
+            Root.Render(context, result);
         }
 
         /// <summary>

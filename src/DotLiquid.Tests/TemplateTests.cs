@@ -44,11 +44,29 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        public void TestThreadSafeInstanceAssignsNotPersistOnSameTemplateObjectBetweenParses()
+        {
+            Template t = new Template();
+            t.MakeThreadSafe();
+            Assert.AreEqual("from instance assigns", t.ParseInternal("{% assign foo = 'from instance assigns' %}{{ foo }}").Render());
+            Assert.AreEqual("", t.ParseInternal("{{ foo }}").Render());
+        }
+
+        [Test]
         public void TestInstanceAssignsPersistOnSameTemplateParsingBetweenRenders()
         {
             Template t = Template.Parse("{{ foo }}{% assign foo = 'foo' %}{{ foo }}");
             Assert.AreEqual("foo", t.Render());
             Assert.AreEqual("foofoo", t.Render());
+        }
+
+        [Test]
+        public void TestThreadSafeInstanceAssignsNotPersistOnSameTemplateParsingBetweenRenders()
+        {
+            Template t = Template.Parse("{{ foo }}{% assign foo = 'foo' %}{{ foo }}");
+            t.MakeThreadSafe();
+            Assert.AreEqual("foo", t.Render());
+            Assert.AreEqual("foo", t.Render());
         }
 
         [Test]

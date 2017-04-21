@@ -30,6 +30,8 @@ namespace DotLiquid
 
         public static IFileSystem FileSystem { get; set; }
 
+        public static bool DefaultIsThreadSafe { get; set; }
+
         private static Dictionary<string, Tuple<ITagFactory, Type>> Tags { get; set; }
 
         private static readonly Dictionary<Type, Func<object, object>> SafeTypeTransformers;
@@ -181,6 +183,7 @@ namespace DotLiquid
 
         private Hash _registers, _assigns, _instanceAssigns;
         private List<Exception> _errors;
+        private bool? _isThreadSafe;
 
         public Document Root { get; set; }
 
@@ -204,6 +207,11 @@ namespace DotLiquid
             get { return (_errors = _errors ?? new List<Exception>()); }
         }
 
+        public bool IsThreadSafe
+        {
+            get { return _isThreadSafe ?? DefaultIsThreadSafe; }
+        }
+
         /// <summary>
         /// Creates a new <tt>Template</tt> from an array of tokens. Use <tt>Template.parse</tt> instead
         /// </summary>
@@ -225,6 +233,16 @@ namespace DotLiquid
             Root = new Document();
             Root.Initialize(null, null, Tokenize(source));
             return this;
+        }
+
+        /// <summary>
+        /// Make this template instance thread safe.
+        /// After this call, you can't use template owned variables anymore.
+        /// </summary>
+        /// <returns></returns>
+        public void MakeThreadSafe()
+        {
+            _isThreadSafe = true;
         }
 
         /// <summary>
@@ -309,11 +327,14 @@ namespace DotLiquid
             IEnumerable<Type> filters;
             parameters.Evaluate(this, out context, out registers, out filters);
 
-            if (registers != null)
-                Registers.Merge(registers);
+            if (!IsThreadSafe)
+            {
+                if (registers != null)
+                    Registers.Merge(registers);
 
-            if (filters != null)
-                context.AddFilters(filters);
+                if (filters != null)
+                    context.AddFilters(filters);
+            }
 
             try
             {
@@ -322,7 +343,8 @@ namespace DotLiquid
             }
             finally
             {
-                _errors = context.Errors;
+                if (!IsThreadSafe)
+                    _errors = context.Errors;
             }
         }
 

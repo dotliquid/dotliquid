@@ -311,7 +311,9 @@ namespace DotLiquid
 #endif
         {
             List<object> ary;
-            if (input is IEnumerable)
+            if(input is IEnumerable<Hash> && !string.IsNullOrEmpty(property))
+                ary = ((IEnumerable)input).Cast<object>().ToList();
+            else if (input is IEnumerable)
                 ary = ((IEnumerable) input).Flatten().Cast<object>().ToList();
             else
                 ary = new List<object>(new[] { input });

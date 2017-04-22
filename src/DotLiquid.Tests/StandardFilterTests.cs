@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Linq;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -82,6 +83,32 @@ namespace DotLiquid.Tests
             CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 }, StandardFilters.Sort(new[] { 4, 3, 2, 1 }));
             CollectionAssert.AreEqual(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 4 } },
                 StandardFilters.Sort(new[] { new { a = 4 }, new { a = 3 }, new { a = 1 }, new { a = 2 } }, "a"));
+        }
+
+        [Test]
+        public void TestSort_OnHashList_WithProperty_DoesNotFlattenList()
+        {
+            var list = new System.Collections.Generic.List<Hash>();
+            var hash1 = CreateHash("1", "Text1");
+            var hash2 = CreateHash("2", "Text2");
+            var hash3 = CreateHash("3", "Text3");
+            list.Add(hash3);
+            list.Add(hash1);
+            list.Add(hash2);
+
+            var result = StandardFilters.Sort(list, "sortby").Cast<Hash>().ToArray();
+            Assert.AreEqual(3, result.Count());
+            Assert.AreEqual(hash1["content"], result[0]["content"]);
+            Assert.AreEqual(hash2["content"], result[1]["content"]);
+            Assert.AreEqual(hash3["content"], result[2]["content"]);
+        }
+
+        private static Hash CreateHash(string sortby, string content)
+        {
+            var hash = new Hash();
+            hash.Add("sortby", sortby);
+            hash.Add("content", content);
+            return hash;
         }
 
         [Test]

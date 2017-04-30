@@ -34,11 +34,17 @@ namespace DotLiquid
 
         private static Dictionary<string, Tuple<ITagFactory, Type>> Tags { get; set; }
 
+        /// <summary>
+        /// TimeOut used for all Regex in DotLiquid
+        /// </summary>
+        public static TimeSpan RegexTimeOut { get; set; }
+
         private static readonly Dictionary<Type, Func<object, object>> SafeTypeTransformers;
         private static readonly Dictionary<Type, Func<object, object>> ValueTypeTransformers;
 
         static Template()
         {
+            RegexTimeOut = TimeSpan.FromSeconds(10);
             NamingConvention = new RubyNamingConvention();
             FileSystem = new BlankFileSystem();
             Tags = new Dictionary<string, Tuple<ITagFactory, Type>>();
@@ -359,10 +365,10 @@ namespace DotLiquid
                 return new List<string>();
 
             // Trim leading whitespace.
-            source = Regex.Replace(source, string.Format(@"([ \t]+)?({0}|{1})-", Liquid.VariableStart, Liquid.TagStart), "$2");
+            source = Regex.Replace(source, string.Format(@"([ \t]+)?({0}|{1})-", Liquid.VariableStart, Liquid.TagStart), "$2", RegexOptions.None, RegexTimeOut);
 
             // Trim trailing whitespace.
-            source = Regex.Replace(source, string.Format(@"-({0}|{1})(\n|\r\n|[ \t]+)?", Liquid.VariableEnd, Liquid.TagEnd), "$1");
+            source = Regex.Replace(source, string.Format(@"-({0}|{1})(\n|\r\n|[ \t]+)?", Liquid.VariableEnd, Liquid.TagEnd), "$1", RegexOptions.None, RegexTimeOut);
 
             List<string> tokens = Regex.Split(source, Liquid.TemplateParser).ToList();
 

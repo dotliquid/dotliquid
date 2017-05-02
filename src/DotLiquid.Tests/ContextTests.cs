@@ -229,6 +229,26 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        public void TestVariableNotFoundExceptionIgnoredForIfStatement()
+        {
+            Template template = Template.Parse("{% if does_not_exist %}abc{% endif %}");
+            string rendered = template.Render();
+
+            Assert.AreEqual("", rendered);
+            Assert.AreEqual(0, template.Errors.Count);
+        }
+
+        [Test]
+        public void TestVariableNotFoundExceptionIgnoredForUnlessStatement()
+        {
+            Template template = Template.Parse("{% unless does_not_exist %}abc{% endunless %}");
+            string rendered = template.Render();
+
+            Assert.AreEqual("abc", rendered);
+            Assert.AreEqual(0, template.Errors.Count);
+        }
+
+        [Test]
         public void TestScoping()
         {
             Assert.DoesNotThrow(() =>

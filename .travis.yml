@@ -14,10 +14,7 @@ before_install:
   - sudo apt-get install nunit-console
 script:
   - dotnet restore src
-  - dotnet build src/DotLiquid/project.json --configuration Release --framework netstandard1.3
-  - dotnet build src/DotLiquid.Website/project.json --configuration Release --framework netcoreapp1.0
-  - dotnet build src/DotLiquid.Tests/project.json --configuration Release --framework netcoreapp1.0
-  - dotnet build src/DotLiquid.Website.Tests/project.json --configuration Release --framework netcoreapp1.0
-  - dotnet test src/DotLiquid.Tests --framework netcoreapp1.0 --where "cat != windows"
-  - dotnet test src/DotLiquid.Website.Tests --framework netcoreapp1.0 --where "cat != windows"
+  - dotnet build src --configuration Release
+  - dotnet test src/DotLiquid.Tests/DotLiquid.Tests.csproj --where "cat != windows"
+  - dotnet test src/DotLiquid.Website.Tests/DotLiquid.Website.Tests.csproj --where "cat != windows"
  

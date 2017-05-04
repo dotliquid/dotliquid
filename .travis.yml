@@ -6,7 +6,7 @@ matrix:
     - os: linux
       dist: trusty # Ubuntu 14.04
       sudo: required
-      dotnet: 1.0.0-preview2-003121
+      dotnet: 1.0.1
       mono: none
       env: DOTNETCORE=1
 

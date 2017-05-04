@@ -1,9 +1,6 @@
 ﻿# Build script for dotliquid, see https://www.appveyor.com/docs/appveyor-yml for reference
 version: 2.0.{build}
-
-branches:
-  only:
-    - master
+image: Visual Studio 2017
 
 configuration:
   - Release
@@ -32,7 +29,7 @@ test:
   assemblies:
     # Disabled: ‍‍Could not load file or assembly 'nunit.framework' or one of its dependencies. The system cannot find the file specified.
     # - '**\bin\Release\netcoreapp1.0\*.Tests.dll'
-    - '**\bin\Release\net451\win7-x64\*.Tests.dll'
+    - '**\bin\Release\net451\*.Tests.dll'
   categories:
     except:
       - windows
@@ -51,6 +48,8 @@ deploy:
     secure: LrIeQprS+E5FzLkdKGYIYHXy/86Kt8YVhTa4J/VhLzGUO+yXnqI+GxDR+K5Wj/VL
   skip_symbols: false
   artifact: /.*\.nupkg/
+  on:
+    branch: master
 
 notifications:
   - provider: Email

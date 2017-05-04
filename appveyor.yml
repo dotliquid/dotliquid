@@ -51,9 +51,3 @@ deploy:
     secure: LrIeQprS+E5FzLkdKGYIYHXy/86Kt8YVhTa4J/VhLzGUO+yXnqI+GxDR+K5Wj/VL
   skip_symbols: false
   artifact: /.*\.nupkg/
-
-notifications:
-  - provider: Email
-    to:
-      - henrik@haf.se
-    on_build_status_changed: true

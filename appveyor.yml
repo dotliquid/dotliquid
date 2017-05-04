@@ -27,7 +27,7 @@ after_build:
 
 test:
   assemblies:
-    # Disabled: ‍‍Could not load file or assembly 'nunit.framework' or one of its dependencies. The system cannot find the file specified.
+    # Disabled:Could not load file or assembly 'nunit.framework' or one of its dependencies. The system cannot find the file specified.
     # - '**\bin\Release\netcoreapp1.0\*.Tests.dll'
     - '**\bin\Release\net451\*.Tests.dll'
   categories:
@@ -50,9 +50,3 @@ deploy:
   artifact: /.*\.nupkg/
   on:
     branch: master
-
-notifications:
-  - provider: Email
-    to:
-      - henrik@haf.se
-    on_build_status_changed: true

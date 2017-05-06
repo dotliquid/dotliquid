@@ -130,7 +130,7 @@ namespace DotLiquid
             // return this as the result.
             if (string.IsNullOrEmpty(op))
             {
-                object result = context[left];
+                object result = context[left, false];
                 return (result != null && (!(result is bool) || (bool) result));
             }
 

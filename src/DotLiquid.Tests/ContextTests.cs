@@ -197,6 +197,58 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        public void TestVariableNotFoundErrors()
+        {
+            Template template = Template.Parse("{{ does_not_exist }}");
+            string rendered = template.Render();
+ 
+            Assert.AreEqual("", rendered);
+            Assert.AreEqual(1, template.Errors.Count);
+            Assert.AreEqual(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), "does_not_exist"), template.Errors[0].Message);
+        }
+ 
+        [Test]
+        public void TestVariableNotFoundFromAnonymousObject()
+        {
+            Template template = Template.Parse("{{ first.test }}{{ second.test }}");
+            string rendered = template.Render(Hash.FromAnonymousObject(new { second = new { foo = "hi!" } }));
+ 
+            Assert.AreEqual("", rendered);
+            Assert.AreEqual(2, template.Errors.Count);
+            Assert.AreEqual(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), "first.test"), template.Errors[0].Message);
+            Assert.AreEqual(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), "second.test"), template.Errors[1].Message);
+        }
+ 
+        [Test]
+        public void TestVariableNotFoundException()
+        {
+            Assert.DoesNotThrow(() => Template.Parse("{{ does_not_exist }}").Render(new RenderParameters
+            {
+                RethrowErrors = true
+            }));
+        }
+
+        [Test]
+        public void TestVariableNotFoundExceptionIgnoredForIfStatement()
+        {
+            Template template = Template.Parse("{% if does_not_exist %}abc{% endif %}");
+            string rendered = template.Render();
+
+            Assert.AreEqual("", rendered);
+            Assert.AreEqual(0, template.Errors.Count);
+        }
+
+        [Test]
+        public void TestVariableNotFoundExceptionIgnoredForUnlessStatement()
+        {
+            Template template = Template.Parse("{% unless does_not_exist %}abc{% endunless %}");
+            string rendered = template.Render();
+
+            Assert.AreEqual("abc", rendered);
+            Assert.AreEqual(0, template.Errors.Count);
+        }
+
+        [Test]
         public void TestScoping()
         {
             Assert.DoesNotThrow(() =>

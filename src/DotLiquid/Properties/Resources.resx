@@ -219,6 +219,9 @@
   <data name="VariableFilterNotFoundException" xml:space="preserve">
     <value>Error - Filter '{0}' in '{1}' could not be found.</value>
   </data>
+  <data name="VariableNotFoundException" xml:space="preserve">
+    <value>Error - Variable '{0}' could not be found</value>
+  </data>
   <data name="WeakTableKeyNotFoundException" xml:space="preserve">
     <value>key could not be found</value>
   </data>

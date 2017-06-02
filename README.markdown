@@ -70,3 +70,4 @@ Are you using DotLiquid in an open source project? Tell us with a PR!
 
  - [Suave.DotLiquid](https://github.com/SuaveIO/suave#introduction)
  - [Pretzel](https://github.com/Code52/Pretzel)
+ - [Docfx](https://github.com/dotnet/docfx)

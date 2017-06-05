@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Globalization;
 using NUnit.Framework;
 
@@ -229,18 +229,24 @@ namespace DotLiquid.Tests
         [Test]
         public void TestPlus()
         {
-            Helper.AssertTemplateResult("2", "{{ 1 | plus:1 }}");
-            Helper.AssertTemplateResult("5.5", "{{ 2  | plus:3.5 }}");
-            Helper.AssertTemplateResult("5.5", "{{ 3.5 | plus:2 }}");
-            Helper.AssertTemplateResult("11", "{{ '1' | plus:'1' }}");
+            using (CultureHelper.SetCulture("en-GB"))
+            {
+                Helper.AssertTemplateResult("2", "{{ 1 | plus:1 }}");
+                Helper.AssertTemplateResult("5.5", "{{ 2  | plus:3.5 }}");
+                Helper.AssertTemplateResult("5.5", "{{ 3.5 | plus:2 }}");
+                Helper.AssertTemplateResult("11", "{{ '1' | plus:'1' }}");
+            }
         }
 
         [Test]
         public void TestMinus()
         {
-            Helper.AssertTemplateResult("4", "{{ input | minus:operand }}", Hash.FromAnonymousObject(new { input = 5, operand = 1 }));
-            Helper.AssertTemplateResult("-1.5", "{{ 2  | minus:3.5 }}");
-            Helper.AssertTemplateResult("1.5", "{{ 3.5 | minus:2 }}");
+            using (CultureHelper.SetCulture("en-GB"))
+            {
+                Helper.AssertTemplateResult("4", "{{ input | minus:operand }}", Hash.FromAnonymousObject(new { input = 5, operand = 1 }));
+                Helper.AssertTemplateResult("-1.5", "{{ 2  | minus:3.5 }}");
+                Helper.AssertTemplateResult("1.5", "{{ 3.5 | minus:2 }}");
+            }
         }
 
         [Test]
@@ -256,8 +262,11 @@ namespace DotLiquid.Tests
         [Test]
         public void TestRound()
         {
-            Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round:3 }}");
-            Helper.AssertTemplateResult("1", "{{ 1 | round }}");
+            using (CultureHelper.SetCulture("en-GB"))
+            {
+                Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round:3 }}");
+                Helper.AssertTemplateResult("1", "{{ 1 | round }}");
+            }
         }
 
         [Test]

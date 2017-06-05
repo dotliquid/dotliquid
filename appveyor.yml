@@ -32,6 +32,7 @@ after_build:
   - cmd: nuget pack src/DotLiquid/DotLiquid.nuspec -Symbols -Version "%APPVEYOR_BUILD_VERSION%" -OutputDirectory build\pkg
 
 test_script:
+  - ls "C:\Tools\NUnit3\bin"
   - opencover.console -target:"C:\Tools\NUnit3\bin\nunit3-console.exe" -targetargs:"src\DotLiquid.Tests\bin\Release\net451\DotLiquid.Tests.dll --where=cat!=windows --result=TestsResults.xml;format=AppVeyor" -output:TestsCoverage.xml -register:user -returntargetcode
   - codecov -f TestsCoverage.xml
 

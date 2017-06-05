@@ -39,6 +39,8 @@ artifacts:
 - path: build\pkg\*.nupkg
   name: Nuget Package
 
+- path: TestsCoverage.xml
+
 nuget:
   project_feed: true
 

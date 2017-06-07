@@ -4,7 +4,7 @@ namespace DotLiquid.FileSystems
 {
     public class BlankFileSystem : IFileSystem
     {
-        public string ReadTemplateFile(Context context, string templateName)
+        public object ReadTemplateFile(Context context, string templateName)
         {
             throw new FileSystemException(Liquid.ResourceManager.GetString("BlankFileSystemDoesNotAllowIncludesException"));
         }

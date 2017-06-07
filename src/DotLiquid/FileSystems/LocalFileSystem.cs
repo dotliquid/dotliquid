@@ -26,7 +26,7 @@ namespace DotLiquid.FileSystems
             Root = root;
         }
 
-        public string ReadTemplateFile(Context context, string templateName)
+        public object ReadTemplateFile(Context context, string templateName)
         {
             string templatePath = (string) context[templateName];
             string fullPath = FullPath(templatePath);

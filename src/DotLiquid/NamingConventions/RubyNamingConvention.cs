@@ -25,6 +25,11 @@ namespace DotLiquid.NamingConventions
             get { return StringComparer.OrdinalIgnoreCase; }
         }
 
+        public StringComparer ConditionComparer
+        {
+            get { return StringComparer.OrdinalIgnoreCase; }
+        }
+
         public string GetMemberName(string name)
         {
             // Replace any capital letters, apart from the first character, with _x, the same way Ruby does

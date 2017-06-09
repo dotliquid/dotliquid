@@ -9,6 +9,11 @@ namespace DotLiquid.NamingConventions
             get { return StringComparer.Ordinal; }
         }
 
+        public StringComparer ConditionComparer
+        {
+            get { return StringComparer.OrdinalIgnoreCase; }
+        }
+
         public string GetMemberName(string name)
         {
             return name;

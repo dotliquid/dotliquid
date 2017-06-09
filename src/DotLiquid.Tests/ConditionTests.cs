@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -142,6 +142,50 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        public void TestDictionaryHasKey()
+        {
+            _context = new Context();
+            System.Collections.Generic.Dictionary<string, string> testDictionary = new System.Collections.Generic.Dictionary<string, string>();
+
+            testDictionary.Add("dave", "0");
+            testDictionary.Add("bob", "4");
+            _context["dictionary"] = testDictionary;
+
+            //lowercase
+            AssertEvaluatesTrue("dictionary", "haskey", "'bob'");
+            AssertEvaluatesFalse("dictionary", "haskey", "'0'");
+
+            //camelCase
+            AssertEvaluatesTrue("dictionary", "hasKey", "'bob'");
+            AssertEvaluatesFalse("dictionary", "hasKey", "'0'");
+
+            //snake_case
+            AssertError("dictionary", "has_key", "'bob'", typeof(Exceptions.ArgumentException));
+        }
+
+        [Test]
+        public void TestDictionaryHasValue()
+        {
+            _context = new Context();
+            System.Collections.Generic.Dictionary<string, string> testDictionary = new System.Collections.Generic.Dictionary<string, string>();
+
+            testDictionary.Add("dave", "0");
+            testDictionary.Add("bob", "4");
+            _context["dictionary"] = testDictionary;
+
+            //lowercase
+            AssertEvaluatesTrue("dictionary", "hasvalue", "'0'");
+            AssertEvaluatesFalse("dictionary", "hasvalue", "'bob'");
+
+            //camelCase
+            AssertEvaluatesTrue("dictionary", "hasValue", "'0'");
+            AssertEvaluatesFalse("dictionary", "hasValue", "'bob'");
+
+            //snake_case
+            AssertError("dictionary", "has_value", "'0'", typeof(Exceptions.ArgumentException));
+        }
+
+        [Test]
         public void TestOrCondition()
         {
             Condition condition = new Condition("1", "==", "2");
@@ -223,6 +267,10 @@ namespace DotLiquid.Tests
                 "Evaluated true: {0} {1} {2}", left, op, right);
         }
 
+        private void AssertError(string left, string op, string right, System.Type errorType)
+        {
+            Assert.Throws(errorType, () => new Condition(left, op, right).Evaluate(_context ?? new Context()));
+        }
         #endregion
     }
 }

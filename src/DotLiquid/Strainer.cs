@@ -109,8 +109,9 @@ namespace DotLiquid
 
         public object Invoke(string method, List<object> args)
         {
-            // First, try to find a method with the same number of arguments.
-            var methodInfo = _methods[method].FirstOrDefault(m => m.Item2.GetParameters().Length == args.Count);
+            // First, try to find a method with the same number of arguments minus context which we set automatically further down.
+            var methodInfo = _methods[method].FirstOrDefault(m => 
+                m.Item2.GetParameters().Where(p => p.ParameterType != typeof(Context)).Count() == args.Count);
 
             // If we failed to do so, try one with max numbers of arguments, hoping
             // that those not explicitly specified will be taken care of

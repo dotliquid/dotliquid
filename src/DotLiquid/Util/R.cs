@@ -45,7 +45,7 @@ namespace DotLiquid.Util
 #endif
             )
         {
-            var regex = new Regex(pattern, options);
+            var regex = new Regex(pattern, options, Template.RegexTimeOut);
 
             // execute once to trigger the lazy compilation (not strictly necessary, but avoids the first real execution taking a longer time than subsequent ones)
             regex.IsMatch(string.Empty);
@@ -79,7 +79,7 @@ namespace DotLiquid.Util
         [Obsolete("Use Scan(string, Regex) instead.")]
         public static List<string> Scan(string input, string pattern)
         {
-            return Scan(input, new Regex(pattern));
+            return Scan(input, new Regex(pattern, RegexOptions.None, Template.RegexTimeOut));
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace DotLiquid.Util
         /// <returns></returns>
         public static void Scan(string input, string pattern, Action<string, string> callback)
         {
-            foreach (Match match in Regex.Matches(input, pattern))
+            foreach (Match match in Regex.Matches(input, pattern, RegexOptions.None, Template.RegexTimeOut))
                 callback(match.Groups[1].Value, match.Groups[2].Value);
         }
     }

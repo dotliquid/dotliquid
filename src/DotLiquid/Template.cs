@@ -30,13 +30,21 @@ namespace DotLiquid
 
         public static IFileSystem FileSystem { get; set; }
 
+        public static bool DefaultIsThreadSafe { get; set; }
+
         private static Dictionary<string, Tuple<ITagFactory, Type>> Tags { get; set; }
+
+        /// <summary>
+        /// TimeOut used for all Regex in DotLiquid
+        /// </summary>
+        public static TimeSpan RegexTimeOut { get; set; }
 
         private static readonly Dictionary<Type, Func<object, object>> SafeTypeTransformers;
         private static readonly Dictionary<Type, Func<object, object>> ValueTypeTransformers;
 
         static Template()
         {
+            RegexTimeOut = TimeSpan.FromSeconds(10);
             NamingConvention = new RubyNamingConvention();
             FileSystem = new BlankFileSystem();
             Tags = new Dictionary<string, Tuple<ITagFactory, Type>>();
@@ -181,6 +189,7 @@ namespace DotLiquid
 
         private Hash _registers, _assigns, _instanceAssigns;
         private List<Exception> _errors;
+        private bool? _isThreadSafe;
 
         public Document Root { get; set; }
 
@@ -204,6 +213,11 @@ namespace DotLiquid
             get { return (_errors = _errors ?? new List<Exception>()); }
         }
 
+        public bool IsThreadSafe
+        {
+            get { return _isThreadSafe ?? DefaultIsThreadSafe; }
+        }
+
         /// <summary>
         /// Creates a new <tt>Template</tt> from an array of tokens. Use <tt>Template.parse</tt> instead
         /// </summary>
@@ -225,6 +239,16 @@ namespace DotLiquid
             Root = new Document();
             Root.Initialize(null, null, Tokenize(source));
             return this;
+        }
+
+        /// <summary>
+        /// Make this template instance thread safe.
+        /// After this call, you can't use template owned variables anymore.
+        /// </summary>
+        /// <returns></returns>
+        public void MakeThreadSafe()
+        {
+            _isThreadSafe = true;
         }
 
         /// <summary>
@@ -309,11 +333,14 @@ namespace DotLiquid
             IEnumerable<Type> filters;
             parameters.Evaluate(this, out context, out registers, out filters);
 
-            if (registers != null)
-                Registers.Merge(registers);
+            if (!IsThreadSafe)
+            {
+                if (registers != null)
+                    Registers.Merge(registers);
 
-            if (filters != null)
-                context.AddFilters(filters);
+                if (filters != null)
+                    context.AddFilters(filters);
+            }
 
             try
             {
@@ -322,7 +349,8 @@ namespace DotLiquid
             }
             finally
             {
-                _errors = context.Errors;
+                if (!IsThreadSafe)
+                    _errors = context.Errors;
             }
         }
 
@@ -337,10 +365,10 @@ namespace DotLiquid
                 return new List<string>();
 
             // Trim leading whitespace.
-            source = Regex.Replace(source, string.Format(@"([ \t]+)?({0}|{1})-", Liquid.VariableStart, Liquid.TagStart), "$2");
+            source = Regex.Replace(source, string.Format(@"([ \t]+)?({0}|{1})-", Liquid.VariableStart, Liquid.TagStart), "$2", RegexOptions.None, RegexTimeOut);
 
             // Trim trailing whitespace.
-            source = Regex.Replace(source, string.Format(@"-({0}|{1})(\n|\r\n|[ \t]+)?", Liquid.VariableEnd, Liquid.TagEnd), "$1");
+            source = Regex.Replace(source, string.Format(@"-({0}|{1})(\n|\r\n|[ \t]+)?", Liquid.VariableEnd, Liquid.TagEnd), "$1", RegexOptions.None, RegexTimeOut);
 
             List<string> tokens = Regex.Split(source, Liquid.TemplateParser).ToList();
 

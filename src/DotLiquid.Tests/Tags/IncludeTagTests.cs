@@ -68,6 +68,13 @@ namespace DotLiquid.Tests.Tags
         }
 
         [Test]
+        public void TestIncludeTagMustNotBeConsideredError()
+        {
+            Assert.AreEqual(0, Template.Parse("{% include 'product_template' %}").Errors.Count);
+            Assert.DoesNotThrow(() => Template.Parse("{% include 'product_template' %}").Render(new RenderParameters { RethrowErrors = true }));
+        }
+
+        [Test]
         public void TestIncludeTagLooksForFileSystemInRegistersFirst()
         {
             Assert.AreEqual("from OtherFileSystem", Template.Parse("{% include 'pick_a_source' %}").Render(new RenderParameters { Registers = Hash.FromAnonymousObject(new { file_system = new OtherFileSystem() }) }));

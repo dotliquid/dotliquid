@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace DotLiquid.NamingConventions
 {
@@ -7,11 +7,6 @@ namespace DotLiquid.NamingConventions
         public StringComparer StringComparer
         {
             get { return StringComparer.Ordinal; }
-        }
-
-        public StringComparer ConditionComparer
-        {
-            get { return StringComparer.OrdinalIgnoreCase; }
         }
 
         public string GetMemberName(string name)

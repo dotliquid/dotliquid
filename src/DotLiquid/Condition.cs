@@ -18,8 +18,7 @@ namespace DotLiquid
     public class Condition
     {
         #region Condition operator delegates
-
-        public static readonly Dictionary<string, ConditionOperatorDelegate> Operators = new Dictionary<string, ConditionOperatorDelegate>(Template.NamingConvention.ConditionComparer)
+        public static readonly Dictionary<string, ConditionOperatorDelegate> Operators = new Dictionary<string, ConditionOperatorDelegate>(new ConditionOperatorComparator())
         {
             { "==", (left, right) => EqualVariables(left, right) },
             { "!=", (left, right) => !EqualVariables(left, right) },
@@ -31,10 +30,9 @@ namespace DotLiquid
             { "contains", (left, right) => (left is IList) ? ((IList) left).Contains(right) : ((left is string) ? ((string) left).Contains((string) right) : false) },
             { "startswith", (left, right) => (left is IList) ? EqualVariables(((IList) left).OfType<object>().FirstOrDefault(), right) : ((left is string) ? ((string)left).StartsWith((string) right) : false) },
             { "endswith", (left, right) => (left is IList) ? EqualVariables(((IList) left).OfType<object>().LastOrDefault(), right) : ((left is string) ? ((string)left).EndsWith((string) right) : false) },
-            { "hasKey", (left, right) => (left is IDictionary) ? ((IDictionary) left).Contains(right) : false },
-            { "hasValue", (left, right) => (left is IDictionary) ? ((IDictionary) left).Values.Cast<object>().Contains(right) : false }
+            { "haskey", (left, right) => (left is IDictionary) ? ((IDictionary) left).Contains(right) : false },
+            { "hasvalue", (left, right) => (left is IDictionary) ? ((IDictionary) left).Values.Cast<object>().Contains(right) : false }
         };
-
         #endregion
 
         public string Left { get; set; }
@@ -157,4 +155,22 @@ namespace DotLiquid
     }
 
     public delegate bool ConditionOperatorDelegate(object left, object right);
+
+    public class ConditionOperatorComparator : StringComparer
+    {
+        public override int Compare(string x, string y)
+        {
+            return Template.NamingConvention.StringComparer.Compare(x, y);
+        }
+
+        public override bool Equals(string x, string y)
+        {
+            return Template.NamingConvention.StringComparer.Equals(x, y);
+        }
+
+        public override int GetHashCode(string obj)
+        {
+            return Template.NamingConvention.StringComparer.GetHashCode(obj);
+        }
+    }
 }

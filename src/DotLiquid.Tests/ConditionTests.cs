@@ -157,7 +157,6 @@ namespace DotLiquid.Tests
 
             //camelCase
             AssertEvaluatesTrue("dictionary", "hasKey", "'bob'");
-            AssertEvaluatesFalse("dictionary", "hasKey", "'0'");
 
             //snake_case
             AssertError("dictionary", "has_key", "'bob'", typeof(Exceptions.ArgumentException));
@@ -179,7 +178,6 @@ namespace DotLiquid.Tests
 
             //camelCase
             AssertEvaluatesTrue("dictionary", "hasValue", "'0'");
-            AssertEvaluatesFalse("dictionary", "hasValue", "'bob'");
 
             //snake_case
             AssertError("dictionary", "has_value", "'0'", typeof(Exceptions.ArgumentException));
@@ -225,6 +223,58 @@ namespace DotLiquid.Tests
             finally
             {
                 Condition.Operators.Remove("starts_with");
+            }
+        }
+
+        [Test]
+        public void TestCapitalInCustomOperator()
+        {
+            try
+            {
+                Condition.Operators["IsMultipleOf"] =
+                    (left, right) => (int) left % (int) right == 0;
+
+                //Ruby uses case insensitive comparison so this should work
+                AssertEvaluatesTrue("16", "IsMultipleOf", "4");
+                AssertEvaluatesFalse("16", "IsMultipleOf", "5");
+
+                //Lowercase letters in the operation should match and operate as normal
+                AssertEvaluatesTrue("16", "ismultipleof", "4");
+                AssertEvaluatesFalse("14", "ismultipleof", "4");
+            }
+            finally
+            {
+                Condition.Operators.Remove("IsMultipleOf");
+            }
+        }
+
+        [Test]
+        public void TestCapitalInCustomCSharpOperator()
+        {
+            //have to run this test in a lock because it requires
+            //changing the globally static NamingConvention
+            lock (Template.NamingConvention)
+            {
+                var oldconvention = Template.NamingConvention;
+                Template.NamingConvention = new NamingConventions.CSharpNamingConvention();
+
+                try
+                {
+                    Condition.Operators["DivisibleBy"] =
+                        (left, right) => (int)left % (int)right == 0;
+
+                    AssertEvaluatesTrue("16", "DivisibleBy", "4");
+                    AssertEvaluatesFalse("16", "DivisibleBy", "5");
+
+                    //CSharp uses a case sensitive comparison so this should fail
+                    AssertError("16", "divisibleBy", "4", typeof(Exceptions.ArgumentException));
+                }
+                finally
+                {
+                    Condition.Operators.Remove("IsMultipleOf");
+                }
+
+                Template.NamingConvention = oldconvention;
             }
         }
 

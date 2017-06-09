@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Text.RegularExpressions;
 
 using DotLiquid.Util;
@@ -21,11 +21,6 @@ namespace DotLiquid.NamingConventions
         private static readonly Regex _regex2 = R.C(@"([a-z\d])([A-Z])");
 
         public StringComparer StringComparer
-        {
-            get { return StringComparer.OrdinalIgnoreCase; }
-        }
-
-        public StringComparer ConditionComparer
         {
             get { return StringComparer.OrdinalIgnoreCase; }
         }

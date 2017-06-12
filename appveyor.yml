@@ -2,6 +2,10 @@
 version: 2.0.{build}
 image: Visual Studio 2017
 
+cache:
+  - C:\ProgramData\chocolatey\bin -> appveyor.yml
+  - C:\ProgramData\chocolatey\lib -> appveyor.yml
+
 configuration:
   - Release
 
@@ -13,6 +17,8 @@ assembly_info:
   assembly_informational_version: "{version}-$(APPVEYOR_REPO_COMMIT)"
 
 install:
+  - cmd: choco install opencover.portable -y
+  - cmd: choco install codecov -y
   - cmd: dotnet restore src
 
 build:
@@ -25,19 +31,15 @@ after_build:
   - cmd: md build\pkg
   - cmd: nuget pack src/DotLiquid/DotLiquid.nuspec -Symbols -Version "%APPVEYOR_BUILD_VERSION%" -OutputDirectory build\pkg
 
-test:
-  assemblies:
-    # Disabled:Could not load file or assembly 'nunit.framework' or one of its dependencies. The system cannot find the file specified.
-    # - '**\bin\Release\netcoreapp1.0\*.Tests.dll'
-    - '**\bin\Release\net451\*.Tests.dll'
-  categories:
-    except:
-      - windows
-
+test_script:
+  - opencover.console -target:"C:\Tools\NUnit3\nunit3-console.exe" -targetargs:"src\DotLiquid.Tests\bin\Release\net451\DotLiquid.Tests.dll --where=cat!=windows --result=TestsResults.xml;format=AppVeyor" -output:TestsCoverage.xml -filter:"+[DotLiquid]*" -register:user -returntargetcode
+  - codecov -f TestsCoverage.xml
 
 artifacts:
 - path: build\pkg\*.nupkg
   name: Nuget Package
+
+- path: TestsCoverage.xml
 
 nuget:
   project_feed: true

@@ -18,7 +18,8 @@ namespace DotLiquid
     public class Condition
     {
         #region Condition operator delegates
-        public static readonly Dictionary<string, ConditionOperatorDelegate> Operators = new Dictionary<string, ConditionOperatorDelegate>(new ConditionOperatorComparator())
+        //Operators are always case-sensitive
+        public static readonly Dictionary<string, ConditionOperatorDelegate> Operators = new Dictionary<string, ConditionOperatorDelegate>(StringComparer.Ordinal)
         {
             { "==", (left, right) => EqualVariables(left, right) },
             { "!=", (left, right) => !EqualVariables(left, right) },
@@ -155,22 +156,4 @@ namespace DotLiquid
     }
 
     public delegate bool ConditionOperatorDelegate(object left, object right);
-
-    public class ConditionOperatorComparator : StringComparer
-    {
-        public override int Compare(string x, string y)
-        {
-            return Template.NamingConvention.StringComparer.Compare(x, y);
-        }
-
-        public override bool Equals(string x, string y)
-        {
-            return Template.NamingConvention.StringComparer.Equals(x, y);
-        }
-
-        public override int GetHashCode(string obj)
-        {
-            return Template.NamingConvention.StringComparer.GetHashCode(obj);
-        }
-    }
 }

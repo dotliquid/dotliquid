@@ -151,14 +151,11 @@ namespace DotLiquid.Tests
             testDictionary.Add("bob", "4");
             _context["dictionary"] = testDictionary;
 
-            //lowercase
             AssertEvaluatesTrue("dictionary", "haskey", "'bob'");
             AssertEvaluatesFalse("dictionary", "haskey", "'0'");
 
-            //camelCase
-            AssertEvaluatesTrue("dictionary", "hasKey", "'bob'");
-
             //snake_case
+            AssertError("dictionary", "hasKey", "'bob'", typeof(Exceptions.ArgumentException));
             AssertError("dictionary", "has_key", "'bob'", typeof(Exceptions.ArgumentException));
         }
 
@@ -172,14 +169,10 @@ namespace DotLiquid.Tests
             testDictionary.Add("bob", "4");
             _context["dictionary"] = testDictionary;
 
-            //lowercase
             AssertEvaluatesTrue("dictionary", "hasvalue", "'0'");
             AssertEvaluatesFalse("dictionary", "hasvalue", "'bob'");
 
-            //camelCase
-            AssertEvaluatesTrue("dictionary", "hasValue", "'0'");
-
-            //snake_case
+            AssertError("dictionary", "hasValue", "'0'", typeof(Exceptions.ArgumentException));
             AssertError("dictionary", "has_value", "'0'", typeof(Exceptions.ArgumentException));
         }
 
@@ -234,13 +227,18 @@ namespace DotLiquid.Tests
                 Condition.Operators["IsMultipleOf"] =
                     (left, right) => (int) left % (int) right == 0;
 
-                //Ruby uses case insensitive comparison so this should work
                 AssertEvaluatesTrue("16", "IsMultipleOf", "4");
                 AssertEvaluatesFalse("16", "IsMultipleOf", "5");
 
-                //Lowercase letters in the operation should match and operate as normal
-                AssertEvaluatesTrue("16", "ismultipleof", "4");
-                AssertEvaluatesFalse("14", "ismultipleof", "4");
+                //Operators should always be required to match case, so "IsMultipleOf", "is_multiple_of", and "ismultipleof" are all treated as different
+                AssertError("16", "ismultipleof", "4", typeof(Exceptions.ArgumentException));
+                AssertError("16", "is_multiple_of", "4", typeof(Exceptions.ArgumentException));
+
+                //Run tests through the template to verify that capitalization rules are followed through template parsing
+                Helper.AssertTemplateResult(" TRUE ", "{% if 16 IsMultipleOf 4 %} TRUE {% endif %}");
+                Helper.AssertTemplateResult("", "{% if 14 IsMultipleOf 4 %} TRUE {% endif %}");
+                Helper.AssertTemplateResult("Liquid error: Unknown operator ismultipleof", "{% if 16 ismultipleof 4 %} TRUE {% endif %}");
+                Helper.AssertTemplateResult("Liquid error: Unknown operator is_multiple_of", "{% if 16 is_multiple_of 4 %} TRUE {% endif %}");
             }
             finally
             {
@@ -268,10 +266,15 @@ namespace DotLiquid.Tests
 
                     //CSharp uses a case sensitive comparison so this should fail
                     AssertError("16", "divisibleBy", "4", typeof(Exceptions.ArgumentException));
+
+                    //Run tests through the template to verify that capitalization rules are followed through template parsing
+                    Helper.AssertTemplateResult(" TRUE ", "{% if 16 DivisibleBy 4 %} TRUE {% endif %}");
+                    Helper.AssertTemplateResult("", "{% if 16 DivisibleBy 5 %} TRUE {% endif %}");
+                    Helper.AssertTemplateResult("Liquid error: Unknown operator divisibleBy", "{% if 16 divisibleBy 4 %} TRUE {% endif %}");
                 }
                 finally
                 {
-                    Condition.Operators.Remove("IsMultipleOf");
+                    Condition.Operators.Remove("DivisibleBy");
                 }
 
                 Template.NamingConvention = oldconvention;

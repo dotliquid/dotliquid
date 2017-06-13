@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using DotLiquid.NamingConventions;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -305,6 +306,58 @@ namespace DotLiquid.Tests
             var parsedOutput = parse.Render(new RenderParameters() { LocalVariables = Hash.FromDictionary(row) });
             Assert.AreEqual("MyID is 1", parsedOutput);
         }
+
+        [Test]
+        public void TestShouldAllowCustomProcOperatorCapitalized()
+        {
+            try
+            {
+                Condition.Operators["StartsWith"] =
+                    (left, right) => Regex.IsMatch(left.ToString(), string.Format("^{0}", right.ToString()));
+
+                Helper.AssertTemplateResult("", "{% if 'bob' StartsWith 'B' %} YES {% endif %}", null, new CSharpNamingConvention());
+                AssertEvaluatesTrue("'bob'", "StartsWith", "'b'");
+                AssertEvaluatesFalse("'bob'", "StartsWith", "'o'");
+            }
+            finally
+            {
+                Condition.Operators.Remove("StartsWith");
+            }
+        }
+
+        [Test]
+        public void TestRuby_LowerCaseAccepted()
+        {
+                Helper.AssertTemplateResult("", "{% if 'bob' startswith 'B' %} YES {% endif %}", null, new RubyNamingConvention());
+        }
+
+        [Test]
+        public void TestRuby_SnakeCaseAccepted()
+        {
+            Helper.AssertTemplateResult("", "{% if 'bob' starts_with 'B' %} YES {% endif %}", null, new RubyNamingConvention());
+        }
+
+        [Test]
+        public void TestCSharp_LowerCaseAccepted()
+        {
+            Helper.AssertTemplateResult("", "{% if 'bob' startswith 'B' %} YES {% endif %}", null, new CSharpNamingConvention());
+        }
+
+        [Test]
+        public void TestCSharp_PascalCaseAccepted()
+        {
+            Helper.AssertTemplateResult("", "{% if 'bob' StartsWith 'B' %} YES {% endif %}", null, new CSharpNamingConvention());
+        }
+
+        // Since I am mostly a ruby naming convention user I don't know if both of these cases are needed or just one.
+        // What do you think?
+
+        [Test]
+        public void TestCSharp_LowerPascalCaseAccepted()
+        {
+            Helper.AssertTemplateResult("", "{% if 'bob' startsWith 'B' %} YES {% endif %}", null, new CSharpNamingConvention());
+        }
+
 
         #region Helper methods
 

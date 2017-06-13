@@ -47,11 +47,22 @@ namespace DotLiquid.Tests.Tags
             }
         }
 
-        private class TestTemplateFileSystem : TestFileSystem, ITemplateFileSystem
+        internal class TestTemplateFileSystem : ITemplateFileSystem
         {
             private IDictionary<string, Template> _templateCache = new Dictionary<string, Template>();
+            private IFileSystem _baseFileSystem = null;
             private int _cacheHitTimes;
             public int CacheHitTimes { get { return _cacheHitTimes; } }
+
+            public TestTemplateFileSystem(IFileSystem baseFileSystem)
+            {
+                _baseFileSystem = baseFileSystem;
+            }
+
+            public string ReadTemplateFile(Context context, string templateName)
+            {
+                return _baseFileSystem.ReadTemplateFile(context, templateName);
+            }
 
             public Template GetTemplate(Context context, string templateName)
             {
@@ -204,7 +215,7 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestIncludeFromTemplateFileSystem()
         {
-            var fileSystem = new TestTemplateFileSystem();
+            var fileSystem = new TestTemplateFileSystem(new TestFileSystem());
             Template.FileSystem = fileSystem;
             for (int i = 0; i < 2; ++i)
             {

@@ -41,10 +41,11 @@ namespace DotLiquid.Tags
         public override void Render(Context context, TextWriter result)
         {
             IFileSystem fileSystem = context.Registers["file_system"] as IFileSystem ?? Template.FileSystem;
+            ITemplateFileSystem templateFileSystem = fileSystem as ITemplateFileSystem;
             Template partial = null;
-            if (fileSystem is ITemplateFileSystem)
+            if (templateFileSystem != null)
             {
-                partial = ((ITemplateFileSystem)fileSystem).ReadTemplateInstance(context, _templateName);
+                partial = templateFileSystem.GetTemplate(context, _templateName);
             }
             if (partial == null)
             {

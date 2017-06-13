@@ -12,6 +12,6 @@
         /// </summary>
         /// <param name="templatePath"></param>
         /// <returns></returns>
-        Template ReadTemplateInstance(Context context, string templateName);
+        Template GetTemplate(Context context, string templateName);
     }
 }

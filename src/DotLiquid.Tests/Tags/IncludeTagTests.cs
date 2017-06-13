@@ -53,7 +53,7 @@ namespace DotLiquid.Tests.Tags
             private int _cacheHitTimes;
             public int CacheHitTimes { get { return _cacheHitTimes; } }
 
-            public Template ReadTemplateInstance(Context context, string templateName)
+            public Template GetTemplate(Context context, string templateName)
             {
                 Template template;
                 if (_templateCache.TryGetValue(templateName, out template))

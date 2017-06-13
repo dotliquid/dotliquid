@@ -103,10 +103,11 @@ namespace DotLiquid.Tags
         {
             // Get the template or template content and then either copy it (since it will be modified) or parse it
             IFileSystem fileSystem = context.Registers["file_system"] as IFileSystem ?? Template.FileSystem;
+            ITemplateFileSystem templateFileSystem = fileSystem as ITemplateFileSystem;
             Template template = null;
-            if (fileSystem is ITemplateFileSystem)
+            if (templateFileSystem != null)
             {
-                template = ((ITemplateFileSystem)fileSystem).ReadTemplateInstance(context, _templateName);
+                template = templateFileSystem.GetTemplate(context, _templateName);
             }
             if (template == null)
             {

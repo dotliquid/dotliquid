@@ -114,33 +114,51 @@ namespace DotLiquid.Tests
                 StandardFilters.Map(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 4 } }, "b"));
         }
 
-        [Test]
-        public void TestCurrency()
+        [TestCase("6.72", "$6.72")]
+        [TestCase("6000", "$6,000.00")]
+        [TestCase("6000000", "$6,000,000.00")]
+        [TestCase("6000.4", "$6,000.40")]
+        [TestCase("6000000.4", "$6,000,000.40")]
+        [TestCase("6.8458", "$6.85")]
+        public void TestAmericanCurrencyFromString(string input, string expected)
         {
-            Assert.AreEqual("$6.72", StandardFilters.Currency("6.72"));
-            Assert.AreEqual("$6,000.00", StandardFilters.Currency("6000"));
-            Assert.AreEqual("$6,000,000.00", StandardFilters.Currency("6000000"));
-            Assert.AreEqual("$6,000.40", StandardFilters.Currency("6000.4"));
-            Assert.AreEqual("$6,000,000.40", StandardFilters.Currency("6000000.4"));
-            Assert.AreEqual("$6.85", StandardFilters.Currency("6.8458"));
-            Assert.AreEqual("$6.85", StandardFilters.Currency(6.8458));
+            Assert.AreEqual(expected, StandardFilters.Currency(input));
+        }
 
-            Assert.AreEqual("$6.72", StandardFilters.Currency("6.72", "en-US"));
-            Assert.AreEqual("$6.72", StandardFilters.Currency("6.72", "en-CA"));
+        [TestCase("6.72", "6,72 €")]
+        [TestCase("6000", "6.000,00 €")]
+        [TestCase("6000000", "6.000.000,00 €")]
+        [TestCase("6000.4", "6.000,40 €")]
+        [TestCase("6000000.4", "6.000.000,40 €")]
+        [TestCase("6.8458", "6,85 €")]
+        public void TestEuroCurrencyFromString(string input, string expected)
+        {
+            Assert.AreEqual(expected, StandardFilters.Currency(input, "de-DE"));
+        }
 
-            Assert.AreEqual("6,72 €", StandardFilters.Currency("6.72", "de-DE"));
-            Assert.AreEqual("6.000,00 €", StandardFilters.Currency("6000", "de-DE"));
-            Assert.AreEqual("6.000.000,00 €", StandardFilters.Currency(6000000, "de-DE"));
-            Assert.AreEqual("6.000,78 €", StandardFilters.Currency("6000.78", "de-DE"));
-            Assert.AreEqual("6.000.000,78 €", StandardFilters.Currency(6000000.78, "de-DE"));
-
+        [Test]
+        public void TestMalformedCurrency()
+        {
             Assert.AreEqual("teststring", StandardFilters.Currency("teststring", "de-DE"));
+        }
 
+        [Test]
+        public void TestCurrencyWithinTemplateRender()
+        {
             Template dollarTemplate = Template.Parse(@"{{ amount | currency }}");
-            Assert.AreEqual("$7,000.00", dollarTemplate.Render(Hash.FromAnonymousObject(new { amount = "7000" })));
-
             Template euroTemplate = Template.Parse(@"{{ amount | currency: ""de-DE"" }}");
+
+            Assert.AreEqual("$7,000.00", dollarTemplate.Render(Hash.FromAnonymousObject(new { amount = "7000" })));
             Assert.AreEqual("7.000,00 €", euroTemplate.Render(Hash.FromAnonymousObject(new { amount = 7000 })));
+        }
+
+        [Test]
+        public void TestCurrencyFromDoubleInput()
+        {
+            Assert.AreEqual("$6.85", StandardFilters.Currency(6.8458));
+            Assert.AreEqual("$6.72", StandardFilters.Currency(6.72, "en-CA"));
+            Assert.AreEqual("6.000.000,00 €", StandardFilters.Currency(6000000, "de-DE"));
+            Assert.AreEqual("6.000.000,78 €", StandardFilters.Currency(6000000.78, "de-DE"));
         }
 
         [Test]

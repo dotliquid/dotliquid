@@ -1,34 +1,35 @@
-﻿using DotLiquid.NamingConventions;
+﻿using System;
+using DotLiquid.NamingConventions;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
 {
     public class Helper
     {
-        public static void AssertTemplateResult(string expected, string template, Hash localVariables, INamingConvention namingConvention = null)
+        public static void AssertTemplateResult(string expected, string template, Hash localVariables, INamingConvention namingConvention)
         {
+            //Have to lock Template.NamingConvention for this test to
+            //prevent other tests from being run simultaneously that
+            //require the default naming convention.
             var currentNamingConvention = Template.NamingConvention;
-            if (namingConvention == null)
-            {
-                Template.NamingConvention = new RubyNamingConvention();
-            }
-            else
+            lock(Template.NamingConvention)
             {
                 Template.NamingConvention = namingConvention;
-            }
 
-            try
-            {
-                Assert.AreEqual(expected, Template.Parse(template).Render(localVariables));
+                try
+                {
+                    AssertTemplateResult(expected, template, localVariables);
+                }
+                finally
+                {
+                    Template.NamingConvention = currentNamingConvention;
+                }
             }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                Template.NamingConvention = currentNamingConvention;
-            }
+        }
+
+        public static void AssertTemplateResult(string expected, string template, Hash localVariables)
+        {
+            Assert.AreEqual(expected, Template.Parse(template).Render(localVariables));
         }
 
         public static void AssertTemplateResult(string expected, string template)

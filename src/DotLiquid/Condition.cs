@@ -36,6 +36,26 @@ namespace DotLiquid
         };
         #endregion
 
+        static Condition()
+        {
+            //Adding aliases for conditions that should accept multiple capitalization options
+            Operators.Add("StartsWith", Operators["startswith"]);
+            Operators.Add("startsWith", Operators["startswith"]);
+            Operators.Add("starts_with", Operators["startswith"]);
+
+            Operators.Add("EndsWith", Operators["endswith"]);
+            Operators.Add("endsWith", Operators["endswith"]);
+            Operators.Add("ends_with", Operators["endswith"]);
+
+            Operators.Add("HasKey", Operators["haskey"]);
+            Operators.Add("hasKey", Operators["haskey"]);
+            Operators.Add("has_key", Operators["haskey"]);
+
+            Operators.Add("HasValue", Operators["hasvalue"]);
+            Operators.Add("hasValue", Operators["hasvalue"]);
+            Operators.Add("has_value", Operators["hasvalue"]);
+        }
+
         public string Left { get; set; }
         public string Operator { get; set; }
         public string Right { get; set; }

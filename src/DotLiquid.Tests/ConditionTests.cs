@@ -154,10 +154,6 @@ namespace DotLiquid.Tests
 
             AssertEvaluatesTrue("dictionary", "haskey", "'bob'");
             AssertEvaluatesFalse("dictionary", "haskey", "'0'");
-
-            //snake_case
-            AssertError("dictionary", "hasKey", "'bob'", typeof(Exceptions.ArgumentException));
-            AssertError("dictionary", "has_key", "'bob'", typeof(Exceptions.ArgumentException));
         }
 
         [Test]
@@ -172,9 +168,6 @@ namespace DotLiquid.Tests
 
             AssertEvaluatesTrue("dictionary", "hasvalue", "'0'");
             AssertEvaluatesFalse("dictionary", "hasvalue", "'bob'");
-
-            AssertError("dictionary", "hasValue", "'0'", typeof(Exceptions.ArgumentException));
-            AssertError("dictionary", "has_value", "'0'", typeof(Exceptions.ArgumentException));
         }
 
         [Test]
@@ -328,13 +321,13 @@ namespace DotLiquid.Tests
         [Test]
         public void TestRuby_LowerCaseAccepted()
         {
-                Helper.AssertTemplateResult("", "{% if 'bob' startswith 'B' %} YES {% endif %}", null, new RubyNamingConvention());
+                Helper.AssertTemplateResult("", "{% if 'bob' startswith 'B' %} YES {% endif %}");
         }
 
         [Test]
         public void TestRuby_SnakeCaseAccepted()
         {
-            Helper.AssertTemplateResult("", "{% if 'bob' starts_with 'B' %} YES {% endif %}", null, new RubyNamingConvention());
+            Helper.AssertTemplateResult("", "{% if 'bob' starts_with 'B' %} YES {% endif %}");
         }
 
         [Test]

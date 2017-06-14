@@ -14,7 +14,7 @@ The requirements are [Visual Studio 2017](https://www.visualstudio.com/) and [.n
 * [Gitter Chatroom](https://gitter.im/dotliquid/dotliquid)
 * [GitHub Issues](https://github.com/dotliquid/dotliquid/issues/new)
 
-**The functionality is based as much as possible on existing functionality in Liquid**
+**The functionality is based as much as possible on existing functionality in [Liquid](https://shopify.github.io/liquid/)**
 
 Each new feature must have been discussed first before submitting it in a PR.
 

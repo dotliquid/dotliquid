@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Threading;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -112,6 +113,64 @@ namespace DotLiquid.Tests
                     }));
             CollectionAssert.AreEqual(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 4 } },
                 StandardFilters.Map(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 4 } }, "b"));
+        }
+
+        [TestCase("6.72", "$6.72")]
+        [TestCase("6000", "$6,000.00")]
+        [TestCase("6000000", "$6,000,000.00")]
+        [TestCase("6000.4", "$6,000.40")]
+        [TestCase("6000000.4", "$6,000,000.40")]
+        [TestCase("6.8458", "$6.85")]
+        public void TestAmericanCurrencyFromString(string input, string expected)
+        {
+#if CORE
+            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
+#else
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+#endif
+            Assert.AreEqual(expected, StandardFilters.Currency(input));
+        }
+
+        [TestCase("6.72", "6,72 €")]
+        [TestCase("6000", "6.000,00 €")]
+        [TestCase("6000000", "6.000.000,00 €")]
+        [TestCase("6000.4", "6.000,40 €")]
+        [TestCase("6000000.4", "6.000.000,40 €")]
+        [TestCase("6.8458", "6,85 €")]
+        public void TestEuroCurrencyFromString(string input, string expected)
+        {
+            Assert.AreEqual(expected, StandardFilters.Currency(input, "de-DE"));
+        }
+
+        [Test]
+        public void TestMalformedCurrency()
+        {
+            Assert.AreEqual("teststring", StandardFilters.Currency("teststring", "de-DE"));
+        }
+
+        [Test]
+        public void TestCurrencyWithinTemplateRender()
+        {
+#if CORE
+            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
+#else
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+#endif
+
+            Template dollarTemplate = Template.Parse(@"{{ amount | currency }}");
+            Template euroTemplate = Template.Parse(@"{{ amount | currency: ""de-DE"" }}");
+
+            Assert.AreEqual("$7,000.00", dollarTemplate.Render(Hash.FromAnonymousObject(new { amount = "7000" })));
+            Assert.AreEqual("7.000,00 €", euroTemplate.Render(Hash.FromAnonymousObject(new { amount = 7000 })));
+        }
+
+        [Test]
+        public void TestCurrencyFromDoubleInput()
+        {
+            Assert.AreEqual("$6.85", StandardFilters.Currency(6.8458, "en-US"));
+            Assert.AreEqual("$6.72", StandardFilters.Currency(6.72, "en-CA"));
+            Assert.AreEqual("6.000.000,00 €", StandardFilters.Currency(6000000, "de-DE"));
+            Assert.AreEqual("6.000.000,78 €", StandardFilters.Currency(6000000.78, "de-DE"));
         }
 
         [Test]

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -227,6 +227,26 @@ namespace DotLiquid
         }
 
         /// <summary>
+        /// Converts the input object into a formatted currency as specified by the culture info.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="cultureInfo"></param>
+        /// <returns></returns>
+        public static string Currency(object input, string cultureInfo = "en-US")
+        {
+            decimal amount;
+
+            if (decimal.TryParse(input.ToString(), out amount))
+            {
+                var culture = new CultureInfo(cultureInfo);
+
+                return amount.ToString("C", culture);
+            }
+
+            return input.ToString();
+        }
+
+        /// <summary>
         /// Remove all newlines from the string
         /// </summary>
         /// <param name="input"></param>
@@ -235,7 +255,7 @@ namespace DotLiquid
         {
             return input.IsNullOrWhiteSpace()
                 ? input
-                : Regex.Replace(input, @"(\r?\n)", String.Empty, RegexOptions.None, Template.RegexTimeOut);
+                : Regex.Replace(input, @"(\r?\n)", string.Empty, RegexOptions.None, Template.RegexTimeOut);
 
                 //: Regex.Replace(input, Environment.NewLine, string.Empty);
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Threading;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -122,6 +123,11 @@ namespace DotLiquid.Tests
         [TestCase("6.8458", "$6.85")]
         public void TestAmericanCurrencyFromString(string input, string expected)
         {
+#if CORE
+            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
+#else
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+#endif
             Assert.AreEqual(expected, StandardFilters.Currency(input));
         }
 
@@ -145,6 +151,12 @@ namespace DotLiquid.Tests
         [Test]
         public void TestCurrencyWithinTemplateRender()
         {
+#if CORE
+            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
+#else
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+#endif
+
             Template dollarTemplate = Template.Parse(@"{{ amount | currency }}");
             Template euroTemplate = Template.Parse(@"{{ amount | currency: ""de-DE"" }}");
 
@@ -155,7 +167,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestCurrencyFromDoubleInput()
         {
-            Assert.AreEqual("$6.85", StandardFilters.Currency(6.8458));
+            Assert.AreEqual("$6.85", StandardFilters.Currency(6.8458, "en-US"));
             Assert.AreEqual("$6.72", StandardFilters.Currency(6.72, "en-CA"));
             Assert.AreEqual("6.000.000,00 €", StandardFilters.Currency(6000000, "de-DE"));
             Assert.AreEqual("6.000.000,78 €", StandardFilters.Currency(6000000.78, "de-DE"));

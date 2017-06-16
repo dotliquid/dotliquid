@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+﻿<?xml version="1.0"?>
 <package>
   <metadata>
     <id>DotLiquid</id>
@@ -17,6 +17,7 @@
   </metadata>
   <files>
     <file src="LICENSE.txt" target="" />
+    <file src="readme.txt" target="" />
     <file src="bin\Release\netstandard1.3\DotLiquid.dll" target="lib\netstandard1.3" />
     <file src="bin\Release\netstandard1.3\it\DotLiquid.resources.dll" target="lib\netstandard1.3\it" />
     <file src="bin\Release\netstandard1.3\DotLiquid.pdb" target="lib\netstandard1.3" />

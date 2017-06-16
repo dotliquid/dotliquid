@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,8 +18,8 @@ namespace DotLiquid
     public class Condition
     {
         #region Condition operator delegates
-
-        public static readonly Dictionary<string, ConditionOperatorDelegate> Operators = new Dictionary<string, ConditionOperatorDelegate>(Template.NamingConvention.StringComparer)
+        //Operators are always case-sensitive
+        public static readonly Dictionary<string, ConditionOperatorDelegate> Operators = new Dictionary<string, ConditionOperatorDelegate>(StringComparer.Ordinal)
         {
             { "==", (left, right) => EqualVariables(left, right) },
             { "!=", (left, right) => !EqualVariables(left, right) },
@@ -31,11 +31,30 @@ namespace DotLiquid
             { "contains", (left, right) => (left is IList) ? ((IList) left).Contains(right) : ((left is string) ? ((string) left).Contains((string) right) : false) },
             { "startswith", (left, right) => (left is IList) ? EqualVariables(((IList) left).OfType<object>().FirstOrDefault(), right) : ((left is string) ? ((string)left).StartsWith((string) right) : false) },
             { "endswith", (left, right) => (left is IList) ? EqualVariables(((IList) left).OfType<object>().LastOrDefault(), right) : ((left is string) ? ((string)left).EndsWith((string) right) : false) },
-            { "hasKey", (left, right) => (left is IDictionary) ? ((IDictionary) left).Contains(right) : false },
-            { "hasValue", (left, right) => (left is IDictionary) ? ((IDictionary) left).OfType<object>().Contains(right) : false }
+            { "haskey", (left, right) => (left is IDictionary) ? ((IDictionary) left).Contains(right) : false },
+            { "hasvalue", (left, right) => (left is IDictionary) ? ((IDictionary) left).Values.Cast<object>().Contains(right) : false }
         };
-
         #endregion
+
+        static Condition()
+        {
+            //Adding aliases for conditions that should accept multiple capitalization options
+            Operators.Add("StartsWith", Operators["startswith"]);
+            Operators.Add("startsWith", Operators["startswith"]);
+            Operators.Add("starts_with", Operators["startswith"]);
+
+            Operators.Add("EndsWith", Operators["endswith"]);
+            Operators.Add("endsWith", Operators["endswith"]);
+            Operators.Add("ends_with", Operators["endswith"]);
+
+            Operators.Add("HasKey", Operators["haskey"]);
+            Operators.Add("hasKey", Operators["haskey"]);
+            Operators.Add("has_key", Operators["haskey"]);
+
+            Operators.Add("HasValue", Operators["hasvalue"]);
+            Operators.Add("hasValue", Operators["hasvalue"]);
+            Operators.Add("has_value", Operators["hasvalue"]);
+        }
 
         public string Left { get; set; }
         public string Operator { get; set; }

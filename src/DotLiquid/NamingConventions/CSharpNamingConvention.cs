@@ -1,12 +1,10 @@
-using System;
-
-namespace DotLiquid.NamingConventions
+﻿namespace DotLiquid.NamingConventions
 {
     public class CSharpNamingConvention : INamingConvention
     {
-        public StringComparer StringComparer
+        public System.StringComparer StringComparer
         {
-            get { return StringComparer.Ordinal; }
+            get { return System.StringComparer.Ordinal; }
         }
 
         public string GetMemberName(string name)

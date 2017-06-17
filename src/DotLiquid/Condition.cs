@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using DotLiquid.Exceptions;
 using DotLiquid.Util;
 
 namespace DotLiquid
@@ -17,9 +16,7 @@ namespace DotLiquid
     /// </summary>
     public class Condition
     {
-        #region Condition operator delegates
-        //Operators are always case-sensitive
-        public static readonly Dictionary<string, ConditionOperatorDelegate> Operators = new Dictionary<string, ConditionOperatorDelegate>(StringComparer.Ordinal)
+        public static readonly Dictionary<string, ConditionOperatorDelegate> Operators = new Dictionary<string, ConditionOperatorDelegate>()
         {
             { "==", (left, right) => EqualVariables(left, right) },
             { "!=", (left, right) => !EqualVariables(left, right) },
@@ -29,39 +26,21 @@ namespace DotLiquid
             { "<=", (left, right) => left != null && right != null && Comparer<object>.Default.Compare(left, Convert.ChangeType(right, left.GetType())) <= 0 },
             { ">=", (left, right) => left != null && right != null && Comparer<object>.Default.Compare(left, Convert.ChangeType(right, left.GetType())) >= 0 },
             { "contains", (left, right) => (left is IList) ? ((IList) left).Contains(right) : ((left is string) ? ((string) left).Contains((string) right) : false) },
-            { "startswith", (left, right) => (left is IList) ? EqualVariables(((IList) left).OfType<object>().FirstOrDefault(), right) : ((left is string) ? ((string)left).StartsWith((string) right) : false) },
-            { "endswith", (left, right) => (left is IList) ? EqualVariables(((IList) left).OfType<object>().LastOrDefault(), right) : ((left is string) ? ((string)left).EndsWith((string) right) : false) },
-            { "haskey", (left, right) => (left is IDictionary) ? ((IDictionary) left).Contains(right) : false },
-            { "hasvalue", (left, right) => (left is IDictionary) ? ((IDictionary) left).Values.Cast<object>().Contains(right) : false }
+            { "startsWith", (left, right) => (left is IList) ? EqualVariables(((IList) left).OfType<object>().FirstOrDefault(), right) : ((left is string) ? ((string)left).StartsWith((string) right) : false) },
+            { "endsWith", (left, right) => (left is IList) ? EqualVariables(((IList) left).OfType<object>().LastOrDefault(), right) : ((left is string) ? ((string)left).EndsWith((string) right) : false) },
+            { "hasKey", (left, right) => (left is IDictionary) ? ((IDictionary) left).Contains(right) : false },
+            { "hasValue", (left, right) => (left is IDictionary) ? ((IDictionary) left).Values.Cast<object>().Contains(right) : false }
         };
-        #endregion
-
-        static Condition()
-        {
-            //Adding aliases for conditions that should accept multiple capitalization options
-            Operators.Add("StartsWith", Operators["startswith"]);
-            Operators.Add("startsWith", Operators["startswith"]);
-            Operators.Add("starts_with", Operators["startswith"]);
-
-            Operators.Add("EndsWith", Operators["endswith"]);
-            Operators.Add("endsWith", Operators["endswith"]);
-            Operators.Add("ends_with", Operators["endswith"]);
-
-            Operators.Add("HasKey", Operators["haskey"]);
-            Operators.Add("hasKey", Operators["haskey"]);
-            Operators.Add("has_key", Operators["haskey"]);
-
-            Operators.Add("HasValue", Operators["hasvalue"]);
-            Operators.Add("hasValue", Operators["hasvalue"]);
-            Operators.Add("has_value", Operators["hasvalue"]);
-        }
-
-        public string Left { get; set; }
-        public string Operator { get; set; }
-        public string Right { get; set; }
 
         private string _childRelation;
+
         private Condition _childCondition;
+
+        public string Left { get; set; }
+
+        public string Operator { get; set; }
+
+        public string Right { get; set; }
 
         public List<object> Attachment { get; private set; }
 
@@ -123,10 +102,14 @@ namespace DotLiquid
         private static bool EqualVariables(object left, object right)
         {
             if (left is Symbol)
+            { 
                 return ((Symbol) left).EvaluationFunction(right);
+            }
 
             if (right is Symbol)
+            { 
                 return ((Symbol) right).EvaluationFunction(left);
+            }
 
             if (left != null && right != null && left.GetType() != right.GetType())
             {
@@ -156,9 +139,16 @@ namespace DotLiquid
             object leftObject = context[left];
             object rightObject = context[right];
 
-            if (!Operators.ContainsKey(op))
+            var opKey = Operators.Keys.FirstOrDefault(opk => opk.Equals(op)
+                                                                || opk.ToLowerInvariant().Equals(op)
+                                                                || Template.NamingConvention.OperatorEquals(opk, op)
+                                                     );
+            if (opKey == null)
+            { 
                 throw new Exceptions.ArgumentException(Liquid.ResourceManager.GetString("ConditionUnknownOperatorException"), op);
-            return Operators[op](leftObject, rightObject);
+            }
+
+            return Operators[opKey](leftObject, rightObject);
         }
     }
 

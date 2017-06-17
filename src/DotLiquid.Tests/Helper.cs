@@ -1,5 +1,4 @@
-﻿using System;
-using DotLiquid.NamingConventions;
+﻿using DotLiquid.NamingConventions;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests

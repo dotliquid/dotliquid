@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace DotLiquid
@@ -11,7 +11,9 @@ namespace DotLiquid
         public Context Context { get; set; }
 
         public Hash LocalVariables { get; set; }
+
         public IEnumerable<Type> Filters { get; set; }
+
         public Hash Registers { get; set; }
 
         /// <summary>

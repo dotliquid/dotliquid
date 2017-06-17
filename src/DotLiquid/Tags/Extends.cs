@@ -129,8 +129,7 @@ namespace DotLiquid.Tags
 
                     if (pb != null)
                     {
-                        Block parent;
-                        if (blockState.Parents.TryGetValue(block, out parent))
+                        if (blockState.Parents.TryGetValue(block, out Block parent))
                             blockState.Parents[pb] = parent;
                         pb.AddParent(blockState.Parents, pb.GetNodeList(blockState));
                         blockState.NodeLists[pb] = block.GetNodeList(blockState);

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -252,8 +252,7 @@ namespace DotLiquid
                 // For cultures with "," as the decimal separator, allow
                 // both "," and "." to be used as the separator.
                 // First try to parse using current culture.
-                float result;
-                if (float.TryParse(match.Groups[1].Value, out result))
+                if (float.TryParse(match.Groups[1].Value, out float result))
                     return result;
 
                 // If that fails, try to parse using invariant culture.

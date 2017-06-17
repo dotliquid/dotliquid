@@ -38,8 +38,7 @@ namespace DotLiquid.Tags
 
         public List<object> GetNodeList(Block block)
         {
-            List<object> nodeList;
-            if (!NodeLists.TryGetValue(block, out nodeList))
+            if (!NodeLists.TryGetValue(block, out List<object> nodeList))
                 nodeList = block.NodeList;
             return nodeList;
         }
@@ -49,8 +48,7 @@ namespace DotLiquid.Tags
         {
             foreach (Hash scope in context.Scopes)
             {
-                object blockState;
-                if (scope.TryGetValue("blockstate", out blockState))
+                if (scope.TryGetValue("blockstate", out object blockState))
                 {
                     return blockState as BlockRenderState;
                 }
@@ -123,8 +121,7 @@ namespace DotLiquid.Tags
 
         public void AddParent(Dictionary<Block, Block> parents, List<object> nodeList)
         {
-            Block parent;
-            if (parents.TryGetValue(this, out parent))
+            if (parents.TryGetValue(this, out Block parent))
             {
                 parent.AddParent(parents, nodeList);
             }
@@ -140,10 +137,9 @@ namespace DotLiquid.Tags
         public void CallSuper(Context context, TextWriter result)
         {
             BlockRenderState blockState = BlockRenderState.Find(context);
-            Block parent;
             if (blockState != null
-                && blockState.Parents.TryGetValue(this, out parent)
-                && parent != null)
+    && blockState.Parents.TryGetValue(this, out Block parent)
+    && parent != null)
             {
                 parent.Render(context, result);
             }

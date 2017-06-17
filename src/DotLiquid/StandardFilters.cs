@@ -235,9 +235,8 @@ namespace DotLiquid
         /// <returns></returns>
         public static string Currency(object input, string cultureInfo = null)
         {
-            decimal amount;
 
-            if (decimal.TryParse(input.ToString(), out amount))
+            if (decimal.TryParse(input.ToString(), out decimal amount))
             {
                 if (cultureInfo.IsNullOrWhiteSpace())
                 {

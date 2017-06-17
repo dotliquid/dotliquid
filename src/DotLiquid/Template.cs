@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -66,18 +66,16 @@ namespace DotLiquid
 
         public static Type GetTagType(string name)
         {
-            Tuple<ITagFactory, Type> result;
-            Tags.TryGetValue(name, out result);
+            Tags.TryGetValue(name, out Tuple<ITagFactory, Type> result);
             return result.Item2;
         }
 
         internal static Tag CreateTag(string name)
         {
             Tag tagInstance = null;
-            Tuple<ITagFactory, Type> result;
-            Tags.TryGetValue(name, out result);
+            Tags.TryGetValue(name, out Tuple<ITagFactory, Type> result);
 
-            if(result != null)
+            if (result != null)
             {
                 tagInstance = result.Item1.Create();
             }
@@ -138,8 +136,7 @@ namespace DotLiquid
         public static Func<object, object> GetValueTypeTransformer(Type type)
         {
             // Check for concrete types
-            Func<object, object> transformer;
-            if (ValueTypeTransformers.TryGetValue(type, out transformer))
+            if (ValueTypeTransformers.TryGetValue(type, out Func<object, object> transformer))
                 return transformer;
 
             // Check for interfaces
@@ -158,8 +155,7 @@ namespace DotLiquid
         public static Func<object, object> GetSafeTypeTransformer(Type type)
         {
             // Check for concrete types
-            Func<object, object> transformer;
-            if (SafeTypeTransformers.TryGetValue(type, out transformer))
+            if (SafeTypeTransformers.TryGetValue(type, out Func<object, object> transformer))
                 return transformer;
 
             // Check for interfaces
@@ -328,10 +324,7 @@ namespace DotLiquid
             if (Root == null)
                 return;
 
-            Context context;
-            Hash registers;
-            IEnumerable<Type> filters;
-            parameters.Evaluate(this, out context, out registers, out filters);
+            parameters.Evaluate(this, out Context context, out Hash registers, out IEnumerable<Type> filters);
 
             if (!IsThreadSafe)
             {

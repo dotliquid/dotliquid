@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -120,7 +120,7 @@ namespace DotLiquid.Tags
                     {
                         var itemKey = ((KeyValuePair<string, object>) item).Key;
                         var itemValue = ((KeyValuePair<string, object>) item).Value;
-                        buildContext(context, _variableName, itemKey, itemValue);
+                        BuildContext(context, _variableName, itemKey, itemValue);
 
                     } else 
                         context[_variableName] = item;
@@ -168,7 +168,7 @@ namespace DotLiquid.Tags
             return segments;
         }
 
-        private void buildContext(Context context, string parent, string key, object value)
+        private void BuildContext(Context context, string parent, string key, object value)
         {
             if (value is Hash)
             {
@@ -180,7 +180,7 @@ namespace DotLiquid.Tags
                 {
                     if (hashItem.Value is Hash)
                     {
-                        buildContext(context, parent + "." + key, hashItem.Key, hashItem.Value);
+                        BuildContext(context, parent + "." + key, hashItem.Key, hashItem.Value);
                     }
                 }
 

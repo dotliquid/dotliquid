@@ -55,8 +55,7 @@ namespace DotLiquid
 
         private static Action<object, Hash> GetObjToDictionaryMapper(Type type)
         {
-            Action<object, Hash> mapper;
-            if (!mapperCache.TryGetValue(type, out mapper))
+            if (!mapperCache.TryGetValue(type, out Action<object, Hash> mapper))
             {
                 /* Bogdan Mart: Note regarding concurrency:
                  * This is concurrent dictionary, but if this will be called from two threads

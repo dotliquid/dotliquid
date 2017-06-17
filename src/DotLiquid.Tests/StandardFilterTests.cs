@@ -139,6 +139,11 @@ namespace DotLiquid.Tests
         [TestCase("6.8458", "6,85 €")]
         public void TestEuroCurrencyFromString(string input, string expected)
         {
+#if CORE
+            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
+#else
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+#endif
             Assert.AreEqual(expected, StandardFilters.Currency(input, "de-DE"));
         }
 

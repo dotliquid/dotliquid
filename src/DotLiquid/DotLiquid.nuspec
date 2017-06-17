@@ -21,9 +21,9 @@
     <file src="bin\Release\netstandard1.3\DotLiquid.dll" target="lib\netstandard1.3" />
     <file src="bin\Release\netstandard1.3\it\DotLiquid.resources.dll" target="lib\netstandard1.3\it" />
     <file src="bin\Release\netstandard1.3\DotLiquid.pdb" target="lib\netstandard1.3" />
-    <file src="bin\Release\net451\DotLiquid.dll" target="lib\net451" />
-    <file src="bin\Release\net451\it\DotLiquid.resources.dll" target="lib\net451\it" />
-    <file src="bin\Release\net451\DotLiquid.pdb" target="lib\net451" />
+    <file src="bin\Release\net45\DotLiquid.dll" target="lib\net45" />
+    <file src="bin\Release\net45\it\DotLiquid.resources.dll" target="lib\net45\it" />
+    <file src="bin\Release\net45\DotLiquid.pdb" target="lib\net45" />
     <file src="**\*.cs" target="src" />
   </files>
 </package>

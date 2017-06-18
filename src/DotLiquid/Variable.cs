@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -70,24 +70,28 @@ namespace DotLiquid
             if (output != null)
             {
                 var transformer = Template.GetValueTypeTransformer(output.GetType());
-                
-                if(transformer != null)
-                output = transformer(output);
+
+                if (transformer != null)
+                    output = transformer(output);
 
                 //treating Strings as IEnumerable, and was joining Chars in loop
                 string outputString = output as string;
 
-                if (outputString != null) {}
-                else if (output is IEnumerable)
-#if NET35
-                    outputString = string.Join(string.Empty, ((IEnumerable)output).Cast<object>().Select(o => o.ToString()).ToArray());
-#else
-                    outputString = string.Join(string.Empty, ((IEnumerable)output).Cast<object>());
-#endif
-                else if (output is bool)
-                    outputString = output.ToString().ToLower();
-                else
-                    outputString = output.ToString();
+                if (outputString == null)
+                {
+                    if (output is IEnumerable enumerableOutput)
+                    {
+                        outputString = string.Join(string.Empty, enumerableOutput.Cast<object>());
+                    }
+                    else if (output is bool)
+                    {
+                        outputString = output.ToString().ToLower();
+                    }
+                    else
+                    {
+                        outputString = output.ToString();
+                    }
+                }
                 result.Write(outputString);
             }
         }
@@ -99,7 +103,7 @@ namespace DotLiquid
 
             object output = context[Name];
 
-            foreach(var filter in Filters.ToList())
+            foreach (var filter in Filters.ToList())
             {
                 List<object> filterArgs = filter.Arguments.Select(a => context[a]).ToList();
                 try
@@ -114,7 +118,7 @@ namespace DotLiquid
             };
 
             if (output is IValueTypeConvertible)
-                output = ((IValueTypeConvertible) output).ConvertToValueType();
+                output = ((IValueTypeConvertible)output).ConvertToValueType();
 
             return output;
         }

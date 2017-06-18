@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Net;
 using System.Web;
@@ -293,11 +293,8 @@ namespace DotLiquid.Tests
         [Test]
         public void TestHtmlEncodingFilter()
         {
-#if NET35
-            Template.RegisterValueTypeTransformer(typeof(string), m => HttpUtility.HtmlEncode((string) m));
-#else
             Template.RegisterValueTypeTransformer(typeof(string), m => WebUtility.HtmlEncode((string) m));
-#endif
+
             Template template = Template.Parse("{{var1}} {{var2}}");
 
             var output = template.Render(Hash.FromAnonymousObject(new { var1 = "<html>", var2 = "Some <b>bold</b> text." }));

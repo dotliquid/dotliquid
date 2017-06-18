@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +10,9 @@ namespace DotLiquid
     public class Hash : IDictionary<string, object>, IDictionary
     {
         #region Static fields
-#if !NET35
 
         private static System.Collections.Concurrent.ConcurrentDictionary<Type, Action<object, Hash>> mapperCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, Action<object, Hash>>();
 
-#endif
         #endregion
 
         #region Fields
@@ -31,23 +29,12 @@ namespace DotLiquid
             Hash result = new Hash();
             if (anonymousObject != null)
             {
-#if NET35
-                FromAnonymousObject35(anonymousObject, result);
-#else
-                FromAnonymousObject40(anonymousObject, result);
-#endif
+                FromAnonymousObject(anonymousObject, result);
             }
             return result;
         }
 
-#if NET35
-        private static void FromAnonymousObject35(object anonymousObject, Hash hash)
-        {
-            foreach (PropertyInfo property in anonymousObject.GetType().GetProperties())
-                hash[property.Name] = property.GetValue(anonymousObject, null);
-        }
-#else
-        private static void FromAnonymousObject40(object anonymousObject, Hash hash)
+        private static void FromAnonymousObject(object anonymousObject, Hash hash)
         {
             Action<object, Hash> mapper = GetObjToDictionaryMapper(anonymousObject.GetType());
             mapper.Invoke(anonymousObject, hash);                
@@ -115,7 +102,6 @@ namespace DotLiquid
 
             return expr.Compile();
         }
-#endif
 
         public static Hash FromDictionary(IDictionary<string, object> dictionary)
         {

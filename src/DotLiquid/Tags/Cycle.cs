@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -11,14 +11,14 @@ namespace DotLiquid.Tags
     /// Cycle is usually used within a loop to alternate between values, like colors or DOM classes.
     ///
     ///   {% for item in items %}
-    ///    <div class="{% cycle 'red', 'green', 'blue' %}"> {{ item }} </div>
+    ///    &lt;div class="{% cycle 'red', 'green', 'blue' %}"&gt; {{ item }} &lt;/div&gt;
     ///   {% end %}
     ///
-    ///    <div class="red"> Item one </div>
-    ///    <div class="green"> Item two </div>
-    ///    <div class="blue"> Item three </div>
-    ///    <div class="red"> Item four </div>
-    ///    <div class="green"> Item five</div>
+    ///    &lt;div class="red"&gt; Item one &lt;/div&gt;
+    ///    &lt;div class="green"&gt; Item two &lt;/div&gt;
+    ///    &lt;div class="blue"&gt; Item three &lt;/div&gt;
+    ///    &lt;div class="red"&gt; Item four &lt;/div&gt;
+    ///    &lt;div class="green"&gt; Item five&lt;/div&gt;
     /// </summary>
     public class Cycle : Tag
     {
@@ -29,6 +29,12 @@ namespace DotLiquid.Tags
         private string[] _variables;
         private string _name;
 
+        /// <summary>
+        /// Initializes the cycle tag
+        /// </summary>
+        /// <param name="tagName"></param>
+        /// <param name="markup"></param>
+        /// <param name="tokens"></param>
         public override void Initialize(string tagName, string markup, List<string> tokens)
         {
             Match match = NamedSyntax.Match(markup);
@@ -65,6 +71,11 @@ namespace DotLiquid.Tags
             }).ToArray();
         }
 
+        /// <summary>
+        /// Renders the cycle tag
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="result"></param>
         public override void Render(Context context, TextWriter result)
         {
             context.Registers["cycle"] = context.Registers["cycle"] ?? new Hash(0);

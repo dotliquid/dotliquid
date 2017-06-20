@@ -9,6 +9,16 @@ using DotLiquid.Util;
 
 namespace DotLiquid.Tags.Html
 {
+    /// <summary>
+    /// TablerRow tag
+    /// </summary>
+    /// <example>
+    /// &lt;table&gt;
+    ///   {% tablerow product in collection.products %}
+    ///     {{ product.title }}
+    ///   {% endtablerow %}
+    /// &lt;/table&gt;
+    /// </example>
     public class TableRow : DotLiquid.Block
     {
         private static readonly Regex Syntax = R.B(R.Q(@"(\w+)\s+in\s+({0}+)"), Liquid.VariableSignature);
@@ -16,6 +26,12 @@ namespace DotLiquid.Tags.Html
         private string _variableName, _collectionName;
         private Dictionary<string, string> _attributes;
 
+        /// <summary>
+        /// Initializes the tablerow tag
+        /// </summary>
+        /// <param name="tagName">Name of the parsed tag</param>
+        /// <param name="markup">Markup of the parsed tag</param>
+        /// <param name="tokens">Toeksn of the parsed tag</param>
         public override void Initialize(string tagName, string markup, List<string> tokens)
         {
             Match syntaxMatch = Syntax.Match(markup);
@@ -32,6 +48,11 @@ namespace DotLiquid.Tags.Html
             base.Initialize(tagName, markup, tokens);
         }
 
+        /// <summary>
+        /// Renders the tablerow tag
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="result"></param>
         public override void Render(Context context, TextWriter result)
         {
             object coll = context[_collectionName];

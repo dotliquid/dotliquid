@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -7,6 +7,10 @@ using DotLiquid.Util;
 
 namespace DotLiquid
 {
+    /// <summary>
+    /// Represents a block in liquid:
+    /// {% random 5 %} you have drawn number ^^^, lucky you! {% endrandom %}
+    /// </summary>
     public class Block : Tag
     {
         private static readonly Regex IsTag = R.B(@"^{0}", Liquid.TagStart);
@@ -15,6 +19,10 @@ namespace DotLiquid
 
         internal static readonly Regex FullToken = R.B(@"^{0}\s*(\w+)\s*(.*)?{1}$", Liquid.TagStart, Liquid.TagEnd);
 
+        /// <summary>
+        /// Parses a list of tokens
+        /// </summary>
+        /// <param name="tokens"></param>
         protected override void Parse(List<string> tokens)
         {
             NodeList = NodeList ?? new List<object>();
@@ -79,10 +87,19 @@ namespace DotLiquid
             AssertMissingDelimitation();
         }
 
+        /// <summary>
+        /// Called at the end of the parsing of the tag
+        /// </summary>
         public virtual void EndTag()
         {
         }
 
+        /// <summary>
+        /// Handles an unknown tag
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <param name="markup"></param>
+        /// <param name="tokens"></param>
         public virtual void UnknownTag(string tag, string markup, List<string> tokens)
         {
             switch (tag)
@@ -96,6 +113,10 @@ namespace DotLiquid
             }
         }
 
+        /// <summary>
+        /// Delimiter signaling the end of the block.
+        /// </summary>
+        /// <remarks>Usually "end"+block name</remarks>
         protected virtual string BlockDelimiter
         {
             get { return string.Format("end{0}", BlockName); }
@@ -106,6 +127,13 @@ namespace DotLiquid
             get { return TagName; }
         }
 
+        /// <summary>
+        /// Creates a variable from a token:
+        /// 
+        /// {{ variable }}
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         public Variable CreateVariable(string token)
         {
             Match match = ContentOfVariable.Match(token);
@@ -114,31 +142,51 @@ namespace DotLiquid
             throw new SyntaxException(Liquid.ResourceManager.GetString("BlockVariableNotTerminatedException"), token, Liquid.VariableEnd);
         }
 
+        /// <summary>
+        /// Renders the block
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="result"></param>
         public override void Render(Context context, TextWriter result)
         {
             RenderAll(NodeList, context, result);
         }
 
+        /// <summary>
+        /// Throw an exception if the block isn't closed
+        /// </summary>
         protected virtual void AssertMissingDelimitation()
         {
             throw new SyntaxException(Liquid.ResourceManager.GetString("BlockTagNotClosedException"), BlockName);
         }
 
+        /// <summary>
+        /// Renders all the objects in the list
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="context"></param>
+        /// <param name="result"></param>
         protected void RenderAll(List<object> list, Context context, TextWriter result)
         {
             foreach (var token in list)
             {
                 try
                 {
-                    if (token is IRenderable)
-                        ((IRenderable)token).Render(context, result);
+                    if (token is IRenderable renderableToken)
+                    {
+                        renderableToken.Render(context, result);
+                    }
                     else
+                    {
                         result.Write(token.ToString());
+                    }
                 }
                 catch (Exception ex)
                 {
                     if (ex.InnerException is LiquidException)
+                    {
                         ex = ex.InnerException;
+                    }
                     result.Write(context.HandleError(ex));
                 }
             }

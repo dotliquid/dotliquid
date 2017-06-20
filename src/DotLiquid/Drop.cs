@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -146,17 +146,16 @@ namespace DotLiquid
     /// </summary>
     public abstract class DropBase : ILiquidizable, IIndexable, IContextAware
     {
-        private TypeResolution _resolution;
-
         internal TypeResolution TypeResolution
         {
             get
             {
-                Type dropType = GetObject()
-                    .GetType();
-                if (!TypeResolutionCache.Instance.TryGetValue(dropType, out _resolution))
-                    TypeResolutionCache.Instance[dropType] = _resolution = CreateTypeResolution(dropType);
-                return _resolution;
+                Type dropType = GetObject().GetType();
+                if (!TypeResolutionCache.Instance.TryGetValue(dropType, out TypeResolution resolution))
+                { 
+                    TypeResolutionCache.Instance[dropType] = resolution = CreateTypeResolution(dropType);
+                }
+                return resolution;
             }
         }
 

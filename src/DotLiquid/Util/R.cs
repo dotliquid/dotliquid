@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -14,12 +14,7 @@ namespace DotLiquid.Util
 
         public static Regex B(string format, params string[] args)
         {
-            string pattern = string.Format(format, args);
-
-            //bool hasGAnchor;
-            //pattern = RegexpTransformer.Transform(pattern, out hasGAnchor);
-
-            return R.C(pattern);
+            return C(string.Format(format, args));
         }
 
         /// <summary>

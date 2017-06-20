@@ -10,6 +10,9 @@ using DotLiquid.Util;
 
 namespace DotLiquid
 {
+    /// <summary>
+    /// Standard Liquid filters
+    /// </summary>
     public static class StandardFilters
     {
         /// <summary>
@@ -19,10 +22,14 @@ namespace DotLiquid
         /// <returns></returns>
         public static int Size(object input)
         {
-            if (input is string)
-                return ((string) input).Length;
-            if (input is IEnumerable)
-                return ((IEnumerable) input).Cast<object>().Count();
+            if (input is string stringInput)
+            {
+                return stringInput.Length;
+            }
+            if (input is IEnumerable enumerableInput)
+            {
+                return enumerableInput.Cast<object>().Count();
+            }
             return 0;
         }
 
@@ -37,10 +44,15 @@ namespace DotLiquid
         {
             if (input == null || start > input.Length)
                 return null;
+
             if (start < 0)
+            { 
                 start += input.Length;
+            }
             if (start + len > input.Length)
+            { 
                 len = input.Length - start;
+            }
             return input.Substring(start, len);
         }
 
@@ -97,6 +109,12 @@ namespace DotLiquid
 #endif
         }
 
+        /// <summary>
+        /// Escape html chars
+        /// </summary>
+        /// <param name="input">String to escape</param>
+        /// <returns>Escaped string</returns>
+        /// <remarks>Alias of H</remarks>
         public static string Escape(string input)
         {
             if (string.IsNullOrEmpty(input))
@@ -112,6 +130,12 @@ namespace DotLiquid
             }
         }
 
+        /// <summary>
+        /// Escape html chars
+        /// </summary>
+        /// <param name="input">String to escape</param>
+        /// <returns>Escaped string</returns>
+        /// <remarks>Alias of Escape</remarks>
         public static string H(string input)
         {
             return Escape(input);
@@ -135,7 +159,14 @@ namespace DotLiquid
                 ? input.Substring(0, l < 0 ? 0 : l) + truncateString
                 : input;
         }
-        
+
+        /// <summary>
+        /// Truncate a string down to x words
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="words"></param>
+        /// <param name="truncateString"></param>
+        /// <returns></returns>
         public static string TruncateWords(string input, int words = 15, string truncateString = "...")
         {
             if (string.IsNullOrEmpty(input))
@@ -162,6 +193,11 @@ namespace DotLiquid
                 : input.Split(new[] { pattern }, StringSplitOptions.RemoveEmptyEntries);
         }
 
+        /// <summary>
+        /// Strip all html nodes from input
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         public static string StripHtml(string input)
         {
             return input.IsNullOrWhiteSpace()
@@ -203,8 +239,6 @@ namespace DotLiquid
             return input.IsNullOrWhiteSpace()
                 ? input
                 : Regex.Replace(input, @"(\r?\n)", string.Empty, RegexOptions.None, Template.RegexTimeOut);
-
-                //: Regex.Replace(input, Environment.NewLine, string.Empty);
         }
 
         /// <summary>
@@ -233,19 +267,30 @@ namespace DotLiquid
         public static IEnumerable Sort(object input, string property = null)
         {
             List<object> ary;
-            if (input is IEnumerable)
-                ary = ((IEnumerable) input).Flatten().Cast<object>().ToList();
+            if (input is IEnumerable enumerableInput)
+            { 
+                ary = enumerableInput.Flatten().Cast<object>().ToList();
+            }
             else
+            { 
                 ary = new List<object>(new[] { input });
+            }
+
             if (!ary.Any())
                 return ary;
 
             if (string.IsNullOrEmpty(property))
+            { 
                 ary.Sort();
-            else if ((ary.All(o => o is IDictionary)) && ((IDictionary) ary.First()).Contains(property))
-                ary.Sort((a, b) => Comparer<object>.Default.Compare(((IDictionary) a)[property], ((IDictionary) b)[property]));
+            }
+            else if ((ary.All(o => o is IDictionary)) && ((IDictionary)ary.First()).Contains(property))
+            { 
+                ary.Sort((a, b) => Comparer<object>.Default.Compare(((IDictionary)a)[property], ((IDictionary)b)[property]));
+            }
             else if (ary.All(o => o.RespondTo(property)))
+            { 
                 ary.Sort((a, b) => Comparer<object>.Default.Compare(a.Send(property), b.Send(property)));
+            }
 
             return ary;
         }
@@ -262,8 +307,8 @@ namespace DotLiquid
             if (!ary.Any())
                 return ary;
 
-            if ((ary.All(o => o is IDictionary)) && ((IDictionary) ary.First()).Contains(property))
-                return ary.Select(e => ((IDictionary) e)[property]);
+            if ((ary.All(o => o is IDictionary)) && ((IDictionary)ary.First()).Contains(property))
+                return ary.Select(e => ((IDictionary)e)[property]);
             if (ary.All(o => o.RespondTo(property)))
                 return ary.Select(e => e.Send(property));
 
@@ -468,12 +513,19 @@ namespace DotLiquid
         /// <param name="input"></param>
         /// <param name="operand"></param>
         /// <returns></returns>
-        public static object Times(object input, object operand) {
+        public static object Times(object input, object operand)
+        {
             return input is string && operand is int
-                ? Enumerable.Repeat((string) input, (int) operand)
+                ? Enumerable.Repeat((string)input, (int)operand)
                 : DoMathsOperation(input, operand, Expression.Multiply);
         }
 
+        /// <summary>
+        /// Rounds a decimal value to the specified places
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="places"></param>
+        /// <returns>The rounded value; null if an exception have occured</returns>
         public static object Round(object input, object places = null)
         {
             try
@@ -499,6 +551,12 @@ namespace DotLiquid
             return DoMathsOperation(input, operand, Expression.Divide);
         }
 
+        /// <summary>
+        /// Performs an arithmetic remainder operation on the input
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="operand"></param>
+        /// <returns></returns>
         public static object Modulo(object input, object operand)
         {
             return DoMathsOperation(input, operand, Expression.Modulo);

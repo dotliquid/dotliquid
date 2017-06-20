@@ -20,9 +20,9 @@ namespace DotLiquid.Tags
     ///
     /// == Advanced usage:
     ///    {% for item in collection %}
-    ///      <div {% if forloop.first %}class="first"{% endif %}>
+    ///      &lt;div {% if forloop.first %}class="first"{% endif %}&gt;
     ///        Item {{ forloop.index }}: {{ item.name }}
-    ///      </div>
+    ///      &lt;/div&gt;
     ///    {% endfor %}
     ///
     /// You can also define a limit and offset much like SQL.  Remember
@@ -59,6 +59,12 @@ namespace DotLiquid.Tags
         private bool _reversed;
         private Dictionary<string, string> _attributes;
 
+        /// <summary>
+        /// Initializes the for tag
+        /// </summary>
+        /// <param name="tagName">Name of the parsed tag</param>
+        /// <param name="markup">Markup of the parsed tag</param>
+        /// <param name="tokens">Toeksn of the parsed tag</param>
         public override void Initialize(string tagName, string markup, List<string> tokens)
         {
             Match match = Syntax.Match(markup);
@@ -80,6 +86,11 @@ namespace DotLiquid.Tags
             base.Initialize(tagName, markup, tokens);
         }
 
+        /// <summary>
+        /// Renders the for tag
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="result"></param>
         public override void Render(Context context, TextWriter result)
         {
             context.Registers["for"] = context.Registers["for"] ?? new Hash(0);
@@ -146,6 +157,7 @@ namespace DotLiquid.Tags
                     }
                     catch (ContinueInterrupt)
                     {
+                        // ContinueInterrupt is used only to skip the current value but not to stop the iteration
                     }
                 }
             });
@@ -170,10 +182,9 @@ namespace DotLiquid.Tags
 
         private void BuildContext(Context context, string parent, string key, object value)
         {
-            if (value is Hash)
+            if (value is Hash hashValue)
             {
-
-                ((Hash)value)["itemName"] = key;
+                hashValue["itemName"] = key;
                 context[parent] = value;
                 
                 foreach (var hashItem in (Hash)value)

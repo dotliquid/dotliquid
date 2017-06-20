@@ -1,15 +1,14 @@
-using System.Reflection;
-using System.Resources;
-using DotLiquid.NamingConventions;
-using DotLiquid.Tags;
-using DotLiquid.Tags.Html;
+﻿using System.Resources;
 using DotLiquid.Util;
 
 namespace DotLiquid
 {
+    /// <summary>
+    /// Utiliy containing regexes for Liquid syntax and registering default tags and blocks
+    /// </summary>
     public static class Liquid
     {
-        internal static readonly ResourceManager ResourceManager = new ResourceManager(typeof(DotLiquid.Properties.Resources));
+        internal static readonly ResourceManager ResourceManager = new ResourceManager(typeof(Properties.Resources));
 
         public static readonly string FilterSeparator = R.Q(@"\|");
         public static readonly string ArgumentSeparator = R.Q(@",");

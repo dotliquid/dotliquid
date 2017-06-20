@@ -101,14 +101,14 @@ namespace DotLiquid
 
         private static bool EqualVariables(object left, object right)
         {
-            if (left is Symbol)
+            if (left is Symbol leftSymbol)
             { 
-                return ((Symbol) left).EvaluationFunction(right);
+                return leftSymbol.EvaluationFunction(right);
             }
 
-            if (right is Symbol)
+            if (right is Symbol rightSymbol)
             { 
-                return ((Symbol) right).EvaluationFunction(left);
+                return rightSymbol.EvaluationFunction(left);
             }
 
             if (left != null && right != null && left.GetType() != right.GetType())

@@ -26,10 +26,20 @@ namespace DotLiquid
     /// </summary>
     public class Template
     {
-        public static INamingConvention NamingConvention;
+        /// <summary>
+        /// Naming convention used for template parsing
+        /// </summary>
+        /// <remarks>Default is Ruby</remarks>
+        public static INamingConvention NamingConvention { get; set; }
 
+        /// <summary>
+        /// Filesystem used for template reading
+        /// </summary>
         public static IFileSystem FileSystem { get; set; }
 
+        /// <summary>
+        /// Indicates if the default is thread safe
+        /// </summary>
         public static bool DefaultIsThreadSafe { get; set; }
 
         private static Dictionary<string, Tuple<ITagFactory, Type>> Tags { get; set; }
@@ -52,6 +62,11 @@ namespace DotLiquid
             ValueTypeTransformers = new Dictionary<Type, Func<object, object>>();
         }
 
+        /// <summary>
+        /// Register a tag
+        /// </summary>
+        /// <typeparam name="T">Type of the tag</typeparam>
+        /// <param name="name">Name of the tag</param>
         public static void RegisterTag<T>(string name)
             where T : Tag, new()
         {
@@ -59,11 +74,20 @@ namespace DotLiquid
             Tags[name] = new Tuple<ITagFactory,Type>(new ActivatorTagFactory(tagType, name), tagType);
         }
 
+        /// <summary>
+        /// Registers a tag factory.
+        /// </summary>
+        /// <param name="tagFactory">The ITagFactory to be registered</param>
         public static void RegisterTagFactory(ITagFactory tagFactory)
         {
             Tags[tagFactory.TagName] = new Tuple<ITagFactory, Type>(tagFactory, null);
         }
 
+        /// <summary>
+        /// Get the tag type from it's name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public static Type GetTagType(string name)
         {
             Tags.TryGetValue(name, out Tuple<ITagFactory, Type> result);
@@ -108,6 +132,7 @@ namespace DotLiquid
         /// </summary>
         /// <param name="type">The type to register</param>
         /// <param name="allowedMembers">An array of property and method names that are allowed to be called on the object.</param>
+        /// <param name="func">Function that converts the specified type into a Liquid Drop-compatible object (eg, implements ILiquidizable)</param>
         public static void RegisterSafeType(Type type, string[] allowedMembers, Func<object, object> func)
         {
             RegisterSafeType(type, x => new DropProxy(x, allowedMembers, func));
@@ -133,6 +158,11 @@ namespace DotLiquid
             ValueTypeTransformers[type] = func;
         }
 
+        /// <summary>
+        /// Gets the corresponding value type converter
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static Func<object, object> GetValueTypeTransformer(Type type)
         {
             // Check for concrete types
@@ -152,6 +182,11 @@ namespace DotLiquid
             return null;
         }
 
+        /// <summary>
+        /// Gets the corresponding safe type transformer
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static Func<object, object> GetSafeTypeTransformer(Type type)
         {
             // Check for concrete types
@@ -187,6 +222,9 @@ namespace DotLiquid
         private List<Exception> _errors;
         private bool? _isThreadSafe;
 
+        /// <summary>
+        /// Liquid document
+        /// </summary>
         public Document Root { get; set; }
 
         public Hash Registers
@@ -204,11 +242,17 @@ namespace DotLiquid
             get { return (_instanceAssigns = _instanceAssigns ?? new Hash()); }
         }
 
+        /// <summary>
+        /// Exceptions that have been raised during template rendering
+        /// </summary>
         public List<Exception> Errors
         {
             get { return (_errors = _errors ?? new List<Exception>()); }
         }
 
+        /// <summary>
+        /// Indicates if the parsed templates will be thread safe
+        /// </summary>
         public bool IsThreadSafe
         {
             get { return _isThreadSafe ?? DefaultIsThreadSafe; }

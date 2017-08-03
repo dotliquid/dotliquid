@@ -90,6 +90,19 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        public void TestTimeoutError()
+        {
+            var template = Template.Parse(" {% for i in (1..1000000) %} {{ i }} {% endfor %} ");
+            Assert.Throws<System.TimeoutException>(() =>
+            {
+                template.Render(new RenderParameters
+                {
+                    Timeout = 100 //ms
+                });
+            });
+        }
+
+        [Test]
         public void TestErrorsOutputModeRethrow()
         {
             var template = Template.Parse("{{test}}");

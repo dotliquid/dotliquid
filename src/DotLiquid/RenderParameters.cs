@@ -71,7 +71,7 @@ namespace DotLiquid
                 context = Context;
                 registers = null;
                 filters = null;
-                context.ResetTimeout();
+                context.RestartTimeout();
                 return;
             }
 

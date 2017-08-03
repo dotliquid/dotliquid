@@ -75,6 +75,10 @@ namespace DotLiquid
             Errors = new List<Exception>();
             _errorsOutputMode = errorsOutputMode;
             _maxIterations = maxIterations;
+            _timeout = timeout;
+
+            RestartTimeout();
+
             SquashInstanceAssignsWithEnvironments();
         }
 
@@ -623,7 +627,7 @@ namespace DotLiquid
         private readonly int _timeout;
         private Stopwatch _stopwatch = new Stopwatch();
 
-        public void ResetTimeout()
+        public void RestartTimeout()
         {
             _stopwatch.Restart();
         }

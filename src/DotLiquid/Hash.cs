@@ -151,7 +151,7 @@ namespace DotLiquid
                 _nestedDictionary[key] = otherValues[key];
         }
 
-        private object GetValue(string key)
+        protected virtual object GetValue(string key)
         {
             if (_nestedDictionary.ContainsKey(key))
                 return _nestedDictionary[key];
@@ -203,7 +203,7 @@ namespace DotLiquid
             ((IDictionary<string, object>) _nestedDictionary).Add(item);
         }
 
-        public bool Contains(object key)
+        public virtual bool Contains(object key)
         {
             return ((IDictionary) _nestedDictionary).Contains(key);
         }

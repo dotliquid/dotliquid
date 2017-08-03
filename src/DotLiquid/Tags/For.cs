@@ -54,6 +54,7 @@ namespace DotLiquid.Tags
     public class For : DotLiquid.Block
     {
         private static readonly Regex Syntax = R.B(R.Q(@"(\w+)\s+in\s+({0}+)\s*(reversed)?"), Liquid.QuotedFragment);
+        private static string ForTagMaxIterationsExceededException = Liquid.ResourceManager.GetString("ForTagMaximumIterationsExceededException");
 
         private string _variableName, _collectionName, _name;
         private bool _reversed;
@@ -109,7 +110,7 @@ namespace DotLiquid.Tags
             int? limit = _attributes.ContainsKey("limit") ? context[_attributes["limit"]] as int? : null;
             int? to = (limit != null) ? (int?) (limit.Value + from) : null;
 
-            List<object> segment = SliceCollectionUsingEach((IEnumerable) collection, from, to);
+            List<object> segment = SliceCollectionUsingEach(context, (IEnumerable) collection, from, to);
 
             if (!segment.Any())
                 return;
@@ -163,7 +164,7 @@ namespace DotLiquid.Tags
             });
         }
 
-        private static List<object> SliceCollectionUsingEach(IEnumerable collection, int from, int? to)
+        private static List<object> SliceCollectionUsingEach(Context context, IEnumerable collection, int from, int? to)
         {
             List<object> segments = new List<object>();
             int index = 0;
@@ -176,6 +177,11 @@ namespace DotLiquid.Tags
                     segments.Add(item);
 
                 ++index;
+
+                if (context.MaxIterations > 0 && index > context.MaxIterations)
+                {
+                    throw new MaximumIterationsExceededException(For.ForTagMaxIterationsExceededException, context.MaxIterations.ToString());
+                }
             }
             return segments;
         }

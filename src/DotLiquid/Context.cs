@@ -23,7 +23,15 @@ namespace DotLiquid
         private static readonly Regex SquareBracketedRegex = R.C(R.Q(@"^\[(.*)\]$"));
         private static readonly Regex VariableParserRegex = R.C(Liquid.VariableParser);
 
-        private readonly bool _rethrowErrors;
+        private readonly RenderParameters.ErrorsOutputModeEnum _errorsOutputMode;
+        
+        private readonly int _maxIterations;
+
+        public int MaxIterations
+        {
+            get { return _maxIterations; }
+        }
+
         private Strainer _strainer;
 
         /// <summary>
@@ -52,8 +60,8 @@ namespace DotLiquid
         /// <param name="environments"></param>
         /// <param name="outerScope"></param>
         /// <param name="registers"></param>
-        /// <param name="rethrowErrors"></param>
-        public Context(List<Hash> environments, Hash outerScope, Hash registers, bool rethrowErrors)
+        /// <param name="errorsOutputMode"></param>
+        public Context(List<Hash> environments, Hash outerScope, Hash registers, RenderParameters.ErrorsOutputModeEnum errorsOutputMode, int maxIterations)
         {
             Environments = environments;
 
@@ -64,7 +72,8 @@ namespace DotLiquid
             Registers = registers;
 
             Errors = new List<Exception>();
-            _rethrowErrors = rethrowErrors;
+            _errorsOutputMode = errorsOutputMode;
+            _maxIterations = maxIterations;
             SquashInstanceAssignsWithEnvironments();
         }
 
@@ -72,7 +81,7 @@ namespace DotLiquid
         /// Creates a new rendering context
         /// </summary>
         public Context()
-            : this(new List<Hash>(), new Hash(), new Hash(), false)
+            : this(new List<Hash>(), new Hash(), new Hash(), RenderParameters.ErrorsOutputModeEnum.Display, 0)
         {
         }
 
@@ -138,15 +147,19 @@ namespace DotLiquid
         /// <returns></returns>
         public string HandleError(Exception ex)
         {
-            if (ex is InterruptException)
+            if (ex is InterruptException || ex is TimeoutException || ex is RenderException)
                 throw ex;
 
             Errors.Add(ex);
-            if (_rethrowErrors)
+
+            if (_errorsOutputMode == RenderParameters.ErrorsOutputModeEnum.Suppress)
+                return string.Empty;
+
+            if (_errorsOutputMode == RenderParameters.ErrorsOutputModeEnum.Rethrow)
                 throw ex;
 
             if (ex is SyntaxException)
-            { 
+            {
                 return string.Format(Liquid.ResourceManager.GetString("ContextLiquidSyntaxError"), ex.Message);
             }
             return string.Format(Liquid.ResourceManager.GetString("ContextLiquidError"), ex.Message);

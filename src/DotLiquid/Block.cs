@@ -170,6 +170,8 @@ namespace DotLiquid
         {
             foreach (var token in list)
             {
+                context.CheckTimeout();
+
                 try
                 {
                     if (token is IRenderable renderableToken)

@@ -127,6 +127,8 @@ namespace DotLiquid.Tags
             {
                 for (var index = 0; index < segment.Count; index++)
                 {
+                    context.CheckTimeout();
+
                     var item = segment[index];
                     if (item is KeyValuePair<string,object>)
                     {
@@ -170,6 +172,8 @@ namespace DotLiquid.Tags
             int index = 0;
             foreach (object item in collection)
             {
+                context.CheckTimeout();
+
                 if (to != null && to.Value <= index)
                     break;
 

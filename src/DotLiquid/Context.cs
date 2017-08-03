@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
+using System.Diagnostics;
 
 namespace DotLiquid
 {
@@ -61,7 +62,7 @@ namespace DotLiquid
         /// <param name="outerScope"></param>
         /// <param name="registers"></param>
         /// <param name="errorsOutputMode"></param>
-        public Context(List<Hash> environments, Hash outerScope, Hash registers, RenderParameters.ErrorsOutputModeEnum errorsOutputMode, int maxIterations)
+        public Context(List<Hash> environments, Hash outerScope, Hash registers, RenderParameters.ErrorsOutputModeEnum errorsOutputMode, int maxIterations, int timeout)
         {
             Environments = environments;
 
@@ -81,7 +82,7 @@ namespace DotLiquid
         /// Creates a new rendering context
         /// </summary>
         public Context()
-            : this(new List<Hash>(), new Hash(), new Hash(), RenderParameters.ErrorsOutputModeEnum.Display, 0)
+            : this(new List<Hash>(), new Hash(), new Hash(), RenderParameters.ErrorsOutputModeEnum.Display, 0, 0)
         {
         }
 
@@ -617,6 +618,23 @@ namespace DotLiquid
 
             foreach (string k in tempAssigns.Keys)
                 lastScope[k] = tempAssigns[k];
+        }
+
+        private readonly int _timeout;
+        private Stopwatch _stopwatch = new Stopwatch();
+
+        public void ResetTimeout()
+        {
+            _stopwatch.Restart();
+        }
+
+        public void CheckTimeout()
+        {
+            if (_timeout <= 0)
+                return;
+
+            if (_stopwatch.ElapsedMilliseconds > _timeout)
+                throw new TimeoutException();
         }
     }
 }

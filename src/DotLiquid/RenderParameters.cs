@@ -71,6 +71,7 @@ namespace DotLiquid
                 context = Context;
                 registers = null;
                 filters = null;
+                context.ResetTimeout();
                 return;
             }
 
@@ -79,12 +80,12 @@ namespace DotLiquid
                 environments.Add(LocalVariables);
             if (template.IsThreadSafe)
             {
-                context = new Context(environments, new Hash(), new Hash(), ErrorsOutputMode, MaxIterations);
+                context = new Context(environments, new Hash(), new Hash(), ErrorsOutputMode, MaxIterations, Timeout);
             }
             else
             {
                 environments.Add(template.Assigns);
-                context = new Context(environments, template.InstanceAssigns, template.Registers, ErrorsOutputMode, MaxIterations);
+                context = new Context(environments, template.InstanceAssigns, template.Registers, ErrorsOutputMode, MaxIterations, Timeout);
             }
             registers = Registers;
             filters = Filters;

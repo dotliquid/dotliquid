@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -223,32 +223,34 @@ namespace DotLiquid
         /// Renders the template using default parameters and returns a string containing the result.
         /// </summary>
         /// <returns></returns>
-        public string Render()
+        public string Render(IFormatProvider formatProvider = null)
         {
-            return Render(new RenderParameters());
+            return Render(new RenderParameters(), formatProvider);
         }
 
         /// <summary>
         /// Renders the template using the specified local variables and returns a string containing the result.
         /// </summary>
         /// <param name="localVariables"></param>
+        /// <param name="formatProvider"></param>
         /// <returns></returns>
-        public string Render(Hash localVariables)
+        public string Render(Hash localVariables, IFormatProvider formatProvider=null)
         {
             return Render(new RenderParameters
                 {
                     LocalVariables = localVariables
-                });
+                }, formatProvider);
         }
 
         /// <summary>
         /// Renders the template using the specified parameters and returns a string containing the result.
         /// </summary>
         /// <param name="parameters"></param>
+        /// <param name="formatProvider"></param>
         /// <returns></returns>
-        public string Render(RenderParameters parameters)
+        public string Render(RenderParameters parameters, IFormatProvider formatProvider = null)
         {
-            using (TextWriter writer = new StringWriter())
+            using (TextWriter writer = formatProvider == null ? new StringWriter() : new StringWriter(formatProvider))
             {
                 Render(writer, parameters);
                 return writer.ToString();

@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using System.Globalization;
+using System.IO;
+using NUnit.Framework;
 
 namespace DotLiquid.Tests
 {
@@ -46,7 +48,8 @@ namespace DotLiquid.Tests
             _assigns = Hash.FromAnonymousObject(new
             {
                 best_cars = "bmw",
-                car = Hash.FromAnonymousObject(new { bmw = "good", gm = "bad" })
+                car = Hash.FromAnonymousObject(new { bmw = "good", gm = "bad" }),
+                number = 3.145
             });
         }
 
@@ -55,6 +58,49 @@ namespace DotLiquid.Tests
         {
             Assert.AreEqual(" bmw ", Template.Parse(" {{best_cars}} ").Render(_assigns));
         }
+
+        
+         string Render(CultureInfo culture)
+ 	    {
+ 
+             var renderParams = new RenderParameters()
+             {
+                 LocalVariables = _assigns 
+             };
+ 	        using (var writer = new StringWriter(culture))
+ 	        {
+ 	            Template.Parse("{{number}}").Render(writer, renderParams);
+ 	            return writer.ToString();
+ 	        }
+ 	        
+ 	    }
+ 
+ 	    [Test]
+ 	    public void TestSeperator_Comma()
+        {
+
+            NumberFormatInfo nfi = new NumberFormatInfo();
+            nfi.NumberDecimalSeparator = ",";
+            var c = new CultureInfo("en-US")
+            {
+                NumberFormat = nfi
+            };
+            Assert.AreEqual("3,145", Render(c) );
+
+        }
+ 	    [Test]
+ 	    public void TestSeperator_Decimal()
+        {
+            NumberFormatInfo nfi = new NumberFormatInfo();
+            nfi.NumberDecimalSeparator = ".";
+            var c = new CultureInfo("en-US")
+            {
+                NumberFormat = nfi
+            };
+            Assert.AreEqual("3.145",Render(c) );
+
+        }
+
 
         [Test]
         public void TestVariableTraversing()

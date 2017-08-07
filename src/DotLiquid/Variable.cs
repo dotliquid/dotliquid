@@ -1,3 +1,4 @@
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -62,6 +63,8 @@ namespace DotLiquid
 
         public void Render(Context context, TextWriter result)
         {
+            string ToFormattedString(object o, IFormatProvider ifp) => o is IFormattable ifo ? ifo.ToString( null, ifp ) : o.ToString();
+
             object output = RenderInternal(context);
 
             if (output is ILiquidizable)
@@ -79,15 +82,12 @@ namespace DotLiquid
 
                 if (outputString != null) {}
                 else if (output is IEnumerable)
-#if NET35
-                    outputString = string.Join(string.Empty, ((IEnumerable)output).Cast<object>().Select(o => o.ToString()).ToArray());
-#else
-                    outputString = string.Join(string.Empty, ((IEnumerable)output).Cast<object>());
-#endif
+                    outputString = string.Join(string.Empty, ((IEnumerable)output).Cast<object>().Select(o => ToFormattedString(o,result.FormatProvider)).ToArray());
                 else if (output is bool)
                     outputString = output.ToString().ToLower();
                 else
-                    outputString = output.ToString();
+                    outputString = ToFormattedString(output,result.FormatProvider);
+
                 result.Write(outputString);
             }
         }

@@ -1,4 +1,4 @@
-using DotLiquid.Exceptions;
+﻿using DotLiquid.Exceptions;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -70,10 +70,80 @@ namespace DotLiquid.Tests
         {
             Template template = null;
             Assert.DoesNotThrow(() => { template = Template.Parse(" {{ errors.interrupt_exception }} "); });
-            var localVariables = Hash.FromAnonymousObject(new {errors = new ExceptionDrop()});
+            var localVariables = Hash.FromAnonymousObject(new { errors = new ExceptionDrop() });
             var exception = Assert.Throws<InterruptException>(() => template.Render(localVariables));
 
             Assert.AreEqual("interrupted", exception.Message);
+        }
+
+        [Test]
+        public void TestMaximumIterationsExceededError()
+        {
+            var template = Template.Parse(" {% for i in (1..100000) %} {{ i }} {% endfor %} ");
+            Assert.Throws<MaximumIterationsExceededException>(() =>
+            {
+                template.Render(new RenderParameters
+                {
+                    MaxIterations = 50
+                });
+            });
+        }
+
+        [Test]
+        public void TestTimeoutError()
+        {
+            var template = Template.Parse(" {% for i in (1..1000000) %} {{ i }} {% endfor %} ");
+            Assert.Throws<System.TimeoutException>(() =>
+            {
+                template.Render(new RenderParameters
+                {
+                    Timeout = 100 //ms
+                });
+            });
+        }
+
+        [Test]
+        public void TestErrorsOutputModeRethrow()
+        {
+            var template = Template.Parse("{{test}}");
+            Hash assigns = new Hash((h, k) => { throw new SyntaxException("Unknown variable '" + k + "'"); });
+
+            Assert.Throws<SyntaxException>(() =>
+            {
+                var output = template.Render(new RenderParameters
+                {
+                    LocalVariables = assigns,
+                    ErrorsOutputMode = RenderParameters.ErrorsOutputModeEnum.Rethrow
+                });
+            });
+        }
+
+        [Test]
+        public void TestErrorsOutputModeSuppress()
+        {
+            var template = Template.Parse("{{test}}");
+            Hash assigns = new Hash((h, k) => { throw new SyntaxException("Unknown variable '" + k + "'"); });
+
+            var output = template.Render(new RenderParameters
+            {
+                LocalVariables = assigns,
+                ErrorsOutputMode = RenderParameters.ErrorsOutputModeEnum.Suppress
+            });
+            Assert.AreEqual("", output);
+        }
+
+        [Test]
+        public void TestErrorsOutputModeDisplay()
+        {
+            var template = Template.Parse("{{test}}");
+            Hash assigns = new Hash((h, k) => { throw new SyntaxException("Unknown variable '" + k + "'"); });
+
+            var output = template.Render(new RenderParameters
+            {
+                LocalVariables = assigns,
+                ErrorsOutputMode = RenderParameters.ErrorsOutputModeEnum.Display
+            });
+            Assert.IsNotEmpty(output);
         }
     }
 }

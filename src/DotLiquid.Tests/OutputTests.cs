@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.IO;
 using NUnit.Framework;
 
@@ -59,23 +60,18 @@ namespace DotLiquid.Tests
             Assert.AreEqual(" bmw ", Template.Parse(" {{best_cars}} ").Render(_assigns));
         }
 
-        
-         string Render(CultureInfo culture)
- 	    {
- 
-             var renderParams = new RenderParameters()
-             {
-                 LocalVariables = _assigns 
-             };
- 	        using (var writer = new StringWriter(culture))
- 	        {
- 	            Template.Parse("{{number}}").Render(writer, renderParams);
- 	            return writer.ToString();
- 	        }
- 	        
- 	    }
- 
- 	    [Test]
+
+        string Render(CultureInfo culture)
+        {
+
+            var renderParams = new RenderParameters
+                               {
+                                   LocalVariables = _assigns 
+                               };
+            return Template.Parse("{{number}}").Render(renderParams, culture);
+        }
+
+        [Test]
  	    public void TestSeperator_Comma()
         {
 

@@ -79,7 +79,15 @@ namespace DotLiquid
                 Expression.Assign(castedObj,Expression.Convert(objParam,type))
             );
 
-            foreach (PropertyInfo property in type.GetTypeInfo().DeclaredProperties.Where(p => p.CanRead && p.GetMethod.IsPublic && !p.GetMethod.IsStatic))
+            //Add properties
+            var propertyList = type.GetTypeInfo().DeclaredProperties
+                .Where(p => p.CanRead && p.GetMethod.IsPublic && !p.GetMethod.IsStatic).ToList();
+
+            //Add properties from base class 
+            propertyList.AddRange(type.GetTypeInfo().BaseType.GetTypeInfo().DeclaredProperties
+                .Where(p => p.CanRead && p.GetMethod.IsPublic && !p.GetMethod.IsStatic).ToList());
+
+            foreach (PropertyInfo property in propertyList)
             {
                 bodyInstructions.Add(
                     Expression.Assign(

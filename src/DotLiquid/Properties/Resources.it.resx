@@ -228,4 +228,7 @@
   <data name="IfTagTooMuchConditionsException" xml:space="preserve">
     <value>Errore di sintassi nel tag 'if' - sono consentite fino 500 condizioni</value>
   </data>
+  <data name="ForTagMaxIterationsExceededException" xml:space="preserve">
+    <value>Render Error - Maximum number of iterations {0} exceeded</value>
+  </data>
 </root>

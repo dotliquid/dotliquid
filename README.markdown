@@ -64,9 +64,9 @@ the template by passing it parameters in the form of a `Hash` object. There are
 several ways you can construct a `Hash` object, including from a Dictionary, or
 using the `Hash.FromAnonymousObject` method.
 
-``` cs
-  Template template = Template.Parse("hi {{name}}"); // Parses and compiles the template
-  template.Render(Hash.FromAnonymousObject(new { name = "tobi" })); // => "hi tobi"
+```c#
+Template template = Template.Parse("hi {{name}}"); // Parses and compiles the template
+template.Render(Hash.FromAnonymousObject(new { name = "tobi" })); // => "hi tobi"
 ```
 
 ### Projects using DotLiquid

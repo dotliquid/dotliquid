@@ -10,7 +10,7 @@
     <summary>DotLiquid is a templating system ported to the .NET framework from Ruby’s Liquid Markup.</summary>
     <language>en-US</language>
     <projectUrl>http://dotliquidmarkup.org</projectUrl>
-    <iconUrl>https://github.com/formosatek/dotliquid/raw/master/build/logo_nuget.png</iconUrl>
+    <iconUrl>https://raw.githubusercontent.com/dotliquid/dotliquid/master/src/DotLiquid/logo_nuget.png</iconUrl>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <tags>template templating language liquid markup</tags>

@@ -1,0 +1,10 @@
+﻿@model IEnumerable<DotLiquid.Website.ViewComponents.Contributor>
+
+<h5>Contributors</h5>
+<ul>
+    @foreach (var contributor in Model)
+    {
+        <li><a href="@(string.IsNullOrWhiteSpace(contributor.Blog) ? contributor.HtmlUrl: contributor.Blog)">@contributor.Name</a></li>
+    }
+    <li><a href="https://github.com/dotliquid/dotliquid/graphs/contributors">All contributors</a></li>
+</ul>

@@ -10,7 +10,7 @@
     <AssemblyOriginatorKeyFile>../Formosatek-OpenSource.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-    <PackageId>DotLiquid</PackageId>
+    <PackageId>Evolution.DotLiquid.Core</PackageId>
     <PackageTags>template;templating;language;liquid;markup</PackageTags>
     <PackageIconUrl>https://github.com/formosatek/dotliquid/raw/master/build/logo_nuget.png</PackageIconUrl>
     <PackageProjectUrl>http://dotliquidmarkup.org</PackageProjectUrl>
@@ -29,7 +29,10 @@
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
     <DebugType>full</DebugType>
     <DebugSymbols>True</DebugSymbols>
-      <DocumentationFile>bin\Debug\$(TargetFramework)\DotLiquid.xml</DocumentationFile>
+      <DocumentationFile></DocumentationFile>
+      <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+      <PackageReleaseNotes>Adds support for PermissiveNamingConvention.</PackageReleaseNotes>
+      <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>

@@ -227,6 +227,9 @@ namespace DotLiquid
         /// </summary>
         public Document Root { get; set; }
 
+        /// <summary>
+        /// Hash of user-defined, internally-available variables
+        /// </summary>
         public Hash Registers
         {
             get { return (_registers = _registers ?? new Hash()); }

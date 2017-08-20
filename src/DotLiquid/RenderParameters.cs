@@ -1,8 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace DotLiquid
 {
+    /// <summary>
+    /// Rendering parameters
+    /// </summary>
     public class RenderParameters
     {
         /// <summary>
@@ -10,32 +13,37 @@ namespace DotLiquid
         /// </summary>
         public Context Context { get; set; }
 
+        /// <summary>
+        /// Hash of local variables used during rendering
+        /// </summary>
         public Hash LocalVariables { get; set; }
 
+        /// <summary>
+        /// Filters used during rendering
+        /// </summary>
         public IEnumerable<Type> Filters { get; set; }
 
+        /// <summary>
+        /// Hash of user-defined, internally-available variables
+        /// </summary>
         public Hash Registers { get; set; }
 
         /// <summary>
         /// Gets or sets a value that controls whether errors are thrown as exceptions.
         /// </summary>
-        [Obsolete]
+        [Obsolete("Use ErrorsOutputMode instead")]
         public bool RethrowErrors
         {
-            get { return (ErrorsOutputMode == ErrorsOutputModeEnum.Rethrow); }
-            set { ErrorsOutputMode = (value ? ErrorsOutputModeEnum.Rethrow : ErrorsOutputModeEnum.Display); }
+            get { return (ErrorsOutputMode == ErrorsOutputMode.Rethrow); }
+            set { ErrorsOutputMode = (value ? ErrorsOutputMode.Rethrow : ErrorsOutputMode.Display); }
         }
+        
+        private ErrorsOutputMode _erorsOutputMode = ErrorsOutputMode.Display;
 
-        public enum ErrorsOutputModeEnum
-        {
-            Rethrow,
-            Suppress,
-            Display
-        }
-
-        private ErrorsOutputModeEnum _erorsOutputMode = ErrorsOutputModeEnum.Display;
-
-        public ErrorsOutputModeEnum ErrorsOutputMode
+        /// <summary>
+        /// Errors output mode
+        /// </summary>
+        public ErrorsOutputMode ErrorsOutputMode
         {
             get
             {
@@ -50,6 +58,9 @@ namespace DotLiquid
 
         private int _maxIterations = 0;
 
+        /// <summary>
+        /// Maximum number of iterations for the For tag
+        /// </summary>
         public int MaxIterations
         {
             get { return _maxIterations; }
@@ -58,6 +69,9 @@ namespace DotLiquid
 
         private int _timeout = 0;
 
+        /// <summary>
+        /// Rendering timeout in ms
+        /// </summary>
         public int Timeout
         {
             get { return _timeout; }
@@ -91,6 +105,11 @@ namespace DotLiquid
             filters = Filters;
         }
 
+        /// <summary>
+        /// Creates a RenderParameters from a context
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public static RenderParameters FromContext(Context context)
         {
             return new RenderParameters { Context = context };

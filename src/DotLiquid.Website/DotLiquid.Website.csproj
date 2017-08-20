@@ -35,6 +35,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="1.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="1.1.2" />
     <PackageReference Include="NETStandard.Library" Version="1.6.1" />
+    <PackageReference Include="TagHelperSamples.Markdown" Version="1.1.1" />
   </ItemGroup>
 
 </Project>

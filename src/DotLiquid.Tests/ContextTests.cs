@@ -614,6 +614,22 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        public void TestDictionaryAsVariable()
+        {
+            _context["dynamic"] = Hash.FromDictionary(new Dictionary<string, object> { ["lambda"] = "Hello" });
+
+            Assert.AreEqual("Hello", _context["dynamic.lambda"]);
+        }
+
+        [Test]
+        public void TestNestedDictionaryAsVariable()
+        {
+            _context["dynamic"] = Hash.FromDictionary(new Dictionary<string, object> { ["lambda"] = new Dictionary<string, object> { ["name"] = "Hello" } });
+
+            Assert.AreEqual("Hello", _context["dynamic.lambda.name"]);
+        }
+
+        [Test]
         public void TestProcAsVariable()
         {
             _context["dynamic"] = (Proc) delegate { return "Hello"; };

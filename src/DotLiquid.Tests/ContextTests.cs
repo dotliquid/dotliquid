@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using DotLiquid.Exceptions;
 using NUnit.Framework;
@@ -611,6 +612,43 @@ namespace DotLiquid.Tests
             Assert.AreEqual(1, _context["counter['count']"]);
             Assert.AreEqual(2, _context["counter['count']"]);
             Assert.AreEqual(3, _context["counter['count']"]);
+        }
+
+        [Test]
+        public void TestDictionaryAsVariable()
+        {
+            _context["dynamic"] = Hash.FromDictionary(new Dictionary<string, object> { ["lambda"] = "Hello" });
+
+            Assert.AreEqual("Hello", _context["dynamic.lambda"]);
+        }
+
+        [Test]
+        public void TestNestedDictionaryAsVariable()
+        {
+            _context["dynamic"] = Hash.FromDictionary(new Dictionary<string, object> { ["lambda"] = new Dictionary<string, object> { ["name"] = "Hello" } });
+
+            Assert.AreEqual("Hello", _context["dynamic.lambda.name"]);
+        }
+
+        [Test]
+        public void TestDynamicAsVariable()
+        {
+            dynamic expandoObject = new ExpandoObject();
+            expandoObject.lambda = "Hello";
+            _context["dynamic"] = Hash.FromDictionary(expandoObject);
+
+            Assert.AreEqual("Hello", _context["dynamic.lambda"]);
+        }
+
+        [Test]
+        public void TestNestedDynamicAsVariable()
+        {
+            dynamic root = new ExpandoObject();
+            root.lambda = new ExpandoObject();
+            root.lambda.name = "Hello";
+            _context["dynamic"] = Hash.FromDictionary(root);
+
+            Assert.AreEqual("Hello", _context["dynamic.lambda.name"]);
         }
 
         [Test]

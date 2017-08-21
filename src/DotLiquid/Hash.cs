@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -109,7 +109,7 @@ namespace DotLiquid
 
             foreach (var keyValue in dictionary)
             {
-                    if (keyValue.Value is Dictionary<string, object>)
+                    if (keyValue.Value is IDictionary<string, object>)
                     {
                         result.Add(keyValue.Key, FromDictionary((IDictionary<string, object>) keyValue.Value));
                     }

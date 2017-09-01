@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -146,17 +146,16 @@ namespace DotLiquid
     /// </summary>
     public abstract class DropBase : ILiquidizable, IIndexable, IContextAware
     {
-        private TypeResolution _resolution;
-
         internal TypeResolution TypeResolution
         {
             get
             {
-                Type dropType = GetObject()
-                    .GetType();
-                if (!TypeResolutionCache.Instance.TryGetValue(dropType, out _resolution))
-                    TypeResolutionCache.Instance[dropType] = _resolution = CreateTypeResolution(dropType);
-                return _resolution;
+                Type dropType = GetObject().GetType();
+                if (!TypeResolutionCache.Instance.TryGetValue(dropType, out TypeResolution resolution))
+                { 
+                    TypeResolutionCache.Instance[dropType] = resolution = CreateTypeResolution(dropType);
+                }
+                return resolution;
             }
         }
 
@@ -205,9 +204,7 @@ namespace DotLiquid
             {
                 string rubyMethod = Template.NamingConvention.GetMemberName(method);
 
-                MethodInfo mi;
-                PropertyInfo pi;
-                if (TypeResolution.CachedMethods.TryGetValue(rubyMethod, out mi) || TypeResolution.CachedProperties.TryGetValue(rubyMethod, out pi))
+                if (TypeResolution.CachedMethods.TryGetValue(rubyMethod, out MethodInfo mi) || TypeResolution.CachedProperties.TryGetValue(rubyMethod, out PropertyInfo pi))
                 {
                     return string.Format(Liquid.ResourceManager.GetString("DropWrongNamingConventionMessage"), rubyMethod);
                 }
@@ -223,11 +220,9 @@ namespace DotLiquid
         {
             string method = (string)name;
 
-            MethodInfo mi;
-            if (TypeResolution.CachedMethods.TryGetValue(method, out mi))
+            if (TypeResolution.CachedMethods.TryGetValue(method, out MethodInfo mi))
                 return mi.Invoke(GetObject(), null);
-            PropertyInfo pi;
-            if (TypeResolution.CachedProperties.TryGetValue(method, out pi))
+            if (TypeResolution.CachedProperties.TryGetValue(method, out PropertyInfo pi))
                 return pi.GetValue(GetObject(), null);
             return BeforeMethod(method);
         }

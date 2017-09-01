@@ -103,9 +103,17 @@ namespace DotLiquid.Tags
         {
             // Get the template or template content and then either copy it (since it will be modified) or parse it
             IFileSystem fileSystem = context.Registers["file_system"] as IFileSystem ?? Template.FileSystem;
-            object file = fileSystem.ReadTemplateFile(context, _templateName);
-            Template template = file as Template;
-            template = template ?? Template.Parse(file == null ? null : file.ToString());
+            ITemplateFileSystem templateFileSystem = fileSystem as ITemplateFileSystem;
+            Template template = null;
+            if (templateFileSystem != null)
+            {
+                template = templateFileSystem.GetTemplate(context, _templateName);
+            }
+            if (template == null)
+            {
+                string source = fileSystem.ReadTemplateFile(context, _templateName);
+                template = Template.Parse(source);
+            }
 
             List<Block> parentBlocks = FindBlocks(template.Root, null);
             List<Block> orphanedBlocks = ((List<Block>)context.Scopes[0]["extends"]) ?? new List<Block>();
@@ -121,8 +129,7 @@ namespace DotLiquid.Tags
 
                     if (pb != null)
                     {
-                        Block parent;
-                        if (blockState.Parents.TryGetValue(block, out parent))
+                        if (blockState.Parents.TryGetValue(block, out Block parent))
                             blockState.Parents[pb] = parent;
                         pb.AddParent(blockState.Parents, pb.GetNodeList(blockState));
                         blockState.NodeLists[pb] = block.GetNodeList(blockState);

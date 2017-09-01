@@ -10,8 +10,7 @@ namespace DotLiquid
     {
         public static V TryAdd<K, V>(this IDictionary<K, V> dic, K key, Func<V> factory)
         {
-            V found;
-            if (!dic.TryGetValue(key, out found))
+            if (!dic.TryGetValue(key, out V found))
                 return dic[key] = factory();
             return found;
         }

@@ -161,5 +161,22 @@ namespace DotLiquid.Tests.Tags
             Assert.AreEqual ("!ABCYZ", template.Render ());
             Assert.AreEqual ("!ABCYZ", template.Render ());
         }
+
+        [Test]
+        public void TestExtendFromTemplateFileSystem()
+        {
+            var fileSystem = new IncludeTagTests.TestTemplateFileSystem(new TestFileSystem());
+            Template.FileSystem = fileSystem;
+            for (int i = 0; i < 2; ++i)
+            {
+                Template template = Template.Parse(
+                                    @"{% extends 'simple' %}
+                    {% block thing %}
+                        yeah
+                    {% endblock %}");
+                StringAssert.Contains("test", template.Render());
+            }
+            Assert.AreEqual(fileSystem.CacheHitTimes, 1);
+        }
     }
 }

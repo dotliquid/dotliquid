@@ -1,4 +1,6 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
+using DotLiquid.Exceptions;
+using DotLiquid.NamingConventions;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -142,6 +144,36 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        public void TestDictionaryHasKey()
+        {
+            _context = new Context();
+            System.Collections.Generic.Dictionary<string, string> testDictionary = new System.Collections.Generic.Dictionary<string, string>
+            {
+                { "dave", "0" },
+                { "bob", "4" }
+            };
+            _context["dictionary"] = testDictionary;
+
+            AssertEvaluatesTrue("dictionary", "haskey", "'bob'");
+            AssertEvaluatesFalse("dictionary", "haskey", "'0'");
+        }
+
+        [Test]
+        public void TestDictionaryHasValue()
+        {
+            _context = new Context();
+            System.Collections.Generic.Dictionary<string, string> testDictionary = new System.Collections.Generic.Dictionary<string, string>
+            {
+                { "dave", "0" },
+                { "bob", "4" }
+            };
+            _context["dictionary"] = testDictionary;
+
+            AssertEvaluatesTrue("dictionary", "hasvalue", "'0'");
+            AssertEvaluatesFalse("dictionary", "hasvalue", "'bob'");
+        }
+
+        [Test]
         public void TestOrCondition()
         {
             Condition condition = new Condition("1", "==", "2");
@@ -185,6 +217,83 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        public void TestCapitalInCustomOperator()
+        {
+            try
+            {
+                Condition.Operators["IsMultipleOf"] =
+                    (left, right) => (int)left % (int)right == 0;
+
+                // exact match
+                AssertEvaluatesTrue("16", "IsMultipleOf", "4");
+                AssertEvaluatesFalse("16", "IsMultipleOf", "5");
+
+                // lower case: compatibility
+                AssertEvaluatesTrue("16", "ismultipleof", "4");
+                AssertEvaluatesFalse("16", "ismultipleof", "5");
+
+                AssertEvaluatesTrue("16", "is_multiple_of", "4");
+                AssertEvaluatesFalse("16", "is_multiple_of", "5");
+
+                AssertError("16", "isMultipleOf", "4", typeof(ArgumentException));
+
+                //Run tests through the template to verify that capitalization rules are followed through template parsing
+                Helper.AssertTemplateResult(" TRUE ", "{% if 16 IsMultipleOf 4 %} TRUE {% endif %}");
+                Helper.AssertTemplateResult("", "{% if 14 IsMultipleOf 4 %} TRUE {% endif %}");
+                Helper.AssertTemplateResult(" TRUE ", "{% if 16 ismultipleof 4 %} TRUE {% endif %}");
+                Helper.AssertTemplateResult("", "{% if 14 ismultipleof 4 %} TRUE {% endif %}");
+                Helper.AssertTemplateResult(" TRUE ", "{% if 16 is_multiple_of 4 %} TRUE {% endif %}");
+                Helper.AssertTemplateResult("", "{% if 14 is_multiple_of 4 %} TRUE {% endif %}");
+                Helper.AssertTemplateResult("Liquid error: Unknown operator isMultipleOf", "{% if 16 isMultipleOf 4 %} TRUE {% endif %}");
+            }
+            finally
+            {
+                Condition.Operators.Remove("IsMultipleOf");
+            }
+        }
+
+        [Test]
+        public void TestCapitalInCustomCSharpOperator()
+        {
+            //have to run this test in a lock because it requires
+            //changing the globally static NamingConvention
+            lock (Template.NamingConvention)
+            {
+                var oldconvention = Template.NamingConvention;
+                Template.NamingConvention = new CSharpNamingConvention();
+
+                try
+                {
+                    Condition.Operators["DivisibleBy"] =
+                        (left, right) => (int)left % (int)right == 0;
+
+                    // exact match
+                    AssertEvaluatesTrue("16", "DivisibleBy", "4");
+                    AssertEvaluatesFalse("16", "DivisibleBy", "5");
+
+                    // lower case: compatibility
+                    AssertEvaluatesTrue("16", "divisibleby", "4");
+                    AssertEvaluatesFalse("16", "divisibleby", "5");
+
+                    AssertError("16", "divisibleBy", "4", typeof(ArgumentException));
+
+                    //Run tests through the template to verify that capitalization rules are followed through template parsing
+                    Helper.AssertTemplateResult(" TRUE ", "{% if 16 DivisibleBy 4 %} TRUE {% endif %}");
+                    Helper.AssertTemplateResult("", "{% if 16 DivisibleBy 5 %} TRUE {% endif %}");
+                    Helper.AssertTemplateResult(" TRUE ", "{% if 16 divisibleby 4 %} TRUE {% endif %}");
+                    Helper.AssertTemplateResult("", "{% if 16 divisibleby 5 %} TRUE {% endif %}");
+                    Helper.AssertTemplateResult("Liquid error: Unknown operator divisibleBy", "{% if 16 divisibleBy 4 %} TRUE {% endif %}");
+                }
+                finally
+                {
+                    Condition.Operators.Remove("DivisibleBy");
+                }
+
+                Template.NamingConvention = oldconvention;
+            }
+        }
+
+        [Test]
         public void TestLessThanDecimal()
         {
             var model = new { value = new decimal(-10.5) };
@@ -209,6 +318,72 @@ namespace DotLiquid.Tests
             Assert.AreEqual("MyID is 1", parsedOutput);
         }
 
+        [Test]
+        public void TestShouldAllowCustomProcOperatorCapitalized()
+        {
+            try
+            {
+                Condition.Operators["StartsWith"] =
+                    (left, right) => Regex.IsMatch(left.ToString(), string.Format("^{0}", right.ToString()));
+
+                Helper.AssertTemplateResult("", "{% if 'bob' StartsWith 'B' %} YES {% endif %}", null, new CSharpNamingConvention());
+                AssertEvaluatesTrue("'bob'", "StartsWith", "'b'");
+                AssertEvaluatesFalse("'bob'", "StartsWith", "'o'");
+            }
+            finally
+            {
+                Condition.Operators.Remove("StartsWith");
+            }
+        }
+
+        [Test]
+        public void TestRuby_LowerCaseAccepted()
+        {
+            Helper.AssertTemplateResult("", "{% if 'bob' startswith 'B' %} YES {% endif %}");
+            Helper.AssertTemplateResult(" YES ", "{% if 'Bob' startswith 'B' %} YES {% endif %}");
+        }
+
+        [Test]
+        public void TestRuby_SnakeCaseAccepted()
+        {
+            Helper.AssertTemplateResult("", "{% if 'bob' starts_with 'B' %} YES {% endif %}");
+            Helper.AssertTemplateResult(" YES ", "{% if 'Bob' starts_with 'B' %} YES {% endif %}");
+        }
+
+        [Test]
+        public void TestRuby_PascalCaseNotAccepted()
+        {
+            Helper.AssertTemplateResult("Liquid error: Unknown operator StartsWith", "{% if 'bob' StartsWith 'B' %} YES {% endif %}");
+        }
+
+        [Test]
+        public void TestCSharp_LowerCaseAccepted()
+        {
+            Helper.AssertTemplateResult("", "{% if 'bob' startswith 'B' %} YES {% endif %}", null, new CSharpNamingConvention());
+            Helper.AssertTemplateResult(" YES ", "{% if 'Bob' startswith 'B' %} YES {% endif %}", null, new CSharpNamingConvention());
+        }
+
+        [Test]
+        public void TestCSharp_PascalCaseAccepted()
+        {
+            Helper.AssertTemplateResult("", "{% if 'bob' StartsWith 'B' %} YES {% endif %}", null, new CSharpNamingConvention());
+            Helper.AssertTemplateResult(" YES ", "{% if 'Bob' StartsWith 'B' %} YES {% endif %}", null, new CSharpNamingConvention());
+        }
+
+        [Test]
+        public void TestCSharp_LowerPascalCaseAccepted()
+        {
+            Helper.AssertTemplateResult("", "{% if 'bob' startsWith 'B' %} YES {% endif %}", null, new CSharpNamingConvention());
+            Helper.AssertTemplateResult(" YES ", "{% if 'Bob' startsWith 'B' %} YES {% endif %}", null, new CSharpNamingConvention());
+        }
+
+        [Test]
+        public void TestCSharp_SnakeCaseNotAccepted()
+        {
+            Helper.AssertTemplateResult("Liquid error: Unknown operator starts_with", "{% if 'bob' starts_with 'B' %} YES {% endif %}", null, new CSharpNamingConvention());
+        }
+
+
         #region Helper methods
 
         private void AssertEvaluatesTrue(string left, string op, string right)
@@ -221,6 +396,11 @@ namespace DotLiquid.Tests
         {
             Assert.IsFalse(new Condition(left, op, right).Evaluate(_context ?? new Context()),
                 "Evaluated true: {0} {1} {2}", left, op, right);
+        }
+
+        private void AssertError(string left, string op, string right, System.Type errorType)
+        {
+            Assert.Throws(errorType, () => new Condition(left, op, right).Evaluate(_context ?? new Context()));
         }
 
         #endregion

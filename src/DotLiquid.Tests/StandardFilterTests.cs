@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Threading;
 using System.Linq;
 using NUnit.Framework;
 
@@ -33,6 +34,8 @@ namespace DotLiquid.Tests
         [Test]
         public void TestTruncate()
         {
+            Assert.AreEqual(null, StandardFilters.Truncate(null));
+            Assert.AreEqual("", StandardFilters.Truncate(""));
             Assert.AreEqual("1234...", StandardFilters.Truncate("1234567890", 7));
             Assert.AreEqual("1234567890", StandardFilters.Truncate("1234567890", 20));
             Assert.AreEqual("...", StandardFilters.Truncate("1234567890", 0));
@@ -42,6 +45,8 @@ namespace DotLiquid.Tests
         [Test]
         public void TestEscape()
         {
+            Assert.AreEqual(null, StandardFilters.Escape(null));
+            Assert.AreEqual("", StandardFilters.Escape(""));
             Assert.AreEqual("&lt;strong&gt;", StandardFilters.Escape("<strong>"));
             Assert.AreEqual("&lt;strong&gt;", StandardFilters.H("<strong>"));
         }
@@ -49,6 +54,8 @@ namespace DotLiquid.Tests
         [Test]
         public void TestTruncateWords()
         {
+            Assert.AreEqual(null, StandardFilters.TruncateWords(null));
+            Assert.AreEqual("", StandardFilters.TruncateWords(""));
             Assert.AreEqual("one two three", StandardFilters.TruncateWords("one two three", 4));
             Assert.AreEqual("one two...", StandardFilters.TruncateWords("one two three", 2));
             Assert.AreEqual("one two three", StandardFilters.TruncateWords("one two three"));
@@ -73,6 +80,8 @@ namespace DotLiquid.Tests
         [Test]
         public void TestJoin()
         {
+            Assert.AreEqual(null, StandardFilters.Join(null));
+            Assert.AreEqual("", StandardFilters.Join(""));
             Assert.AreEqual("1 2 3 4", StandardFilters.Join(new[] { 1, 2, 3, 4 }));
             Assert.AreEqual("1 - 2 - 3 - 4", StandardFilters.Join(new[] { 1, 2, 3, 4 }, " - "));
         }
@@ -80,6 +89,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestSort()
         {
+            CollectionAssert.AreEqual(new string[] { }, StandardFilters.Sort(new string[] { }));
             CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 }, StandardFilters.Sort(new[] { 4, 3, 2, 1 }));
             CollectionAssert.AreEqual(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 4 } },
                 StandardFilters.Sort(new[] { new { a = 4 }, new { a = 3 }, new { a = 1 }, new { a = 2 } }, "a"));
@@ -114,6 +124,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestMap()
         {
+            CollectionAssert.AreEqual(new string[] { }, StandardFilters.Map(new string[] { }, "a"));
             CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 },
                 StandardFilters.Map(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 4 } }, "a"));
             Helper.AssertTemplateResult("abc", "{{ ary | map:'foo' | map:'bar' }}",
@@ -127,6 +138,71 @@ namespace DotLiquid.Tests
                         Hash.FromAnonymousObject(new { foo = Hash.FromAnonymousObject(new { bar = "c" }) })
                     }
                     }));
+            CollectionAssert.AreEqual(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 4 } },
+                StandardFilters.Map(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 4 } }, "b"));
+        }
+
+        [TestCase("6.72", "$6.72")]
+        [TestCase("6000", "$6,000.00")]
+        [TestCase("6000000", "$6,000,000.00")]
+        [TestCase("6000.4", "$6,000.40")]
+        [TestCase("6000000.4", "$6,000,000.40")]
+        [TestCase("6.8458", "$6.85")]
+        public void TestAmericanCurrencyFromString(string input, string expected)
+        {
+#if CORE
+            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
+#else
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+#endif
+            Assert.AreEqual(expected, StandardFilters.Currency(input));
+        }
+
+        [TestCase("6.72", "6,72 €")]
+        [TestCase("6000", "6.000,00 €")]
+        [TestCase("6000000", "6.000.000,00 €")]
+        [TestCase("6000.4", "6.000,40 €")]
+        [TestCase("6000000.4", "6.000.000,40 €")]
+        [TestCase("6.8458", "6,85 €")]
+        public void TestEuroCurrencyFromString(string input, string expected)
+        {
+#if CORE
+            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
+#else
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+#endif
+            Assert.AreEqual(expected, StandardFilters.Currency(input, "de-DE"));
+        }
+
+        [Test]
+        public void TestMalformedCurrency()
+        {
+            Assert.AreEqual("teststring", StandardFilters.Currency("teststring", "de-DE"));
+        }
+
+        [Test]
+        public void TestCurrencyWithinTemplateRender()
+        {
+#if CORE
+            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
+#else
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+#endif
+
+            Template dollarTemplate = Template.Parse(@"{{ amount | currency }}");
+            Template euroTemplate = Template.Parse(@"{{ amount | currency: ""de-DE"" }}");
+
+            Assert.AreEqual("$7,000.00", dollarTemplate.Render(Hash.FromAnonymousObject(new { amount = "7000" })));
+            Assert.AreEqual("7.000,00 €", euroTemplate.Render(Hash.FromAnonymousObject(new { amount = 7000 })));
+        }
+
+        [Test]
+        public void TestCurrencyFromDoubleInput()
+        {
+            Assert.AreEqual("$6.85", StandardFilters.Currency(6.8458, "en-US"));
+            Assert.AreEqual("$6.72", StandardFilters.Currency(6.72, "en-CA"));
+            Assert.AreEqual("6.000.000,00 €", StandardFilters.Currency(6000000, "de-DE"));
+            Assert.AreEqual("6.000.000,78 €", StandardFilters.Currency(6000000.78, "de-DE"));
         }
 
         [Test]
@@ -195,16 +271,31 @@ namespace DotLiquid.Tests
         [Test]
         public void TestFirstLast()
         {
+            Assert.Null(StandardFilters.First(null));
+            Assert.Null(StandardFilters.Last(null));
             Assert.AreEqual(1, StandardFilters.First(new[] { 1, 2, 3 }));
             Assert.AreEqual(3, StandardFilters.Last(new[] { 1, 2, 3 }));
-            Assert.AreEqual(null, StandardFilters.First(new object[] { }));
-            Assert.AreEqual(null, StandardFilters.Last(new object[] { }));
+            Assert.Null(StandardFilters.First(new object[] { }));
+            Assert.Null(StandardFilters.Last(new object[] { }));
         }
 
         [Test]
         public void TestReplace()
         {
+            Assert.Null(StandardFilters.Replace(null, "a", "b"));
+            Assert.AreEqual("", StandardFilters.Replace("", "a", "b"));
+            Assert.AreEqual("a a a a", StandardFilters.Replace("a a a a", null, "b"));
+            Assert.AreEqual("a a a a", StandardFilters.Replace("a a a a", "", "b"));
             Assert.AreEqual("b b b b", StandardFilters.Replace("a a a a", "a", "b"));
+        }
+
+        [Test]
+        public void TestReplaceFirst()
+        {
+            Assert.Null(StandardFilters.ReplaceFirst(null, "a", "b"));
+            Assert.AreEqual("", StandardFilters.ReplaceFirst("", "a", "b"));
+            Assert.AreEqual("a a a a", StandardFilters.ReplaceFirst("a a a a", null, "b"));
+            Assert.AreEqual("a a a a", StandardFilters.ReplaceFirst("a a a a", "", "b"));
             Assert.AreEqual("b a a a", StandardFilters.ReplaceFirst("a a a a", "a", "b"));
             Helper.AssertTemplateResult("b a a a", "{{ 'a a a a' | replace_first: 'a', 'b' }}");
         }
@@ -256,18 +347,24 @@ namespace DotLiquid.Tests
         [Test]
         public void TestPlus()
         {
-            Helper.AssertTemplateResult("2", "{{ 1 | plus:1 }}");
-            Helper.AssertTemplateResult("5.5", "{{ 2  | plus:3.5 }}");
-            Helper.AssertTemplateResult("5.5", "{{ 3.5 | plus:2 }}");
-            Helper.AssertTemplateResult("11", "{{ '1' | plus:'1' }}");
+            using (CultureHelper.SetCulture("en-GB"))
+            {
+                Helper.AssertTemplateResult("2", "{{ 1 | plus:1 }}");
+                Helper.AssertTemplateResult("5.5", "{{ 2  | plus:3.5 }}");
+                Helper.AssertTemplateResult("5.5", "{{ 3.5 | plus:2 }}");
+                Helper.AssertTemplateResult("11", "{{ '1' | plus:'1' }}");
+            }
         }
 
         [Test]
         public void TestMinus()
         {
-            Helper.AssertTemplateResult("4", "{{ input | minus:operand }}", Hash.FromAnonymousObject(new { input = 5, operand = 1 }));
-            Helper.AssertTemplateResult("-1.5", "{{ 2  | minus:3.5 }}");
-            Helper.AssertTemplateResult("1.5", "{{ 3.5 | minus:2 }}");
+            using (CultureHelper.SetCulture("en-GB"))
+            {
+                Helper.AssertTemplateResult("4", "{{ input | minus:operand }}", Hash.FromAnonymousObject(new { input = 5, operand = 1 }));
+                Helper.AssertTemplateResult("-1.5", "{{ 2  | minus:3.5 }}");
+                Helper.AssertTemplateResult("1.5", "{{ 3.5 | minus:2 }}");
+            }
         }
 
         [Test]
@@ -283,22 +380,27 @@ namespace DotLiquid.Tests
         [Test]
         public void TestRound()
         {
-            Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round:3 }}");
-            Helper.AssertTemplateResult("1", "{{ 1 | round }}");
+            using (CultureHelper.SetCulture("en-GB"))
+            {
+                Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round:3 }}");
+                Helper.AssertTemplateResult("1", "{{ 1 | round }}");
+
+                Assert.Null(StandardFilters.Round("1.2345678", "two"));
+            }
         }
 
         [Test]
         public void TestTimes()
         {
-            //Helper.AssertTemplateResult("12", "{{ 3 | times:4 }}");
-
-            Console.WriteLine("CHHHHHHHH");
-            Helper.AssertTemplateResult("125", "{{ 10 | times:12.5 }}");
-            Helper.AssertTemplateResult("125", "{{ 10.0 | times:12.5 }}");
-            Helper.AssertTemplateResult("125", "{{ 12.5 | times:10 }}");
-            Helper.AssertTemplateResult("125", "{{ 12.5 | times:10.0 }}");
-
-            //Helper.AssertTemplateResult("foofoofoofoo", "{{ 'foo' | times:4 }}");
+            using (CultureHelper.SetCulture("en-GB"))
+            { 
+                Helper.AssertTemplateResult("12", "{{ 3 | times:4 }}");
+                Helper.AssertTemplateResult("125", "{{ 10 | times:12.5 }}");
+                Helper.AssertTemplateResult("125", "{{ 10.0 | times:12.5 }}");
+                Helper.AssertTemplateResult("125", "{{ 12.5 | times:10 }}");
+                Helper.AssertTemplateResult("125", "{{ 12.5 | times:10.0 }}");
+                Helper.AssertTemplateResult("foofoofoofoo", "{{ 'foo' | times:4 }}");
+            }
         }
 
         [Test]
@@ -323,12 +425,16 @@ namespace DotLiquid.Tests
             Helper.AssertTemplateResult("4", "{{ 12 | divided_by:3 }}");
             Helper.AssertTemplateResult("4", "{{ 14 | divided_by:3 }}");
             Helper.AssertTemplateResult("5", "{{ 15 | divided_by:3 }}");
+            Assert.Null(StandardFilters.DividedBy(null, 3));
+            Assert.Null(StandardFilters.DividedBy(4, null));
         }
 
         [Test]
         public void TestModulo()
         {
             Helper.AssertTemplateResult("1", "{{ 3 | modulo:2 }}");
+            Assert.Null(StandardFilters.Modulo(null, 3));
+            Assert.Null(StandardFilters.Modulo(4, null));
         }
 
         [Test]
@@ -345,6 +451,15 @@ namespace DotLiquid.Tests
             Helper.AssertTemplateResult("foo", "{{ var1 | default: 'foobar' }}", assigns);
             Helper.AssertTemplateResult("bar", "{{ var2 | default: 'foobar' }}", assigns);
             Helper.AssertTemplateResult("foobar", "{{ unknownvariable | default: 'foobar' }}", assigns);
+        }
+
+        [Test]
+        public void TestCapitalize()
+        {
+            Assert.AreEqual(null, StandardFilters.Capitalize(null));
+            Assert.AreEqual("", StandardFilters.Capitalize(""));
+            Assert.AreEqual(" ", StandardFilters.Capitalize(" "));
+            Assert.AreEqual("That Is One Sentence.", StandardFilters.Capitalize("That is one sentence."));
         }
     }
 }

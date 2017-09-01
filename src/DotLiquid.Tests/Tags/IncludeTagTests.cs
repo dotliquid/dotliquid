@@ -1,6 +1,8 @@
+using System;
 using DotLiquid.Exceptions;
 using DotLiquid.FileSystems;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace DotLiquid.Tests.Tags
 {
@@ -45,6 +47,38 @@ namespace DotLiquid.Tests.Tags
             }
         }
 
+        internal class TestTemplateFileSystem : ITemplateFileSystem
+        {
+            private IDictionary<string, Template> _templateCache = new Dictionary<string, Template>();
+            private IFileSystem _baseFileSystem = null;
+            private int _cacheHitTimes;
+            public int CacheHitTimes { get { return _cacheHitTimes; } }
+
+            public TestTemplateFileSystem(IFileSystem baseFileSystem)
+            {
+                _baseFileSystem = baseFileSystem;
+            }
+
+            public string ReadTemplateFile(Context context, string templateName)
+            {
+                return _baseFileSystem.ReadTemplateFile(context, templateName);
+            }
+
+            public Template GetTemplate(Context context, string templateName)
+            {
+                Template template;
+                if (_templateCache.TryGetValue(templateName, out template))
+                {
+                    ++_cacheHitTimes;
+                    return template;
+                }
+                var result = ReadTemplateFile(context, templateName);
+                template = Template.Parse(result);
+                _templateCache[templateName] = template;
+                return template;
+            }
+        }
+
         private class OtherFileSystem : IFileSystem
         {
             public string ReadTemplateFile(Context context, string templateName)
@@ -65,6 +99,13 @@ namespace DotLiquid.Tests.Tags
         public void SetUp()
         {
             Template.FileSystem = new TestFileSystem();
+        }
+
+        [Test]
+        public void TestIncludeTagMustNotBeConsideredError()
+        {
+            Assert.AreEqual(0, Template.Parse("{% include 'product_template' %}").Errors.Count);
+            Assert.DoesNotThrow(() => Template.Parse("{% include 'product_template' %}").Render(new RenderParameters { RethrowErrors = true }));
         }
 
         [Test]
@@ -169,6 +210,18 @@ namespace DotLiquid.Tests.Tags
             {
                 RethrowErrors = true
             }));
+        }
+
+        [Test]
+        public void TestIncludeFromTemplateFileSystem()
+        {
+            var fileSystem = new TestTemplateFileSystem(new TestFileSystem());
+            Template.FileSystem = fileSystem;
+            for (int i = 0; i < 2; ++i)
+            {
+                Assert.AreEqual("Product: Draft 151cm ", Template.Parse("{% include 'product' with products[0] %}").Render(Hash.FromAnonymousObject(new { products = new[] { Hash.FromAnonymousObject(new { title = "Draft 151cm" }), Hash.FromAnonymousObject(new { title = "Element 155cm" }) } })));
+            }
+            Assert.AreEqual(fileSystem.CacheHitTimes, 1);
         }
     }
 }

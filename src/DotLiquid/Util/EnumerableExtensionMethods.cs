@@ -1,7 +1,6 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace DotLiquid.Util
 {
@@ -10,15 +9,19 @@ namespace DotLiquid.Util
         public static IEnumerable Flatten(this IEnumerable array)
         {
             foreach (var item in array)
-                if (item is string)
+            {
+                if (item is string || !(item is IEnumerable))
+                {
                     yield return item;
-                else if (item is IEnumerable)
-                    foreach (var subitem in Flatten((IEnumerable) item))
+                }
+                else
+                {
+                    foreach (var subitem in Flatten((IEnumerable)item))
                     {
                         yield return subitem;
                     }
-                else
-                    yield return item;
+                }
+            }
         }
 
         public static void EachWithIndex(this IEnumerable<object> array, Action<object, int> callback)

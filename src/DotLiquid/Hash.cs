@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +10,9 @@ namespace DotLiquid
     public class Hash : IDictionary<string, object>, IDictionary
     {
         #region Static fields
-#if !NET35
 
         private static System.Collections.Concurrent.ConcurrentDictionary<Type, Action<object, Hash>> mapperCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, Action<object, Hash>>();
 
-#endif
         #endregion
 
         #region Fields
@@ -31,23 +29,12 @@ namespace DotLiquid
             Hash result = new Hash();
             if (anonymousObject != null)
             {
-#if NET35
-                FromAnonymousObject35(anonymousObject, result);
-#else
-                FromAnonymousObject40(anonymousObject, result);
-#endif
+                FromAnonymousObject(anonymousObject, result);
             }
             return result;
         }
 
-#if NET35
-        private static void FromAnonymousObject35(object anonymousObject, Hash hash)
-        {
-            foreach (PropertyInfo property in anonymousObject.GetType().GetProperties())
-                hash[property.Name] = property.GetValue(anonymousObject, null);
-        }
-#else
-        private static void FromAnonymousObject40(object anonymousObject, Hash hash)
+        private static void FromAnonymousObject(object anonymousObject, Hash hash)
         {
             Action<object, Hash> mapper = GetObjToDictionaryMapper(anonymousObject.GetType());
             mapper.Invoke(anonymousObject, hash);                
@@ -55,8 +42,7 @@ namespace DotLiquid
 
         private static Action<object, Hash> GetObjToDictionaryMapper(Type type)
         {
-            Action<object, Hash> mapper;
-            if (!mapperCache.TryGetValue(type, out mapper))
+            if (!mapperCache.TryGetValue(type, out Action<object, Hash> mapper))
             {
                 /* Bogdan Mart: Note regarding concurrency:
                  * This is concurrent dictionary, but if this will be called from two threads
@@ -116,7 +102,6 @@ namespace DotLiquid
 
             return expr.Compile();
         }
-#endif
 
         public static Hash FromDictionary(IDictionary<string, object> dictionary)
         {
@@ -124,7 +109,7 @@ namespace DotLiquid
 
             foreach (var keyValue in dictionary)
             {
-                    if (keyValue.Value is Dictionary<string, object>)
+                    if (keyValue.Value is IDictionary<string, object>)
                     {
                         result.Add(keyValue.Key, FromDictionary((IDictionary<string, object>) keyValue.Value));
                     }
@@ -166,7 +151,7 @@ namespace DotLiquid
                 _nestedDictionary[key] = otherValues[key];
         }
 
-        private object GetValue(string key)
+        protected virtual object GetValue(string key)
         {
             if (_nestedDictionary.ContainsKey(key))
                 return _nestedDictionary[key];
@@ -218,7 +203,7 @@ namespace DotLiquid
             ((IDictionary<string, object>) _nestedDictionary).Add(item);
         }
 
-        public bool Contains(object key)
+        public virtual bool Contains(object key)
         {
             return ((IDictionary) _nestedDictionary).Contains(key);
         }

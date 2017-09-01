@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+﻿<?xml version="1.0"?>
 <package>
   <metadata>
     <id>DotLiquid</id>
@@ -10,19 +10,22 @@
     <summary>DotLiquid is a templating system ported to the .NET framework from Ruby’s Liquid Markup.</summary>
     <language>en-US</language>
     <projectUrl>http://dotliquidmarkup.org</projectUrl>
-    <iconUrl>https://github.com/formosatek/dotliquid/raw/master/build/logo_nuget.png</iconUrl>
+    <iconUrl>https://raw.githubusercontent.com/dotliquid/dotliquid/master/src/DotLiquid/logo_nuget.png</iconUrl>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <tags>template templating language liquid markup</tags>
   </metadata>
   <files>
     <file src="LICENSE.txt" target="" />
+    <file src="readme.txt" target="" />
     <file src="bin\Release\netstandard1.3\DotLiquid.dll" target="lib\netstandard1.3" />
     <file src="bin\Release\netstandard1.3\it\DotLiquid.resources.dll" target="lib\netstandard1.3\it" />
     <file src="bin\Release\netstandard1.3\DotLiquid.pdb" target="lib\netstandard1.3" />
-    <file src="bin\Release\net451\DotLiquid.dll" target="lib\net451" />
-    <file src="bin\Release\net451\it\DotLiquid.resources.dll" target="lib\net451\it" />
-    <file src="bin\Release\net451\DotLiquid.pdb" target="lib\net451" />
+    <file src="bin\Release\netstandard1.3\DotLiquid.xml" target="lib\netstandard1.3" />
+    <file src="bin\Release\net45\DotLiquid.dll" target="lib\net45" />
+    <file src="bin\Release\net45\it\DotLiquid.resources.dll" target="lib\net45\it" />
+    <file src="bin\Release\net45\DotLiquid.pdb" target="lib\net45" />
+    <file src="bin\Release\net45\DotLiquid.xml" target="lib\net45" />
     <file src="**\*.cs" target="src" />
   </files>
 </package>

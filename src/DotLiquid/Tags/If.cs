@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
@@ -20,7 +20,8 @@ namespace DotLiquid.Tags
     public class If : DotLiquid.Block
     {
         private string SyntaxHelp = Liquid.ResourceManager.GetString("IfTagSyntaxException");
-        private static readonly Regex Syntax = R.B(R.Q(@"({0})\s*([=!<>a-z_]+)?\s*({0})?"), Liquid.QuotedFragment);
+        private string TooMuchConditionsHelp = Liquid.ResourceManager.GetString("IfTagTooMuchConditionsException");
+        private static readonly Regex Syntax = R.B(R.Q(@"({0})\s*([=!<>a-zA-Z_]+)?\s*({0})?"), Liquid.QuotedFragment);
 
         private static readonly string ExpressionsAndOperators = string.Format(R.Q(@"(?:\b(?:\s?and\s?|\s?or\s?)\b|(?:\s*(?!\b(?:\s?and\s?|\s?or\s?)\b)(?:{0}|\S+)\s*)+)"), Liquid.QuotedFragment);
         private static readonly Regex ExpressionsAndOperatorsRegex = R.C(ExpressionsAndOperators);
@@ -81,6 +82,7 @@ namespace DotLiquid.Tags
                 Condition condition = new Condition(syntaxMatch.Groups[1].Value,
                     syntaxMatch.Groups[2].Value, syntaxMatch.Groups[3].Value);
 
+                var conditionCount = 1;
                 // continue to process remaining items in the list backwards, in pairs
                 for (int i = 1; i < expressions.Count; i = i + 2)
                 {
@@ -89,6 +91,11 @@ namespace DotLiquid.Tags
                     Match expressionMatch = Syntax.Match(expressions.TryGetAtIndexReverse(i + 1));
                     if (!expressionMatch.Success)
                         throw new SyntaxException(SyntaxHelp);
+
+                    if(++conditionCount > 500)
+                    {
+                        throw new SyntaxException(TooMuchConditionsHelp);
+                    }
 
                     Condition newCondition = new Condition(expressionMatch.Groups[1].Value,
                         expressionMatch.Groups[2].Value, expressionMatch.Groups[3].Value);

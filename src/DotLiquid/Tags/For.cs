@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -20,9 +20,9 @@ namespace DotLiquid.Tags
     ///
     /// == Advanced usage:
     ///    {% for item in collection %}
-    ///      <div {% if forloop.first %}class="first"{% endif %}>
+    ///      &lt;div {% if forloop.first %}class="first"{% endif %}&gt;
     ///        Item {{ forloop.index }}: {{ item.name }}
-    ///      </div>
+    ///      &lt;/div&gt;
     ///    {% endfor %}
     ///
     /// You can also define a limit and offset much like SQL.  Remember
@@ -54,11 +54,18 @@ namespace DotLiquid.Tags
     public class For : DotLiquid.Block
     {
         private static readonly Regex Syntax = R.B(R.Q(@"(\w+)\s+in\s+({0}+)\s*(reversed)?"), Liquid.QuotedFragment);
+        private static string ForTagMaxIterationsExceededException = Liquid.ResourceManager.GetString("ForTagMaximumIterationsExceededException");
 
         private string _variableName, _collectionName, _name;
         private bool _reversed;
         private Dictionary<string, string> _attributes;
 
+        /// <summary>
+        /// Initializes the for tag
+        /// </summary>
+        /// <param name="tagName">Name of the parsed tag</param>
+        /// <param name="markup">Markup of the parsed tag</param>
+        /// <param name="tokens">Toeksn of the parsed tag</param>
         public override void Initialize(string tagName, string markup, List<string> tokens)
         {
             Match match = Syntax.Match(markup);
@@ -80,6 +87,11 @@ namespace DotLiquid.Tags
             base.Initialize(tagName, markup, tokens);
         }
 
+        /// <summary>
+        /// Renders the for tag
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="result"></param>
         public override void Render(Context context, TextWriter result)
         {
             context.Registers["for"] = context.Registers["for"] ?? new Hash(0);
@@ -98,7 +110,7 @@ namespace DotLiquid.Tags
             int? limit = _attributes.ContainsKey("limit") ? context[_attributes["limit"]] as int? : null;
             int? to = (limit != null) ? (int?) (limit.Value + from) : null;
 
-            List<object> segment = SliceCollectionUsingEach((IEnumerable) collection, from, to);
+            List<object> segment = SliceCollectionUsingEach(context, (IEnumerable) collection, from, to);
 
             if (!segment.Any())
                 return;
@@ -115,12 +127,14 @@ namespace DotLiquid.Tags
             {
                 for (var index = 0; index < segment.Count; index++)
                 {
+                    context.CheckTimeout();
+
                     var item = segment[index];
                     if (item is KeyValuePair<string,object>)
                     {
                         var itemKey = ((KeyValuePair<string, object>) item).Key;
                         var itemValue = ((KeyValuePair<string, object>) item).Value;
-                        buildContext(context, _variableName, itemKey, itemValue);
+                        BuildContext(context, _variableName, itemKey, itemValue);
 
                     } else 
                         context[_variableName] = item;
@@ -146,17 +160,20 @@ namespace DotLiquid.Tags
                     }
                     catch (ContinueInterrupt)
                     {
+                        // ContinueInterrupt is used only to skip the current value but not to stop the iteration
                     }
                 }
             });
         }
 
-        private static List<object> SliceCollectionUsingEach(IEnumerable collection, int from, int? to)
+        private static List<object> SliceCollectionUsingEach(Context context, IEnumerable collection, int from, int? to)
         {
             List<object> segments = new List<object>();
             int index = 0;
             foreach (object item in collection)
             {
+                context.CheckTimeout();
+
                 if (to != null && to.Value <= index)
                     break;
 
@@ -164,23 +181,27 @@ namespace DotLiquid.Tags
                     segments.Add(item);
 
                 ++index;
+
+                if (context.MaxIterations > 0 && index > context.MaxIterations)
+                {
+                    throw new MaximumIterationsExceededException(For.ForTagMaxIterationsExceededException, context.MaxIterations.ToString());
+                }
             }
             return segments;
         }
 
-        private void buildContext(Context context, string parent, string key, object value)
+        private void BuildContext(Context context, string parent, string key, object value)
         {
-            if (value is Hash)
+            if (value is Hash hashValue)
             {
-
-                ((Hash)value)["itemName"] = key;
+                hashValue["itemName"] = key;
                 context[parent] = value;
                 
                 foreach (var hashItem in (Hash)value)
                 {
                     if (hashItem.Value is Hash)
                     {
-                        buildContext(context, parent + "." + key, hashItem.Key, hashItem.Value);
+                        BuildContext(context, parent + "." + key, hashItem.Key, hashItem.Value);
                     }
                 }
 

@@ -1,10 +1,11 @@
-using System;
-
-namespace DotLiquid.NamingConventions
+﻿namespace DotLiquid.NamingConventions
 {
     public interface INamingConvention
     {
-        StringComparer StringComparer { get; }
+        System.StringComparer StringComparer { get; }
+
         string GetMemberName(string name);
+
+        bool OperatorEquals(string testedOperator, string referenceOperator);
     }
 }

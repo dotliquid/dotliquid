@@ -1,3 +1,6 @@
+﻿using System;
+using System.Globalization;
+using System.IO;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -17,30 +20,12 @@ namespace DotLiquid.Tests
                 return "LOL: " + input;
             }
 
-#if NET35
-            public static string AddSmiley(string input)
-            {
-                return AddSmiley(input, ":-)");
-            }
-
-            public static string AddSmiley(string input, string smiley)
-#else
             public static string AddSmiley(string input, string smiley = ":-)")
-#endif
             {
                 return input + " " + smiley;
             }
 
-#if NET35
-            public static string AddTag(string input)
-            {
-                return AddTag(input, "p", "foo");
-            }
-
-            public static string AddTag(string input, string tag, string id)
-#else
             public static string AddTag(string input, string tag = "p", string id = "foo")
-#endif
             {
                 return string.Format("<{0} id=\"{1}\">{2}</{0}>", tag, id, input);
             }
@@ -64,7 +49,8 @@ namespace DotLiquid.Tests
             _assigns = Hash.FromAnonymousObject(new
             {
                 best_cars = "bmw",
-                car = Hash.FromAnonymousObject(new { bmw = "good", gm = "bad" })
+                car = Hash.FromAnonymousObject(new { bmw = "good", gm = "bad" }),
+                number = 3.145
             });
         }
 
@@ -73,6 +59,44 @@ namespace DotLiquid.Tests
         {
             Assert.AreEqual(" bmw ", Template.Parse(" {{best_cars}} ").Render(_assigns));
         }
+
+
+        string Render(CultureInfo culture)
+        {
+
+            var renderParams = new RenderParameters
+                               {
+                                   LocalVariables = _assigns 
+                               };
+            return Template.Parse("{{number}}").Render(renderParams, culture);
+        }
+
+        [Test]
+ 	    public void TestSeperator_Comma()
+        {
+
+            NumberFormatInfo nfi = new NumberFormatInfo();
+            nfi.NumberDecimalSeparator = ",";
+            var c = new CultureInfo("en-US")
+            {
+                NumberFormat = nfi
+            };
+            Assert.AreEqual("3,145", Render(c) );
+
+        }
+ 	    [Test]
+ 	    public void TestSeperator_Decimal()
+        {
+            NumberFormatInfo nfi = new NumberFormatInfo();
+            nfi.NumberDecimalSeparator = ".";
+            var c = new CultureInfo("en-US")
+            {
+                NumberFormat = nfi
+            };
+            Assert.AreEqual("3.145",Render(c) );
+
+        }
+
 
         [Test]
         public void TestVariableTraversing()

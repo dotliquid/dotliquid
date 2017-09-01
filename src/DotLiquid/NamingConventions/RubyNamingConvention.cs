@@ -1,6 +1,5 @@
-using System;
+﻿using System;
 using System.Text.RegularExpressions;
-
 using DotLiquid.Util;
 
 namespace DotLiquid.NamingConventions
@@ -29,6 +28,11 @@ namespace DotLiquid.NamingConventions
         {
             // Replace any capital letters, apart from the first character, with _x, the same way Ruby does
             return _regex2.Replace(_regex1.Replace(name, "$1_$2"), "$1_$2").ToLowerInvariant();
+        }
+
+        public bool OperatorEquals(string testedOperator, string referenceOperator)
+        {
+            return GetMemberName(testedOperator).Equals(referenceOperator);
         }
     }
 }

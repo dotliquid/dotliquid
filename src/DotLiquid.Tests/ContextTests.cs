@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using DotLiquid.Exceptions;
 using NUnit.Framework;
@@ -194,6 +195,58 @@ namespace DotLiquid.Tests
         public void TestVariablesNotExisting()
         {
             Assert.AreEqual(null, _context["does_not_exist"]);
+        }
+
+        [Test]
+        public void TestVariableNotFoundErrors()
+        {
+            Template template = Template.Parse("{{ does_not_exist }}");
+            string rendered = template.Render();
+ 
+            Assert.AreEqual("", rendered);
+            Assert.AreEqual(1, template.Errors.Count);
+            Assert.AreEqual(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), "does_not_exist"), template.Errors[0].Message);
+        }
+ 
+        [Test]
+        public void TestVariableNotFoundFromAnonymousObject()
+        {
+            Template template = Template.Parse("{{ first.test }}{{ second.test }}");
+            string rendered = template.Render(Hash.FromAnonymousObject(new { second = new { foo = "hi!" } }));
+ 
+            Assert.AreEqual("", rendered);
+            Assert.AreEqual(2, template.Errors.Count);
+            Assert.AreEqual(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), "first.test"), template.Errors[0].Message);
+            Assert.AreEqual(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), "second.test"), template.Errors[1].Message);
+        }
+ 
+        [Test]
+        public void TestVariableNotFoundException()
+        {
+            Assert.DoesNotThrow(() => Template.Parse("{{ does_not_exist }}").Render(new RenderParameters
+            {
+                RethrowErrors = true
+            }));
+        }
+
+        [Test]
+        public void TestVariableNotFoundExceptionIgnoredForIfStatement()
+        {
+            Template template = Template.Parse("{% if does_not_exist %}abc{% endif %}");
+            string rendered = template.Render();
+
+            Assert.AreEqual("", rendered);
+            Assert.AreEqual(0, template.Errors.Count);
+        }
+
+        [Test]
+        public void TestVariableNotFoundExceptionIgnoredForUnlessStatement()
+        {
+            Template template = Template.Parse("{% unless does_not_exist %}abc{% endunless %}");
+            string rendered = template.Render();
+
+            Assert.AreEqual("abc", rendered);
+            Assert.AreEqual(0, template.Errors.Count);
         }
 
         [Test]
@@ -559,6 +612,43 @@ namespace DotLiquid.Tests
             Assert.AreEqual(1, _context["counter['count']"]);
             Assert.AreEqual(2, _context["counter['count']"]);
             Assert.AreEqual(3, _context["counter['count']"]);
+        }
+
+        [Test]
+        public void TestDictionaryAsVariable()
+        {
+            _context["dynamic"] = Hash.FromDictionary(new Dictionary<string, object> { ["lambda"] = "Hello" });
+
+            Assert.AreEqual("Hello", _context["dynamic.lambda"]);
+        }
+
+        [Test]
+        public void TestNestedDictionaryAsVariable()
+        {
+            _context["dynamic"] = Hash.FromDictionary(new Dictionary<string, object> { ["lambda"] = new Dictionary<string, object> { ["name"] = "Hello" } });
+
+            Assert.AreEqual("Hello", _context["dynamic.lambda.name"]);
+        }
+
+        [Test]
+        public void TestDynamicAsVariable()
+        {
+            dynamic expandoObject = new ExpandoObject();
+            expandoObject.lambda = "Hello";
+            _context["dynamic"] = Hash.FromDictionary(expandoObject);
+
+            Assert.AreEqual("Hello", _context["dynamic.lambda"]);
+        }
+
+        [Test]
+        public void TestNestedDynamicAsVariable()
+        {
+            dynamic root = new ExpandoObject();
+            root.lambda = new ExpandoObject();
+            root.lambda.name = "Hello";
+            _context["dynamic"] = Hash.FromDictionary(root);
+
+            Assert.AreEqual("Hello", _context["dynamic.lambda.name"]);
         }
 
         [Test]

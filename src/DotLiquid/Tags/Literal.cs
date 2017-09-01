@@ -1,10 +1,5 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using DotLiquid.Exceptions;
 using DotLiquid.Util;
 
 namespace DotLiquid.Tags
@@ -23,6 +18,11 @@ namespace DotLiquid.Tags
     {
         private static readonly Regex LiteralRegex = R.C(Liquid.LiteralShorthand);
 
+        /// <summary>
+        /// Creates a literal from shorthand
+        /// </summary>
+        /// <param name="string"></param>
+        /// <returns></returns>
         public static string FromShortHand(string @string)
         {
             if (@string == null)
@@ -32,6 +32,10 @@ namespace DotLiquid.Tags
             return match.Success ? string.Format(@"{{% literal %}}{0}{{% endliteral %}}", match.Groups[1].Value) : @string;
         }
 
+        /// <summary>
+        /// Parses the tag
+        /// </summary>
+        /// <param name="tokens"></param>
         protected override void Parse(List<string> tokens)
         {
             NodeList = NodeList ?? new List<object>();

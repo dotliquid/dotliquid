@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -24,7 +24,7 @@ namespace DotLiquid
         private static readonly Regex SquareBracketedRegex = R.C(R.Q(@"^\[(.*)\]$"));
         private static readonly Regex VariableParserRegex = R.C(Liquid.VariableParser);
 
-        private readonly RenderParameters.ErrorsOutputModeEnum _errorsOutputMode;
+        private readonly ErrorsOutputMode _errorsOutputMode;
         
         private readonly int _maxIterations;
 
@@ -46,7 +46,7 @@ namespace DotLiquid
         public List<Hash> Scopes { get; private set; }
 
         /// <summary>
-        /// Registers
+        /// Hash of user-defined, internally-available variables
         /// </summary>
         public Hash Registers { get; private set; }
 
@@ -62,7 +62,7 @@ namespace DotLiquid
         /// <param name="outerScope"></param>
         /// <param name="registers"></param>
         /// <param name="errorsOutputMode"></param>
-        public Context(List<Hash> environments, Hash outerScope, Hash registers, RenderParameters.ErrorsOutputModeEnum errorsOutputMode, int maxIterations, int timeout)
+        public Context(List<Hash> environments, Hash outerScope, Hash registers, ErrorsOutputMode errorsOutputMode, int maxIterations, int timeout)
         {
             Environments = environments;
 
@@ -86,7 +86,7 @@ namespace DotLiquid
         /// Creates a new rendering context
         /// </summary>
         public Context()
-            : this(new List<Hash>(), new Hash(), new Hash(), RenderParameters.ErrorsOutputModeEnum.Display, 0, 0)
+            : this(new List<Hash>(), new Hash(), new Hash(), ErrorsOutputMode.Display, 0, 0)
         {
         }
 
@@ -157,10 +157,10 @@ namespace DotLiquid
 
             Errors.Add(ex);
 
-            if (_errorsOutputMode == RenderParameters.ErrorsOutputModeEnum.Suppress)
+            if (_errorsOutputMode == ErrorsOutputMode.Suppress)
                 return string.Empty;
 
-            if (_errorsOutputMode == RenderParameters.ErrorsOutputModeEnum.Rethrow)
+            if (_errorsOutputMode == ErrorsOutputMode.Rethrow)
                 throw ex;
 
             if (ex is SyntaxException)
@@ -625,7 +625,7 @@ namespace DotLiquid
         }
 
         private readonly int _timeout;
-        private Stopwatch _stopwatch = new Stopwatch();
+        private readonly Stopwatch _stopwatch = new Stopwatch();
 
         public void RestartTimeout()
         {

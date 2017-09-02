@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -13,6 +13,10 @@
     }
     </style>
     <![endif]-->
+    @if (ViewBag.IncludePrism == true)
+    {
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.6.0/themes/prism.min.css" integrity="sha256-vtR0hSWRc3Tb26iuN2oZHt3KRUomwTufNIf5/4oeCyg=" crossorigin="anonymous" />
+    }
     @RenderSection("StyleContent", false)
 
     <title>Welcome to DotLiquid, a safe templating system for .net</title>
@@ -44,7 +48,7 @@
                 <ul id="header-menu">
                     <li><a class="@(Html.IsCurrentAction("index", "home") ? "active" : "")" href="~/">home</a></li>
                     <li><a href="https://www.nuget.org/packages/dotliquid">download</a></li>
-                    <li><a href="https://github.com/dotliquid/dotliquid/wiki/">learn</a></li>
+                    <li><a href="@Url.Action("Index", "docs")">learn</a></li>
                 </ul>
                 <div id="try">
                     <a href="@Url.Action("Index", "TryOnline")">
@@ -68,8 +72,8 @@
             <div class="footer-col">
                 <h5>Documentation</h5>
                 <ul>
-                    <li><a href="https://github.com/dotliquid/dotliquid/wiki/DotLiquid-for-Developers">For Developers</a></li>
-                    <li><a href="https://github.com/dotliquid/dotliquid/wiki/DotLiquid-for-Designers">For Designers</a></li>
+                    <li><a href="@Url.Action("gettingstarted", "docs")">Getting started</a></li>
+                    <li><a href="@Url.Action("formatting", "docs")">Formatting</a></li>
                 </ul>
 
                 <h5>Support</h5>
@@ -104,5 +108,11 @@
     </div>
 
     @RenderSection("ScriptContent", false)
+    @if (ViewBag.IncludePrism == true)
+    {
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.6.0/prism.min.js" integrity="sha256-Zb9yKJ/cfs+jG/zIOFL0QEuXr2CDKF7FR5YBJY3No+c=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.6.0/components/prism-csharp.min.js" integrity="sha256-mBV1NCkxLraAJk9K34tDrTcRPqrZLZEuDus1uG6r1f4=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.6.0/components/prism-markup.js" integrity="sha256-PfW6MR0mvkbroDuJneAIRLN9JcVdXhN/wvPEGWohmcs=" crossorigin="anonymous"></script>
+    }
 </body>
 </html>

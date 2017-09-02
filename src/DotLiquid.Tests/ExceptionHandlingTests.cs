@@ -1,4 +1,4 @@
-﻿using DotLiquid.Exceptions;
+using DotLiquid.Exceptions;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -113,7 +113,7 @@ namespace DotLiquid.Tests
                 var output = template.Render(new RenderParameters
                 {
                     LocalVariables = assigns,
-                    ErrorsOutputMode = RenderParameters.ErrorsOutputModeEnum.Rethrow
+                    ErrorsOutputMode = ErrorsOutputMode.Rethrow
                 });
             });
         }
@@ -127,7 +127,7 @@ namespace DotLiquid.Tests
             var output = template.Render(new RenderParameters
             {
                 LocalVariables = assigns,
-                ErrorsOutputMode = RenderParameters.ErrorsOutputModeEnum.Suppress
+                ErrorsOutputMode = ErrorsOutputMode.Suppress
             });
             Assert.AreEqual("", output);
         }
@@ -141,7 +141,7 @@ namespace DotLiquid.Tests
             var output = template.Render(new RenderParameters
             {
                 LocalVariables = assigns,
-                ErrorsOutputMode = RenderParameters.ErrorsOutputModeEnum.Display
+                ErrorsOutputMode = ErrorsOutputMode.Display
             });
             Assert.IsNotEmpty(output);
         }

@@ -6,7 +6,7 @@
     <AssemblyName>DotLiquid.Website</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>DotLiquid.Website</PackageId>
-    <PackageTargetFallback>$(PackageTargetFallback);portable-net451+win8;dnxcore5</PackageTargetFallback>
+    <PackageTargetFallback>$(PackageTargetFallback);portable-net451+win8</PackageTargetFallback>
     <RuntimeFrameworkVersion>1.0.4</RuntimeFrameworkVersion>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
@@ -30,11 +30,16 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="1.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="1.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.3" />
     <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="1.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="1.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="1.1.2" />
-    <PackageReference Include="NETStandard.Library" Version="1.6.1" />
+    <PackageReference Include="TagHelperSamples.Markdown" Version="1.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.1" />
   </ItemGroup>
 
 </Project>

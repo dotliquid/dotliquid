@@ -9,7 +9,7 @@ namespace DotLiquid.Tags
             context.Stack(() =>
             {
                 string tempString;
-                using (TextWriter temp = new StringWriter())
+                using (TextWriter temp = new StringWriter(result.FormatProvider))
                 {
                     RenderAll(NodeList, context, temp);
                     tempString = temp.ToString();

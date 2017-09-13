@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using DotLiquid.NamingConventions;
 using NUnit.Framework;
@@ -166,7 +167,7 @@ namespace DotLiquid.Tests
         public void TestDropWithFilters()
         {
             string output = Template.Parse(" {{ product | product_text }} ")
-                .Render(new RenderParameters
+                .Render(new RenderParameters(CultureInfo.InvariantCulture)
                 {
                     LocalVariables = Hash.FromAnonymousObject(new { product = new ProductDrop() }),
                     Filters = new[] { typeof(ProductFilter) }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace DotLiquid
 {
@@ -68,6 +69,12 @@ namespace DotLiquid
         }
 
         private int _timeout = 0;
+        public IFormatProvider FormatProvider { get; }
+
+        public RenderParameters(IFormatProvider formatProvider)
+        {
+            FormatProvider = formatProvider ?? throw new ArgumentNullException( nameof(formatProvider) );
+        }
 
         /// <summary>
         /// Rendering timeout in ms
@@ -94,12 +101,12 @@ namespace DotLiquid
                 environments.Add(LocalVariables);
             if (template.IsThreadSafe)
             {
-                context = new Context(environments, new Hash(), new Hash(), ErrorsOutputMode, MaxIterations, Timeout);
+                context = new Context(environments, new Hash(), new Hash(), ErrorsOutputMode, MaxIterations, Timeout, FormatProvider);
             }
             else
             {
                 environments.Add(template.Assigns);
-                context = new Context(environments, template.InstanceAssigns, template.Registers, ErrorsOutputMode, MaxIterations, Timeout);
+                context = new Context(environments, template.InstanceAssigns, template.Registers, ErrorsOutputMode, MaxIterations, Timeout, FormatProvider);
             }
             registers = Registers;
             filters = Filters;
@@ -109,10 +116,13 @@ namespace DotLiquid
         /// Creates a RenderParameters from a context
         /// </summary>
         /// <param name="context"></param>
+        /// <param name="formatProvider"></param>
         /// <returns></returns>
-        public static RenderParameters FromContext(Context context)
+        public static RenderParameters FromContext(Context context, IFormatProvider formatProvider)
         {
-            return new RenderParameters { Context = context };
+            if (context == null)
+                throw new ArgumentNullException( nameof(context) );
+            return new RenderParameters(formatProvider) { Context = context };
         }
     }
 }

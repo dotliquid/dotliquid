@@ -16,7 +16,7 @@ namespace DotLiquid.Tags
             {
                 // First condition is interpreted backwards (if not)
                 Condition block = Blocks.First();
-                if (!block.Evaluate(context))
+                if (!block.Evaluate(context, result.FormatProvider))
                 {
                     RenderAll(block.Attachment, context, result);
                     return;
@@ -24,7 +24,7 @@ namespace DotLiquid.Tags
 
                 // After the first condition unless works just like if
                 foreach (Condition forEachBlock in Blocks.Skip(1))
-                    if (forEachBlock.Evaluate(context))
+                    if (forEachBlock.Evaluate(context, result.FormatProvider))
                     {
                         RenderAll(forEachBlock.Attachment, context, result);
                         return;

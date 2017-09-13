@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using DotLiquid.Exceptions;
 using NUnit.Framework;
 
@@ -13,7 +14,7 @@ namespace DotLiquid.Tests.Tags
             Tag tag = new Tag();
             tag.Initialize("tag", null, null);
             Assert.AreEqual("tag", tag.Name);
-            Assert.AreEqual(string.Empty, tag.Render(new Context()));
+            Assert.AreEqual(string.Empty, tag.Render(new Context(CultureInfo.InvariantCulture)));
         }
 
         [Test]

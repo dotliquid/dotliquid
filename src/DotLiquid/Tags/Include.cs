@@ -66,13 +66,13 @@ namespace DotLiquid.Tags
                     ((IEnumerable) variable).Cast<object>().ToList().ForEach(v =>
                     {
                         context[shortenedTemplateName] = v;
-                        partial.Render(result, RenderParameters.FromContext(context));
+                        partial.Render(result, RenderParameters.FromContext(context, result.FormatProvider));
                     });
                     return;
                 }
 
                 context[shortenedTemplateName] = variable;
-                partial.Render(result, RenderParameters.FromContext(context));
+                partial.Render(result, RenderParameters.FromContext(context, result.FormatProvider));
             });
         }
     }

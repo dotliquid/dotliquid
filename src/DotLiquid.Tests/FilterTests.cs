@@ -1,4 +1,5 @@
-﻿using System.Collections;
+using System.Collections;
+using System.Globalization;
 using DotLiquid.Exceptions;
 using NUnit.Framework;
 
@@ -84,7 +85,7 @@ namespace DotLiquid.Tests
         [OneTimeSetUp]
         public void SetUp()
         {
-            _context = new Context();
+            _context = new Context(CultureInfo.InvariantCulture);
         }
 
         /*[Test]
@@ -248,8 +249,8 @@ namespace DotLiquid.Tests
             Template.RegisterFilter(typeof(MoneyFilter));
 
             Assert.AreEqual(" 1000$ ", Template.Parse("{{1000 | money}}").Render());
-            Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}").Render(new RenderParameters { Filters = new[] { typeof(CanadianMoneyFilter) } }));
-            Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}").Render(new RenderParameters { Filters = new[] { typeof(CanadianMoneyFilter) } }));
+            Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}").Render(new RenderParameters(CultureInfo.InvariantCulture) { Filters = new[] { typeof(CanadianMoneyFilter) } }));
+            Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}").Render(new RenderParameters(CultureInfo.InvariantCulture) { Filters = new[] { typeof(CanadianMoneyFilter) } }));
         }
 
         [Test]

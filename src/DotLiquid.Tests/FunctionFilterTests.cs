@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using NUnit.Framework;
 
@@ -11,7 +11,7 @@ namespace DotLiquid.Tests
         [SetUp]
         public void Setup()
         {
-            _context = new Context();
+            _context = new Context(CultureInfo.InvariantCulture);
         }
 
         [Test]

@@ -37,6 +37,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="System.Threading.Thread">
+      <HintPath>..\..\..\..\.nuget\packages\system.threading.thread\4.3.0\ref\netstandard1.3\System.Threading.Thread.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="LICENSE.txt">
       <Pack>true</Pack>
     </None>

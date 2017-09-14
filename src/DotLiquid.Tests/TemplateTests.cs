@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Web;
@@ -153,9 +154,9 @@ namespace DotLiquid.Tests
         {
             Template template = Template.Parse("{{test}}");
 
-            using (TextWriter writer = new StringWriter())
+            using (TextWriter writer = new StringWriter(CultureInfo.InvariantCulture))
             {
-                template.Render(writer, new RenderParameters { LocalVariables = Hash.FromAnonymousObject(new { test = "worked" }) });
+                template.Render(writer, new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = Hash.FromAnonymousObject(new { test = "worked" }) });
 
                 Assert.AreEqual("worked", writer.ToString());
             }
@@ -167,7 +168,7 @@ namespace DotLiquid.Tests
             Template template = Template.Parse("{{test}}");
 
             var output = new MemoryStream();
-            template.Render(output, new RenderParameters { LocalVariables = Hash.FromAnonymousObject(new { test = "worked" }) });
+            template.Render(output, new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = Hash.FromAnonymousObject(new { test = "worked" }) });
 
             output.Seek(0, SeekOrigin.Begin);
 

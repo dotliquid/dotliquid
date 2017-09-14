@@ -3,6 +3,7 @@ using DotLiquid.Exceptions;
 using DotLiquid.FileSystems;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace DotLiquid.Tests.Tags
 {
@@ -105,13 +106,13 @@ namespace DotLiquid.Tests.Tags
         public void TestIncludeTagMustNotBeConsideredError()
         {
             Assert.AreEqual(0, Template.Parse("{% include 'product_template' %}").Errors.Count);
-            Assert.DoesNotThrow(() => Template.Parse("{% include 'product_template' %}").Render(new RenderParameters { RethrowErrors = true }));
+            Assert.DoesNotThrow(() => Template.Parse("{% include 'product_template' %}").Render(new RenderParameters(CultureInfo.InvariantCulture) { RethrowErrors = true }));
         }
 
         [Test]
         public void TestIncludeTagLooksForFileSystemInRegistersFirst()
         {
-            Assert.AreEqual("from OtherFileSystem", Template.Parse("{% include 'pick_a_source' %}").Render(new RenderParameters { Registers = Hash.FromAnonymousObject(new { file_system = new OtherFileSystem() }) }));
+            Assert.AreEqual("from OtherFileSystem", Template.Parse("{% include 'pick_a_source' %}").Render(new RenderParameters(CultureInfo.InvariantCulture) { Registers = Hash.FromAnonymousObject(new { file_system = new OtherFileSystem() }) }));
         }
 
         [Test]
@@ -174,7 +175,7 @@ namespace DotLiquid.Tests.Tags
         {
             Template.FileSystem = new InfiniteFileSystem();
 
-            Assert.Throws<StackLevelException>(() => Template.Parse("{% include 'loop' %}").Render(new RenderParameters { RethrowErrors = true }));
+            Assert.Throws<StackLevelException>(() => Template.Parse("{% include 'loop' %}").Render(new RenderParameters(CultureInfo.InvariantCulture) { RethrowErrors = true }));
         }
 
         [Test]
@@ -196,7 +197,7 @@ namespace DotLiquid.Tests.Tags
         public void TestUndefinedTemplateVariableWithLocalFileSystem()
         {
             Template.FileSystem = new LocalFileSystem(string.Empty);
-            Assert.Throws<FileSystemException>(() => Template.Parse(" hello {% include notthere %} world ").Render(new RenderParameters
+            Assert.Throws<FileSystemException>(() => Template.Parse(" hello {% include notthere %} world ").Render(new RenderParameters(CultureInfo.InvariantCulture)
             {
                 RethrowErrors = true
             }));
@@ -206,7 +207,7 @@ namespace DotLiquid.Tests.Tags
         public void TestMissingTemplateWithLocalFileSystem()
         {
             Template.FileSystem = new LocalFileSystem(string.Empty);
-            Assert.Throws<FileSystemException>(() => Template.Parse(" hello {% include 'doesnotexist' %} world ").Render(new RenderParameters
+            Assert.Throws<FileSystemException>(() => Template.Parse(" hello {% include 'doesnotexist' %} world ").Render(new RenderParameters(CultureInfo.InvariantCulture)
             {
                 RethrowErrors = true
             }));

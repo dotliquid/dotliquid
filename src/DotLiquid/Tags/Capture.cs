@@ -39,7 +39,7 @@ namespace DotLiquid.Tags
 
         public override void Render(Context context, TextWriter result)
         {
-            using (TextWriter temp = new StringWriter())
+            using (TextWriter temp = new StringWriter(result.FormatProvider))
             {
                 base.Render(context, temp);
                 context.Scopes.Last()[_to] = temp.ToString();

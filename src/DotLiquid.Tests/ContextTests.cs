@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Globalization;
 using System.Linq;
 using DotLiquid.Exceptions;
 using NUnit.Framework;
@@ -141,7 +142,7 @@ namespace DotLiquid.Tests
         [OneTimeSetUp]
         public void SetUp()
         {
-            _context = new Context();
+            _context = new Context(CultureInfo.InvariantCulture);
         }
 
         [Test]
@@ -223,7 +224,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestVariableNotFoundException()
         {
-            Assert.DoesNotThrow(() => Template.Parse("{{ does_not_exist }}").Render(new RenderParameters
+            Assert.DoesNotThrow(() => Template.Parse("{{ does_not_exist }}").Render(new RenderParameters(CultureInfo.InvariantCulture)
             {
                 RethrowErrors = true
             }));
@@ -304,11 +305,11 @@ namespace DotLiquid.Tests
         [Test]
         public void TestAddFilter()
         {
-            Context context = new Context();
+            Context context = new Context(CultureInfo.InvariantCulture);
             context.AddFilters(new[] { typeof(TestFilters) });
             Assert.AreEqual("hi? hi!", context.Invoke("hi", new List<object> { "hi?" }));
 
-            context = new Context();
+            context = new Context(CultureInfo.InvariantCulture);
             Assert.AreEqual("hi?", context.Invoke("hi", new List<object> { "hi?" }));
 
             context.AddFilters(new[] { typeof(TestFilters) });
@@ -318,13 +319,13 @@ namespace DotLiquid.Tests
         [Test]
         public void TestAddContextFilter()
         {
-            Context context = new Context();
+            Context context = new Context(CultureInfo.InvariantCulture);
             context["name"] = "King Kong";
 
             context.AddFilters(new[] { typeof(TestContextFilters) });
             Assert.AreEqual("hi? hi from King Kong!", context.Invoke("hi", new List<object> { "hi?" }));
 
-            context = new Context();
+            context = new Context(CultureInfo.InvariantCulture);
             Assert.AreEqual("hi?", context.Invoke("hi", new List<object> { "hi?" }));
         }
 
@@ -333,13 +334,13 @@ namespace DotLiquid.Tests
         {
             Template.RegisterFilter(typeof(GlobalFilters));
             Assert.AreEqual("Global test", Template.Parse("{{'test' | notice }}").Render());
-            Assert.AreEqual("Local test", Template.Parse("{{'test' | notice }}").Render(new RenderParameters { Filters = new[] { typeof(LocalFilters) } }));
+            Assert.AreEqual("Local test", Template.Parse("{{'test' | notice }}").Render(new RenderParameters(CultureInfo.InvariantCulture) { Filters = new[] { typeof(LocalFilters) } }));
         }
 
         [Test]
         public void TestOnlyIntendedFiltersMakeItThere()
         {
-            Context context = new Context();
+            Context context = new Context(CultureInfo.InvariantCulture);
             var methodsBefore = context.Strainer.Methods.Select(mi => mi.Name).ToList();
             context.AddFilters(new[] { typeof(TestFilters) });
             var methodsAfter = context.Strainer.Methods.Select(mi => mi.Name).ToList();

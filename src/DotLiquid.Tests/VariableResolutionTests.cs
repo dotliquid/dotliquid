@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -73,13 +74,13 @@ namespace DotLiquid.Tests
             Template template = Template.Parse("Hello {{ test }}");
             Hash assigns = new Hash((h, k) => { throw new Exception("Unknown variable '" + k + "'"); });
             assigns["test"] = "Tobi";
-            Assert.AreEqual("Hello Tobi", template.Render(new RenderParameters
+            Assert.AreEqual("Hello Tobi", template.Render(new RenderParameters(CultureInfo.InvariantCulture)
             {
                 LocalVariables = assigns,
                 RethrowErrors = true
             }));
             assigns.Remove("test");
-            Exception ex = Assert.Throws<Exception>(() => template.Render(new RenderParameters
+            Exception ex = Assert.Throws<Exception>(() => template.Render(new RenderParameters(CultureInfo.InvariantCulture)
             {
                 LocalVariables = assigns,
                 RethrowErrors = true

@@ -59,7 +59,7 @@ namespace DotLiquid.Tags
                             return;
                         }
                     }
-                    else if (block.Evaluate(context))
+                    else if (block.Evaluate(context, result.FormatProvider))
                     {
                         executeElseBlock = false;
                         RenderAll(block.Attachment, context, result);

@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
 using DotLiquid.NamingConventions;
 using NUnit.Framework;
@@ -13,8 +14,8 @@ namespace DotLiquid.Tests
         [Test]
         public void TestBasicCondition()
         {
-            Assert.AreEqual(false, new Condition("1", "==", "2").Evaluate(null));
-            Assert.AreEqual(true, new Condition("1", "==", "1").Evaluate(null));
+            Assert.AreEqual(false, new Condition("1", "==", "2").Evaluate(null, CultureInfo.InvariantCulture));
+            Assert.AreEqual(true, new Condition("1", "==", "1").Evaluate(null, CultureInfo.InvariantCulture));
         }
 
         [Test]
@@ -62,7 +63,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestContainsWorksOnArrays()
         {
-            _context = new Context();
+            _context = new Context(CultureInfo.InvariantCulture);
             _context["array"] = new[] { 1, 2, 3, 4, 5 };
 
             AssertEvaluatesFalse("array", "contains", "0");
@@ -99,7 +100,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestStartsWithWorksOnArrays()
         {
-            _context = new Context();
+            _context = new Context(CultureInfo.InvariantCulture);
             _context["array"] = new[] { 1, 2, 3, 4, 5 };
 
             AssertEvaluatesFalse("array", "startswith", "0");
@@ -129,7 +130,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestEndsWithWorksOnArrays()
         {
-            _context = new Context();
+            _context = new Context(CultureInfo.InvariantCulture);
             _context["array"] = new[] { 1, 2, 3, 4, 5 };
 
             AssertEvaluatesFalse("array", "endswith", "0");
@@ -146,7 +147,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestDictionaryHasKey()
         {
-            _context = new Context();
+            _context = new Context(CultureInfo.InvariantCulture);
             System.Collections.Generic.Dictionary<string, string> testDictionary = new System.Collections.Generic.Dictionary<string, string>
             {
                 { "dave", "0" },
@@ -161,7 +162,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestDictionaryHasValue()
         {
-            _context = new Context();
+            _context = new Context(CultureInfo.InvariantCulture);
             System.Collections.Generic.Dictionary<string, string> testDictionary = new System.Collections.Generic.Dictionary<string, string>
             {
                 { "dave", "0" },
@@ -177,26 +178,26 @@ namespace DotLiquid.Tests
         public void TestOrCondition()
         {
             Condition condition = new Condition("1", "==", "2");
-            Assert.IsFalse(condition.Evaluate(null));
+            Assert.IsFalse(condition.Evaluate(null,CultureInfo.InvariantCulture));
 
             condition.Or(new Condition("2", "==", "1"));
-            Assert.IsFalse(condition.Evaluate(null));
+            Assert.IsFalse(condition.Evaluate(null,CultureInfo.InvariantCulture));
 
             condition.Or(new Condition("1", "==", "1"));
-            Assert.IsTrue(condition.Evaluate(null));
+            Assert.IsTrue(condition.Evaluate(null,CultureInfo.InvariantCulture));
         }
 
         [Test]
         public void TestAndCondition()
         {
             Condition condition = new Condition("1", "==", "1");
-            Assert.IsTrue(condition.Evaluate(null));
+            Assert.IsTrue(condition.Evaluate(null,CultureInfo.InvariantCulture));
 
             condition.And(new Condition("2", "==", "2"));
-            Assert.IsTrue(condition.Evaluate(null));
+            Assert.IsTrue(condition.Evaluate(null,CultureInfo.InvariantCulture));
 
             condition.And(new Condition("2", "==", "1"));
-            Assert.IsFalse(condition.Evaluate(null));
+            Assert.IsFalse(condition.Evaluate(null,CultureInfo.InvariantCulture));
         }
 
         [Test]
@@ -314,7 +315,7 @@ namespace DotLiquid.Tests
 
             var current = "MyID is {% if MyID == 1 %}1{%endif%}";
             var parse = DotLiquid.Template.Parse(current);
-            var parsedOutput = parse.Render(new RenderParameters() { LocalVariables = Hash.FromDictionary(row) });
+            var parsedOutput = parse.Render(new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = Hash.FromDictionary(row) });
             Assert.AreEqual("MyID is 1", parsedOutput);
         }
 
@@ -388,19 +389,19 @@ namespace DotLiquid.Tests
 
         private void AssertEvaluatesTrue(string left, string op, string right)
         {
-            Assert.IsTrue(new Condition(left, op, right).Evaluate(_context ?? new Context()),
+            Assert.IsTrue(new Condition(left, op, right).Evaluate(_context ?? new Context(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture),
                 "Evaluated false: {0} {1} {2}", left, op, right);
         }
 
         private void AssertEvaluatesFalse(string left, string op, string right)
         {
-            Assert.IsFalse(new Condition(left, op, right).Evaluate(_context ?? new Context()),
+            Assert.IsFalse(new Condition(left, op, right).Evaluate(_context ?? new Context(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture),
                 "Evaluated true: {0} {1} {2}", left, op, right);
         }
 
         private void AssertError(string left, string op, string right, System.Type errorType)
         {
-            Assert.Throws(errorType, () => new Condition(left, op, right).Evaluate(_context ?? new Context()));
+            Assert.Throws(errorType, () => new Condition(left, op, right).Evaluate(_context ?? new Context(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture));
         }
 
         #endregion

@@ -1,3 +1,4 @@
+using System.Globalization;
 using DotLiquid.Exceptions;
 using NUnit.Framework;
 
@@ -82,7 +83,7 @@ namespace DotLiquid.Tests
             var template = Template.Parse(" {% for i in (1..100000) %} {{ i }} {% endfor %} ");
             Assert.Throws<MaximumIterationsExceededException>(() =>
             {
-                template.Render(new RenderParameters
+                template.Render(new RenderParameters(CultureInfo.InvariantCulture)
                 {
                     MaxIterations = 50
                 });
@@ -95,7 +96,7 @@ namespace DotLiquid.Tests
             var template = Template.Parse(" {% for i in (1..1000000) %} {{ i }} {% endfor %} ");
             Assert.Throws<System.TimeoutException>(() =>
             {
-                template.Render(new RenderParameters
+                template.Render(new RenderParameters(CultureInfo.InvariantCulture)
                 {
                     Timeout = 100 //ms
                 });
@@ -110,7 +111,7 @@ namespace DotLiquid.Tests
 
             Assert.Throws<SyntaxException>(() =>
             {
-                var output = template.Render(new RenderParameters
+                var output = template.Render(new RenderParameters(CultureInfo.InvariantCulture)
                 {
                     LocalVariables = assigns,
                     ErrorsOutputMode = ErrorsOutputMode.Rethrow
@@ -124,7 +125,7 @@ namespace DotLiquid.Tests
             var template = Template.Parse("{{test}}");
             Hash assigns = new Hash((h, k) => { throw new SyntaxException("Unknown variable '" + k + "'"); });
 
-            var output = template.Render(new RenderParameters
+            var output = template.Render(new RenderParameters(CultureInfo.InvariantCulture)
             {
                 LocalVariables = assigns,
                 ErrorsOutputMode = ErrorsOutputMode.Suppress
@@ -138,7 +139,7 @@ namespace DotLiquid.Tests
             var template = Template.Parse("{{test}}");
             Hash assigns = new Hash((h, k) => { throw new SyntaxException("Unknown variable '" + k + "'"); });
 
-            var output = template.Render(new RenderParameters
+            var output = template.Render(new RenderParameters(CultureInfo.InvariantCulture)
             {
                 LocalVariables = assigns,
                 ErrorsOutputMode = ErrorsOutputMode.Display

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -138,17 +138,17 @@ namespace DotLiquid.Tags
 
                     } else 
                         context[_variableName] = item;
-                    
-                    context["forloop"] = Hash.FromAnonymousObject(new
+
+                    context["forloop"] = Hash.FromDictionary(new Dictionary<string, object>
                     {
-                        name = _name,
-                        length = length,
-                        index = index + 1,
-                        index0 = index,
-                        rindex = length - index,
-                        rindex0 = length - index - 1,
-                        first = (index == 0),
-                        last = (index == length - 1)
+                        ["name"] = _name,
+                        ["length"] = length,
+                        ["index"] = index + 1,
+                        ["index0"] = index,
+                        ["rindex"] = length - index,
+                        ["rindex0"] = length - index - 1,
+                        ["first"] = (index == 0),
+                        ["last"] = (index == length - 1)
                     });
                     try
                     {

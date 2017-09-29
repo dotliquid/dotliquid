@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,23 +24,29 @@ namespace DotLiquid
 
         #region Static construction methods
 
-        public static Hash FromAnonymousObject(object anonymousObject)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="anonymousObject"></param>
+        /// <param name="includeBaseClassProperties">If this is set to true, method will map base class' properties too. </param>
+        /// <returns></returns>
+        public static Hash FromAnonymousObject(object anonymousObject, bool includeBaseClassProperties = false)
         {
             Hash result = new Hash();
             if (anonymousObject != null)
             {
-                FromAnonymousObject(anonymousObject, result);
+                FromAnonymousObject(anonymousObject, result, includeBaseClassProperties);
             }
             return result;
         }
 
-        private static void FromAnonymousObject(object anonymousObject, Hash hash)
+        private static void FromAnonymousObject(object anonymousObject, Hash hash, bool includeBaseClassProperties)
         {
-            Action<object, Hash> mapper = GetObjToDictionaryMapper(anonymousObject.GetType());
+            Action<object, Hash> mapper = GetObjToDictionaryMapper(anonymousObject.GetType(), includeBaseClassProperties);
             mapper.Invoke(anonymousObject, hash);                
         }
 
-        private static Action<object, Hash> GetObjToDictionaryMapper(Type type)
+        private static Action<object, Hash> GetObjToDictionaryMapper(Type type, bool includeBaseClassProperties)
         {
             if (!mapperCache.TryGetValue(type, out Action<object, Hash> mapper))
             {
@@ -60,14 +66,14 @@ namespace DotLiquid
                  * If someone have conserns, than one can lock(mapperCache) but that would 
                  * create bottleneck, as only one mapper could be generated at a time.
                  */
-                mapper = GenerateMapper(type);
+                mapper = GenerateMapper(type, includeBaseClassProperties);
                 mapperCache[type] = mapper;
             }
 
             return mapper;
         }
 
-        private static Action<object, Hash> GenerateMapper(Type type)
+        private static Action<object, Hash> GenerateMapper(Type type, bool includeBaseClassProperties)
         {
             ParameterExpression objParam = Expression.Parameter(typeof(object), "objParam");
             ParameterExpression hashParam = Expression.Parameter(typeof(Hash), "hashParam");
@@ -82,11 +88,14 @@ namespace DotLiquid
             //Add properties
             var propertyList = type.GetTypeInfo().DeclaredProperties
                 .Where(p => p.CanRead && p.GetMethod.IsPublic && !p.GetMethod.IsStatic).ToList();
-
+            
             //Add properties from base class 
-            propertyList.AddRange(type.GetTypeInfo().BaseType.GetTypeInfo().DeclaredProperties
-                .Where(p => p.CanRead && p.GetMethod.IsPublic && !p.GetMethod.IsStatic).ToList());
-
+            if (includeBaseClassProperties)
+            {
+                propertyList.AddRange(type.GetTypeInfo().BaseType.GetTypeInfo().DeclaredProperties
+                    .Where(p => p.CanRead && p.GetMethod.IsPublic && !p.GetMethod.IsStatic).ToList());
+            }
+            
             foreach (PropertyInfo property in propertyList)
             {
                 bodyInstructions.Add(

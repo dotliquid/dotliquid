@@ -1,9 +1,11 @@
-# DotLiquid
+﻿# DotLiquid
 
+[![DotLiquid tag on Stack Overflow](https://img.shields.io/badge/stackoverflow-dotliquid-orange.svg)](https://stackoverflow.com/questions/tagged/dotliquid)
 [![AppVeyor build](https://ci.appveyor.com/api/projects/status/github/dotliquid/dotliquid?branch=master&svg=true)](https://ci.appveyor.com/project/tgjones/dotliquid)
 [![TravisCI build](https://travis-ci.org/dotliquid/dotliquid.svg?branch=master)](https://travis-ci.org/dotliquid/dotliquid)
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/dotliquid/dotliquid?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![codecov](https://codecov.io/gh/dotliquid/dotliquid/branch/master/graph/badge.svg)](https://codecov.io/gh/dotliquid/dotliquid)
+[![NuGet](https://img.shields.io/nuget/v/dotliquid.svg)](https://www.nuget.org/packages/dotliquid)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/dotliquid/dotliquid?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## Maintainers wanted
 
@@ -15,19 +17,19 @@ github.
 ### What is this?
 
 DotLiquid is a .Net port of the popular [Ruby Liquid templating
-language](http://liquidmarkup.org/). It is a separate project that aims to
+language](https://shopify.github.io/liquid/). It is a separate project that aims to
 retain the same template syntax as the original, while using .NET coding
 conventions where possible.
 
 For more information about the original Liquid project, see
-<http://www.liquidmarkup.org>.
+<https://shopify.github.io/liquid/>.
 
 ### Quick start
 
 1. Download the latest release from the [downloads
-   page](https://github.com/dotliquid/dotliquid/downloads).  The zip file
+   page](https://github.com/dotliquid/dotliquid/downloads) or [NuGet](https://www.nuget.org/packages/dotliquid).  The zip file
    contains DotLiquid.dll, which is the only one you need.
-2. Read the [wiki](https://github.com/dotliquid/dotliquid/wiki) for information
+2. Read the [docs](http://dotliquidmarkup.org/docs) for information
    on writing and using DotLiquid templates.
 
 ### Why should I use DotLiquid?
@@ -74,3 +76,7 @@ Are you using DotLiquid in an open source project? Tell us with a PR!
  - [Suave.DotLiquid](https://github.com/SuaveIO/suave#introduction)
  - [Pretzel](https://github.com/Code52/Pretzel)
  - [Docfx](https://github.com/dotnet/docfx)
+ - [DotLiquid.Mailer](https://github.com/miseeger/DotLiquid.Mailer)
+ - [DotLiquid Template Engine for Suave.IO](https://www.nuget.org/packages/Suave.DotLiquid/)
+ - [DotLiquid View Engine for ASP.NET MVC](https://www.nuget.org/packages/DotLiquid.ViewEngine)
+ - [DotLiquid View Engine for Nancy](https://www.nuget.org/packages/Nancy.Viewengines.DotLiquid)

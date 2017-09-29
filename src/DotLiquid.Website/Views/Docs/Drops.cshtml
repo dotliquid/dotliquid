@@ -1,0 +1,103 @@
+@{
+    ViewBag.IncludePrism = true;
+}
+<div id="docs-content">
+<markdown>
+
+# Drops
+
+DotLiquid is focused on making your templates safe. It does this by making sure templates can only access properties and methods that have been specifically enabled. This is best explained by example.
+
+If you execute the following code, it might not produce the result you expect.
+
+``` csharp
+public class User
+{
+    public string Name { get; set; }
+}
+
+Template template = Template.Parse("{{ user.name }}");
+
+string result = template.Render(Hash.FromAnonymousObject(new
+{
+    user = new User { Name = "Tim" }
+}));
+```
+
+You could reasonably expect the output to be ` Tim `. However, it will actually be a blank string. The explanation follows.
+
+## Explanation
+
+DotLiquid, by default, only accepts a limited number of types as parameters to the `Render` method - including the .NET primitive types(`int`, `float`, `string`, etc.), and some collection types including `IDictionary`, `IList` and `IIndexable` (a custom DotLiquid interface).
+
+If it supported arbitrary types, then it could result in properties or methods being unintentionally exposed to template authors. To prevent this, DotLiquid uses `Drop` objects. `Drop`s use an opt-in approach to exposing object data.
+
+You can derive your own `Drop` class, and pass that to `Template.Render` instead of the original `User` object:
+
+``` csharp
+public class User
+{
+    public string Name { get; set; }
+    public string Email { get; set; }
+}
+
+public class UserDrop : Drop
+{
+    private readonly User _user;
+
+    public string Name
+    {
+        get { return _user.Name; }
+    }
+
+    public UserDrop(User user)
+    {
+        _user = user;
+    }
+}
+
+Template template = Template.Parse("Name: {{ user.name }}; Email: {{ user.email }};");
+string result = template.Render(Hash.FromAnonymousObject(new
+{
+    user = new UserDrop(new User
+    {
+        Name = "Tim",
+        Email = "me@mydomain.com"
+    })
+}));
+```
+
+The result is `Name: Tim; Email: `, so the attempt to call the email property was ignored, since this is not exposed by `UserDrop`.
+
+## POCO classes
+
+As of v1.7.0, DotLiquid provides an API to register specific types as "safe", which means you can use types that don't inherit from `Drop`. Read more on the [format](formatting).
+
+## Tips
+
+* By default, DotLiquid uses a Ruby naming convention for `Drop` properties. So if your `Drop` object contains CamelCased properties, they will contain underscores when exposed in your template. For example, `ProductId` on your drop becomes `product_id` in your template. If you want to change this behaviour, you can set `Template.NamingConvention` to `new NamingConventions.CSharpNamingConvention()`.
+
+* Exceptions thrown by your Drop objects will result in the general message `Liquid error: Exception has been thrown by the target of an invocation.`.  You can make DotLiquid throw the original exception by using the `Render` overloads that take a `RenderParameters` instance and setting `RethrowErrors = true`.
+
+## Taking it further
+
+Drops are quite flexible. You can also use them to provide a "catch-all" method:
+
+``` csharp
+public class CatchAllDrop : Drop
+{
+    public override object BeforeMethod(string method)
+    {
+        return "method: " + method;
+    }
+}
+
+Template template = Template.Parse(" {{ catchall.unknown }} ");
+string result = template.Render(Hash.FromAnonymousObject(new { catchall = new CatchAllDrop() }));
+```
+
+The result is ` method: unknown `.
+
+For a more hands-on explanation of all the capabilities of Drops, have a look at the [Drop tests](http://github.com/dotliquid/dotliquid/blob/master/src/DotLiquid.Tests/DropTests.cs) within DotLiquid's unit test suite.
+</markdown>
+</div>

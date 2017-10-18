@@ -11,7 +11,7 @@ namespace DotLiquid
     {
         #region Static fields
 
-        private static System.Collections.Concurrent.ConcurrentDictionary<Type, Action<object, Hash>> mapperCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, Action<object, Hash>>();
+        private static System.Collections.Concurrent.ConcurrentDictionary<string, Action<object, Hash>> mapperCache = new System.Collections.Concurrent.ConcurrentDictionary<string, Action<object, Hash>>();
 
         #endregion
 
@@ -48,7 +48,9 @@ namespace DotLiquid
 
         private static Action<object, Hash> GetObjToDictionaryMapper(Type type, bool includeBaseClassProperties)
         {
-            if (!mapperCache.TryGetValue(type, out Action<object, Hash> mapper))
+            var cacheKey = type.FullName + (includeBaseClassProperties ? "WithBaseProperties" : "WithoutBaseProperties");
+
+            if (!mapperCache.TryGetValue(cacheKey, out Action<object, Hash> mapper))
             {
                 /* Bogdan Mart: Note regarding concurrency:
                  * This is concurrent dictionary, but if this will be called from two threads
@@ -67,10 +69,15 @@ namespace DotLiquid
                  * create bottleneck, as only one mapper could be generated at a time.
                  */
                 mapper = GenerateMapper(type, includeBaseClassProperties);
-                mapperCache[type] = mapper;
+                mapperCache[cacheKey] = mapper;
             }
 
             return mapper;
+        }
+
+        private static void AddBaseClassProperties(Type type, List<PropertyInfo> propertyList) {
+            propertyList.AddRange(type.GetTypeInfo().BaseType.GetTypeInfo().DeclaredProperties
+                .Where(p => p.CanRead && p.GetMethod.IsPublic && !p.GetMethod.IsStatic).ToList());
         }
 
         private static Action<object, Hash> GenerateMapper(Type type, bool includeBaseClassProperties)
@@ -90,12 +97,8 @@ namespace DotLiquid
                 .Where(p => p.CanRead && p.GetMethod.IsPublic && !p.GetMethod.IsStatic).ToList();
             
             //Add properties from base class 
-            if (includeBaseClassProperties)
-            {
-                propertyList.AddRange(type.GetTypeInfo().BaseType.GetTypeInfo().DeclaredProperties
-                    .Where(p => p.CanRead && p.GetMethod.IsPublic && !p.GetMethod.IsStatic).ToList());
-            }
-            
+            if (includeBaseClassProperties) AddBaseClassProperties(type, propertyList);
+
             foreach (PropertyInfo property in propertyList)
             {
                 bodyInstructions.Add(

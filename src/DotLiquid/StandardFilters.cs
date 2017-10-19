@@ -303,16 +303,38 @@ namespace DotLiquid
         /// <returns></returns>
         public static IEnumerable Map(IEnumerable input, string property)
         {
+            if (input == null)
+                return null;
+
             List<object> ary = input.Cast<object>().ToList();
             if (!ary.Any())
                 return ary;
 
             if ((ary.All(o => o is IDictionary)) && ((IDictionary)ary.First()).Contains(property))
                 return ary.Select(e => ((IDictionary)e)[property]);
-            if (ary.All(o => o.RespondTo(property)))
-                return ary.Select(e => e.Send(property));
 
-            return ary;
+            return ary.Select(e => {
+                if (e == null)
+                    return null;
+
+                var drop = e as DropBase;
+                if (drop == null)
+                {
+                    var type = e.GetType();
+                    var safeTypeTransformer = Template.GetSafeTypeTransformer(type);
+                    if (safeTypeTransformer != null)
+                        drop = safeTypeTransformer(e) as DropBase;
+                    else
+                    {
+                        var attr = type.GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).FirstOrDefault() as LiquidTypeAttribute;
+                        if (attr != null)
+                        {
+                            drop = new DropProxy(e, attr.AllowedMembers);
+                        }
+                    }
+                }
+                return drop?.InvokeDrop(property);
+            });
         }
 
         /// <summary>

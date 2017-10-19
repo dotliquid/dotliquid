@@ -48,7 +48,7 @@ namespace DotLiquid
 
         private static Action<object, Hash> GetObjToDictionaryMapper(Type type, bool includeBaseClassProperties)
         {
-            var cacheKey = type.FullName + (includeBaseClassProperties ? "WithBaseProperties" : "WithoutBaseProperties");
+            var cacheKey = type.FullName + "_" + (includeBaseClassProperties ? "WithBaseProperties" : "WithoutBaseProperties");
 
             if (!mapperCache.TryGetValue(cacheKey, out Action<object, Hash> mapper))
             {

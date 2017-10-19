@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
@@ -203,6 +203,36 @@ namespace DotLiquid
             return input.IsNullOrWhiteSpace()
                 ? input
                 : Regex.Replace(input, @"<.*?>", string.Empty, RegexOptions.None, Template.RegexTimeOut);
+        }
+
+        /// <summary>
+        /// Strip all whitespace from input
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static string Strip(string input)
+        {
+            return input?.Trim();
+        }
+
+        /// <summary>
+        /// Strip all leading whitespace from input
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static string Lstrip(string input)
+        {
+            return input?.TrimStart();
+        }
+
+        /// <summary>
+        /// Strip all trailing whitespace from input
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static string Rstrip(string input)
+        {
+            return input?.TrimEnd();
         }
 
         /// <summary>

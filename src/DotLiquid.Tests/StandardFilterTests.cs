@@ -77,6 +77,36 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        public void TestStrip()
+        {
+            Assert.AreEqual("test", StandardFilters.Strip("  test  "));
+            Assert.AreEqual("test", StandardFilters.Strip("   test"));
+            Assert.AreEqual("test", StandardFilters.Strip("test   "));
+            Assert.AreEqual("test", StandardFilters.Strip("test"));
+            Assert.AreEqual(null, StandardFilters.Strip(null));
+        }
+
+        [Test]
+        public void TestLStrip()
+        {
+            Assert.AreEqual("test  ", StandardFilters.Lstrip("  test  "));
+            Assert.AreEqual("test", StandardFilters.Lstrip("   test"));
+            Assert.AreEqual("test   ", StandardFilters.Lstrip("test   "));
+            Assert.AreEqual("test", StandardFilters.Lstrip("test"));
+            Assert.AreEqual(null, StandardFilters.Lstrip(null));
+        }
+
+        [Test]
+        public void TestRStrip()
+        {
+            Assert.AreEqual("  test", StandardFilters.Rstrip("  test  "));
+            Assert.AreEqual("   test", StandardFilters.Rstrip("   test"));
+            Assert.AreEqual("test", StandardFilters.Rstrip("test   "));
+            Assert.AreEqual("test", StandardFilters.Rstrip("test"));
+            Assert.AreEqual(null, StandardFilters.Rstrip(null));
+        }
+
+        [Test]
         public void TestJoin()
         {
             Assert.AreEqual(null, StandardFilters.Join(null));

@@ -332,6 +332,10 @@ namespace DotLiquid
                         {
                             drop = new DropProxy(e, attr.AllowedMembers);
                         }
+                        else if (TypeUtility.IsAnonymousType(type))
+                        {
+                            return e.RespondTo(property) ? e.Send(property) : e;
+                        }
                     }
                 }
                 return drop?.InvokeDrop(property);

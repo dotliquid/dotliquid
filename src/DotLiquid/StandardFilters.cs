@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
@@ -267,8 +267,8 @@ namespace DotLiquid
         public static IEnumerable Sort(object input, string property = null)
         {
             List<object> ary;
-            if(input is IEnumerable<Hash> enumerableInput && !string.IsNullOrEmpty(property))
-                ary = enumerableInput.Cast<object>().ToList();
+            if(input is IEnumerable<Hash> enumerableHash && !string.IsNullOrEmpty(property))
+                ary = enumerableHash.Cast<object>().ToList();
             else if (input is IEnumerable enumerableInput)
                 ary = enumerableInput.Flatten().Cast<object>().ToList();
             else

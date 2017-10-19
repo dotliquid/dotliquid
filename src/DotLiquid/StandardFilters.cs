@@ -338,7 +338,7 @@ namespace DotLiquid
                         }
                     }
                 }
-                return drop?.InvokeDrop(property);
+                return drop?[property];
             });
         }
 

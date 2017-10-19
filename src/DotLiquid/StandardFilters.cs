@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using System.Reflection;
 using DotLiquid.Util;
 
 namespace DotLiquid

@@ -113,6 +113,9 @@ namespace DotLiquid.Tests
                     }));
             CollectionAssert.AreEqual(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 4 } },
                 StandardFilters.Map(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 4 } }, "b"));
+
+            Assert.AreEqual(null, StandardFilters.Map(null, "a"));
+            CollectionAssert.AreEqual(new object[] { null }, StandardFilters.Map(new object[] { null }, "a"));
         }
 
         [TestCase("6.72", "$6.72")]

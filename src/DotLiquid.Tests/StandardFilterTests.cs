@@ -127,6 +127,18 @@ namespace DotLiquid.Tests
 
             Helper.AssertTemplateResult("abc", "{{ ary | map:'prop_allowed' | join:'' }}", hash);
             Helper.AssertTemplateResult("", "{{ ary | map:'prop_disallowed' | join:'' }}", hash);
+
+            hash = Hash.FromAnonymousObject(new
+            {
+                ary = new[] {
+                    new Helper.DataObjectDrop { Prop = "a" },
+                    new Helper.DataObjectDrop { Prop = "b" },
+                    new Helper.DataObjectDrop { Prop = "c" },
+                }
+            });
+
+            Helper.AssertTemplateResult("abc", "{{ ary | map:'prop' | join:'' }}", hash);
+            Helper.AssertTemplateResult("", "{{ ary | map:'no_prop' | join:'' }}", hash);
         }
 
         [TestCase("6.72", "$6.72")]

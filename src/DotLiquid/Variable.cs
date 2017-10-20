@@ -63,7 +63,7 @@ namespace DotLiquid
 
         public void Render(Context context, TextWriter result)
         {
-            string ToFormattedString(object o, IFormatProvider ifp) => o is IFormattable ifo ? ifo.ToString( null, ifp ) : o.ToString();
+            string ToFormattedString(object o, IFormatProvider ifp) => o is IFormattable ifo ? ifo.ToString( null, ifp ) : (o?.ToString() ?? "");
 
             object output = RenderInternal(context);
 

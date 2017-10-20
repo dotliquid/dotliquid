@@ -116,6 +116,17 @@ namespace DotLiquid.Tests
 
             Assert.AreEqual(null, StandardFilters.Map(null, "a"));
             CollectionAssert.AreEqual(new object[] { null }, StandardFilters.Map(new object[] { null }, "a"));
+
+            var hash = Hash.FromAnonymousObject(new {
+                ary = new[] {
+                    new Helper.DataObject { PropAllowed = "a", PropDisallowed = "x" },
+                    new Helper.DataObject { PropAllowed = "b", PropDisallowed = "y" },
+                    new Helper.DataObject { PropAllowed = "c", PropDisallowed = "z" },
+                }
+            });
+
+            Helper.AssertTemplateResult("abc", "{{ ary | map:'prop_allowed' | join:'' }}", hash);
+            Helper.AssertTemplateResult("", "{{ ary | map:'prop_disallowed' | join:'' }}", hash);
         }
 
         [TestCase("6.72", "$6.72")]

@@ -168,7 +168,7 @@ namespace DotLiquid
         /// </summary>
         /// <param name="method"></param>
         /// <returns></returns>
-        public object this[object method]
+        public virtual object this[object method]
         {
             get { return InvokeDrop(method); }
         }

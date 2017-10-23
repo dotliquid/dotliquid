@@ -143,6 +143,32 @@ namespace DotLiquid.Tests
                     }));
             CollectionAssert.AreEqual(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 4 } },
                 StandardFilters.Map(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 4 } }, "b"));
+
+            Assert.AreEqual(null, StandardFilters.Map(null, "a"));
+            CollectionAssert.AreEqual(new object[] { null }, StandardFilters.Map(new object[] { null }, "a"));
+
+            var hash = Hash.FromAnonymousObject(new {
+                ary = new[] {
+                    new Helper.DataObject { PropAllowed = "a", PropDisallowed = "x" },
+                    new Helper.DataObject { PropAllowed = "b", PropDisallowed = "y" },
+                    new Helper.DataObject { PropAllowed = "c", PropDisallowed = "z" },
+                }
+            });
+
+            Helper.AssertTemplateResult("abc", "{{ ary | map:'prop_allowed' | join:'' }}", hash);
+            Helper.AssertTemplateResult("", "{{ ary | map:'prop_disallowed' | join:'' }}", hash);
+
+            hash = Hash.FromAnonymousObject(new
+            {
+                ary = new[] {
+                    new Helper.DataObjectDrop { Prop = "a" },
+                    new Helper.DataObjectDrop { Prop = "b" },
+                    new Helper.DataObjectDrop { Prop = "c" },
+                }
+            });
+
+            Helper.AssertTemplateResult("abc", "{{ ary | map:'prop' | join:'' }}", hash);
+            Helper.AssertTemplateResult("", "{{ ary | map:'no_prop' | join:'' }}", hash);
         }
 
         [TestCase("6.72", "$6.72")]

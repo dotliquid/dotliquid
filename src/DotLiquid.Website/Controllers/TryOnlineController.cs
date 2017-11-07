@@ -41,7 +41,7 @@ namespace DotLiquid.Website.Controllers
             {
                 user = new User
                 {
-                    Name = "Tim Jones",
+                    Name = "Mr. Tim Jones",
                     Tasks = new List<Task>
                     {
                         new Task { Name = "Documentation" },

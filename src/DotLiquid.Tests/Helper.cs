@@ -35,5 +35,17 @@ namespace DotLiquid.Tests
         {
             AssertTemplateResult(expected, template, null);
         }
+
+        [LiquidTypeAttribute("PropAllowed")]
+        public class DataObject
+        {
+            public string PropAllowed { get; set; }
+            public string PropDisallowed { get; set; }
+        }
+
+        public class DataObjectDrop : Drop
+        {
+            public string Prop { get; set; }
+        }
     }
 }

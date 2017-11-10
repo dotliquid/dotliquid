@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +11,7 @@ namespace DotLiquid
     {
         #region Static fields
 
-        private static System.Collections.Concurrent.ConcurrentDictionary<Type, Action<object, Hash>> mapperCache = new System.Collections.Concurrent.ConcurrentDictionary<Type, Action<object, Hash>>();
+        private static System.Collections.Concurrent.ConcurrentDictionary<string, Action<object, Hash>> mapperCache = new System.Collections.Concurrent.ConcurrentDictionary<string, Action<object, Hash>>();
 
         #endregion
 
@@ -24,25 +24,33 @@ namespace DotLiquid
 
         #region Static construction methods
 
-        public static Hash FromAnonymousObject(object anonymousObject)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="anonymousObject"></param>
+        /// <param name="includeBaseClassProperties">If this is set to true, method will map base class' properties too. </param>
+        /// <returns></returns>
+        public static Hash FromAnonymousObject(object anonymousObject, bool includeBaseClassProperties = false)
         {
             Hash result = new Hash();
             if (anonymousObject != null)
             {
-                FromAnonymousObject(anonymousObject, result);
+                FromAnonymousObject(anonymousObject, result, includeBaseClassProperties);
             }
             return result;
         }
 
-        private static void FromAnonymousObject(object anonymousObject, Hash hash)
+        private static void FromAnonymousObject(object anonymousObject, Hash hash, bool includeBaseClassProperties)
         {
-            Action<object, Hash> mapper = GetObjToDictionaryMapper(anonymousObject.GetType());
+            Action<object, Hash> mapper = GetObjToDictionaryMapper(anonymousObject.GetType(), includeBaseClassProperties);
             mapper.Invoke(anonymousObject, hash);                
         }
 
-        private static Action<object, Hash> GetObjToDictionaryMapper(Type type)
+        private static Action<object, Hash> GetObjToDictionaryMapper(Type type, bool includeBaseClassProperties)
         {
-            if (!mapperCache.TryGetValue(type, out Action<object, Hash> mapper))
+            var cacheKey = type.FullName + "_" + (includeBaseClassProperties ? "WithBaseProperties" : "WithoutBaseProperties");
+
+            if (!mapperCache.TryGetValue(cacheKey, out Action<object, Hash> mapper))
             {
                 /* Bogdan Mart: Note regarding concurrency:
                  * This is concurrent dictionary, but if this will be called from two threads
@@ -60,14 +68,19 @@ namespace DotLiquid
                  * If someone have conserns, than one can lock(mapperCache) but that would 
                  * create bottleneck, as only one mapper could be generated at a time.
                  */
-                mapper = GenerateMapper(type);
-                mapperCache[type] = mapper;
+                mapper = GenerateMapper(type, includeBaseClassProperties);
+                mapperCache[cacheKey] = mapper;
             }
 
             return mapper;
         }
 
-        private static Action<object, Hash> GenerateMapper(Type type)
+        private static void AddBaseClassProperties(Type type, List<PropertyInfo> propertyList) {
+            propertyList.AddRange(type.GetTypeInfo().BaseType.GetTypeInfo().DeclaredProperties
+                .Where(p => p.CanRead && p.GetMethod.IsPublic && !p.GetMethod.IsStatic).ToList());
+        }
+
+        private static Action<object, Hash> GenerateMapper(Type type, bool includeBaseClassProperties)
         {
             ParameterExpression objParam = Expression.Parameter(typeof(object), "objParam");
             ParameterExpression hashParam = Expression.Parameter(typeof(Hash), "hashParam");
@@ -79,7 +92,14 @@ namespace DotLiquid
                 Expression.Assign(castedObj,Expression.Convert(objParam,type))
             );
 
-            foreach (PropertyInfo property in type.GetTypeInfo().DeclaredProperties.Where(p => p.CanRead && p.GetMethod.IsPublic && !p.GetMethod.IsStatic))
+            //Add properties
+            var propertyList = type.GetTypeInfo().DeclaredProperties
+                .Where(p => p.CanRead && p.GetMethod.IsPublic && !p.GetMethod.IsStatic).ToList();
+            
+            //Add properties from base class 
+            if (includeBaseClassProperties) AddBaseClassProperties(type, propertyList);
+
+            foreach (PropertyInfo property in propertyList)
             {
                 bodyInstructions.Add(
                     Expression.Assign(

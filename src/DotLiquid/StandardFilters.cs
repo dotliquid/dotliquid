@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net;
@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using System.Reflection;
 using DotLiquid.Util;
 
 namespace DotLiquid
@@ -206,6 +207,36 @@ namespace DotLiquid
         }
 
         /// <summary>
+        /// Strip all whitespace from input
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static string Strip(string input)
+        {
+            return input?.Trim();
+        }
+
+        /// <summary>
+        /// Strip all leading whitespace from input
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static string Lstrip(string input)
+        {
+            return input?.TrimStart();
+        }
+
+        /// <summary>
+        /// Strip all trailing whitespace from input
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static string Rstrip(string input)
+        {
+            return input?.TrimEnd();
+        }
+
+        /// <summary>
         /// Converts the input object into a formatted currency as specified by the culture info.
         /// </summary>
         /// <param name="input"></param>
@@ -303,16 +334,42 @@ namespace DotLiquid
         /// <returns></returns>
         public static IEnumerable Map(IEnumerable input, string property)
         {
+            if (input == null)
+                return null;
+
             List<object> ary = input.Cast<object>().ToList();
             if (!ary.Any())
                 return ary;
 
             if ((ary.All(o => o is IDictionary)) && ((IDictionary)ary.First()).Contains(property))
                 return ary.Select(e => ((IDictionary)e)[property]);
-            if (ary.All(o => o.RespondTo(property)))
-                return ary.Select(e => e.Send(property));
 
-            return ary;
+            return ary.Select(e => {
+                if (e == null)
+                    return null;
+
+                var drop = e as DropBase;
+                if (drop == null)
+                {
+                    var type = e.GetType();
+                    var safeTypeTransformer = Template.GetSafeTypeTransformer(type);
+                    if (safeTypeTransformer != null)
+                        drop = safeTypeTransformer(e) as DropBase;
+                    else
+                    {
+                        var attr = type.GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).FirstOrDefault() as LiquidTypeAttribute;
+                        if (attr != null)
+                        {
+                            drop = new DropProxy(e, attr.AllowedMembers);
+                        }
+                        else if (TypeUtility.IsAnonymousType(type))
+                        {
+                            return e.RespondTo(property) ? e.Send(property) : e;
+                        }
+                    }
+                }
+                return (drop?.ContainsKey(property) ?? false) ? drop[property] : null;
+            });
         }
 
         /// <summary>

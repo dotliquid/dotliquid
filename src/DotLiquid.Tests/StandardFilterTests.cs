@@ -459,6 +459,19 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        public void TestInt32DividedByInt64 ()
+        {
+            int a = 20;
+            long b = 5;
+            var c = a / b;
+            Assert.AreEqual( c, (long)4 );
+
+
+            Hash assigns = Hash.FromAnonymousObject(new { a = a, b = b});
+            Helper.AssertTemplateResult("4", "{{ a | divided_by:b }}", assigns);
+        }
+
+        [Test]
         public void TestModulo()
         {
             Helper.AssertTemplateResult("1", "{{ 3 | modulo:2 }}");

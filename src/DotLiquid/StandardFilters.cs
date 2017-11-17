@@ -644,7 +644,9 @@ namespace DotLiquid
             }
 
             return ExpressionUtility.CreateExpression
-                                    (operation, input.GetType(), operand.GetType(), input.GetType(), true)
+                                    ( body: operation
+                                      , leftType: input.GetType()
+                                      , rightType: operand.GetType() )
                                     .DynamicInvoke(input, operand);
         }
     }

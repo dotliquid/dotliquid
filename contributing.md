@@ -16,20 +16,26 @@ The requirements are [Visual Studio 2017](https://www.visualstudio.com/) and [.n
 
 **The functionality is based as much as possible on existing functionality in [Liquid](https://shopify.github.io/liquid/)**
 
-Each new feature must have been discussed first before submitting it in a PR.
+We prefer if each new feature must have been discussed first before submitting it in a PR.
 
 ## Coding conventions
 
-We prefer spaces over tabs for indentation.
-We have an [editorconfig](http://EditorConfig.org) [file](./.editorconfig) if you use an editor or plugin respecting it.
+ - We prefer spaces over tabs for indentation.
+ - We have an [editorconfig](http://EditorConfig.org) [file](./.editorconfig) if you use an editor or plugin respecting it.
+ 
+### Getting PRs merged
+
+ - Describe in your message, **what you're fixing**. Reference the original issue, if possible.
+ - Describe **how if any API-breaking changes** your PR may introduce.
+ - State whether it's ready-to-review/-merge or if it's a WIP PR.
 
 ## Testing
 
-Tests are mandatory for new functionality, please add some in the tests suite.
+ - Tests are mandatory for new functionality, please add some in the tests suite.
+ 
 You can see the result either:
 - in Visual Studio or other IDE supporting NUnit 3
 - on [AppVeyor](https://ci.appveyor.com/project/tgjones/dotliquid) after the PR is submitted
-
 
 ## Documentation
 

@@ -298,10 +298,10 @@ namespace DotLiquid
         public static IEnumerable Sort(object input, string property = null)
         {
             List<object> ary;
-            if (input is IEnumerable enumerableInput)
-            { 
+            if(input is IEnumerable<Hash> enumerableHash && !string.IsNullOrEmpty(property))
+                ary = enumerableHash.Cast<object>().ToList();
+            else if (input is IEnumerable enumerableInput)
                 ary = enumerableInput.Flatten().Cast<object>().ToList();
-            }
             else
             { 
                 ary = new List<object>(new[] { input });

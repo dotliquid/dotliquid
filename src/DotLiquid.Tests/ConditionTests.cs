@@ -1,8 +1,10 @@
+using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using DotLiquid.Exceptions;
 using DotLiquid.NamingConventions;
 using NUnit.Framework;
+using ArgumentException = DotLiquid.Exceptions.ArgumentException;
 
 namespace DotLiquid.Tests
 {
@@ -44,6 +46,36 @@ namespace DotLiquid.Tests
             AssertEvaluatesFalse("2", ">=", "4");
             AssertEvaluatesFalse("1", "<=", "0");
             AssertEvaluatesFalse("1", "<=", "0");
+        }
+
+
+        private enum TestEnum { Yes, No }
+
+        [Test]
+        public void TestEqualOperatorsWorksOnEnum()
+        {
+            _context = new Context(CultureInfo.InvariantCulture);
+            _context["enum"] = TestEnum.Yes;
+
+            AssertEvaluatesTrue("enum", "==", "'Yes'");
+            AssertEvaluatesTrue("enum", "!=", "'No'");
+
+            AssertEvaluatesFalse("enum", "==", "'No'");
+            AssertEvaluatesFalse("enum", "!=", "'Yes'");
+        }
+
+        [Test]
+        public void TestChangeTypeWorksInBothDirections()
+        {
+            _context = new Context(CultureInfo.InvariantCulture);
+            _context["enum"] = TestEnum.Yes;
+            _context["int"] = 1;
+
+            AssertEvaluatesTrue("enum", "==", "'Yes'");
+            AssertEvaluatesTrue("'Yes'", "==", "enum");
+
+            AssertEvaluatesTrue("int", "==", "'1'");
+            AssertEvaluatesTrue("'1'", "==", "int");
         }
 
         [Test]
@@ -148,7 +180,7 @@ namespace DotLiquid.Tests
         public void TestDictionaryHasKey()
         {
             _context = new Context(CultureInfo.InvariantCulture);
-            System.Collections.Generic.Dictionary<string, string> testDictionary = new System.Collections.Generic.Dictionary<string, string>
+            Dictionary<string, string> testDictionary = new Dictionary<string, string>
             {
                 { "dave", "0" },
                 { "bob", "4" }
@@ -163,7 +195,7 @@ namespace DotLiquid.Tests
         public void TestDictionaryHasValue()
         {
             _context = new Context(CultureInfo.InvariantCulture);
-            System.Collections.Generic.Dictionary<string, string> testDictionary = new System.Collections.Generic.Dictionary<string, string>
+            Dictionary<string, string> testDictionary = new Dictionary<string, string>
             {
                 { "dave", "0" },
                 { "bob", "4" }
@@ -206,7 +238,7 @@ namespace DotLiquid.Tests
             try
             {
                 Condition.Operators["starts_with"] =
-                    (left, right) => Regex.IsMatch(left.ToString(), string.Format("^{0}", right.ToString()));
+                    (left, right) => Regex.IsMatch(left.ToString(), String.Format("^{0}", right.ToString()));
 
                 AssertEvaluatesTrue("'bob'", "starts_with", "'b'");
                 AssertEvaluatesFalse("'bob'", "starts_with", "'o'");
@@ -308,13 +340,13 @@ namespace DotLiquid.Tests
         [Test]
         public void TestCompareBetweenDifferentTypes()
         {
-            var row = new System.Collections.Generic.Dictionary<string, object>();
+            var row = new Dictionary<string, object>();
 
             short id = 1;
             row.Add("MyID", id);
 
             var current = "MyID is {% if MyID == 1 %}1{%endif%}";
-            var parse = DotLiquid.Template.Parse(current);
+            var parse = Template.Parse(current);
             var parsedOutput = parse.Render(new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = Hash.FromDictionary(row) });
             Assert.AreEqual("MyID is 1", parsedOutput);
         }
@@ -325,7 +357,7 @@ namespace DotLiquid.Tests
             try
             {
                 Condition.Operators["StartsWith"] =
-                    (left, right) => Regex.IsMatch(left.ToString(), string.Format("^{0}", right.ToString()));
+                    (left, right) => Regex.IsMatch(left.ToString(), String.Format("^{0}", right.ToString()));
 
                 Helper.AssertTemplateResult("", "{% if 'bob' StartsWith 'B' %} YES {% endif %}", null, new CSharpNamingConvention());
                 AssertEvaluatesTrue("'bob'", "StartsWith", "'b'");
@@ -399,7 +431,7 @@ namespace DotLiquid.Tests
                 "Evaluated true: {0} {1} {2}", left, op, right);
         }
 
-        private void AssertError(string left, string op, string right, System.Type errorType)
+        private void AssertError(string left, string op, string right, Type errorType)
         {
             Assert.Throws(errorType, () => new Condition(left, op, right).Evaluate(_context ?? new Context(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture));
         }

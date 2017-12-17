@@ -291,6 +291,8 @@ namespace DotLiquid.Tests
             Assert.AreEqual(DateTime.Now.ToString("MM/dd/yyyy"), StandardFilters.Date("Now", "MM/dd/yyyy"));
             Assert.AreEqual(DateTime.Now.ToString("MM/dd/yyyy"), StandardFilters.Date("Today", "MM/dd/yyyy"));
 
+            Assert.AreEqual("345000", StandardFilters.Date(DateTime.Parse("2006-05-05 10:00:00.345"), "ffffff"));
+
             Template template = Template.Parse(@"{{ hi | date:""MMMM"" }}");
             Assert.AreEqual("hi", template.Render(Hash.FromAnonymousObject(new { hi = "hi" })));
         }

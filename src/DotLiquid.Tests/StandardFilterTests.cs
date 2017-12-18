@@ -293,11 +293,10 @@ namespace DotLiquid.Tests
             Assert.AreEqual(DateTime.Now.ToString("MM/dd/yyyy"), StandardFilters.Date("Now", "MM/dd/yyyy"));
             Assert.AreEqual(DateTime.Now.ToString("MM/dd/yyyy"), StandardFilters.Date("Today", "MM/dd/yyyy"));
 
-            // TODO !!!
-            //Assert.AreEqual(DateTime.Now.ToString(), StandardFilters.Date("now", null));
-            //Assert.AreEqual(DateTime.Now.ToString(), StandardFilters.Date("today", null));
-            //Assert.AreEqual(DateTime.Now.ToString(), StandardFilters.Date("now", string.Empty));
-            //Assert.AreEqual(DateTime.Now.ToString(), StandardFilters.Date("today", string.Empty));
+            Assert.AreEqual(DateTime.Now.ToString(), StandardFilters.Date("now", null));
+            Assert.AreEqual(DateTime.Now.ToString(), StandardFilters.Date("today", null));
+            Assert.AreEqual(DateTime.Now.ToString(), StandardFilters.Date("now", string.Empty));
+            Assert.AreEqual(DateTime.Now.ToString(), StandardFilters.Date("today", string.Empty));
 
             Assert.AreEqual("345000", StandardFilters.Date(DateTime.Parse("2006-05-05 10:00:00.345"), "ffffff"));
 

@@ -496,9 +496,6 @@ namespace DotLiquid
 			{
 				string value = input.ToString();
 
-				if (format.IsNullOrWhiteSpace())
-					return value;
-
 				if (string.Equals(value, "now", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "today", StringComparison.OrdinalIgnoreCase))
 				{
 					date = DateTime.Now;
@@ -508,6 +505,9 @@ namespace DotLiquid
 					return value;
 				}
 			}
+
+            if (format.IsNullOrWhiteSpace())
+                return date.ToString();
 
             return Liquid.UseRubyDateFormat ? date.ToStrFTime(format) : date.ToString(format);
         }

@@ -277,6 +277,8 @@ namespace DotLiquid.Tests
 
             Assert.AreEqual("05/07/2006 10:00:00", StandardFilters.Date("05/07/2006 10:00:00", string.Empty));
             Assert.AreEqual("05/07/2006 10:00:00", StandardFilters.Date("05/07/2006 10:00:00", null));
+            Assert.AreEqual(new DateTime(2006, 7, 5, 10, 0, 0), StandardFilters.Date("05/07/2006 10:00:00", string.Empty));
+            Assert.AreEqual(new DateTime(2006, 7, 5, 10, 0, 0), StandardFilters.Date("05/07/2006 10:00:00", null));
 
             Assert.AreEqual(new DateTime(2006, 7, 5).ToString("MM/dd/yyyy"), StandardFilters.Date("2006-07-05 10:00:00", "MM/dd/yyyy"));
 
@@ -290,6 +292,11 @@ namespace DotLiquid.Tests
             Assert.AreEqual(DateTime.Now.ToString("MM/dd/yyyy"), StandardFilters.Date("today", "MM/dd/yyyy"));
             Assert.AreEqual(DateTime.Now.ToString("MM/dd/yyyy"), StandardFilters.Date("Now", "MM/dd/yyyy"));
             Assert.AreEqual(DateTime.Now.ToString("MM/dd/yyyy"), StandardFilters.Date("Today", "MM/dd/yyyy"));
+
+            Assert.AreEqual(DateTime.Now.ToString(), StandardFilters.Date("now", null));
+            Assert.AreEqual(DateTime.Now.ToString(), StandardFilters.Date("today", null));
+            Assert.AreEqual(DateTime.Now.ToString(), StandardFilters.Date("now", string.Empty));
+            Assert.AreEqual(DateTime.Now.ToString(), StandardFilters.Date("today", string.Empty));
 
             Assert.AreEqual("345000", StandardFilters.Date(DateTime.Parse("2006-05-05 10:00:00.345"), "ffffff"));
 

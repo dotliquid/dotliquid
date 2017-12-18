@@ -500,7 +500,7 @@ namespace DotLiquid
 				string value = input.ToString();
 
                 if (format.IsNullOrWhiteSpace())
-                    return date.ToString();
+                    return value;
 
 				if (string.Equals(value, "now", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "today", StringComparison.OrdinalIgnoreCase))
 				{

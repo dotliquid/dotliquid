@@ -484,26 +484,33 @@ namespace DotLiquid
         /// <returns></returns>
         public static string Date(object input, string format)
         {
-            string value;
-
             if (input == null)
                 return null;
 
-            value = input.ToString();
-
-            if (format.IsNullOrWhiteSpace())
-                return value;
-
             DateTime date;
+            if (input is DateTime)
+            {
+                date = (DateTime)input;
 
-            if (string.Equals(value, "now", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "today", StringComparison.OrdinalIgnoreCase))
-            {
-                date = DateTime.Now;
+                if (format.IsNullOrWhiteSpace())
+                    return date.ToString();
             }
-            else if (!DateTime.TryParse(value, out date))
-            {
-                return value;
-            }
+			else
+			{
+				string value = input.ToString();
+
+                if (format.IsNullOrWhiteSpace())
+                    return value;
+
+				if (string.Equals(value, "now", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "today", StringComparison.OrdinalIgnoreCase))
+				{
+					date = DateTime.Now;
+				}
+				else if (!DateTime.TryParse(value, out date))
+				{
+					return value;
+				}
+			}
 
             return Liquid.UseRubyDateFormat ? date.ToStrFTime(format) : date.ToString(format);
         }

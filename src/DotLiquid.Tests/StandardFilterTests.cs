@@ -119,6 +119,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestSort()
         {
+            Assert.AreEqual(null, StandardFilters.Sort(null));
             CollectionAssert.AreEqual(new string[] { }, StandardFilters.Sort(new string[] { }));
             CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 }, StandardFilters.Sort(new[] { 4, 3, 2, 1 }));
             CollectionAssert.AreEqual(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 4 } },

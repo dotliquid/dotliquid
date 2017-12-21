@@ -395,7 +395,10 @@ namespace DotLiquid
             if (!IsThreadSafe)
             {
                 if (registers != null)
+                {
                     Registers.Merge(registers);
+                    context.Merge(Registers);
+                }
 
                 if (filters != null)
                     context.AddFilters(filters);

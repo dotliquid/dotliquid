@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using NUnit.Framework;
+using DotLiquid.NamingConventions;
 
 namespace DotLiquid.Tests
 {
@@ -20,6 +21,22 @@ namespace DotLiquid.Tests
             _context["var"] = 2;
             _context.AddFilter<int, string>("AddTwo", i => (i + 2).ToString(CultureInfo.InvariantCulture));
             Assert.That(new Variable("var | add_two").Render(_context), Is.EqualTo("4"));
+        }
+
+        [Test]
+        public void AddingFunctions_Using_templates()
+        {
+            var template = Template.Parse("{{ var | add_two }}");
+
+            var data = new TestDrop { var = 2 };
+            _context.AddFilter<int, string>("AddTwo", i => (i + 2).ToString(CultureInfo.InvariantCulture));
+
+            var renderParams = new RenderParameters(CultureInfo.InvariantCulture)
+            {
+                LocalVariables = Hash.FromAnonymousObject(data),
+                Context = _context
+            };
+            Assert.That(template.Render(renderParams), Is.EqualTo("4"));
         }
 
         [Test]
@@ -44,5 +61,11 @@ namespace DotLiquid.Tests
             _context.AddFilter<int, string>("AddTwo", i => (i + 2).ToString(CultureInfo.InvariantCulture));
             Assert.That(new Variable("var | add_two").Render(_context), Is.EqualTo("4"));
         }
+
+        public class TestDrop : Drop
+        {
+            public int var { get; set; }
+        }
+
     }
 }

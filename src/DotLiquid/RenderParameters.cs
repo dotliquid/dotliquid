@@ -90,7 +90,7 @@ namespace DotLiquid
             if (Context != null)
             {
                 context = Context;
-                registers = null;
+                registers = LocalVariables;
                 filters = null;
                 context.RestartTimeout();
                 return;

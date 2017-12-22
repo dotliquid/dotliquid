@@ -297,6 +297,9 @@ namespace DotLiquid
         /// <returns></returns>
         public static IEnumerable Sort(object input, string property = null)
         {
+            if (input == null)
+                return null;
+
             List<object> ary;
             if(input is IEnumerable<Hash> enumerableHash && !string.IsNullOrEmpty(property))
                 ary = enumerableHash.Cast<object>().ToList();

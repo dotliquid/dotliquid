@@ -488,6 +488,7 @@ namespace DotLiquid
                     // keywords either. The only thing we got left is to return nil
                     else
                     {
+                            Errors.Add(new VariableNotFoundException(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), markup)));
                         return null;
                     }
                 }

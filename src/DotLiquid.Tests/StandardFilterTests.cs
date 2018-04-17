@@ -175,7 +175,8 @@ namespace DotLiquid.Tests
             Assert.AreEqual(null, StandardFilters.Map(null, "a"));
             CollectionAssert.AreEqual(new object[] { null }, StandardFilters.Map(new object[] { null }, "a"));
 
-            var hash = Hash.FromAnonymousObject(new {
+            var hash = Hash.FromAnonymousObject(new
+            {
                 ary = new[] {
                     new Helper.DataObject { PropAllowed = "a", PropDisallowed = "x" },
                     new Helper.DataObject { PropAllowed = "b", PropDisallowed = "y" },
@@ -461,7 +462,7 @@ namespace DotLiquid.Tests
         public void TestTimes()
         {
             using (CultureHelper.SetCulture("en-GB"))
-            { 
+            {
                 Helper.AssertTemplateResult("12", "{{ 3 | times:4 }}");
                 Helper.AssertTemplateResult("125", "{{ 10 | times:12.5 }}");
                 Helper.AssertTemplateResult("125", "{{ 10.0 | times:12.5 }}");
@@ -469,6 +470,10 @@ namespace DotLiquid.Tests
                 Helper.AssertTemplateResult("125", "{{ 12.5 | times:10.0 }}");
                 Helper.AssertTemplateResult("foofoofoofoo", "{{ 'foo' | times:4 }}");
             }
+
+            Assert.AreEqual(8.43, StandardFilters.Times(0.843m, 10));
+            Assert.AreEqual(412, StandardFilters.Times(4.12m, 100));
+            Assert.AreEqual(7556.3, StandardFilters.Times(7.5563m, 1000));
         }
 
         [Test]
@@ -498,15 +503,15 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestInt32DividedByInt64 ()
+        public void TestInt32DividedByInt64()
         {
             int a = 20;
             long b = 5;
             var c = a / b;
-            Assert.AreEqual( c, (long)4 );
+            Assert.AreEqual(c, (long)4);
 
 
-            Hash assigns = Hash.FromAnonymousObject(new { a = a, b = b});
+            Hash assigns = Hash.FromAnonymousObject(new { a = a, b = b });
             Helper.AssertTemplateResult("4", "{{ a | divided_by:b }}", assigns);
         }
 

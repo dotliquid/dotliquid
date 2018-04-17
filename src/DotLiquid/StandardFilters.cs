@@ -643,7 +643,7 @@ namespace DotLiquid
             return !string.IsNullOrWhiteSpace(input) ? input : defaultValue;
         }
 
-        private static bool IsReal(object o) => o is double || o is float;
+        private static bool IsReal(object o) => o is double || o is float || o is decimal;
 
         private static object DoMathsOperation(object input, object operand, Func<Expression, Expression, BinaryExpression> operation)
         {

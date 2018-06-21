@@ -108,6 +108,20 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        public void TestSlice()
+        {
+            Assert.AreEqual(null, StandardFilters.Slice(null, 1));
+            Assert.AreEqual(null, StandardFilters.Slice("", 10));
+            Assert.AreEqual("abc", StandardFilters.Slice("abcdefg", 0, 3));
+            Assert.AreEqual("bcd", StandardFilters.Slice("abcdefg", 1, 3));
+            Assert.AreEqual("efg", StandardFilters.Slice("abcdefg", -3, 3));
+            Assert.AreEqual("efg", StandardFilters.Slice("abcdefg", -3, 30));
+            Assert.AreEqual("efg", StandardFilters.Slice("abcdefg", 4, 30));
+            Assert.AreEqual("a", StandardFilters.Slice("abc", -4, 2));
+            Assert.AreEqual("", StandardFilters.Slice("abcdefg", -10, 1));
+        }
+        
+        [Test]
         public void TestJoin()
         {
             Assert.AreEqual(null, StandardFilters.Join(null));

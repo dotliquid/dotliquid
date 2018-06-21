@@ -49,6 +49,11 @@ namespace DotLiquid
             if (start < 0)
             { 
                 start += input.Length;
+                if (start < 0)
+                {
+                    len = Math.Max(0, len + start);
+                    start = 0;
+                }
             }
             if (start + len > input.Length)
             { 

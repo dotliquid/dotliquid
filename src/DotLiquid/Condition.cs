@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,17 +60,17 @@ namespace DotLiquid
         {
         }
 
-        public virtual bool Evaluate(Context context)
+        public virtual bool Evaluate(Context context, IFormatProvider formatProvider)
         {
-            context = context ?? new Context();
+            context = context ?? new Context(formatProvider);
             bool result = InterpretCondition(Left, Right, Operator, context);
 
             switch (_childRelation)
             {
                 case "or":
-                    return result || _childCondition.Evaluate(context);
+                    return result || _childCondition.Evaluate(context, formatProvider);
                 case "and":
-                    return result && _childCondition.Evaluate(context);
+                    return result && _childCondition.Evaluate(context, formatProvider);
                 default:
                     return result;
             }
@@ -159,7 +159,7 @@ namespace DotLiquid
             get { return true; }
         }
 
-        public override bool Evaluate(Context context)
+        public override bool Evaluate(Context context, IFormatProvider formatProvider)
         {
             return true;
         }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using DotLiquid.Exceptions;
 using NUnit.Framework;
 
@@ -13,7 +14,7 @@ namespace DotLiquid.Tests.Tags
             Tag tag = new Tag();
             tag.Initialize("tag", null, null);
             Assert.AreEqual("tag", tag.Name);
-            Assert.AreEqual(string.Empty, tag.Render(new Context()));
+            Assert.AreEqual(string.Empty, tag.Render(new Context(CultureInfo.InvariantCulture)));
         }
 
         [Test]
@@ -82,6 +83,24 @@ namespace DotLiquid.Tests.Tags
 
             Helper.AssertTemplateResult("JaneMike", "{% for item in People %}{{ item.First }}{%endfor%}",
                 Hash.FromDictionary(dictionary));
+        }
+
+
+        public class TestDictObject : Drop
+        {
+            public TestDictObject()
+            {
+                Testdict = new Dictionary<string, string>() { { "aa", "bb" }, { "dd", "ee" }, { "ff", "gg" } };
+            }
+            public Dictionary<string, string> Testdict { get; set; }
+        }
+
+        [Test]
+        public void TestDictionaryFor()
+        {
+            var template = Template.Parse("{%for item in bla.testdict %}{{ item[0] }}-{{ item[1]}} {%endfor%}");
+            var result = template.Render(Hash.FromAnonymousObject(new { bla = new TestDictObject() }));
+            Assert.AreEqual("aa-bb dd-ee ff-gg ", result);
         }
 
         [Test]

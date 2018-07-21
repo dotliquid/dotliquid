@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -24,7 +24,7 @@ namespace DotLiquid
         private static readonly Regex SquareBracketedRegex = R.C(R.Q(@"^\[(.*)\]$"));
         private static readonly Regex VariableParserRegex = R.C(Liquid.VariableParser);
 
-        private readonly RenderParameters.ErrorsOutputModeEnum _errorsOutputMode;
+        private readonly ErrorsOutputMode _errorsOutputMode;
         
         private readonly int _maxIterations;
 
@@ -46,7 +46,7 @@ namespace DotLiquid
         public List<Hash> Scopes { get; private set; }
 
         /// <summary>
-        /// Registers
+        /// Hash of user-defined, internally-available variables
         /// </summary>
         public Hash Registers { get; private set; }
 
@@ -62,7 +62,14 @@ namespace DotLiquid
         /// <param name="outerScope"></param>
         /// <param name="registers"></param>
         /// <param name="errorsOutputMode"></param>
-        public Context(List<Hash> environments, Hash outerScope, Hash registers, RenderParameters.ErrorsOutputModeEnum errorsOutputMode, int maxIterations, int timeout)
+        public Context
+            (List<Hash> environments
+             , Hash outerScope
+             , Hash registers
+             , ErrorsOutputMode errorsOutputMode
+             , int maxIterations
+             , int timeout
+             , IFormatProvider formatProvider)
         {
             Environments = environments;
 
@@ -76,6 +83,7 @@ namespace DotLiquid
             _errorsOutputMode = errorsOutputMode;
             _maxIterations = maxIterations;
             _timeout = timeout;
+            FormatProvider = formatProvider;
 
             RestartTimeout();
 
@@ -85,8 +93,8 @@ namespace DotLiquid
         /// <summary>
         /// Creates a new rendering context
         /// </summary>
-        public Context()
-            : this(new List<Hash>(), new Hash(), new Hash(), RenderParameters.ErrorsOutputModeEnum.Display, 0, 0)
+        public Context(IFormatProvider formatProvider)
+            : this(new List<Hash>(), new Hash(), new Hash(), ErrorsOutputMode.Display, 0, 0, formatProvider )
         {
         }
 
@@ -157,10 +165,10 @@ namespace DotLiquid
 
             Errors.Add(ex);
 
-            if (_errorsOutputMode == RenderParameters.ErrorsOutputModeEnum.Suppress)
+            if (_errorsOutputMode == ErrorsOutputMode.Suppress)
                 return string.Empty;
 
-            if (_errorsOutputMode == RenderParameters.ErrorsOutputModeEnum.Rethrow)
+            if (_errorsOutputMode == ErrorsOutputMode.Rethrow)
                 throw ex;
 
             if (ex is SyntaxException)
@@ -343,7 +351,7 @@ namespace DotLiquid
                 // For cultures with "," as the decimal separator, allow
                 // both "," and "." to be used as the separator.
                 // First try to parse using current culture.
-                if (float.TryParse(match.Groups[1].Value, out float result))
+                if (float.TryParse(match.Groups[1].Value, NumberStyles.Number, FormatProvider, out float result))
                     return result;
 
                 // If that fails, try to parse using invariant culture.
@@ -352,6 +360,8 @@ namespace DotLiquid
 
             return Variable(key, notifyNotFound);
         }
+
+        public IFormatProvider FormatProvider { get; }
 
         /// <summary>
         /// Fetches an object starting at the local scope and then moving up
@@ -427,39 +437,60 @@ namespace DotLiquid
 
                 // If object is a KeyValuePair, we treat it a bit differently - we might be rendering
                 // an included template.
-                if (@object is KeyValuePair<string, object> && ((KeyValuePair<string, object>)@object).Key == (string)part)
+                if (IsKeyValuePair(@object) && (part.Equals(0) || part.Equals("Key")))
                 {
-                    object res = ((KeyValuePair<string, object>)@object).Value;
+                    object res = @object.GetType().GetRuntimeProperty("Key").GetValue(@object);
                     @object = Liquidize(res);
                 }
                 // If object is a hash- or array-like object we look for the
                 // presence of the key and if its available we return it
-                else if (IsHashOrArrayLikeObject(@object, part))
+                else if (IsKeyValuePair(@object) && (part.Equals(1) || part.Equals("Value")))
                 {
                     // If its a proc we will replace the entry with the proc
-                    object res = LookupAndEvaluate(@object, part);
+                    object res = @object.GetType().GetRuntimeProperty("Value").GetValue(@object);
                     @object = Liquidize(res);
-                }
-                // Some special cases. If the part wasn't in square brackets and
-                // no key with the same name was found we interpret following calls
-                // as commands and call them on the current object
-                else if (!partResolved && (@object is IEnumerable) && ((part as string) == "size" || (part as string) == "first" || (part as string) == "last"))
-                {
-                    var castCollection = ((IEnumerable)@object).Cast<object>();
-                    if ((part as string) == "size")
-                        @object = castCollection.Count();
-                    else if ((part as string) == "first")
-                        @object = castCollection.FirstOrDefault();
-                    else if ((part as string) == "last")
-                        @object = castCollection.LastOrDefault();
                 }
                 // No key was present with the desired value and it wasn't one of the directly supported
                 // keywords either. The only thing we got left is to return nil
                 else
                 {
-                    if (notifyNotFound)
-                        Errors.Add(new VariableNotFoundException(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), markup)));
-                    return null;
+                    // If object is a KeyValuePair, we treat it a bit differently - we might be rendering
+                    // an included template.
+                    if (@object is KeyValuePair<string, object> && ((KeyValuePair<string, object>)@object).Key == (string)part)
+                    {
+                        object res = ((KeyValuePair<string, object>)@object).Value;
+                        @object = Liquidize(res);
+                    }
+
+
+                    // If object is a hash- or array-like object we look for the
+                    // presence of the key and if its available we return it
+                    else if (IsHashOrArrayLikeObject(@object, part))
+                    {
+                        // If its a proc we will replace the entry with the proc
+                        object res = LookupAndEvaluate(@object, part);
+                        @object = Liquidize(res);
+                    }
+                    // Some special cases. If the part wasn't in square brackets and
+                    // no key with the same name was found we interpret following calls
+                    // as commands and call them on the current object
+                    else if (!partResolved && (@object is IEnumerable) && ((part as string) == "size" || (part as string) == "first" || (part as string) == "last"))
+                    {
+                        var castCollection = ((IEnumerable)@object).Cast<object>();
+                        if ((part as string) == "size")
+                            @object = castCollection.Count();
+                        else if ((part as string) == "first")
+                            @object = castCollection.FirstOrDefault();
+                        else if ((part as string) == "last")
+                            @object = castCollection.LastOrDefault();
+                    }
+                    // No key was present with the desired value and it wasn't one of the directly supported
+                    // keywords either. The only thing we got left is to return nil
+                    else
+                    {
+                            Errors.Add(new VariableNotFoundException(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), markup)));
+                        return null;
+                    }
                 }
 
                 // If we are dealing with a drop here we have to
@@ -544,67 +575,86 @@ namespace DotLiquid
         private static object Liquidize(object obj)
         {
             if (obj == null)
-            { 
+            {
                 return obj;
             }
             if (obj is ILiquidizable liquidizableObj)
-            { 
+            {
                 return liquidizableObj.ToLiquid();
             }
             if (obj is string)
-            { 
+            {
                 return obj;
             }
             if (obj is IEnumerable)
-            { 
+            {
                 return obj;
             }
             if (obj.GetType().GetTypeInfo().IsPrimitive)
-            { 
+            {
                 return obj;
             }
             if (obj is decimal)
-            { 
+            {
                 return obj;
             }
             if (obj is DateTime)
-            { 
+            {
                 return obj;
             }
             if (obj is DateTimeOffset)
-            { 
+            {
                 return obj;
             }
             if (obj is TimeSpan)
-            { 
+            {
                 return obj;
             }
             if (obj is Guid)
-            { 
+            {
                 return obj;
             }
             if (TypeUtility.IsAnonymousType(obj.GetType()))
-            { 
-                return obj;
-            }
-            if (obj is KeyValuePair<string, object>)
-            { 
+            {
                 return obj;
             }
 
+
             var safeTypeTransformer = Template.GetSafeTypeTransformer(obj.GetType());
             if (safeTypeTransformer != null)
-            { 
+            {
                 return safeTypeTransformer(obj);
             }
 
             if (obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
             {
-                var attr = (LiquidTypeAttribute)obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
+                var attr = (LiquidTypeAttribute) obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
                 return new DropProxy(obj, attr.AllowedMembers);
             }
 
+            if (IsKeyValuePair(obj))
+            {
+                return obj;
+            }
+
             throw new SyntaxException(Liquid.ResourceManager.GetString("ContextObjectInvalidException"), obj.ToString());
+        }
+
+        private static bool IsKeyValuePair(object obj)
+        {
+            if (obj != null)
+            {
+                Type valueType = obj.GetType();
+                if (valueType.GetTypeInfo().IsGenericType)
+                {
+                    Type baseType = valueType.GetGenericTypeDefinition();
+                    if (baseType == typeof(KeyValuePair<,>))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         private void SquashInstanceAssignsWithEnvironments()
@@ -625,7 +675,7 @@ namespace DotLiquid
         }
 
         private readonly int _timeout;
-        private Stopwatch _stopwatch = new Stopwatch();
+        private readonly Stopwatch _stopwatch = new Stopwatch();
 
         public void RestartTimeout()
         {

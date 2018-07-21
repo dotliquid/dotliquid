@@ -1,4 +1,7 @@
-﻿<div id="content">
+﻿@{
+    ViewBag.IncludePrism = true;
+}
+<div id="content">
     <h1>What is DotLiquid?</h1>
     <p>
         DotLiquid is a templating system ported to the .net framework from
@@ -30,16 +33,12 @@
 </div>
 <div id="side">
     <h1>What does it look like?</h1>
-    <div class="sample-code">
-        <p>...</p>
-        <p>&lt;p&gt;<span class="code">{{ user.name }}</span> has to do:&lt;/p&gt;</p>
-        <p>&lt;ul&gt;</p>
-        <p>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">{% for item in user.tasks -%}</span></p>
-        <p>&nbsp;&nbsp;&nbsp;&nbsp;&lt;li&gt;<span class="code">{{ item.name }}</span>&lt;/li&gt;</p>
-        <p>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">{% endfor -%}</span></p>
-        <p>&lt;/ul&gt;</p>
-        <p>...</p>
-    </div>
+    <pre class="sample-code"><code class="language-html">&lt;p&gt;{{ user.name }} has to do:&lt;/p&gt;
+&lt;ul&gt;
+    {% for item in user.tasks -%}
+         &lt;li&gt;{{ item.name }}&lt;/li&gt;
+    {% endfor -%}
+&lt;/ul&gt;</code></pre>
 
     <h2>Get started</h2>
     <p>
@@ -50,7 +49,7 @@
         or get the latest bits from <a href="https://github.com/dotliquid/dotliquid">github</a> and compile it.
         <br /><br />
 
-        Read our <a href="https://github.com/dotliquid/dotliquid/wiki">documentation</a>. Ask questions on
+        Read our <a href="@Url.Action("Index", "docs")">documentation</a>. Ask questions on
         <a href="https://gitter.im/dotliquid/dotliquid">Gitter</a>, the
         <a href="https://groups.google.com/forum/#!forum/dotliquid">DotLiquid Google Group</a> or <a href="https://twitter.com/dotliquid">Twitter</a>.
     </p>

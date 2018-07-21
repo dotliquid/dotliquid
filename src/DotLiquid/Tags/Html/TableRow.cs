@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -102,7 +102,7 @@ namespace DotLiquid.Tags.Html
 
                 ++col;
 
-                using (TextWriter temp = new StringWriter())
+                using (TextWriter temp = new StringWriter(result.FormatProvider))
                 {
                     RenderAll(NodeList, context, temp);
                     result.Write("<td class=\"col{0}\">{1}</td>", col, temp.ToString());

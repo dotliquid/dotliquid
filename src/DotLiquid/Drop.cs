@@ -168,7 +168,7 @@ namespace DotLiquid
         /// </summary>
         /// <param name="method"></param>
         /// <returns></returns>
-        public object this[object method]
+        public virtual object this[object method]
         {
             get { return InvokeDrop(method); }
         }
@@ -243,6 +243,7 @@ namespace DotLiquid
         private readonly string[] _allowedMembers;
         private readonly object _proxiedObject;
         private readonly Func<object, object> _value;
+        private readonly bool _allowAllMembers;
 
         /// <summary>
         /// Create a new DropProxy object
@@ -253,16 +254,23 @@ namespace DotLiquid
         {
             _proxiedObject = obj;
             _allowedMembers = allowedMembers;
+            // Allow all member if the list of allowed members is size 1 and is a wild card
+            _allowAllMembers = _allowedMembers?.Length == 1 && _allowedMembers[0] == "*";
         }
 
+        /// <summary>
+        /// Create a new DropProxy object
+        /// </summary>
+        /// <param name="obj">The object to create a proxy for</param>
+        /// <param name="allowedMembers">An array of property and method names that are allowed to be called on the object.</param>
+        /// <param name="value">Function that converts the specified type into a Liquid Drop-compatible object (eg, implements ILiquidizable)</param>
         public DropProxy(object obj, string[] allowedMembers, Func<object, object> value)
+            : this(obj, allowedMembers)
         {
-            _proxiedObject = obj;
-            _allowedMembers = allowedMembers;
             _value = value;
         }
 
-#region IValueTypeConvertible
+        #region IValueTypeConvertible
 
         public virtual object ConvertToValueType()
         {
@@ -272,10 +280,10 @@ namespace DotLiquid
             return _value(_proxiedObject);
         }
 
-#endregion IValueTypeConvertible
+        #endregion IValueTypeConvertible
 
         internal override object GetObject() { return _proxiedObject; }
 
-        internal override TypeResolution CreateTypeResolution(Type type) { return new TypeResolution(type, mi => _allowedMembers.Contains(mi.Name)); }
+        internal override TypeResolution CreateTypeResolution(Type type) { return new TypeResolution(type, mi => _allowAllMembers || _allowedMembers.Contains(mi.Name)); }
     }
 }

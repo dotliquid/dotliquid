@@ -6,7 +6,7 @@ matrix:
     - os: linux
       dist: trusty # Ubuntu 14.04
       sudo: required
-      dotnet: 1.0.3
+      dotnet: 1.0.4
       mono: none
       env: DOTNETCORE=1
 
@@ -15,9 +15,9 @@ before_install:
 script:
   - dotnet restore src
   - dotnet build src/DotLiquid --configuration Release --framework netstandard1.3
-  - dotnet build src/DotLiquid.Website --configuration Release --framework netcoreapp1.0
+  - dotnet build src/DotLiquid.Website --configuration Release --framework netcoreapp1.1.1
   - dotnet build src/DotLiquid.Tests --configuration Release --framework netcoreapp1.0
-  - dotnet build src/DotLiquid.Website.Tests --configuration Release --framework netcoreapp1.0
+  - dotnet build src/DotLiquid.Website.Tests --configuration Release --framework netcoreapp1.1.1
   - dotnet test src/DotLiquid.Tests/DotLiquid.Tests.csproj --framework netcoreapp1.0 --filter "TestCategory!=windows"
-  - dotnet test src/DotLiquid.Website.Tests/DotLiquid.Website.Tests.csproj --framework netcoreapp1.0  --filter "TestCategory!=windows"
+  - dotnet test src/DotLiquid.Website.Tests/DotLiquid.Website.Tests.csproj --framework netcoreapp1.1.1  --filter "TestCategory!=windows"
  

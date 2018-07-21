@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -227,6 +228,9 @@ namespace DotLiquid
         /// </summary>
         public Document Root { get; set; }
 
+        /// <summary>
+        /// Hash of user-defined, internally-available variables
+        /// </summary>
         public Hash Registers
         {
             get { return (_registers = _registers ?? new Hash()); }
@@ -292,12 +296,13 @@ namespace DotLiquid
         }
 
         /// <summary>
-        /// Renders the template using default parameters and returns a string containing the result.
+        /// Renders the template using default parameters and the current culture and returns a string containing the result.
         /// </summary>
         /// <returns></returns>
         public string Render(IFormatProvider formatProvider = null)
         {
-            return Render(new RenderParameters(), formatProvider);
+            formatProvider = formatProvider ?? CultureInfo.CurrentCulture;
+            return Render(new RenderParameters(formatProvider));
         }
 
         /// <summary>
@@ -308,35 +313,50 @@ namespace DotLiquid
         /// <returns></returns>
         public string Render(Hash localVariables, IFormatProvider formatProvider=null)
         {
-            return Render(new RenderParameters
+            formatProvider = formatProvider ?? CultureInfo.CurrentCulture;
+            using (var writer = new StringWriter( formatProvider ))
+            {
+                formatProvider = writer.FormatProvider;
+
+                var parameters = new RenderParameters(formatProvider)
                 {
                     LocalVariables = localVariables
-                }, formatProvider);
+                };
+
+                return Render( writer, parameters );
+            }
         }
+
 
         /// <summary>
         /// Renders the template using the specified parameters and returns a string containing the result.
         /// </summary>
         /// <param name="parameters"></param>
-        /// <param name="formatProvider"></param>
         /// <returns></returns>
-        public string Render(RenderParameters parameters, IFormatProvider formatProvider = null)
+        public string Render(RenderParameters parameters)
         {
-            using (TextWriter writer = formatProvider == null ? new StringWriter() : new StringWriter(formatProvider))
+            using (var writer =  new StringWriter(parameters.FormatProvider))
             {
-                Render(writer, parameters);
-                return writer.ToString();
+                return Render( writer, parameters );
             }
         }
 
-        /// <summary>
-        /// Renders the template into the specified StreamWriter.
-        /// </summary>
-        /// <param name="result"></param>
-        /// <param name="parameters"></param>
-        public void Render(TextWriter result, RenderParameters parameters)
+        public string Render(TextWriter writer, RenderParameters parameters)
         {
-            RenderInternal(result, parameters);
+            if (writer == null)
+                throw new ArgumentNullException( nameof(writer) );
+            if (parameters == null)
+                throw new ArgumentNullException( nameof(parameters) );
+            RenderInternal( writer, parameters );
+            return writer.ToString();
+        }
+
+        /// <inheritdoc />
+        private class StreamWriterWithFormatProvider : StreamWriter
+        {
+            public StreamWriterWithFormatProvider(Stream stream, IFormatProvider formatProvider) : base( stream ) => FormatProvider = formatProvider;
+
+            public override IFormatProvider FormatProvider { get; }
         }
 
         /// <summary>
@@ -348,7 +368,7 @@ namespace DotLiquid
         {
             // Can't dispose this new StreamWriter, because it would close the
             // passed-in stream, which isn't up to us.
-            StreamWriter streamWriter = new StreamWriter(stream);
+            StreamWriter streamWriter = new StreamWriterWithFormatProvider( stream, parameters.FormatProvider );
             RenderInternal(streamWriter, parameters);
             streamWriter.Flush();
         }

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 
 namespace DotLiquid
@@ -82,7 +82,7 @@ namespace DotLiquid
         /// <returns></returns>
         internal string Render(Context context)
         {
-            using (TextWriter result = new StringWriter())
+            using (TextWriter result = new StringWriter(context.FormatProvider))
             {
                 Render(context, result);
                 return result.ToString();

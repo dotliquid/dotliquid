@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
@@ -50,7 +50,7 @@ namespace DotLiquid.Tags
             {
                 foreach (Condition block in Blocks)
                 {
-                    if (block.Evaluate(context))
+                    if (block.Evaluate(context, result.FormatProvider))
                     {
                         RenderAll(block.Attachment, context, result);
                         return;

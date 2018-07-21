@@ -29,7 +29,7 @@ For more information about the original Liquid project, see
 1. Download the latest release from the [downloads
    page](https://github.com/dotliquid/dotliquid/downloads) or [NuGet](https://www.nuget.org/packages/dotliquid).  The zip file
    contains DotLiquid.dll, which is the only one you need.
-2. Read the [wiki](https://github.com/dotliquid/dotliquid/wiki) for information
+2. Read the [docs](//github.com/dotliquid/dotliquid/wiki) for information
    on writing and using DotLiquid templates.
 
 ### Why should I use DotLiquid?

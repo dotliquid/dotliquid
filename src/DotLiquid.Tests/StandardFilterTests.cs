@@ -158,6 +158,25 @@ namespace DotLiquid.Tests
             Assert.AreEqual(hash3["content"], result[2]["content"]);
         }
 
+        [Test]
+        public void TestSort_OnDictionaryWithPropertyOnlyInSomeElement_ReturnsSortedDictionary()
+        {
+            var list = new System.Collections.Generic.List<Hash>();
+            var hash1 = CreateHash("1", "Text1");
+            var hash2 = CreateHash("2", "Text2");
+            var hashWithNoSortByProperty = new Hash();
+            hashWithNoSortByProperty.Add("content", "Text 3");
+            list.Add(hash2);
+            list.Add(hashWithNoSortByProperty);
+            list.Add(hash1);
+
+            var result = StandardFilters.Sort(list, "sortby").Cast<Hash>().ToArray();
+            Assert.AreEqual(3, result.Count());
+            Assert.AreEqual(hashWithNoSortByProperty["content"], result[0]["content"]);
+            Assert.AreEqual(hash1["content"], result[1]["content"]);
+            Assert.AreEqual(hash2["content"], result[2]["content"]);
+        }
+
         private static Hash CreateHash(string sortby, string content)
         {
             var hash = new Hash();

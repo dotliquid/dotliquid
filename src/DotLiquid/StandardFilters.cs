@@ -322,7 +322,7 @@ namespace DotLiquid
             { 
                 ary.Sort();
             }
-            else if ((ary.All(o => o is IDictionary)) && ((IDictionary)ary.First()).Contains(property))
+            else if ((ary.All(o => o is IDictionary)) && (ary.Any(o => ((IDictionary)o).Contains(property))))
             { 
                 ary.Sort((a, b) => Comparer<object>.Default.Compare(((IDictionary)a)[property], ((IDictionary)b)[property]));
             }

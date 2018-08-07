@@ -637,6 +637,11 @@ namespace DotLiquid
                 return obj;
             }
 
+            if (obj.GetType().GetTypeInfo().IsEnum)
+            {
+                return obj;
+            }
+            
             throw new SyntaxException(Liquid.ResourceManager.GetString("ContextObjectInvalidException"), obj.ToString());
         }
 

@@ -614,6 +614,11 @@ namespace DotLiquid
             {
                 return obj;
             }
+
+            if (obj is Uri)
+            {
+                return obj;
+            }
             if (TypeUtility.IsAnonymousType(obj.GetType()))
             {
                 return obj;

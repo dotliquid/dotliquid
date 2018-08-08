@@ -614,7 +614,6 @@ namespace DotLiquid
             {
                 return obj;
             }
-
             if (obj is Uri)
             {
                 return obj;

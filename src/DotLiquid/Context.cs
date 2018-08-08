@@ -641,7 +641,12 @@ namespace DotLiquid
             {
                 return obj;
             }
-            
+
+            if (Template.UnsafeTypeTransformer != null)
+            {
+                return Template.UnsafeTypeTransformer(obj);
+            }
+
             throw new SyntaxException(Liquid.ResourceManager.GetString("ContextObjectInvalidException"), obj.ToString());
         }
 

@@ -50,6 +50,12 @@ namespace DotLiquid
         /// </summary>
         public static TimeSpan RegexTimeOut { get; set; }
 
+        /// <summary>
+        /// Fallback functaion that converts all types not listed in "RegisterSafeType"
+        /// into a Liquid Drop-compatible object (eg, implements ILiquidizable)
+        /// </summary>
+        public static Func<object, object> UnsafeTypeTransformer { get; set; }
+
         private static readonly Dictionary<Type, Func<object, object>> SafeTypeTransformers;
         private static readonly Dictionary<Type, Func<object, object>> ValueTypeTransformers;
 

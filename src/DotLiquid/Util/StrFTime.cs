@@ -23,6 +23,7 @@ namespace DotLiquid.Util
             { "m", (dateTime) => dateTime.ToString("MM", CultureInfo.CurrentCulture) },
             { "M", (dateTime) => dateTime.Minute.ToString().PadLeft(2, '0') },
             { "p", (dateTime) => dateTime.ToString("tt", CultureInfo.CurrentCulture).ToUpper() },
+			{ "s", (dateTime) => ((int)(dateTime - new DateTime(1970, 1, 1)).TotalSeconds).ToString() },
             { "S", (dateTime) => dateTime.ToString("ss", CultureInfo.CurrentCulture) },
             { "U", (dateTime) => CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(dateTime, CultureInfo.CurrentCulture.DateTimeFormat.CalendarWeekRule, DayOfWeek.Sunday).ToString().PadLeft(2, '0') },
             { "W", (dateTime) => CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(dateTime, CultureInfo.CurrentCulture.DateTimeFormat.CalendarWeekRule, DayOfWeek.Monday).ToString().PadLeft(2, '0') },

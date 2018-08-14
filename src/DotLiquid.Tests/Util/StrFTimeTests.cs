@@ -23,6 +23,7 @@ namespace DotLiquid.Tests.Util
         [TestCase("%m", ExpectedResult = "01")]
         [TestCase("%M", ExpectedResult = "32")]
         [TestCase("%p", ExpectedResult = "PM")]
+		[TestCase("%s", ExpectedResult = "1326033134")]
         [TestCase("%S", ExpectedResult = "14")]
         [TestCase("%U", ExpectedResult = "02")]
         [TestCase("%W", ExpectedResult = "01")]

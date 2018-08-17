@@ -95,6 +95,18 @@ namespace DotLiquid
                 ? input
                 : Uri.EscapeDataString(input);
         }
+		
+		/// <summary>
+        /// convert a input string to URLDECODE
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+		public static string UrlDecode(string input)
+        {
+            return input == null
+                ? input
+                : Uri.UnescapeDataString(input);
+        }
 
         /// <summary>
         /// capitalize words in the input sentence
@@ -666,6 +678,30 @@ namespace DotLiquid
                                       , leftType: input.GetType()
                                       , rightType: operand.GetType() )
                                     .DynamicInvoke(input, operand);
+        }
+		
+		/// <summary>
+        /// Removes any duplicate elements in an array.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static IEnumerable Uniq(object input)
+        {
+            if (input == null)
+                return null;
+
+            List<object> ary;
+            if (input is IEnumerable)
+                ary = ((IEnumerable) input).Flatten().Cast<object>().ToList();
+            else
+            { 
+                ary = new List<object>(new[] { input });
+            }
+
+            if (!ary.Any())
+                return ary;
+
+            return ary.Distinct().ToList();
         }
     }
 

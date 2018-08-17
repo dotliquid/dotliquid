@@ -562,6 +562,14 @@ namespace DotLiquid.Tests
             Assert.AreEqual("http%3A%2F%2Fdotliquidmarkup.org%2F", StandardFilters.UrlEncode("http://dotliquidmarkup.org/"));
             Assert.AreEqual(null, StandardFilters.UrlEncode(null));
         }
+		
+		[Test]
+        public void TestUrldecode()
+        {
+            Assert.AreEqual("'Stop!' said Fred", StandardFilters.UrlDecode("%27Stop%21%27 said Fred"));
+            Assert.AreEqual(null, StandardFilters.UrlDecode(null));
+        }
+
 
         [Test]
         public void TestDefault()
@@ -579,6 +587,14 @@ namespace DotLiquid.Tests
             Assert.AreEqual("", StandardFilters.Capitalize(""));
             Assert.AreEqual(" ", StandardFilters.Capitalize(" "));
             Assert.AreEqual("That Is One Sentence.", StandardFilters.Capitalize("That is one sentence."));
+        }
+		
+		[Test]
+        public void TestUniq()
+        {
+			CollectionAssert.AreEqual(new[] { "ants", "bugs", "bees" }, StandardFilters.Uniq(new string[] { "ants", "bugs", "bees", "bugs", "ants" }));
+            CollectionAssert.AreEqual(new string[] {}, StandardFilters.Uniq(new string[] {}));
+            Assert.AreEqual(null, StandardFilters.Uniq(null));
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Threading;
 using System.Linq;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace DotLiquid.Tests
 {

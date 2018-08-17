@@ -714,6 +714,44 @@ namespace DotLiquid
             Double n;
             return Double.TryParse(input.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out n) ? Math.Abs(n) : 0;
         }
+		
+		/// <summary>
+        /// Limits a number to a minimum value.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+		public static object AtLeast(object input, object atLeast)
+        {
+            if (IsReal(input) && IsReal(atLeast))
+            {
+                input = Convert.ToDouble(input);
+                atLeast = Convert.ToDouble(atLeast);
+                return (double)atLeast > (double)input ? atLeast : input;
+            }
+            else
+            {
+                return input;
+            }
+        }
+
+		/// <summary>
+        /// Limits a number to a maximum value.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static object AtMost(object input, object atMost)
+        {
+            if (IsReal(input) && IsReal(atMost))
+            {
+                input = Convert.ToDouble(input);
+                atMost = Convert.ToDouble(atMost);
+                return (double)atMost < (double)input ? atMost : input;
+            }
+            else
+            {
+                return input;
+            }
+        }
     }
 
     internal static class StringExtensions

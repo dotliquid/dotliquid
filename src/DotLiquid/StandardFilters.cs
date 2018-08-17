@@ -709,10 +709,10 @@ namespace DotLiquid
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-		public static int Abs(object input)
+		public static double Abs(object input)
         {
             Double n;
-            return Double.TryParse(input.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out n) ? (int)Math.Abs(n) : 0;
+            return Double.TryParse(input.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out n) ? Math.Abs(n) : 0;
         }
     }
 

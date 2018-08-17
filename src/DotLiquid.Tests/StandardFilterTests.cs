@@ -605,10 +605,11 @@ namespace DotLiquid.Tests
 			Assert.AreEqual(0, StandardFilters.Abs("notNumber"));
             Assert.AreEqual(10, StandardFilters.Abs(10));
             Assert.AreEqual(5, StandardFilters.Abs(-5));
-            Assert.AreEqual(19, StandardFilters.Abs(19.86));
+            Assert.AreEqual(19.86, StandardFilters.Abs(19.86));
+			Assert.AreEqual(19.86, StandardFilters.Abs(-19.86));
             Assert.AreEqual(10, StandardFilters.Abs("10"));
             Assert.AreEqual(5, StandardFilters.Abs("-5"));
-            Assert.AreEqual(30, StandardFilters.Abs("30.60"));
+            Assert.AreEqual(30.60, StandardFilters.Abs("30.60"));
             Assert.AreEqual(0, StandardFilters.Abs("30.60a"));
         }
     }

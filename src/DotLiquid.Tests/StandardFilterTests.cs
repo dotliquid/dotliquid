@@ -646,5 +646,15 @@ namespace DotLiquid.Tests
 			Assert.AreEqual("4a", StandardFilters.AtMost("4a", 5));
 			Assert.AreEqual("10b", StandardFilters.AtMost("10b", 5));
 		}
+		
+		[Test]
+        public void TestCompact()
+        {
+			CollectionAssert.AreEqual(new[] { "business", "celebrities", "lifestyle", "sports", "technology" }, StandardFilters.Compact(new string[] { "business", null, "celebrities", null, null, "lifestyle", "sports", null, "technology", null}));
+            CollectionAssert.AreEqual(new[] { "business", "celebrities"}, StandardFilters.Compact(new string[] { "business", "celebrities" }));
+            Assert.AreEqual(new List<object> { 5 }, StandardFilters.Compact(5));
+            CollectionAssert.AreEqual(new string[] { }, StandardFilters.Compact(new string[] { }));
+            Assert.AreEqual(null, StandardFilters.Compact(null));
+		}
     }
 }

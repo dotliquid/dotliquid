@@ -760,6 +760,31 @@ namespace DotLiquid
                 return input;
             }
         }
+		
+		/// <summary>
+        /// Removes any nil values from an array.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+		public static IEnumerable Compact(object input)
+        {
+            if (input == null)
+                return null;
+
+            List<object> ary;
+            if (input is IEnumerable)
+                ary = ((IEnumerable)input).Flatten().Cast<object>().ToList();
+            else
+            {
+                ary = new List<object>(new[] { input });
+            }
+
+            if (!ary.Any())
+                return ary;
+
+            ary.RemoveAll(item => item == null);
+            return ary;
+        }
     }
 
     internal static class StringExtensions

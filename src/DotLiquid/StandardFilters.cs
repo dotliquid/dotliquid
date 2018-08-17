@@ -703,6 +703,17 @@ namespace DotLiquid
 
             return ary.Distinct().ToList();
         }
+		
+		/// <summary>
+        /// Returns the absolute value of a number.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+		public static int Abs(object input)
+        {
+            Double n;
+            return Double.TryParse(input.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out n) ? (int)Math.Abs(n) : 0;
+        }
     }
 
     internal static class StringExtensions

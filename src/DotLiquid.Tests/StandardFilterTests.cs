@@ -619,28 +619,32 @@ namespace DotLiquid.Tests
         public void TestAtLeast()
         {
 			Assert.AreEqual("notNumber", StandardFilters.AtLeast("notNumber", 5));
-            Assert.AreEqual(5, StandardFilters.AtLeast(5, 5));
-            Assert.AreEqual(5, StandardFilters.AtLeast(3, 5));
-            Assert.AreEqual(6, StandardFilters.AtLeast(6, 5));
-            Assert.AreEqual(10, StandardFilters.AtLeast(10, 5));
-            Assert.AreEqual(9.85, StandardFilters.AtLeast(9.85, 5));
-            Assert.AreEqual(5, StandardFilters.AtLeast(3.56, 5));
-            Assert.AreEqual("10", StandardFilters.AtLeast("10", 5));
-            Assert.AreEqual("4", StandardFilters.AtLeast("4", 5));
+			Assert.AreEqual(5, StandardFilters.AtLeast(5, 5));
+			Assert.AreEqual(5, StandardFilters.AtLeast(3, 5));
+			Assert.AreEqual(6, StandardFilters.AtLeast(6, 5));
+			Assert.AreEqual(10, StandardFilters.AtLeast(10, 5));
+			Assert.AreEqual(9.85, StandardFilters.AtLeast(9.85, 5));
+			Assert.AreEqual(5, StandardFilters.AtLeast(3.56, 5));
+			Assert.AreEqual(10, StandardFilters.AtLeast("10", 5));
+			Assert.AreEqual(5, StandardFilters.AtLeast("4", 5));
+			Assert.AreEqual("10a", StandardFilters.AtLeast("10a", 5));
+			Assert.AreEqual("4b", StandardFilters.AtLeast("4b", 5));
 		}
 		
 		[Test]
         public void TestAtMost()
         {
 			Assert.AreEqual("notNumber", StandardFilters.AtMost("notNumber", 5));
-            Assert.AreEqual(5, StandardFilters.AtMost(5, 5));
-            Assert.AreEqual(3, StandardFilters.AtMost(3, 5));
-            Assert.AreEqual(5, StandardFilters.AtMost(6, 5));
-            Assert.AreEqual(5, StandardFilters.AtMost(10, 5));
-            Assert.AreEqual(5, StandardFilters.AtMost(9.85, 5));
-            Assert.AreEqual(3.56, StandardFilters.AtMost(3.56, 5));
-            Assert.AreEqual("10", StandardFilters.AtMost("10", 5));
-            Assert.AreEqual("4", StandardFilters.AtMost("4", 5));
+			Assert.AreEqual(5, StandardFilters.AtMost(5, 5));
+			Assert.AreEqual(3, StandardFilters.AtMost(3, 5));
+			Assert.AreEqual(5, StandardFilters.AtMost(6, 5));
+			Assert.AreEqual(5, StandardFilters.AtMost(10, 5));
+			Assert.AreEqual(5, StandardFilters.AtMost(9.85, 5));
+			Assert.AreEqual(3.56, StandardFilters.AtMost(3.56, 5));
+			Assert.AreEqual(5, StandardFilters.AtMost("10", 5));
+			Assert.AreEqual(4, StandardFilters.AtMost("4", 5));
+			Assert.AreEqual("4a", StandardFilters.AtMost("4a", 5));
+			Assert.AreEqual("10b", StandardFilters.AtMost("10b", 5));
 		}
     }
 }

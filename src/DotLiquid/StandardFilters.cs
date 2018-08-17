@@ -722,11 +722,15 @@ namespace DotLiquid
         /// <returns></returns>
 		public static object AtLeast(object input, object atLeast)
         {
-            if (IsReal(input) && IsReal(atLeast))
+            double n;
+            var inputNumber = Double.TryParse(input.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out n);
+
+            double min;
+            var atLeastNumber = Double.TryParse(atLeast.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out min);
+
+            if (inputNumber && atLeastNumber)
             {
-                input = Convert.ToDouble(input);
-                atLeast = Convert.ToDouble(atLeast);
-                return (double)atLeast > (double)input ? atLeast : input;
+                return (double)((double)min > (double)n ? min : n);
             }
             else
             {
@@ -741,11 +745,15 @@ namespace DotLiquid
         /// <returns></returns>
         public static object AtMost(object input, object atMost)
         {
-            if (IsReal(input) && IsReal(atMost))
+            double n;
+            var inputNumber = Double.TryParse(input.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out n);
+
+            double max;
+            var atMostNumber = Double.TryParse(atMost.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out max);
+
+            if (inputNumber && atMostNumber)
             {
-                input = Convert.ToDouble(input);
-                atMost = Convert.ToDouble(atMost);
-                return (double)atMost < (double)input ? atMost : input;
+                return (double)((double)max < (double)n ? max : n);
             }
             else
             {

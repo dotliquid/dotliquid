@@ -35,7 +35,6 @@
   <ItemGroup>
     <PackageReference Include="SonarAnalyzer.CSharp" Version="5.11.0.1761" />
     <PackageReference Include="System.ValueTuple" Version="4.3.0" />
-	<PackageReference Include="Microsoft.AspNet.WebUtilities" Version="1.1.2" />
   </ItemGroup>
 
   <ItemGroup>

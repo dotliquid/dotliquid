@@ -7,7 +7,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using System.Reflection;
-using Microsoft.AspNet.WebUtilities;
 using DotLiquid.Util;
 
 namespace DotLiquid

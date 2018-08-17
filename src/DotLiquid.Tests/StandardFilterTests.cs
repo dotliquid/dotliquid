@@ -595,6 +595,7 @@ namespace DotLiquid.Tests
 			CollectionAssert.AreEqual(new[] { "ants", "bugs", "bees" }, StandardFilters.Uniq(new string[] { "ants", "bugs", "bees", "bugs", "ants" }));
             CollectionAssert.AreEqual(new string[] {}, StandardFilters.Uniq(new string[] {}));
             Assert.AreEqual(null, StandardFilters.Uniq(null));
+			Assert.AreEqual(new List<object> {5}, Uniq(5));
         }
     }
 }

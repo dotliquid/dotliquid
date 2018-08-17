@@ -7,7 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using System.Reflection;
-using System.Web;
+using Microsoft.AspNet.WebUtilities;
 using DotLiquid.Util;
 
 namespace DotLiquid
@@ -94,7 +94,7 @@ namespace DotLiquid
         {
             return input == null
                 ? input
-                : HttpUtility.UrlEncode(input);
+                : System.Net.WebUtility.UrlEncode(input);
         }
 		
 		/// <summary>
@@ -106,7 +106,7 @@ namespace DotLiquid
         {
             return input == null
                 ? input
-                : HttpUtility.UrlDecode(input);
+                : System.Net.WebUtility.UrlDecode(input);
         }
 
         /// <summary>

@@ -93,7 +93,19 @@ namespace DotLiquid
         {
             return input == null
                 ? input
-                : Uri.EscapeDataString(input);
+                : System.Net.WebUtility.UrlEncode(input);
+        }
+		
+		/// <summary>
+        /// convert a input string to URLDECODE
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+		public static string UrlDecode(string input)
+        {
+            return input == null
+                ? input
+                : System.Net.WebUtility.UrlDecode(input);
         }
 
         /// <summary>
@@ -666,6 +678,112 @@ namespace DotLiquid
                                       , leftType: input.GetType()
                                       , rightType: operand.GetType() )
                                     .DynamicInvoke(input, operand);
+        }
+		
+		/// <summary>
+        /// Removes any duplicate elements in an array.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static IEnumerable Uniq(object input)
+        {
+            if (input == null)
+                return null;
+
+            List<object> ary;
+            if (input is IEnumerable)
+                ary = ((IEnumerable) input).Flatten().Cast<object>().ToList();
+            else
+            { 
+                ary = new List<object>(new[] { input });
+            }
+
+            if (!ary.Any())
+                return ary;
+
+            return ary.Distinct().ToList();
+        }
+		
+		/// <summary>
+        /// Returns the absolute value of a number.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+		public static double Abs(object input)
+        {
+            Double n;
+            return Double.TryParse(input.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out n) ? Math.Abs(n) : 0;
+        }
+		
+		/// <summary>
+        /// Limits a number to a minimum value.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+		public static object AtLeast(object input, object atLeast)
+        {
+            double n;
+            var inputNumber = Double.TryParse(input.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out n);
+
+            double min;
+            var atLeastNumber = Double.TryParse(atLeast.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out min);
+
+            if (inputNumber && atLeastNumber)
+            {
+                return (double)((double)min > (double)n ? min : n);
+            }
+            else
+            {
+                return input;
+            }
+        }
+
+		/// <summary>
+        /// Limits a number to a maximum value.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static object AtMost(object input, object atMost)
+        {
+            double n;
+            var inputNumber = Double.TryParse(input.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out n);
+
+            double max;
+            var atMostNumber = Double.TryParse(atMost.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out max);
+
+            if (inputNumber && atMostNumber)
+            {
+                return (double)((double)max < (double)n ? max : n);
+            }
+            else
+            {
+                return input;
+            }
+        }
+		
+		/// <summary>
+        /// Removes any nil values from an array.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+		public static IEnumerable Compact(object input)
+        {
+            if (input == null)
+                return null;
+
+            List<object> ary;
+            if (input is IEnumerable)
+                ary = ((IEnumerable)input).Flatten().Cast<object>().ToList();
+            else
+            {
+                ary = new List<object>(new[] { input });
+            }
+
+            if (!ary.Any())
+                return ary;
+
+            ary.RemoveAll(item => item == null);
+            return ary;
         }
     }
 

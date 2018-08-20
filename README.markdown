@@ -69,6 +69,96 @@ Template template = Template.Parse("hi {{name}}"); // Parses and compiles the te
 template.Render(Hash.FromAnonymousObject(new { name = "tobi" })); // => "hi tobi"
 ```
 
+### Liquid Support
+The following Liquid elements have been ported in DotLiquid.
+List of elements taken from here: https://shopify.github.io/liquid/
+
+- [ ] operators
+  - [ ] equals
+  - [ ] do not equals
+  - [ ] greater than
+  - [ ] less than
+  - [ ] greater than or equal to
+  - [ ] less than or equal to
+  - [ ] logical or
+  - [ ] logical and
+  - [ ] contains
+- [ ] comment
+- [ ] raw
+- [ ] control flow
+  - [ ] if
+  - [ ] unless
+  - [ ] elsif/else
+  - [ ] case/when
+- [ ] iteration
+  - [x] for
+  - [ ] break
+  - [ ] continue
+  - [ ] limit (for parameter)
+  - [ ] offset (for parameter)
+  - [ ] range (for parameter)
+  - [ ] reversed (for parameter)
+  - [ ] cycle
+  - [ ] tablerow (cycle parameter)
+  - [ ] cols (tablerow parameter)
+  - [ ] limit (tablerow parameter)
+  - [ ] offset (tablerow parameter)
+  - [ ] range (tablerow parameter)
+- [ ] variable
+  - [ ] assign
+  - [ ] capture
+  - [ ] increment
+  - [ ] decrement
+- [ ] filters
+  - [x] abs
+  - [x] append
+  - [x] at_least
+  - [x] at_most
+  - [x] capitalize
+  - [ ] ceil
+  - [x] compact
+  - [ ] concat
+  - [x] date
+  - [x] default
+  - [x] divided_by
+  - [x] downcase
+  - [x] escape
+  - [ ] escape_once
+  - [x] first
+  - [ ] floor
+  - [x] join
+  - [x] last
+  - [x] lstrip
+  - [x] map
+  - [x] minus
+  - [x] modulo
+  - [x] newline_to_br
+  - [x] plus
+  - [x] prepend
+  - [x] remove
+  - [x] remove_first
+  - [x] replace
+  - [x] replace_first
+  - [ ] reverse
+  - [x] round
+  - [x] rstrip
+  - [x] size
+  - [x] slice
+  - [x] sort
+  - [ ] sort_natural
+  - [x] split
+  - [x] strip
+  - [x] strip_html
+  - [ ] strip_newlines
+  - [x] times
+  - [x] truncate
+  - [x] truncatewords
+  - [x] uniq
+  - [x] upcase
+  - [x] url_decode
+  - [x] url_encode
+
+
 ### Projects using DotLiquid
 
 Are you using DotLiquid in an open source project? Tell us with a PR!

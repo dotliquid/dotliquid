@@ -435,9 +435,15 @@ namespace DotLiquid
                 if (partResolved)
                     part = Resolve(partSquareBracketedMatch.Groups[1].Value);
 
+                // If object has a namespace part transformer we call that
+                if (Template.HasNamespacePartTransformer(@object?.GetType(), out var transformer))
+                {
+                    @object = transformer(@object, part);
+                }
+
                 // If object is a KeyValuePair, we treat it a bit differently - we might be rendering
                 // an included template.
-                if (IsKeyValuePair(@object) && (part.Equals(0) || part.Equals("Key")))
+                else if (IsKeyValuePair(@object) && (part.Equals(0) || part.Equals("Key")))
                 {
                     object res = @object.GetType().GetRuntimeProperty("Key").GetValue(@object);
                     @object = Liquidize(res);
@@ -461,8 +467,7 @@ namespace DotLiquid
                         object res = ((KeyValuePair<string, object>)@object).Value;
                         @object = Liquidize(res);
                     }
-
-
+                    
                     // If object is a hash- or array-like object we look for the
                     // presence of the key and if its available we return it
                     else if (IsHashOrArrayLikeObject(@object, part))
@@ -502,7 +507,7 @@ namespace DotLiquid
 
             return @object;
         }
-
+        
         private static bool IsHashOrArrayLikeObject(object obj, object part)
         {
             if (obj == null)
@@ -522,7 +527,7 @@ namespace DotLiquid
 
             return false;
         }
-
+        
         private object LookupAndEvaluate(object obj, object key)
         {
             object value;

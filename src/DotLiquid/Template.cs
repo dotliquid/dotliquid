@@ -59,6 +59,8 @@ namespace DotLiquid
         private static readonly Dictionary<Type, Func<object, object>> SafeTypeTransformers;
         private static readonly Dictionary<Type, Func<object, object>> ValueTypeTransformers;
 
+        private static readonly Dictionary<Type, Func<object, object, object>> NamespacePartTransformers;
+
         static Template()
         {
             RegexTimeOut = TimeSpan.FromSeconds(10);
@@ -67,6 +69,7 @@ namespace DotLiquid
             Tags = new Dictionary<string, Tuple<ITagFactory, Type>>();
             SafeTypeTransformers = new Dictionary<Type, Func<object, object>>();
             ValueTypeTransformers = new Dictionary<Type, Func<object, object>>();
+            NamespacePartTransformers = new Dictionary<Type, Func<object, object, object>>();
         }
 
         /// <summary>
@@ -154,7 +157,7 @@ namespace DotLiquid
         {
             SafeTypeTransformers[type] = func;
         }
-
+        
         /// <summary>
         /// Registers a simple value type transformer.  Used for rendering a variable to the output stream
         /// </summary>
@@ -163,6 +166,16 @@ namespace DotLiquid
         public static void RegisterValueTypeTransformer(Type type, Func<object, object> func)
         {
             ValueTypeTransformers[type] = func;
+        }
+
+        /// <summary>
+        /// Registers a namespace part transformer.  Used to determine child elements for objects
+        /// </summary>
+        /// <param name="type">The type to register</param>
+        /// <param name="func">Function that converts the specified type using a key to a value</param>
+        public static void RegisterNamespacePartTransformer(Type type, Func<object, object, object> func)
+        {
+            NamespacePartTransformers[type] = func;
         }
 
         /// <summary>
@@ -211,6 +224,36 @@ namespace DotLiquid
                     return transformer;
             }
             return null;
+        }
+
+        /// <summary>
+        /// Gets the corresponding safe type transformer
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static Func<object, object, object> GetNamespacePartTransformer(Type type)
+        {
+            // Check for concrete types
+            if (NamespacePartTransformers.TryGetValue(type, out Func<object, object, object> transformer))
+                return transformer;
+
+            // Check for interfaces
+            var interfaces = type.GetTypeInfo().ImplementedInterfaces;
+            foreach (var interfaceType in interfaces)
+            {
+                if (NamespacePartTransformers.TryGetValue(interfaceType, out transformer))
+                    return transformer;
+                if (interfaceType.GetTypeInfo().IsGenericType && NamespacePartTransformers.TryGetValue(
+                        interfaceType.GetGenericTypeDefinition(), out transformer))
+                    return transformer;
+            }
+            return null;
+        }
+
+        internal static bool HasNamespacePartTransformer(Type type, out Func<object, object, object> transformer)
+        {
+            transformer = GetNamespacePartTransformer(type);
+            return transformer != null;
         }
 
         /// <summary>

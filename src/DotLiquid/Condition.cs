@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using DotLiquid.Util;
 
 namespace DotLiquid
@@ -113,6 +114,13 @@ namespace DotLiquid
 
             if (left != null && right != null && left.GetType() != right.GetType())
             {
+                //Try comparing a "Value" property
+                var valueProperty = left.GetType().GetTypeInfo().GetDeclaredProperty("Value");
+                if (valueProperty != null)
+                {
+                    return EqualVariables(valueProperty.GetValue(left), right);
+                }
+
                 try
                 {
                     right = Convert.ChangeType(right, left.GetType());

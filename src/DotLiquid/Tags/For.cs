@@ -130,14 +130,7 @@ namespace DotLiquid.Tags
                     context.CheckTimeout();
 
                     var item = segment[index];
-                    if (item is KeyValuePair<string,object>)
-                    {
-                        var itemKey = ((KeyValuePair<string, object>) item).Key;
-                        var itemValue = ((KeyValuePair<string, object>) item).Value;
-                        BuildContext(context, _variableName, itemKey, itemValue);
-
-                    } else 
-                        context[_variableName] = item;
+                    context[_variableName] = item;
 
                     context["forloop"] = Hash.FromDictionary(new Dictionary<string, object>
                     {
@@ -188,24 +181,6 @@ namespace DotLiquid.Tags
                 }
             }
             return segments;
-        }
-
-        private void BuildContext(Context context, string parent, string key, object value)
-        {
-            if (value is Hash hashValue)
-            {
-                hashValue["itemName"] = key;
-                context[parent] = value;
-                
-                foreach (var hashItem in (Hash)value)
-                {
-                    if (hashItem.Value is Hash)
-                    {
-                        BuildContext(context, parent + "." + key, hashItem.Key, hashItem.Value);
-                    }
-                }
-
-            }
         }
     }
 }

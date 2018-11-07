@@ -339,7 +339,9 @@ namespace DotLiquid.Tests
             Template template = Template.Parse(@"{{ hi | date:""MMMM"" }}");
             Assert.AreEqual("hi", template.Render(Hash.FromAnonymousObject(new { hi = "hi" })));
             
-            Assert.AreEqual(new DateTime(2018, 10, 10, 19, 44, 35).ToString(("yyyy/MM/dd HH:mm:ss")), StandardFilters.Date(1539288680, "%Y/%m/%d %H:%M:%S"));
+            Assert.AreEqual(new DateTime(2018, 10, 10, 19, 44, 35).ToString(("yyyy/MM/dd HH:mm:ss")), StandardFilters.Date(1539200675, "yyyy/MM/dd HH:mm:ss"));
+            Liquid.UseRubyDateFormat = true;
+            Assert.AreEqual(new DateTime(2018, 10, 10, 19, 44, 35).ToString(("yyyy/MM/dd HH:mm:ss")), StandardFilters.Date(1539200675, "%Y/%m/%d %H:%M:%S"));
         }
 
         [Test]

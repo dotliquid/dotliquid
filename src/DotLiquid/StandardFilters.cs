@@ -508,6 +508,7 @@ namespace DotLiquid
                 return null;
 
             DateTime date;
+            Int32 seconds;
             if (input is DateTime)
             {
                 date = (DateTime)input;
@@ -525,6 +526,11 @@ namespace DotLiquid
 
                     if (format.IsNullOrWhiteSpace())
                         return date.ToString();
+				}
+                else if (Int32.TryParse(value, out seconds))
+				{
+					DateTime epochTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                    date =  epochTime.AddSeconds(Convert.ToInt32(seconds));
 				}
 				else if (!DateTime.TryParse(value, out date))
 				{

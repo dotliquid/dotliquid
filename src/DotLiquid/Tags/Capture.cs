@@ -22,7 +22,7 @@ namespace DotLiquid.Tags
     /// </summary>
     public class Capture : DotLiquid.Block
     {
-        private static readonly Regex Syntax = R.C(@"(\w+)");
+        private static readonly Regex Syntax = R.B(R.Q(@"({0}+)"), Liquid.VariableSignature);
 
         private string _to;
 

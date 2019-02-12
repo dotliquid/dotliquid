@@ -80,3 +80,4 @@ Are you using DotLiquid in an open source project? Tell us with a PR!
  - [DotLiquid Template Engine for Suave.IO](https://www.nuget.org/packages/Suave.DotLiquid/)
  - [DotLiquid View Engine for ASP.NET MVC](https://www.nuget.org/packages/DotLiquid.ViewEngine)
  - [DotLiquid View Engine for Nancy](https://www.nuget.org/packages/Nancy.Viewengines.DotLiquid)
+ - [GrandNode](https://github.com/grandnode/grandnode)

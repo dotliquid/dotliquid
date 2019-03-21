@@ -5,7 +5,7 @@
     <Title>DotLiquid</Title>
     <PackageId>DotLiquid</PackageId>
     <Description>DotLiquid is a templating system ported to the .NET framework from Ruby’s Liquid Markup.</Description>
-    <TargetFrameworks>netstandard1.3;net45</TargetFrameworks>
+    <TargetFrameworks>net45;netstandard1.3;netstandard2.0</TargetFrameworks>
     <Version>2.0.0</Version>
     <InformationalVersion>$(Version)-localbuild</InformationalVersion>
     <NeutralLanguage>en-US</NeutralLanguage>
@@ -19,24 +19,18 @@
     <PackageIconUrl>https://github.com/formosatek/dotliquid/raw/master/build/logo_nuget.png</PackageIconUrl>
     <PackageProjectUrl>http://dotliquidmarkup.org</PackageProjectUrl>
     <PackageLicenseExpression>Apache-2.0 OR MS-PL</PackageLicenseExpression>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/dotliquid/dotliquid</RepositoryUrl>
-    <DebugType>portable</DebugType>
-    <DebugSymbols>True</DebugSymbols>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="SonarAnalyzer.CSharp" Version="5.11.0.1761" />
-    <PackageReference Include="System.ValueTuple" Version="4.3.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-18618-05" PrivateAssets="All"/>
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="7.11.0.8083" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
     <DefineConstants>$(DefineConstants);CORE</DefineConstants>
   </PropertyGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-
 </Project>

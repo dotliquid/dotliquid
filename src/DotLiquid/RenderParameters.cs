@@ -38,37 +38,17 @@ namespace DotLiquid
             get { return (ErrorsOutputMode == ErrorsOutputMode.Rethrow); }
             set { ErrorsOutputMode = (value ? ErrorsOutputMode.Rethrow : ErrorsOutputMode.Display); }
         }
-        
-        private ErrorsOutputMode _erorsOutputMode = ErrorsOutputMode.Display;
 
         /// <summary>
         /// Errors output mode
         /// </summary>
-        public ErrorsOutputMode ErrorsOutputMode
-        {
-            get
-            {
-                return _erorsOutputMode;
-            }
-
-            set
-            {
-                _erorsOutputMode = value;
-            }
-        }
-
-        private int _maxIterations = 0;
+        public ErrorsOutputMode ErrorsOutputMode { get; set; } = ErrorsOutputMode.Display;
 
         /// <summary>
         /// Maximum number of iterations for the For tag
         /// </summary>
-        public int MaxIterations
-        {
-            get { return _maxIterations; }
-            set { _maxIterations = value; }
-        }
+        public int MaxIterations { get; set; } = 0;
 
-        private int _timeout = 0;
         public IFormatProvider FormatProvider { get; }
 
         public RenderParameters(IFormatProvider formatProvider)
@@ -79,11 +59,7 @@ namespace DotLiquid
         /// <summary>
         /// Rendering timeout in ms
         /// </summary>
-        public int Timeout
-        {
-            get { return _timeout; }
-            set { _timeout = value; }
-        }
+        public int Timeout { get; set; } = 0;
 
         internal void Evaluate(Template template, out Context context, out Hash registers, out IEnumerable<Type> filters)
         {

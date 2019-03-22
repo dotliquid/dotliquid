@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using DotLiquid.Exceptions;
 
 namespace DotLiquid.Util
 {
@@ -12,30 +10,20 @@ namespace DotLiquid.Util
     /// </summary>
     public static class ExpressionUtility
     {
-        private static readonly Dictionary<Type, Type[]> NumericTypePromotions;
-
-        static ExpressionUtility()
-        {
-            NumericTypePromotions = new Dictionary<Type, Type[]>();
-
-            void Add(Type key, params Type[] types) => NumericTypePromotions[key] = types;
-            // Using the promotion table at
-            // https://docs.microsoft.com/en-us/dotnet/standard/base-types/conversion-tables
-
-            Add(typeof(Byte), typeof(UInt16), typeof(Int16), typeof(UInt32), typeof(Int32), typeof(UInt64), typeof(Int64), typeof(Single), typeof(Double), typeof(Decimal));
-            Add(typeof(SByte), typeof(Int16), typeof(Int32), typeof(Int64), typeof(Single), typeof(Double), typeof(Decimal));
-            Add(typeof(Int16), typeof(Int32), typeof(Int64), typeof(Single), typeof(Double), typeof(Decimal));
-            Add(typeof(UInt16), typeof(UInt32), typeof(Int32), typeof(UInt64), typeof(Int64), typeof(Single), typeof(Double), typeof(Decimal));
-            Add(typeof(Char), typeof(UInt16), typeof(UInt32), typeof(Int32), typeof(UInt64), typeof(Int64), typeof(Single), typeof(Double), typeof(Decimal));
-            Add(typeof(Int32), typeof(Int64), typeof(Double), typeof(Decimal), typeof(Single));
-            Add(typeof(UInt32), typeof(Int64), typeof(UInt64), typeof(Double), typeof(Decimal), typeof(Single));
-            Add(typeof(Int64), typeof(Decimal), typeof(Single), typeof(double));
-            Add(typeof(UInt64), typeof(Decimal), typeof(Single), typeof(double));
-            Add(typeof(Single), typeof(Double));
-            Add(typeof(Decimal), typeof(Single), typeof(Double));
-            Add(typeof(Double));
-
-        }
+        private static readonly Dictionary<Type, HashSet<Type>> NumericTypePromotions = new Dictionary<Type, HashSet<Type>> {
+            {typeof(Byte), new HashSet<Type> {typeof(UInt16), typeof(Int16), typeof(UInt32), typeof(Int32), typeof(UInt64), typeof(Int64), typeof(Single), typeof(Double), typeof(Decimal)}},
+            {typeof(SByte), new HashSet<Type> {typeof(Int16), typeof(Int32), typeof(Int64), typeof(Single), typeof(Double), typeof(Decimal)}},
+            {typeof(Int16), new HashSet<Type> {typeof(Int32), typeof(Int64), typeof(Single), typeof(Double), typeof(Decimal)}},
+            {typeof(UInt16), new HashSet<Type> {typeof(UInt32), typeof(Int32), typeof(UInt64), typeof(Int64), typeof(Single), typeof(Double), typeof(Decimal)}},
+            {typeof(Char), new HashSet<Type> {typeof(UInt16), typeof(UInt32), typeof(Int32), typeof(UInt64), typeof(Int64), typeof(Single), typeof(Double), typeof(Decimal)}},
+            {typeof(Int32), new HashSet<Type> {typeof(Int64), typeof(Double), typeof(Decimal), typeof(Single)}},
+            {typeof(UInt32), new HashSet<Type> {typeof(Int64), typeof(UInt64), typeof(Double), typeof(Decimal), typeof(Single)}},
+            {typeof(Int64), new HashSet<Type> {typeof(Decimal), typeof(Single), typeof(double)}},
+            {typeof(UInt64), new HashSet<Type> {typeof(Decimal), typeof(Single), typeof(double)}},
+            {typeof(Single), new HashSet<Type> {typeof(Double)}},
+            {typeof(Decimal), new HashSet<Type> {typeof(Single), typeof(Double)}},
+            {typeof(Double), new HashSet<Type>()}
+        };
 
         /// <summary>
         /// Perform the implicit conversions as set out in the C# spec docs at
@@ -55,18 +43,13 @@ namespace DotLiquid.Util
                 throw new System.ArgumentException("Argument is not numeric", nameof(right));
 
             // Test left to right promotion
-            if (NumericTypePromotions[right].Contains(left))
-                return right;
-            if (NumericTypePromotions[left].Contains(right))
-                return left;
-
-            throw new Exception("Should not get here in code");
+            return NumericTypePromotions[right].Contains(left) ? right : left;
         }
 
         private static (Expression left, Expression right) Cast(Expression lhs, Expression rhs,Type leftType, Type rightType, Type resultType)
         {
-            var castLhs = leftType == resultType ? lhs : (Expression)Expression.Convert(lhs, resultType);
-            var castRhs = rightType == resultType ? rhs : (Expression)Expression.Convert(rhs, resultType);
+            var castLhs = leftType == resultType ? lhs : Expression.Convert(lhs, resultType);
+            var castRhs = rightType == resultType ? rhs : Expression.Convert(rhs, resultType);
             return (castLhs, castRhs);
         }
 
@@ -112,7 +95,7 @@ namespace DotLiquid.Util
             catch (Exception ex)
             {
                 string msg = ex.Message; // avoid capture of ex itself
-                return (Action)(delegate { throw new InvalidOperationException(msg); });
+                return (Action)(() => throw new InvalidOperationException(msg));
             }
         }
     }

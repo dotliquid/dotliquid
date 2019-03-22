@@ -1,9 +1,9 @@
-﻿using System.IO;
+using System.IO;
 using Microsoft.AspNetCore.Hosting;
 
 namespace DotLiquid.Website
 {
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {

@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net461;netcoreapp1.0</TargetFrameworks>
+    <IsPackable>false</IsPackable>
     <AssemblyName>DotLiquid.Tests</AssemblyName>
     <AssemblyOriginatorKeyFile>../Formosatek-OpenSource.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>

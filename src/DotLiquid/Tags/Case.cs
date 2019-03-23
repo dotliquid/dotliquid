@@ -53,11 +53,7 @@ namespace DotLiquid.Tags
                 {
                     if (block.IsElse)
                     {
-                        if (executeElseBlock)
-                        {
-                            RenderAll(block.Attachment, context, result);
-                            return;
-                        }
+                        if (executeElseBlock) RenderAll(block.Attachment, context, result);
                     }
                     else if (block.Evaluate(context, result.FormatProvider))
                     {

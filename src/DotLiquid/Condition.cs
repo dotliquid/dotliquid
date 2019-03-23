@@ -26,10 +26,10 @@ namespace DotLiquid
             { "<=", (left, right) => left != null && right != null && Comparer<object>.Default.Compare(left, Convert.ChangeType(right, left.GetType())) <= 0 },
             { ">=", (left, right) => left != null && right != null && Comparer<object>.Default.Compare(left, Convert.ChangeType(right, left.GetType())) >= 0 },
             { "contains", (left, right) => (left is IList) ? ((IList) left).Contains(right) : ((left is string) ? ((string) left).Contains((string) right) : false) },
-            { "startsWith", (left, right) => (left is IList) ? EqualVariables(((IList) left).OfType<object>().FirstOrDefault(), right) : ((left is string) ? ((string)left).StartsWith((string) right) : false) },
-            { "endsWith", (left, right) => (left is IList) ? EqualVariables(((IList) left).OfType<object>().LastOrDefault(), right) : ((left is string) ? ((string)left).EndsWith((string) right) : false) },
-            { "hasKey", (left, right) => (left is IDictionary) ? ((IDictionary) left).Contains(right) : false },
-            { "hasValue", (left, right) => (left is IDictionary) ? ((IDictionary) left).Values.Cast<object>().Contains(right) : false }
+            { "startsWith", (left, right) => (left is IList) ? EqualVariables(((IList) left).OfType<object>().FirstOrDefault(), right) : ((left is string) && ((string)left).StartsWith((string) right)) },
+            { "endsWith", (left, right) => (left is IList) ? EqualVariables(((IList) left).OfType<object>().LastOrDefault(), right) : ((left is string) && ((string)left).EndsWith((string) right)) },
+            { "hasKey", (left, right) => (left is IDictionary) && ((IDictionary) left).Contains(right) },
+            { "hasValue", (left, right) => (left is IDictionary) && ((IDictionary) left).Values.Cast<object>().Contains(right) }
         };
 
         private string _childRelation;
@@ -44,10 +44,7 @@ namespace DotLiquid
 
         public List<object> Attachment { get; private set; }
 
-        public virtual bool IsElse
-        {
-            get { return false; }
-        }
+        public virtual bool IsElse => false;
 
         public Condition(string left, string @operator, string right)
         {
@@ -96,7 +93,7 @@ namespace DotLiquid
 
         public override string ToString()
         {
-            return string.Format("<Condition {0} {1} {2}>", Left, Operator, Right);
+            return $"<Condition {Left} {Operator} {Right}>";
         }
 
         private static bool EqualVariables(object left, object right)
@@ -154,15 +151,9 @@ namespace DotLiquid
 
     public class ElseCondition : Condition
     {
-        public override bool IsElse
-        {
-            get { return true; }
-        }
+        public override bool IsElse => true;
 
-        public override bool Evaluate(Context context, IFormatProvider formatProvider)
-        {
-            return true;
-        }
+        public override bool Evaluate(Context context, IFormatProvider formatProvider) => true;
     }
 
     public delegate bool ConditionOperatorDelegate(object left, object right);

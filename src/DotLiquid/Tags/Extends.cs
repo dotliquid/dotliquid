@@ -87,11 +87,11 @@ namespace DotLiquid.Tags
 
             NodeList.ForEach(n =>
             {
-                if (!((n is string && ((string) n).IsNullOrWhiteSpace()) || n is Block || n is Comment || n is Extends))
+                if (!((n is string s && s.IsNullOrWhiteSpace()) || n is Block || n is Comment || n is Extends))
                     throw new SyntaxException(Liquid.ResourceManager.GetString("ExtendsTagUnallowedTagsException"));
             });
 
-            if (NodeList.Count(o => o is Extends) > 0)
+            if (NodeList.Any(o => o is Extends))
             {
                 throw new SyntaxException(Liquid.ResourceManager.GetString("ExtendsTagCanBeUsedOneException"));
             }
@@ -150,29 +150,19 @@ namespace DotLiquid.Tags
             return template.Root.NodeList.Any(node => node is Extends);
         }
 
-        private List<Block> FindBlocks(object node, List<Block> blocks)
+        private static List<Block> FindBlocks(object node, List<Block> blocks)
         {
             if(blocks == null) blocks = new List<Block>();
 
-            if (node.RespondTo("NodeList"))
+            if (!node.RespondTo("NodeList")) return blocks;
+            var nodeList = (List<object>) node.Send("NodeList");
+
+            nodeList?.ForEach(n =>
             {
-                List<object> nodeList = (List<object>) node.Send("NodeList");
+                if (n is Block block && blocks.All(bl => bl.BlockName != block.BlockName)) blocks.Add(block);
 
-                if (nodeList != null)
-                {
-                    nodeList.ForEach(n =>
-                    {
-                        Block block = n as Block;
-
-                        if (block != null)
-                        {
-                            if (blocks.All(bl => bl.BlockName != block.BlockName)) blocks.Add(block);
-                        }
-
-                        FindBlocks(n, blocks);
-                    });
-                }
-            }
+                FindBlocks(n, blocks);
+            });
 
             return blocks;
         }

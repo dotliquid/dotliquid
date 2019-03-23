@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using DotLiquid.Exceptions;
 
@@ -32,7 +32,9 @@ namespace DotLiquid
         /// Document blocks don't need to be terminated since they are not actually opened
         /// </summary>
         protected override void AssertMissingDelimitation()
-        { }
+        {
+            // Document blocks don't need to be terminated since they are not actually opened
+        }
 
         /// <summary>
         /// Renders the Document

@@ -33,4 +33,7 @@
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
     <DefineConstants>$(DefineConstants);CORE</DefineConstants>
   </PropertyGroup>
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);1572;1573;1584;1591</NoWarn>
+  </PropertyGroup>
 </Project>

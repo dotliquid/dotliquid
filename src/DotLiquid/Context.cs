@@ -169,7 +169,7 @@ namespace DotLiquid
                 return string.Empty;
 
             if (_errorsOutputMode == ErrorsOutputMode.Rethrow)
-                throw ex;
+                throw new Exception("Could not render the Liquid template.", ex);
 
             if (ex is SyntaxException)
             {

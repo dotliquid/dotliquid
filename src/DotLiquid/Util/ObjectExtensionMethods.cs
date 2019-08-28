@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reflection;
 
@@ -10,6 +10,9 @@ namespace DotLiquid.Util
         {
             if (value == null)
                 throw new ArgumentNullException("value");
+
+            if (value is DropBase)
+                return (value as DropBase).ContainsKey(member);
 
             Type type = value.GetType();
 
@@ -28,6 +31,13 @@ namespace DotLiquid.Util
         {
             if (value == null)
                 throw new ArgumentNullException("value");
+
+            if (value is DropBase)
+            {
+                DropBase valAsDB = value as DropBase;
+                if (valAsDB.ContainsKey(member))
+                    return valAsDB[member];
+            }
 
             Type type = value.GetType();
 

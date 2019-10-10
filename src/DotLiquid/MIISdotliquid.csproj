@@ -6,7 +6,7 @@
     <NeutralLanguage>en-US</NeutralLanguage>
     <Authors>Tim Jones;Alessandro Petrelli</Authors>
     <TargetFrameworks>netstandard1.3;net45</TargetFrameworks>
-    <AssemblyName>DotLiquid</AssemblyName>
+    <AssemblyName>MIISdotliquid</AssemblyName>
     <AssemblyOriginatorKeyFile>../Formosatek-OpenSource.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
@@ -30,6 +30,7 @@
     <DebugType>full</DebugType>
     <DebugSymbols>True</DebugSymbols>
       <DocumentationFile>bin\Debug\$(TargetFramework)\DotLiquid.xml</DocumentationFile>
+      <RootNamespace>DotLiquid</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

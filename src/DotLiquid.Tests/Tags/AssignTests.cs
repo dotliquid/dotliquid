@@ -25,6 +25,13 @@ namespace DotLiquid.Tests.Tags
         }
 
         [Test]
+        public void TestAssignDoubleWithoutVariable()
+        {
+            Helper.AssertTemplateResult(string.Format("1{0}2345678912345", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
+                "{% assign foo = 1.2345678912345 %}{{ foo }}");
+        }
+
+        [Test]
         public void TestAssignDecimalInlineWithEnglishDecimalSeparator()
         {
             using (CultureHelper.SetCulture("en-GB"))

@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
 
@@ -37,11 +38,11 @@ namespace DotLiquid.Tags
             base.Initialize(tagName, markup, tokens);
         }
 
-        public override void Render(Context context, TextWriter result)
+        public async override Task RenderAsync(Context context, TextWriter result)
         {
             using (TextWriter temp = new StringWriter(result.FormatProvider))
             {
-                base.Render(context, temp);
+                await base.RenderAsync(context, temp).ConfigureAwait(false);
                 context.Scopes.Last()[_to] = temp.ToString();
             }
         }

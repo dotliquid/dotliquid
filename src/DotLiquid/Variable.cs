@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
 
@@ -61,11 +62,11 @@ namespace DotLiquid
             }
         }
 
-        public void Render(Context context, TextWriter result)
+        public async Task RenderAsync(Context context, TextWriter result)
         {
             string ToFormattedString(object o, IFormatProvider ifp) => o is IFormattable ifo ? ifo.ToString( null, ifp ) : (o?.ToString() ?? "");
 
-            object output = RenderInternal(context);
+            object output = await RenderInternalAsync(context).ConfigureAwait(false);
 
             if (output is ILiquidizable)
                 output = null;
@@ -89,11 +90,11 @@ namespace DotLiquid
                  outputString = ToFormattedString(output,result.FormatProvider);
 
             
-                result.Write(outputString);
+                await result.WriteAsync(outputString).ConfigureAwait(false);
             }
         }
 
-        private object RenderInternal(Context context)
+        private Task<object> RenderInternalAsync(Context context)
         {
             if (Name == null)
                 return null;
@@ -119,7 +120,7 @@ namespace DotLiquid
                 output = valueTypeConvertibleOutput.ConvertToValueType();
             }
 
-            return output;
+            return Task.FromResult(output);
         }
 
         /// <summary>
@@ -127,9 +128,9 @@ namespace DotLiquid
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        internal object Render(Context context)
+        internal Task<object> RenderAsync(Context context)
         {
-            return RenderInternal(context);
+            return RenderInternalAsync(context);
         }
 
         public class Filter

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
 
@@ -92,7 +93,7 @@ namespace DotLiquid.Tags
         /// </summary>
         /// <param name="context"></param>
         /// <param name="result"></param>
-        public override void Render(Context context, TextWriter result)
+        public async override Task RenderAsync(Context context, TextWriter result)
         {
             context.Registers["for"] = context.Registers["for"] ?? new Hash(0);
 
@@ -123,7 +124,7 @@ namespace DotLiquid.Tags
             // Store our progress through the collection for the continue flag
             context.Registers.Get<Hash>("for")[_name] = from + length;
 
-            context.Stack(() =>
+            await context.Stack(async () =>
             {
                 for (var index = 0; index < segment.Count; index++)
                 {
@@ -152,7 +153,7 @@ namespace DotLiquid.Tags
                     });
                     try
                     {
-                        RenderAll(NodeList, context, result);
+                        await RenderAllAsync(NodeList, context, result).ConfigureAwait(false);
                     }
                     catch (BreakInterrupt)
                     {
@@ -163,7 +164,7 @@ namespace DotLiquid.Tags
                         // ContinueInterrupt is used only to skip the current value but not to stop the iteration
                     }
                 }
-            });
+            }).ConfigureAwait(false);
         }
 
         private static List<object> SliceCollectionUsingEach(Context context, IEnumerable collection, int from, int? to)

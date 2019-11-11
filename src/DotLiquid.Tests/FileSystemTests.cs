@@ -6,14 +6,15 @@ using NUnit.Framework;
 namespace DotLiquid.Tests
 {
     using System.Reflection;
+    using System.Threading.Tasks;
 
     [TestFixture]
     public class FileSystemTests
     {
         [Test]
-        public void TestDefault()
+        public async Task TestDefault()
         {
-            Assert.Throws<FileSystemException>(() => new BlankFileSystem().ReadTemplateFile(new Context(CultureInfo.InvariantCulture), "dummy"));
+            Assert.Throws<FileSystemException>(() => new BlankFileSystem().ReadTemplateFileAsync(new Context(CultureInfo.InvariantCulture), "dummy").GetAwaiter().GetResult());
         }
         
 

@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using DotLiquid.Exceptions;
 
 namespace DotLiquid
@@ -39,11 +40,11 @@ namespace DotLiquid
         /// </summary>
         /// <param name="context"></param>
         /// <param name="result"></param>
-        public override void Render(Context context, TextWriter result)
+        public async override Task RenderAsync(Context context, TextWriter result)
         {
             try
             {
-                base.Render(context, result);
+                await base.RenderAsync(context, result);
             }
             catch (BreakInterrupt)
             {

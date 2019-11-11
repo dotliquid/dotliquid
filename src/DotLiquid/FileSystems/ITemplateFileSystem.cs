@@ -1,4 +1,6 @@
-﻿namespace DotLiquid.FileSystems
+using System.Threading.Tasks;
+
+namespace DotLiquid.FileSystems
 {
     /// <summary>
     /// This interface allow you return a Template instance,
@@ -12,6 +14,6 @@
         /// </summary>
         /// <param name="templatePath"></param>
         /// <returns></returns>
-        Template GetTemplate(Context context, string templateName);
+        Task<Template> GetTemplateAsync(Context context, string templateName);
     }
 }

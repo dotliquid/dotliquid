@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using DotLiquid.Tags;
 using DotLiquid.Tests.Framework;
 using NUnit.Framework;
@@ -73,12 +74,12 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestWithCustomTagFactory()
+        public async Task TestWithCustomTagFactory()
         {
             Template.RegisterTagFactory(new CustomTagFactory());
             Template result = null;
             Assert.DoesNotThrow(() => result = Template.Parse("{% custom %}"));
-            Assert.AreEqual("I am a custom tag"+Environment.NewLine, result.Render());
+            Assert.AreEqual("I am a custom tag"+Environment.NewLine, await result.RenderAsync());
         }
 
         public class CustomTagFactory : ITagFactory
@@ -95,9 +96,10 @@ namespace DotLiquid.Tests
 
             public class CustomTag : Tag
             {
-                public override void Render(Context context, System.IO.TextWriter result)
+                public override Task RenderAsync(Context context, System.IO.TextWriter result)
                 {
                     result.WriteLine("I am a custom tag");
+                    return Task.CompletedTask;
                 }
             }
         }

@@ -1,24 +1,25 @@
 using System.IO;
+using System.Threading.Tasks;
 
 namespace DotLiquid.Tags
 {
     public class IfChanged : DotLiquid.Block
     {
-        public override void Render(Context context, TextWriter result)
+        public override Task RenderAsync(Context context, TextWriter result)
         {
-            context.Stack(() =>
+            return context.Stack(async () =>
             {
                 string tempString;
                 using (TextWriter temp = new StringWriter(result.FormatProvider))
                 {
-                    RenderAll(NodeList, context, temp);
+                    await RenderAllAsync(NodeList, context, temp).ConfigureAwait(false);
                     tempString = temp.ToString();
                 }
 
                 if (tempString != (context.Registers["ifchanged"] as string))
                 {
                     context.Registers["ifchanged"] = tempString;
-                    result.Write(tempString);
+                    await result.WriteAsync(tempString).ConfigureAwait(false);
                 }
             });
         }

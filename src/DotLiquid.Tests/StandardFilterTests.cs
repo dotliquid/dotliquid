@@ -4,6 +4,7 @@ using System.Threading;
 using System.Linq;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace DotLiquid.Tests
 {
@@ -187,12 +188,12 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestMap()
+        public async Task TestMap()
         {
             CollectionAssert.AreEqual(new string[] { }, StandardFilters.Map(new string[] { }, "a"));
             CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 },
                 StandardFilters.Map(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 4 } }, "a"));
-            Helper.AssertTemplateResult("abc", "{{ ary | map:'foo' | map:'bar' }}",
+            await Helper.AssertTemplateResultAsync("abc", "{{ ary | map:'foo' | map:'bar' }}",
                 Hash.FromAnonymousObject(
                     new
                     {
@@ -218,8 +219,8 @@ namespace DotLiquid.Tests
                 }
             });
 
-            Helper.AssertTemplateResult("abc", "{{ ary | map:'prop_allowed' | join:'' }}", hash);
-            Helper.AssertTemplateResult("", "{{ ary | map:'prop_disallowed' | join:'' }}", hash);
+            await Helper.AssertTemplateResultAsync("abc", "{{ ary | map:'prop_allowed' | join:'' }}", hash);
+            await Helper.AssertTemplateResultAsync("", "{{ ary | map:'prop_disallowed' | join:'' }}", hash);
 
             hash = Hash.FromAnonymousObject(new
             {
@@ -230,8 +231,8 @@ namespace DotLiquid.Tests
                 }
             });
 
-            Helper.AssertTemplateResult("abc", "{{ ary | map:'prop' | join:'' }}", hash);
-            Helper.AssertTemplateResult("", "{{ ary | map:'no_prop' | join:'' }}", hash);
+            await Helper.AssertTemplateResultAsync("abc", "{{ ary | map:'prop' | join:'' }}", hash);
+            await Helper.AssertTemplateResultAsync("", "{{ ary | map:'no_prop' | join:'' }}", hash);
         }
 
         [TestCase("6.72", "$6.72")]
@@ -273,7 +274,7 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestCurrencyWithinTemplateRender()
+        public async Task TestCurrencyWithinTemplateRender()
         {
 #if CORE
             CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
@@ -284,8 +285,8 @@ namespace DotLiquid.Tests
             Template dollarTemplate = Template.Parse(@"{{ amount | currency }}");
             Template euroTemplate = Template.Parse(@"{{ amount | currency: ""de-DE"" }}");
 
-            Assert.AreEqual("$7,000.00", dollarTemplate.Render(Hash.FromAnonymousObject(new { amount = "7000" })));
-            Assert.AreEqual("7.000,00 €", euroTemplate.Render(Hash.FromAnonymousObject(new { amount = 7000 })));
+            Assert.AreEqual("$7,000.00", await dollarTemplate.RenderAsync(Hash.FromAnonymousObject(new { amount = "7000" })));
+            Assert.AreEqual("7.000,00 €", await euroTemplate.RenderAsync(Hash.FromAnonymousObject(new { amount = 7000 })));
         }
 
         [Test]
@@ -298,7 +299,7 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestDate()
+        public async Task TestDate()
         {
             Liquid.UseRubyDateFormat = false;
             DateTimeFormatInfo dateTimeFormat = CultureInfo.CurrentCulture.DateTimeFormat;
@@ -337,11 +338,11 @@ namespace DotLiquid.Tests
             Assert.AreEqual("345000", StandardFilters.Date(DateTime.Parse("2006-05-05 10:00:00.345"), "ffffff"));
 
             Template template = Template.Parse(@"{{ hi | date:""MMMM"" }}");
-            Assert.AreEqual("hi", template.Render(Hash.FromAnonymousObject(new { hi = "hi" })));
+            Assert.AreEqual("hi", await template.RenderAsync(Hash.FromAnonymousObject(new { hi = "hi" })));
         }
 
         [Test]
-        public void TestStrFTime()
+        public async Task TestStrFTime()
         {
             Liquid.UseRubyDateFormat = true;
             DateTimeFormatInfo dateTimeFormat = CultureInfo.CurrentCulture.DateTimeFormat;
@@ -368,7 +369,7 @@ namespace DotLiquid.Tests
             Assert.AreEqual("hi", StandardFilters.Date("hi", "%M"));
 
             Template template = Template.Parse(@"{{ hi | date:""%M"" }}");
-            Assert.AreEqual("hi", template.Render(Hash.FromAnonymousObject(new { hi = "hi" })));
+            Assert.AreEqual("hi", await template.RenderAsync(Hash.FromAnonymousObject(new { hi = "hi" })));
         }
 
         [Test]
@@ -393,116 +394,116 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestReplaceFirst()
+        public async Task TestReplaceFirst()
         {
             Assert.Null(StandardFilters.ReplaceFirst(null, "a", "b"));
             Assert.AreEqual("", StandardFilters.ReplaceFirst("", "a", "b"));
             Assert.AreEqual("a a a a", StandardFilters.ReplaceFirst("a a a a", null, "b"));
             Assert.AreEqual("a a a a", StandardFilters.ReplaceFirst("a a a a", "", "b"));
             Assert.AreEqual("b a a a", StandardFilters.ReplaceFirst("a a a a", "a", "b"));
-            Helper.AssertTemplateResult("b a a a", "{{ 'a a a a' | replace_first: 'a', 'b' }}");
+            await Helper.AssertTemplateResultAsync("b a a a", "{{ 'a a a a' | replace_first: 'a', 'b' }}");
         }
 
         [Test]
-        public void TestRemove()
+        public async Task TestRemove()
         {
             Assert.AreEqual("   ", StandardFilters.Remove("a a a a", "a"));
             Assert.AreEqual("a a a", StandardFilters.RemoveFirst("a a a a", "a "));
-            Helper.AssertTemplateResult("a a a", "{{ 'a a a a' | remove_first: 'a ' }}");
+            await Helper.AssertTemplateResultAsync("a a a", "{{ 'a a a a' | remove_first: 'a ' }}");
         }
 
         [Test]
-        public void TestPipesInStringArguments()
+        public async Task TestPipesInStringArguments()
         {
-            Helper.AssertTemplateResult("foobar", "{{ 'foo|bar' | remove: '|' }}");
+            await Helper.AssertTemplateResultAsync("foobar", "{{ 'foo|bar' | remove: '|' }}");
         }
 
         [Test]
-        public void TestStripWindowsNewlines()
+        public async Task TestStripWindowsNewlines()
         {
-            Helper.AssertTemplateResult("abc", "{{ source | strip_newlines }}", Hash.FromAnonymousObject(new { source = "a\r\nb\r\nc" }));
-            Helper.AssertTemplateResult("ab", "{{ source | strip_newlines }}", Hash.FromAnonymousObject(new { source = "a\r\n\r\n\r\nb" }));
+            await Helper.AssertTemplateResultAsync("abc", "{{ source | strip_newlines }}", Hash.FromAnonymousObject(new { source = "a\r\nb\r\nc" }));
+            await Helper.AssertTemplateResultAsync("ab", "{{ source | strip_newlines }}", Hash.FromAnonymousObject(new { source = "a\r\n\r\n\r\nb" }));
         }
 
         [Test]
-        public void TestStripUnixNewlines()
+        public async Task TestStripUnixNewlines()
         {
-            Helper.AssertTemplateResult("abc", "{{ source | strip_newlines }}", Hash.FromAnonymousObject(new { source = "a\nb\nc" }));
-            Helper.AssertTemplateResult("ab", "{{ source | strip_newlines }}", Hash.FromAnonymousObject(new { source = "a\n\n\nb" }));
+            await Helper.AssertTemplateResultAsync("abc", "{{ source | strip_newlines }}", Hash.FromAnonymousObject(new { source = "a\nb\nc" }));
+            await Helper.AssertTemplateResultAsync("ab", "{{ source | strip_newlines }}", Hash.FromAnonymousObject(new { source = "a\n\n\nb" }));
         }
 
         [Test]
-        public void TestWindowsNewlinesToBr()
+        public async Task TestWindowsNewlinesToBr()
         {
-            Helper.AssertTemplateResult("a<br />\r\nb<br />\r\nc",
+            await Helper.AssertTemplateResultAsync("a<br />\r\nb<br />\r\nc",
                 "{{ source | newline_to_br }}",
                 Hash.FromAnonymousObject(new { source = "a\r\nb\r\nc" }));
         }
 
         [Test]
-        public void TestUnixNewlinesToBr()
+        public async Task TestUnixNewlinesToBr()
         {
-            Helper.AssertTemplateResult("a<br />\nb<br />\nc",
+            await Helper.AssertTemplateResultAsync("a<br />\nb<br />\nc",
                 "{{ source | newline_to_br }}",
                 Hash.FromAnonymousObject(new { source = "a\nb\nc" }));
         }
 
         [Test]
-        public void TestPlus()
+        public async Task TestPlus()
         {
             using (CultureHelper.SetCulture("en-GB"))
             {
-                Helper.AssertTemplateResult("2", "{{ 1 | plus:1 }}");
-                Helper.AssertTemplateResult("5.5", "{{ 2  | plus:3.5 }}");
-                Helper.AssertTemplateResult("5.5", "{{ 3.5 | plus:2 }}");
-                Helper.AssertTemplateResult("11", "{{ '1' | plus:'1' }}");
+                await Helper.AssertTemplateResultAsync("2", "{{ 1 | plus:1 }}");
+                await Helper.AssertTemplateResultAsync("5.5", "{{ 2  | plus:3.5 }}");
+                await Helper.AssertTemplateResultAsync("5.5", "{{ 3.5 | plus:2 }}");
+                await Helper.AssertTemplateResultAsync("11", "{{ '1' | plus:'1' }}");
             }
         }
 
         [Test]
-        public void TestMinus()
+        public async Task TestMinus()
         {
             using (CultureHelper.SetCulture("en-GB"))
             {
-                Helper.AssertTemplateResult("4", "{{ input | minus:operand }}", Hash.FromAnonymousObject(new { input = 5, operand = 1 }));
-                Helper.AssertTemplateResult("-1.5", "{{ 2  | minus:3.5 }}");
-                Helper.AssertTemplateResult("1.5", "{{ 3.5 | minus:2 }}");
+                await Helper.AssertTemplateResultAsync("4", "{{ input | minus:operand }}", Hash.FromAnonymousObject(new { input = 5, operand = 1 }));
+                await Helper.AssertTemplateResultAsync("-1.5", "{{ 2  | minus:3.5 }}");
+                await Helper.AssertTemplateResultAsync("1.5", "{{ 3.5 | minus:2 }}");
             }
         }
 
         [Test]
-        public void TestMinusWithFrenchDecimalSeparator()
+        public async Task TestMinusWithFrenchDecimalSeparator()
         {
             using (CultureHelper.SetCulture("fr-FR"))
             {
-                Helper.AssertTemplateResult(string.Format("1{0}2", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
+                await Helper.AssertTemplateResultAsync(string.Format("1{0}2", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
                     "{{ 3,2 | minus:2 | round:1 }}");
             }
         }
 
         [Test]
-        public void TestRound()
+        public async Task TestRound()
         {
             using (CultureHelper.SetCulture("en-GB"))
             {
-                Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round:3 }}");
-                Helper.AssertTemplateResult("1", "{{ 1 | round }}");
+                await Helper.AssertTemplateResultAsync("1.235", "{{ 1.234678 | round:3 }}");
+                await Helper.AssertTemplateResultAsync("1", "{{ 1 | round }}");
 
                 Assert.Null(StandardFilters.Round("1.2345678", "two"));
             }
         }
 
         [Test]
-        public void TestTimes()
+        public async Task TestTimes()
         {
             using (CultureHelper.SetCulture("en-GB"))
             {
-                Helper.AssertTemplateResult("12", "{{ 3 | times:4 }}");
-                Helper.AssertTemplateResult("125", "{{ 10 | times:12.5 }}");
-                Helper.AssertTemplateResult("125", "{{ 10.0 | times:12.5 }}");
-                Helper.AssertTemplateResult("125", "{{ 12.5 | times:10 }}");
-                Helper.AssertTemplateResult("125", "{{ 12.5 | times:10.0 }}");
-                Helper.AssertTemplateResult("foofoofoofoo", "{{ 'foo' | times:4 }}");
+                await Helper.AssertTemplateResultAsync("12", "{{ 3 | times:4 }}");
+                await Helper.AssertTemplateResultAsync("125", "{{ 10 | times:12.5 }}");
+                await Helper.AssertTemplateResultAsync("125", "{{ 10.0 | times:12.5 }}");
+                await Helper.AssertTemplateResultAsync("125", "{{ 12.5 | times:10 }}");
+                await Helper.AssertTemplateResultAsync("125", "{{ 12.5 | times:10.0 }}");
+                await Helper.AssertTemplateResultAsync("foofoofoofoo", "{{ 'foo' | times:4 }}");
             }
 
             Assert.AreEqual(8.43, StandardFilters.Times(0.843m, 10));
@@ -511,33 +512,33 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestAppend()
+        public async Task TestAppend()
         {
             Hash assigns = Hash.FromAnonymousObject(new { a = "bc", b = "d" });
-            Helper.AssertTemplateResult("bcd", "{{ a | append: 'd'}}", assigns);
-            Helper.AssertTemplateResult("bcd", "{{ a | append: b}}", assigns);
+            await Helper.AssertTemplateResultAsync("bcd", "{{ a | append: 'd'}}", assigns);
+            await Helper.AssertTemplateResultAsync("bcd", "{{ a | append: b}}", assigns);
         }
 
         [Test]
-        public void TestPrepend()
+        public async Task TestPrepend()
         {
             Hash assigns = Hash.FromAnonymousObject(new { a = "bc", b = "a" });
-            Helper.AssertTemplateResult("abc", "{{ a | prepend: 'a'}}", assigns);
-            Helper.AssertTemplateResult("abc", "{{ a | prepend: b}}", assigns);
+            await Helper.AssertTemplateResultAsync("abc", "{{ a | prepend: 'a'}}", assigns);
+            await Helper.AssertTemplateResultAsync("abc", "{{ a | prepend: b}}", assigns);
         }
 
         [Test]
-        public void TestDividedBy()
+        public async Task TestDividedBy()
         {
-            Helper.AssertTemplateResult("4", "{{ 12 | divided_by:3 }}");
-            Helper.AssertTemplateResult("4", "{{ 14 | divided_by:3 }}");
-            Helper.AssertTemplateResult("5", "{{ 15 | divided_by:3 }}");
+            await Helper.AssertTemplateResultAsync("4", "{{ 12 | divided_by:3 }}");
+            await Helper.AssertTemplateResultAsync("4", "{{ 14 | divided_by:3 }}");
+            await Helper.AssertTemplateResultAsync("5", "{{ 15 | divided_by:3 }}");
             Assert.Null(StandardFilters.DividedBy(null, 3));
             Assert.Null(StandardFilters.DividedBy(4, null));
         }
 
         [Test]
-        public void TestInt32DividedByInt64()
+        public async Task TestInt32DividedByInt64()
         {
             int a = 20;
             long b = 5;
@@ -546,13 +547,13 @@ namespace DotLiquid.Tests
 
 
             Hash assigns = Hash.FromAnonymousObject(new { a = a, b = b });
-            Helper.AssertTemplateResult("4", "{{ a | divided_by:b }}", assigns);
+            await Helper.AssertTemplateResultAsync("4", "{{ a | divided_by:b }}", assigns);
         }
 
         [Test]
-        public void TestModulo()
+        public async Task TestModulo()
         {
-            Helper.AssertTemplateResult("1", "{{ 3 | modulo:2 }}");
+            await Helper.AssertTemplateResultAsync("1", "{{ 3 | modulo:2 }}");
             Assert.Null(StandardFilters.Modulo(null, 3));
             Assert.Null(StandardFilters.Modulo(4, null));
         }
@@ -575,12 +576,12 @@ namespace DotLiquid.Tests
 
 
         [Test]
-        public void TestDefault()
+        public async Task TestDefault()
         {
             Hash assigns = Hash.FromAnonymousObject(new { var1 = "foo", var2 = "bar" });
-            Helper.AssertTemplateResult("foo", "{{ var1 | default: 'foobar' }}", assigns);
-            Helper.AssertTemplateResult("bar", "{{ var2 | default: 'foobar' }}", assigns);
-            Helper.AssertTemplateResult("foobar", "{{ unknownvariable | default: 'foobar' }}", assigns);
+            await Helper.AssertTemplateResultAsync("foo", "{{ var1 | default: 'foobar' }}", assigns);
+            await Helper.AssertTemplateResultAsync("bar", "{{ var2 | default: 'foobar' }}", assigns);
+            await Helper.AssertTemplateResultAsync("foobar", "{{ unknownvariable | default: 'foobar' }}", assigns);
         }
 
         [Test]

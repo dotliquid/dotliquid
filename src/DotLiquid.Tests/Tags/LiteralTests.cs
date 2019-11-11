@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using DotLiquid.Exceptions;
 using NUnit.Framework;
 using DotLiquid.Tags;
+using System.Threading.Tasks;
 
 namespace DotLiquid.Tests.Tags
 {
@@ -10,40 +11,40 @@ namespace DotLiquid.Tests.Tags
     public class LiteralTests
     {
         [Test]
-        public void TestEmptyLiteral()
+        public async Task TestEmptyLiteral()
         {
             Template t = Template.Parse("{% literal %}{% endliteral %}");
-            Assert.AreEqual(string.Empty, t.Render());
+            Assert.AreEqual(string.Empty, await t.RenderAsync());
             t = Template.Parse("{{{}}}");
-            Assert.AreEqual(string.Empty, t.Render());
+            Assert.AreEqual(string.Empty, await t.RenderAsync());
         }
 
         [Test]
-        public void TestSimpleLiteralValue()
+        public async Task TestSimpleLiteralValue()
         {
             Template t = Template.Parse("{% literal %}howdy{% endliteral %}");
-            Assert.AreEqual("howdy", t.Render());
+            Assert.AreEqual("howdy", await t.RenderAsync());
         }
 
         [Test]
-        public void TestLiteralsIgnoreLiquidMarkup()
+        public async Task TestLiteralsIgnoreLiquidMarkup()
         {
             Template t = Template.Parse("{% literal %}{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}{% endliteral %}");
-            Assert.AreEqual("{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}", t.Render());
+            Assert.AreEqual("{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}", await t.RenderAsync());
         }
 
         [Test]
-        public void TestShorthandSyntax()
+        public async Task TestShorthandSyntax()
         {
             Template t = Template.Parse("{{{{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}}}}");
-            Assert.AreEqual("{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}", t.Render());
+            Assert.AreEqual("{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}", await t.RenderAsync());
         }
 
         [Test]
-        public void TestLiteralsDontRemoveComments()
+        public async Task TestLiteralsDontRemoveComments()
         {
             Template t = Template.Parse("{{{ {# comment #} }}}");
-            Assert.AreEqual("{# comment #}", t.Render());
+            Assert.AreEqual("{# comment #}", await t.RenderAsync());
         }
 
         [Test]

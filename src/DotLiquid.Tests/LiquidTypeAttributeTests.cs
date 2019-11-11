@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using System.Threading.Tasks;
 
 namespace DotLiquid.Tests
 {
@@ -38,42 +39,42 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestLiquidTypeAttributeWithNoAllowedMembers()
+        public async Task TestLiquidTypeAttributeWithNoAllowedMembers()
         {
             Template template = Template.Parse("{{context.Name}}");
-            var output = template.Render(Hash.FromAnonymousObject(new { context = new MyLiquidTypeWithNoAllowedMembers() { Name = "worked" } }));
+            var output = await template.RenderAsync(Hash.FromAnonymousObject(new { context = new MyLiquidTypeWithNoAllowedMembers() { Name = "worked" } }));
             Assert.AreEqual("", output);
         }
 
         [Test]
-        public void TestLiquidTypeAttributeWithAllowedMember()
+        public async Task TestLiquidTypeAttributeWithAllowedMember()
         {
             Template template = Template.Parse("{{context.Name}}");
-            var output = template.Render(Hash.FromAnonymousObject(new { context = new MyLiquidTypeWithAllowedMember() { Name = "worked" } }));
+            var output = await template.RenderAsync(Hash.FromAnonymousObject(new { context = new MyLiquidTypeWithAllowedMember() { Name = "worked" } }));
             Assert.AreEqual("worked", output);
         }
 
         [Test]
-        public void TestLiquidTypeAttributeWithGlobalMemberAllowance()
+        public async Task TestLiquidTypeAttributeWithGlobalMemberAllowance()
         {
             Template template = Template.Parse("{{context.Name}}");
-            var output = template.Render(Hash.FromAnonymousObject(new { context = new MyLiquidTypeWithGlobalMemberAllowance() { Name = "worked" } }));
+            var output = await template.RenderAsync(Hash.FromAnonymousObject(new { context = new MyLiquidTypeWithGlobalMemberAllowance() { Name = "worked" } }));
             Assert.AreEqual("worked", output);
         }
 
         [Test]
-        public void TestLiquidTypeAttributeWithGlobalMemberAllowanceDoesNotExposeHiddenChildMembers()
+        public async Task TestLiquidTypeAttributeWithGlobalMemberAllowanceDoesNotExposeHiddenChildMembers()
         {
             Template template = Template.Parse("|{{context.Name}}|{{context.Child.Name}}|");
-            var output = template.Render(Hash.FromAnonymousObject(new { context = new MyLiquidTypeWithGlobalMemberAllowanceAndHiddenChild() { Name = "worked_parent", Child = new MyLiquidTypeWithNoAllowedMembers() { Name = "worked_child" } } }));
+            var output = await template.RenderAsync(Hash.FromAnonymousObject(new { context = new MyLiquidTypeWithGlobalMemberAllowanceAndHiddenChild() { Name = "worked_parent", Child = new MyLiquidTypeWithNoAllowedMembers() { Name = "worked_child" } } }));
             Assert.AreEqual("|worked_parent||", output);
         }
 
         [Test]
-        public void TestLiquidTypeAttributeWithGlobalMemberAllowanceDoesExposeValidChildMembers()
+        public async Task TestLiquidTypeAttributeWithGlobalMemberAllowanceDoesExposeValidChildMembers()
         {
             Template template = Template.Parse("|{{context.Name}}|{{context.Child.Name}}|");
-            var output = template.Render(Hash.FromAnonymousObject(new { context = new MyLiquidTypeWithGlobalMemberAllowanceAndExposedChild() { Name = "worked_parent", Child = new MyLiquidTypeWithAllowedMember() { Name = "worked_child" } } }));
+            var output = await template.RenderAsync(Hash.FromAnonymousObject(new { context = new MyLiquidTypeWithGlobalMemberAllowanceAndExposedChild() { Name = "worked_parent", Child = new MyLiquidTypeWithAllowedMember() { Name = "worked_child" } } }));
             Assert.AreEqual("|worked_parent|worked_child|", output);
         }
     }

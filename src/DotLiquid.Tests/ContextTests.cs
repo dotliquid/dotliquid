@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using DotLiquid.Exceptions;
 using NUnit.Framework;
 
@@ -199,10 +200,10 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestVariableNotFoundErrors()
+        public async Task TestVariableNotFoundErrors()
         {
             Template template = Template.Parse("{{ does_not_exist }}");
-            string rendered = template.Render();
+            string rendered = await template.RenderAsync();
  
             Assert.AreEqual("", rendered);
             Assert.AreEqual(1, template.Errors.Count);
@@ -210,10 +211,10 @@ namespace DotLiquid.Tests
         }
  
         [Test]
-        public void TestVariableNotFoundFromAnonymousObject()
+        public async Task TestVariableNotFoundFromAnonymousObject()
         {
             Template template = Template.Parse("{{ first.test }}{{ second.test }}");
-            string rendered = template.Render(Hash.FromAnonymousObject(new { second = new { foo = "hi!" } }));
+            string rendered = await template.RenderAsync(Hash.FromAnonymousObject(new { second = new { foo = "hi!" } }));
  
             Assert.AreEqual("", rendered);
             Assert.AreEqual(2, template.Errors.Count);
@@ -222,29 +223,29 @@ namespace DotLiquid.Tests
         }
  
         [Test]
-        public void TestVariableNotFoundException()
+        public async Task TestVariableNotFoundException()
         {
-            Assert.DoesNotThrow(() => Template.Parse("{{ does_not_exist }}").Render(new RenderParameters(CultureInfo.InvariantCulture)
+            Assert.DoesNotThrow(() => Template.Parse("{{ does_not_exist }}").RenderAsync(new RenderParameters(CultureInfo.InvariantCulture)
             {
                 RethrowErrors = true
-            }));
+            }).GetAwaiter().GetResult());
         }
 
         [Test]
-        public void TestVariableNotFoundExceptionIgnoredForIfStatement()
+        public async Task TestVariableNotFoundExceptionIgnoredForIfStatement()
         {
             Template template = Template.Parse("{% if does_not_exist %}abc{% endif %}");
-            string rendered = template.Render();
+            string rendered = await template.RenderAsync();
 
             Assert.AreEqual("", rendered);
             Assert.AreEqual(0, template.Errors.Count);
         }
 
         [Test]
-        public void TestVariableNotFoundExceptionIgnoredForUnlessStatement()
+        public async Task TestVariableNotFoundExceptionIgnoredForUnlessStatement()
         {
             Template template = Template.Parse("{% unless does_not_exist %}abc{% endunless %}");
-            string rendered = template.Render();
+            string rendered = await template.RenderAsync();
 
             Assert.AreEqual("abc", rendered);
             Assert.AreEqual(0, template.Errors.Count);
@@ -330,11 +331,11 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestOverrideGlobalFilter()
+        public async Task TestOverrideGlobalFilter()
         {
             Template.RegisterFilter(typeof(GlobalFilters));
-            Assert.AreEqual("Global test", Template.Parse("{{'test' | notice }}").Render());
-            Assert.AreEqual("Local test", Template.Parse("{{'test' | notice }}").Render(new RenderParameters(CultureInfo.InvariantCulture) { Filters = new[] { typeof(LocalFilters) } }));
+            Assert.AreEqual("Global test", await Template.Parse("{{'test' | notice }}").RenderAsync());
+            Assert.AreEqual("Local test", await Template.Parse("{{'test' | notice }}").RenderAsync(new RenderParameters(CultureInfo.InvariantCulture) { Filters = new[] { typeof(LocalFilters) } }));
         }
 
         [Test]

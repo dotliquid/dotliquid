@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests.Tags.Html
@@ -7,40 +8,40 @@ namespace DotLiquid.Tests.Tags.Html
     public class TableRowTests
     {
         [Test]
-        public void TestHtmlTable()
+        public async Task TestHtmlTable()
         {
-            Helper.AssertTemplateResult(
+            await Helper.AssertTemplateResultAsync(
                 string.Format("<tr class=\"row1\">{0}<td class=\"col1\"> 1 </td><td class=\"col2\"> 2 </td><td class=\"col3\"> 3 </td></tr>{0}<tr class=\"row2\"><td class=\"col1\"> 4 </td><td class=\"col2\"> 5 </td><td class=\"col3\"> 6 </td></tr>{0}", Environment.NewLine),
                 "{% tablerow n in numbers cols:3%} {{n}} {% endtablerow %}",
                 Hash.FromAnonymousObject(new { numbers = new[] { 1, 2, 3, 4, 5, 6 } }));
 
-            Helper.AssertTemplateResult(string.Format("<tr class=\"row1\">{0}</tr>{0}", Environment.NewLine),
+            await Helper.AssertTemplateResultAsync(string.Format("<tr class=\"row1\">{0}</tr>{0}", Environment.NewLine),
                 "{% tablerow n in numbers cols:3%} {{n}} {% endtablerow %}",
                 Hash.FromAnonymousObject(new { numbers = new int[] { } }));
         }
 
         [Test]
-        public void TestHtmlTableWithDifferentCols()
+        public async Task TestHtmlTableWithDifferentCols()
         {
-            Helper.AssertTemplateResult(
+            await Helper.AssertTemplateResultAsync(
                 string.Format("<tr class=\"row1\">{0}<td class=\"col1\"> 1 </td><td class=\"col2\"> 2 </td><td class=\"col3\"> 3 </td><td class=\"col4\"> 4 </td><td class=\"col5\"> 5 </td></tr>{0}<tr class=\"row2\"><td class=\"col1\"> 6 </td></tr>{0}", Environment.NewLine),
                 "{% tablerow n in numbers cols:5%} {{n}} {% endtablerow %}",
                 Hash.FromAnonymousObject(new { numbers = new[] { 1, 2, 3, 4, 5, 6 } }));
         }
 
         [Test]
-        public void TestHtmlColCounter()
+        public async Task TestHtmlColCounter()
         {
-            Helper.AssertTemplateResult(
+            await Helper.AssertTemplateResultAsync(
                 string.Format("<tr class=\"row1\">{0}<td class=\"col1\">1</td><td class=\"col2\">2</td></tr>{0}<tr class=\"row2\"><td class=\"col1\">1</td><td class=\"col2\">2</td></tr>{0}<tr class=\"row3\"><td class=\"col1\">1</td><td class=\"col2\">2</td></tr>{0}", Environment.NewLine),
                 "{% tablerow n in numbers cols:2%}{{tablerowloop.col}}{% endtablerow %}",
                 Hash.FromAnonymousObject(new { numbers = new[] { 1, 2, 3, 4, 5, 6 } }));
         }
 
         [Test]
-        public void TestHtmlOffsetLimit()
+        public async Task TestHtmlOffsetLimit()
         {
-            Helper.AssertTemplateResult(
+            await Helper.AssertTemplateResultAsync(
                 string.Format("<tr class=\"row1\">{0}<td class=\"col1\">2</td><td class=\"col2\">3</td></tr>{0}<tr class=\"row2\"><td class=\"col1\">4</td></tr>{0}", Environment.NewLine),
                 "{% tablerow n in numbers cols:2 offset:1 limit:3 %}{{n}}{% endtablerow %}",
                 Hash.FromAnonymousObject(new { numbers = new[] { 1, 2, 3, 4, 5, 6 } }));

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using DotLiquid.Exceptions;
 using DotLiquid.FileSystems;
 using DotLiquid.Util;
@@ -38,42 +39,42 @@ namespace DotLiquid.Tags
         {
         }
 
-        public override void Render(Context context, TextWriter result)
+        public async override Task RenderAsync(Context context, TextWriter result)
         {
             IFileSystem fileSystem = context.Registers["file_system"] as IFileSystem ?? Template.FileSystem;
             ITemplateFileSystem templateFileSystem = fileSystem as ITemplateFileSystem;
             Template partial = null;
             if (templateFileSystem != null)
             {
-                partial = templateFileSystem.GetTemplate(context, _templateName);
+                partial = await templateFileSystem.GetTemplateAsync(context, _templateName).ConfigureAwait(false);
             }
             if (partial == null)
             {
-                string source = fileSystem.ReadTemplateFile(context, _templateName);
+                string source = await fileSystem.ReadTemplateFileAsync(context, _templateName).ConfigureAwait(false);
                 partial = Template.Parse(source);
             }
 
             string shortenedTemplateName = _templateName.Substring(1, _templateName.Length - 2);
             object variable = context[_variableName ?? shortenedTemplateName, _variableName != null];
 
-            context.Stack(() =>
+            await context.Stack(async () =>
             {
                 foreach (var keyValue in _attributes)
                     context[keyValue.Key] = context[keyValue.Value];
 
                 if (variable is IEnumerable)
                 {
-                    ((IEnumerable) variable).Cast<object>().ToList().ForEach(v =>
+                    foreach( var v in ((IEnumerable) variable).Cast<object>().ToList())
                     {
                         context[shortenedTemplateName] = v;
-                        partial.Render(result, RenderParameters.FromContext(context, result.FormatProvider));
-                    });
+                        await partial.RenderAsync(result, RenderParameters.FromContext(context, result.FormatProvider)).ConfigureAwait(false);
+                    }
                     return;
                 }
 
                 context[shortenedTemplateName] = variable;
-                partial.Render(result, RenderParameters.FromContext(context, result.FormatProvider));
-            });
+                await partial.RenderAsync(result, RenderParameters.FromContext(context, result.FormatProvider)).ConfigureAwait(false);
+            }).ConfigureAwait(false);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -89,42 +89,42 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestLazyHashProperty1WithoutAccessingProperty2()
+        public async Task TestLazyHashProperty1WithoutAccessingProperty2()
         {
             var lazyObject = new TestLazyObject();
             Template template = Template.Parse("{{LazyProperty1}}");
-            var output = template.Render(new LazyHash(lazyObject));
+            var output = await template.RenderAsync(new LazyHash(lazyObject));
             Assert.AreEqual("LAZY_PROPERTY_1", output);
             Assert.IsFalse(lazyObject._lazyProperty2.IsValueCreated, "LazyObject LAZY_PROPERTY_2 has been created");
         }
 
         [Test]
-        public void TestLazyHashProperty2WithoutAccessingProperty1()
+        public async Task TestLazyHashProperty2WithoutAccessingProperty1()
         {
             var lazyObject = new TestLazyObject();
             Template template = Template.Parse("{{LazyProperty2}}");
-            var output = template.Render(new LazyHash(lazyObject));
+            var output = await template.RenderAsync(new LazyHash(lazyObject));
             Assert.AreEqual("LAZY_PROPERTY_2", output);
             Assert.IsFalse(lazyObject._lazyProperty1.IsValueCreated, "LazyObject LAZY_PROPERTY_1 has been created");
         }
 
         [Test]
-        public void TestLazyHashWithoutAccessingAny()
+        public async Task TestLazyHashWithoutAccessingAny()
         {
             var lazyObject = new TestLazyObject();
             Template template = Template.Parse("{{StaticProperty}}");
-            var output = template.Render(new LazyHash(lazyObject));
+            var output = await template.RenderAsync(new LazyHash(lazyObject));
             Assert.AreEqual("STATIC_PROPERTY", output);
             Assert.IsFalse(lazyObject._lazyProperty1.IsValueCreated, "LazyObject LAZY_PROPERTY_1 has been created");
             Assert.IsFalse(lazyObject._lazyProperty2.IsValueCreated, "LazyObject LAZY_PROPERTY_2 has been created");
         }
 
         [Test]
-        public void TestLazyHashWithAccessingAllProperties()
+        public async Task TestLazyHashWithAccessingAllProperties()
         {
             var lazyObject = new TestLazyObject();
             Template template = Template.Parse("{{LazyProperty1}}-{{LazyProperty2}}-{{StaticProperty}}");
-            var output = template.Render(new LazyHash(lazyObject));
+            var output = await template.RenderAsync(new LazyHash(lazyObject));
             Assert.AreEqual($"LAZY_PROPERTY_1-LAZY_PROPERTY_2-STATIC_PROPERTY", output);
         }
     }

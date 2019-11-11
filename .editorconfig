@@ -12,3 +12,29 @@ trim_trailing_whitespace = true
 end_of_line = lf
 indent_style = space
 indent_size = 2
+
+[*.cs]
+
+# IDE0065: Misplaced using directive
+csharp_using_directive_placement = inside_namespace:none
+
+# IDE0008: Use explicit type
+csharp_style_var_when_type_is_apparent = true:none
+
+# IDE0008: Use explicit type
+csharp_style_var_for_built_in_types = false:none
+
+# IDE0008: Use explicit type
+csharp_style_var_elsewhere = false:none
+
+# CS1591: Missing XML comment for publicly visible type or member
+dotnet_diagnostic.CS1591.severity = none
+
+# S2223: Non-constant static fields should not be visible
+dotnet_diagnostic.S2223.severity = none
+
+# S1104: Fields should not have public accessibility
+dotnet_diagnostic.S1104.severity = none
+
+# CS1584: XML comment has syntactically incorrect cref attribute
+dotnet_diagnostic.CS1584.severity = none

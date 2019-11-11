@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -55,24 +56,24 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestVariable()
+        public async Task TestVariable()
         {
-            Assert.AreEqual(" bmw ", Template.Parse(" {{best_cars}} ").Render(_assigns));
+            Assert.AreEqual(" bmw ", await Template.Parse(" {{best_cars}} ").RenderAsync(_assigns));
         }
 
 
-        string Render(CultureInfo culture)
+        Task<string> RenderAsync(CultureInfo culture)
         {
 
             var renderParams = new RenderParameters(culture)
                                {
                                    LocalVariables = _assigns 
                                };
-            return Template.Parse("{{number}}").Render(renderParams);
+            return Template.Parse("{{number}}").RenderAsync(renderParams);
         }
 
         [Test]
- 	    public void TestSeperator_Comma()
+ 	    public async Task TestSeperator_Comma()
         {
 
             NumberFormatInfo nfi = new NumberFormatInfo();
@@ -81,11 +82,11 @@ namespace DotLiquid.Tests
             {
                 NumberFormat = nfi
             };
-            Assert.AreEqual("3,145", Render(c) );
+            Assert.AreEqual("3,145", await RenderAsync(c) );
 
         }
  	    [Test]
- 	    public void TestSeperator_Decimal()
+ 	    public async Task TestSeperator_Decimal()
         {
             NumberFormatInfo nfi = new NumberFormatInfo();
             nfi.NumberDecimalSeparator = ".";
@@ -93,7 +94,7 @@ namespace DotLiquid.Tests
             {
                 NumberFormat = nfi
             };
-            Assert.AreEqual("3.145",Render(c) );
+            Assert.AreEqual("3.145",await RenderAsync(c) );
 
         }
 
@@ -114,7 +115,7 @@ namespace DotLiquid.Tests
 
 
         [Test]
-        public void ParsingWithCommaDecimalSeparatorShouldWorkWhenPassedCultureIsDifferentToCurrentCulture()
+        public async Task ParsingWithCommaDecimalSeparatorShouldWorkWhenPassedCultureIsDifferentToCurrentCulture()
         {
             var ci = new CultureInfo(CultureInfo.CurrentCulture.Name)
             {
@@ -127,7 +128,7 @@ namespace DotLiquid.Tests
             using (SetCulture( ci ))
             {
                 var t = Template.Parse( "{{2.5}}" );
-                var result = t.Render( new Hash(), CultureInfo.InvariantCulture );
+                var result = await t.RenderAsync( new Hash(), CultureInfo.InvariantCulture );
 
                 Assert.AreEqual( result, "2.5" );
             }
@@ -192,63 +193,63 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestVariableTraversing()
+        public async Task TestVariableTraversing()
         {
-            Assert.AreEqual(" good bad good ", Template.Parse(" {{car.bmw}} {{car.gm}} {{car.bmw}} ").Render(_assigns));
+            Assert.AreEqual(" good bad good ", await Template.Parse(" {{car.bmw}} {{car.gm}} {{car.bmw}} ").RenderAsync(_assigns));
         }
 
         [Test]
-        public void TestVariablePiping()
+        public async Task TestVariablePiping()
         {
-            Assert.AreEqual(" LOL ", Template.Parse(" {{ car.gm | make_funny }} ").Render(new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
+            Assert.AreEqual(" LOL ", await Template.Parse(" {{ car.gm | make_funny }} ").RenderAsync(new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
         }
 
         [Test]
-        public void TestVariablePipingWithInput()
+        public async Task TestVariablePipingWithInput()
         {
-            Assert.AreEqual(" LOL: bad ", Template.Parse(" {{ car.gm | cite_funny }} ").Render(new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
+            Assert.AreEqual(" LOL: bad ", await Template.Parse(" {{ car.gm | cite_funny }} ").RenderAsync(new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
         }
 
         [Test]
-        public void TestVariablePipingWithArgs()
+        public async Task TestVariablePipingWithArgs()
         {
-            Assert.AreEqual(" bad :-( ", Template.Parse(" {{ car.gm | add_smiley : ':-(' }} ").Render(new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
+            Assert.AreEqual(" bad :-( ", await Template.Parse(" {{ car.gm | add_smiley : ':-(' }} ").RenderAsync(new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
         }
 
         [Test]
-        public void TestVariablePipingWithNoArgs()
+        public async Task TestVariablePipingWithNoArgs()
         {
-            Assert.AreEqual(" bad :-) ", Template.Parse(" {{ car.gm | add_smiley }} ").Render(new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
+            Assert.AreEqual(" bad :-) ", await Template.Parse(" {{ car.gm | add_smiley }} ").RenderAsync(new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
         }
 
         [Test]
-        public void TestMultipleVariablePipingWithArgs()
+        public async Task TestMultipleVariablePipingWithArgs()
         {
-            Assert.AreEqual(" bad :-( :-( ", Template.Parse(" {{ car.gm | add_smiley : ':-(' | add_smiley : ':-(' }} ").Render(new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
+            Assert.AreEqual(" bad :-( :-( ", await Template.Parse(" {{ car.gm | add_smiley : ':-(' | add_smiley : ':-(' }} ").RenderAsync(new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
         }
 
         [Test]
-        public void TestVariablePipingWithArgs2()
+        public async Task TestVariablePipingWithArgs2()
         {
-            Assert.AreEqual(" <span id=\"bar\">bad</span> ", Template.Parse(" {{ car.gm | add_tag : 'span', 'bar' }} ").Render(new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
+            Assert.AreEqual(" <span id=\"bar\">bad</span> ", await Template.Parse(" {{ car.gm | add_tag : 'span', 'bar' }} ").RenderAsync(new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
         }
 
         [Test]
-        public void TestVariablePipingWithWithVariableArgs()
+        public async Task TestVariablePipingWithWithVariableArgs()
         {
-            Assert.AreEqual(" <span id=\"good\">bad</span> ", Template.Parse(" {{ car.gm | add_tag : 'span', car.bmw }} ").Render(new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
+            Assert.AreEqual(" <span id=\"good\">bad</span> ", await Template.Parse(" {{ car.gm | add_tag : 'span', car.bmw }} ").RenderAsync(new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
         }
 
         [Test]
-        public void TestMultiplePipings()
+        public async Task TestMultiplePipings()
         {
-            Assert.AreEqual(" <p>LOL: bmw</p> ", Template.Parse(" {{ best_cars | cite_funny | paragraph }} ").Render(new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
+            Assert.AreEqual(" <p>LOL: bmw</p> ", await Template.Parse(" {{ best_cars | cite_funny | paragraph }} ").RenderAsync(new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
         }
 
         [Test]
-        public void TestLinkTo()
+        public async Task TestLinkTo()
         {
-            Assert.AreEqual(" <a href=\"http://typo.leetsoft.com\">Typo</a> ", Template.Parse(" {{ 'Typo' | link_to: 'http://typo.leetsoft.com' }} ").Render(new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
+            Assert.AreEqual(" <a href=\"http://typo.leetsoft.com\">Typo</a> ", await Template.Parse(" {{ 'Typo' | link_to: 'http://typo.leetsoft.com' }} ").RenderAsync(new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = _assigns, Filters = new[] { typeof(FunnyFilter) } }));
         }
     }
 }

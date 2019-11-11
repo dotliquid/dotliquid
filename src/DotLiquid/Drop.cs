@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using DotLiquid.NamingConventions;
 using DotLiquid.Util;
 
@@ -221,7 +222,27 @@ namespace DotLiquid
             string method = (string)name;
 
             if (TypeResolution.CachedMethods.TryGetValue(method, out MethodInfo mi))
-                return mi.Invoke(GetObject(), null);
+            {
+                var result = mi.Invoke(GetObject(), null);
+                if (result is Task t)
+                {
+                    t.GetAwaiter().GetResult();
+                    var taskType = t.GetType();
+                    if (taskType.IsGenericType)
+                    {
+                        return taskType.GetProperty("Result").GetValue(t);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                else
+                {
+                    return result;
+                }
+
+            }
             if (TypeResolution.CachedProperties.TryGetValue(method, out PropertyInfo pi))
                 return pi.GetValue(GetObject(), null);
             return BeforeMethod(method);

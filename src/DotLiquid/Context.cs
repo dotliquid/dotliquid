@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace DotLiquid
 {
@@ -254,12 +255,47 @@ namespace DotLiquid
         }
 
         /// <summary>
+        /// Pushes a new local scope on the stack, pops it at the end of the block
+        ///
+        /// Example:
+        ///
+        /// context.stack do
+        /// context['var'] = 'hi'
+        /// end
+        /// context['var] #=> nil
+        /// </summary>
+        /// <param name="newScope"></param>
+        /// <param name="callback"></param>
+        /// <returns></returns>
+        public async Task Stack(Hash newScope, Func<Task> callback)
+        {
+            Push(newScope);
+            try
+            {
+                await callback().ConfigureAwait(false);
+            }
+            finally
+            {
+                Pop();
+            }
+        }
+
+        /// <summary>
         /// Pushes a new hash on the stack, pops it at the end of the block
         /// </summary>
         /// <param name="callback"></param>
         public void Stack(Action callback)
         {
             Stack(new Hash(), callback);
+        }
+
+        /// <summary>
+        /// Pushes a new hash on the stack, pops it at the end of the block
+        /// </summary>
+        /// <param name="callback"></param>
+        public Task Stack(Func<Task> callback)
+        {
+            return Stack(new Hash(), callback);
         }
 
         /// <summary>
@@ -341,7 +377,7 @@ namespace DotLiquid
             // Ranges.
             match = RangeRegex.Match(key);
             if (match.Success)
-                return Range.Inclusive(Convert.ToInt32(Resolve(match.Groups[1].Value)),
+                return DotLiquid.Util.Range.Inclusive(Convert.ToInt32(Resolve(match.Groups[1].Value)),
                     Convert.ToInt32(Resolve(match.Groups[2].Value)));
 
             // Floats.

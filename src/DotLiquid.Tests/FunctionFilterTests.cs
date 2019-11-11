@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -15,15 +16,15 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void AddingFunctions()
+        public async Task AddingFunctions()
         {
             _context["var"] = 2;
             _context.AddFilter<int, string>("AddTwo", i => (i + 2).ToString(CultureInfo.InvariantCulture));
-            Assert.That(new Variable("var | add_two").Render(_context), Is.EqualTo("4"));
+            Assert.That(await new Variable("var | add_two").RenderAsync(_context), Is.EqualTo("4"));
         }
 
         [Test]
-        public void AddingAnonimousFunctionWithClosure()
+        public async Task AddingAnonimousFunctionWithClosure()
         {
             _context["var"] = 2;
             int x = 2;
@@ -31,18 +32,18 @@ namespace DotLiquid.Tests
             // (x=(i + x)) is to forbid JITC to inline x and force it to create non-static closure
 
             _context.AddFilter<int, string>("AddTwo", i => (x=(i + x)).ToString(CultureInfo.InvariantCulture));
-            Assert.That(new Variable("var | add_two").Render(_context), Is.EqualTo("4"));
+            Assert.That(await new Variable("var | add_two").RenderAsync(_context), Is.EqualTo("4"));
 
             //this is done, to forbid JITC to inline x 
             Assert.That(x, Is.EqualTo(4));
         }
 
         [Test]
-        public void AddingMethodInfo()
+        public async Task AddingMethodInfo()
         {
             _context["var"] = 2;
             _context.AddFilter<int, string>("AddTwo", i => (i + 2).ToString(CultureInfo.InvariantCulture));
-            Assert.That(new Variable("var | add_two").Render(_context), Is.EqualTo("4"));
+            Assert.That(await new Variable("var | add_two").RenderAsync(_context), Is.EqualTo("4"));
         }
     }
 }

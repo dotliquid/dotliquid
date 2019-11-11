@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace DotLiquid
 {
@@ -71,8 +72,9 @@ namespace DotLiquid
         /// </summary>
         /// <param name="context"></param>
         /// <param name="result"></param>
-        public virtual void Render(Context context, TextWriter result)
+        public virtual Task RenderAsync(Context context, TextWriter result)
         {
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -80,11 +82,11 @@ namespace DotLiquid
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        internal string Render(Context context)
+        internal async Task<string> RenderAsync(Context context)
         {
             using (TextWriter result = new StringWriter(context.FormatProvider))
             {
-                Render(context, result);
+                await RenderAsync(context, result);
                 return result.ToString();
             }
         }

@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using System.Threading.Tasks;
 
 namespace DotLiquid.Tests.Tags
 {
@@ -6,16 +7,16 @@ namespace DotLiquid.Tests.Tags
     public class RawTests
     {
         [Test]
-        public void TestTagInRaw ()
+        public async Task TestTagInRaw ()
         {
-            Helper.AssertTemplateResult ("{% comment %} test {% endcomment %}",
+            await Helper.AssertTemplateResultAsync ("{% comment %} test {% endcomment %}",
                 "{% raw %}{% comment %} test {% endcomment %}{% endraw %}");
         }
 
         [Test]
-        public void TestOutputInRaw ()
+        public async Task TestOutputInRaw ()
         {
-            Helper.AssertTemplateResult ("{{ test }}",
+            await Helper.AssertTemplateResultAsync ("{{ test }}",
                 "{% raw %}{{ test }}{% endraw %}");
         }
     }

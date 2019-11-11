@@ -1,5 +1,6 @@
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using DotLiquid.Exceptions;
 
 namespace DotLiquid.FileSystems
@@ -26,13 +27,13 @@ namespace DotLiquid.FileSystems
             Root = root;
         }
 
-        public string ReadTemplateFile(Context context, string templateName)
+        public Task<string> ReadTemplateFileAsync(Context context, string templateName)
         {
             string templatePath = (string) context[templateName];
             string fullPath = FullPath(templatePath);
             if (!File.Exists(fullPath))
                 throw new FileSystemException(Liquid.ResourceManager.GetString("LocalFileSystemTemplateNotFoundException"), templatePath);
-            return File.ReadAllText(fullPath);
+            return Task.FromResult(File.ReadAllText(fullPath));
         }
 
         public string FullPath(string templatePath)

@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 
@@ -8,66 +9,66 @@ namespace DotLiquid.Tests.Tags
     public class AssignTests
     {
         [Test]
-        public void TestAssignedVariable()
+        public async Task TestAssignedVariable()
         {
-            Helper.AssertTemplateResult(".foo.", "{% assign foo = values %}.{{ foo[0] }}.",
+            await Helper.AssertTemplateResultAsync(".foo.", "{% assign foo = values %}.{{ foo[0] }}.",
                 Hash.FromAnonymousObject(new { values = new[] { "foo", "bar", "baz" } }));
-            Helper.AssertTemplateResult(".bar.", "{% assign foo = values %}.{{ foo[1] }}.",
+            await Helper.AssertTemplateResultAsync(".bar.", "{% assign foo = values %}.{{ foo[1] }}.",
                 Hash.FromAnonymousObject(new { values = new[] { "foo", "bar", "baz" } }));
         }
 
         [Test]
-        public void TestAssignDecimal()
+        public async Task TestAssignDecimal()
         {
-            Helper.AssertTemplateResult(string.Format("10{0}05", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
+            await Helper.AssertTemplateResultAsync(string.Format("10{0}05", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
                 "{% assign foo = decimal %}{{ foo }}",
                 Hash.FromAnonymousObject(new { @decimal = 10.05d }));
         }
 
         [Test]
-        public void TestAssignDecimalInlineWithEnglishDecimalSeparator()
+        public async Task TestAssignDecimalInlineWithEnglishDecimalSeparator()
         {
             using (CultureHelper.SetCulture("en-GB"))
             {
-                Helper.AssertTemplateResult(string.Format("2{0}5", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
+                await Helper.AssertTemplateResultAsync(string.Format("2{0}5", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
                     "{% assign foo = 2.5 %}{{ foo }}");
             }
         }
 
         [Test]
-        public void TestAssignDecimalInlineWithEnglishGroupSeparator()
+        public async Task TestAssignDecimalInlineWithEnglishGroupSeparator()
         {
             using (CultureHelper.SetCulture("en-GB"))
             {
-                Helper.AssertTemplateResult("2500",
+                await Helper.AssertTemplateResultAsync("2500",
                     "{% assign foo = 2,500 %}{{ foo }}");
             }
         }
 
         [Test]
-        public void TestAssignDecimalInlineWithFrenchDecimalSeparator()
+        public async Task TestAssignDecimalInlineWithFrenchDecimalSeparator()
         {
             using (CultureHelper.SetCulture("fr-FR"))
             {
-                Helper.AssertTemplateResult(string.Format("2{0}5", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
+                await Helper.AssertTemplateResultAsync(string.Format("2{0}5", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
                     "{% assign foo = 2,5 %}{{ foo }}");
             }
         }
 
         [Test]
-        public void TestAssignDecimalInlineWithInvariantDecimalSeparatorInFrenchCulture()
+        public async Task TestAssignDecimalInlineWithInvariantDecimalSeparatorInFrenchCulture()
         {
             using (CultureHelper.SetCulture("fr-FR"))
             {
-                Helper.AssertTemplateResult(string.Format("2{0}5", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
+                await Helper.AssertTemplateResultAsync(string.Format("2{0}5", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
                     "{% assign foo = 2.5 %}{{ foo }}");
             }
         }
 
         [Test]
-        public void TestAssignWithFilter()
+        public async Task TestAssignWithFilter()
         {
-            Helper.AssertTemplateResult(".bar.", "{% assign foo = values | split: ',' %}.{{ foo[1] }}.",
+            await Helper.AssertTemplateResultAsync(".bar.", "{% assign foo = values | split: ',' %}.{{ foo[1] }}.",
                 Hash.FromAnonymousObject(new { values = "foo,bar,baz" }));
         }
 
@@ -80,9 +81,9 @@ namespace DotLiquid.Tests.Tags
         }
 
         [Test]
-        public void TestAssignWithDrop()
+        public async Task TestAssignWithDrop()
         {
-            Helper.AssertTemplateResult(".MyValue.", @"{% assign foo = value %}.{{ foo.my_property }}.",
+            await Helper.AssertTemplateResultAsync(".MyValue.", @"{% assign foo = value %}.{{ foo.my_property }}.",
                 Hash.FromAnonymousObject(new { value = new AssignDrop() }));
         }
     }

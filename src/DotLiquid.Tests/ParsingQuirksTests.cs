@@ -1,5 +1,6 @@
 using DotLiquid.Exceptions;
 using NUnit.Framework;
+using System.Threading.Tasks;
 
 namespace DotLiquid.Tests
 {
@@ -7,11 +8,11 @@ namespace DotLiquid.Tests
     public class ParsingQuirksTests
     {
         [Test]
-        public void TestErrorWithCss()
+        public async Task TestErrorWithCss()
         {
             const string text = " div { font-weight: bold; } ";
             Template template = Template.Parse(text);
-            Assert.AreEqual(text, template.Render());
+            Assert.AreEqual(text, await template.RenderAsync());
             Assert.AreEqual(1, template.Root.NodeList.Count);
             Assert.IsInstanceOf<string>(template.Root.NodeList[0]);
         }
@@ -46,17 +47,17 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestMeaninglessParens()
+        public async Task TestMeaninglessParens()
         {
             Hash assigns = Hash.FromAnonymousObject(new { b = "bar", c = "baz" });
-            Helper.AssertTemplateResult(" YES ", "{% if a == 'foo' or (b == 'bar' and c == 'baz') or false %} YES {% endif %}", assigns);
+            await Helper.AssertTemplateResultAsync(" YES ", "{% if a == 'foo' or (b == 'bar' and c == 'baz') or false %} YES {% endif %}", assigns);
         }
 
         [Test]
-        public void TestUnexpectedCharactersSilentlyEatLogic()
+        public async Task TestUnexpectedCharactersSilentlyEatLogic()
         {
-            Helper.AssertTemplateResult(" YES ", "{% if true && false %} YES {% endif %}");
-            Helper.AssertTemplateResult("", "{% if false || true %} YES {% endif %}");
+            await Helper.AssertTemplateResultAsync(" YES ", "{% if true && false %} YES {% endif %}");
+            await Helper.AssertTemplateResultAsync("", "{% if false || true %} YES {% endif %}");
         }
     }
 }

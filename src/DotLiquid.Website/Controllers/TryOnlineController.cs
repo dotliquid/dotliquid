@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DotLiquid.Website.Controllers
 {
     public class TryOnlineController : Controller
     {
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
             const string templateCode = @"&lt;p&gt;{{ user.name | upcase }} has to do:&lt;/p&gt;
 
@@ -15,7 +16,7 @@ namespace DotLiquid.Website.Controllers
 {% endfor -%}
 &lt;/ul&gt;";
 
-            string result = LiquifyInternal(templateCode);
+            string result = await LiquifyInternalAsync(templateCode);
 
             ViewData["TemplateCode"] = templateCode;
             ViewData["Result"] = result;
@@ -24,9 +25,9 @@ namespace DotLiquid.Website.Controllers
         }
 
         [HttpPost]
-        public ActionResult Liquify(string templateCode)
+        public async Task<ActionResult> LiquifyAsync(string templateCode)
         {
-            string result = LiquifyInternal(templateCode);
+            string result = await LiquifyInternalAsync(templateCode);
 
             return new ContentResult
             {
@@ -34,10 +35,10 @@ namespace DotLiquid.Website.Controllers
             };
         }
 
-        private static string LiquifyInternal(string templateCode)
+        private static Task<string> LiquifyInternalAsync(string templateCode)
         {
             Template template = Template.Parse(templateCode);
-            return template.Render(Hash.FromAnonymousObject(new
+            return template.RenderAsync(Hash.FromAnonymousObject(new
             {
                 user = new User
                 {

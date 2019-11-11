@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using System.Threading.Tasks;
 
 namespace DotLiquid.Tests
 {
@@ -6,102 +7,102 @@ namespace DotLiquid.Tests
     public class StatementTests
     {
         [Test]
-        public void TestTrueEqlTrue()
+        public async Task TestTrueEqlTrue()
         {
-            Assert.AreEqual("  true  ", Template.Parse(" {% if true == true %} true {% else %} false {% endif %} ").Render());
+            Assert.AreEqual("  true  ", await Template.Parse(" {% if true == true %} true {% else %} false {% endif %} ").RenderAsync());
         }
 
         [Test]
-        public void TestTrueNotEqlTrue()
+        public async Task TestTrueNotEqlTrue()
         {
-            Assert.AreEqual("  false  ", Template.Parse(" {% if true != true %} true {% else %} false {% endif %} ").Render());
+            Assert.AreEqual("  false  ", await Template.Parse(" {% if true != true %} true {% else %} false {% endif %} ").RenderAsync());
         }
 
         [Test]
-        public void TestTrueLqTrue()
+        public async Task TestTrueLqTrue()
         {
-            Assert.AreEqual("  false  ", Template.Parse(" {% if 0 > 0 %} true {% else %} false {% endif %} ").Render());
+            Assert.AreEqual("  false  ", await Template.Parse(" {% if 0 > 0 %} true {% else %} false {% endif %} ").RenderAsync());
         }
 
         [Test]
-        public void TestOneLqZero()
+        public async Task TestOneLqZero()
         {
-            Assert.AreEqual("  true  ", Template.Parse(" {% if 1 > 0 %} true {% else %} false {% endif %} ").Render());
+            Assert.AreEqual("  true  ", await Template.Parse(" {% if 1 > 0 %} true {% else %} false {% endif %} ").RenderAsync());
         }
 
         [Test]
-        public void TestZeroLqOne()
+        public async Task TestZeroLqOne()
         {
-            Assert.AreEqual("  true  ", Template.Parse(" {% if 0 < 1 %} true {% else %} false {% endif %} ").Render());
+            Assert.AreEqual("  true  ", await Template.Parse(" {% if 0 < 1 %} true {% else %} false {% endif %} ").RenderAsync());
         }
 
         [Test]
-        public void TestZeroLqOrEqualOne()
+        public async Task TestZeroLqOrEqualOne()
         {
-            Assert.AreEqual("  true  ", Template.Parse(" {% if 0 <= 0 %} true {% else %} false {% endif %} ").Render());
+            Assert.AreEqual("  true  ", await Template.Parse(" {% if 0 <= 0 %} true {% else %} false {% endif %} ").RenderAsync());
         }
 
         [Test]
-        public void TestZeroLqOrEqualOneInvolvingNil()
+        public async Task TestZeroLqOrEqualOneInvolvingNil()
         {
-            Assert.AreEqual("  false  ", Template.Parse(" {% if null <= 0 %} true {% else %} false {% endif %} ").Render());
-            Assert.AreEqual("  false  ", Template.Parse(" {% if 0 <= null %} true {% else %} false {% endif %} ").Render());
+            Assert.AreEqual("  false  ", await Template.Parse(" {% if null <= 0 %} true {% else %} false {% endif %} ").RenderAsync());
+            Assert.AreEqual("  false  ", await Template.Parse(" {% if 0 <= null %} true {% else %} false {% endif %} ").RenderAsync());
         }
 
         [Test]
-        public void TestZeroLqqOrEqualOne()
+        public async Task TestZeroLqqOrEqualOne()
         {
-            Assert.AreEqual("  true  ", Template.Parse(" {% if 0 >= 0 %} true {% else %} false {% endif %} ").Render());
+            Assert.AreEqual("  true  ", await Template.Parse(" {% if 0 >= 0 %} true {% else %} false {% endif %} ").RenderAsync());
         }
 
         [Test]
-        public void TestStrings()
+        public async Task TestStrings()
         {
-            Assert.AreEqual("  true  ", Template.Parse(" {% if 'test' == 'test' %} true {% else %} false {% endif %} ").Render());
+            Assert.AreEqual("  true  ", await Template.Parse(" {% if 'test' == 'test' %} true {% else %} false {% endif %} ").RenderAsync());
         }
 
         [Test]
-        public void TestStringsNotEqual()
+        public async Task TestStringsNotEqual()
         {
-            Assert.AreEqual("  false  ", Template.Parse(" {% if 'test' != 'test' %} true {% else %} false {% endif %} ").Render());
+            Assert.AreEqual("  false  ", await Template.Parse(" {% if 'test' != 'test' %} true {% else %} false {% endif %} ").RenderAsync());
         }
 
         [Test]
-        public void TestVarAndStringEqual()
+        public async Task TestVarAndStringEqual()
         {
-            Assert.AreEqual("  true  ", Template.Parse(" {% if var == 'hello there!' %} true {% else %} false {% endif %} ").Render(Hash.FromAnonymousObject(new { var = "hello there!" })));
+            Assert.AreEqual("  true  ", await Template.Parse(" {% if var == 'hello there!' %} true {% else %} false {% endif %} ").RenderAsync(Hash.FromAnonymousObject(new { var = "hello there!" })));
         }
 
         [Test]
-        public void TestVarAndStringAreEqualBackwards()
+        public async Task TestVarAndStringAreEqualBackwards()
         {
-            Assert.AreEqual("  true  ", Template.Parse(" {% if 'hello there!' == var %} true {% else %} false {% endif %} ").Render(Hash.FromAnonymousObject(new { var = "hello there!" })));
+            Assert.AreEqual("  true  ", await Template.Parse(" {% if 'hello there!' == var %} true {% else %} false {% endif %} ").RenderAsync(Hash.FromAnonymousObject(new { var = "hello there!" })));
         }
 
         [Test]
-        public void TestIsCollectionEmpty()
+        public async Task TestIsCollectionEmpty()
         {
-            Assert.AreEqual("  true  ", Template.Parse(" {% if array == empty %} true {% else %} false {% endif %} ").Render(Hash.FromAnonymousObject(new { array = new object[] { } })));
+            Assert.AreEqual("  true  ", await Template.Parse(" {% if array == empty %} true {% else %} false {% endif %} ").RenderAsync(Hash.FromAnonymousObject(new { array = new object[] { } })));
         }
 
         [Test]
-        public void TestIsNotCollectionEmpty()
+        public async Task TestIsNotCollectionEmpty()
         {
-            Assert.AreEqual("  false  ", Template.Parse(" {% if array == empty %} true {% else %} false {% endif %} ").Render(Hash.FromAnonymousObject(new { array = new[] { 1, 2, 3 } })));
+            Assert.AreEqual("  false  ", await Template.Parse(" {% if array == empty %} true {% else %} false {% endif %} ").RenderAsync(Hash.FromAnonymousObject(new { array = new[] { 1, 2, 3 } })));
         }
 
         [Test]
-        public void TestNil()
+        public async Task TestNil()
         {
-            Assert.AreEqual("  true  ", Template.Parse(" {% if var == nil %} true {% else %} false {% endif %} ").Render(Hash.FromAnonymousObject(new { var = (object) null })));
-            Assert.AreEqual("  true  ", Template.Parse(" {% if var == null %} true {% else %} false {% endif %} ").Render(Hash.FromAnonymousObject(new { var = (object) null })));
+            Assert.AreEqual("  true  ", await Template.Parse(" {% if var == nil %} true {% else %} false {% endif %} ").RenderAsync(Hash.FromAnonymousObject(new { var = (object) null })));
+            Assert.AreEqual("  true  ", await Template.Parse(" {% if var == null %} true {% else %} false {% endif %} ").RenderAsync(Hash.FromAnonymousObject(new { var = (object) null })));
         }
 
         [Test]
-        public void TestNotNil()
+        public async Task TestNotNil()
         {
-            Assert.AreEqual("  true  ", Template.Parse(" {% if var != nil %} true {% else %} false {% endif %} ").Render(Hash.FromAnonymousObject(new { var = 1 })));
-            Assert.AreEqual("  true  ", Template.Parse(" {% if var != null %} true {% else %} false {% endif %} ").Render(Hash.FromAnonymousObject(new { var = 1 })));
+            Assert.AreEqual("  true  ", await Template.Parse(" {% if var != nil %} true {% else %} false {% endif %} ").RenderAsync(Hash.FromAnonymousObject(new { var = 1 })));
+            Assert.AreEqual("  true  ", await Template.Parse(" {% if var != null %} true {% else %} false {% endif %} ").RenderAsync(Hash.FromAnonymousObject(new { var = 1 })));
         }
     }
 }

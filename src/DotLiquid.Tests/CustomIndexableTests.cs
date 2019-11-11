@@ -1,5 +1,6 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -67,33 +68,33 @@ namespace DotLiquid.Tests
         #endregion
 
         [Test]
-        public void TestVirtualListLoop()
+        public async Task TestVirtualListLoop()
         {
-            string output = Template.Parse("{%for item in list%}{{ item }} {%endfor%}")
-                .Render(Hash.FromAnonymousObject(new {list = new VirtualList(1, "Second", 3)}));
+            string output = await Template.Parse("{%for item in list%}{{ item }} {%endfor%}")
+                .RenderAsync(Hash.FromAnonymousObject(new {list = new VirtualList(1, "Second", 3)}));
             Assert.AreEqual("1 Second 3 ", output);
         }
 
         [Test]
-        public void TestVirtualListIndex()
+        public async Task TestVirtualListIndex()
         {
-            string output = Template.Parse("1: {{ list[0] }}, 2: {{ list[1] }}, 3: {{ list[2] }}")
-                .Render(Hash.FromAnonymousObject(new {list = new VirtualList(1, "Second", 3)}));
+            string output = await Template.Parse("1: {{ list[0] }}, 2: {{ list[1] }}, 3: {{ list[2] }}")
+                .RenderAsync(Hash.FromAnonymousObject(new {list = new VirtualList(1, "Second", 3)}));
             Assert.AreEqual("1: 1, 2: Second, 3: 3", output);
         }
 
         [Test]
-        public void TestCustomIndexableIntKeys()
+        public async Task TestCustomIndexableIntKeys()
         {
-            string output = Template.Parse("1: {{container[0]}}, 2: {{container[1]}}")
-                .Render(Hash.FromAnonymousObject(new {container = new CustomIndexable()}));
+            string output = await Template.Parse("1: {{container[0]}}, 2: {{container[1]}}")
+                .RenderAsync(Hash.FromAnonymousObject(new {container = new CustomIndexable()}));
             Assert.AreEqual("1: System.Int32 0, 2: System.Int32 1", output);
         }
 
         [Test]
-        public void TestCustomIndexableStringKeys() {
-            string output = Template.Parse("abc: {{container.abc}}")
-                .Render(Hash.FromAnonymousObject(new {container = new CustomIndexable()}));
+        public async Task TestCustomIndexableStringKeys() {
+            string output = await Template.Parse("abc: {{container.abc}}")
+                .RenderAsync(Hash.FromAnonymousObject(new {container = new CustomIndexable()}));
             Assert.AreEqual("abc: System.String abc", output);
         }
     }

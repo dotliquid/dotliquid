@@ -1,4 +1,5 @@
-﻿using System.IO;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace DotLiquid
 {
@@ -7,6 +8,6 @@ namespace DotLiquid
     /// </summary>
     internal interface IRenderable
     {
-        void Render(Context context, TextWriter result);
+        Task RenderAsync(Context context, TextWriter result);
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
 
@@ -17,9 +18,9 @@ namespace DotLiquid.Tags
             _result = result;
         }
 
-        public void Super()
+        public Task Super()
         {
-            _block.CallSuper(Context, _result);
+            return _block.CallSuperAsync(Context, _result);
         }
     }
 
@@ -103,13 +104,13 @@ namespace DotLiquid.Tags
                 });
         }
 
-        public override void Render(Context context, TextWriter result)
+        public override Task RenderAsync(Context context, TextWriter result)
         {
             BlockRenderState blockState = BlockRenderState.Find(context);
-            context.Stack(() =>
+            return context.Stack(() =>
                 {
                     context["block"] = new BlockDrop(this, result);
-                    RenderAll(GetNodeList(blockState), context, result);
+                    return RenderAllAsync(GetNodeList(blockState), context, result);
                 });
         }
 
@@ -134,14 +135,14 @@ namespace DotLiquid.Tags
             }
         }
 
-        public void CallSuper(Context context, TextWriter result)
+        public async Task CallSuperAsync(Context context, TextWriter result)
         {
             BlockRenderState blockState = BlockRenderState.Find(context);
             if (blockState != null
     && blockState.Parents.TryGetValue(this, out Block parent)
     && parent != null)
             {
-                parent.Render(context, result);
+                await parent.RenderAsync(context, result).ConfigureAwait(false);
             }
         }
     }

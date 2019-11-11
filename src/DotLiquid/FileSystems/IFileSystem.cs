@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace DotLiquid.FileSystems
 {
     /// <summary>
@@ -22,6 +24,6 @@ namespace DotLiquid.FileSystems
         /// </summary>
         /// <param name="templatePath"></param>
         /// <returns></returns>
-        string ReadTemplateFile(Context context, string templateName);
+        Task<string> ReadTemplateFileAsync(Context context, string templateName);
     }
 }

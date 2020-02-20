@@ -55,6 +55,7 @@ namespace DotLiquid.Website.Controllers
     public class User : Drop
     {
         public string Name { get; set; }
+        public string StringToNumberTest { get; set; }
         public List<Task> Tasks { get; set; }
     }
 

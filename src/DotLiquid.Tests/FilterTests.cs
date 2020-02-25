@@ -114,7 +114,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestFilterWithNumericArgument()
         {
-            _context["var"] = (long)1000;
+            _context["var"] = 1000L;
             _context.AddFilters(typeof(FiltersWithArguments));
             Assert.AreEqual("[1005]", new Variable("var | adjust: 5").Render(_context));
         }
@@ -122,7 +122,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestFilterWithNegativeArgument()
         {
-            _context["var"] = (long)1000;
+            _context["var"] = 1000L;
             _context.AddFilters(typeof(FiltersWithArguments));
             Assert.AreEqual("[995]", new Variable("var | adjust: -5").Render(_context));
         }
@@ -138,7 +138,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestFilterWithTwoArguments()
         {
-            _context["var"] = (long)1000;
+            _context["var"] = 1000L;
             _context.AddFilters(typeof(FiltersWithArguments));
             Assert.AreEqual("[1150]", new Variable("var | add_sub: 200, 50").Render(_context));
         }

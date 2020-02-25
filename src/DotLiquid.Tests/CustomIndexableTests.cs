@@ -22,7 +22,7 @@ namespace DotLiquid.Tests
                 get
                 {
                     long? index = key as long?;
-                    if (!index.HasValue || index.Value < 0 || index.Value >= items.Length) {
+                    if (!index.HasValue || index.Value < 0L || index.Value >= items.Length) {
                         throw new KeyNotFoundException();
                     }
                     return items[index.Value];
@@ -32,7 +32,7 @@ namespace DotLiquid.Tests
             public bool ContainsKey(object key)
             {
                 long? index = key as long?;
-                return index.HasValue && index.Value >= 0 && index.Value < items.Length;
+                return index.HasValue && index.Value >= 0L && index.Value < items.Length;
             }
 
             public IEnumerator GetEnumerator()
@@ -70,7 +70,7 @@ namespace DotLiquid.Tests
         public void TestVirtualListLoop()
         {
             string output = Template.Parse("{%for item in list%}{{ item }} {%endfor%}")
-                .Render(Hash.FromAnonymousObject(new {list = new VirtualList((long)1, "Second", (long)3)}));
+                .Render(Hash.FromAnonymousObject(new {list = new VirtualList(1L, "Second", 3L)}));
             Assert.AreEqual("1 Second 3 ", output);
         }
 
@@ -78,7 +78,7 @@ namespace DotLiquid.Tests
         public void TestVirtualListIndex()
         {
             string output = Template.Parse("1: {{ list[0] }}, 2: {{ list[1] }}, 3: {{ list[2] }}")
-                .Render(Hash.FromAnonymousObject(new {list = new VirtualList((long)1, "Second", (long)3)}));
+                .Render(Hash.FromAnonymousObject(new {list = new VirtualList(1L, "Second", 3L)}));
             Assert.AreEqual("1: 1, 2: Second, 3: 3", output);
         }
 

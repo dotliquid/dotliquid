@@ -439,14 +439,14 @@ namespace DotLiquid
 
                 // If object is a KeyValuePair, we treat it a bit differently - we might be rendering
                 // an included template.
-                if (IsKeyValuePair(@object) && (part.Equals((long)0) || part.Equals("Key")))
+                if (IsKeyValuePair(@object) && (part.Equals(0L) || part.Equals("Key")))
                 {
                     object res = @object.GetType().GetRuntimeProperty("Key").GetValue(@object);
                     @object = Liquidize(res);
                 }
                 // If object is a hash- or array-like object we look for the
                 // presence of the key and if its available we return it
-                else if (IsKeyValuePair(@object) && (part.Equals((long)1) || part.Equals("Value")))
+                else if (IsKeyValuePair(@object) && (part.Equals(1L) || part.Equals("Value")))
                 {
                     // If its a proc we will replace the entry with the proc
                     object res = @object.GetType().GetRuntimeProperty("Value").GetValue(@object);

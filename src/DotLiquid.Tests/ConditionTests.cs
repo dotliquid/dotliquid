@@ -64,7 +64,7 @@ namespace DotLiquid.Tests
         public void TestContainsWorksOnArrays()
         {
             _context = new Context(CultureInfo.InvariantCulture);
-            _context["array"] = new[] { 1, 2, 3, 4, 5 };
+            _context["array"] = new long[] { 1, 2, 3, 4, 5 };
 
             AssertEvaluatesFalse("array", "contains", "0");
             AssertEvaluatesTrue("array", "contains", "1");
@@ -223,10 +223,12 @@ namespace DotLiquid.Tests
             try
             {
                 Condition.Operators["IsMultipleOf"] =
-                    (left, right) => (int)left % (int)right == 0;
+                    (left, right) => (long)left % (long)right == 0;
 
                 // exact match
                 AssertEvaluatesTrue("16", "IsMultipleOf", "4");
+                AssertEvaluatesTrue("2147483646", "IsMultipleOf", "2");
+                AssertEvaluatesTrue("2147483648", "IsMultipleOf", "2");
                 AssertEvaluatesFalse("16", "IsMultipleOf", "5");
 
                 // lower case: compatibility
@@ -266,10 +268,12 @@ namespace DotLiquid.Tests
                 try
                 {
                     Condition.Operators["DivisibleBy"] =
-                        (left, right) => (int)left % (int)right == 0;
+                        (left, right) => (long)left % (long)right == 0;
 
                     // exact match
                     AssertEvaluatesTrue("16", "DivisibleBy", "4");
+                    AssertEvaluatesTrue("2147483646", "DivisibleBy", "2");
+                    AssertEvaluatesTrue("2147483648", "DivisibleBy", "2");
                     AssertEvaluatesFalse("16", "DivisibleBy", "5");
 
                     // lower case: compatibility

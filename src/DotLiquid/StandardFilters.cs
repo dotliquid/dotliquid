@@ -41,7 +41,7 @@ namespace DotLiquid
         /// <param name="start"></param>
         /// <param name="len"></param>
         /// <returns></returns>
-        public static string Slice(string input, int start, int len = 1)
+        public static string Slice(string input, long start, long len = 1)
         {
             if (input == null || start > input.Length)
                 return null;
@@ -59,7 +59,7 @@ namespace DotLiquid
             { 
                 len = input.Length - start;
             }
-            return input.Substring(start, len);
+            return input.Substring(Convert.ToInt32(start), Convert.ToInt32(len));
         }
 
         /// <summary>
@@ -602,8 +602,8 @@ namespace DotLiquid
         /// <returns></returns>
         public static object Times(object input, object operand)
         {
-            return input is string && operand is int
-                ? Enumerable.Repeat((string)input, (int)operand)
+            return input is string && operand is long
+                ? Enumerable.Repeat((string)input, Convert.ToInt32(operand))
                 : DoMathsOperation(input, operand, Expression.Multiply);
         }
 
@@ -673,11 +673,12 @@ namespace DotLiquid
                 operand = Convert.ToDouble(operand);
             }
 
-            return ExpressionUtility.CreateExpression
-                                    ( body: operation
-                                      , leftType: input.GetType()
-                                      , rightType: operand.GetType() )
-                                    .DynamicInvoke(input, operand);
+            return ExpressionUtility
+                .CreateExpression(
+                    body: operation,
+                    leftType: input.GetType(),
+                    rightType: operand.GetType())
+                .DynamicInvoke(input, operand);
         }
 		
 		/// <summary>

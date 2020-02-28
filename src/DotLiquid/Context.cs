@@ -336,7 +336,9 @@ namespace DotLiquid
             // Integer.
             match = IntegerRegex.Match(key);
             if (match.Success)
-                return Convert.ToInt32(match.Groups[1].Value);
+            {
+                return Convert.ToInt64(match.Groups[1].Value);
+            }
 
             // Ranges.
             match = RangeRegex.Match(key);
@@ -437,14 +439,14 @@ namespace DotLiquid
 
                 // If object is a KeyValuePair, we treat it a bit differently - we might be rendering
                 // an included template.
-                if (IsKeyValuePair(@object) && (part.Equals(0) || part.Equals("Key")))
+                if (IsKeyValuePair(@object) && (part.Equals(0L) || part.Equals("Key")))
                 {
                     object res = @object.GetType().GetRuntimeProperty("Key").GetValue(@object);
                     @object = Liquidize(res);
                 }
                 // If object is a hash- or array-like object we look for the
                 // presence of the key and if its available we return it
-                else if (IsKeyValuePair(@object) && (part.Equals(1) || part.Equals("Value")))
+                else if (IsKeyValuePair(@object) && (part.Equals(1L) || part.Equals("Value")))
                 {
                     // If its a proc we will replace the entry with the proc
                     object res = @object.GetType().GetRuntimeProperty("Value").GetValue(@object);
@@ -511,7 +513,7 @@ namespace DotLiquid
             if ((obj is IDictionary && ((IDictionary)obj).Contains(part)))
                 return true;
 
-            if ((obj is IList) && (part is int))
+            if ((obj is IList) && (part is long))
                 return true;
 
             if (TypeUtility.IsAnonymousType(obj.GetType()) && obj.GetType().GetRuntimeProperty((string)part) != null)
@@ -532,7 +534,7 @@ namespace DotLiquid
             }
             else if (obj is IList listObj)
             { 
-                value = listObj[(int)key];
+                value = listObj[Convert.ToInt32(key)];
             }
             else if (TypeUtility.IsAnonymousType(obj.GetType()))
             { 
@@ -556,7 +558,7 @@ namespace DotLiquid
                 }
                 else if (obj is IList listObj)
                 {
-                    listObj[(int)key] = newValue;
+                    listObj[Convert.ToInt32(key)] = newValue;
                 }
                 else if (TypeUtility.IsAnonymousType(obj.GetType()))
                 { 

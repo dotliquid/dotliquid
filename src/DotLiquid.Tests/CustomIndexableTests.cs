@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
 
@@ -21,8 +21,8 @@ namespace DotLiquid.Tests
             {
                 get
                 {
-                    int? index = key as int?;
-                    if (!index.HasValue || index.Value < 0 || index.Value >= items.Length) {
+                    long? index = key as long?;
+                    if (!index.HasValue || index.Value < 0L || index.Value >= items.Length) {
                         throw new KeyNotFoundException();
                     }
                     return items[index.Value];
@@ -31,8 +31,8 @@ namespace DotLiquid.Tests
 
             public bool ContainsKey(object key)
             {
-                int? index = key as int?;
-                return index.HasValue && index.Value >= 0 && index.Value < items.Length;
+                long? index = key as long?;
+                return index.HasValue && index.Value >= 0L && index.Value < items.Length;
             }
 
             public IEnumerator GetEnumerator()
@@ -70,7 +70,7 @@ namespace DotLiquid.Tests
         public void TestVirtualListLoop()
         {
             string output = Template.Parse("{%for item in list%}{{ item }} {%endfor%}")
-                .Render(Hash.FromAnonymousObject(new {list = new VirtualList(1, "Second", 3)}));
+                .Render(Hash.FromAnonymousObject(new {list = new VirtualList(1L, "Second", 3L)}));
             Assert.AreEqual("1 Second 3 ", output);
         }
 
@@ -78,7 +78,7 @@ namespace DotLiquid.Tests
         public void TestVirtualListIndex()
         {
             string output = Template.Parse("1: {{ list[0] }}, 2: {{ list[1] }}, 3: {{ list[2] }}")
-                .Render(Hash.FromAnonymousObject(new {list = new VirtualList(1, "Second", 3)}));
+                .Render(Hash.FromAnonymousObject(new {list = new VirtualList(1L, "Second", 3L)}));
             Assert.AreEqual("1: 1, 2: Second, 3: 3", output);
         }
 
@@ -87,7 +87,7 @@ namespace DotLiquid.Tests
         {
             string output = Template.Parse("1: {{container[0]}}, 2: {{container[1]}}")
                 .Render(Hash.FromAnonymousObject(new {container = new CustomIndexable()}));
-            Assert.AreEqual("1: System.Int32 0, 2: System.Int32 1", output);
+            Assert.AreEqual("1: System.Int64 0, 2: System.Int64 1", output);
         }
 
         [Test]

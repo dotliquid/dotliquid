@@ -33,12 +33,12 @@ namespace DotLiquid.Tests
 
         private static class FiltersWithArguments
         {
-            public static string Adjust(int input, int offset = 10)
+            public static string Adjust(long input, long offset = 10)
             {
                 return string.Format("[{0:d}]", input + offset);
             }
 
-            public static string AddSub(int input, int plus, int minus = 20)
+            public static string AddSub(long input, long plus, long minus = 20)
             {
                 return string.Format("[{0:d}]", input + plus - minus);
             }
@@ -114,7 +114,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestFilterWithNumericArgument()
         {
-            _context["var"] = 1000;
+            _context["var"] = 1000L;
             _context.AddFilters(typeof(FiltersWithArguments));
             Assert.AreEqual("[1005]", new Variable("var | adjust: 5").Render(_context));
         }
@@ -122,7 +122,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestFilterWithNegativeArgument()
         {
-            _context["var"] = 1000;
+            _context["var"] = 1000L;
             _context.AddFilters(typeof(FiltersWithArguments));
             Assert.AreEqual("[995]", new Variable("var | adjust: -5").Render(_context));
         }
@@ -138,7 +138,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestFilterWithTwoArguments()
         {
-            _context["var"] = 1000;
+            _context["var"] = 1000L;
             _context.AddFilters(typeof(FiltersWithArguments));
             Assert.AreEqual("[1150]", new Variable("var | add_sub: 200, 50").Render(_context));
         }

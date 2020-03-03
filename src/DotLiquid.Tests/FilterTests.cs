@@ -261,5 +261,21 @@ namespace DotLiquid.Tests
             _context.AddFilters(typeof(ContextFilters));
             Assert.AreEqual(" King Kong has 1000$ ", new Variable("var | bank_statement").Render(_context));
         }
+
+
+        [Test]
+        public void Truncate()
+        {
+            _context["var"] = "this is a longish string";
+            Assert.AreEqual("this is...", new Variable("var | truncate: 10").Render(_context));
+        }
+
+        [Test]
+        public void TruncateWords()
+        {
+            _context["var"] = "this is a longish string";
+            Assert.AreEqual("this is...", new Variable("var | truncate_words: 2").Render(_context));
+        }
+
     }
 }

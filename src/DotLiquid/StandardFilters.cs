@@ -166,12 +166,14 @@ namespace DotLiquid
         /// <param name="length"></param>
         /// <param name="truncateString"></param>
         /// <returns></returns>
-        public static string Truncate(string input, int length = 50, string truncateString = "...")
+        public static string Truncate(string input, long length = 50, string truncateString = "...")
         {
             if (string.IsNullOrEmpty(input))
                 return input;
 
-            int l = length - truncateString.Length;
+            int lengthAsInt = length < int.MinValue ? int.MinValue : (length > int.MaxValue ? int.MaxValue : (int)length);
+
+            int l = lengthAsInt - truncateString.Length;
 
             return input.Length > length
                 ? input.Substring(0, l < 0 ? 0 : l) + truncateString
@@ -185,13 +187,15 @@ namespace DotLiquid
         /// <param name="words"></param>
         /// <param name="truncateString"></param>
         /// <returns></returns>
-        public static string TruncateWords(string input, int words = 15, string truncateString = "...")
+        public static string TruncateWords(string input, long words = 15, string truncateString = "...")
         {
             if (string.IsNullOrEmpty(input))
                 return input;
 
+            int wordsAsInt = words < int.MinValue ? int.MinValue : (words > int.MaxValue ? int.MaxValue : (int)words);
+
             var wordList = input.Split(' ').ToList();
-            int l = words < 0 ? 0 : words;
+            int l = wordsAsInt < 0 ? 0 : wordsAsInt;
 
             return wordList.Count > l
                 ? string.Join(" ", wordList.Take(l).ToArray()) + truncateString

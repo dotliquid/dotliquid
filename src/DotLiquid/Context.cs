@@ -20,7 +20,7 @@ namespace DotLiquid
         private static readonly Regex DoubleQuotedRegex = R.C(R.Q(@"^""(.*)""$"));
         private static readonly Regex IntegerRegex = R.C(R.Q(@"^([+-]?\d+)$"));
         private static readonly Regex RangeRegex = R.C(R.Q(@"^\((\S+)\.\.(\S+)\)$"));
-        private static readonly Regex FloatRegex = R.C(R.Q(@"^([+-]?\d[\d\.|\,]+)$"));
+        private static readonly Regex NumericRegex = R.C(R.Q(@"^([+-]?\d[\d\.|\,]+)$"));
         private static readonly Regex SquareBracketedRegex = R.C(R.Q(@"^\[(.*)\]$"));
         private static readonly Regex VariableParserRegex = R.C(Liquid.VariableParser);
 
@@ -346,18 +346,18 @@ namespace DotLiquid
                 return Range.Inclusive(Convert.ToInt32(Resolve(match.Groups[1].Value)),
                     Convert.ToInt32(Resolve(match.Groups[2].Value)));
 
-            // Floats.
-            match = FloatRegex.Match(key);
+            // Floating point numbers.
+            match = NumericRegex.Match(key);
             if (match.Success)
             {
                 // For cultures with "," as the decimal separator, allow
                 // both "," and "." to be used as the separator.
                 // First try to parse using current culture.
-                if (float.TryParse(match.Groups[1].Value, NumberStyles.Number, FormatProvider, out float result))
+                if (double.TryParse(match.Groups[1].Value, NumberStyles.Number, FormatProvider, out double result))
                     return result;
 
                 // If that fails, try to parse using invariant culture.
-                return float.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+                return double.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
             }
 
             return Variable(key, notifyNotFound);

@@ -452,10 +452,10 @@ namespace DotLiquid.Tests
         {
             using (CultureHelper.SetCulture("en-GB"))
             {
+                Helper.AssertTemplateResult("2", "{{ 1 | plus:1 }}");
                 Helper.AssertTemplateResult("5.5", "{{ 2  | plus:3.5 }}");
                 Helper.AssertTemplateResult("5.5", "{{ 3.5 | plus:2 }}");
                 Helper.AssertTemplateResult("11", "{{ '1' | plus:'1' }}");
-                Helper.AssertTemplateResult("2", "{{ 1 | plus:1 }}");
 
                 // Test that decimals are not introducing rounding-precision issues
                 Helper.AssertTemplateResult("148397.77", "{{ 148387.77 | plus:10 }}");

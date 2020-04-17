@@ -25,10 +25,30 @@ namespace DotLiquid.Tests.Tags
         }
 
         [Test]
+        public void TestAssignDecimalAndPlus()
+        {
+            Helper.AssertTemplateResult(
+                expected: string.Format("20{0}05", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
+                template: "{% assign foo = decimal %}{% assign foo = foo | plus:10 %}{{ foo }}",
+                localVariables: Hash.FromAnonymousObject(new { @decimal = 10.05d }));
+            Helper.AssertTemplateResult(
+                expected: string.Format("148397{0}77", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
+                template: "{% assign foo = decimal %}{% assign foo = foo | plus:10 %}{{ foo }}",
+                localVariables: Hash.FromAnonymousObject(new { @decimal = 148387.77d }));
+        }
+
+        [Test]
         public void TestAssignDoubleWithoutVariable()
         {
             Helper.AssertTemplateResult(string.Format("1{0}2345678912345", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
                 "{% assign foo = 1.2345678912345 %}{{ foo }}");
+        }
+
+        [Test]
+        public void TestAssignDoubleAndPlus()
+        {
+            Helper.AssertTemplateResult(string.Format("11{0}2345678912345", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator),
+                "{% assign foo = 1.2345678912345 %}{% assign foo = foo | plus:10 %}{{ foo }}");
         }
 
         [Test]

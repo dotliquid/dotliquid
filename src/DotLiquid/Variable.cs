@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -63,7 +63,17 @@ namespace DotLiquid
 
         public void Render(Context context, TextWriter result)
         {
-            string ToFormattedString(object o, IFormatProvider ifp) => o is IFormattable ifo ? ifo.ToString( null, ifp ) : (o?.ToString() ?? "");
+            // NOTE(David Burg): The decimal type default string serialization behavior adds non-significant trailing zeroes
+            // to indicate the precision of the result.
+            // This is not a desirable default for Liquid as it confuses the users as to why '12.5 |times 10' becomes '125.0'.
+            // So we overwrite the default serialization behavior to specify a format with maximum significant precision.
+            // Decimal type has a maximum of 29 significant digits.
+            string ToFormattedString(object obj, IFormatProvider formatProvider) =>
+                (obj is decimal decimalValue)
+                    ? decimalValue.ToString(format: "0.#############################", provider: formatProvider)
+                    : obj is IFormattable ifo
+                        ? ifo.ToString(format: null, formatProvider: formatProvider)
+                        : (obj?.ToString() ?? "");
 
             object output = RenderInternal(context);
 

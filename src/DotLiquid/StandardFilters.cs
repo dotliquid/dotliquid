@@ -349,47 +349,59 @@ namespace DotLiquid
         /// <summary>
         /// Map/collect on a given property
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="property"></param>
+        /// <param name="enumerableInput">The enumerable.</param>
+        /// <param name="property">The property to map.</param>
         /// <returns></returns>
-        public static IEnumerable Map(IEnumerable input, string property)
+        public static IEnumerable Map(IEnumerable enumerableInput, string property)
         {
-            if (input == null)
+            if (enumerableInput == null)
                 return null;
 
-            List<object> ary = input.Cast<object>().ToList();
-            if (!ary.Any())
-                return ary;
+            // Enumerate to a list so we can repeatedly parse through the collection.
+            List<object> listedInput = enumerableInput.Cast<object>().ToList();
 
-            if ((ary.All(o => o is IDictionary)) && ((IDictionary)ary.First()).Contains(property))
-                return ary.Select(e => ((IDictionary)e)[property]);
+            // If the list happens to be empty we are done already.
+            if (!listedInput.Any())
+                return listedInput;
 
-            return ary.Select(e => {
-                if (e == null)
-                    return null;
+            // Note that liquid assumes that contained complex elements are all following the same schema.
+            // Hence here we only check if the first element has the property requested for the map.
+            if (listedInput.All(element => element is IDictionary)
+                && ((IDictionary)listedInput.First()).Contains(key: property))
+                return listedInput.Select(element => ((IDictionary)element)[property]);
 
-                var drop = e as DropBase;
-                if (drop == null)
+            return listedInput
+                .Select(selector: element =>
                 {
-                    var type = e.GetType();
-                    var safeTypeTransformer = Template.GetSafeTypeTransformer(type);
-                    if (safeTypeTransformer != null)
-                        drop = safeTypeTransformer(e) as DropBase;
-                    else
+                    if (element == null)
+                        return null;
+
+                    var indexable = element as IIndexable;
+                    if (indexable == null)
                     {
-                        var attr = type.GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).FirstOrDefault() as LiquidTypeAttribute;
-                        if (attr != null)
+                        var type = element.GetType();
+                        var safeTypeTransformer = Template.GetSafeTypeTransformer(type);
+                        if (safeTypeTransformer != null)
+                            indexable = safeTypeTransformer(element) as DropBase;
+                        else
                         {
-                            drop = new DropProxy(e, attr.AllowedMembers);
-                        }
-                        else if (TypeUtility.IsAnonymousType(type))
-                        {
-                            return e.RespondTo(property) ? e.Send(property) : e;
+                            var liquidTypeAttribute = type
+                                .GetTypeInfo()
+                                .GetCustomAttributes(attributeType: typeof(LiquidTypeAttribute), inherit: false)
+                                .FirstOrDefault() as LiquidTypeAttribute;
+                            if (liquidTypeAttribute != null)
+                            {
+                                indexable = new DropProxy(element, liquidTypeAttribute.AllowedMembers);
+                            }
+                            else if (TypeUtility.IsAnonymousType(type))
+                            {
+                                return element.RespondTo(property) ? element.Send(property) : element;
+                            }
                         }
                     }
-                }
-                return (drop?.ContainsKey(property) ?? false) ? drop[property] : null;
-            });
+
+                    return (indexable?.ContainsKey(property) ?? false) ? indexable[property] : null;
+                });
         }
 
         /// <summary>

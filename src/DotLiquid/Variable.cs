@@ -87,18 +87,17 @@ namespace DotLiquid
                 if (transformer != null)
                     output = transformer(output);
 
-                //treating Strings as IEnumerable, and was joining Chars in loop
-                string outputString = output as string;
+                // Treating Strings as IEnumerable, and was joining Chars in loop
+                if (!(output is string outputString))
+                {
+                    if (output is IEnumerable enumerable)
+                        outputString = string.Join(string.Empty, enumerable.Cast<object>().Select(o => ToFormattedString(o, result.FormatProvider)).ToArray());
+                    else if (output is bool)
+                        outputString = output.ToString().ToLower();
+                    else
+                        outputString = ToFormattedString(output, result.FormatProvider);
+                }
 
-              if (outputString != null) {}
-              else if (output is IEnumerable)
-                 outputString = string.Join(string.Empty, ((IEnumerable)output).Cast<object>().Select(o => ToFormattedString(o,result.FormatProvider)).ToArray());
-              else if (output is bool)
-                 outputString = output.ToString().ToLower();
-              else
-                 outputString = ToFormattedString(output,result.FormatProvider);
-
-            
                 result.Write(outputString);
             }
         }

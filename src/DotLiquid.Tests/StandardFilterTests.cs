@@ -456,6 +456,9 @@ namespace DotLiquid.Tests
                 Helper.AssertTemplateResult("5.5", "{{ 2  | plus:3.5 }}");
                 Helper.AssertTemplateResult("5.5", "{{ 3.5 | plus:2 }}");
                 Helper.AssertTemplateResult("11", "{{ '1' | plus:'1' }}");
+
+                // Test that decimals are not introducing rounding-precision issues
+                Helper.AssertTemplateResult("148397.77", "{{ 148387.77 | plus:10 }}");
             }
         }
 
@@ -467,6 +470,16 @@ namespace DotLiquid.Tests
                 Helper.AssertTemplateResult("4", "{{ input | minus:operand }}", Hash.FromAnonymousObject(new { input = 5, operand = 1 }));
                 Helper.AssertTemplateResult("-1.5", "{{ 2  | minus:3.5 }}");
                 Helper.AssertTemplateResult("1.5", "{{ 3.5 | minus:2 }}");
+            }
+        }
+
+        [Test]
+        public void TestPlusCombinedWithMinus()
+        {
+            using (CultureHelper.SetCulture("en-GB"))
+            {
+                // This detects rounding issues not visible with single operation.
+                Helper.AssertTemplateResult("0.1", "{{ 0.1 | plus: 10 | minus: 10 }}");
             }
         }
 
@@ -503,6 +516,16 @@ namespace DotLiquid.Tests
                 Helper.AssertTemplateResult("125", "{{ 12.5 | times:10 }}");
                 Helper.AssertTemplateResult("125", "{{ 12.5 | times:10.0 }}");
                 Helper.AssertTemplateResult("foofoofoofoo", "{{ 'foo' | times:4 }}");
+
+                // Test against overflows when we try to be precise but the result exceeds the range of the input type.
+                Helper.AssertTemplateResult(((double)((decimal.MaxValue / 100) + (decimal).1) * (double)((decimal.MaxValue / 100) + (decimal).1)).ToString(), $"{{{{ {(decimal.MaxValue / 100) + (decimal).1} | times:{(decimal.MaxValue / 100) + (decimal).1} }}}}");
+
+                // Test against overflows going beyond the double precision float type's range
+                Helper.AssertTemplateResult(double.NegativeInfinity.ToString(), $"{{{{ 12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890.0 | times:-12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890.0 }}}}");
+                Helper.AssertTemplateResult(double.PositiveInfinity.ToString(), $"{{{{ 12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890.0 | times:12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890.0 }}}}");
+
+                // Ensures no underflow exception is thrown when the result doesn't fit the precision of double.
+                Helper.AssertTemplateResult("0", $"{{{{ 0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001 | times:0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001 }}}}");
             }
 
             Assert.AreEqual(8.43, StandardFilters.Times(0.843m, 10));
@@ -534,6 +557,11 @@ namespace DotLiquid.Tests
             Helper.AssertTemplateResult("5", "{{ 15 | divided_by:3 }}");
             Assert.Null(StandardFilters.DividedBy(null, 3));
             Assert.Null(StandardFilters.DividedBy(4, null));
+
+            // Ensure we preserve floating point behavior for division by zero, and don't start throwing exceptions.
+            Helper.AssertTemplateResult(double.PositiveInfinity.ToString(), "{{ 1.0 | divided_by:0.0 }}");
+            Helper.AssertTemplateResult(double.NegativeInfinity.ToString(), "{{ -1.0 | divided_by:0.0 }}");
+            Helper.AssertTemplateResult("NaN", "{{ 0.0 | divided_by:0.0 }}");
         }
 
         [Test]
@@ -553,6 +581,9 @@ namespace DotLiquid.Tests
         public void TestModulo()
         {
             Helper.AssertTemplateResult("1", "{{ 3 | modulo:2 }}");
+            Helper.AssertTemplateResult("7.77", "{{ 148387.77 | modulo:10 }}");
+            Helper.AssertTemplateResult("5.32", "{{ 3455.32 | modulo:10 }}");
+            Helper.AssertTemplateResult("3.12", "{{ 23423.12 | modulo:10 }}");
             Assert.Null(StandardFilters.Modulo(null, 3));
             Assert.Null(StandardFilters.Modulo(4, null));
         }

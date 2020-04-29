@@ -580,7 +580,7 @@ namespace DotLiquid
         {
             return input is string
                 ? string.Concat(input, operand)
-                : DoMathsOperation(input, operand, Expression.Add);
+                : DoMathsOperation(input, operand, Expression.AddChecked);
         }
 
         /// <summary>
@@ -591,7 +591,7 @@ namespace DotLiquid
         /// <returns></returns>
         public static object Minus(object input, object operand)
         {
-            return DoMathsOperation(input, operand, Expression.Subtract);
+            return DoMathsOperation(input, operand, Expression.SubtractChecked);
         }
 
         /// <summary>
@@ -604,7 +604,7 @@ namespace DotLiquid
         {
             return input is string && operand is long
                 ? Enumerable.Repeat((string)input, Convert.ToInt32(operand))
-                : DoMathsOperation(input, operand, Expression.Multiply);
+                : DoMathsOperation(input, operand, Expression.MultiplyChecked);
         }
 
         /// <summary>
@@ -667,10 +667,29 @@ namespace DotLiquid
             if (input == null || operand == null)
                 return null;
 
+            // NOTE(David Burg): Try for maximal precision if the input and operand fit the decimal's range.
+            // This avoids rounding errors in financial arithmetics.
+            // E.g.: 0.1 | Plus 10 | Minus 10 to remain 0.1, not 0.0999999999999996
+            // Otherwise revert to maximum range (possible precision loss).
             if (IsReal(input) || IsReal(operand))
             {
-                input = Convert.ToDouble(input);
-                operand = Convert.ToDouble(operand);
+                try
+                {
+                    input = Convert.ToDecimal(input);
+                    operand = Convert.ToDecimal(operand);
+
+                    return ExpressionUtility
+                        .CreateExpression(
+                            body: operation,
+                            leftType: input.GetType(),
+                            rightType: operand.GetType())
+                        .DynamicInvoke(input, operand);
+                }
+                catch (Exception ex) when (ex is OverflowException || ex is DivideByZeroException || (ex is TargetInvocationException && (ex?.InnerException is OverflowException || ex?.InnerException is DivideByZeroException)))
+                {
+                    input = Convert.ToDouble(input);
+                    operand = Convert.ToDouble(operand);
+                }
             }
 
             return ExpressionUtility

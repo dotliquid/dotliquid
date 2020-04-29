@@ -353,11 +353,17 @@ namespace DotLiquid
                 // For cultures with "," as the decimal separator, allow
                 // both "," and "." to be used as the separator.
                 // First try to parse using current culture.
-                if (double.TryParse(match.Groups[1].Value, NumberStyles.Number, FormatProvider, out double result))
-                    return result;
-
                 // If that fails, try to parse using invariant culture.
-                return double.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+                // Also, first try higher precision decimal.
+                // If that fails, try to parse as double (precision float).
+                // Double is less precise but has a larger range.
+                if (decimal.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, FormatProvider, out decimal parsedDecimalCurrentCulture))
+                    return parsedDecimalCurrentCulture;
+                if (decimal.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, CultureInfo.InvariantCulture, out decimal parsedDecimalInvariantCulture))
+                    return parsedDecimalInvariantCulture;
+                if (double.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, FormatProvider, out double parsedDouble))
+                    return parsedDouble;
+                return double.Parse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, CultureInfo.InvariantCulture);
             }
 
             return Variable(key, notifyNotFound);

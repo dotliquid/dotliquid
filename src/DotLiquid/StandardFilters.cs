@@ -171,12 +171,13 @@ namespace DotLiquid
             if (string.IsNullOrEmpty(input))
                 return input;
 
-            int lengthAsInt = length < int.MinValue ? int.MinValue : (length > int.MaxValue ? int.MaxValue : (int)length);
+            if (length < 0 || length > int.MaxValue)
+                throw new DotLiquid.Exceptions.ArgumentException("length parameter of truncate filter is out of the range of valid positive integers.");
 
-            int l = lengthAsInt - truncateString.Length;
+            int lengthExcludingTruncateString = (int)length - truncateString.Length;
 
             return input.Length > length
-                ? input.Substring(0, l < 0 ? 0 : l) + truncateString
+                ? input.Substring(0, lengthExcludingTruncateString < 0 ? 0 : lengthExcludingTruncateString) + truncateString
                 : input;
         }
 
@@ -192,13 +193,14 @@ namespace DotLiquid
             if (string.IsNullOrEmpty(input))
                 return input;
 
-            int wordsAsInt = words < int.MinValue ? int.MinValue : (words > int.MaxValue ? int.MaxValue : (int)words);
+            if (words < 0 || words > int.MaxValue)
+                throw new DotLiquid.Exceptions.ArgumentException("words parameter of truncate-words filter is out of the range of valid positive integers.");
 
             var wordList = input.Split(' ').ToList();
-            int l = wordsAsInt < 0 ? 0 : wordsAsInt;
 
-            return wordList.Count > l
-                ? string.Join(" ", wordList.Take(l).ToArray()) + truncateString
+            int wordsAsInt = (int)words;
+            return wordList.Count > wordsAsInt
+                ? string.Join(" ", wordList.Take(wordsAsInt).ToArray()) + truncateString
                 : input;
         }
 

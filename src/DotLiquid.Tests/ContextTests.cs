@@ -135,6 +135,8 @@ namespace DotLiquid.Tests
             }
         }
 
+        private enum TestEnum { Yes, No }
+
         #endregion
 
         private Context _context;
@@ -190,6 +192,9 @@ namespace DotLiquid.Tests
             _context["nil"] = null;
             Assert.AreEqual(null, _context["nil"]);
             Assert.AreEqual(null, _context["nil"]);
+
+            _context["enum"] = TestEnum.Yes;
+            Assert.AreEqual(TestEnum.Yes, _context["enum"]);
         }
 
         [Test]

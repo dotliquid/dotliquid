@@ -1,13 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
-using System.Diagnostics;
 
 namespace DotLiquid
 {
@@ -623,6 +623,10 @@ namespace DotLiquid
                 return obj;
             }
             if (TypeUtility.IsAnonymousType(obj.GetType()))
+            {
+                return obj;
+            }
+            if (obj is Enum)
             {
                 return obj;
             }

@@ -119,6 +119,15 @@ namespace DotLiquid
                 }
                 catch (Exception)
                 {
+                    // If an exception occurred trying to convert right's type to left, 
+                    // try to change the left's type to the right
+                    try
+                    {
+                        left = Convert.ChangeType(left, right.GetType());
+                    }
+                    catch (Exception)
+                    {
+                    }
                 }
             }
 

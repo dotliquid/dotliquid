@@ -51,11 +51,29 @@ namespace DotLiquid.Tests
 
         internal class ProductDrop : Drop
         {
+            internal class ComplexDrop : Drop
+            {
+                public TextDrop[] ArrayOfDrops
+                {
+                    get { return new[] { new TextDrop(), new TextDrop()}; }
+                }
+
+                public TextDrop SingleDrop
+                {
+                    get { return new TextDrop(); }
+                }
+            }
+
             internal class TextDrop : Drop
             {
                 public string[] Array
                 {
                     get { return new[] { "text1", "text2" }; }
+                }
+
+                public List<string> List
+                {
+                    get { return new List<string>(new[] { "text1", "text2" }); }
                 }
 
                 public string Text
@@ -75,6 +93,11 @@ namespace DotLiquid.Tests
             public TextDrop Texts()
             {
                 return new TextDrop();
+            }
+
+            public ComplexDrop Complex()
+            {
+                return new ComplexDrop();
             }
 
             public CatchallDrop Catchall()
@@ -194,9 +217,77 @@ namespace DotLiquid.Tests
         [Test]
         public void TestTextArrayDrop()
         {
-            string output = Template.Parse("{% for text in product.texts.array %} {{text}} {% endfor %}")
-                .Render(Hash.FromAnonymousObject(new { product = new ProductDrop() }));
-            Assert.AreEqual(" text1  text2 ", output);
+            Assert.AreEqual(
+                expected: "text1text2",
+                actual: Template
+                    .Parse("{{product.texts.array}}")
+                    .Render(Hash.FromAnonymousObject(new { product = new ProductDrop() })));
+            Assert.AreEqual(
+                expected: " text1  text2 ",
+                actual: Template
+                    .Parse("{% for text in product.texts.array %} {{text}} {% endfor %}")
+                    .Render(Hash.FromAnonymousObject(new { product = new ProductDrop() })));
+        }
+
+        [Test]
+        public void TestTextListDrop()
+        {
+            Assert.AreEqual(
+                expected: "text1text2",
+                actual: Template
+                    .Parse("{{product.texts.list}}")
+                    .Render(Hash.FromAnonymousObject(new { product = new ProductDrop() })));
+            Assert.AreEqual(
+                expected: " text1  text2 ",
+                actual: Template
+                    .Parse("{% for text in product.texts.list %} {{text}} {% endfor %}")
+                    .Render(Hash.FromAnonymousObject(new { product = new ProductDrop() })));
+        }
+
+        [Test]
+        public void TestComplexDrop()
+        {
+            // Drop objects do not output themselves.
+            Assert.AreEqual(
+                expected: string.Empty,
+                actual: Template
+                    .Parse("{{ product.complex.single_drop }}")
+                    .Render(Hash.FromAnonymousObject(new { product = new ProductDrop() })));
+
+            // A complex drop object is still a drop object hence does not output oneself.
+            Assert.AreEqual(
+                expected: string.Empty,
+                actual: Template
+                    .Parse("{{ product.complex }}")
+                    .Render(Hash.FromAnonymousObject(new { product = new ProductDrop() })));
+
+            // Public properties within complex drop object do render when exactly accessed
+            Assert.AreEqual(
+                expected: "text1",
+                actual: Template
+                    .Parse("{{ product.complex.single_drop.text }}")
+                    .Render(Hash.FromAnonymousObject(new { product = new ProductDrop() })));
+
+            // While arrays are supported for render, when the array content is of drop object type, the rendering of each object is still empty.
+            Assert.AreEqual(
+                expected: string.Empty,
+                actual: Template
+                    .Parse("{% for text in product.complex.array_of_drops %}{{text}}{% endfor %}")
+                    .Render(Hash.FromAnonymousObject(new { product = new ProductDrop() })));
+
+            // We can still iterate through an array of drop objects then access the public properties of said object
+            Assert.AreEqual(
+                expected: "text1text1",
+                actual: Template
+                    .Parse("{% for text in product.complex.array_of_drops %}{{text.text}}{% endfor %}")
+                    .Render(Hash.FromAnonymousObject(new { product = new ProductDrop() })));
+
+            // The array of drop objects may itself contain a property of type array which can be rendered
+            Assert.AreEqual(
+                expected: "text1text2text1text2",
+                actual: Template
+                    .Parse("{% for text in product.complex.array_of_drops %}{{text.array}}{% endfor %}")
+                    .Render(Hash.FromAnonymousObject(new { product = new ProductDrop() })));
         }
 
         [Test]

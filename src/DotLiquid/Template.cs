@@ -273,15 +273,15 @@ namespace DotLiquid
         /// Parse source code.
         /// Returns self for easy chaining
         /// </summary>
-        /// <param name="source"></param>
-        /// <returns></returns>
+        /// <param name="source">The source code.</param>
+        /// <returns>The template.</returns>
         internal Template ParseInternal(string source)
         {
             source = DotLiquid.Tags.Literal.FromShortHand(source);
             source = DotLiquid.Tags.Comment.FromShortHand(source);
 
-            Root = new Document();
-            Root.Initialize(null, null, Tokenize(source));
+            this.Root = new Document();
+            this.Root.Initialize(tagName: null, markup: null, tokens: Template.Tokenize(source));
             return this;
         }
 
@@ -289,7 +289,6 @@ namespace DotLiquid
         /// Make this template instance thread safe.
         /// After this call, you can't use template owned variables anymore.
         /// </summary>
-        /// <returns></returns>
         public void MakeThreadSafe()
         {
             _isThreadSafe = true;
@@ -298,7 +297,7 @@ namespace DotLiquid
         /// <summary>
         /// Renders the template using default parameters and the current culture and returns a string containing the result.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>The rendering result as string.</returns>
         public string Render(IFormatProvider formatProvider = null)
         {
             formatProvider = formatProvider ?? CultureInfo.CurrentCulture;
@@ -308,22 +307,19 @@ namespace DotLiquid
         /// <summary>
         /// Renders the template using the specified local variables and returns a string containing the result.
         /// </summary>
-        /// <param name="localVariables"></param>
-        /// <param name="formatProvider"></param>
-        /// <returns></returns>
+        /// <param name="localVariables">Local variables.</param>
+        /// <param name="formatProvider">String formatting provider.</param>
+        /// <returns>The rendering result as string.</returns>
         public string Render(Hash localVariables, IFormatProvider formatProvider=null)
         {
-            formatProvider = formatProvider ?? CultureInfo.CurrentCulture;
-            using (var writer = new StringWriter( formatProvider ))
+            using (var writer = new StringWriter(formatProvider ?? CultureInfo.CurrentCulture))
             {
-                formatProvider = writer.FormatProvider;
-
-                var parameters = new RenderParameters(formatProvider)
-                {
-                    LocalVariables = localVariables
-                };
-
-                return Render( writer, parameters );
+                return this.Render(
+                    writer: writer,
+                    parameters: new RenderParameters(writer.FormatProvider)
+                    {
+                        LocalVariables = localVariables
+                    });
             }
         }
 
@@ -331,23 +327,30 @@ namespace DotLiquid
         /// <summary>
         /// Renders the template using the specified parameters and returns a string containing the result.
         /// </summary>
-        /// <param name="parameters"></param>
-        /// <returns></returns>
+        /// <param name="parameters">Render parameters.</param>
+        /// <returns>The rendering result as string.</returns>
         public string Render(RenderParameters parameters)
         {
-            using (var writer =  new StringWriter(parameters.FormatProvider))
+            using (var writer = new StringWriter(parameters.FormatProvider))
             {
-                return Render( writer, parameters );
+                return this.Render(writer, parameters );
             }
         }
 
+        /// <summary>
+        /// Renders the template using the specified parameters and returns a string containing the result.
+        /// </summary>
+        /// <param name="writer">Render parameters.</param>
+        /// <param name="parameters"></param>
+        /// <returns>The rendering result as string.</returns>
         public string Render(TextWriter writer, RenderParameters parameters)
         {
             if (writer == null)
-                throw new ArgumentNullException( nameof(writer) );
+                throw new ArgumentNullException(paramName: nameof(writer));
             if (parameters == null)
-                throw new ArgumentNullException( nameof(parameters) );
-            RenderInternal( writer, parameters );
+                throw new ArgumentNullException(paramName: nameof(parameters));
+
+            this.RenderInternal(writer, parameters);
             return writer.ToString();
         }
 
@@ -362,8 +365,8 @@ namespace DotLiquid
         /// <summary>
         /// Renders the template into the specified Stream.
         /// </summary>
-        /// <param name="stream"></param>
-        /// <param name="parameters"></param>
+        /// <param name="stream">The stream to render into.</param>
+        /// <param name="parameters">The render parameters.</param>
         public void Render(Stream stream, RenderParameters parameters)
         {
             // Can't dispose this new StreamWriter, because it would close the

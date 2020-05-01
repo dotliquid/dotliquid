@@ -129,6 +129,12 @@ namespace DotLiquid.Tests
             Assert.AreEqual("", StandardFilters.Join(""));
             Assert.AreEqual("1 2 3 4", StandardFilters.Join(new[] { 1, 2, 3, 4 }));
             Assert.AreEqual("1 - 2 - 3 - 4", StandardFilters.Join(new[] { 1, 2, 3, 4 }, " - "));
+
+            // Sample from specification at https://shopify.github.io/liquid/filters/join/
+            Helper.AssertTemplateResult(
+                expected: "\r\nJohn and Paul and George and Ringo",
+                template: @"{% assign beatles = ""John, Paul, George, Ringo"" | split: "", "" %}
+{{ beatles | join: "" and "" }}");
         }
 
         [Test]
@@ -178,13 +184,12 @@ namespace DotLiquid.Tests
             Assert.AreEqual(hash2["content"], result[2]["content"]);
         }
 
-        private static Hash CreateHash(string sortby, string content)
-        {
-            var hash = new Hash();
-            hash.Add("sortby", sortby);
-            hash.Add("content", content);
-            return hash;
-        }
+        private static Hash CreateHash(string sortby, string content) =>
+            new Hash
+            {
+                { "sortby", sortby },
+                { "content", content }
+            };
 
         [Test]
         public void TestMap()
@@ -232,6 +237,200 @@ namespace DotLiquid.Tests
 
             Helper.AssertTemplateResult("abc", "{{ ary | map:'prop' | join:'' }}", hash);
             Helper.AssertTemplateResult("", "{{ ary | map:'no_prop' | join:'' }}", hash);
+        }
+
+        /// <summary>
+        /// Tests map filter per Shopify specification sample
+        /// </summary>
+        /// <remarks><see href="https://shopify.github.io/liquid/filters/map/"/></remarks>
+        [Test]
+        public void TestMapSpecificationSample()
+        {
+            var hash = Hash.FromAnonymousObject(new
+            {
+                site = new {
+                    pages = new[] {
+                        new { category = "business" },
+                        new { category = "celebrities" },
+                        new { category = "lifestyle" },
+                        new { category = "sports" },
+                        new { category = "technology" }
+                    }
+                }
+            });
+
+            Helper.AssertTemplateResult(
+                expected: "\r\n- business\r\n\r\n- celebrities\r\n\r\n- lifestyle\r\n\r\n- sports\r\n\r\n- technology\r\n",
+                template: @"{% assign all_categories = site.pages | map: ""category"" %}{% for item in all_categories %}
+- {{ item }}
+{% endfor %}",
+                localVariables: hash);
+        }
+
+        /// <summary>
+        /// Tests map filter per Shopify specification sample
+        /// </summary>
+        /// <remarks>In this variant of the test we add another property to the items in the collection to ensure the map filter does its job of removing other properties</remarks>
+        [Test]
+        public void TestMapSpecificationSampleVariant()
+        {
+            var hash = Hash.FromAnonymousObject(new
+            {
+                site = new
+                {
+                    pages = new[] {
+                        new { category = "business", author = "Joe" },
+                        new { category = "celebrities", author = "Jon" },
+                        new { category = "lifestyle", author = "John" },
+                        new { category = "sports", author = "Joan" },
+                        new { category = "technology", author = "Jean" }
+                    }
+                }
+            });
+
+            Helper.AssertTemplateResult(
+                expected: "\r\n- business\r\n\r\n- celebrities\r\n\r\n- lifestyle\r\n\r\n- sports\r\n\r\n- technology\r\n",
+                template: @"{% assign all_categories = site.pages | map: ""category"" %}{% for item in all_categories %}
+- {{ item }}
+{% endfor %}", localVariables: hash);
+        }
+
+        [Test]
+        public void TestMapShipmentPackage()
+        {
+            var hash = Hash.FromAnonymousObject(new
+            {
+                content = new
+                {
+                    carrierSettings = new[] {
+                        new
+                        {
+                            numberOfPiecesPerPackage = 10,
+                            test = "test"
+                        },
+                        new
+                        {
+                            numberOfPiecesPerPackage = 12,
+                            test = "test1"
+                        }
+                    }
+                }
+            });
+
+            Helper.AssertTemplateResult(
+                expected: "{\r\n\r\n\"tests\" : [\r\n            {\r\n                \"numberOfPiecesPerPackage\" : \"10\"\r\n      },\r\n      \r\n            {\r\n                \"numberOfPiecesPerPackage\" : \"12\"\r\n      },\r\n      ]\r\n}",
+                template: @"{
+{% assign test1 = content.carrierSettings | map: ""numberOfPiecesPerPackage"" %}
+""tests"" : [{% for test in test1 %}
+            {
+                ""numberOfPiecesPerPackage"" : ""{{ test }}""
+      },
+      {% endfor %}]
+}",
+                localVariables: hash);
+
+            Helper.AssertTemplateResult(
+                expected: "{\r\n\r\n\"tests\" : 1012\r\n}",
+                template: @"{
+{% assign test1 = content.carrierSettings | map: ""numberOfPiecesPerPackage"" %}
+""tests"" : {{test1}}
+}",
+                localVariables: hash);
+        }
+
+        private class Package : IIndexable, ILiquidizable
+        {
+            private readonly int numberOfPiecesPerPackage;
+
+            private readonly string test;
+
+            public Package(int numberOfPiecesPerPackage, string test)
+            {
+                this.numberOfPiecesPerPackage = numberOfPiecesPerPackage;
+                this.test = test;
+            }
+
+            public object this[object key] => key as string == "numberOfPiecesPerPackage"
+                ? this.numberOfPiecesPerPackage as object
+                : key as string == "test"
+                    ? test
+                    : null;
+
+            public bool ContainsKey(object key)
+            {
+                return new List<string> { nameof(numberOfPiecesPerPackage), nameof(test) }
+                    .Contains(key);
+            }
+
+            public object ToLiquid()
+            {
+                return this;
+            }
+        };
+
+        [Test]
+        public void TestMapIndexable()
+        {
+            var hash = Hash.FromAnonymousObject(new
+            {
+                content = new
+                {
+                    carrierSettings = new[]
+                    {
+                        new Package(numberOfPiecesPerPackage:10, test:"test"),
+                        new Package(numberOfPiecesPerPackage:12, test:"test1"),
+                    }
+                }
+            });
+
+            Helper.AssertTemplateResult(
+                expected: "{\r\n\r\n\"tests\" : [\r\n            {\r\n                \"numberOfPiecesPerPackage\" : \"10\"\r\n      },\r\n      \r\n            {\r\n                \"numberOfPiecesPerPackage\" : \"12\"\r\n      },\r\n      ]\r\n}",
+                template: @"{
+{% assign test1 = content.carrierSettings | map: ""numberOfPiecesPerPackage"" %}
+""tests"" : [{% for test in test1 %}
+            {
+                ""numberOfPiecesPerPackage"" : ""{{ test }}""
+      },
+      {% endfor %}]
+}",
+                localVariables: hash);
+
+            Helper.AssertTemplateResult(
+                expected: "{\r\n\r\n\"tests\" : 1012\r\n}",
+                template: @"{
+{% assign test1 = content.carrierSettings | map: ""numberOfPiecesPerPackage"" %}
+""tests"" : {{test1}}
+}",
+                localVariables: hash);
+        }
+
+        [Test]
+        public void TestMapJoin()
+        {
+            var hash = Hash.FromAnonymousObject(new
+            {
+                content = new
+                {
+                    carrierSettings = new[] {
+                        new
+                        {
+                            numberOfPiecesPerPackage = 10,
+                            test = "test"
+                        },
+                        new
+                        {
+                            numberOfPiecesPerPackage = 12,
+                            test = "test1"
+                        }
+                    }
+                }
+            });
+
+            Helper.AssertTemplateResult(
+                expected: "\r\n{ \"test\": \"10, 12\"}",
+                template: @"{% assign test = content.carrierSettings | map: ""numberOfPiecesPerPackage"" | join: "", ""%}
+{ ""test"": ""{{test}}""}",
+                localVariables: hash);
         }
 
         [TestCase("6.72", "$6.72")]

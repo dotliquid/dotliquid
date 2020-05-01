@@ -135,6 +135,31 @@ namespace DotLiquid.Tests
             }
         }
 
+        private class IndexableLiquidizable : IIndexable, ILiquidizable
+        {
+            private const string theKey = "thekey";
+
+            public object this[object key] => key as string == theKey ? new LiquidizableList() : null;
+
+            public bool ContainsKey(object key)
+            {
+                return key as string == theKey;
+            }
+
+            public object ToLiquid()
+            {
+                return this;
+            }
+        }
+
+        private class LiquidizableList : ILiquidizable
+        {
+            public object ToLiquid()
+            {
+                return new List<string>(new[] { "text1", "text2" });
+            }
+        }
+
         #endregion
 
         private Context _context;
@@ -613,6 +638,42 @@ namespace DotLiquid.Tests
             Assert.AreEqual(1, _context["counter['count']"]);
             Assert.AreEqual(2, _context["counter['count']"]);
             Assert.AreEqual(3, _context["counter['count']"]);
+        }
+
+        [Test]
+        public void TestListRendering()
+        {
+            Assert.AreEqual(
+                expected: "text1text2",
+                actual: Template
+                    .Parse("{{context}}")
+                    .Render(Hash.FromAnonymousObject(new { context = new LiquidizableList() })));
+        }
+
+        [Test]
+        public void TestWrappedListRendering()
+        {
+            Assert.AreEqual(
+                expected: string.Empty,
+                actual: Template
+                    .Parse("{{context}}")
+                    .Render(Hash.FromAnonymousObject(new { context = new IndexableLiquidizable() })));
+
+            Assert.AreEqual(
+                expected: "text1text2",
+                actual: Template
+                    .Parse("{{context.thekey}}")
+                    .Render(Hash.FromAnonymousObject(new { context = new IndexableLiquidizable() })));
+        }
+
+        [Test]
+        public void TestDictionaryRendering()
+        {
+            Assert.AreEqual(
+                expected: "[lambda, Hello][alpha, bet]",
+                actual: Template
+                    .Parse("{{context}}")
+                    .Render(Hash.FromAnonymousObject(new { context = new Dictionary<string, object> { ["lambda"] = "Hello", ["alpha"] = "bet" } })));
         }
 
         [Test]

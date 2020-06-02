@@ -614,7 +614,7 @@ namespace DotLiquid
         /// <returns></returns>
         public static object Times(object input, object operand)
         {
-            return input is string && operand is long
+            return input is string && (operand is int || operand is long)
                 ? Enumerable.Repeat((string)input, Convert.ToInt32(operand))
                 : DoMathsOperation(input, operand, Expression.MultiplyChecked);
         }

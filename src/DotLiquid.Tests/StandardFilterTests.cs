@@ -35,12 +35,13 @@ namespace DotLiquid.Tests
         [Test]
         public void TestTruncate()
         {
-            Assert.AreEqual(null, StandardFilters.Truncate(null));
-            Assert.AreEqual("", StandardFilters.Truncate(""));
-            Assert.AreEqual("1234...", StandardFilters.Truncate("1234567890", 7));
-            Assert.AreEqual("1234567890", StandardFilters.Truncate("1234567890", 20));
-            Assert.AreEqual("...", StandardFilters.Truncate("1234567890", 0));
-            Assert.AreEqual("1234567890", StandardFilters.Truncate("1234567890"));
+            Assert.AreEqual(expected: null, actual: StandardFilters.Truncate(null));
+            Assert.AreEqual(expected: "", actual: StandardFilters.Truncate(""));
+            Assert.AreEqual(expected: "1234...", actual: StandardFilters.Truncate("1234567890", 7));
+            Assert.AreEqual(expected: "1234567890", actual: StandardFilters.Truncate("1234567890", 20));
+            Assert.AreEqual(expected: "...", actual: StandardFilters.Truncate("1234567890", 0));
+            Assert.AreEqual(expected: "1234567890", actual: StandardFilters.Truncate("1234567890"));
+            Helper.AssertTemplateResult(expected: "H...", template: "{{ 'Hello' | truncate:4 }}");
         }
 
         [Test]

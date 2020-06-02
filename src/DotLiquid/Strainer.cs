@@ -133,6 +133,18 @@ namespace DotLiquid
                     args.Add(parameterInfos[i].DefaultValue);
                 }
 
+            // Attempt conversions where required by type mismatch and possible by value range.
+            // These may be narrowing conversions (e.g. Int64 to Int32) when the actual range doesn't cause an overflow.
+            for (var argumentIndex = 0; argumentIndex < parameterInfos.Length; argumentIndex++)
+            {
+                if (args[argumentIndex] != null
+                    && args[argumentIndex].GetType() != parameterInfos[argumentIndex].ParameterType
+                    && args[argumentIndex] is IConvertible)
+                {
+                    args[argumentIndex] = Convert.ChangeType(args[argumentIndex], parameterInfos[argumentIndex].ParameterType);
+                }
+            }
+
             try
             {
                 return methodInfo.Item2.Invoke(methodInfo.Item1, args.ToArray());

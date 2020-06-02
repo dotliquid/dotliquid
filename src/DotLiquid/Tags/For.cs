@@ -107,8 +107,8 @@ namespace DotLiquid.Tags
                     : Convert.ToInt32(context[_attributes["offset"]])
                 : 0;
 
-            long? limit = _attributes.ContainsKey("limit") ? context[_attributes["limit"]] as long? : null;
-            long? to = (limit != null) ? (long?) (limit.Value + from) : null;
+            int? limit = _attributes.ContainsKey("limit") ? (int?)Convert.ToInt32(context[_attributes["limit"]]) : null;
+            int? to = (limit != null) ? (int?)(limit.Value + from) : null;
 
             List<object> segment = SliceCollectionUsingEach(context, (IEnumerable) collection, from, to);
 
@@ -166,7 +166,7 @@ namespace DotLiquid.Tags
             });
         }
 
-        private static List<object> SliceCollectionUsingEach(Context context, IEnumerable collection, int from, long? to)
+        private static List<object> SliceCollectionUsingEach(Context context, IEnumerable collection, int from, int? to)
         {
             List<object> segments = new List<object>();
             int index = 0;

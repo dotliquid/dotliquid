@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using DotLiquid.Util;
 
@@ -25,12 +26,25 @@ namespace DotLiquid
             { ">", (left, right) => left != null && right != null && Comparer<object>.Default.Compare(left, Convert.ChangeType(right, left.GetType())) == 1 },
             { "<=", (left, right) => left != null && right != null && Comparer<object>.Default.Compare(left, Convert.ChangeType(right, left.GetType())) <= 0 },
             { ">=", (left, right) => left != null && right != null && Comparer<object>.Default.Compare(left, Convert.ChangeType(right, left.GetType())) >= 0 },
-            { "contains", (left, right) => (left is IList) ? ((IList) left).Contains(right) : ((left is string) ? ((string) left).Contains((string) right) : false) },
+            { "contains", (left, right) => ((left is string) ? ((string)left).Contains((string)right) : (left is IEnumerable) ? Any((IEnumerable) left, (element) => element.BackCompatSafeTypeInsensitiveEqual(right)) : false) },
             { "startsWith", (left, right) => (left is IList) ? EqualVariables(((IList) left).OfType<object>().FirstOrDefault(), right) : ((left is string) ? ((string)left).StartsWith((string) right) : false) },
             { "endsWith", (left, right) => (left is IList) ? EqualVariables(((IList) left).OfType<object>().LastOrDefault(), right) : ((left is string) ? ((string)left).EndsWith((string) right) : false) },
             { "hasKey", (left, right) => (left is IDictionary) ? ((IDictionary) left).Contains(right) : false },
             { "hasValue", (left, right) => (left is IDictionary) ? ((IDictionary) left).Values.Cast<object>().Contains(right) : false }
         };
+
+        private static bool Any(IEnumerable enumerable, Func<object, bool> condition)
+        {
+            foreach (var obj in enumerable)
+            {
+                if (condition(obj))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         private string _childRelation;
 
@@ -111,18 +125,7 @@ namespace DotLiquid
                 return rightSymbol.EvaluationFunction(left);
             }
 
-            if (left != null && right != null && left.GetType() != right.GetType())
-            {
-                try
-                {
-                    right = Convert.ChangeType(right, left.GetType());
-                }
-                catch (Exception)
-                {
-                }
-            }
-
-            return Equals(left, right);
+            return left.SafeTypeInsensitiveEqual(right);
         }
 
         private static bool InterpretCondition(string left, string right, string op, Context context)

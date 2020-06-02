@@ -31,7 +31,20 @@ namespace DotLiquid.Tests
             }
         }
 
-        private static class FiltersWithArguments
+        private static class FiltersWithArgumentsInt
+        {
+            public static string Adjust(int input, int offset = 10)
+            {
+                return string.Format("[{0:d}]", input + offset);
+            }
+
+            public static string AddSub(int input, int plus, int minus = 20)
+            {
+                return string.Format("[{0:d}]", input + plus - minus);
+            }
+        }
+
+        private static class FiltersWithArgumentsLong
         {
             public static string Adjust(long input, long offset = 10)
             {
@@ -115,7 +128,7 @@ namespace DotLiquid.Tests
         public void TestFilterWithNumericArgument()
         {
             _context["var"] = 1000L;
-            _context.AddFilters(typeof(FiltersWithArguments));
+            _context.AddFilters(typeof(FiltersWithArgumentsInt));
             Assert.AreEqual("[1005]", new Variable("var | adjust: 5").Render(_context));
         }
 
@@ -123,7 +136,7 @@ namespace DotLiquid.Tests
         public void TestFilterWithNegativeArgument()
         {
             _context["var"] = 1000L;
-            _context.AddFilters(typeof(FiltersWithArguments));
+            _context.AddFilters(typeof(FiltersWithArgumentsInt));
             Assert.AreEqual("[995]", new Variable("var | adjust: -5").Render(_context));
         }
 
@@ -131,7 +144,7 @@ namespace DotLiquid.Tests
         public void TestFilterWithDefaultArgument()
         {
             _context["var"] = 1000;
-            _context.AddFilters(typeof(FiltersWithArguments));
+            _context.AddFilters(typeof(FiltersWithArgumentsInt));
             Assert.AreEqual("[1010]", new Variable("var | adjust").Render(_context));
         }
 
@@ -139,7 +152,39 @@ namespace DotLiquid.Tests
         public void TestFilterWithTwoArguments()
         {
             _context["var"] = 1000L;
-            _context.AddFilters(typeof(FiltersWithArguments));
+            _context.AddFilters(typeof(FiltersWithArgumentsInt));
+            Assert.AreEqual("[1150]", new Variable("var | add_sub: 200, 50").Render(_context));
+        }
+
+        [Test]
+        public void TestFilterWithNumericArgumentLong()
+        {
+            _context["var"] = 1000;
+            _context.AddFilters(typeof(FiltersWithArgumentsLong));
+            Assert.AreEqual("[1005]", new Variable("var | adjust: 5").Render(_context));
+        }
+
+        [Test]
+        public void TestFilterWithNegativeArgumentLong()
+        {
+            _context["var"] = 1000;
+            _context.AddFilters(typeof(FiltersWithArgumentsLong));
+            Assert.AreEqual("[995]", new Variable("var | adjust: -5").Render(_context));
+        }
+
+        [Test]
+        public void TestFilterWithDefaultArgumentLong()
+        {
+            _context["var"] = 1000;
+            _context.AddFilters(typeof(FiltersWithArgumentsLong));
+            Assert.AreEqual("[1010]", new Variable("var | adjust").Render(_context));
+        }
+
+        [Test]
+        public void TestFilterWithTwoArgumentsLong()
+        {
+            _context["var"] = 1000;
+            _context.AddFilters(typeof(FiltersWithArgumentsLong));
             Assert.AreEqual("[1150]", new Variable("var | add_sub: 200, 50").Render(_context));
         }
 

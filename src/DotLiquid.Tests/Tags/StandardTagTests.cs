@@ -182,6 +182,17 @@ namespace DotLiquid.Tests.Tags
         public void TestDynamicVariableLimiting()
         {
             Hash assigns = Hash.FromAnonymousObject(new { array = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 } });
+            assigns["limit"] = 2;
+            assigns["offset"] = 2;
+            Helper.AssertTemplateResult("34", "{%for i in array limit: limit offset: offset %}{{ i }}{%endfor%}", assigns);
+        }
+
+        [Test]
+        public void TestDynamicVariableLimitingLong()
+        {
+            Hash assigns = Hash.FromAnonymousObject(new { array = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 } });
+
+            // NOTE(David Burg): Although using long type here for the sake of argument, not using a value necessitating as such extreme large iteration would lead to DOS / extreme execution time.
             assigns["limit"] = 2L;
             assigns["offset"] = 2;
             Helper.AssertTemplateResult("34", "{%for i in array limit: limit offset: offset %}{{ i }}{%endfor%}", assigns);

@@ -41,6 +41,14 @@ namespace DotLiquid.Tests
             Assert.AreEqual("1234567890", StandardFilters.Truncate("1234567890", 20));
             Assert.AreEqual("...", StandardFilters.Truncate("1234567890", 0));
             Assert.AreEqual("1234567890", StandardFilters.Truncate("1234567890"));
+
+            Helper.AssertTemplateResult(expected: "Ground control to...", template: "{{ 'Ground control to Major Tom.' | truncate:20 }}");
+            Helper.AssertTemplateResult(expected: "Ground control, and so on", template: "{{ 'Ground control to Major Tom.' | truncate:25, ', and so on' }}");
+            Helper.AssertTemplateResult(expected: "Ground control to Ma", template: "{{ 'Ground control to Major Tom.' | truncate:20, '' }}");
+            Helper.AssertTemplateResult(expected: "...", template: "{{ 'Ground control to Major Tom.' | truncate:0 }}");
+            Helper.AssertTemplateResult(expected: "Liquid error: length parameter of truncate filter is out of the range of valid positive integers.", template: "{{ 'Ground control to Major Tom.' | truncate:-1 }}");
+            Helper.AssertTemplateResult(expected: "Liquid error: Value was either too large or too small for an Int32.", template: "{{ 'Ground control to Major Tom.' | truncate:" + int.MaxValue + 1 + " }}");
+
         }
 
         [Test]
@@ -61,6 +69,14 @@ namespace DotLiquid.Tests
             Assert.AreEqual("one two...", StandardFilters.TruncateWords("one two three", 2));
             Assert.AreEqual("one two three", StandardFilters.TruncateWords("one two three"));
             Assert.AreEqual("Two small (13&#8221; x 5.5&#8221; x 10&#8221; high) baskets fit inside one large basket (13&#8221;...", StandardFilters.TruncateWords("Two small (13&#8221; x 5.5&#8221; x 10&#8221; high) baskets fit inside one large basket (13&#8221; x 16&#8221; x 10.5&#8221; high) with cover.", 15));
+
+            Helper.AssertTemplateResult(expected: "Ground control to...", template: "{{ 'Ground control to Major Tom.' | truncate_words:3 }}");
+            Helper.AssertTemplateResult(expected: "Ground control to--", template: "{{ 'Ground control to Major Tom.' | truncate_words:3, '--' }}");
+            Helper.AssertTemplateResult(expected: "Ground control to", template: "{{ 'Ground control to Major Tom.' | truncate_words:3, '' }}");
+            Helper.AssertTemplateResult(expected: "...", template: "{{ 'Ground control to Major Tom.' | truncate_words:0 }}");
+            Helper.AssertTemplateResult(expected: "Liquid error: words parameter of truncate-words filter is out of the range of valid positive integers.", template: "{{ 'Ground control to Major Tom.' | truncate_words:-1 }}");
+            Helper.AssertTemplateResult(expected: "Liquid error: Value was either too large or too small for an Int32.", template: "{{ 'Ground control to Major Tom.' | truncate_words:" + int.MaxValue + 1 + " }}");
+
         }
 
         [Test]

@@ -109,8 +109,8 @@ namespace DotLiquid
         public object Invoke(string method, List<object> args)
         {
             // First, try to find a method with the same number of arguments minus context which we set automatically further down.
-            var methodInfo = _methods[method].FirstOrDefault(m => 
-                m.Item2.GetParameters().Where(p => p.ParameterType != typeof(Context)).Count() == args.Count);
+            var methodInfo = _methods[method].FirstOrDefault(m =>
+                m.Item2.GetParameters().Count(p => p.ParameterType != typeof(Context)) == args.Count);
 
             // If we failed to do so, try one with max numbers of arguments, hoping
             // that those not explicitly specified will be taken care of
@@ -132,6 +132,16 @@ namespace DotLiquid
                         throw new SyntaxException(Liquid.ResourceManager.GetString("StrainerFilterHasNoValueException"), method, parameterInfos[i].Name);
                     args.Add(parameterInfos[i].DefaultValue);
                 }
+
+            // Attempt conversions where required by type mismatch and possible by value range.
+            // These may be narrowing conversions (e.g. Int64 to Int32) when the actual range doesn't cause an overflow.
+            for (int argumentIndex = 0; argumentIndex < parameterInfos.Length; argumentIndex++)
+            {
+                var convertibleArg = args[argumentIndex] as IConvertible;
+                ParameterInfo parameterInfo = parameterInfos[argumentIndex];
+                if (convertibleArg != null && convertibleArg.GetType() != parameterInfo.ParameterType)
+                    args[argumentIndex] = Convert.ChangeType(convertibleArg, parameterInfo.ParameterType);
+            }
 
             try
             {

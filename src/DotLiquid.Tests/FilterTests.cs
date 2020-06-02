@@ -262,52 +262,5 @@ namespace DotLiquid.Tests
             Assert.AreEqual(" King Kong has 1000$ ", new Variable("var | bank_statement").Render(_context));
         }
 
-        [Test]
-        public void Truncate()
-        {
-            var variable = new Variable("\"Ground control to Major Tom.\" | truncate: 20");
-            Assert.AreEqual("Ground control to...", variable.Render(_context));
-
-            variable = new Variable("\"Ground control to Major Tom.\" | truncate: 25, \", and so on\"");
-            Assert.AreEqual("Ground control, and so on", variable.Render(_context));
-
-            variable = new Variable("\"Ground control to Major Tom.\" | truncate: 20, \"\"");
-            Assert.AreEqual("Ground control to Ma", variable.Render(_context));
-
-            variable = new Variable("\"Ground control to Major Tom.\" | truncate: 0");
-            Assert.AreEqual("...", variable.Render(_context));
-
-            variable = new Variable("\"Ground control to Major Tom.\" | truncate: -1");
-            Assert.That(() => variable.Render(_context), Throws.Exception.TypeOf<ArgumentException>());
-
-            variable = new Variable($"\"Ground control to Major Tom.\" | truncate: {((long)int.MaxValue) + 1}");
-            Assert.That(() => variable.Render(_context), Throws.Exception.TypeOf<ArgumentException>());
-
-        }
-
-        [Test]
-        public void TruncateWords()
-        {
-
-            var variable = new Variable("\"Ground control to Major Tom.\" | truncate_words: 3");
-            Assert.AreEqual("Ground control to...", variable.Render(_context));
-
-            variable = new Variable("\"Ground control to Major Tom.\" | truncate_words: 3, \"--\"");
-            Assert.AreEqual("Ground control to--", variable.Render(_context));
-
-            variable = new Variable("\"Ground control to Major Tom.\" | truncate_words: 3, \"\"");
-            Assert.AreEqual("Ground control to", variable.Render(_context));
-
-            variable = new Variable("\"Ground control to Major Tom.\" | truncate_words: 0");
-            Assert.AreEqual("...", variable.Render(_context));
-
-            variable = new Variable("\"Ground control to Major Tom.\" | truncate_words: -1");
-            Assert.That(() => variable.Render(_context), Throws.Exception.TypeOf<ArgumentException>());
-
-            variable = new Variable($"\"Ground control to Major Tom.\" | truncate_words: {((long)int.MaxValue) + 1}");
-            Assert.That(() => variable.Render(_context), Throws.Exception.TypeOf<ArgumentException>());
-
-        }
-
     }
 }

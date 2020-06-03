@@ -599,11 +599,14 @@ namespace DotLiquid.Tests
         [Test]
         public void TestReplace()
         {
-            Assert.Null(StandardFilters.Replace(null, "a", "b"));
-            Assert.AreEqual("", StandardFilters.Replace("", "a", "b"));
-            Assert.AreEqual("a a a a", StandardFilters.Replace("a a a a", null, "b"));
-            Assert.AreEqual("a a a a", StandardFilters.Replace("a a a a", "", "b"));
-            Assert.AreEqual("b b b b", StandardFilters.Replace("a a a a", "a", "b"));
+            Assert.Null(StandardFilters.Replace(input: null, @string: "a", replacement: "b"));
+            Assert.AreEqual(expected: "", actual: StandardFilters.Replace(input: "", @string: "a", replacement: "b"));
+            Assert.AreEqual(expected: "a a a a", actual: StandardFilters.Replace(input: "a a a a", @string: null, replacement: "b"));
+            Assert.AreEqual(expected: "a a a a", actual: StandardFilters.Replace(input: "a a a a", @string: "", replacement: "b"));
+            Assert.AreEqual(expected: "b b b b", actual: StandardFilters.Replace(input: "a a a a", @string: "a", replacement: "b"));
+
+            Assert.AreEqual(expected: "Tesvalue\\\"", actual: StandardFilters.Replace(input: "Tesvalue\"", @string: "\"", replacement: "\\\""));
+            Helper.AssertTemplateResult(expected: "Tesvalue\\\"", template: "{{ 'Tesvalue\"' | replace: '\"', '\\\"' }}");
         }
 
         [Test]

@@ -607,6 +607,10 @@ namespace DotLiquid.Tests
 
             Assert.AreEqual(expected: "Tesvalue\\\"", actual: StandardFilters.Replace(input: "Tesvalue\"", @string: "\"", replacement: "\\\""));
             Helper.AssertTemplateResult(expected: "Tesvalue\\\"", template: "{{ 'Tesvalue\"' | replace: '\"', '\\\"' }}");
+            Helper.AssertTemplateResult(
+                expected: "Tesvalue\\\"",
+                template: "{{ context | replace: '\"', '\\\"' }}",
+                localVariables: Hash.FromAnonymousObject(new { context = "Tesvalue\"" }));
         }
 
         [Test]

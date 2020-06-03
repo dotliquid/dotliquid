@@ -106,6 +106,12 @@ namespace DotLiquid
             return _methods.ContainsKey(method);
         }
 
+        /// <summary>
+        /// Invoke specified method with provided arguments
+        /// </summary>
+        /// <param name="method">The method token.</param>
+        /// <param name="args">The arguments for invoking the method</param>
+        /// <returns>The method's return.</returns>
         public object Invoke(string method, List<object> args)
         {
             // First, try to find a method with the same number of arguments minus context which we set automatically further down.
@@ -142,7 +148,7 @@ namespace DotLiquid
                     var parameterType = parameterInfos[argumentIndex].ParameterType;
                     if (convertibleArg.GetType() != parameterType)
                     {
-                        args[argumentIndex] = Convert.ChangeType(args[argumentIndex], parameterType);
+                        args[argumentIndex] = Convert.ChangeType(convertibleArg, parameterType);
                     }
                 }
             }

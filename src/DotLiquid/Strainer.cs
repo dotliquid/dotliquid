@@ -110,7 +110,7 @@ namespace DotLiquid
         {
             // First, try to find a method with the same number of arguments minus context which we set automatically further down.
             var methodInfo = _methods[method].FirstOrDefault(m => 
-                m.Item2.GetParameters().Where(p => p.ParameterType != typeof(Context)).Count() == args.Count);
+                m.Item2.GetParameters().Count(p => p.ParameterType != typeof(Context)) == args.Count);
 
             // If we failed to do so, try one with max numbers of arguments, hoping
             // that those not explicitly specified will be taken care of
@@ -137,11 +137,13 @@ namespace DotLiquid
             // These may be narrowing conversions (e.g. Int64 to Int32) when the actual range doesn't cause an overflow.
             for (var argumentIndex = 0; argumentIndex < parameterInfos.Length; argumentIndex++)
             {
-                if (args[argumentIndex] != null
-                    && args[argumentIndex].GetType() != parameterInfos[argumentIndex].ParameterType
-                    && args[argumentIndex] is IConvertible)
+                if (args[argumentIndex] is IConvertible convertibleArg)
                 {
-                    args[argumentIndex] = Convert.ChangeType(args[argumentIndex], parameterInfos[argumentIndex].ParameterType);
+                    var parameterType = parameterInfos[argumentIndex].ParameterType;
+                    if (convertibleArg.GetType() != parameterType)
+                    {
+                        args[argumentIndex] = Convert.ChangeType(args[argumentIndex], parameterType);
+                    }
                 }
             }
 

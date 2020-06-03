@@ -61,13 +61,36 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestContainsWorksOnArrays()
+        public void TestContainsWorksOnIntArrays()
+        {
+            // NOTE(daviburg): DotLiquid is in violation of explicit non-support of arrays for contains operators, quote:
+            // "contains can only search strings. You cannot use it to check for an object in an array of objects."
+            // https://shopify.github.io/liquid/basics/operators/
+            // This is a rather harmless violation as all it does in generate useful output for a request which would fail
+            // in the canonical Shopify implementation.
+            _context = new Context(CultureInfo.InvariantCulture);
+            _context["array"] = new[] { 1, 2, 3, 4, 5 };
+
+            AssertEvaluatesTrue(left: "array", op: "contains", right: "1");
+            AssertEvaluatesFalse(left: "array", op: "contains", right: "0");
+            AssertEvaluatesTrue(left: "array", op: "contains", right: "2");
+            AssertEvaluatesTrue(left: "array", op: "contains", right: "3");
+            AssertEvaluatesTrue(left: "array", op: "contains", right: "4");
+            AssertEvaluatesTrue(left: "array", op: "contains", right: "5");
+            AssertEvaluatesFalse(left: "array", op: "contains", right: "6");
+
+            // NOTE(daviburg): Historically testing for equality cross integer and string boundaries resulted in not equal.
+            AssertEvaluatesFalse(left: "array", op: "contains", right: "'1'");
+        }
+
+        [Test]
+        public void TestContainsWorksOnLongArrays()
         {
             _context = new Context(CultureInfo.InvariantCulture);
             _context["array"] = new long[] { 1, 2, 3, 4, 5 };
 
-            AssertEvaluatesFalse("array", "contains", "0");
             AssertEvaluatesTrue("array", "contains", "1");
+            AssertEvaluatesFalse("array", "contains", "0");
             AssertEvaluatesTrue("array", "contains", "2");
             AssertEvaluatesTrue("array", "contains", "3");
             AssertEvaluatesTrue("array", "contains", "4");
@@ -218,12 +241,50 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestCapitalInCustomOperator()
+        public void TestCapitalInCustomOperatorInt()
         {
             try
             {
                 Condition.Operators["IsMultipleOf"] =
-                    (left, right) => (long)left % (long)right == 0;
+                    (left, right) => (int)left % (int)right == 0;
+
+                // exact match
+                AssertEvaluatesTrue("16", "IsMultipleOf", "4");
+                AssertEvaluatesTrue("2147483646", "IsMultipleOf", "2");
+                AssertError("2147483648", "IsMultipleOf", "2", typeof(System.InvalidCastException));
+                AssertEvaluatesFalse("16", "IsMultipleOf", "5");
+
+                // lower case: compatibility
+                AssertEvaluatesTrue("16", "ismultipleof", "4");
+                AssertEvaluatesFalse("16", "ismultipleof", "5");
+
+                AssertEvaluatesTrue("16", "is_multiple_of", "4");
+                AssertEvaluatesFalse("16", "is_multiple_of", "5");
+
+                AssertError("16", "isMultipleOf", "4", typeof(ArgumentException));
+
+                //Run tests through the template to verify that capitalization rules are followed through template parsing
+                Helper.AssertTemplateResult(" TRUE ", "{% if 16 IsMultipleOf 4 %} TRUE {% endif %}");
+                Helper.AssertTemplateResult("", "{% if 14 IsMultipleOf 4 %} TRUE {% endif %}");
+                Helper.AssertTemplateResult(" TRUE ", "{% if 16 ismultipleof 4 %} TRUE {% endif %}");
+                Helper.AssertTemplateResult("", "{% if 14 ismultipleof 4 %} TRUE {% endif %}");
+                Helper.AssertTemplateResult(" TRUE ", "{% if 16 is_multiple_of 4 %} TRUE {% endif %}");
+                Helper.AssertTemplateResult("", "{% if 14 is_multiple_of 4 %} TRUE {% endif %}");
+                Helper.AssertTemplateResult("Liquid error: Unknown operator isMultipleOf", "{% if 16 isMultipleOf 4 %} TRUE {% endif %}");
+            }
+            finally
+            {
+                Condition.Operators.Remove("IsMultipleOf");
+            }
+        }
+
+        [Test]
+        public void TestCapitalInCustomOperatorLong()
+        {
+            try
+            {
+                Condition.Operators["IsMultipleOf"] =
+                    (left, right) => System.Convert.ToInt64(left) % System.Convert.ToInt64(right) == 0;
 
                 // exact match
                 AssertEvaluatesTrue("16", "IsMultipleOf", "4");
@@ -256,7 +317,7 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestCapitalInCustomCSharpOperator()
+        public void TestCapitalInCustomCSharpOperatorInt()
         {
             //have to run this test in a lock because it requires
             //changing the globally static NamingConvention
@@ -268,7 +329,50 @@ namespace DotLiquid.Tests
                 try
                 {
                     Condition.Operators["DivisibleBy"] =
-                        (left, right) => (long)left % (long)right == 0;
+                        (left, right) => (int)left % (int)right == 0;
+
+                    // exact match
+                    AssertEvaluatesTrue("16", "DivisibleBy", "4");
+                    AssertEvaluatesTrue("2147483646", "DivisibleBy", "2");
+                    AssertError("2147483648", "DivisibleBy", "2", typeof(System.InvalidCastException));
+                    AssertEvaluatesFalse("16", "DivisibleBy", "5");
+
+                    // lower case: compatibility
+                    AssertEvaluatesTrue("16", "divisibleby", "4");
+                    AssertEvaluatesFalse("16", "divisibleby", "5");
+
+                    AssertError("16", "divisibleBy", "4", typeof(ArgumentException));
+
+                    //Run tests through the template to verify that capitalization rules are followed through template parsing
+                    Helper.AssertTemplateResult(" TRUE ", "{% if 16 DivisibleBy 4 %} TRUE {% endif %}");
+                    Helper.AssertTemplateResult("", "{% if 16 DivisibleBy 5 %} TRUE {% endif %}");
+                    Helper.AssertTemplateResult(" TRUE ", "{% if 16 divisibleby 4 %} TRUE {% endif %}");
+                    Helper.AssertTemplateResult("", "{% if 16 divisibleby 5 %} TRUE {% endif %}");
+                    Helper.AssertTemplateResult("Liquid error: Unknown operator divisibleBy", "{% if 16 divisibleBy 4 %} TRUE {% endif %}");
+                }
+                finally
+                {
+                    Condition.Operators.Remove("DivisibleBy");
+                }
+
+                Template.NamingConvention = oldconvention;
+            }
+        }
+
+        [Test]
+        public void TestCapitalInCustomCSharpOperatorLong()
+        {
+            //have to run this test in a lock because it requires
+            //changing the globally static NamingConvention
+            lock (Template.NamingConvention)
+            {
+                var oldconvention = Template.NamingConvention;
+                Template.NamingConvention = new CSharpNamingConvention();
+
+                try
+                {
+                    Condition.Operators["DivisibleBy"] =
+                        (left, right) => System.Convert.ToInt64(left) % System.Convert.ToInt64(right) == 0;
 
                     // exact match
                     AssertEvaluatesTrue("16", "DivisibleBy", "4");

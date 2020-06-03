@@ -175,6 +175,7 @@ namespace DotLiquid
             {
                 return string.Format(Liquid.ResourceManager.GetString("ContextLiquidSyntaxError"), ex.Message);
             }
+
             return string.Format(Liquid.ResourceManager.GetString("ContextLiquidError"), ex.Message);
         }
 
@@ -337,7 +338,14 @@ namespace DotLiquid
             match = IntegerRegex.Match(key);
             if (match.Success)
             {
-                return Convert.ToInt64(match.Groups[1].Value);
+                try
+                {
+                    return Convert.ToInt32(match.Groups[1].Value);
+                }
+                catch (OverflowException)
+                {
+                    return Convert.ToInt64(match.Groups[1].Value);
+                }
             }
 
             // Ranges.
@@ -445,14 +453,14 @@ namespace DotLiquid
 
                 // If object is a KeyValuePair, we treat it a bit differently - we might be rendering
                 // an included template.
-                if (IsKeyValuePair(@object) && (part.Equals(0L) || part.Equals("Key")))
+                if (IsKeyValuePair(@object) && (part.SafeTypeInsensitiveEqual(0L) || part.Equals("Key")))
                 {
                     object res = @object.GetType().GetRuntimeProperty("Key").GetValue(@object);
                     @object = Liquidize(res);
                 }
                 // If object is a hash- or array-like object we look for the
                 // presence of the key and if its available we return it
-                else if (IsKeyValuePair(@object) && (part.Equals(1L) || part.Equals("Value")))
+                else if (IsKeyValuePair(@object) && (part.SafeTypeInsensitiveEqual(1L) || part.Equals("Value")))
                 {
                     // If its a proc we will replace the entry with the proc
                     object res = @object.GetType().GetRuntimeProperty("Value").GetValue(@object);
@@ -519,7 +527,7 @@ namespace DotLiquid
             if ((obj is IDictionary && ((IDictionary)obj).Contains(part)))
                 return true;
 
-            if ((obj is IList) && (part is long))
+            if ((obj is IList) && (part is int || part is long))
                 return true;
 
             if (TypeUtility.IsAnonymousType(obj.GetType()) && obj.GetType().GetRuntimeProperty((string)part) != null)

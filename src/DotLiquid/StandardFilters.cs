@@ -169,12 +169,18 @@ namespace DotLiquid
         public static string Truncate(string input, int length = 50, string truncateString = "...")
         {
             if (string.IsNullOrEmpty(input))
+            {
                 return input;
+            }
 
-            int l = length - truncateString.Length;
+            if (length < 0)
+            {
+                return truncateString;
+            }
 
+            var lengthExcludingTruncateString = length - truncateString.Length;
             return input.Length > length
-                ? input.Substring(0, l < 0 ? 0 : l) + truncateString
+                ? input.Substring(startIndex: 0, length: lengthExcludingTruncateString < 0 ? 0 : lengthExcludingTruncateString) + truncateString
                 : input;
         }
 
@@ -188,13 +194,18 @@ namespace DotLiquid
         public static string TruncateWords(string input, int words = 15, string truncateString = "...")
         {
             if (string.IsNullOrEmpty(input))
+            {
                 return input;
+            }
 
-            var wordList = input.Split(' ').ToList();
-            int l = words < 0 ? 0 : words;
+            if (words <= 0)
+            {
+                return truncateString;
+            }
 
-            return wordList.Count > l
-                ? string.Join(" ", wordList.Take(l).ToArray()) + truncateString
+            var wordArray = input.Split(' ');
+            return wordArray.Length > words
+                ? string.Join(separator: " ", values: wordArray.Take(words)) + truncateString
                 : input;
         }
 
@@ -614,7 +625,7 @@ namespace DotLiquid
         /// <returns></returns>
         public static object Times(object input, object operand)
         {
-            return input is string && operand is long
+            return input is string && (operand is int || operand is long)
                 ? Enumerable.Repeat((string)input, Convert.ToInt32(operand))
                 : DoMathsOperation(input, operand, Expression.MultiplyChecked);
         }

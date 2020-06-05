@@ -36,7 +36,7 @@ test_script:
   - codecov -f TestsCoverage.xml
 
 artifacts:
-- path: build\pkg\*.nupkg
+- path: build\pkg\*.*nupkg
   name: Nuget Package
 
 - path: TestsCoverage.xml
@@ -49,6 +49,6 @@ deploy:
   api_key:
     secure: LrIeQprS+E5FzLkdKGYIYHXy/86Kt8YVhTa4J/VhLzGUO+yXnqI+GxDR+K5Wj/VL
   skip_symbols: false
-  artifact: /.*\.nupkg/
+  artifact: /build/.*\.s?nupkg/
   on:
     branch: master

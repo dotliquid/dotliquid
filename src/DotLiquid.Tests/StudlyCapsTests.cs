@@ -43,17 +43,25 @@ namespace DotLiquid.Tests
         {
             Template.NamingConvention = new RubyNamingConvention();
 
-            Helper.AssertTemplateResult(".foo.", "{% assign FoO = values %}.{{ fOo[0] }}.",
-                Hash.FromAnonymousObject(new { values = new[] { "foo", "bar", "baz" } }));
-            Helper.AssertTemplateResult(".bar.", "{% assign fOo = values %}.{{ fOO[1] }}.",
-                Hash.FromAnonymousObject(new { values = new[] { "foo", "bar", "baz" } }));
+            Helper.AssertTemplateResult(
+                expected: ".foo.",
+                template: "{% assign FoO = values %}.{{ fOo[0] }}.",
+                localVariables: Hash.FromAnonymousObject(new { values = new[] { "foo", "bar", "baz" } }));
+            Helper.AssertTemplateResult(
+                expected: ".bar.",
+                template: "{% assign fOo = values %}.{{ fOO[1] }}.",
+                localVariables: Hash.FromAnonymousObject(new { values = new[] { "foo", "bar", "baz" } }));
 
             Template.NamingConvention = new CSharpNamingConvention();
 
-            Helper.AssertTemplateResult(".foo.", "{% assign Foo = values %}.{{ Foo[0] }}.",
-                Hash.FromAnonymousObject(new { values = new[] { "foo", "bar", "baz" } }));
-            Helper.AssertTemplateResult(".bar.", "{% assign fOo = values %}.{{ fOo[1] }}.",
-                Hash.FromAnonymousObject(new { values = new[] { "foo", "bar", "baz" } }));
+            Helper.AssertTemplateResult(
+                expected: ".foo.",
+                template: "{% assign Foo = values %}.{{ Foo[0] }}.",
+                localVariables: Hash.FromAnonymousObject(new { values = new[] { "foo", "bar", "baz" } }));
+            Helper.AssertTemplateResult(
+                expected: ".bar.",
+                template: "{% assign fOo = values %}.{{ fOo[1] }}.",
+                localVariables: Hash.FromAnonymousObject(new { values = new[] { "foo", "bar", "baz" } }));
         }
     }
 }

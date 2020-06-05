@@ -176,6 +176,9 @@ namespace DotLiquid.Tests
             _context["string"] = "string";
             Assert.AreEqual("string", _context["string"]);
 
+            _context["EscapedCharacter"] = "EscapedCharacter\"";
+            Assert.AreEqual("EscapedCharacter\"", _context["EscapedCharacter"]);
+
             _context["num"] = 5;
             Assert.AreEqual(5, _context["num"]);
 
@@ -638,6 +641,75 @@ namespace DotLiquid.Tests
             Assert.AreEqual(1, _context["counter['count']"]);
             Assert.AreEqual(2, _context["counter['count']"]);
             Assert.AreEqual(3, _context["counter['count']"]);
+        }
+
+        [Test]
+        public void TestSimpleVariablesRendering()
+        {
+            Helper.AssertTemplateResult(
+                expected: "string",
+                template: "{{context}}",
+                localVariables: Hash.FromAnonymousObject(new { context = "string" }));
+
+            Helper.AssertTemplateResult(
+                expected: "EscapedCharacter\"",
+                template: "{{context}}",
+                localVariables: Hash.FromAnonymousObject(new { context = "EscapedCharacter\"" }));
+
+            Helper.AssertTemplateResult(
+                expected: "5",
+                template: "{{context}}",
+                localVariables: Hash.FromAnonymousObject(new { context = 5 }));
+
+            Helper.AssertTemplateResult(
+                expected: "5",
+                template: "{{context}}",
+                localVariables: Hash.FromAnonymousObject(new { context = 5m }));
+
+            Helper.AssertTemplateResult(
+                expected: "5",
+                template: "{{context}}",
+                localVariables: Hash.FromAnonymousObject(new { context = 5.0f }));
+
+            Helper.AssertTemplateResult(
+                expected: "5",
+                template: "{{context}}",
+                localVariables: Hash.FromAnonymousObject(new { context = 5.0 }));
+
+            Helper.AssertTemplateResult(
+                expected: "1.00:00:00",
+                template: "{{context}}",
+                localVariables: Hash.FromAnonymousObject(new { context = TimeSpan.FromDays(1) }));
+
+            Helper.AssertTemplateResult(
+                expected: "1/1/0001 12:00:00 AM",
+                template: "{{context}}",
+                localVariables: Hash.FromAnonymousObject(new { context = DateTime.MinValue }));
+
+            Helper.AssertTemplateResult(
+                expected: "9/10/2013 12:10:32 AM +01:00",
+                template: "{{context}}",
+                localVariables: Hash.FromAnonymousObject(new { context = new DateTimeOffset(2013, 9, 10, 0, 10, 32, new TimeSpan(1, 0, 0)) }));
+
+            Helper.AssertTemplateResult(
+                expected: "d0f28a51-9393-4658-af0b-8c4b4c5c31ff",
+                template: "{{context}}",
+                localVariables: Hash.FromAnonymousObject(new { context = new Guid("{D0F28A51-9393-4658-AF0B-8C4B4C5C31FF}") }));
+
+            Helper.AssertTemplateResult(
+                expected: "true",
+                template: "{{context}}",
+                localVariables: Hash.FromAnonymousObject(new { context = true }));
+
+            Helper.AssertTemplateResult(
+                expected: "false",
+                template: "{{context}}",
+                localVariables: Hash.FromAnonymousObject(new { context = false }));
+
+            Helper.AssertTemplateResult(
+                expected: "",
+                template: "{{context}}",
+                localVariables: Hash.FromAnonymousObject(new { context = null as string }));
         }
 
         [Test]

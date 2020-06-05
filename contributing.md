@@ -37,6 +37,10 @@ You can see the result either:
 - in Visual Studio or other IDE supporting NUnit 3
 - on [AppVeyor](https://ci.appveyor.com/project/tgjones/dotliquid) after the PR is submitted
 
+## Publishing a new release
+
+New release happens automatically upon merge to master thanks to the AppVeyor job. At the top of the main [Readme] (https://github.com/dotliquid/dotliquid/blob/master/README.markdown) there is a link icon to [AppVeyor](https://ci.appveyor.com/project/tgjones/dotliquid) showing the status of the last build.
+
 ## Documentation
 
 The [docs](http://dotliquidmarkup.org/docs) sources are [here](./src/DotLiquid.Website/Views/Docs).

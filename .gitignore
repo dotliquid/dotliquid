@@ -44,3 +44,5 @@ build/
 # Exclude ALL DLLs? (
 # *.dll
 *.coverage
+
+/src/.idea/

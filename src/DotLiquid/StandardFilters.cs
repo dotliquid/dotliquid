@@ -828,6 +828,8 @@ namespace DotLiquid
             ary.RemoveAll(item => item == null);
             return ary;
         }
+
+        public static IEnumerable<object> Where(object any, string key, object value) => WhereFilter.Where(any, key, value);
     }
 
     internal static class StringExtensions

@@ -839,12 +839,12 @@ namespace DotLiquid.Tests
         public void TestUrlencode()
         {
             Assert.AreEqual("http%3A%2F%2Fdotliquidmarkup.org%2F", StandardFilters.UrlEncode("http://dotliquidmarkup.org/"));
-			Assert.AreEqual("Tetsuro+Takara", StandardFilters.UrlEncode("Tetsuro Takara"));
-			Assert.AreEqual("john%40liquid.com", StandardFilters.UrlEncode("john@liquid.com"));
+            Assert.AreEqual("Tetsuro+Takara", StandardFilters.UrlEncode("Tetsuro Takara"));
+            Assert.AreEqual("john%40liquid.com", StandardFilters.UrlEncode("john@liquid.com"));
             Assert.AreEqual(null, StandardFilters.UrlEncode(null));
         }
-		
-		[Test]
+        
+        [Test]
         public void TestUrldecode()
         {
             Assert.AreEqual("'Stop!' said Fred", StandardFilters.UrlDecode("%27Stop%21%27+said+Fred"));
@@ -869,70 +869,83 @@ namespace DotLiquid.Tests
             Assert.AreEqual(" ", StandardFilters.Capitalize(" "));
             Assert.AreEqual("That Is One Sentence.", StandardFilters.Capitalize("That is one sentence."));
         }
-		
-		[Test]
+
+        [Test]
         public void TestUniq()
         {
-			CollectionAssert.AreEqual(new[] { "ants", "bugs", "bees" }, StandardFilters.Uniq(new string[] { "ants", "bugs", "bees", "bugs", "ants" }));
+            CollectionAssert.AreEqual(new[] { "ants", "bugs", "bees" }, StandardFilters.Uniq(new string[] { "ants", "bugs", "bees", "bugs", "ants" }));
             CollectionAssert.AreEqual(new string[] {}, StandardFilters.Uniq(new string[] {}));
             Assert.AreEqual(null, StandardFilters.Uniq(null));
-			Assert.AreEqual(new List<object> {5}, StandardFilters.Uniq(5));
+            Assert.AreEqual(new List<object> {5}, StandardFilters.Uniq(5));
         }
-		
-		[Test]
+
+        [Test]
         public void TestAbs()
         {
-			Assert.AreEqual(0, StandardFilters.Abs("notNumber"));
+            Assert.AreEqual(0, StandardFilters.Abs("notNumber"));
             Assert.AreEqual(10, StandardFilters.Abs(10));
             Assert.AreEqual(5, StandardFilters.Abs(-5));
             Assert.AreEqual(19.86, StandardFilters.Abs(19.86));
-			Assert.AreEqual(19.86, StandardFilters.Abs(-19.86));
+            Assert.AreEqual(19.86, StandardFilters.Abs(-19.86));
             Assert.AreEqual(10, StandardFilters.Abs("10"));
             Assert.AreEqual(5, StandardFilters.Abs("-5"));
             Assert.AreEqual(30.60, StandardFilters.Abs("30.60"));
             Assert.AreEqual(0, StandardFilters.Abs("30.60a"));
+
+            Helper.AssertTemplateResult(
+                expected: "17",
+                template: "{{ -17 | abs }}");
+            Helper.AssertTemplateResult(
+                expected: "17",
+                template: "{{ 17 | abs }}");
+            Helper.AssertTemplateResult(
+                expected: "4",
+                template: "{{ 4 | abs }}");
+            Helper.AssertTemplateResult(
+                expected: "19.86",
+                template: "{{ '-19.86' | abs }}");
         }
-		
-		[Test]
+
+        [Test]
         public void TestAtLeast()
         {
-			Assert.AreEqual("notNumber", StandardFilters.AtLeast("notNumber", 5));
-			Assert.AreEqual(5, StandardFilters.AtLeast(5, 5));
-			Assert.AreEqual(5, StandardFilters.AtLeast(3, 5));
-			Assert.AreEqual(6, StandardFilters.AtLeast(6, 5));
-			Assert.AreEqual(10, StandardFilters.AtLeast(10, 5));
-			Assert.AreEqual(9.85, StandardFilters.AtLeast(9.85, 5));
-			Assert.AreEqual(5, StandardFilters.AtLeast(3.56, 5));
-			Assert.AreEqual(10, StandardFilters.AtLeast("10", 5));
-			Assert.AreEqual(5, StandardFilters.AtLeast("4", 5));
-			Assert.AreEqual("10a", StandardFilters.AtLeast("10a", 5));
-			Assert.AreEqual("4b", StandardFilters.AtLeast("4b", 5));
-		}
-		
-		[Test]
+            Assert.AreEqual("notNumber", StandardFilters.AtLeast("notNumber", 5));
+            Assert.AreEqual(5, StandardFilters.AtLeast(5, 5));
+            Assert.AreEqual(5, StandardFilters.AtLeast(3, 5));
+            Assert.AreEqual(6, StandardFilters.AtLeast(6, 5));
+            Assert.AreEqual(10, StandardFilters.AtLeast(10, 5));
+            Assert.AreEqual(9.85, StandardFilters.AtLeast(9.85, 5));
+            Assert.AreEqual(5, StandardFilters.AtLeast(3.56, 5));
+            Assert.AreEqual(10, StandardFilters.AtLeast("10", 5));
+            Assert.AreEqual(5, StandardFilters.AtLeast("4", 5));
+            Assert.AreEqual("10a", StandardFilters.AtLeast("10a", 5));
+            Assert.AreEqual("4b", StandardFilters.AtLeast("4b", 5));
+        }
+        
+        [Test]
         public void TestAtMost()
         {
-			Assert.AreEqual("notNumber", StandardFilters.AtMost("notNumber", 5));
-			Assert.AreEqual(5, StandardFilters.AtMost(5, 5));
-			Assert.AreEqual(3, StandardFilters.AtMost(3, 5));
-			Assert.AreEqual(5, StandardFilters.AtMost(6, 5));
-			Assert.AreEqual(5, StandardFilters.AtMost(10, 5));
-			Assert.AreEqual(5, StandardFilters.AtMost(9.85, 5));
-			Assert.AreEqual(3.56, StandardFilters.AtMost(3.56, 5));
-			Assert.AreEqual(5, StandardFilters.AtMost("10", 5));
-			Assert.AreEqual(4, StandardFilters.AtMost("4", 5));
-			Assert.AreEqual("4a", StandardFilters.AtMost("4a", 5));
-			Assert.AreEqual("10b", StandardFilters.AtMost("10b", 5));
-		}
-		
-		[Test]
+            Assert.AreEqual("notNumber", StandardFilters.AtMost("notNumber", 5));
+            Assert.AreEqual(5, StandardFilters.AtMost(5, 5));
+            Assert.AreEqual(3, StandardFilters.AtMost(3, 5));
+            Assert.AreEqual(5, StandardFilters.AtMost(6, 5));
+            Assert.AreEqual(5, StandardFilters.AtMost(10, 5));
+            Assert.AreEqual(5, StandardFilters.AtMost(9.85, 5));
+            Assert.AreEqual(3.56, StandardFilters.AtMost(3.56, 5));
+            Assert.AreEqual(5, StandardFilters.AtMost("10", 5));
+            Assert.AreEqual(4, StandardFilters.AtMost("4", 5));
+            Assert.AreEqual("4a", StandardFilters.AtMost("4a", 5));
+            Assert.AreEqual("10b", StandardFilters.AtMost("10b", 5));
+        }
+        
+        [Test]
         public void TestCompact()
         {
-			CollectionAssert.AreEqual(new[] { "business", "celebrities", "lifestyle", "sports", "technology" }, StandardFilters.Compact(new string[] { "business", null, "celebrities", null, null, "lifestyle", "sports", null, "technology", null}));
+            CollectionAssert.AreEqual(new[] { "business", "celebrities", "lifestyle", "sports", "technology" }, StandardFilters.Compact(new string[] { "business", null, "celebrities", null, null, "lifestyle", "sports", null, "technology", null}));
             CollectionAssert.AreEqual(new[] { "business", "celebrities"}, StandardFilters.Compact(new string[] { "business", "celebrities" }));
             Assert.AreEqual(new List<object> { 5 }, StandardFilters.Compact(5));
             CollectionAssert.AreEqual(new string[] { }, StandardFilters.Compact(new string[] { }));
             Assert.AreEqual(null, StandardFilters.Compact(null));
-		}
+        }
     }
 }

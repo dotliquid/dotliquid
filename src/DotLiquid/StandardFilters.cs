@@ -95,13 +95,13 @@ namespace DotLiquid
                 ? input
                 : System.Net.WebUtility.UrlEncode(input);
         }
-		
-		/// <summary>
+        
+        /// <summary>
         /// convert a input string to URLDECODE
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-		public static string UrlDecode(string input)
+        public static string UrlDecode(string input)
         {
             return input == null
                 ? input
@@ -538,25 +538,25 @@ namespace DotLiquid
                 if (format.IsNullOrWhiteSpace())
                     return date.ToString();
             }
-			else
-			{
-				string value = input.ToString();
+            else
+            {
+                string value = input.ToString();
 
-				if (string.Equals(value, "now", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "today", StringComparison.OrdinalIgnoreCase))
-				{
-					date = DateTime.Now;
+                if (string.Equals(value, "now", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "today", StringComparison.OrdinalIgnoreCase))
+                {
+                    date = DateTime.Now;
 
                     if (format.IsNullOrWhiteSpace())
                         return date.ToString();
-				}
-				else if (!DateTime.TryParse(value, out date))
-				{
-					return value;
-				}
+                }
+                else if (!DateTime.TryParse(value, out date))
+                {
+                    return value;
+                }
 
                 if (format.IsNullOrWhiteSpace())
                     return value;
-			}
+            }
 
             return Liquid.UseRubyDateFormat ? date.ToStrFTime(format) : date.ToString(format);
         }
@@ -722,8 +722,8 @@ namespace DotLiquid
                     rightType: operand.GetType())
                 .DynamicInvoke(input, operand);
         }
-		
-		/// <summary>
+        
+        /// <summary>
         /// Removes any duplicate elements in an array.
         /// </summary>
         /// <param name="input"></param>
@@ -746,24 +746,24 @@ namespace DotLiquid
 
             return ary.Distinct().ToList();
         }
-		
-		/// <summary>
+        
+        /// <summary>
         /// Returns the absolute value of a number.
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-		public static double Abs(object input)
+        public static double Abs(object input)
         {
             Double n;
             return Double.TryParse(input.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out n) ? Math.Abs(n) : 0;
         }
-		
-		/// <summary>
+        
+        /// <summary>
         /// Limits a number to a minimum value.
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-		public static object AtLeast(object input, object atLeast)
+        public static object AtLeast(object input, object atLeast)
         {
             double n;
             var inputNumber = Double.TryParse(input.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out n);
@@ -781,7 +781,7 @@ namespace DotLiquid
             }
         }
 
-		/// <summary>
+        /// <summary>
         /// Limits a number to a maximum value.
         /// </summary>
         /// <param name="input"></param>
@@ -803,13 +803,13 @@ namespace DotLiquid
                 return input;
             }
         }
-		
-		/// <summary>
+        
+        /// <summary>
         /// Removes any nil values from an array.
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-		public static IEnumerable Compact(object input)
+        public static IEnumerable Compact(object input)
         {
             if (input == null)
                 return null;

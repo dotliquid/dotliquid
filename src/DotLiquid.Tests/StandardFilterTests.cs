@@ -784,8 +784,10 @@ namespace DotLiquid.Tests
         public void TestAppend()
         {
             Hash assigns = Hash.FromAnonymousObject(new { a = "bc", b = "d" });
-            Helper.AssertTemplateResult("bcd", "{{ a | append: 'd'}}", assigns);
-            Helper.AssertTemplateResult("bcd", "{{ a | append: b}}", assigns);
+            Helper.AssertTemplateResult(expected: "bcd", template: "{{ a | append: 'd'}}", localVariables: assigns);
+            Helper.AssertTemplateResult(expected: "bcd", template: "{{ a | append: b}}", localVariables: assigns);
+            Helper.AssertTemplateResult(expected: "/my/fancy/url.html", template: "{{ '/my/fancy/url' | append: '.html' }}");
+            Helper.AssertTemplateResult(expected: "website.com/index.html", template: "{% assign filename = '/index.html' %}{{ 'website.com' | append: filename }}");
         }
 
         [Test]
@@ -868,6 +870,15 @@ namespace DotLiquid.Tests
             Assert.AreEqual("", StandardFilters.Capitalize(""));
             Assert.AreEqual(" ", StandardFilters.Capitalize(" "));
             Assert.AreEqual("That Is One Sentence.", StandardFilters.Capitalize("That is one sentence."));
+
+            Helper.AssertTemplateResult(
+                expected: "Title",
+                template: "{{ 'title' | capitalize }}");
+
+            // Following test disabled due to out-of-spec bug see https://github.com/dotliquid/dotliquid/issues/390
+            //// Helper.AssertTemplateResult(
+            ////     expected: "My great title",
+            ////     template: "{{ 'my great title' | capitalize }}");
         }
 
         [Test]
@@ -920,6 +931,13 @@ namespace DotLiquid.Tests
             Assert.AreEqual(5, StandardFilters.AtLeast("4", 5));
             Assert.AreEqual("10a", StandardFilters.AtLeast("10a", 5));
             Assert.AreEqual("4b", StandardFilters.AtLeast("4b", 5));
+
+            Helper.AssertTemplateResult(
+                expected: "5",
+                template: "{{ 4 | at_least: 5 }}");
+            Helper.AssertTemplateResult(
+                expected: "4",
+                template: "{{ 4 | at_least: 3 }}");
         }
         
         [Test]
@@ -936,6 +954,13 @@ namespace DotLiquid.Tests
             Assert.AreEqual(4, StandardFilters.AtMost("4", 5));
             Assert.AreEqual("4a", StandardFilters.AtMost("4a", 5));
             Assert.AreEqual("10b", StandardFilters.AtMost("10b", 5));
+
+            Helper.AssertTemplateResult(
+                expected: "4",
+                template: "{{ 4 | at_most: 5 }}");
+            Helper.AssertTemplateResult(
+                expected: "3",
+                template: "{{ 4 | at_most: 3 }}");
         }
         
         [Test]
@@ -946,6 +971,51 @@ namespace DotLiquid.Tests
             Assert.AreEqual(new List<object> { 5 }, StandardFilters.Compact(5));
             CollectionAssert.AreEqual(new string[] { }, StandardFilters.Compact(new string[] { }));
             Assert.AreEqual(null, StandardFilters.Compact(null));
+
+            var siteAnonymousObject = new
+            {
+                site = new
+                {
+                    pages = new[]
+                    {
+                        new { title = "Shopify", category = "business" },
+                        new { title = "Rihanna", category = "celebrities" },
+                        new { title = "foo", category = null as string },
+                        new { title = "World traveler", category = "lifestyle" },
+                        new { title = "Soccer", category = "sports" },
+                        new { title = "foo", category = null as string },
+                        new { title = "Liquid", category = "technology" },
+                    }
+                }
+            };
+
+            Helper.AssertTemplateResult(
+                expected: @"
+- business
+- celebrities
+- 
+- lifestyle
+- sports
+- 
+- technology
+",
+                template: @"{% assign site_categories = site.pages | map: 'category' %}
+{% for category in site_categories %}- {{ category }}
+{% endfor %}",
+                localVariables: Hash.FromAnonymousObject(siteAnonymousObject));
+
+            Helper.AssertTemplateResult(
+                expected: @"
+- business
+- celebrities
+- lifestyle
+- sports
+- technology
+",
+                template: @"{% assign site_categories = site.pages | map: 'category' | compact %}
+{% for category in site_categories %}- {{ category }}
+{% endfor %}",
+                localVariables: Hash.FromAnonymousObject(siteAnonymousObject));
         }
     }
 }

@@ -477,8 +477,6 @@ namespace DotLiquid
                         object res = ((KeyValuePair<string, object>)@object).Value;
                         @object = Liquidize(res);
                     }
-
-
                     // If object is a hash- or array-like object we look for the
                     // presence of the key and if its available we return it
                     else if (IsHashOrArrayLikeObject(@object, part))
@@ -496,15 +494,21 @@ namespace DotLiquid
                         if ((part as string) == "size")
                             @object = castCollection.Count();
                         else if ((part as string) == "first")
-                            @object = castCollection.FirstOrDefault();
+                        {
+                            object res = castCollection.FirstOrDefault();
+                            @object = Liquidize(res);
+                        }
                         else if ((part as string) == "last")
-                            @object = castCollection.LastOrDefault();
+                        {
+                            object res = castCollection.LastOrDefault();
+                            @object = Liquidize(res);
+                        }
                     }
                     // No key was present with the desired value and it wasn't one of the directly supported
                     // keywords either. The only thing we got left is to return nil
                     else
                     {
-                            Errors.Add(new VariableNotFoundException(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), markup)));
+                        Errors.Add(new VariableNotFoundException(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), markup)));
                         return null;
                     }
                 }
@@ -634,7 +638,6 @@ namespace DotLiquid
             {
                 return obj;
             }
-
 
             var safeTypeTransformer = Template.GetSafeTypeTransformer(obj.GetType());
             if (safeTypeTransformer != null)

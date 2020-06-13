@@ -594,6 +594,32 @@ namespace DotLiquid.Tests
             Assert.AreEqual(3, StandardFilters.Last(new[] { 1, 2, 3 }));
             Assert.Null(StandardFilters.First(new object[] { }));
             Assert.Null(StandardFilters.Last(new object[] { }));
+
+            Helper.AssertTemplateResult(
+                expected: ".",
+                template: "{{ 'Ground control to Major Tom.' | last }}");
+            Helper.AssertTemplateResult(
+                expected: "Tom.",
+                template: "{{ 'Ground control to Major Tom.' | split: ' ' | last }}");
+            Helper.AssertTemplateResult(
+                expected: "tiger",
+                template: "{% assign my_array = 'zebra, octopus, giraffe, tiger' | split: ', ' %}{{ my_array.last }}");
+            Helper.AssertTemplateResult(
+                expected: "There goes a tiger!",
+                template: "{% assign my_array = 'zebra, octopus, giraffe, tiger' | split: ', ' %}{% if my_array.last == 'tiger' %}There goes a tiger!{% endif %}");
+
+            Helper.AssertTemplateResult(
+                expected: "G",
+                template: "{{ 'Ground control to Major Tom.' | first }}");
+            Helper.AssertTemplateResult(
+                expected: "Ground",
+                template: "{{ 'Ground control to Major Tom.' | split: ' ' | first }}");
+            Helper.AssertTemplateResult(
+                expected: "zebra",
+                template: "{% assign my_array = 'zebra, octopus, giraffe, tiger' | split: ', ' %}{{ my_array.first }}");
+            Helper.AssertTemplateResult(
+                expected: "There goes a zebra!",
+                template: "{% assign my_array = 'zebra, octopus, giraffe, tiger' | split: ', ' %}{% if my_array.first == 'zebra' %}There goes a zebra!{% endif %}");
         }
 
         [Test]

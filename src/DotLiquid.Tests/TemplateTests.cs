@@ -1,8 +1,6 @@
-using System;
 using System.Globalization;
 using System.IO;
 using System.Net;
-using System.Web;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -373,6 +371,30 @@ namespace DotLiquid.Tests
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MyGenericImpl<string> { Value = "worked" } }));
 
             Assert.AreEqual("worked", output);
+        }
+
+        [Test]
+        public void TestFirstAndLastOfObjectArray()
+        {
+            Template.RegisterSafeType(typeof(MySimpleType), new[] { "Name" });
+
+            var array = new
+            {
+                People = new[] {
+                    new MySimpleType { Name = "Jane" },
+                    new MySimpleType { Name = "Mike" },
+                }
+            };
+
+            Helper.AssertTemplateResult(
+                expected: "Jane",
+                template: "{{ People.first.Name }}",
+                localVariables: Hash.FromAnonymousObject(array));
+
+            Helper.AssertTemplateResult(
+                expected: "Mike",
+                template: "{{ People.last.Name }}",
+                localVariables: Hash.FromAnonymousObject(array));
         }
     }
 }

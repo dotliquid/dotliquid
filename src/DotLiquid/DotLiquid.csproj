@@ -30,7 +30,7 @@
     <DebugType>full</DebugType>
     <DebugSymbols>True</DebugSymbols>
       <DocumentationFile>bin\Debug\$(TargetFramework)\DotLiquid.xml</DocumentationFile>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>8</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

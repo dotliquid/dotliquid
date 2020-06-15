@@ -72,7 +72,7 @@ namespace DotLiquid.Tests
         }
 
         [Test]
- 	    public void TestSeperator_Comma()
+         public void TestSeperator_Comma()
         {
 
             NumberFormatInfo nfi = new NumberFormatInfo();
@@ -84,8 +84,8 @@ namespace DotLiquid.Tests
             Assert.AreEqual("3,145", Render(c) );
 
         }
- 	    [Test]
- 	    public void TestSeperator_Decimal()
+         [Test]
+         public void TestSeperator_Decimal()
         {
             NumberFormatInfo nfi = new NumberFormatInfo();
             nfi.NumberDecimalSeparator = ".";

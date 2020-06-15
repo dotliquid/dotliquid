@@ -552,6 +552,18 @@ namespace DotLiquid.Tests
 
             Template template = Template.Parse(@"{{ hi | date:""MMMM"" }}");
             Assert.AreEqual("hi", template.Render(Hash.FromAnonymousObject(new { hi = "hi" })));
+
+            Helper.AssertTemplateResult(
+                expected: "14, 16",
+                template: "{{ \"March 14, 2016\" | date: \"%d, %y\" }}");
+
+            // Test disabled due to bug https://github.com/dotliquid/dotliquid/issues/391
+            //// Helper.AssertTemplateResult(
+            ////     expected: "Mar 14, 16",
+            ////     template: "{{ \"March 14, 2016\" | date: \"%b %d, %y\" }}");
+            //// Helper.AssertTemplateResult(
+            ////     expected: $"This page was last updated at {DateTime.Now.ToString("yyyy-MM-dd HH:mm")}.",
+            ////     template: "This page was last updated at {{ 'now' | date: '%Y-%m-%d %H:%M' }}.");
         }
 
         [Test]
@@ -594,6 +606,32 @@ namespace DotLiquid.Tests
             Assert.AreEqual(3, StandardFilters.Last(new[] { 1, 2, 3 }));
             Assert.Null(StandardFilters.First(new object[] { }));
             Assert.Null(StandardFilters.Last(new object[] { }));
+
+            Helper.AssertTemplateResult(
+                expected: ".",
+                template: "{{ 'Ground control to Major Tom.' | last }}");
+            Helper.AssertTemplateResult(
+                expected: "Tom.",
+                template: "{{ 'Ground control to Major Tom.' | split: ' ' | last }}");
+            Helper.AssertTemplateResult(
+                expected: "tiger",
+                template: "{% assign my_array = 'zebra, octopus, giraffe, tiger' | split: ', ' %}{{ my_array.last }}");
+            Helper.AssertTemplateResult(
+                expected: "There goes a tiger!",
+                template: "{% assign my_array = 'zebra, octopus, giraffe, tiger' | split: ', ' %}{% if my_array.last == 'tiger' %}There goes a tiger!{% endif %}");
+
+            Helper.AssertTemplateResult(
+                expected: "G",
+                template: "{{ 'Ground control to Major Tom.' | first }}");
+            Helper.AssertTemplateResult(
+                expected: "Ground",
+                template: "{{ 'Ground control to Major Tom.' | split: ' ' | first }}");
+            Helper.AssertTemplateResult(
+                expected: "zebra",
+                template: "{% assign my_array = 'zebra, octopus, giraffe, tiger' | split: ', ' %}{{ my_array.first }}");
+            Helper.AssertTemplateResult(
+                expected: "There goes a zebra!",
+                template: "{% assign my_array = 'zebra, octopus, giraffe, tiger' | split: ', ' %}{% if my_array.first == 'zebra' %}There goes a zebra!{% endif %}");
         }
 
         [Test]
@@ -758,8 +796,10 @@ namespace DotLiquid.Tests
         public void TestAppend()
         {
             Hash assigns = Hash.FromAnonymousObject(new { a = "bc", b = "d" });
-            Helper.AssertTemplateResult("bcd", "{{ a | append: 'd'}}", assigns);
-            Helper.AssertTemplateResult("bcd", "{{ a | append: b}}", assigns);
+            Helper.AssertTemplateResult(expected: "bcd", template: "{{ a | append: 'd'}}", localVariables: assigns);
+            Helper.AssertTemplateResult(expected: "bcd", template: "{{ a | append: b}}", localVariables: assigns);
+            Helper.AssertTemplateResult(expected: "/my/fancy/url.html", template: "{{ '/my/fancy/url' | append: '.html' }}");
+            Helper.AssertTemplateResult(expected: "website.com/index.html", template: "{% assign filename = '/index.html' %}{{ 'website.com' | append: filename }}");
         }
 
         [Test]
@@ -813,12 +853,12 @@ namespace DotLiquid.Tests
         public void TestUrlencode()
         {
             Assert.AreEqual("http%3A%2F%2Fdotliquidmarkup.org%2F", StandardFilters.UrlEncode("http://dotliquidmarkup.org/"));
-			Assert.AreEqual("Tetsuro+Takara", StandardFilters.UrlEncode("Tetsuro Takara"));
-			Assert.AreEqual("john%40liquid.com", StandardFilters.UrlEncode("john@liquid.com"));
+            Assert.AreEqual("Tetsuro+Takara", StandardFilters.UrlEncode("Tetsuro Takara"));
+            Assert.AreEqual("john%40liquid.com", StandardFilters.UrlEncode("john@liquid.com"));
             Assert.AreEqual(null, StandardFilters.UrlEncode(null));
         }
-		
-		[Test]
+        
+        [Test]
         public void TestUrldecode()
         {
             Assert.AreEqual("'Stop!' said Fred", StandardFilters.UrlDecode("%27Stop%21%27+said+Fred"));
@@ -842,71 +882,152 @@ namespace DotLiquid.Tests
             Assert.AreEqual("", StandardFilters.Capitalize(""));
             Assert.AreEqual(" ", StandardFilters.Capitalize(" "));
             Assert.AreEqual("That Is One Sentence.", StandardFilters.Capitalize("That is one sentence."));
+
+            Helper.AssertTemplateResult(
+                expected: "Title",
+                template: "{{ 'title' | capitalize }}");
+
+            // Following test disabled due to out-of-spec bug see https://github.com/dotliquid/dotliquid/issues/390
+            //// Helper.AssertTemplateResult(
+            ////     expected: "My great title",
+            ////     template: "{{ 'my great title' | capitalize }}");
         }
-		
-		[Test]
+
+        [Test]
         public void TestUniq()
         {
-			CollectionAssert.AreEqual(new[] { "ants", "bugs", "bees" }, StandardFilters.Uniq(new string[] { "ants", "bugs", "bees", "bugs", "ants" }));
+            CollectionAssert.AreEqual(new[] { "ants", "bugs", "bees" }, StandardFilters.Uniq(new string[] { "ants", "bugs", "bees", "bugs", "ants" }));
             CollectionAssert.AreEqual(new string[] {}, StandardFilters.Uniq(new string[] {}));
             Assert.AreEqual(null, StandardFilters.Uniq(null));
-			Assert.AreEqual(new List<object> {5}, StandardFilters.Uniq(5));
+            Assert.AreEqual(new List<object> {5}, StandardFilters.Uniq(5));
         }
-		
-		[Test]
+
+        [Test]
         public void TestAbs()
         {
-			Assert.AreEqual(0, StandardFilters.Abs("notNumber"));
+            Assert.AreEqual(0, StandardFilters.Abs("notNumber"));
             Assert.AreEqual(10, StandardFilters.Abs(10));
             Assert.AreEqual(5, StandardFilters.Abs(-5));
             Assert.AreEqual(19.86, StandardFilters.Abs(19.86));
-			Assert.AreEqual(19.86, StandardFilters.Abs(-19.86));
+            Assert.AreEqual(19.86, StandardFilters.Abs(-19.86));
             Assert.AreEqual(10, StandardFilters.Abs("10"));
             Assert.AreEqual(5, StandardFilters.Abs("-5"));
             Assert.AreEqual(30.60, StandardFilters.Abs("30.60"));
             Assert.AreEqual(0, StandardFilters.Abs("30.60a"));
+
+            Helper.AssertTemplateResult(
+                expected: "17",
+                template: "{{ -17 | abs }}");
+            Helper.AssertTemplateResult(
+                expected: "17",
+                template: "{{ 17 | abs }}");
+            Helper.AssertTemplateResult(
+                expected: "4",
+                template: "{{ 4 | abs }}");
+            Helper.AssertTemplateResult(
+                expected: "19.86",
+                template: "{{ '-19.86' | abs }}");
         }
-		
-		[Test]
+
+        [Test]
         public void TestAtLeast()
         {
-			Assert.AreEqual("notNumber", StandardFilters.AtLeast("notNumber", 5));
-			Assert.AreEqual(5, StandardFilters.AtLeast(5, 5));
-			Assert.AreEqual(5, StandardFilters.AtLeast(3, 5));
-			Assert.AreEqual(6, StandardFilters.AtLeast(6, 5));
-			Assert.AreEqual(10, StandardFilters.AtLeast(10, 5));
-			Assert.AreEqual(9.85, StandardFilters.AtLeast(9.85, 5));
-			Assert.AreEqual(5, StandardFilters.AtLeast(3.56, 5));
-			Assert.AreEqual(10, StandardFilters.AtLeast("10", 5));
-			Assert.AreEqual(5, StandardFilters.AtLeast("4", 5));
-			Assert.AreEqual("10a", StandardFilters.AtLeast("10a", 5));
-			Assert.AreEqual("4b", StandardFilters.AtLeast("4b", 5));
-		}
-		
-		[Test]
+            Assert.AreEqual("notNumber", StandardFilters.AtLeast("notNumber", 5));
+            Assert.AreEqual(5, StandardFilters.AtLeast(5, 5));
+            Assert.AreEqual(5, StandardFilters.AtLeast(3, 5));
+            Assert.AreEqual(6, StandardFilters.AtLeast(6, 5));
+            Assert.AreEqual(10, StandardFilters.AtLeast(10, 5));
+            Assert.AreEqual(9.85, StandardFilters.AtLeast(9.85, 5));
+            Assert.AreEqual(5, StandardFilters.AtLeast(3.56, 5));
+            Assert.AreEqual(10, StandardFilters.AtLeast("10", 5));
+            Assert.AreEqual(5, StandardFilters.AtLeast("4", 5));
+            Assert.AreEqual("10a", StandardFilters.AtLeast("10a", 5));
+            Assert.AreEqual("4b", StandardFilters.AtLeast("4b", 5));
+
+            Helper.AssertTemplateResult(
+                expected: "5",
+                template: "{{ 4 | at_least: 5 }}");
+            Helper.AssertTemplateResult(
+                expected: "4",
+                template: "{{ 4 | at_least: 3 }}");
+        }
+        
+        [Test]
         public void TestAtMost()
         {
-			Assert.AreEqual("notNumber", StandardFilters.AtMost("notNumber", 5));
-			Assert.AreEqual(5, StandardFilters.AtMost(5, 5));
-			Assert.AreEqual(3, StandardFilters.AtMost(3, 5));
-			Assert.AreEqual(5, StandardFilters.AtMost(6, 5));
-			Assert.AreEqual(5, StandardFilters.AtMost(10, 5));
-			Assert.AreEqual(5, StandardFilters.AtMost(9.85, 5));
-			Assert.AreEqual(3.56, StandardFilters.AtMost(3.56, 5));
-			Assert.AreEqual(5, StandardFilters.AtMost("10", 5));
-			Assert.AreEqual(4, StandardFilters.AtMost("4", 5));
-			Assert.AreEqual("4a", StandardFilters.AtMost("4a", 5));
-			Assert.AreEqual("10b", StandardFilters.AtMost("10b", 5));
-		}
-		
-		[Test]
+            Assert.AreEqual("notNumber", StandardFilters.AtMost("notNumber", 5));
+            Assert.AreEqual(5, StandardFilters.AtMost(5, 5));
+            Assert.AreEqual(3, StandardFilters.AtMost(3, 5));
+            Assert.AreEqual(5, StandardFilters.AtMost(6, 5));
+            Assert.AreEqual(5, StandardFilters.AtMost(10, 5));
+            Assert.AreEqual(5, StandardFilters.AtMost(9.85, 5));
+            Assert.AreEqual(3.56, StandardFilters.AtMost(3.56, 5));
+            Assert.AreEqual(5, StandardFilters.AtMost("10", 5));
+            Assert.AreEqual(4, StandardFilters.AtMost("4", 5));
+            Assert.AreEqual("4a", StandardFilters.AtMost("4a", 5));
+            Assert.AreEqual("10b", StandardFilters.AtMost("10b", 5));
+
+            Helper.AssertTemplateResult(
+                expected: "4",
+                template: "{{ 4 | at_most: 5 }}");
+            Helper.AssertTemplateResult(
+                expected: "3",
+                template: "{{ 4 | at_most: 3 }}");
+        }
+        
+        [Test]
         public void TestCompact()
         {
-			CollectionAssert.AreEqual(new[] { "business", "celebrities", "lifestyle", "sports", "technology" }, StandardFilters.Compact(new string[] { "business", null, "celebrities", null, null, "lifestyle", "sports", null, "technology", null}));
+            CollectionAssert.AreEqual(new[] { "business", "celebrities", "lifestyle", "sports", "technology" }, StandardFilters.Compact(new string[] { "business", null, "celebrities", null, null, "lifestyle", "sports", null, "technology", null}));
             CollectionAssert.AreEqual(new[] { "business", "celebrities"}, StandardFilters.Compact(new string[] { "business", "celebrities" }));
             Assert.AreEqual(new List<object> { 5 }, StandardFilters.Compact(5));
             CollectionAssert.AreEqual(new string[] { }, StandardFilters.Compact(new string[] { }));
             Assert.AreEqual(null, StandardFilters.Compact(null));
-		}
+
+            var siteAnonymousObject = new
+            {
+                site = new
+                {
+                    pages = new[]
+                    {
+                        new { title = "Shopify", category = "business" },
+                        new { title = "Rihanna", category = "celebrities" },
+                        new { title = "foo", category = null as string },
+                        new { title = "World traveler", category = "lifestyle" },
+                        new { title = "Soccer", category = "sports" },
+                        new { title = "foo", category = null as string },
+                        new { title = "Liquid", category = "technology" },
+                    }
+                }
+            };
+
+            Helper.AssertTemplateResult(
+                expected: @"
+- business
+- celebrities
+- 
+- lifestyle
+- sports
+- 
+- technology
+",
+                template: @"{% assign site_categories = site.pages | map: 'category' %}
+{% for category in site_categories %}- {{ category }}
+{% endfor %}",
+                localVariables: Hash.FromAnonymousObject(siteAnonymousObject));
+
+            Helper.AssertTemplateResult(
+                expected: @"
+- business
+- celebrities
+- lifestyle
+- sports
+- technology
+",
+                template: @"{% assign site_categories = site.pages | map: 'category' | compact %}
+{% for category in site_categories %}- {{ category }}
+{% endfor %}",
+                localVariables: Hash.FromAnonymousObject(siteAnonymousObject));
+        }
     }
 }

@@ -552,6 +552,18 @@ namespace DotLiquid.Tests
 
             Template template = Template.Parse(@"{{ hi | date:""MMMM"" }}");
             Assert.AreEqual("hi", template.Render(Hash.FromAnonymousObject(new { hi = "hi" })));
+
+            Helper.AssertTemplateResult(
+                expected: "14, 16",
+                template: "{{ \"March 14, 2016\" | date: \"%d, %y\" }}");
+
+            // Test disabled due to bug https://github.com/dotliquid/dotliquid/issues/391
+            //// Helper.AssertTemplateResult(
+            ////     expected: "Mar 14, 16",
+            ////     template: "{{ \"March 14, 2016\" | date: \"%b %d, %y\" }}");
+            //// Helper.AssertTemplateResult(
+            ////     expected: $"This page was last updated at {DateTime.Now.ToString("yyyy-MM-dd HH:mm")}.",
+            ////     template: "This page was last updated at {{ 'now' | date: '%Y-%m-%d %H:%M' }}.");
         }
 
         [Test]

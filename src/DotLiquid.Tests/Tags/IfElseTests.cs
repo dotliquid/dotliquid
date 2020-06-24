@@ -68,9 +68,11 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestIfAnd()
         {
-            Helper.AssertTemplateResult(" YES ", "{% if true and true %} YES {% endif %}");
-            Helper.AssertTemplateResult("", "{% if false and true %} YES {% endif %}");
-            Helper.AssertTemplateResult("", "{% if false and true %} YES {% endif %}");
+            Helper.AssertTemplateResult(expected: " YES ", template: "{% if true and true %} YES {% endif %}");
+            Helper.AssertTemplateResult(expected: "", template: "{% if false and true %} YES {% endif %}");
+            Helper.AssertTemplateResult(expected: "", template: "{% if false and true %} YES {% endif %}");
+            Helper.AssertTemplateResult(expected: "This evaluates to true, since the `and` condition is checked first.", template: "{% if true or false and false %}This evaluates to true, since the `and` condition is checked first.{% endif %}");
+            Helper.AssertTemplateResult(expected: "", template: "{% if true and false and false or true %}This evaluates to false, since the tags are checked like this:{% endif %}");
         }
 
         [Test]

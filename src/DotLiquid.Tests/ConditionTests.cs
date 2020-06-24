@@ -9,27 +9,45 @@ namespace DotLiquid.Tests
     [TestFixture]
     public class ConditionTests
     {
+        // NOTE(David Burg): This forces sequential execution of tests, risk side effect resulting in non deterministic behavior.
+        // Context should be passed as a parameter instead.
         private Context _context;
 
         [Test]
         public void TestBasicCondition()
         {
-            Assert.AreEqual(false, new Condition("1", "==", "2").Evaluate(null, CultureInfo.InvariantCulture));
-            Assert.AreEqual(true, new Condition("1", "==", "1").Evaluate(null, CultureInfo.InvariantCulture));
+            Assert.AreEqual(expected: false, actual: new Condition(left: "1", @operator: "==", right: "2").Evaluate(context: null, formatProvider: CultureInfo.InvariantCulture));
+            Assert.AreEqual(expected: true, actual: new Condition(left: "1", @operator: "==", right: "1").Evaluate(context: null, formatProvider: CultureInfo.InvariantCulture));
+
+            // NOTE(David Burg): Validate that type conversion order preserves legacy behavior
+            // Even if it's out of Shopify spec compliance (all type but null and false should evaluate to true).
+            Helper.AssertTemplateResult(expected: "TRUE", template: "{% if true == 'true' %}TRUE{% else %}FALSE{% endif %}");
+            Helper.AssertTemplateResult(expected: "FALSE", template: "{% if 'true' == true %}TRUE{% else %}FALSE{% endif %}");
+
+            Helper.AssertTemplateResult(expected: "TRUE", template: "{% if true %}TRUE{% endif %}");
+            Helper.AssertTemplateResult(expected: "", template: "{% if false %}TRUE{% endif %}");
+            Helper.AssertTemplateResult(expected: "TRUE", template: "{% if true %}TRUE{% else %}FALSE{% endif %}");
+            Helper.AssertTemplateResult(expected: "FALSE", template: "{% if false %}TRUE{% else %}FALSE{% endif %}");
+            Helper.AssertTemplateResult(expected: "TRUE", template: "{% if '1' == '1' %}TRUE{% else %}FALSE{% endif %}");
+            Helper.AssertTemplateResult(expected: "FALSE", template: "{% if '1' == '2' %}TRUE{% else %}FALSE{% endif %}");
+            Helper.AssertTemplateResult(expected: "This condition will always be true.", template: "{% assign tobi = 'Tobi' %}{% if tobi %}This condition will always be true.{% endif %}");
+
+            // NOTE(David Burg): disabled test due to https://github.com/dotliquid/dotliquid/issues/394
+            ////Helper.AssertTemplateResult(expected: "This text will always appear if \"name\" is defined.", template: "{% assign name = 'Tobi' %}{% if name == true %}This text will always appear if \"name\" is defined.{% endif %}");
         }
 
         [Test]
         public void TestDefaultOperatorsEvaluateTrue()
         {
-            AssertEvaluatesTrue("1", "==", "1");
-            AssertEvaluatesTrue("1", "!=", "2");
-            AssertEvaluatesTrue("1", "<>", "2");
-            AssertEvaluatesTrue("1", "<", "2");
-            AssertEvaluatesTrue("2", ">", "1");
-            AssertEvaluatesTrue("1", ">=", "1");
-            AssertEvaluatesTrue("2", ">=", "1");
-            AssertEvaluatesTrue("1", "<=", "2");
-            AssertEvaluatesTrue("1", "<=", "1");
+            this.AssertEvaluatesTrue(left: "1", op: "==", right: "1");
+            this.AssertEvaluatesTrue(left: "1", op: "!=", right: "2");
+            this.AssertEvaluatesTrue(left: "1", op: "<>", right: "2");
+            this.AssertEvaluatesTrue(left: "1", op: "<", right: "2");
+            this.AssertEvaluatesTrue(left: "2", op: ">", right: "1");
+            this.AssertEvaluatesTrue(left: "1", op: ">=", right: "1");
+            this.AssertEvaluatesTrue(left: "2", op: ">=", right: "1");
+            this.AssertEvaluatesTrue(left: "1", op: "<=", right: "2");
+            this.AssertEvaluatesTrue(left: "1", op: "<=", right: "1");
         }
 
         [Test]

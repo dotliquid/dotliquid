@@ -90,15 +90,17 @@ namespace DotLiquid.Util
             }
 
             // NOTE(David Burg): When types are different we need to try if one can be converted to the other without loss or vice-versa
+            // NOTE(David Burg): Order in which conversion is attempted changes the outcome for comparison between string and bool.
+            // It's out of Shopify spec compliance but so for backward compatibility.
             try
             {
-                return Convert.ChangeType(value, bType).Equals(otherValue);
+                return Convert.ChangeType(otherValue, aType).Equals(value);
             }
             catch (Exception ex) when (ex is InvalidCastException || ex is FormatException || ex is OverflowException)
             {
                 try
                 {
-                    return Convert.ChangeType(otherValue, aType).Equals(value);
+                    return Convert.ChangeType(value, bType).Equals(otherValue);
                 }
                 catch (Exception ex2) when (ex2 is InvalidCastException || ex2 is FormatException || ex2 is OverflowException)
                 {

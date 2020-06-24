@@ -32,6 +32,16 @@ namespace DotLiquid.Tests
             Helper.AssertTemplateResult(expected: "FALSE", template: "{% if '1' == '2' %}TRUE{% else %}FALSE{% endif %}");
             Helper.AssertTemplateResult(expected: "This condition will always be true.", template: "{% assign tobi = 'Tobi' %}{% if tobi %}This condition will always be true.{% endif %}");
 
+            Helper.AssertTemplateResult(expected: "TRUE", template: "{% if true == true %}TRUE{% else %}FALSE{% endif %}");
+            Helper.AssertTemplateResult(expected: "FALSE", template: "{% if true == false %}TRUE{% else %}FALSE{% endif %}");
+            Helper.AssertTemplateResult(expected: "TRUE", template: "{% if false == false %}TRUE{% else %}FALSE{% endif %}");
+            Helper.AssertTemplateResult(expected: "FALSE", template: "{% if false == true %}TRUE{% else %}FALSE{% endif %}");
+
+            Helper.AssertTemplateResult(expected: "FALSE", template: "{% if true != true %}TRUE{% else %}FALSE{% endif %}");
+            Helper.AssertTemplateResult(expected: "TRUE", template: "{% if true != false %}TRUE{% else %}FALSE{% endif %}");
+            Helper.AssertTemplateResult(expected: "FALSE", template: "{% if false != false %}TRUE{% else %}FALSE{% endif %}");
+            Helper.AssertTemplateResult(expected: "TRUE", template: "{% if false != true %}TRUE{% else %}FALSE{% endif %}");
+
             // NOTE(David Burg): disabled test due to https://github.com/dotliquid/dotliquid/issues/394
             ////Helper.AssertTemplateResult(expected: "This text will always appear if \"name\" is defined.", template: "{% assign name = 'Tobi' %}{% if name == true %}This text will always appear if \"name\" is defined.{% endif %}");
         }

@@ -881,16 +881,17 @@ namespace DotLiquid.Tests
             Assert.AreEqual(null, StandardFilters.Capitalize(null));
             Assert.AreEqual("", StandardFilters.Capitalize(""));
             Assert.AreEqual(" ", StandardFilters.Capitalize(" "));
-            Assert.AreEqual("That Is One Sentence.", StandardFilters.Capitalize("That is one sentence."));
+            Assert.AreEqual("That is one sentence.", StandardFilters.Capitalize("That Is One Sentence."));
+            Assert.AreEqual("That is one sentence. This is another.", StandardFilters.Capitalize("That Is One Sentence. this Is Another."));
 
             Helper.AssertTemplateResult(
                 expected: "Title",
                 template: "{{ 'title' | capitalize }}");
 
             // Following test disabled due to out-of-spec bug see https://github.com/dotliquid/dotliquid/issues/390
-            //// Helper.AssertTemplateResult(
-            ////     expected: "My great title",
-            ////     template: "{{ 'my great title' | capitalize }}");
+            Helper.AssertTemplateResult(
+                expected: "My great title",
+                template: "{{ 'my great title' | capitalize }}");
         }
 
         [Test]

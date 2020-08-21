@@ -109,22 +109,15 @@ namespace DotLiquid
         }
 
         /// <summary>
-        /// capitalize words in the input sentence
+        /// Capitalizes the first word in each sentence of <paramref name="input"/>
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
         public static string Capitalize(string input)
         {
-            if (input.IsNullOrWhiteSpace())
-                return input;
-
-            return string.IsNullOrEmpty(input)
+            return input.IsNullOrWhiteSpace()
                 ? input
-#if CORE
-                : Regex.Replace(input, @"\b(\w)", m => m.Value.ToUpper(), RegexOptions.None, Template.RegexTimeOut);
-#else
-                : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input);
-#endif
+                : Regex.Replace(input.ToLower(), @"^\D|\.( ){1,}\D", m => m.Value.ToUpper(), RegexOptions.None, Template.RegexTimeOut);
         }
 
         /// <summary>

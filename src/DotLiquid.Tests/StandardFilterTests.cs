@@ -765,6 +765,32 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        public void TestCeil()
+        {
+            using (CultureHelper.SetCulture("en-GB"))
+            {
+                Helper.AssertTemplateResult("2", "{{ 1.234678 | ceil }}");
+                Helper.AssertTemplateResult("1", "{{ 1 | ceil }}");
+
+                Assert.Null(StandardFilters.Ceil(""));
+                Assert.Null(StandardFilters.Ceil("two"));
+            }
+        }
+
+        [Test]
+        public void TestFloor()
+        {
+            using (CultureHelper.SetCulture("en-GB"))
+            {
+                Helper.AssertTemplateResult("1", "{{ 1.234678 | floor }}");
+                Helper.AssertTemplateResult("1", "{{ 1 | floor }}");
+
+                Assert.Null(StandardFilters.Floor(""));
+                Assert.Null(StandardFilters.Floor("two"));
+            }
+        }
+
+        [Test]
         public void TestTimes()
         {
             using (CultureHelper.SetCulture("en-GB"))

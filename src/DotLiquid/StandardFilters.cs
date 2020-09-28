@@ -525,7 +525,7 @@ namespace DotLiquid
         /// <param name="input"></param>
         /// <param name="format"></param>
         /// <returns></returns>
-        public static string Date(object input, string format)
+        public static object Date(object input, string format)
         {
             if (input == null)
                 return null;
@@ -540,22 +540,32 @@ namespace DotLiquid
             }
             else
             {
-                string value = input.ToString();
-
-                if (string.Equals(value, "now", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "today", StringComparison.OrdinalIgnoreCase))
+                if (input is decimal)
                 {
-                    date = DateTime.Now;
+                    date = new DateTime(1970, 1, 1).AddSeconds(Convert.ToInt64(input));
+                }
+                else
+                {
+                    string value = input.ToString();
+
+                    if (string.Equals(value, "now", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(value, "today", StringComparison.OrdinalIgnoreCase))
+                    {
+                        date = DateTime.Now;
+
+                        if (format.IsNullOrWhiteSpace())
+                            return date.ToString();
+                    }
+                    else if (!DateTime.TryParse(value, out date))
+                    {
+                        return value;
+                    }
 
                     if (format.IsNullOrWhiteSpace())
-                        return date.ToString();
-                }
-                else if (!DateTime.TryParse(value, out date))
-                {
-                    return value;
+                        return value;
                 }
 
-                if (format.IsNullOrWhiteSpace())
-                    return value;
+              
             }
 
             return Liquid.UseRubyDateFormat ? date.ToStrFTime(format) : date.ToString(format);
@@ -601,11 +611,8 @@ namespace DotLiquid
         /// <returns></returns>
         public static object Plus(object input, object operand)
         {
-            return input is string s
-                ? (Liquid.UseRubyDateFormat
-                    ? DoMathsOperation((decimal.TryParse(s, out var parsedValue) ? parsedValue : 0), operand,
-                        Expression.AddChecked)
-                    : string.Concat(s, operand))
+            return input is string
+                ? string.Concat(input, operand)
                 : DoMathsOperation(input, operand, Expression.AddChecked);
         }
 

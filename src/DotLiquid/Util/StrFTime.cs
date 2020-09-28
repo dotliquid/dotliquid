@@ -6,7 +6,7 @@ namespace DotLiquid.Util
 {
     public static class StrFTime
     {
-        public delegate string DateTimeDelegate(DateTime dateTime);
+        public delegate object DateTimeDelegate(DateTime dateTime);
 
         private static readonly Dictionary<string, DateTimeDelegate> Formats = new Dictionary<string, DateTimeDelegate>
         {
@@ -28,7 +28,7 @@ namespace DotLiquid.Util
             { "M", (dateTime) => dateTime.Minute.ToString().PadLeft(2, '0') },
             { "P", (dateTime) => dateTime.ToString("tt", CultureInfo.CurrentCulture).ToLower() },
             { "p", (dateTime) => dateTime.ToString("tt", CultureInfo.CurrentCulture).ToUpper() },
-            { "s", (dateTime) => ((int)(dateTime - new DateTime(1970, 1, 1)).TotalSeconds).ToString() },
+            { "s", (dateTime) => ((int)(dateTime - new DateTime(1970, 1, 1)).TotalSeconds) },
             { "S", (dateTime) => dateTime.ToString("ss", CultureInfo.CurrentCulture) },
             { "u", (dateTime) => ((int)(dateTime.DayOfWeek) == 0 ? ((int)(dateTime).DayOfWeek) + 7 : ((int)(dateTime).DayOfWeek)).ToString() },
             { "U", (dateTime) => CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(dateTime, CultureInfo.CurrentCulture.DateTimeFormat.CalendarWeekRule, DayOfWeek.Sunday).ToString().PadLeft(2, '0') },
@@ -42,7 +42,7 @@ namespace DotLiquid.Util
             { "%", (dateTime) => "%" }
         };
 
-        public static string ToStrFTime(this DateTime dateTime, string pattern)
+        public static object ToStrFTime(this DateTime dateTime, string pattern)
         {
             string output = "";
 
@@ -61,6 +61,8 @@ namespace DotLiquid.Util
                 n++;
             }
 
+
+            if (double.TryParse(output, out double numberOnly)) return numberOnly;
             return output;
         }
     }

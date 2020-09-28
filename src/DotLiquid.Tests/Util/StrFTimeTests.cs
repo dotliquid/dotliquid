@@ -39,7 +39,7 @@ namespace DotLiquid.Tests.Util
         [TestCase("%y", ExpectedResult = "12")]
         [TestCase("%Y", ExpectedResult = "2012")]
         [TestCase("%", ExpectedResult = "%")]
-        public string TestFormat(string format)
+        public object TestFormat(string format)
         {
             using (CultureHelper.SetCulture("en-GB"))
             {

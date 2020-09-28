@@ -715,8 +715,10 @@ namespace DotLiquid.Tests
                 Helper.AssertTemplateResult("5.5", "{{ 2  | plus:3.5 }}");
                 Helper.AssertTemplateResult("5.5", "{{ 3.5 | plus:2 }}");
                 Helper.AssertTemplateResult("11", "{{ '1' | plus:'1' }}");
+
                 Liquid.UseRubyDateFormat = true;
-                Helper.AssertTemplateResult("2", "{{ '1' | plus:'1' }}");
+                Helper.AssertTemplateResult("13/10/2020 00:00:00", @"{{ ""12/10/2020 00:00:00"" | date: ""%s"" | plus: " + 24*60*60 +
+                                                  @" | date: ""%d/%m/%Y %H:%M:%S"" }}");
                 Liquid.UseRubyDateFormat = false;
 
                 // Test that decimals are not introducing rounding-precision issues
@@ -777,6 +779,7 @@ namespace DotLiquid.Tests
                 Helper.AssertTemplateResult("125", "{{ 10.0 | times:12.5 }}");
                 Helper.AssertTemplateResult("125", "{{ 12.5 | times:10 }}");
                 Helper.AssertTemplateResult("125", "{{ 12.5 | times:10.0 }}");
+                Helper.AssertTemplateResult("125", @"{{ ""12.5"" | times:10.0 }}");
                 Helper.AssertTemplateResult("foofoofoofoo", "{{ 'foo' | times:4 }}");
 
                 // Test against overflows when we try to be precise but the result exceeds the range of the input type.

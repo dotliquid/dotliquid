@@ -601,8 +601,11 @@ namespace DotLiquid
         /// <returns></returns>
         public static object Plus(object input, object operand)
         {
-            return input is string
-                ? string.Concat(input, operand)
+            return input is string s
+                ? (Liquid.UseRubyDateFormat
+                    ? DoMathsOperation((decimal.TryParse(s, out var parsedValue) ? parsedValue : 0), operand,
+                        Expression.AddChecked)
+                    : string.Concat(s, operand))
                 : DoMathsOperation(input, operand, Expression.AddChecked);
         }
 

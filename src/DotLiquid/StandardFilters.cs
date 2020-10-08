@@ -651,6 +651,32 @@ namespace DotLiquid
         }
 
         /// <summary>
+        /// Rounds a decimal value up to the next integer, unless already the integer value, removing all decimal places 
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns>The rounded value; null if an exception have occured</returns>
+        public static object Ceil(object input)
+        {
+            if (decimal.TryParse(input.ToString(), out decimal d))
+                return Math.Ceiling(d);
+            else
+                return null;
+        }
+
+        /// <summary>
+        /// Rounds a decimal value down to an integer, removing all decimal places 
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns>The rounded value; null if an exception have occured</returns>
+        public static object Floor(object input)
+        {
+            if (decimal.TryParse(input.ToString(), out decimal d))
+                return Math.Floor(d);
+            else
+                return null;
+        }
+
+        /// <summary>
         /// Division
         /// </summary>
         /// <param name="input"></param>

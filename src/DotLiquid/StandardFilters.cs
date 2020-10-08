@@ -657,15 +657,10 @@ namespace DotLiquid
         /// <returns>The rounded value; null if an exception have occured</returns>
         public static object Ceil(object input)
         {
-            try
-            {
-                var i = Convert.ToDecimal(input);
-                return Math.Ceiling(i);
-            }
-            catch (Exception)
-            {
+            if (decimal.TryParse(input.ToString(), out decimal d))
+                return Math.Ceiling(d);
+            else
                 return null;
-            }
         }
 
         /// <summary>
@@ -675,15 +670,10 @@ namespace DotLiquid
         /// <returns>The rounded value; null if an exception have occured</returns>
         public static object Floor(object input)
         {
-            try
-            {
-                var i = Convert.ToDecimal(input);
-                return Math.Floor(i);
-            }
-            catch (Exception)
-            {
+            if (decimal.TryParse(input.ToString(), out decimal d))
+                return Math.Floor(d);
+            else
                 return null;
-            }
         }
 
         /// <summary>

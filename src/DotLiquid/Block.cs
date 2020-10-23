@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -16,8 +16,36 @@ namespace DotLiquid
         private static readonly Regex IsTag = R.B(@"^{0}", Liquid.TagStart);
         private static readonly Regex IsVariable = R.B(@"^{0}", Liquid.VariableStart);
         private static readonly Regex ContentOfVariable = R.B(@"^{0}(.*){1}$", Liquid.VariableStart, Liquid.VariableEnd);
+        private static readonly IRenderableFactory _DefaultRenderableFactory = new DefaultRenderableFactory();
 
         internal static readonly Regex FullToken = R.B(@"^{0}\s*(\w+)\s*(.*)?{1}$", Liquid.TagStart, Liquid.TagEnd);
+
+        /// <summary>
+        /// Assigned <see cref="IRenderableFactory"/> used for generating variables for block
+        /// </summary>
+        protected IRenderableFactory RenderableFactory { get; private set; }
+
+        /// <summary>
+        /// Default constructor, uses default renderable factory
+        /// </summary>
+        public Block() : this(_DefaultRenderableFactory) { }
+
+        /// <summary>
+        /// Constructor that takes <see cref="IRenderableFactory"/> param to pass through to block parsing
+        /// </summary>
+        public Block(IRenderableFactory renderableFactory)
+        {
+            SetRenderableFactory(renderableFactory);
+        }
+
+        /// <summary>
+        /// Sets the <see cref="RenderableFactory"/> of the block to passed in <see cref="IRenderableFactory"/>
+        /// </summary>
+        /// <param name="renderableFactory"></param>
+        public void SetRenderableFactory(IRenderableFactory renderableFactory)
+        {
+            RenderableFactory = renderableFactory ?? _DefaultRenderableFactory;
+        }
 
         /// <summary>
         /// Parses a list of tokens
@@ -49,6 +77,10 @@ namespace DotLiquid
                         Tag tag;
                         if ((tag = Template.CreateTag(fullTokenMatch.Groups[1].Value)) != null)
                         {
+                            if (tag is Block block)
+                            {
+                                block.SetRenderableFactory(RenderableFactory);
+                            }
                             tag.Initialize(fullTokenMatch.Groups[1].Value, fullTokenMatch.Groups[2].Value, tokens);
                             NodeList.Add(tag);
 
@@ -134,11 +166,11 @@ namespace DotLiquid
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
-        public Variable CreateVariable(string token)
+        public IRenderable CreateVariable(string token)
         {
             Match match = ContentOfVariable.Match(token);
             if (match.Success)
-                return new Variable(match.Groups[1].Value);
+                return RenderableFactory.CreateVariable(match.Groups[1].Value);
             throw new SyntaxException(Liquid.ResourceManager.GetString("BlockVariableNotTerminatedException"), token, Liquid.VariableEnd);
         }
 
@@ -192,6 +224,17 @@ namespace DotLiquid
                     result.Write(context.HandleError(ex));
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// Default Renderable factory to create <see cref="Variable"/> objects for the template
+    /// </summary>
+    internal class DefaultRenderableFactory : IRenderableFactory
+    {
+        public IRenderable CreateVariable(string markup)
+        {
+            return new Variable(markup);
         }
     }
 }

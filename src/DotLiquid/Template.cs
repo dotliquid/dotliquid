@@ -212,10 +212,10 @@ namespace DotLiquid
         /// </summary>
         /// <param name="source"></param>
         /// <returns></returns>
-        public static Template Parse(string source)
+        public static Template Parse(string source, IRenderableFactory renderableFactory = null)
         {
             Template template = new Template();
-            template.ParseInternal(source);
+            template.ParseInternal(source, renderableFactory);
             return template;
         }
 
@@ -275,12 +275,12 @@ namespace DotLiquid
         /// </summary>
         /// <param name="source">The source code.</param>
         /// <returns>The template.</returns>
-        internal Template ParseInternal(string source)
+        internal Template ParseInternal(string source, IRenderableFactory renderableFactory = null)
         {
             source = DotLiquid.Tags.Literal.FromShortHand(source);
             source = DotLiquid.Tags.Comment.FromShortHand(source);
 
-            this.Root = new Document();
+            this.Root = new Document(renderableFactory);
             this.Root.Initialize(tagName: null, markup: null, tokens: Template.Tokenize(source));
             return this;
         }

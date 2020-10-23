@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using DotLiquid.Exceptions;
 
@@ -9,6 +9,17 @@ namespace DotLiquid
     /// </summary>
     public class Document : Block
     {
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        public Document() : base() { }
+
+        /// <summary>
+        /// Constructor that takes <see cref="IRenderableFactory"/> param to pass through to block parsing
+        /// </summary>
+        /// <param name="renderableFactory"></param>
+        public Document(IRenderableFactory renderableFactory) : base(renderableFactory) { }
+
         /// <summary>
         /// We don't need markup to open this block
         /// </summary>

@@ -1,13 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
-using System.Diagnostics;
 
 namespace DotLiquid
 {
@@ -161,7 +162,9 @@ namespace DotLiquid
         public string HandleError(Exception ex)
         {
             if (ex is InterruptException || ex is TimeoutException || ex is RenderException)
-                throw ex;
+            {
+                ExceptionDispatchInfo.Capture(ex).Throw();
+            }
 
             Errors.Add(ex);
 
@@ -169,7 +172,9 @@ namespace DotLiquid
                 return string.Empty;
 
             if (_errorsOutputMode == ErrorsOutputMode.Rethrow)
-                throw ex;
+            {
+                ExceptionDispatchInfo.Capture(ex).Throw();
+            }
 
             if (ex is SyntaxException)
             {

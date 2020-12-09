@@ -735,7 +735,7 @@ namespace DotLiquid
 
         private readonly int _timeout;
         private readonly Stopwatch _stopwatch = new Stopwatch();
-        private readonly CancellationToken _cancellationToken = default;
+        private readonly CancellationToken _cancellationToken = CancellationToken.None;
 
         public void RestartTimeout()
         {

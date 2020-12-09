@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Globalization;
+using System.Threading;
 using DotLiquid.Exceptions;
 using NUnit.Framework;
 
@@ -100,6 +102,19 @@ namespace DotLiquid.Tests
                 {
                     Timeout = 100 //ms
                 });
+            });
+        }
+
+        [Test]
+        public void TestOperationCancelledError()
+        {
+            var template = Template.Parse(" {% for i in (1..1000000) %} {{ i }} {% endfor %} ");
+            var source = new CancellationTokenSource(100);
+            var context = new Context(new List<Hash>(), new Hash(), new Hash(), ErrorsOutputMode.Rethrow, 0, source.Token, CultureInfo.InvariantCulture);
+
+            Assert.Throws<System.OperationCanceledException>(() =>
+            {
+                template.Render(RenderParameters.FromContext(context, CultureInfo.InvariantCulture));
             });
         }
 

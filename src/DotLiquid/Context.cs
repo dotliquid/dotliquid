@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Text.RegularExpressions;
+using System.Threading;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
 
@@ -63,6 +64,7 @@ namespace DotLiquid
         /// <param name="outerScope"></param>
         /// <param name="registers"></param>
         /// <param name="errorsOutputMode"></param>
+        [Obsolete("The method with timeout argument is deprecated. Please use the one with CancellationToken.")]
         public Context
             (List<Hash> environments
              , Hash outerScope
@@ -87,6 +89,39 @@ namespace DotLiquid
             FormatProvider = formatProvider;
 
             RestartTimeout();
+
+            SquashInstanceAssignsWithEnvironments();
+        }
+
+        /// <summary>
+        /// Creates a new rendering context
+        /// </summary>
+        /// <param name="environments"></param>
+        /// <param name="outerScope"></param>
+        /// <param name="registers"></param>
+        /// <param name="errorsOutputMode"></param>
+        public Context
+            (List<Hash> environments
+             , Hash outerScope
+             , Hash registers
+             , ErrorsOutputMode errorsOutputMode
+             , int maxIterations
+             , CancellationToken cancellationToken
+             , IFormatProvider formatProvider)
+        {
+            Environments = environments;
+
+            Scopes = new List<Hash>();
+            if (outerScope != null)
+                Scopes.Add(outerScope);
+
+            Registers = registers;
+
+            Errors = new List<Exception>();
+            _errorsOutputMode = errorsOutputMode;
+            _maxIterations = maxIterations;
+            _cancellationToken = cancellationToken;
+            FormatProvider = formatProvider;
 
             SquashInstanceAssignsWithEnvironments();
         }
@@ -161,7 +196,7 @@ namespace DotLiquid
         /// <returns></returns>
         public string HandleError(Exception ex)
         {
-            if (ex is InterruptException || ex is TimeoutException || ex is RenderException)
+            if (ex is InterruptException || ex is TimeoutException || ex is RenderException || ex is OperationCanceledException)
             {
                 ExceptionDispatchInfo.Capture(ex).Throw();
             }
@@ -700,19 +735,22 @@ namespace DotLiquid
 
         private readonly int _timeout;
         private readonly Stopwatch _stopwatch = new Stopwatch();
+        private readonly CancellationToken _cancellationToken = default;
 
         public void RestartTimeout()
         {
             _stopwatch.Restart();
+            _cancellationToken.ThrowIfCancellationRequested();
         }
 
         public void CheckTimeout()
         {
-            if (_timeout <= 0)
-                return;
-
-            if (_stopwatch.ElapsedMilliseconds > _timeout)
+            if (_timeout > 0 && _stopwatch.ElapsedMilliseconds > _timeout)
+            {
                 throw new TimeoutException();
+            }
+
+            _cancellationToken.ThrowIfCancellationRequested();
         }
     }
 }

@@ -64,6 +64,9 @@ namespace DotLiquid
         /// <param name="outerScope"></param>
         /// <param name="registers"></param>
         /// <param name="errorsOutputMode"></param>
+        /// <param name="maxIterations"></param>
+        /// <param name="timeout"></param>
+        /// <param name="formatProvider"></param>
         [Obsolete("The method with timeout argument is deprecated. Please use the one with CancellationToken.")]
         public Context
             (List<Hash> environments
@@ -73,24 +76,10 @@ namespace DotLiquid
              , int maxIterations
              , int timeout
              , IFormatProvider formatProvider)
+            : this(environments, outerScope, registers, errorsOutputMode, maxIterations, formatProvider, CancellationToken.None)
         {
-            Environments = environments;
-
-            Scopes = new List<Hash>();
-            if (outerScope != null)
-                Scopes.Add(outerScope);
-
-            Registers = registers;
-
-            Errors = new List<Exception>();
-            _errorsOutputMode = errorsOutputMode;
-            _maxIterations = maxIterations;
             _timeout = timeout;
-            FormatProvider = formatProvider;
-
             RestartTimeout();
-
-            SquashInstanceAssignsWithEnvironments();
         }
 
         /// <summary>
@@ -100,14 +89,17 @@ namespace DotLiquid
         /// <param name="outerScope"></param>
         /// <param name="registers"></param>
         /// <param name="errorsOutputMode"></param>
+        /// <param name="maxIterations"></param>
+        /// <param name="formatProvider"></param>
+        /// <param name="cancellationToken"></param>
         public Context
             (List<Hash> environments
              , Hash outerScope
              , Hash registers
              , ErrorsOutputMode errorsOutputMode
              , int maxIterations
-             , CancellationToken cancellationToken
-             , IFormatProvider formatProvider)
+             , IFormatProvider formatProvider
+             , CancellationToken cancellationToken)
         {
             Environments = environments;
 

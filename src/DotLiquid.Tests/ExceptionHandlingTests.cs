@@ -110,7 +110,14 @@ namespace DotLiquid.Tests
         {
             var template = Template.Parse(" {% for i in (1..1000000) %} {{ i }} {% endfor %} ");
             var source = new CancellationTokenSource(100);
-            var context = new Context(new List<Hash>(), new Hash(), new Hash(), ErrorsOutputMode.Rethrow, 0, source.Token, CultureInfo.InvariantCulture);
+            var context = new Context(
+                environments: new List<Hash>(),
+                outerScope:new Hash(),
+                registers: new Hash(),
+                errorsOutputMode: ErrorsOutputMode.Rethrow,
+                maxIterations: 0,
+                formatProvider: CultureInfo.InvariantCulture,
+                cancellationToken: source.Token);
 
             Assert.Throws<System.OperationCanceledException>(() =>
             {

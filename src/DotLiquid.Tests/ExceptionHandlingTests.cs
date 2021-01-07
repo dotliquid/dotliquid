@@ -112,7 +112,7 @@ namespace DotLiquid.Tests
             var source = new CancellationTokenSource(100);
             var context = new Context(
                 environments: new List<Hash>(),
-                outerScope:new Hash(),
+                outerScope: new Hash(),
                 registers: new Hash(),
                 errorsOutputMode: ErrorsOutputMode.Rethrow,
                 maxIterations: 0,

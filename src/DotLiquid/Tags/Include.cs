@@ -71,7 +71,8 @@ namespace DotLiquid.Tags
                     return;
                 }
 
-                context[shortenedTemplateName] = variable;
+                //context[shortenedTemplateName] = variable;
+                context[_variableName] = variable;
                 partial.Render(result, RenderParameters.FromContext(context, result.FormatProvider));
             });
         }

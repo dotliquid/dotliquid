@@ -9,8 +9,7 @@ namespace DotLiquid.Util
     {
         private static HashSet<HashSet<Type>> _BackCompatComparableTypeBoundaries = new HashSet<HashSet<Type>>() {
             new HashSet<Type> { typeof(decimal), typeof(double), typeof(float), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(short), typeof(ushort) },
-            new HashSet<Type> { typeof(string), typeof(char),
-    }
+            new HashSet<Type> { typeof(string), typeof(char) }
         };
 
         public static bool RespondTo(this object value, string member, bool ensureNoParameters = true)

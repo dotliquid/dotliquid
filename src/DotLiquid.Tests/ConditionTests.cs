@@ -176,7 +176,10 @@ namespace DotLiquid.Tests
 
             AssertEvaluatesTrue(left: "array", op: "contains", right: "'Apple'");
             AssertEvaluatesTrue(left: "array", op: "startsWith", right: "first");
+            AssertEvaluatesTrue(left: "array.first", op: "==", right: "first");
             AssertEvaluatesFalse(left: "array", op: "contains", right: "'apple'");
+            AssertEvaluatesFalse(left: "array", op: "startsWith", right: "'apple'");
+            AssertEvaluatesFalse(left: "array.first", op: "==", right: "'apple'");
             AssertEvaluatesFalse(left: "array", op: "contains", right: "'Mango'");
             AssertEvaluatesTrue(left: "array", op: "contains", right: "'Orange'");
             AssertEvaluatesTrue(left: "array", op: "contains", right: "'Banana'");
@@ -197,6 +200,7 @@ namespace DotLiquid.Tests
 
             AssertEvaluatesTrue(left: "array", op: "contains", right: "first");
             AssertEvaluatesTrue(left: "array", op: "startsWith", right: "first");
+            AssertEvaluatesTrue(left: "array.first", op: "==", right: "first");
             AssertEvaluatesTrue(left: "array", op: "contains", right: "clone");
             AssertEvaluatesTrue(left: "array", op: "startsWith", right: "clone");
             AssertEvaluatesTrue(left: "array", op: "endsWith", right: "last");
@@ -213,6 +217,7 @@ namespace DotLiquid.Tests
 
             AssertEvaluatesTrue(left: "array", op: "contains", right: "first");
             AssertEvaluatesTrue(left: "array", op: "startsWith", right: "first");
+            AssertEvaluatesTrue(left: "array.first", op: "==", right: "'true'");
             AssertEvaluatesTrue(left: "array", op: "startsWith", right: "'true'");
 
             AssertEvaluatesFalse(left: "array", op: "contains", right: "'true'"); // to be re-evaluated in #362
@@ -230,6 +235,7 @@ namespace DotLiquid.Tests
             AssertEvaluatesTrue(left: "array", op: "contains", right: "'A'");
             AssertEvaluatesTrue(left: "array", op: "contains", right: "first");
             AssertEvaluatesTrue(left: "array", op: "startsWith", right: "first");
+            AssertEvaluatesTrue(left: "array.first", op: "==", right: "first");
             AssertEvaluatesFalse(left: "array", op: "contains", right: "'a'");
             AssertEvaluatesFalse(left: "array", op: "contains", right: "'X'");
             AssertEvaluatesTrue(left: "array", op: "contains", right: "'B'");
@@ -249,6 +255,7 @@ namespace DotLiquid.Tests
             AssertEvaluatesFalse(left: "array", op: "contains", right: "0");
             AssertEvaluatesFalse(left: "array", op: "contains", right: "'0'");
             AssertEvaluatesTrue(left: "array", op: "startsWith", right: "first");
+            AssertEvaluatesTrue(left: "array.first", op: "==", right: "first");
             AssertEvaluatesTrue(left: "array", op: "contains", right: "first");
             AssertEvaluatesFalse(left: "array", op: "contains", right: "1");
             AssertEvaluatesTrue(left: "array", op: "endsWith", right: "last");

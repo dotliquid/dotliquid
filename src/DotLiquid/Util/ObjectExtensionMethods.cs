@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -6,6 +7,11 @@ namespace DotLiquid.Util
 {
     public static class ObjectExtensionMethods
     {
+        private static HashSet<HashSet<Type>> _BackCompatComparableTypeBoundaries = new HashSet<HashSet<Type>>() {
+            new HashSet<Type> { typeof(decimal), typeof(double), typeof(float), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(short), typeof(ushort) },
+            new HashSet<Type> { typeof(string), typeof(char) }
+        };
+
         public static bool RespondTo(this object value, string member, bool ensureNoParameters = true)
         {
             if (value == null)
@@ -50,11 +56,15 @@ namespace DotLiquid.Util
         /// <returns>True if the values are equal, false otherwise.</returns>
         public static bool BackCompatSafeTypeInsensitiveEqual(this object value, object otherValue)
         {
-            // NOTE(daviburg): Historically testing for equality cross integer and string boundaries resulted in not equal.
-            // This ensures we preserve the behavior.
-            if (value is string && !(otherValue is char) || otherValue is string && !(value is char))
+            if (value != null && otherValue != null)
             {
-                return false;
+                // NOTE(daviburg): Historically testing for equality cross integer and string boundaries resulted in not equal.
+                // This ensures we preserve the behavior.
+                var comparedTypes = new HashSet<Type>() { value.GetType(), otherValue.GetType() };
+                if (comparedTypes.Count > 1 && _BackCompatComparableTypeBoundaries.All(boundary => !comparedTypes.IsSubsetOf(boundary)))
+                {
+                    return false;
+                }
             }
 
             return ObjectExtensionMethods.SafeTypeInsensitiveEqual(value: value, otherValue: otherValue);

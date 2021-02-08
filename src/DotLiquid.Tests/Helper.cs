@@ -1,11 +1,11 @@
-﻿using DotLiquid.NamingConventions;
+using DotLiquid.NamingConventions;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
 {
     public class Helper
     {
-        public static void AssertTemplateResult(string expected, string template, Hash localVariables, INamingConvention namingConvention)
+        public static void AssertTemplateResult(string expected, string template, object anonymousObject, INamingConvention namingConvention)
         {
             //Have to lock Template.NamingConvention for this test to
             //prevent other tests from being run simultaneously that
@@ -17,6 +17,7 @@ namespace DotLiquid.Tests
 
                 try
                 {
+                    var localVariables = anonymousObject == null ? null : Hash.FromAnonymousObject(anonymousObject);
                     AssertTemplateResult(expected, template, localVariables);
                 }
                 finally
@@ -26,6 +27,11 @@ namespace DotLiquid.Tests
             }
         }
 
+        public static void AssertTemplateResult(string expected, string template, INamingConvention namingConvention)
+        {
+            AssertTemplateResult(expected: expected, template: template, anonymousObject: null, namingConvention: namingConvention);
+        }
+
         public static void AssertTemplateResult(string expected, string template, Hash localVariables)
         {
             Assert.AreEqual(expected, Template.Parse(template).Render(localVariables));
@@ -33,7 +39,7 @@ namespace DotLiquid.Tests
 
         public static void AssertTemplateResult(string expected, string template)
         {
-            AssertTemplateResult(expected, template, null);
+            AssertTemplateResult(expected: expected, template: template, localVariables: null);
         }
 
         [LiquidTypeAttribute("PropAllowed")]

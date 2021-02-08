@@ -598,8 +598,25 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestFirstLast()
+        public void TestFirstLastUsingRuby()
         {
+            var namingConvention = new NamingConventions.RubyNamingConvention();
+            TestFirstLast(namingConvention, (name) => namingConvention.GetMemberName(name));
+        }
+
+        [Test]
+        public void TestFirstLastUsingCSharp()
+        {
+            var namingConvention = new NamingConventions.CSharpNamingConvention();
+            TestFirstLast(namingConvention, (name) => char.ToUpperInvariant(name[0]) + name.Substring(1));
+        }
+
+        private void TestFirstLast(NamingConventions.INamingConvention namingConvention, Func<string, string> filterNameFunc )
+        {
+            var splitFilter = filterNameFunc("split");
+            var firstFilter = filterNameFunc("first");
+            var lastFilter = filterNameFunc("last");
+
             Assert.Null(StandardFilters.First(null));
             Assert.Null(StandardFilters.Last(null));
             Assert.AreEqual(1, StandardFilters.First(new[] { 1, 2, 3 }));
@@ -609,29 +626,37 @@ namespace DotLiquid.Tests
 
             Helper.AssertTemplateResult(
                 expected: ".",
-                template: "{{ 'Ground control to Major Tom.' | last }}");
+                template: "{{ 'Ground control to Major Tom.' | " + lastFilter + " }}",
+                namingConvention: namingConvention);
             Helper.AssertTemplateResult(
                 expected: "Tom.",
-                template: "{{ 'Ground control to Major Tom.' | split: ' ' | last }}");
+                template: "{{ 'Ground control to Major Tom.' | "+ splitFilter + ": ' ' | " + lastFilter + " }}",
+                namingConvention: namingConvention);
             Helper.AssertTemplateResult(
                 expected: "tiger",
-                template: "{% assign my_array = 'zebra, octopus, giraffe, tiger' | split: ', ' %}{{ my_array.last }}");
+                template: "{% assign my_array = 'zebra, octopus, giraffe, tiger' | " + splitFilter + ": ', ' %}{{ my_array." + lastFilter + " }}",
+                namingConvention: namingConvention);
             Helper.AssertTemplateResult(
                 expected: "There goes a tiger!",
-                template: "{% assign my_array = 'zebra, octopus, giraffe, tiger' | split: ', ' %}{% if my_array.last == 'tiger' %}There goes a tiger!{% endif %}");
+                template: "{% assign my_array = 'zebra, octopus, giraffe, tiger' | " + splitFilter + ": ', ' %}{% if my_array." + lastFilter + " == 'tiger' %}There goes a tiger!{% endif %}",
+                namingConvention: namingConvention);
 
             Helper.AssertTemplateResult(
                 expected: "G",
-                template: "{{ 'Ground control to Major Tom.' | first }}");
+                template: "{{ 'Ground control to Major Tom.' | " + firstFilter + " }}",
+                namingConvention: namingConvention);
             Helper.AssertTemplateResult(
                 expected: "Ground",
-                template: "{{ 'Ground control to Major Tom.' | split: ' ' | first }}");
+                template: "{{ 'Ground control to Major Tom.' | " + splitFilter + ": ' ' | " + firstFilter + " }}",
+                namingConvention: namingConvention);
             Helper.AssertTemplateResult(
                 expected: "zebra",
-                template: "{% assign my_array = 'zebra, octopus, giraffe, tiger' | split: ', ' %}{{ my_array.first }}");
+                template: "{% assign my_array = 'zebra, octopus, giraffe, tiger' | " + splitFilter + ": ', ' %}{{ my_array." + firstFilter + " }}",
+                namingConvention: namingConvention);
             Helper.AssertTemplateResult(
                 expected: "There goes a zebra!",
-                template: "{% assign my_array = 'zebra, octopus, giraffe, tiger' | split: ', ' %}{% if my_array.first == 'zebra' %}There goes a zebra!{% endif %}");
+                template: "{% assign my_array = 'zebra, octopus, giraffe, tiger' | " + splitFilter + ": ', ' %}{% if my_array." + firstFilter + " == 'zebra' %}There goes a zebra!{% endif %}",
+                namingConvention: namingConvention);
         }
 
         [Test]

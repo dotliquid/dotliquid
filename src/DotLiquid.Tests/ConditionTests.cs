@@ -439,6 +439,7 @@ namespace DotLiquid.Tests
                 AssertEvaluatesTrue("16", "is_multiple_of", "4");
                 AssertEvaluatesFalse("16", "is_multiple_of", "5");
 
+                // camel case : incompatible
                 AssertError("16", "isMultipleOf", "4", typeof(ArgumentException));
 
                 //Run tests through the template to verify that capitalization rules are followed through template parsing
@@ -477,6 +478,7 @@ namespace DotLiquid.Tests
                 AssertEvaluatesTrue("16", "is_multiple_of", "4");
                 AssertEvaluatesFalse("16", "is_multiple_of", "5");
 
+                // camel case : incompatible
                 AssertError("16", "isMultipleOf", "4", typeof(ArgumentException));
 
                 //Run tests through the template to verify that capitalization rules are followed through template parsing
@@ -519,14 +521,19 @@ namespace DotLiquid.Tests
                     AssertEvaluatesTrue("16", "divisibleby", "4");
                     AssertEvaluatesFalse("16", "divisibleby", "5");
 
-                    AssertError("16", "divisibleBy", "4", typeof(ArgumentException));
+                    // camel case : compatibility
+                    AssertEvaluatesTrue("16", "divisibleBy", "4");
+                    AssertEvaluatesFalse("16", "divisibleBy", "5");
+
+                    // snake case : incompatible
+                    AssertError("16", "divisible_by", "4", typeof(ArgumentException));
 
                     //Run tests through the template to verify that capitalization rules are followed through template parsing
                     Helper.AssertTemplateResult(" TRUE ", "{% if 16 DivisibleBy 4 %} TRUE {% endif %}");
                     Helper.AssertTemplateResult("", "{% if 16 DivisibleBy 5 %} TRUE {% endif %}");
                     Helper.AssertTemplateResult(" TRUE ", "{% if 16 divisibleby 4 %} TRUE {% endif %}");
                     Helper.AssertTemplateResult("", "{% if 16 divisibleby 5 %} TRUE {% endif %}");
-                    Helper.AssertTemplateResult("Liquid error: Unknown operator divisibleBy", "{% if 16 divisibleBy 4 %} TRUE {% endif %}");
+                    Helper.AssertTemplateResult("Liquid error: Unknown operator divisible_by", "{% if 16 divisible_by 4 %} TRUE {% endif %}");
                 }
                 finally
                 {
@@ -561,14 +568,19 @@ namespace DotLiquid.Tests
                     AssertEvaluatesTrue("16", "divisibleby", "4");
                     AssertEvaluatesFalse("16", "divisibleby", "5");
 
-                    AssertError("16", "divisibleBy", "4", typeof(ArgumentException));
+                    // camel case: compatibility
+                    AssertEvaluatesTrue("16", "divisibleBy", "4");
+                    AssertEvaluatesFalse("16", "divisibleBy", "5");
+
+                    // snake case: incompatible
+                    AssertError("16", "divisible_by", "4", typeof(ArgumentException));
 
                     //Run tests through the template to verify that capitalization rules are followed through template parsing
                     Helper.AssertTemplateResult(" TRUE ", "{% if 16 DivisibleBy 4 %} TRUE {% endif %}");
                     Helper.AssertTemplateResult("", "{% if 16 DivisibleBy 5 %} TRUE {% endif %}");
                     Helper.AssertTemplateResult(" TRUE ", "{% if 16 divisibleby 4 %} TRUE {% endif %}");
                     Helper.AssertTemplateResult("", "{% if 16 divisibleby 5 %} TRUE {% endif %}");
-                    Helper.AssertTemplateResult("Liquid error: Unknown operator divisibleBy", "{% if 16 divisibleBy 4 %} TRUE {% endif %}");
+                    Helper.AssertTemplateResult("Liquid error: Unknown operator divisible_by", "{% if 16 divisible_by 4 %} TRUE {% endif %}");
                 }
                 finally
                 {

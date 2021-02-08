@@ -27,7 +27,7 @@ namespace DotLiquid.NamingConventions
 
         private static string LowerFirstLetter(string word)
         {
-            return char.ToUpperInvariant(word[0]) + word.Substring(1);
+            return char.ToLowerInvariant(word[0]) + word.Substring(1);
         }
     }
 }

@@ -10,58 +10,87 @@ namespace DotLiquid.Tests
         [Test]
         public void TestSimpleVariablesStudlyCaps()
         {
-            Template.NamingConvention = new RubyNamingConvention();
-            Template template = Template.Parse("{{ Greeting }} {{ Name }}");
-            Assert.AreEqual("Hello Tobi", template.Render(Hash.FromAnonymousObject(new { greeting = "Hello", name = "Tobi" })));
+            var template = "{{ Greeting }} {{ Name }}";
+            Helper.AssertTemplateResult(
+                expected: "Hello Tobi",
+                template: template,
+                anonymousObject: new { greeting = "Hello", name = "Tobi" },
+                namingConvention: new RubyNamingConvention());
 
-            Template.NamingConvention = new CSharpNamingConvention();
-            Assert.AreEqual("Hello Tobi", template.Render(Hash.FromAnonymousObject(new { Greeting = "Hello", Name = "Tobi" })));
-            Assert.AreEqual(" ", template.Render(Hash.FromAnonymousObject(new { greeting = "Hello", name = "Tobi" })));
+            var csNamingConvention = new CSharpNamingConvention();
+            Helper.AssertTemplateResult(
+                expected: "Hello Tobi",
+                template: template,
+                anonymousObject: new { Greeting = "Hello", Name = "Tobi" },
+                namingConvention: csNamingConvention);
+            Helper.AssertTemplateResult(
+                expected: " ",
+                template: template,
+                anonymousObject: new { greeting = "Hello", name = "Tobi" },
+                namingConvention: csNamingConvention);
         }
 
         [Test]
         public void TestTagsStudlyCapsAreNotAllowed()
         {
-            Template.NamingConvention = new RubyNamingConvention();
-            Assert.Throws<SyntaxException>(() => Template.Parse("{% IF user = 'tobi' %}Hello Tobi{% EndIf %}"));
+            lock (Template.NamingConvention)
+            {
+                var currentNamingConvention = Template.NamingConvention;
+                Template.NamingConvention = new RubyNamingConvention();
+
+                try
+                {
+                    Assert.Throws<SyntaxException>(() => Template.Parse("{% IF user = 'tobi' %}Hello Tobi{% EndIf %}"));
+                }
+                finally
+                {
+                    Template.NamingConvention = currentNamingConvention;
+                }
+            }
         }
 
         [Test]
         public void TestFiltersStudlyCapsAreNotAllowed()
         {
-            Template.NamingConvention = new RubyNamingConvention();
-            Template template = Template.Parse("{{ 'hi tobi' | upcase }}");
-            Assert.AreEqual("HI TOBI", template.Render());
+            Helper.AssertTemplateResult(
+                expected:"HI TOBI",
+                template: "{{ 'hi tobi' | upcase }}",
+                namingConvention: new RubyNamingConvention());
 
-            Template.NamingConvention = new CSharpNamingConvention();
-            template = Template.Parse("{{ 'hi tobi' | Upcase }}");
-            Assert.AreEqual("HI TOBI", template.Render());
+            Helper.AssertTemplateResult(
+                expected: "HI TOBI",
+                template: "{{ 'hi tobi' | Upcase }}",
+                namingConvention: new CSharpNamingConvention());
         }
 
         [Test]
         public void TestAssignsStudlyCaps()
         {
-            Template.NamingConvention = new RubyNamingConvention();
+            var rubyNamingConvention = new RubyNamingConvention();
 
             Helper.AssertTemplateResult(
                 expected: ".foo.",
                 template: "{% assign FoO = values %}.{{ fOo[0] }}.",
-                localVariables: Hash.FromAnonymousObject(new { values = new[] { "foo", "bar", "baz" } }));
+                anonymousObject: new { values = new[] { "foo", "bar", "baz" } },
+                namingConvention: rubyNamingConvention);
             Helper.AssertTemplateResult(
                 expected: ".bar.",
                 template: "{% assign fOo = values %}.{{ fOO[1] }}.",
-                localVariables: Hash.FromAnonymousObject(new { values = new[] { "foo", "bar", "baz" } }));
+                anonymousObject: new { values = new[] { "foo", "bar", "baz" } },
+                namingConvention: rubyNamingConvention);
 
-            Template.NamingConvention = new CSharpNamingConvention();
+            var csNamingConvention = new CSharpNamingConvention();
 
             Helper.AssertTemplateResult(
                 expected: ".foo.",
                 template: "{% assign Foo = values %}.{{ Foo[0] }}.",
-                localVariables: Hash.FromAnonymousObject(new { values = new[] { "foo", "bar", "baz" } }));
+                anonymousObject: new { values = new[] { "foo", "bar", "baz" } },
+                namingConvention: csNamingConvention);
             Helper.AssertTemplateResult(
                 expected: ".bar.",
                 template: "{% assign fOo = values %}.{{ fOo[1] }}.",
-                localVariables: Hash.FromAnonymousObject(new { values = new[] { "foo", "bar", "baz" } }));
+                anonymousObject: new { values = new[] { "foo", "bar", "baz" } },
+                namingConvention: csNamingConvention);
         }
     }
 }

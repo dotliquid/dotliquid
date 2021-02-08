@@ -531,9 +531,8 @@ namespace DotLiquid.Tests
                 finally
                 {
                     Condition.Operators.Remove("DivisibleBy");
+                    Template.NamingConvention = oldconvention;
                 }
-
-                Template.NamingConvention = oldconvention;
             }
         }
 
@@ -574,9 +573,8 @@ namespace DotLiquid.Tests
                 finally
                 {
                     Condition.Operators.Remove("DivisibleBy");
+                    Template.NamingConvention = oldconvention;
                 }
-
-                Template.NamingConvention = oldconvention;
             }
         }
 

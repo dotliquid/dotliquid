@@ -119,6 +119,12 @@ namespace DotLiquid
             if (input.IsNullOrWhiteSpace())
                 return input;
 
+            if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21)
+            {
+                var trimmed = input.TrimStart();
+                return input.Substring(0, input.Length - trimmed.Length) + char.ToUpper(trimmed[0]) + trimmed.Substring(1);
+            }
+
             return string.IsNullOrEmpty(input)
                 ? input
 #if CORE
@@ -429,9 +435,10 @@ namespace DotLiquid
             if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(@string))
                 return input;
 
-            return string.IsNullOrEmpty(input)
-                ? input
-                : Regex.Replace(input, @string, replacement, RegexOptions.None, Template.RegexTimeOut);
+            if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21)
+                return input.Replace(@string, replacement);
+
+            return Regex.Replace(input, @string, replacement, RegexOptions.None, Template.RegexTimeOut);
         }
 
         /// <summary>
@@ -446,6 +453,12 @@ namespace DotLiquid
         {
             if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(@string))
                 return input;
+
+            if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21)
+            {
+                int position = input.IndexOf(@string);
+                return position < 0 ? input : input.Remove(position, @string.Length).Insert(position, replacement);
+            }
 
             bool doneReplacement = false;
             return Regex.Replace(input, @string, m =>
@@ -535,13 +548,34 @@ namespace DotLiquid
             if (input == null)
                 return null;
 
-            DateTime date;
-            if (input is DateTime)
+            if (input is DateTime date)
             {
-                date = (DateTime)input;
-
                 if (format.IsNullOrWhiteSpace())
                     return date.ToString();
+
+                return Liquid.UseRubyDateFormat
+                    ? context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21 ? new DateTimeOffset(date).ToStrFTime(format) : date.ToStrFTime(format)
+                    : date.ToString(format);
+            }
+
+            if (context.SyntaxCompatibilityLevel == SyntaxCompatibility.DotLiquid20)
+                return DateLegacyParsing(input.ToString(), format);
+
+            if (format.IsNullOrWhiteSpace())
+                return input.ToString();
+
+            DateTimeOffset dateTimeOffset;
+            if (input is DateTimeOffset inputOffset)
+            {
+                dateTimeOffset = inputOffset;
+            }
+            else if ((input is decimal) || (input is double) || (input is float) || (input is int) || (input is uint) || (input is long) || (input is ulong) || (input is short) || (input is ushort))
+            {
+#if CORE
+                dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(input)).ToLocalTime();
+#else
+                dateTimeOffset = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(Convert.ToDouble(input)).ToLocalTime();
+#endif
             }
             else
             {
@@ -549,20 +583,36 @@ namespace DotLiquid
 
                 if (string.Equals(value, "now", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "today", StringComparison.OrdinalIgnoreCase))
                 {
-                    date = DateTime.Now;
-
-                    if (format.IsNullOrWhiteSpace())
-                        return date.ToString();
+                    dateTimeOffset = DateTimeOffset.Now;
                 }
-                else if (!DateTime.TryParse(value, out date))
+                else if (!DateTimeOffset.TryParse(value, out dateTimeOffset))
                 {
                     return value;
                 }
-
-                if (format.IsNullOrWhiteSpace())
-                    return value;
             }
 
+            return Liquid.UseRubyDateFormat ? dateTimeOffset.ToStrFTime(format) : dateTimeOffset.ToString(format);
+        }
+
+        private static string DateLegacyParsing(string value, string format)
+        {
+            DateTime date;
+
+            if (string.Equals(value, "now", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "today", StringComparison.OrdinalIgnoreCase))
+            {
+                date = DateTime.Now;
+
+                if (format.IsNullOrWhiteSpace())
+                    return date.ToString();
+            }
+            else if (!DateTime.TryParse(value, out date))
+            {
+                return value;
+            }
+
+            if (format.IsNullOrWhiteSpace())
+                return value;
+            
             return Liquid.UseRubyDateFormat ? date.ToStrFTime(format) : date.ToString(format);
         }
 
@@ -607,9 +657,12 @@ namespace DotLiquid
         /// <returns></returns>
         public static object Plus(Context context, object input, object operand)
         {
+            if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21)
+                return DoMathsOperation(context, input, operand, Expression.AddChecked);
+
             return input is string
                 ? string.Concat(input, operand)
-                : DoMathsOperation(input, operand, Expression.AddChecked);
+                : DoMathsOperation(context, input, operand, Expression.AddChecked);
         }
 
         /// <summary>
@@ -621,7 +674,7 @@ namespace DotLiquid
         /// <returns></returns>
         public static object Minus(Context context, object input, object operand)
         {
-            return DoMathsOperation(input, operand, Expression.SubtractChecked);
+            return DoMathsOperation(context, input, operand, Expression.SubtractChecked);
         }
 
         /// <summary>
@@ -633,9 +686,12 @@ namespace DotLiquid
         /// <returns></returns>
         public static object Times(Context context, object input, object operand)
         {
+            if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21)
+                return DoMathsOperation(context, input, operand, Expression.MultiplyChecked);
+
             return input is string && (operand is int || operand is long)
                 ? Enumerable.Repeat((string)input, Convert.ToInt32(operand))
-                : DoMathsOperation(input, operand, Expression.MultiplyChecked);
+                : DoMathsOperation(context, input, operand, Expression.MultiplyChecked);
         }
 
         /// <summary>
@@ -693,7 +749,7 @@ namespace DotLiquid
         /// <returns></returns>
         public static object DividedBy(Context context, object input, object operand)
         {
-            return DoMathsOperation(input, operand, Expression.Divide);
+            return DoMathsOperation(context, input, operand, Expression.Divide);
         }
 
         /// <summary>
@@ -705,7 +761,7 @@ namespace DotLiquid
         /// <returns></returns>
         public static object Modulo(Context context, object input, object operand)
         {
-            return DoMathsOperation(input, operand, Expression.Modulo);
+            return DoMathsOperation(context, input, operand, Expression.Modulo);
         }
 
         /// <summary>
@@ -721,7 +777,7 @@ namespace DotLiquid
 
         private static bool IsReal(object o) => o is double || o is float || o is decimal;
 
-        private static object DoMathsOperation(object input, object operand, Func<Expression, Expression, BinaryExpression> operation)
+        private static object DoMathsOperation(Context context, object input, object operand, Func<Expression, Expression, BinaryExpression> operation)
         {
             if (input == null || operand == null)
                 return null;
@@ -730,7 +786,8 @@ namespace DotLiquid
             // This avoids rounding errors in financial arithmetics.
             // E.g.: 0.1 | Plus 10 | Minus 10 to remain 0.1, not 0.0999999999999996
             // Otherwise revert to maximum range (possible precision loss).
-            if (IsReal(input) || IsReal(operand))
+            var shouldConvertStrings = context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21 && ((input is string) || (operand is string));
+            if (IsReal(input) || IsReal(operand) || shouldConvertStrings)
             {
                 try
                 {
@@ -801,11 +858,12 @@ namespace DotLiquid
             Double n;
             return Double.TryParse(input.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out n) ? Math.Abs(n) : 0;
         }
-        
+
         /// <summary>
         /// Limits a number to a minimum value.
         /// </summary>
         /// <param name="input"></param>
+        /// <param name="atLeast"></param>
         /// <returns></returns>
         public static object AtLeast(object input, object atLeast)
         {
@@ -829,6 +887,7 @@ namespace DotLiquid
         /// Limits a number to a maximum value.
         /// </summary>
         /// <param name="input"></param>
+        /// <param name="atMost"></param>
         /// <returns></returns>
         public static object AtMost(object input, object atMost)
         {

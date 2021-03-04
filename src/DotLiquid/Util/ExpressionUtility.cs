@@ -21,13 +21,13 @@ namespace DotLiquid.Util
             // Using the promotion table at
             // https://docs.microsoft.com/en-us/dotnet/standard/base-types/conversion-tables
 
-            Add(typeof(Byte), typeof(UInt16), typeof(Int16), typeof(UInt32), typeof(Int32), typeof(UInt64), typeof(Int64), typeof(Single), typeof(Double), typeof(Decimal));
-            Add(typeof(SByte), typeof(Int16), typeof(Int32), typeof(Int64), typeof(Single), typeof(Double), typeof(Decimal));
-            Add(typeof(Int16), typeof(Int32), typeof(Int64), typeof(Single), typeof(Double), typeof(Decimal));
-            Add(typeof(UInt16), typeof(UInt32), typeof(Int32), typeof(UInt64), typeof(Int64), typeof(Single), typeof(Double), typeof(Decimal));
-            Add(typeof(Char), typeof(UInt16), typeof(UInt32), typeof(Int32), typeof(UInt64), typeof(Int64), typeof(Single), typeof(Double), typeof(Decimal));
-            Add(typeof(Int32), typeof(Int64), typeof(Double), typeof(Decimal), typeof(Single));
-            Add(typeof(UInt32), typeof(Int64), typeof(UInt64), typeof(Double), typeof(Decimal), typeof(Single));
+            Add(typeof(Byte), typeof(UInt16), typeof(Int16), typeof(UInt32), typeof(Int32), typeof(UInt64), typeof(Int64), typeof(Decimal), typeof(Single), typeof(double));
+            Add(typeof(SByte), typeof(Int16), typeof(Int32), typeof(Int64), typeof(Decimal), typeof(Single), typeof(double));
+            Add(typeof(Int16), typeof(Int32), typeof(Int64), typeof(Decimal), typeof(Single), typeof(double));
+            Add(typeof(UInt16), typeof(UInt32), typeof(Int32), typeof(UInt64), typeof(Int64), typeof(Decimal), typeof(Single), typeof(double));
+            Add(typeof(Char), typeof(UInt16), typeof(UInt32), typeof(Int32), typeof(UInt64), typeof(Int64), typeof(Decimal), typeof(Single), typeof(double));
+            Add(typeof(Int32), typeof(Int64), typeof(Decimal), typeof(Single), typeof(double));
+            Add(typeof(UInt32), typeof(Int64), typeof(UInt64), typeof(Decimal), typeof(Single), typeof(double));
             Add(typeof(Int64), typeof(Decimal), typeof(Single), typeof(double));
             Add(typeof(UInt64), typeof(Decimal), typeof(Single), typeof(double));
             Add(typeof(Single), typeof(Double));
@@ -43,7 +43,7 @@ namespace DotLiquid.Util
         /// <param name="left"></param>
         /// <param name="right"></param>
         /// <returns></returns>
-        static Type BinaryNumericResultType(Type left, Type right)
+        internal static Type BinaryNumericResultType(Type left, Type right)
         {
             if (left == right)
                 return left;
@@ -55,11 +55,10 @@ namespace DotLiquid.Util
 
             // Test left to right promotion
             if (NumericTypePromotions[right].Contains(left))
-                return right;
-            if (NumericTypePromotions[left].Contains(right))
                 return left;
-
-            throw new Exception("Should not get here in code");
+            if (NumericTypePromotions[left].Contains(right))
+                return right;
+            return NumericTypePromotions[right].First(p => NumericTypePromotions[left].Contains(p));
         }
 
         private static (Expression left, Expression right) Cast(Expression lhs, Expression rhs,Type leftType, Type rightType, Type resultType)

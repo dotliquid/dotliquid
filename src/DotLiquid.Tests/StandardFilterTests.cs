@@ -743,6 +743,8 @@ namespace DotLiquid.Tests
 
                 // Test that decimals are not introducing rounding-precision issues
                 Helper.AssertTemplateResult("148397.77", "{{ 148387.77 | plus:10 }}");
+
+                Helper.AssertTemplateResult("2147483648", "{{ i | plus: i2 }}", Hash.FromAnonymousObject(new { i = (int)Int32.MaxValue, i2 = (Int64)1 }));
             }
         }
 

@@ -10,6 +10,22 @@ namespace DotLiquid.Tests
     [TestFixture]
     public class StandardFilterTests
     {
+        private Context _contextV20;
+        private Context _contextV21;
+
+        [OneTimeSetUp]
+        public void SetUp()
+        {
+            _contextV20 = new Context(CultureInfo.InvariantCulture)
+            {
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20
+            };
+            _contextV21 = new Context(CultureInfo.InvariantCulture)
+            {
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid21
+            };
+        }
+
         [Test]
         public void TestSize()
         {
@@ -514,87 +530,165 @@ namespace DotLiquid.Tests
         [Test]
         public void TestDate()
         {
+            Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
+            {
+                TestDate(_contextV20);
+            });
+        }
+
+        public void TestDate(Context context)
+        {
             Liquid.UseRubyDateFormat = false;
             DateTimeFormatInfo dateTimeFormat = CultureInfo.CurrentCulture.DateTimeFormat;
 
-            Assert.AreEqual(dateTimeFormat.GetMonthName(5), StandardFilters.Date(DateTime.Parse("2006-05-05 10:00:00"), "MMMM"));
-            Assert.AreEqual(dateTimeFormat.GetMonthName(6), StandardFilters.Date(DateTime.Parse("2006-06-05 10:00:00"), "MMMM"));
-            Assert.AreEqual(dateTimeFormat.GetMonthName(7), StandardFilters.Date(DateTime.Parse("2006-07-05 10:00:00"), "MMMM"));
+            Assert.AreEqual(dateTimeFormat.GetMonthName(5), StandardFilters.Date(context: context, input: DateTime.Parse("2006-05-05 10:00:00"), format: "MMMM"));
+            Assert.AreEqual(dateTimeFormat.GetMonthName(6), StandardFilters.Date(context: context, input: DateTime.Parse("2006-06-05 10:00:00"), format: "MMMM"));
+            Assert.AreEqual(dateTimeFormat.GetMonthName(7), StandardFilters.Date(context: context, input: DateTime.Parse("2006-07-05 10:00:00"), format: "MMMM"));
 
-            Assert.AreEqual(dateTimeFormat.GetMonthName(5), StandardFilters.Date("2006-05-05 10:00:00", "MMMM"));
-            Assert.AreEqual(dateTimeFormat.GetMonthName(6), StandardFilters.Date("2006-06-05 10:00:00", "MMMM"));
-            Assert.AreEqual(dateTimeFormat.GetMonthName(7), StandardFilters.Date("2006-07-05 10:00:00", "MMMM"));
+            Assert.AreEqual(dateTimeFormat.GetMonthName(5), StandardFilters.Date(context: context, input: "2006-05-05 10:00:00", format: "MMMM"));
+            Assert.AreEqual(dateTimeFormat.GetMonthName(6), StandardFilters.Date(context: context, input: "2006-06-05 10:00:00", format: "MMMM"));
+            Assert.AreEqual(dateTimeFormat.GetMonthName(7), StandardFilters.Date(context: context, input: "2006-07-05 10:00:00", format: "MMMM"));
 
-            Assert.AreEqual("08/01/2006 10:00:00", StandardFilters.Date("08/01/2006 10:00:00", string.Empty));
-            Assert.AreEqual("08/02/2006 10:00:00", StandardFilters.Date("08/02/2006 10:00:00", null));
-            Assert.AreEqual(new DateTime(2006, 8, 3, 10, 0, 0).ToString(), StandardFilters.Date(new DateTime(2006, 8, 3, 10, 0, 0), string.Empty));
-            Assert.AreEqual(new DateTime(2006, 8, 4, 10, 0, 0).ToString(), StandardFilters.Date(new DateTime(2006, 8, 4, 10, 0, 0), null));
+            Assert.AreEqual("08/01/2006 10:00:00", StandardFilters.Date(context: context, input: "08/01/2006 10:00:00", format: string.Empty));
+            Assert.AreEqual("08/02/2006 10:00:00", StandardFilters.Date(context: context, input: "08/02/2006 10:00:00", format: null));
+            Assert.AreEqual(new DateTime(2006, 8, 3, 10, 0, 0).ToString(), StandardFilters.Date(context: context, input: new DateTime(2006, 8, 3, 10, 0, 0), format: string.Empty));
+            Assert.AreEqual(new DateTime(2006, 8, 4, 10, 0, 0).ToString(), StandardFilters.Date(context: context, input: new DateTime(2006, 8, 4, 10, 0, 0), format: null));
 
-            Assert.AreEqual(new DateTime(2006, 7, 5).ToString("MM/dd/yyyy"), StandardFilters.Date("2006-07-05 10:00:00", "MM/dd/yyyy"));
+            Assert.AreEqual(new DateTime(2006, 7, 5).ToString("MM/dd/yyyy"), StandardFilters.Date(context: context, input: "2006-07-05 10:00:00", format: "MM/dd/yyyy"));
 
-            Assert.AreEqual(new DateTime(2004, 7, 16).ToString("MM/dd/yyyy"), StandardFilters.Date("Fri Jul 16 2004 01:00:00", "MM/dd/yyyy"));
+            Assert.AreEqual(new DateTime(2004, 7, 16).ToString("MM/dd/yyyy"), StandardFilters.Date(context: context, input: "Fri Jul 16 2004 01:00:00", format: "MM/dd/yyyy"));
 
-            Assert.AreEqual(null, StandardFilters.Date(null, "MMMM"));
+            Assert.AreEqual(null, StandardFilters.Date(context: context, input: null, format: "MMMM"));
 
-            Assert.AreEqual("hi", StandardFilters.Date("hi", "MMMM"));
+            Assert.AreEqual("hi", StandardFilters.Date(context: context, input: "hi", format: "MMMM"));
 
-            Assert.AreEqual(DateTime.Now.ToString("MM/dd/yyyy"), StandardFilters.Date("now", "MM/dd/yyyy"));
-            Assert.AreEqual(DateTime.Now.ToString("MM/dd/yyyy"), StandardFilters.Date("today", "MM/dd/yyyy"));
-            Assert.AreEqual(DateTime.Now.ToString("MM/dd/yyyy"), StandardFilters.Date("Now", "MM/dd/yyyy"));
-            Assert.AreEqual(DateTime.Now.ToString("MM/dd/yyyy"), StandardFilters.Date("Today", "MM/dd/yyyy"));
+            Assert.AreEqual(DateTime.Now.ToString("MM/dd/yyyy"), StandardFilters.Date(context: context, input: "now", format: "MM/dd/yyyy"));
+            Assert.AreEqual(DateTime.Now.ToString("MM/dd/yyyy"), StandardFilters.Date(context: context, input: "today", format: "MM/dd/yyyy"));
+            Assert.AreEqual(DateTime.Now.ToString("MM/dd/yyyy"), StandardFilters.Date(context: context, input: "Now", format: "MM/dd/yyyy"));
+            Assert.AreEqual(DateTime.Now.ToString("MM/dd/yyyy"), StandardFilters.Date(context: context, input: "Today", format: "MM/dd/yyyy"));
 
-            Assert.AreEqual(DateTime.Now.ToString(), StandardFilters.Date("now", null));
-            Assert.AreEqual(DateTime.Now.ToString(), StandardFilters.Date("today", null));
-            Assert.AreEqual(DateTime.Now.ToString(), StandardFilters.Date("now", string.Empty));
-            Assert.AreEqual(DateTime.Now.ToString(), StandardFilters.Date("today", string.Empty));
-
-            Assert.AreEqual("345000", StandardFilters.Date(DateTime.Parse("2006-05-05 10:00:00.345"), "ffffff"));
+            Assert.AreEqual("345000", StandardFilters.Date(context: context, input: DateTime.Parse("2006-05-05 10:00:00.345"), format: "ffffff"));
 
             Template template = Template.Parse(@"{{ hi | date:""MMMM"" }}");
             Assert.AreEqual("hi", template.Render(Hash.FromAnonymousObject(new { hi = "hi" })));
+        }
 
-            Helper.AssertTemplateResult(
-                expected: "14, 16",
-                template: "{{ \"March 14, 2016\" | date: \"%d, %y\" }}");
+        [Test]
+        public void TestDateV20()
+        {
+            Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
+            {
+                var context = _contextV20;
+                // Legacy parser doesn't except Unix Epoch https://github.com/dotliquid/dotliquid/issues/322
+                Assert.AreEqual("0", StandardFilters.Date(context: context, input: 0, format: null));
+                Assert.AreEqual("2147483648", StandardFilters.Date(context: context, input: 2147483648, format: null)); // Beyond Int32 boundary
 
-            // Test disabled due to bug https://github.com/dotliquid/dotliquid/issues/391
-            //// Helper.AssertTemplateResult(
-            ////     expected: "Mar 14, 16",
-            ////     template: "{{ \"March 14, 2016\" | date: \"%b %d, %y\" }}");
-            //// Helper.AssertTemplateResult(
-            ////     expected: $"This page was last updated at {DateTime.Now.ToString("yyyy-MM-dd HH:mm")}.",
-            ////     template: "This page was last updated at {{ 'now' | date: '%Y-%m-%d %H:%M' }}.");
+                // Legacy parser loses specified offset https://github.com/dotliquid/dotliquid/issues/149
+                var testDate = new DateTime(2006, 8, 4, 10, 0, 0);
+                Assert.AreEqual(new DateTimeOffset(testDate).ToString("zzz"), StandardFilters.Date(context: context, input: new DateTimeOffset(testDate, TimeSpan.FromHours(-14)), format: "zzz"));
+
+                // Legacy parser doesn't handle local offset & explicit offset in calculating epoch
+                Liquid.UseRubyDateFormat = true;
+                var unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).ToLocalTime();
+                var unixEpochOffset = new DateTimeOffset(unixEpoch).Offset.TotalSeconds;
+                Helper.AssertTemplateResult(expected: "0", template: "{{ epoch | date: '%s' }}", localVariables: Hash.FromAnonymousObject(new { epoch = unixEpoch.ToUniversalTime() }));
+                Helper.AssertTemplateResult(expected: unixEpochOffset.ToString(), template: "{{ epoch | date: '%s' }}", localVariables: Hash.FromAnonymousObject(new { epoch = unixEpoch }));
+                Helper.AssertTemplateResult(expected: unixEpochOffset.ToString(), template: "{{ epoch | date: '%s' }}", localVariables: Hash.FromAnonymousObject(new { epoch = DateTime.SpecifyKind(unixEpoch.ToLocalTime(), DateTimeKind.Unspecified) }));
+                Helper.AssertTemplateResult(expected: unixEpochOffset.ToString(), template: "{{ epoch | date: '%s' }}", localVariables: Hash.FromAnonymousObject(new { epoch = new DateTimeOffset(unixEpoch) }));
+                Helper.AssertTemplateResult(expected: unixEpochOffset.ToString(), template: "{{ epoch | date: '%s' }}", localVariables: Hash.FromAnonymousObject(new { epoch = new DateTimeOffset(unixEpoch).ToOffset(TimeSpan.FromHours(-14)) }));
+
+                // Legacy parser defaults to the .NET default format
+                Assert.AreEqual(DateTime.Now.ToString(), StandardFilters.Date(context: context, input: "now", format: null));
+                Assert.AreEqual(DateTime.Now.ToString(), StandardFilters.Date(context: context, input: "today", format: null));
+                Assert.AreEqual(DateTime.Now.ToString(), StandardFilters.Date(context: context, input: "now", format: string.Empty));
+                Assert.AreEqual(DateTime.Now.ToString(), StandardFilters.Date(context: context, input: "today", format: string.Empty));
+            });
+        }
+
+        [Test]
+        public void TestDateV21()
+        {
+            Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
+            {
+                var context = _contextV21;
+                var unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).ToLocalTime();
+                Assert.AreEqual(unixEpoch.ToString("g"), StandardFilters.Date(context: context, input: 0, format: "g"));
+                Assert.AreEqual(unixEpoch.AddSeconds(Int32.MaxValue).AddSeconds(1).ToString("g"), StandardFilters.Date(context: context, input: 2147483648, format: "g")); // Beyond Int32 boundary
+                Assert.AreEqual(unixEpoch.AddSeconds(UInt32.MaxValue).AddSeconds(1).ToString("g"), StandardFilters.Date(context: context, input: 4294967296, format: "g")); // Beyond UInt32 boundary
+                Helper.AssertTemplateResult(expected: unixEpoch.ToString("g"), template: "{{ 0 | date: 'g' }}", syntax: context.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(expected: unixEpoch.AddSeconds(Int32.MaxValue).AddSeconds(1).ToString("g"), template: "{{ 2147483648 | date: 'g' }}", syntax: context.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(expected: unixEpoch.AddSeconds(UInt32.MaxValue).AddSeconds(1).ToString("g"), template: "{{ 4294967296 | date: 'g' }}", syntax: context.SyntaxCompatibilityLevel);
+
+                var testDate = new DateTime(2006, 8, 4, 10, 0, 0, DateTimeKind.Unspecified);
+                Assert.AreEqual("-14:00", StandardFilters.Date(context: context, input: new DateTimeOffset(testDate, TimeSpan.FromHours(-14)), format: "zzz"));
+                Helper.AssertTemplateResult(expected: "+00:00", template: "{{ '" + testDate.ToString("u") + "' | date: 'zzz' }}", syntax: context.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(expected: "-14:00", template: "{{ '" + testDate.ToString("u").Replace("Z", "-14:00") + "' | date: 'zzz' }}", syntax: context.SyntaxCompatibilityLevel);
+
+                Liquid.UseRubyDateFormat = true;
+                Helper.AssertTemplateResult(expected: "0", template: "{{ epoch | date: '%s' }}", localVariables: Hash.FromAnonymousObject(new { epoch = 0 }), syntax: context.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(expected: "2147483648", template: "{{ epoch | date: '%s' }}", localVariables: Hash.FromAnonymousObject(new { epoch = 2147483648 }), syntax: context.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(expected: "4294967296", template: "{{ epoch | date: '%s' }}", localVariables: Hash.FromAnonymousObject(new { epoch = 4294967296 }), syntax: context.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(expected: "0", template: "{{ epoch | date: '%s' }}", localVariables: Hash.FromAnonymousObject(new { epoch = unixEpoch.ToUniversalTime() }), syntax: context.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(expected: "0", template: "{{ epoch | date: '%s' }}", localVariables: Hash.FromAnonymousObject(new { epoch = unixEpoch }), syntax: context.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(expected: "0", template: "{{ epoch | date: '%s' }}", localVariables: Hash.FromAnonymousObject(new { epoch = DateTime.SpecifyKind(unixEpoch, DateTimeKind.Unspecified) }), syntax: context.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(expected: "0", template: "{{ epoch | date: '%s' }}", localVariables: Hash.FromAnonymousObject(new { epoch = new DateTimeOffset(unixEpoch) }), syntax: context.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(expected: "0", template: "{{ epoch | date: '%s' }}", localVariables: Hash.FromAnonymousObject(new { epoch = new DateTimeOffset(unixEpoch).ToOffset(TimeSpan.FromHours(-14)) }), syntax: context.SyntaxCompatibilityLevel);
+
+                Assert.AreEqual("now", StandardFilters.Date(context: context, input: "now", format: null));
+                Assert.AreEqual("today", StandardFilters.Date(context: context, input: "today", format: null));
+                Assert.AreEqual("now", StandardFilters.Date(context: context, input: "now", format: string.Empty));
+                Assert.AreEqual("today", StandardFilters.Date(context: context, input: "today", format: string.Empty));
+
+                TestDate(context);
+            });
         }
 
         [Test]
         public void TestStrFTime()
         {
-            Liquid.UseRubyDateFormat = true;
-            DateTimeFormatInfo dateTimeFormat = CultureInfo.CurrentCulture.DateTimeFormat;
+            Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
+            {
+                var context = _contextV20;
+                Liquid.UseRubyDateFormat = true;
+                DateTimeFormatInfo dateTimeFormat = CultureInfo.CurrentCulture.DateTimeFormat;
 
-            Assert.AreEqual(dateTimeFormat.GetMonthName(5), StandardFilters.Date(DateTime.Parse("2006-05-05 10:00:00"), "%B"));
-            Assert.AreEqual(dateTimeFormat.GetMonthName(6), StandardFilters.Date(DateTime.Parse("2006-06-05 10:00:00"), "%B"));
-            Assert.AreEqual(dateTimeFormat.GetMonthName(7), StandardFilters.Date(DateTime.Parse("2006-07-05 10:00:00"), "%B"));
+                Assert.AreEqual(dateTimeFormat.GetMonthName(5), StandardFilters.Date(context: context, input: DateTime.Parse("2006-05-05 10:00:00"), format: "%B"));
+                Assert.AreEqual(dateTimeFormat.GetMonthName(6), StandardFilters.Date(context: context, input: DateTime.Parse("2006-06-05 10:00:00"), format: "%B"));
+                Assert.AreEqual(dateTimeFormat.GetMonthName(7), StandardFilters.Date(context: context, input: DateTime.Parse("2006-07-05 10:00:00"), format: "%B"));
 
-            Assert.AreEqual(dateTimeFormat.GetMonthName(5), StandardFilters.Date("2006-05-05 10:00:00", "%B"));
-            Assert.AreEqual(dateTimeFormat.GetMonthName(6), StandardFilters.Date("2006-06-05 10:00:00", "%B"));
-            Assert.AreEqual(dateTimeFormat.GetMonthName(7), StandardFilters.Date("2006-07-05 10:00:00", "%B"));
+                Assert.AreEqual(dateTimeFormat.GetMonthName(5), StandardFilters.Date(context: context, input: "2006-05-05 10:00:00", format: "%B"));
+                Assert.AreEqual(dateTimeFormat.GetMonthName(6), StandardFilters.Date(context: context, input: "2006-06-05 10:00:00", format: "%B"));
+                Assert.AreEqual(dateTimeFormat.GetMonthName(7), StandardFilters.Date(context: context, input: "2006-07-05 10:00:00", format: "%B"));
 
-            Assert.AreEqual("05/07/2006 10:00:00", StandardFilters.Date("05/07/2006 10:00:00", string.Empty));
-            Assert.AreEqual("05/07/2006 10:00:00", StandardFilters.Date("05/07/2006 10:00:00", null));
-            Assert.AreEqual(new DateTime(2006, 8, 3, 10, 0, 0).ToString(), StandardFilters.Date(new DateTime(2006, 8, 3, 10, 0, 0), string.Empty));
-            Assert.AreEqual(new DateTime(2006, 8, 4, 10, 0, 0).ToString(), StandardFilters.Date(new DateTime(2006, 8, 4, 10, 0, 0), null));
+                Assert.AreEqual("05/07/2006 10:00:00", StandardFilters.Date(context: context, input: "05/07/2006 10:00:00", format: string.Empty));
+                Assert.AreEqual("05/07/2006 10:00:00", StandardFilters.Date(context: context, input: "05/07/2006 10:00:00", format: null));
+                Assert.AreEqual(new DateTime(2006, 8, 3, 10, 0, 0).ToString(), StandardFilters.Date(context: context, input: new DateTime(2006, 8, 3, 10, 0, 0), format: string.Empty));
+                Assert.AreEqual(new DateTime(2006, 8, 4, 10, 0, 0).ToString(), StandardFilters.Date(context: context, input: new DateTime(2006, 8, 4, 10, 0, 0), format: null));
 
-            Assert.AreEqual("07/05/2006", StandardFilters.Date("2006-07-05 10:00:00", "%m/%d/%Y"));
+                Assert.AreEqual("07/05/2006", StandardFilters.Date(context: context, input: "2006-07-05 10:00:00", format: "%m/%d/%Y"));
 
-            Assert.AreEqual("07/16/2004", StandardFilters.Date("Fri Jul 16 2004 01:00:00", "%m/%d/%Y"));
+                Assert.AreEqual("07/16/2004", StandardFilters.Date(context: context, input: "Fri Jul 16 2004 01:00:00", format: "%m/%d/%Y"));
 
-            Assert.AreEqual(null, StandardFilters.Date(null, "%M"));
+                Assert.AreEqual(null, StandardFilters.Date(context: context, input: null, format: "%M"));
 
-            Assert.AreEqual("hi", StandardFilters.Date("hi", "%M"));
+                Assert.AreEqual("hi", StandardFilters.Date(context: context, input: "hi", format: "%M"));
 
-            Template template = Template.Parse(@"{{ hi | date:""%M"" }}");
-            Assert.AreEqual("hi", template.Render(Hash.FromAnonymousObject(new { hi = "hi" })));
+                Template template = Template.Parse(@"{{ hi | date:""%M"" }}");
+                Assert.AreEqual("hi", template.Render(Hash.FromAnonymousObject(new { hi = "hi" })));
+
+                Helper.AssertTemplateResult(
+                    expected: "14, 16",
+                    template: "{{ \"March 14, 2016\" | date: \"%d, %y\" }}",
+                    syntax: context.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(
+                    expected: "Mar 14, 16",
+                    template: "{{ \"March 14, 2016\" | date: \"%b %d, %y\" }}",
+                    syntax: context.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(
+                    expected: $"This page was last updated at {DateTime.Now.ToString("yyyy-MM-dd HH:mm")}.",
+                    template: "This page was last updated at {{ 'now' | date: '%Y-%m-%d %H:%M' }}.",
+                    syntax: context.SyntaxCompatibilityLevel);
+            });
         }
 
         [Test]
@@ -662,37 +756,99 @@ namespace DotLiquid.Tests
         [Test]
         public void TestReplace()
         {
-            Assert.Null(StandardFilters.Replace(input: null, @string: "a", replacement: "b"));
-            Assert.AreEqual(expected: "", actual: StandardFilters.Replace(input: "", @string: "a", replacement: "b"));
-            Assert.AreEqual(expected: "a a a a", actual: StandardFilters.Replace(input: "a a a a", @string: null, replacement: "b"));
-            Assert.AreEqual(expected: "a a a a", actual: StandardFilters.Replace(input: "a a a a", @string: "", replacement: "b"));
-            Assert.AreEqual(expected: "b b b b", actual: StandardFilters.Replace(input: "a a a a", @string: "a", replacement: "b"));
+            TestReplace(_contextV20);
+        }
 
-            Assert.AreEqual(expected: "Tesvalue\\\"", actual: StandardFilters.Replace(input: "Tesvalue\"", @string: "\"", replacement: "\\\""));
-            Helper.AssertTemplateResult(expected: "Tesvalue\\\"", template: "{{ 'Tesvalue\"' | replace: '\"', '\\\"' }}");
+        public void TestReplace(Context context)
+        {
+            Assert.Null(StandardFilters.Replace(context: context, input: null, @string: "a", replacement: "b"));
+            Assert.AreEqual(expected: "", actual: StandardFilters.Replace(context: context, input: "", @string: "a", replacement: "b"));
+            Assert.AreEqual(expected: "a a a a", actual: StandardFilters.Replace(context: context, input: "a a a a", @string: null, replacement: "b"));
+            Assert.AreEqual(expected: "a a a a", actual: StandardFilters.Replace(context: context, input: "a a a a", @string: "", replacement: "b"));
+            Assert.AreEqual(expected: "b b b b", actual: StandardFilters.Replace(context: context, input: "a a a a", @string: "a", replacement: "b"));
+
+            Assert.AreEqual(expected: "Tesvalue\\\"", actual: StandardFilters.Replace(context: context, input: "Tesvalue\"", @string: "\"", replacement: "\\\""));
+            Helper.AssertTemplateResult(expected: "Tesvalue\\\"", template: "{{ 'Tesvalue\"' | replace: '\"', '\\\"' }}", syntax: context.SyntaxCompatibilityLevel);
             Helper.AssertTemplateResult(
                 expected: "Tesvalue\\\"",
                 template: "{{ context | replace: '\"', '\\\"' }}",
-                localVariables: Hash.FromAnonymousObject(new { context = "Tesvalue\"" }));
+                localVariables: Hash.FromAnonymousObject(new { context = "Tesvalue\"" }),
+                syntax: context.SyntaxCompatibilityLevel);
+        }
+
+        [Test]
+        public void TestReplaceRegexV20()
+        {
+            var context = _contextV20;
+            Assert.AreEqual(expected: "b b b b", actual: StandardFilters.Replace(context: context, input: "a A A a", @string: "[Aa]", replacement: "b"));
+        }
+
+        [Test]
+        public void TestReplaceRegexV21()
+        {
+            var context = _contextV21;
+            Assert.AreEqual(expected: "a A A a", actual: StandardFilters.Replace(context: context, input: "a A A a", @string: "[Aa]", replacement: "b"));
+            TestReplace(context);
         }
 
         [Test]
         public void TestReplaceFirst()
         {
-            Assert.Null(StandardFilters.ReplaceFirst(null, "a", "b"));
-            Assert.AreEqual("", StandardFilters.ReplaceFirst("", "a", "b"));
-            Assert.AreEqual("a a a a", StandardFilters.ReplaceFirst("a a a a", null, "b"));
-            Assert.AreEqual("a a a a", StandardFilters.ReplaceFirst("a a a a", "", "b"));
-            Assert.AreEqual("b a a a", StandardFilters.ReplaceFirst("a a a a", "a", "b"));
-            Helper.AssertTemplateResult("b a a a", "{{ 'a a a a' | replace_first: 'a', 'b' }}");
+            TestReplaceFirst(_contextV20);
+        }
+
+        public void TestReplaceFirst(Context context)
+        {
+            Assert.Null(StandardFilters.ReplaceFirst(context: context, input: null, @string: "a", replacement: "b"));
+            Assert.AreEqual("", StandardFilters.ReplaceFirst(context: context, input: "", @string: "a", replacement: "b"));
+            Assert.AreEqual("a a a a", StandardFilters.ReplaceFirst(context: context, input: "a a a a", @string: null, replacement: "b"));
+            Assert.AreEqual("a a a a", StandardFilters.ReplaceFirst(context: context, input: "a a a a", @string: "", replacement: "b"));
+            Assert.AreEqual("b a a a", StandardFilters.ReplaceFirst(context: context, input: "a a a a", @string: "a", replacement: "b"));
+            Helper.AssertTemplateResult(expected: "b a a a", template: "{{ 'a a a a' | replace_first: 'a', 'b' }}", syntax: context.SyntaxCompatibilityLevel);
+        }
+
+        [Test]
+        public void TestReplaceFirstRegexV20()
+        {
+            var context = _contextV20;
+            Assert.AreEqual(expected: "b A A a", actual: StandardFilters.ReplaceFirst(context: context, input: "a A A a", @string: "[Aa]", replacement: "b"));
+        }
+
+        [Test]
+        public void TestReplaceFirstRegexV21()
+        {
+            var context = _contextV21;
+            Assert.AreEqual(expected: "a A A a", actual: StandardFilters.ReplaceFirst(context: context, input: "a A A a", @string: "[Aa]", replacement: "b"));
+            TestReplaceFirst(context);
         }
 
         [Test]
         public void TestRemove()
         {
+            TestRemove(_contextV20);
+        }
+
+        public void TestRemove(Context context)
+        {
+
             Assert.AreEqual("   ", StandardFilters.Remove("a a a a", "a"));
-            Assert.AreEqual("a a a", StandardFilters.RemoveFirst("a a a a", "a "));
-            Helper.AssertTemplateResult("a a a", "{{ 'a a a a' | remove_first: 'a ' }}");
+            Assert.AreEqual("a a a", StandardFilters.RemoveFirst(context: context, input: "a a a a", @string: "a "));
+            Helper.AssertTemplateResult(expected: "a a a", template: "{{ 'a a a a' | remove_first: 'a ' }}", syntax: context.SyntaxCompatibilityLevel);
+        }
+
+        [Test]
+        public void TestRemoveFirstRegexV20()
+        {
+            var context = _contextV20;
+            Assert.AreEqual(expected: "r. Jones", actual: StandardFilters.RemoveFirst(context: context, input: "Mr. Jones", @string: "."));
+        }
+
+        [Test]
+        public void TestRemoveFirstRegexV21()
+        {
+            var context = _contextV21;
+            Assert.AreEqual(expected: "Mr Jones", actual: StandardFilters.RemoveFirst(context: context, input: "Mr. Jones", @string: "."));
+            TestRemove(context);
         }
 
         [Test]
@@ -734,29 +890,83 @@ namespace DotLiquid.Tests
         [Test]
         public void TestPlus()
         {
+            TestPlus(_contextV20);
+        }
+
+        private void TestPlus(Context context)
+        {
             using (CultureHelper.SetCulture("en-GB"))
             {
-                Helper.AssertTemplateResult("2", "{{ 1 | plus:1 }}");
-                Helper.AssertTemplateResult("5.5", "{{ 2  | plus:3.5 }}");
-                Helper.AssertTemplateResult("5.5", "{{ 3.5 | plus:2 }}");
-                Helper.AssertTemplateResult("11", "{{ '1' | plus:'1' }}");
+                Helper.AssertTemplateResult(expected: "2", template: "{{ 1 | plus:1 }}", syntax: context.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(expected: "5.5", template: "{{ 2  | plus:3.5 }}", syntax: context.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(expected: "5.5", template: "{{ 3.5 | plus:2 }}", syntax: context.SyntaxCompatibilityLevel);
 
                 // Test that decimals are not introducing rounding-precision issues
-                Helper.AssertTemplateResult("148397.77", "{{ 148387.77 | plus:10 }}");
+                Helper.AssertTemplateResult(expected: "148397.77", template: "{{ 148387.77 | plus:10 }}", syntax: context.SyntaxCompatibilityLevel); 
 
-                Helper.AssertTemplateResult("2147483648", "{{ i | plus: i2 }}", Hash.FromAnonymousObject(new { i = (int)Int32.MaxValue, i2 = (Int64)1 }));
+                Helper.AssertTemplateResult(
+                    expected: "2147483648",
+                    template: "{{ i | plus: i2 }}",
+                    localVariables: Hash.FromAnonymousObject(new { i = (int)Int32.MaxValue, i2 = (Int64)1 }),
+                    syntax: context.SyntaxCompatibilityLevel);
             }
+        }
+
+        [Test]
+        public void TestPlusStringV20()
+        {
+            var context = _contextV20;
+            Helper.AssertTemplateResult(expected: "11", template: "{{ '1' | plus: 1 }}", syntax: context.SyntaxCompatibilityLevel);
+            var renderParams = new RenderParameters(CultureInfo.InvariantCulture) { ErrorsOutputMode = ErrorsOutputMode.Rethrow, SyntaxCompatibilityLevel = context.SyntaxCompatibilityLevel };
+            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ 1 | plus: '1' }}").Render(renderParams));
+        }
+
+        [Test]
+        public void TestPlusStringV21()
+        {
+            var context = _contextV21;
+            Helper.AssertTemplateResult(expected: "2", template: "{{ '1' | plus: 1 }}", syntax: context.SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult(expected: "2", template: "{{ 1 | plus: '1' }}", syntax: context.SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult(expected: "2", template: "{{ '1' | plus: '1' }}", syntax: context.SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult(expected: "5.5", template: "{{ 2 | plus: '3.5' }}", syntax: context.SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult(expected: "5.5", template: "{{ '3.5' | plus: 2 }}", syntax: context.SyntaxCompatibilityLevel);
+            TestPlus(context);
         }
 
         [Test]
         public void TestMinus()
         {
+            TestMinus(_contextV20);
+        }
+
+        private void TestMinus(Context context)
+        {
             using (CultureHelper.SetCulture("en-GB"))
             {
-                Helper.AssertTemplateResult("4", "{{ input | minus:operand }}", Hash.FromAnonymousObject(new { input = 5, operand = 1 }));
-                Helper.AssertTemplateResult("-1.5", "{{ 2  | minus:3.5 }}");
-                Helper.AssertTemplateResult("1.5", "{{ 3.5 | minus:2 }}");
+                Helper.AssertTemplateResult(expected: "4", template: "{{ input | minus:operand }}", localVariables: Hash.FromAnonymousObject(new { input = 5, operand = 1 }), syntax: context.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(expected: "-1.5", template: "{{ 2  | minus:3.5 }}", syntax: context.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(expected: "1.5", template: "{{ 3.5 | minus:2 }}", syntax: context.SyntaxCompatibilityLevel);
             }
+        }
+
+        [Test]
+        public void TestMinusStringV20()
+        {
+            var renderParams = new RenderParameters(CultureInfo.InvariantCulture) { ErrorsOutputMode = ErrorsOutputMode.Rethrow, SyntaxCompatibilityLevel = _contextV20.SyntaxCompatibilityLevel };
+            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ '2' | minus: 1 }}").Render(renderParams));
+            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ 2 | minus: '1' }}").Render(renderParams));
+        }
+
+        [Test]
+        public void TestMinusStringV21()
+        {
+            var context = _contextV21;
+            Helper.AssertTemplateResult(expected: "1", template: "{{ '2' | minus: 1 }}", syntax: context.SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult(expected: "1", template: "{{ 2 | minus: '1' }}", syntax: context.SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult(expected: "-1.5", template: "{{ 2 | minus: '3.5' }}", syntax: context.SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult(expected: "-1.5", template: "{{ '2.5' | minus: 4 }}", syntax: context.SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult(expected: "-1", template: "{{ '2.5' | minus: '3.5' }}", syntax: context.SyntaxCompatibilityLevel);
+            TestMinus(context);
         }
 
         [Test]
@@ -824,29 +1034,65 @@ namespace DotLiquid.Tests
         [Test]
         public void TestTimes()
         {
+            TestTimes(_contextV20);
+        }
+
+        private void TestTimes(Context context)
+        {
             using (CultureHelper.SetCulture("en-GB"))
             {
-                Helper.AssertTemplateResult("12", "{{ 3 | times:4 }}");
-                Helper.AssertTemplateResult("125", "{{ 10 | times:12.5 }}");
-                Helper.AssertTemplateResult("125", "{{ 10.0 | times:12.5 }}");
-                Helper.AssertTemplateResult("125", "{{ 12.5 | times:10 }}");
-                Helper.AssertTemplateResult("125", "{{ 12.5 | times:10.0 }}");
-                Helper.AssertTemplateResult("foofoofoofoo", "{{ 'foo' | times:4 }}");
+                Helper.AssertTemplateResult(expected: "12", template: "{{ 3 | times:4 }}", syntax: context.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(expected: "125", template: "{{ 10 | times:12.5 }}", syntax: context.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(expected: "125", template: "{{ 10.0 | times:12.5 }}", syntax: context.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(expected: "125", template: "{{ 12.5 | times:10 }}", syntax: context.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(expected: "125", template: "{{ 12.5 | times:10.0 }}", syntax: context.SyntaxCompatibilityLevel);
 
                 // Test against overflows when we try to be precise but the result exceeds the range of the input type.
-                Helper.AssertTemplateResult(((double)((decimal.MaxValue / 100) + (decimal).1) * (double)((decimal.MaxValue / 100) + (decimal).1)).ToString(), $"{{{{ {(decimal.MaxValue / 100) + (decimal).1} | times:{(decimal.MaxValue / 100) + (decimal).1} }}}}");
+                Helper.AssertTemplateResult(
+                    expected: ((double)((decimal.MaxValue / 100) + (decimal).1) * (double)((decimal.MaxValue / 100) + (decimal).1)).ToString(),
+                    template: $"{{{{ {(decimal.MaxValue / 100) + (decimal).1} | times:{(decimal.MaxValue / 100) + (decimal).1} }}}}",
+                    syntax: context.SyntaxCompatibilityLevel);
 
                 // Test against overflows going beyond the double precision float type's range
-                Helper.AssertTemplateResult(double.NegativeInfinity.ToString(), $"{{{{ 12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890.0 | times:-12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890.0 }}}}");
-                Helper.AssertTemplateResult(double.PositiveInfinity.ToString(), $"{{{{ 12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890.0 | times:12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890.0 }}}}");
+                Helper.AssertTemplateResult(
+                    expected: double.NegativeInfinity.ToString(),
+                    template: $"{{{{ 12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890.0 | times:-12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890.0 }}}}",
+                    syntax: context.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(
+                    expected: double.PositiveInfinity.ToString(),
+                    template: $"{{{{ 12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890.0 | times:12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890.0 }}}}",
+                    syntax: context.SyntaxCompatibilityLevel);
 
                 // Ensures no underflow exception is thrown when the result doesn't fit the precision of double.
-                Helper.AssertTemplateResult("0", $"{{{{ 0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001 | times:0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001 }}}}");
+                Helper.AssertTemplateResult(expected: "0",
+                    template: $"{{{{ 0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001 | times:0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001 }}}}",
+                    syntax: context.SyntaxCompatibilityLevel);
             }
 
-            Assert.AreEqual(8.43, StandardFilters.Times(0.843m, 10));
-            Assert.AreEqual(412, StandardFilters.Times(4.12m, 100));
-            Assert.AreEqual(7556.3, StandardFilters.Times(7.5563m, 1000));
+            Assert.AreEqual(8.43, StandardFilters.Times(context: context, input: 0.843m, operand: 10));
+            Assert.AreEqual(412, StandardFilters.Times(context: context, input: 4.12m, operand: 100));
+            Assert.AreEqual(7556.3, StandardFilters.Times(context: context, input: 7.5563m, operand: 1000));
+        }
+
+        [Test]
+        public void TestTimesStringV20()
+        {
+            var context = _contextV20;
+            Helper.AssertTemplateResult(expected: "foofoofoofoo", template: "{{ 'foo' | times:4 }}", syntax: context.SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult(expected: "3333", template: "{{ '3' | times:4 }}", syntax: context.SyntaxCompatibilityLevel);
+            var renderParams = new RenderParameters(CultureInfo.InvariantCulture) { ErrorsOutputMode = ErrorsOutputMode.Rethrow, SyntaxCompatibilityLevel = context.SyntaxCompatibilityLevel };
+            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ 3 | times: '4' }}").Render(renderParams));
+            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ '3' | times: '4' }}").Render(renderParams));
+        }
+
+        [Test]
+        public void TestTimesStringV21()
+        {
+            var context = _contextV21;
+            Helper.AssertTemplateResult(expected: "12", template: "{{ '3' | times: 4 }}", syntax: context.SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult(expected: "12", template: "{{ 3 | times: '4' }}", syntax: context.SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult(expected: "12", template: "{{ '3' | times: '4' }}", syntax: context.SyntaxCompatibilityLevel);
+            TestTimes(context);
         }
 
         [Test]
@@ -870,16 +1116,38 @@ namespace DotLiquid.Tests
         [Test]
         public void TestDividedBy()
         {
-            Helper.AssertTemplateResult("4", "{{ 12 | divided_by:3 }}");
-            Helper.AssertTemplateResult("4", "{{ 14 | divided_by:3 }}");
-            Helper.AssertTemplateResult("5", "{{ 15 | divided_by:3 }}");
-            Assert.Null(StandardFilters.DividedBy(null, 3));
-            Assert.Null(StandardFilters.DividedBy(4, null));
+            TestDividedBy(_contextV20);
+        }
+
+        private void TestDividedBy(Context context)
+        {
+            Helper.AssertTemplateResult(expected: "4", template: "{{ 12 | divided_by:3 }}", syntax: context.SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult(expected: "4", template: "{{ 14 | divided_by:3 }}", syntax: context.SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult(expected: "5", template: "{{ 15 | divided_by:3 }}", syntax: context.SyntaxCompatibilityLevel);
+            Assert.Null(StandardFilters.DividedBy(context: context, input: null, operand: 3));
+            Assert.Null(StandardFilters.DividedBy(context: context, input: 4, operand: null));
 
             // Ensure we preserve floating point behavior for division by zero, and don't start throwing exceptions.
-            Helper.AssertTemplateResult(double.PositiveInfinity.ToString(), "{{ 1.0 | divided_by:0.0 }}");
-            Helper.AssertTemplateResult(double.NegativeInfinity.ToString(), "{{ -1.0 | divided_by:0.0 }}");
-            Helper.AssertTemplateResult("NaN", "{{ 0.0 | divided_by:0.0 }}");
+            Helper.AssertTemplateResult(expected: double.PositiveInfinity.ToString(), template: "{{ 1.0 | divided_by:0.0 }}", syntax: context.SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult(expected: double.NegativeInfinity.ToString(), template: "{{ -1.0 | divided_by:0.0 }}", syntax: context.SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult(expected: "NaN", template: "{{ 0.0 | divided_by:0.0 }}", syntax: context.SyntaxCompatibilityLevel);
+        }
+
+        [Test]
+        public void TestDividedByStringV20()
+        {
+            var renderParams = new RenderParameters(CultureInfo.InvariantCulture) { ErrorsOutputMode = ErrorsOutputMode.Rethrow, SyntaxCompatibilityLevel = _contextV20.SyntaxCompatibilityLevel };
+            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ '12' | divided_by: 3 }}").Render(renderParams));
+            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ 12 | divided_by: '3' }}").Render(renderParams));
+        }
+
+        [Test]
+        public void TestDividedByStringV21()
+        {
+            var context = _contextV21;
+            Helper.AssertTemplateResult(expected: "4", template: "{{ '12' | divided_by: 3 }}", syntax: context.SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult(expected: "4", template: "{{ 12 | divided_by: '3' }}", syntax: context.SyntaxCompatibilityLevel);
+            TestDividedBy(context);
         }
 
         [Test]
@@ -898,12 +1166,33 @@ namespace DotLiquid.Tests
         [Test]
         public void TestModulo()
         {
-            Helper.AssertTemplateResult("1", "{{ 3 | modulo:2 }}");
-            Helper.AssertTemplateResult("7.77", "{{ 148387.77 | modulo:10 }}");
-            Helper.AssertTemplateResult("5.32", "{{ 3455.32 | modulo:10 }}");
-            Helper.AssertTemplateResult("3.12", "{{ 23423.12 | modulo:10 }}");
-            Assert.Null(StandardFilters.Modulo(null, 3));
-            Assert.Null(StandardFilters.Modulo(4, null));
+            TestModulo(_contextV20);
+        }
+
+        private void TestModulo(Context context)
+        {
+            Helper.AssertTemplateResult(expected: "1", template: "{{ 3 | modulo:2 }}", syntax: context.SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult(expected: "7.77", template: "{{ 148387.77 | modulo:10 }}", syntax: context.SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult(expected: "5.32", template: "{{ 3455.32 | modulo:10 }}", syntax: context.SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult(expected: "3.12", template: "{{ 23423.12 | modulo:10 }}", syntax: context.SyntaxCompatibilityLevel);
+            Assert.Null(StandardFilters.Modulo(context: context, input: null, operand: 3));
+            Assert.Null(StandardFilters.Modulo(context: context, input: 4, operand: null));
+        }
+
+        public void TestModuloStringV20()
+        {
+            var renderParams = new RenderParameters(CultureInfo.InvariantCulture) { ErrorsOutputMode = ErrorsOutputMode.Rethrow, SyntaxCompatibilityLevel = _contextV20.SyntaxCompatibilityLevel };
+            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ '3' | modulo: 2 }}").Render(renderParams));
+            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ 3 | modulo: '2' }}").Render(renderParams));
+        }
+
+        [Test]
+        public void TestModuloStringV21()
+        {
+            var context = _contextV21;
+            Helper.AssertTemplateResult(expected: "1", template: "{{ '3' | modulo: 2 }}", syntax: context.SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult(expected: "1", template: "{{ 3 | modulo: '2' }}", syntax: context.SyntaxCompatibilityLevel);
+            TestModulo(context);
         }
 
         [Test]
@@ -933,21 +1222,33 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestCapitalize()
+        public void TestCapitalizeV20()
         {
-            Assert.AreEqual(null, StandardFilters.Capitalize(null));
-            Assert.AreEqual("", StandardFilters.Capitalize(""));
-            Assert.AreEqual(" ", StandardFilters.Capitalize(" "));
-            Assert.AreEqual("That Is One Sentence.", StandardFilters.Capitalize("That is one sentence."));
+            var context = _contextV20;
+            Assert.AreEqual(null, StandardFilters.Capitalize(context: context, input: null));
+            Assert.AreEqual("", StandardFilters.Capitalize(context: context, input: ""));
+            Assert.AreEqual(" ", StandardFilters.Capitalize(context: context, input: " "));
+            Assert.AreEqual("That Is One Sentence.", StandardFilters.Capitalize(context: context, input: "That is one sentence."));
 
             Helper.AssertTemplateResult(
                 expected: "Title",
-                template: "{{ 'title' | capitalize }}");
+                template: "{{ 'title' | capitalize }}",
+                syntax: context.SyntaxCompatibilityLevel);
+        }
 
-            // Following test disabled due to out-of-spec bug see https://github.com/dotliquid/dotliquid/issues/390
-            //// Helper.AssertTemplateResult(
-            ////     expected: "My great title",
-            ////     template: "{{ 'my great title' | capitalize }}");
+        [Test]
+        public void TestCapitalizeV21()
+        {
+            var context = _contextV21;
+            Assert.AreEqual(null, StandardFilters.Capitalize(context: context, input: null));
+            Assert.AreEqual("", StandardFilters.Capitalize(context: context, input: ""));
+            Assert.AreEqual(" ", StandardFilters.Capitalize(context: context, input: " "));
+            Assert.AreEqual(" My boss is Mr. Doe.", StandardFilters.Capitalize(context: context, input: " my boss is Mr. Doe."));
+
+            Helper.AssertTemplateResult(
+                expected: "My great title",
+                template: "{{ 'my great title' | capitalize }}",
+                syntax: context.SyntaxCompatibilityLevel);
         }
 
         [Test]

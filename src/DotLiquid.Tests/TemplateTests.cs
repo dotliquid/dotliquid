@@ -396,5 +396,38 @@ namespace DotLiquid.Tests
                 template: "{{ People.last.Name }}",
                 localVariables: Hash.FromAnonymousObject(array));
         }
+
+        [Test]
+        public void TestSyntaxCompatibilityLevel()
+        {
+            Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
+            {
+                var template = Template.Parse("{{ foo }}");
+                template.MakeThreadSafe();
+
+                // Template defaults to legacy DotLiquid 2.0 Handling
+                Assert.AreEqual(SyntaxCompatibility.DotLiquid20, Template.DefaultSyntaxCompatibilityLevel);
+
+                // RenderParameters Applies Template Defaults 
+                Template.DefaultSyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid21;
+                var renderParamsDefault = new RenderParameters(CultureInfo.CurrentCulture); 
+                Assert.AreEqual(Template.DefaultSyntaxCompatibilityLevel, renderParamsDefault.SyntaxCompatibilityLevel);
+
+                Template.DefaultSyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20;
+                renderParamsDefault.Evaluate(template, out Context defaultContext, out Hash defaultRegisters, out System.Collections.Generic.IEnumerable<System.Type> defaultFilters);
+                // Context applies RenderParameters
+                Assert.AreEqual(renderParamsDefault.SyntaxCompatibilityLevel, defaultContext.SyntaxCompatibilityLevel);
+                // RenderParameters not affected by later changes to Template defaults
+                Assert.AreNotEqual(Template.DefaultSyntaxCompatibilityLevel, renderParamsDefault.SyntaxCompatibilityLevel);
+                // But newly constructed RenderParameters is
+                Assert.AreEqual(Template.DefaultSyntaxCompatibilityLevel, new RenderParameters(CultureInfo.CurrentCulture).SyntaxCompatibilityLevel);
+
+                // RenderParameters overrides template defaults when specified
+                var renderParamsExplicit = new RenderParameters(CultureInfo.CurrentCulture) { SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid21 };
+                Assert.AreEqual(SyntaxCompatibility.DotLiquid21, renderParamsExplicit.SyntaxCompatibilityLevel);
+                renderParamsExplicit.Evaluate(template, out Context explicitContext, out Hash explicitRegisters, out System.Collections.Generic.IEnumerable<System.Type> explicitFilters);
+                Assert.AreEqual(renderParamsExplicit.SyntaxCompatibilityLevel, explicitContext.SyntaxCompatibilityLevel);
+            });
+        }
     }
 }

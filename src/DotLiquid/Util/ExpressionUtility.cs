@@ -110,7 +110,7 @@ namespace DotLiquid.Util
             catch (Exception ex)
             {
                 string msg = ex.Message; // avoid capture of ex itself
-                return (Action)(delegate { throw new InvalidOperationException(msg); });
+                return Expression.Lambda(Expression.Throw(Expression.Constant(new InvalidOperationException(msg))), lhs, rhs).Compile();
             }
         }
     }

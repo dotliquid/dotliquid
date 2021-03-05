@@ -39,6 +39,11 @@ namespace DotLiquid
         public static IFileSystem FileSystem { get; set; }
 
         /// <summary>
+        /// Liquid syntax flag used for backward compatibility
+        /// </summary>
+        public static SyntaxCompatibility DefaultSyntaxCompatibilityLevel { get; set; } = SyntaxCompatibility.DotLiquid20;
+
+        /// <summary>
         /// Indicates if the default is thread safe
         /// </summary>
         public static bool DefaultIsThreadSafe { get; set; }

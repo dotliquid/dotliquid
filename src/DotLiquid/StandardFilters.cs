@@ -111,9 +111,10 @@ namespace DotLiquid
         /// <summary>
         /// capitalize words in the input sentence
         /// </summary>
+        /// <param name="context"></param>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static string Capitalize(string input)
+        public static string Capitalize(Context context, string input)
         {
             if (input.IsNullOrWhiteSpace())
                 return input;
@@ -418,11 +419,12 @@ namespace DotLiquid
         /// <summary>
         /// Replace occurrences of a string with another
         /// </summary>
+        /// <param name="context"></param>
         /// <param name="input"></param>
         /// <param name="string"></param>
         /// <param name="replacement"></param>
         /// <returns></returns>
-        public static string Replace(string input, string @string, string replacement = "")
+        public static string Replace(Context context, string input, string @string, string replacement = "")
         {
             if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(@string))
                 return input;
@@ -435,11 +437,12 @@ namespace DotLiquid
         /// <summary>
         /// Replace the first occurence of a string with another
         /// </summary>
+        /// <param name="context"></param>
         /// <param name="input"></param>
         /// <param name="string"></param>
         /// <param name="replacement"></param>
         /// <returns></returns>
-        public static string ReplaceFirst(string input, string @string, string replacement = "")
+        public static string ReplaceFirst(Context context, string input, string @string, string replacement = "")
         {
             if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(@string))
                 return input;
@@ -471,14 +474,15 @@ namespace DotLiquid
         /// <summary>
         /// Remove the first occurrence of a substring
         /// </summary>
+        /// <param name="context"></param>
         /// <param name="input"></param>
         /// <param name="string"></param>
         /// <returns></returns>
-        public static string RemoveFirst(string input, string @string)
+        public static string RemoveFirst(Context context, string input, string @string)
         {
             return input.IsNullOrWhiteSpace()
                 ? input
-                : ReplaceFirst(input, @string, string.Empty);
+                : ReplaceFirst(context: context, input: input, @string: @string, replacement: string.Empty);
         }
 
         /// <summary>
@@ -522,10 +526,11 @@ namespace DotLiquid
         /// <summary>
         /// Formats a date using a .NET date format string
         /// </summary>
+        /// <param name="context"></param>
         /// <param name="input"></param>
         /// <param name="format"></param>
         /// <returns></returns>
-        public static string Date(object input, string format)
+        public static string Date(Context context, object input, string format)
         {
             if (input == null)
                 return null;
@@ -596,10 +601,11 @@ namespace DotLiquid
         /// <summary>
         /// Addition
         /// </summary>
+        /// <param name="context"></param>
         /// <param name="input"></param>
         /// <param name="operand"></param>
         /// <returns></returns>
-        public static object Plus(object input, object operand)
+        public static object Plus(Context context, object input, object operand)
         {
             return input is string
                 ? string.Concat(input, operand)
@@ -609,10 +615,11 @@ namespace DotLiquid
         /// <summary>
         /// Subtraction
         /// </summary>
+        /// <param name="context"></param>
         /// <param name="input"></param>
         /// <param name="operand"></param>
         /// <returns></returns>
-        public static object Minus(object input, object operand)
+        public static object Minus(Context context, object input, object operand)
         {
             return DoMathsOperation(input, operand, Expression.SubtractChecked);
         }
@@ -620,10 +627,11 @@ namespace DotLiquid
         /// <summary>
         /// Multiplication
         /// </summary>
+        /// <param name="context"></param>
         /// <param name="input"></param>
         /// <param name="operand"></param>
         /// <returns></returns>
-        public static object Times(object input, object operand)
+        public static object Times(Context context, object input, object operand)
         {
             return input is string && (operand is int || operand is long)
                 ? Enumerable.Repeat((string)input, Convert.ToInt32(operand))
@@ -679,10 +687,11 @@ namespace DotLiquid
         /// <summary>
         /// Division
         /// </summary>
+        /// <param name="context"></param>
         /// <param name="input"></param>
         /// <param name="operand"></param>
         /// <returns></returns>
-        public static object DividedBy(object input, object operand)
+        public static object DividedBy(Context context, object input, object operand)
         {
             return DoMathsOperation(input, operand, Expression.Divide);
         }
@@ -690,10 +699,11 @@ namespace DotLiquid
         /// <summary>
         /// Performs an arithmetic remainder operation on the input
         /// </summary>
+        /// <param name="context"></param>
         /// <param name="input"></param>
         /// <param name="operand"></param>
         /// <returns></returns>
-        public static object Modulo(object input, object operand)
+        public static object Modulo(Context context, object input, object operand)
         {
             return DoMathsOperation(input, operand, Expression.Modulo);
         }
@@ -741,12 +751,20 @@ namespace DotLiquid
                 }
             }
 
-            return ExpressionUtility
-                .CreateExpression(
-                    body: operation,
-                    leftType: input.GetType(),
-                    rightType: operand.GetType())
-                .DynamicInvoke(input, operand);
+            try
+            {
+                return ExpressionUtility
+                    .CreateExpression(
+                        body: operation,
+                        leftType: input.GetType(),
+                        rightType: operand.GetType())
+                    .DynamicInvoke(input, operand);
+            }
+            catch (TargetInvocationException ex)
+            {
+                System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+                throw;
+            }
         }
         
         /// <summary>

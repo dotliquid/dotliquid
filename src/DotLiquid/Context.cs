@@ -27,7 +27,12 @@ namespace DotLiquid
         private static readonly Regex VariableParserRegex = R.C(Liquid.VariableParser);
 
         private readonly ErrorsOutputMode _errorsOutputMode;
-        
+
+        /// <summary>
+        /// Liquid syntax flag used for backward compatibility
+        /// </summary>
+        public SyntaxCompatibility SyntaxCompatibilityLevel { get; set; }
+
         private readonly int _maxIterations;
 
         public int MaxIterations

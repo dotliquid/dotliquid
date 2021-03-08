@@ -413,6 +413,10 @@ namespace DotLiquid.Tests
                 var renderParamsDefault = new RenderParameters(CultureInfo.CurrentCulture); 
                 Assert.AreEqual(Template.DefaultSyntaxCompatibilityLevel, renderParamsDefault.SyntaxCompatibilityLevel);
 
+                // Context Applies Template Defaults
+                var context = new Context(CultureInfo.CurrentCulture);
+                Assert.AreEqual(Template.DefaultSyntaxCompatibilityLevel, context.SyntaxCompatibilityLevel);
+
                 Template.DefaultSyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20;
                 renderParamsDefault.Evaluate(template, out Context defaultContext, out Hash defaultRegisters, out System.Collections.Generic.IEnumerable<System.Type> defaultFilters);
                 // Context applies RenderParameters

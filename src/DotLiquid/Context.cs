@@ -119,6 +119,7 @@ namespace DotLiquid
             _maxIterations = maxIterations;
             _cancellationToken = cancellationToken;
             FormatProvider = formatProvider;
+            SyntaxCompatibilityLevel = Template.DefaultSyntaxCompatibilityLevel;
 
             SquashInstanceAssignsWithEnvironments();
         }

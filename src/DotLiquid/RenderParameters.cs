@@ -57,6 +57,11 @@ namespace DotLiquid
             }
         }
 
+        /// <summary>
+        /// Liquid syntax flag used for backward compatibility
+        /// </summary>
+        public SyntaxCompatibility SyntaxCompatibilityLevel { get; set; }
+
         private int _maxIterations = 0;
 
         /// <summary>
@@ -74,6 +79,7 @@ namespace DotLiquid
         public RenderParameters(IFormatProvider formatProvider)
         {
             FormatProvider = formatProvider ?? throw new ArgumentNullException( nameof(formatProvider) );
+            SyntaxCompatibilityLevel = Template.DefaultSyntaxCompatibilityLevel;
         }
 
         /// <summary>
@@ -101,12 +107,18 @@ namespace DotLiquid
                 environments.Add(LocalVariables);
             if (template.IsThreadSafe)
             {
-                context = new Context(environments, new Hash(), new Hash(), ErrorsOutputMode, MaxIterations, Timeout, FormatProvider);
+                context = new Context(environments, new Hash(), new Hash(), ErrorsOutputMode, MaxIterations, Timeout, FormatProvider)
+                {
+                    SyntaxCompatibilityLevel = this.SyntaxCompatibilityLevel
+                };
             }
             else
             {
                 environments.Add(template.Assigns);
-                context = new Context(environments, template.InstanceAssigns, template.Registers, ErrorsOutputMode, MaxIterations, Timeout, FormatProvider);
+                context = new Context(environments, template.InstanceAssigns, template.Registers, ErrorsOutputMode, MaxIterations, Timeout, FormatProvider)
+                {
+                    SyntaxCompatibilityLevel = this.SyntaxCompatibilityLevel
+                };
             }
             registers = Registers;
             filters = Filters;

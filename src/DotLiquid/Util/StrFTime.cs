@@ -6,7 +6,8 @@ namespace DotLiquid.Util
 {
     public static class StrFTime
     {
-        public delegate string DateTimeDelegate(DateTime dateTime);
+        private delegate string DateTimeDelegate(DateTime dateTime);
+        private delegate string DateTimeOffsetDelegate(DateTimeOffset dateTimeOffset);
 
         private static readonly Dictionary<string, DateTimeDelegate> Formats = new Dictionary<string, DateTimeDelegate>
         {
@@ -42,6 +43,12 @@ namespace DotLiquid.Util
             { "%", (dateTime) => "%" }
         };
 
+        private static readonly Dictionary<string, DateTimeOffsetDelegate> OffsetFormats = new Dictionary<string, DateTimeOffsetDelegate>
+        {
+            { "s", (dateTimeOffset) => ((long)(dateTimeOffset - new DateTimeOffset(1970, 1, 1, 0,0,0, TimeSpan.Zero)).TotalSeconds).ToString() },
+            { "Z", (dateTimeOffset) => dateTimeOffset.ToString("zzz", CultureInfo.CurrentCulture) },
+        };
+
         public static string ToStrFTime(this DateTime dateTime, string pattern)
         {
             string output = "";
@@ -62,6 +69,34 @@ namespace DotLiquid.Util
             }
 
             return output;
+        }
+
+        /// <summary>
+        /// Formats a date using a ruby date format string
+        /// </summary>
+        /// <param name="dateTime"></param>
+        /// <param name="pattern"></param>
+        /// <returns></returns>
+        public static string ToStrFTime(this DateTimeOffset dateTime, string pattern)
+        {
+            var output = new System.Text.StringBuilder();
+
+            for (int n = 0; n < pattern.Length; n++)
+            {
+                string s = pattern.Substring(n, 1);
+
+                if (s == "%" && pattern.Length > n)
+                    if (OffsetFormats.ContainsKey(pattern.Substring(++n, 1)))
+                        output.Append(OffsetFormats[pattern.Substring(n, 1)].Invoke(dateTime));
+                    else if (Formats.ContainsKey(pattern.Substring(n, 1)))
+                        output.Append(Formats[pattern.Substring(n, 1)].Invoke(dateTime.Date));
+                    else
+                        output.Append("%" + pattern.Substring(n, 1));
+                else
+                    output.Append(s);
+            }
+
+            return output.ToString();
         }
     }
 }

@@ -38,7 +38,8 @@ namespace DotLiquid.Tests.Util
         [TestCase("%y", ExpectedResult = "12")]
         [TestCase("%Y", ExpectedResult = "2012")]
         [TestCase("%", ExpectedResult = "%")]
-        public string TestFormat(string format) {
+        public string TestFormat(string format)
+        {
             using (CultureHelper.SetCulture("en-GB")) {
                 Assert.That(CultureInfo.CurrentCulture, Is.EqualTo(new CultureInfo("en-GB")));
                 var date = new DateTime(2012, 1, 8, 14, 32, 14);
@@ -52,16 +53,18 @@ namespace DotLiquid.Tests.Util
         }
 
         [Test]
-        public void TestEpoch() {
-            using (CultureHelper.SetCulture("en-GB")) {
+        public void TestEpoch()
+        {
+            using (CultureHelper.SetCulture("en-GB"))
+            {
                 Assert.That(CultureInfo.CurrentCulture, Is.EqualTo(new CultureInfo("en-GB")));
                 var date = new DateTime(2012, 1, 8, 14, 32, 14);
                 var localResult = date.ToStrFTime("%s");
                 Assert.AreEqual("1326033134", localResult);
-                var utcResult = new DateTimeOffset(2012, 1, 8, 14, 32, 14, TimeSpan.FromHours(0)).ToStrFTime("%s");
+                var utcResult = new DateTimeOffset(date, TimeSpan.FromHours(0)).ToStrFTime("%s");
                 Assert.AreEqual("1326033134", utcResult);
-                var estResult = new DateTimeOffset(2012, 1, 8, 9, 32, 14, TimeSpan.FromHours(-5)).ToStrFTime("%s");
-                Assert.AreEqual("1326033134", estResult);
+                var estResult = new DateTimeOffset(date, TimeSpan.FromHours(-5)).ToStrFTime("%s");
+                Assert.AreEqual("1326051134", estResult);
             }
         }
 

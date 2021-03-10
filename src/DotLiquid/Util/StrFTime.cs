@@ -85,8 +85,8 @@ namespace DotLiquid.Util
             {
                 string s = pattern.Substring(n, 1);
 
-                if (s == "%" && pattern.Length > n + 1)
-                    if (OffsetFormats.ContainsKey(pattern.Substring(++n, 1)))
+                if (s == "%" && pattern.Length > ++n)
+                    if (OffsetFormats.ContainsKey(pattern.Substring(n, 1)))
                         output.Append(OffsetFormats[pattern.Substring(n, 1)].Invoke(dateTime));
                     else if (Formats.ContainsKey(pattern.Substring(n, 1)))
                         output.Append(Formats[pattern.Substring(n, 1)].Invoke(dateTime.DateTime));

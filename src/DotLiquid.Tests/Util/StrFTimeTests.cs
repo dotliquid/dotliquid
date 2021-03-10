@@ -28,7 +28,6 @@ namespace DotLiquid.Tests.Util
         [TestCase("%M", ExpectedResult = "32")]
         [TestCase("%P", ExpectedResult = "pm")]
         [TestCase("%p", ExpectedResult = "PM")]
-        [TestCase("%s", ExpectedResult = "1326033134")]
         [TestCase("%S", ExpectedResult = "14")]
         [TestCase("%u", ExpectedResult = "7")]
         [TestCase("%U", ExpectedResult = "02")]
@@ -41,10 +40,31 @@ namespace DotLiquid.Tests.Util
         [TestCase("%", ExpectedResult = "%")]
         public string TestFormat(string format)
         {
+            using (CultureHelper.SetCulture("en-GB")) {
+                Assert.That(CultureInfo.CurrentCulture, Is.EqualTo(new CultureInfo("en-GB")));
+                var date = new DateTime(2012, 1, 8, 14, 32, 14);
+                var localResult = date.ToStrFTime(format);
+                var utcResult = new DateTimeOffset(date, TimeSpan.FromHours(0)).ToStrFTime(format);
+                Assert.AreEqual(localResult, utcResult);
+                var estResult = new DateTimeOffset(date, TimeSpan.FromHours(-5)).ToStrFTime(format);
+                Assert.AreEqual(utcResult, estResult);
+                return localResult;
+            }
+        }
+
+        [Test]
+        public void TestEpoch()
+        {
             using (CultureHelper.SetCulture("en-GB"))
             {
                 Assert.That(CultureInfo.CurrentCulture, Is.EqualTo(new CultureInfo("en-GB")));
-                return new DateTime(2012, 1, 8, 14, 32, 14).ToStrFTime(format);
+                var date = new DateTime(2012, 1, 8, 14, 32, 14);
+                var localResult = date.ToStrFTime("%s");
+                Assert.AreEqual("1326033134", localResult);
+                var utcResult = new DateTimeOffset(date, TimeSpan.FromHours(0)).ToStrFTime("%s");
+                Assert.AreEqual("1326033134", utcResult);
+                var estResult = new DateTimeOffset(date, TimeSpan.FromHours(-5)).ToStrFTime("%s");
+                Assert.AreEqual("1326051134", estResult);
             }
         }
 

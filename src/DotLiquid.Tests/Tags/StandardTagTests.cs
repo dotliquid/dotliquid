@@ -81,6 +81,36 @@ namespace DotLiquid.Tests.Tags
                 }
             } };
 
+            Helper.AssertTemplateResult("JaneMike", "{% for item in People %}{{ item.Value.First }}{%endfor%}",
+                Hash.FromDictionary(dictionary));
+        }
+
+        [Test]
+        public void TestForWithSingleLevelNestedDictionary()
+        {
+            var dictionary = new Dictionary<string, object> { {
+            "People",
+            new Dictionary<string, object> {
+                    { "ID1", "Jane" },
+                    { "ID2", "Mike" }
+                }
+            } };
+
+            Helper.AssertTemplateResult("JaneMike", "{% for item in People %}{{ item.Value }}{%endfor%}",
+                Hash.FromDictionary(dictionary));
+        }
+
+        [Test]
+        public void TestForWithListNestedDictionary()
+        {
+            var dictionary = new Dictionary<string, object> { {
+            "People",
+            new List<object> {
+                    new Dictionary<string, object>{ { "First", "Jane" }, { "Last", "Green" } },
+                    new Dictionary<string, object>{ { "First", "Mike" }, { "Last", "Doe" } }
+                }
+            } };
+
             Helper.AssertTemplateResult("JaneMike", "{% for item in People %}{{ item.First }}{%endfor%}",
                 Hash.FromDictionary(dictionary));
         }
@@ -345,6 +375,14 @@ namespace DotLiquid.Tests.Tags
             Hash assigns = Hash.FromAnonymousObject(new { var = "content" });
             Helper.AssertTemplateResult("content foo content foo ",
                 "{{ var2 }}{% capture var2 %}{{ var }} foo {% endcapture %}{{ var2 }}{{ var2 }}", assigns);
+        }
+        
+        [Test]
+        public void TestCaptureWithDashes()
+        {
+            Hash assigns = Hash.FromAnonymousObject(new { var = "content" });
+            Helper.AssertTemplateResult("content foo content foo ",
+                "{{ var-2 }}{% capture var-2 %}{{ var }} foo {% endcapture %}{{ var-2 }}{{ var-2 }}", assigns);
         }
 
         [Test]

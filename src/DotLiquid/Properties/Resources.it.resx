@@ -231,4 +231,7 @@
   <data name="ForTagMaxIterationsExceededException" xml:space="preserve">
     <value>Render Error - Maximum number of iterations {0} exceeded</value>
   </data>
+  <data name="SimpleTagSyntaxException" xml:space="preserve">
+    <value>Errore di sintassi nel tag '{0}' - La sintassi corretta è: {0}</value>
+  </data>
 </root>

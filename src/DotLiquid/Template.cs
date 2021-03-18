@@ -100,6 +100,25 @@ namespace DotLiquid
             return result.Item2;
         }
 
+        /// <summary>
+        /// Indicates if the tag is a block that stops Liquid syntax processing
+        /// </summary>
+        /// <param name="name">The name of the tag</param>
+        /// <returns></returns>
+        internal static bool IsRawTag(string name)
+        {
+            Tags.TryGetValue(name, out Tuple<ITagFactory, Type> result);
+            return typeof(RawBlock)
+#if NETSTANDARD1_3
+                .GetTypeInfo()
+#endif
+                .IsAssignableFrom(result?.Item2
+#if NETSTANDARD1_3
+                    ?.GetTypeInfo()
+#endif
+                );
+        }
+
         internal static Tag CreateTag(string name)
         {
             Tag tagInstance = null;
@@ -428,27 +447,7 @@ namespace DotLiquid
         /// <returns></returns>
         internal static List<string> Tokenize(string source)
         {
-            if (string.IsNullOrEmpty(source))
-                return new List<string>();
-
-            // Trim leading whitespace.
-            source = Regex.Replace(source, string.Format(@"([ \t]+)?({0}|{1})-", Liquid.VariableStart, Liquid.TagStart), "$2", RegexOptions.None, RegexTimeOut);
-
-            // Trim trailing whitespace.
-            source = Regex.Replace(source, string.Format(@"-({0}|{1})(\n|\r\n|[ \t]+)?", Liquid.VariableEnd, Liquid.TagEnd), "$1", RegexOptions.None, RegexTimeOut);
-
-            List<string> tokens = Regex.Split(source, Liquid.TemplateParser).ToList();
-
-            // Trim any whitespace elements from the end of the array.
-            for (int i = tokens.Count - 1; i > 0; --i)
-                if (tokens[i] == string.Empty)
-                    tokens.RemoveAt(i);
-
-            // Removes the rogue empty element at the beginning of the array
-            if (tokens[0] != null && tokens[0] == string.Empty)
-                tokens.Shift();
-
-            return tokens;
+            return Tokenizer.Tokenize(source);
         }
     }
 }

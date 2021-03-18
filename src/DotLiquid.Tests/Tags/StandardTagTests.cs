@@ -44,6 +44,13 @@ namespace DotLiquid.Tests.Tags
             Helper.AssertTemplateResult("", "{% comment %}{% endcomment %}");
             Helper.AssertTemplateResult("", "{%comment%}comment{%endcomment%}");
             Helper.AssertTemplateResult("", "{% comment %}comment{% endcomment %}");
+            //Helper.AssertTemplateResult("", "{% comment %} 1 {% comment %} 2 {% endcomment %} 3 {% endcomment %}");
+
+            Helper.AssertTemplateResult("", "{%comment%}{%blabla%}{%endcomment%}");
+            Helper.AssertTemplateResult("", "{% comment %}{% blabla %}{% endcomment %}");
+            Helper.AssertTemplateResult("", "{%comment%}{% endif %}{%endcomment%}");
+            Helper.AssertTemplateResult("", "{% comment %}{% endwhatever %}{% endcomment %}");
+            //Helper.AssertTemplateResult("", "{% comment %}{% raw %} {{%%%%}}  }} { {% endcomment -%} {% comment {% endraw %} {% endcomment %}");
 
             Helper.AssertTemplateResult("foobar", "foo{%comment%}comment{%endcomment%}bar");
             Helper.AssertTemplateResult("foobar", "foo{% comment %}comment{% endcomment %}bar");

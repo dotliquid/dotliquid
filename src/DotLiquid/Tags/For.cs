@@ -23,6 +23,8 @@ namespace DotLiquid.Tags
     ///      &lt;div {% if forloop.first %}class="first"{% endif %}&gt;
     ///        Item {{ forloop.index }}: {{ item.name }}
     ///      &lt;/div&gt;
+    ///    {% else %}
+    ///      There is nothing in the collection.
     ///    {% endfor %}
     ///
     /// You can also define a limit and offset much like SQL.  Remember
@@ -33,13 +35,6 @@ namespace DotLiquid.Tags
     ///    {% end %}
     ///
     ///  To reverse the for loop simply use {% for item in collection reversed %}
-    ///
-    /// == Else:
-    ///    {% for item in collection %}
-    ///      {{ forloop.index}}: {{ item.name }}
-    ///    {% else %}
-    ///      No items
-    ///    {% endfor %}
     ///
     /// == Available variables:
     ///
@@ -67,7 +62,7 @@ namespace DotLiquid.Tags
         private bool _reversed;
         private Dictionary<string, string> _attributes;
 
-        protected Condition Else { get; private set; }
+        private Condition Else { get; set; }
 
         /// <summary>
         /// Initializes the for tag

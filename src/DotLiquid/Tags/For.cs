@@ -62,7 +62,8 @@ namespace DotLiquid.Tags
         private bool _reversed;
         private Dictionary<string, string> _attributes;
 
-        private Condition Else { get; set; }
+        private List<object> ForBlock { get; set; }
+        private Condition ElseBlock { get; set; }
 
         /// <summary>
         /// Initializes the for tag
@@ -75,6 +76,7 @@ namespace DotLiquid.Tags
             Match match = Syntax.Match(markup);
             if (match.Success)
             {
+                NodeList = ForBlock = new List<object>();
                 _variableName = match.Groups[1].Value;
                 _collectionName = match.Groups[2].Value;
                 _name = string.Format("{0}-{1}", _variableName, _collectionName);
@@ -101,8 +103,8 @@ namespace DotLiquid.Tags
         {
             if (tag == "else")
             {
-                Else = new ElseCondition();
-                NodeList = Else.Attach(new List<object>());
+                ElseBlock = new ElseCondition();
+                NodeList = ElseBlock.Attach(new List<object>());
                 return;
             }
 
@@ -122,10 +124,10 @@ namespace DotLiquid.Tags
 
             if (!(collection is IEnumerable))
             {
-                if (Else != null)
+                if (ElseBlock != null)
                     context.Stack(() =>
                     {
-                        RenderAll(Else.Attachment, context, result);
+                        RenderAll(ElseBlock.Attachment, context, result);
                     });
                 return;
             }
@@ -139,7 +141,7 @@ namespace DotLiquid.Tags
             int? limit = _attributes.ContainsKey("limit") ? (int?)Convert.ToInt32(context[_attributes["limit"]]) : null;
             int? to = (limit != null) ? (int?)(limit.Value + from) : null;
 
-            List<object> segment = SliceCollectionUsingEach(context, (IEnumerable) collection, from, to);
+            List<object> segment = SliceCollectionUsingEach(context, (IEnumerable)collection, from, to);
 
             if (_reversed)
                 segment.Reverse();
@@ -153,8 +155,8 @@ namespace DotLiquid.Tags
             {
                 if (!segment.Any())
                 {
-                    if (Else != null)
-                        RenderAll(Else.Attachment, context, result);
+                    if (ElseBlock != null)
+                        RenderAll(ElseBlock.Attachment, context, result);
                     return;
                 }
 
@@ -163,13 +165,14 @@ namespace DotLiquid.Tags
                     context.CheckTimeout();
 
                     var item = segment[index];
-                    if (item is KeyValuePair<string,object>)
+                    if (item is KeyValuePair<string, object>)
                     {
-                        var itemKey = ((KeyValuePair<string, object>) item).Key;
-                        var itemValue = ((KeyValuePair<string, object>) item).Value;
+                        var itemKey = ((KeyValuePair<string, object>)item).Key;
+                        var itemValue = ((KeyValuePair<string, object>)item).Value;
                         BuildContext(context, _variableName, itemKey, itemValue);
 
-                    } else 
+                    }
+                    else
                         context[_variableName] = item;
 
                     context["forloop"] = Hash.FromDictionary(new Dictionary<string, object>
@@ -185,7 +188,7 @@ namespace DotLiquid.Tags
                     });
                     try
                     {
-                        RenderAll(NodeList, context, result);
+                        RenderAll(ForBlock, context, result);
                     }
                     catch (BreakInterrupt)
                     {
@@ -229,7 +232,7 @@ namespace DotLiquid.Tags
             {
                 hashValue["itemName"] = key;
                 context[parent] = value;
-                
+
                 foreach (var hashItem in (Hash)value)
                 {
                     if (hashItem.Value is Hash)

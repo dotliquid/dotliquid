@@ -34,6 +34,13 @@ namespace DotLiquid.Tags
     ///
     ///  To reverse the for loop simply use {% for item in collection reversed %}
     ///
+    /// == Else:
+    ///    {% for item in collection %}
+    ///      {{ forloop.index}}: {{ item.name }}
+    ///    {% else %}
+    ///      No items
+    ///    {% endfor %}
+    ///
     /// == Available variables:
     ///
     /// forloop.name:: 'item-collection'
@@ -60,12 +67,14 @@ namespace DotLiquid.Tags
         private bool _reversed;
         private Dictionary<string, string> _attributes;
 
+        protected Condition Else { get; private set; }
+
         /// <summary>
         /// Initializes the for tag
         /// </summary>
         /// <param name="tagName">Name of the parsed tag</param>
         /// <param name="markup">Markup of the parsed tag</param>
-        /// <param name="tokens">Toeksn of the parsed tag</param>
+        /// <param name="tokens">Tokens of the parsed tag</param>
         public override void Initialize(string tagName, string markup, List<string> tokens)
         {
             Match match = Syntax.Match(markup);
@@ -88,6 +97,24 @@ namespace DotLiquid.Tags
         }
 
         /// <summary>
+        /// Handles the else tag
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <param name="markup"></param>
+        /// <param name="tokens"></param>
+        public override void UnknownTag(string tag, string markup, List<string> tokens)
+        {
+            if (tag == "else")
+            {
+                Else = new ElseCondition();
+                NodeList = Else.Attach(new List<object>());
+                return;
+            }
+
+            base.UnknownTag(tag, markup, tokens);
+        }
+
+        /// <summary>
         /// Renders the for tag
         /// </summary>
         /// <param name="context"></param>
@@ -99,7 +126,14 @@ namespace DotLiquid.Tags
             object collection = context[_collectionName];
 
             if (!(collection is IEnumerable))
+            {
+                if (Else != null)
+                    context.Stack(() =>
+                    {
+                        RenderAll(Else.Attachment, context, result);
+                    });
                 return;
+            }
 
             int from = (_attributes.ContainsKey("offset"))
                 ? (_attributes["offset"] == "continue")
@@ -112,9 +146,6 @@ namespace DotLiquid.Tags
 
             List<object> segment = SliceCollectionUsingEach(context, (IEnumerable) collection, from, to);
 
-            if (!segment.Any())
-                return;
-
             if (_reversed)
                 segment.Reverse();
 
@@ -125,6 +156,13 @@ namespace DotLiquid.Tags
 
             context.Stack(() =>
             {
+                if (!segment.Any())
+                {
+                    if (Else != null)
+                        RenderAll(Else.Attachment, context, result);
+                    return;
+                }
+
                 for (var index = 0; index < segment.Count; index++)
                 {
                     context.CheckTimeout();

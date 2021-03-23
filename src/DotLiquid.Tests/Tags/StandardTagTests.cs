@@ -125,6 +125,28 @@ namespace DotLiquid.Tests.Tags
         }
 
         [Test]
+        public void TestForWithElse()
+        {
+            Helper.AssertTemplateResult(" empty ", "{%for item in array%} yo {%else%} empty {%endfor%}", Hash.FromAnonymousObject(new { array = new int[0] }));
+            Helper.AssertTemplateResult(" empty list ", "{%for item in array%} yo {%else%} empty list {%endfor%}", Hash.FromAnonymousObject(new { array = new List<int>() }));
+            Helper.AssertTemplateResult(" empty dictionary ", "{%for item in array%} yo {%else%} empty dictionary {%endfor%}", Hash.FromAnonymousObject(new { array = new Dictionary<string, object>() }));
+            Helper.AssertTemplateResult(" not enumerable ", "{%for item in array%} yo {%else%} not enumerable {%endfor%}", Hash.FromAnonymousObject(new { array = 0 }));
+            const string expected = @"
+empty
+multi
+line
+";
+            const string template = @"{%for item in array%}
+ not this
+{%else%}
+empty
+multi
+line
+{%endfor%}";
+            Helper.AssertTemplateResult(expected, template, Hash.FromAnonymousObject(new { array = new int[0] }));
+        }
+
+        [Test]
         public void TestForWithRange()
         {
             Helper.AssertTemplateResult(" 1  2  3 ", "{%for item in (1..3) %} {{item}} {%endfor%}");

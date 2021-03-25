@@ -120,9 +120,8 @@ namespace DotLiquid.Tags
         {
             context.Registers["for"] = context.Registers["for"] ?? new Hash(0);
 
-            object collection = context[_collectionName];
-
-            if (!(collection is IEnumerable))
+            // treat non IEnumerable as empty
+            if (!(context[_collectionName] is IEnumerable collection))
             {
                 if (ElseBlock != null)
                     context.Stack(() =>
@@ -141,7 +140,7 @@ namespace DotLiquid.Tags
             int? limit = _attributes.ContainsKey("limit") ? (int?)Convert.ToInt32(context[_attributes["limit"]]) : null;
             int? to = (limit != null) ? (int?)(limit.Value + from) : null;
 
-            List<object> segment = SliceCollectionUsingEach(context, (IEnumerable)collection, from, to);
+            List<object> segment = SliceCollectionUsingEach(context, collection, from, to);
 
             if (_reversed)
                 segment.Reverse();
@@ -165,10 +164,10 @@ namespace DotLiquid.Tags
                     context.CheckTimeout();
 
                     var item = segment[index];
-                    if (item is KeyValuePair<string, object>)
+                    if (item is KeyValuePair<string, object> pair)
                     {
-                        var itemKey = ((KeyValuePair<string, object>)item).Key;
-                        var itemValue = ((KeyValuePair<string, object>)item).Value;
+                        var itemKey = pair.Key;
+                        var itemValue = pair.Value;
                         BuildContext(context, _variableName, itemKey, itemValue);
 
                     }

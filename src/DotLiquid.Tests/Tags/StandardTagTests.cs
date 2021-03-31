@@ -169,6 +169,15 @@ namespace DotLiquid.Tests.Tags
         }
 
         [Test]
+        public void TestForElse()
+        {
+            // parity tests with https://github.com/Shopify/liquid/blob/master/test/integration/tags/for_tag_test.rb
+            Helper.AssertTemplateResult("+++", "{%for item in array%}+{%else%}-{%endfor%}", Hash.FromAnonymousObject(new { array = new[] { 1, 2, 3 } }));
+            Helper.AssertTemplateResult("-", "{%for item in array%}+{%else%}-{%endfor%}", Hash.FromAnonymousObject(new { array = new int[0] }));
+            Helper.AssertTemplateResult("-", "{%for item in array%}+{%else%}-{%endfor%}", Hash.FromAnonymousObject(new { array = (int[])null }));
+        }
+
+        [Test]
         public void TestLimiting()
         {
             Hash assigns = Hash.FromAnonymousObject(new { array = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 } });

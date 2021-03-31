@@ -23,6 +23,8 @@ namespace DotLiquid.Tags
     ///      &lt;div {% if forloop.first %}class="first"{% endif %}&gt;
     ///        Item {{ forloop.index }}: {{ item.name }}
     ///      &lt;/div&gt;
+    ///    {% else %}
+    ///      There is nothing in the collection.
     ///    {% endfor %}
     ///
     /// You can also define a limit and offset much like SQL.  Remember
@@ -60,17 +62,21 @@ namespace DotLiquid.Tags
         private bool _reversed;
         private Dictionary<string, string> _attributes;
 
+        private List<object> ForBlock { get; set; }
+        private Condition ElseBlock { get; set; }
+
         /// <summary>
         /// Initializes the for tag
         /// </summary>
         /// <param name="tagName">Name of the parsed tag</param>
         /// <param name="markup">Markup of the parsed tag</param>
-        /// <param name="tokens">Toeksn of the parsed tag</param>
+        /// <param name="tokens">Tokens of the parsed tag</param>
         public override void Initialize(string tagName, string markup, List<string> tokens)
         {
             Match match = Syntax.Match(markup);
             if (match.Success)
             {
+                NodeList = ForBlock = new List<object>();
                 _variableName = match.Groups[1].Value;
                 _collectionName = match.Groups[2].Value;
                 _name = string.Format("{0}-{1}", _variableName, _collectionName);
@@ -88,6 +94,24 @@ namespace DotLiquid.Tags
         }
 
         /// <summary>
+        /// Handles the else tag
+        /// </summary>
+        /// <param name="tag"></param>
+        /// <param name="markup"></param>
+        /// <param name="tokens"></param>
+        public override void UnknownTag(string tag, string markup, List<string> tokens)
+        {
+            if (tag == "else")
+            {
+                ElseBlock = new ElseCondition();
+                NodeList = ElseBlock.Attach(new List<object>());
+                return;
+            }
+
+            base.UnknownTag(tag, markup, tokens);
+        }
+
+        /// <summary>
         /// Renders the for tag
         /// </summary>
         /// <param name="context"></param>
@@ -96,10 +120,16 @@ namespace DotLiquid.Tags
         {
             context.Registers["for"] = context.Registers["for"] ?? new Hash(0);
 
-            object collection = context[_collectionName];
-
-            if (!(collection is IEnumerable))
+            // treat non IEnumerable as empty
+            if (!(context[_collectionName] is IEnumerable collection))
+            {
+                if (ElseBlock != null)
+                    context.Stack(() =>
+                    {
+                        RenderAll(ElseBlock.Attachment, context, result);
+                    });
                 return;
+            }
 
             int from = (_attributes.ContainsKey("offset"))
                 ? (_attributes["offset"] == "continue")
@@ -110,10 +140,7 @@ namespace DotLiquid.Tags
             int? limit = _attributes.ContainsKey("limit") ? (int?)Convert.ToInt32(context[_attributes["limit"]]) : null;
             int? to = (limit != null) ? (int?)(limit.Value + from) : null;
 
-            List<object> segment = SliceCollectionUsingEach(context, (IEnumerable) collection, from, to);
-
-            if (!segment.Any())
-                return;
+            List<object> segment = SliceCollectionUsingEach(context, collection, from, to);
 
             if (_reversed)
                 segment.Reverse();
@@ -125,18 +152,26 @@ namespace DotLiquid.Tags
 
             context.Stack(() =>
             {
+                if (!segment.Any())
+                {
+                    if (ElseBlock != null)
+                        RenderAll(ElseBlock.Attachment, context, result);
+                    return;
+                }
+
                 for (var index = 0; index < segment.Count; index++)
                 {
                     context.CheckTimeout();
 
                     var item = segment[index];
-                    if (item is KeyValuePair<string,object>)
+                    if (item is KeyValuePair<string, object> pair)
                     {
-                        var itemKey = ((KeyValuePair<string, object>) item).Key;
-                        var itemValue = ((KeyValuePair<string, object>) item).Value;
+                        var itemKey = pair.Key;
+                        var itemValue = pair.Value;
                         BuildContext(context, _variableName, itemKey, itemValue);
 
-                    } else 
+                    }
+                    else
                         context[_variableName] = item;
 
                     context["forloop"] = Hash.FromDictionary(new Dictionary<string, object>
@@ -152,7 +187,7 @@ namespace DotLiquid.Tags
                     });
                     try
                     {
-                        RenderAll(NodeList, context, result);
+                        RenderAll(ForBlock, context, result);
                     }
                     catch (BreakInterrupt)
                     {
@@ -196,7 +231,7 @@ namespace DotLiquid.Tags
             {
                 hashValue["itemName"] = key;
                 context[parent] = value;
-                
+
                 foreach (var hashItem in (Hash)value)
                 {
                     if (hashItem.Value is Hash)

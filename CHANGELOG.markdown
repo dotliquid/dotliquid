@@ -1,5 +1,15 @@
 # Overview
 
+_:exclamation: Changes are no longer maintained in this file. See (https://github.com/dotliquid/dotliquid/commits/master) for a full list of changes._
+
+## 2.1.x - 2021-03-08
+
+### New Features
+
+* \#420 Introduced a new Compatibility flag to opt-in to breaking changes. These changes are described in the [Wiki](https://github.com/dotliquid/dotliquid/wiki/DotLiquid-Syntax-Compatibility#strict-liquid-syntax)
+
+## 2.0.x - 2016-07-25
+
 ## 1.8.0 - 2014-05-13
 
 ### New Features

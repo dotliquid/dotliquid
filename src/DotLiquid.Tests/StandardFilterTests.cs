@@ -792,6 +792,18 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        public void TestReplaceChain()
+        {
+            var assign = @"{%assign az='azerty'%}";
+            Helper.AssertTemplateResult("qzerty", assign + "{{az |replace: 'a','q'}}");
+            Helper.AssertTemplateResult("q zerty", assign + "{{az |replace: 'a','q '}}");
+            Helper.AssertTemplateResult("qw erty", assign + "{{az |replace: 'a','q'   |replace: 'z','w '}}");
+            Helper.AssertTemplateResult("q werty", assign + "{{az |replace: 'a','q '  |replace: 'z','w'}}");
+            Helper.AssertTemplateResult("q rwerty", assign + "{{az |replace: 'a','q r' |replace: 'z','w'}}");
+            Helper.AssertTemplateResult(" qwerty", assign + "{{az |replace: 'a',' q'  |replace: 'z','w'}}");
+        }
+
+        [Test]
         public void TestReplaceFirst()
         {
             TestReplaceFirst(_contextV20);

@@ -58,5 +58,12 @@ namespace DotLiquid.Tests
             Helper.AssertTemplateResult(" YES ", "{% if true && false %} YES {% endif %}");
             Helper.AssertTemplateResult("", "{% if false || true %} YES {% endif %}");
         }
+
+        [Test]
+        public void TestLiquidTagsInQuotes()
+        {
+            Helper.AssertTemplateResult("{{ {% %} }}", "{{ '{{ {% %} }}' }}");
+            Helper.AssertTemplateResult("{{ {% %} }}", "{% assign x = '{{ {% %} }}' %}{{x}}");
+        }
     }
 }

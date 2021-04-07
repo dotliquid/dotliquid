@@ -27,8 +27,8 @@ namespace DotLiquid.Tests
         [Test]
         public void TestTokenizeBlocks()
         {
-            CollectionAssert.AreEqual(new[] { "{%comment%}" }, Template.Tokenize("{%comment%}"));
-            CollectionAssert.AreEqual(new[] { " ", "{%comment%}", " " }, Template.Tokenize(" {%comment%} "));
+            CollectionAssert.AreEqual(new[] { "{%assign%}" }, Template.Tokenize("{%assign%}"));
+            CollectionAssert.AreEqual(new[] { " ", "{%assign%}", " " }, Template.Tokenize(" {%assign%} "));
 
             CollectionAssert.AreEqual(new[] { " ", "{%comment%}", " ", "{%endcomment%}", " " }, Template.Tokenize(" {%comment%} {%endcomment%} "));
             CollectionAssert.AreEqual(new[] { "  ", "{% comment %}", " ", "{% endcomment %}", " " }, Template.Tokenize("  {% comment %} {% endcomment %} "));

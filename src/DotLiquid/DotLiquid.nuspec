@@ -15,12 +15,8 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <tags>template templating language liquid markup</tags>
     <dependencies>
-      <group targetFramework=".NETFramework4.5">
-        <dependency id="System.ValueTuple" version="4.3.0" />
-      </group>
-      <group targetFramework=".NETStandard1.3">
-        <dependency id="System.ValueTuple" version="4.3.0" />
-      </group>
+      <group targetFramework=".NETFramework4.5" />
+      <group targetFramework=".NETStandard1.3" />
       <group targetFramework=".NETStandard2.0" />
     </dependencies>
   </metadata>

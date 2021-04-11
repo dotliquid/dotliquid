@@ -61,11 +61,10 @@ namespace DotLiquid.Util
             return NumericTypePromotions[right].First(p => NumericTypePromotions[left].Contains(p));
         }
 
-        private static (Expression left, Expression right) Cast(Expression lhs, Expression rhs,Type leftType, Type rightType, Type resultType)
+        private static void Cast(Expression lhs, Expression rhs, Type leftType, Type rightType, Type resultType, out Expression castLhs, out Expression castRhs)
         {
-            var castLhs = leftType == resultType ? lhs : (Expression)Expression.Convert(lhs, resultType);
-            var castRhs = rightType == resultType ? rhs : (Expression)Expression.Convert(rhs, resultType);
-            return (castLhs, castRhs);
+            castLhs = leftType == resultType ? lhs : (Expression)Expression.Convert(lhs, resultType);
+            castRhs = rightType == resultType ? rhs : (Expression)Expression.Convert(rhs, resultType);
         }
 
         /// <summary>
@@ -88,7 +87,7 @@ namespace DotLiquid.Util
                 try
                 {
                     var resultType = BinaryNumericResultType( leftType, rightType );
-                    var (castLhs, castRhs) = Cast( lhs, rhs, leftType, rightType, resultType );
+                    Cast(lhs, rhs, leftType, rightType, resultType, out var castLhs, out var castRhs);
                     return Expression.Lambda(body(castLhs, castRhs), lhs, rhs).Compile();
                 }
                 catch (InvalidOperationException)
@@ -96,13 +95,13 @@ namespace DotLiquid.Util
                     try
                     {
                         var resultType = leftType;
-                        var (castLhs, castRhs) = Cast( lhs, rhs, leftType, rightType, resultType );
+                        Cast(lhs, rhs, leftType, rightType, resultType, out var castLhs, out var castRhs);
                         return Expression.Lambda( body( castLhs, castRhs ), lhs, rhs ).Compile();
                     }
                     catch (InvalidOperationException)
                     {
                         var resultType = rightType;
-                        var (castLhs, castRhs) = Cast( lhs, rhs, leftType, rightType, resultType );
+                        Cast(lhs, rhs, leftType, rightType, resultType, out var castLhs, out var castRhs);
                         return Expression.Lambda( body( castLhs, castRhs ), lhs, rhs ).Compile();
                     }
                 }

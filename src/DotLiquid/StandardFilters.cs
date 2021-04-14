@@ -116,22 +116,16 @@ namespace DotLiquid
         /// <returns></returns>
         public static string Capitalize(Context context, string input)
         {
+            if (context.SyntaxCompatibilityLevel == SyntaxCompatibility.DotLiquid21)
+                return ExtendedFilters.UpcaseFirst(context, input);
+            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid21)
+                return ExtendedFilters.Titleize(context, input);
+
             if (input.IsNullOrWhiteSpace())
                 return input;
 
-            if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21)
-            {
-                var trimmed = input.TrimStart();
-                return input.Substring(0, input.Length - trimmed.Length) + char.ToUpper(trimmed[0]) + trimmed.Substring(1);
-            }
-
-            return string.IsNullOrEmpty(input)
-                ? input
-#if CORE
-                : Regex.Replace(input, @"\b(\w)", m => m.Value.ToUpper(), RegexOptions.None, Template.RegexTimeOut);
-#else
-                : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input);
-#endif
+            var trimmed = input.TrimStart();
+            return input.Substring(0, input.Length - trimmed.Length) + char.ToUpper(trimmed[0]) + trimmed.Substring(1).ToLower();
         }
 
         /// <summary>
@@ -324,17 +318,30 @@ namespace DotLiquid
         }
 
         /// <summary>
-        /// Sort elements of the array
-        /// provide optional property with which to sort an array of hashes or drops
+        /// Sort elements of the array in case-sensitive order
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="property"></param>
+        /// <param name="context">The Liquid context</param>
+        /// <param name="input">The object to sort</param>
+        /// <param name="property">Optional property with which to sort an array of hashes or drops</param>
         /// <returns></returns>
-        public static IEnumerable Sort(object input, string property = null)
+        public static IEnumerable Sort(Context context, object input, string property = null)
         {
             if (input == null)
                 return null;
 
+            if (input is IEnumerable<string> enumerableString)
+            {
+                if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21a)
+                    return SortOrdinalInternal(enumerableString);
+                else
+                    return SortNaturalInternal(enumerableString);
+            }
+
+            return SortInternal(input, property);
+        }
+
+        private static IEnumerable SortInternal(object input, string property = null)
+        {
             List<object> ary;
             if(input is IEnumerable<Hash> enumerableHash && !string.IsNullOrEmpty(property))
                 ary = enumerableHash.Cast<object>().ToList();
@@ -363,6 +370,39 @@ namespace DotLiquid
 
             return ary;
         }
+
+        /// <summary>
+        /// Sort elements of the array in case-insensitive order
+        /// </summary>
+        /// <param name="input">The object to sort</param>
+        /// <param name="property">Optional property with which to sort an array of hashes or drops</param>
+        /// <returns></returns>
+        public static IEnumerable SortNatural(object input, string property = null)
+        {
+            if (input == null)
+                return null;
+
+            if (input is IEnumerable<string> enumerableString)
+                return SortNaturalInternal(enumerableString);
+
+            return SortInternal(input, property);
+        }
+
+        private static IEnumerable SortOrdinalInternal(IEnumerable<string> enumerableString)
+        {
+            var ary = enumerableString.ToList();
+            ary.Sort(StringComparer.Ordinal);
+            return ary;
+        }
+
+        private static IEnumerable SortNaturalInternal(IEnumerable<string> enumerableString)
+        {
+            var ary = enumerableString.ToList();
+            ary.Sort();
+            return ary;
+        }
+
+
 
         /// <summary>
         /// Map/collect on a given property

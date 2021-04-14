@@ -12,6 +12,7 @@ namespace DotLiquid.Tests
     {
         private Context _contextV20;
         private Context _contextV21;
+        private Context _contextV21a;
 
         [OneTimeSetUp]
         public void SetUp()
@@ -23,6 +24,10 @@ namespace DotLiquid.Tests
             _contextV21 = new Context(CultureInfo.InvariantCulture)
             {
                 SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid21
+            };
+            _contextV21a = new Context(CultureInfo.InvariantCulture)
+            {
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid21a
             };
         }
 
@@ -169,13 +174,41 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestSort()
+        public void TestSortV20()
         {
-            Assert.AreEqual(null, StandardFilters.Sort(null));
-            CollectionAssert.AreEqual(new string[] { }, StandardFilters.Sort(new string[] { }));
-            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 }, StandardFilters.Sort(new[] { 4, 3, 2, 1 }));
+            Assert.AreEqual(null, StandardFilters.Sort(_contextV20, null));
+            CollectionAssert.AreEqual(new string[] { }, StandardFilters.Sort(_contextV20, new string[] { }));
+            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 }, StandardFilters.Sort(_contextV20, new[] { 4, 3, 2, 1 }));
             CollectionAssert.AreEqual(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 4 } },
-                StandardFilters.Sort(new[] { new { a = 4 }, new { a = 3 }, new { a = 1 }, new { a = 2 } }, "a"));
+                StandardFilters.Sort(_contextV20, new[] { new { a = 4 }, new { a = 3 }, new { a = 1 }, new { a = 2 } }, "a"));
+
+            // Issue #393 - Incorrect (Case-Insensitve) Alphabetic Sort
+            CollectionAssert.AreEqual(new[] { "giraffe", "octopus", "Sally Snake", "zebra" },
+                StandardFilters.Sort(_contextV20, new[] { "zebra", "octopus", "giraffe", "Sally Snake" }));
+        }
+
+        [Test]
+        public void TestSortV21a()
+        {
+            Assert.AreEqual(null, StandardFilters.Sort(_contextV21a, null));
+            CollectionAssert.AreEqual(new string[] { }, StandardFilters.Sort(_contextV21a, new string[] { }));
+            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 }, StandardFilters.Sort(_contextV21a, new[] { 4, 3, 2, 1 }));
+            CollectionAssert.AreEqual(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 4 } },
+                StandardFilters.Sort(_contextV21a, new[] { new { a = 4 }, new { a = 3 }, new { a = 1 }, new { a = 2 } }, "a"));
+            CollectionAssert.AreEqual(new[] { "Sally Snake", "giraffe", "octopus", "zebra" },
+                StandardFilters.Sort(_contextV21a, new[] { "zebra", "octopus", "giraffe", "Sally Snake" }));
+        }
+
+        [Test]
+        public void TestSortNatural()
+        {
+            Assert.AreEqual(null, StandardFilters.SortNatural(null));
+            CollectionAssert.AreEqual(new string[] { }, StandardFilters.SortNatural(new string[] { }));
+            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 }, StandardFilters.SortNatural(new[] { 4, 3, 2, 1 }));
+            CollectionAssert.AreEqual(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 4 } },
+                StandardFilters.SortNatural(new[] { new { a = 4 }, new { a = 3 }, new { a = 1 }, new { a = 2 } }, "a"));
+            CollectionAssert.AreEqual(new[] { "giraffe", "octopus", "Sally Snake", "zebra" },
+                StandardFilters.SortNatural(new[] { "zebra", "octopus", "giraffe", "Sally Snake" }));
         }
 
         [Test]
@@ -189,7 +222,7 @@ namespace DotLiquid.Tests
             list.Add(hash1);
             list.Add(hash2);
 
-            var result = StandardFilters.Sort(list, "sortby").Cast<Hash>().ToArray();
+            var result = StandardFilters.Sort(_contextV20, list, "sortby").Cast<Hash>().ToArray();
             Assert.AreEqual(3, result.Count());
             Assert.AreEqual(hash1["content"], result[0]["content"]);
             Assert.AreEqual(hash2["content"], result[1]["content"]);
@@ -208,7 +241,7 @@ namespace DotLiquid.Tests
             list.Add(hashWithNoSortByProperty);
             list.Add(hash1);
 
-            var result = StandardFilters.Sort(list, "sortby").Cast<Hash>().ToArray();
+            var result = StandardFilters.Sort(_contextV20, list, "sortby").Cast<Hash>().ToArray();
             Assert.AreEqual(3, result.Count());
             Assert.AreEqual(hashWithNoSortByProperty["content"], result[0]["content"]);
             Assert.AreEqual(hash1["content"], result[1]["content"]);
@@ -1260,6 +1293,21 @@ namespace DotLiquid.Tests
             Helper.AssertTemplateResult(
                 expected: "My great title",
                 template: "{{ 'my great title' | capitalize }}",
+                syntax: context.SyntaxCompatibilityLevel);
+        }
+
+        [Test]
+        public void TestCapitalizeV21a()
+        {
+            var context = _contextV21a;
+            Assert.AreEqual(null, StandardFilters.Capitalize(context: context, input: null));
+            Assert.AreEqual("", StandardFilters.Capitalize(context: context, input: ""));
+            Assert.AreEqual(" ", StandardFilters.Capitalize(context: context, input: " "));
+            Assert.AreEqual("My boss is mr. doe.", StandardFilters.Capitalize(context: context, input: "my boss is Mr. Doe."));
+
+            Helper.AssertTemplateResult(
+                expected: "My great title",
+                template: "{{ 'my Great Title' | capitalize }}",
                 syntax: context.SyntaxCompatibilityLevel);
         }
 

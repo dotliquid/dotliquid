@@ -14,5 +14,10 @@ namespace DotLiquid
         /// Behavior as of DotLiquid 2.1
         /// </summary>
         DotLiquid21 = 210,
+
+        /// <summary>
+        /// Behavior as of DotLiquid 2.1a
+        /// </summary>
+        DotLiquid21a = 211,
     }
 }

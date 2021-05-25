@@ -931,6 +931,62 @@ namespace DotLiquid
             ary.RemoveAll(item => item == null);
             return ary;
         }
+
+        /// <summary>
+        /// Creates an array including only the objects with a given property value, or any truthy value by default.
+        /// </summary>
+        /// <param name="input">an array to be filtered</param>
+        /// <param name="property">The name of the property to filter by</param>
+        /// <param name="value">Value to retain, if null object containing this property are retained</param>
+        /// <returns></returns>
+        public static IEnumerable Where(object input, string property, string value = null)
+        {
+            if (input == null)
+                return null;
+
+            if (property.IsNullOrWhiteSpace()){
+                throw new ArgumentNullException($"'{nameof(property)}' cannot be null or empty.", nameof(property));
+            }
+
+            List<object> inputList;
+            if(input is IEnumerable<Hash> enumerableHash && !string.IsNullOrEmpty(property))
+                inputList = enumerableHash.Cast<object>().ToList();
+            else if (input is IEnumerable enumerableInput)
+                inputList = enumerableInput.Flatten().Cast<object>().ToList();
+            else
+            { 
+                inputList = new List<object>(new[] { input });
+            }
+
+            if (!inputList.Any())
+                return inputList;
+
+            return inputList.FindAll(s => Matches(s, property, value));
+        }
+
+        private static bool Matches(object any, string property, string value)
+        {
+            bool matches = false;
+            if (any is IDictionary && ((IDictionary)any).Contains(property))
+            {
+                // the 'any' dictionary has the filter property
+                var propertyValue = ((IDictionary)any)[property];
+                if (value == null) {
+                    // If no filter value provided, check the property value is truthy.
+                    matches = propertyValue!=null && !false.Equals(propertyValue);
+                } else {
+                    matches = value.Equals( propertyValue ); 
+                }
+            }
+            else if (any.RespondTo(property))
+            {
+                // the 'any' object has the filter property
+                matches = value.IsNullOrWhiteSpace() || value.Equals(any.Send(property)); 
+            }
+            // else the any object does not contain the filter property
+
+            return matches;
+        }
     }
 
     internal static class StringExtensions

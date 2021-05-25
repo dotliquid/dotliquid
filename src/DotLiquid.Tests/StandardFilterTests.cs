@@ -624,6 +624,13 @@ namespace DotLiquid.Tests
                 Helper.AssertTemplateResult(expected: "+00:00", template: "{{ '" + testDate.ToString("u") + "' | date: 'zzz' }}", syntax: context.SyntaxCompatibilityLevel);
                 Helper.AssertTemplateResult(expected: "-14:00", template: "{{ '" + testDate.ToString("u").Replace("Z", "-14:00") + "' | date: 'zzz' }}", syntax: context.SyntaxCompatibilityLevel);
 
+                // ISO-8601 date-time handling with and without timezone
+                Helper.AssertTemplateResult(expected: "2021-05-20T12:14:15-08:00", template: "{{ iso8601DateTime | date: 'yyyy-MM-ddThh:mm:sszzz' }}", localVariables: Hash.FromAnonymousObject(new { iso8601DateTime = "2021-05-20T12:14:15-08:00" }), syntax: context.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(expected: "2021-05-20T12:14:15+09:00", template: "{{ iso8601DateTime | date: 'yyyy-MM-ddThh:mm:sszzz' }}", localVariables: Hash.FromAnonymousObject(new { iso8601DateTime = "2021-05-20T12:14:15+09:00" }), syntax: context.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(expected: "2021-05-20", template: "{{ iso8601DateTime | date: 'yyyy-MM-dd' }}", localVariables: Hash.FromAnonymousObject(new { iso8601DateTime = "2021-05-20T12:14:15+01:00" }), syntax: context.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(expected: "2021-05-20T12:14:15+00:00", template: "{{ iso8601DateTime | date: 'yyyy-MM-ddThh:mm:sszzz' }}", localVariables: Hash.FromAnonymousObject(new { iso8601DateTime = "2021-05-20T12:14:15Z" }), syntax: context.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(expected: "2021-05-20T12:14:15", template: "{{ iso8601DateTime | date: 'yyyy-MM-ddThh:mm:ss' }}", localVariables: Hash.FromAnonymousObject(new { iso8601DateTime = "2021-05-20T12:14:15" }), syntax: context.SyntaxCompatibilityLevel);
+
                 Liquid.UseRubyDateFormat = true;
                 Helper.AssertTemplateResult(expected: "0", template: "{{ epoch | date: '%s' }}", localVariables: Hash.FromAnonymousObject(new { epoch = 0 }), syntax: context.SyntaxCompatibilityLevel);
                 Helper.AssertTemplateResult(expected: "2147483648", template: "{{ epoch | date: '%s' }}", localVariables: Hash.FromAnonymousObject(new { epoch = 2147483648 }), syntax: context.SyntaxCompatibilityLevel);
@@ -1399,5 +1406,105 @@ namespace DotLiquid.Tests
 {% endfor %}",
                 localVariables: Hash.FromAnonymousObject(siteAnonymousObject));
         }
+
+        [Test]
+        public void TestWhere()
+        {
+            var products = new[] {
+                new { title = "Vacuum", type = "cleaning" },
+                new { title = "Spatula", type = "kitchen" },
+                new { title = "Television", type = "lounge" },
+                new { title = "Garlic press", type = "kitchen" }
+            };
+
+            // Check graceful handling of null and empty lists
+            Assert.AreEqual(null, StandardFilters.Where(null, "property", null));
+            CollectionAssert.AreEqual(new string[] { }, StandardFilters.Where(new string[] { }, "property", null));
+
+            // Test filtering by value of a property
+            var expectedKitchenProducts = new[] {
+                new { title = "Spatula", type = "kitchen" },
+                new { title = "Garlic press", type = "kitchen" }
+            };
+            CollectionAssert.AreEqual(expected: expectedKitchenProducts,
+                actual: StandardFilters.Where(products, "type", "kitchen"));
+
+            // Test filtering for existence of a property
+            CollectionAssert.AreEqual(expected: products,
+                actual: StandardFilters.Where(products, "type"));
+
+            // Test filtering for non-existant property
+            var emptyArray = Array.Empty<object>();
+            CollectionAssert.AreEqual(expected: emptyArray,
+                actual: StandardFilters.Where(products, "non_existent_property"));
+        }
+
+        // First sample from specification at https://shopify.github.io/liquid/filters/where/
+        // In this example, assume you have a list of products and you want to show your kitchen products separately.
+        // Using where, you can create an array containing only the products that have a "type" of "kitchen"
+        [Test]
+        public void TestWhere_ShopifySample1()
+        {
+            var products = new[] {
+                new { title = "Vacuum", type = "cleaning" },
+                new { title = "Spatula", type = "kitchen" },
+                new { title = "Television", type = "lounge" },
+                new { title = "Garlic press", type = "kitchen" }
+            };
+
+            // First Shopify sample
+            Helper.AssertTemplateResult(
+                expected: "\r\n\r\nKitchen products:\r\n\r\n- Spatula\r\n\r\n- Garlic press\r\n",
+                template: @"{% assign kitchen_products = products | where: ""type"", ""kitchen"" %}
+
+Kitchen products:
+{% for product in kitchen_products %}
+- {{ product.title }}
+{% endfor %}",
+                localVariables: Hash.FromAnonymousObject(new  { products }) );
+        }
+
+        // Second sample from specification at https://shopify.github.io/liquid/filters/where/
+        // Say instead you have a list of products and you only want to show those that are available to buy.
+        // You can where with a property name but no target value to include all products with a truthy "available" value.
+        [Test]
+        public void TestWhere_ShopifySample2()
+        {
+            var products = new System.Collections.Generic.List<Hash>();
+            products.Add(new Hash { {"title","Coffee mug"}, {"available",true} });
+            products.Add(new Hash { {"title","Limited edition sneakers"} /*no 'available' property*/ });
+            products.Add(new Hash { {"title","Limited edition sneakers"}, {"available",false} }); // 'available' = false
+            products.Add(new Hash { {"title","Boring sneakers"}, {"available",true} });
+
+            Helper.AssertTemplateResult(
+                expected: "\r\n\r\nAvailable products:\r\n\r\n- Coffee mug\r\n\r\n- Boring sneakers\r\n",
+                template: @"{% assign available_products = products | where: ""available"" %}
+
+Available products:
+{% for product in available_products %}
+- {{ product.title }}
+{% endfor %}",
+                localVariables: Hash.FromAnonymousObject(new  { products }) );
+        }
+
+        // Third sample from specification at https://shopify.github.io/liquid/filters/where/
+        // The where filter can also be used to find a single object in an array when combined with the first filter.
+        // For example, say you want to show off the shirt in your new fall collection.
+        [Test]
+        public void TestWhere_ShopifySample3()
+        {
+            var products = new System.Collections.Generic.List<Hash>();
+            products.Add(new Hash { {"title","Little black dress"}, {"type","dress"} });
+            products.Add(new Hash { {"title","Tartan flat cap"}, /*no 'type' property*/ });
+            products.Add(new Hash { {"title","Hawaiian print sweater vest"}, {"type","shirt"} });
+
+            Helper.AssertTemplateResult(
+                expected: "\r\n\r\nFeatured product: Hawaiian print sweater vest",
+                template: @"{% assign new_shirt = products | where: ""type"", ""shirt"" | first %}
+
+Featured product: {{ new_shirt.title }}",
+                localVariables: Hash.FromAnonymousObject(new  { products }) );
+        }
     }
+
 }

@@ -947,18 +947,12 @@ namespace DotLiquid
             if (property.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(paramName: nameof(property), message: $"'{nameof(property)}' cannot be null or empty.");
 
-            List<object> inputList;
-            if (input is IEnumerable<Hash> enumerableHash && !string.IsNullOrEmpty(property))
-                inputList = enumerableHash.Cast<object>().ToList();
-            else if (input is IEnumerable enumerableInput)
-                inputList = enumerableInput.Cast<object>().ToList();
-            else
-                return null;
+            List<object> inputList = (input is IEnumerable enumerableInput) ? enumerableInput.Cast<object>().ToList() : null;
 
-            return inputList.FindAll(s => Matches(s, property, target_value));
+            return inputList.Where(s => s.Matches(property, target_value));
         }
 
-        private static bool Matches(object any, string property, string target_value)
+        private static bool Matches(this object any, string property, string target_value)
         {
             bool matches = false;
             if (any is IDictionary dictionary && dictionary.Contains(property))

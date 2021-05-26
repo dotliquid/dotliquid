@@ -1,6 +1,5 @@
 using System;
 using System.Globalization;
-using System.Threading;
 using DotLiquid.Util;
 using NUnit.Framework;
 
@@ -115,32 +114,32 @@ namespace DotLiquid.Tests.Util
             Assert.That(now.DateTime.ToStrFTime("%Z"), Is.EqualTo(timeZoneOffset));
         }
 
-        [TestCase("%z", ExpectedResult = "Z")] // ISO 8601 offset from UTC in timezone (1 minute=1, 1 hour=100) If timezone cannot be determined, no characters (+100)
-        [TestCase("%:z", ExpectedResult = "Z")] // hour and minute offset from UTC with a colon (e.g. +09:00)
+        [TestCase("%z", ExpectedResult = "+0000")] // hour and minute offset from UTC without a colon
+        [TestCase("%:z", ExpectedResult = "+00:00")] // hour and minute offset from UTC with a colon
         public string TestTimeZoneUTC(string format)
         {
             using (CultureHelper.SetCulture("en-GB"))
             {
                 Assert.That(CultureInfo.CurrentCulture, Is.EqualTo(new CultureInfo("en-GB")));
-                return DateTime.UtcNow.ToStrFTime(format);
+                return DateTimeOffset.UtcNow.ToStrFTime(format);
             }
         }
 
-        [TestCase("%z", ExpectedResult = "+0100")] // ISO 8601 offset from UTC in timezone (1 minute=1, 1 hour=100) If timezone cannot be determined, no characters (+100)
-        [TestCase("%:z", ExpectedResult = "+01:00")] // hour and minute offset from UTC with a colon (e.g. +09:00)
+        [TestCase("%z", ExpectedResult = "-0500")] // hour and minute offset from UTC without a colon
+        [TestCase("%:z", ExpectedResult = "-05:00")] // hour and minute offset from UTC with a colon
         public string TestTimeZoneLocal(string format)
         {
             using (CultureHelper.SetCulture("en-GB"))
             {
                 Assert.That(CultureInfo.CurrentCulture, Is.EqualTo(new CultureInfo("en-GB")));
-                // Jun-10 is during UK British Summer Time (BST / +01:00)
-                return DateTimeOffset.Parse("2012-06-10T14:32:14+01:00").ToStrFTime(format);
+                return DateTimeOffset.Parse("2012-06-10T14:32:14-05:00").ToStrFTime(format);
             }
         }
 
-        [TestCase("%G", ExpectedResult = "2013")] // ISO 8601 offset from UTC in timezone (1 minute=1, 1 hour=100) If timezone cannot be determined, no characters (+100)
-        [TestCase("%g", ExpectedResult = "13")] // hour and minute offset from UTC with a colon (e.g. +09:00)
-        [TestCase("%V", ExpectedResult = "01")] // hour and minute offset from UTC with a colon (e.g. +09:00)
+        // '2012-12-31' is considered to be in the first week of 2013 (according to ISO-8601).
+        [TestCase("%G", ExpectedResult = "2013")]
+        [TestCase("%g", ExpectedResult = "13")]
+        [TestCase("%V", ExpectedResult = "01")]
         public string TestIso8601WeekBasedDates(string format)
         {
             using (CultureHelper.SetCulture("en-GB"))

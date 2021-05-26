@@ -47,7 +47,7 @@ namespace DotLiquid
                 return null;
 
             if (start < 0)
-            { 
+            {
                 start += input.Length;
                 if (start < 0)
                 {
@@ -56,7 +56,7 @@ namespace DotLiquid
                 }
             }
             if (start + len > input.Length)
-            { 
+            {
                 len = input.Length - start;
             }
             return input.Substring(Convert.ToInt32(start), Convert.ToInt32(len));
@@ -95,7 +95,7 @@ namespace DotLiquid
                 ? input
                 : System.Net.WebUtility.UrlEncode(input);
         }
-        
+
         /// <summary>
         /// convert a input string to URLDECODE
         /// </summary>
@@ -336,12 +336,12 @@ namespace DotLiquid
                 return null;
 
             List<object> ary;
-            if(input is IEnumerable<Hash> enumerableHash && !string.IsNullOrEmpty(property))
+            if (input is IEnumerable<Hash> enumerableHash && !string.IsNullOrEmpty(property))
                 ary = enumerableHash.Cast<object>().ToList();
             else if (input is IEnumerable enumerableInput)
                 ary = enumerableInput.Flatten().Cast<object>().ToList();
             else
-            { 
+            {
                 ary = new List<object>(new[] { input });
             }
 
@@ -349,15 +349,15 @@ namespace DotLiquid
                 return ary;
 
             if (string.IsNullOrEmpty(property))
-            { 
+            {
                 ary.Sort();
             }
             else if ((ary.All(o => o is IDictionary)) && (ary.Any(o => ((IDictionary)o).Contains(property))))
-            { 
+            {
                 ary.Sort((a, b) => Comparer<object>.Default.Compare(((IDictionary)a)[property], ((IDictionary)b)[property]));
             }
             else if (ary.All(o => o.RespondTo(property)))
-            { 
+            {
                 ary.Sort((a, b) => Comparer<object>.Default.Compare(a.Send(property), b.Send(property)));
             }
 
@@ -612,7 +612,7 @@ namespace DotLiquid
 
             if (format.IsNullOrWhiteSpace())
                 return value;
-            
+
             return Liquid.UseRubyDateFormat ? date.ToStrFTime(format) : date.ToString(format);
         }
 
@@ -823,7 +823,7 @@ namespace DotLiquid
                 throw;
             }
         }
-        
+
         /// <summary>
         /// Removes any duplicate elements in an array.
         /// </summary>
@@ -836,9 +836,9 @@ namespace DotLiquid
 
             List<object> ary;
             if (input is IEnumerable)
-                ary = ((IEnumerable) input).Flatten().Cast<object>().ToList();
+                ary = ((IEnumerable)input).Flatten().Cast<object>().ToList();
             else
-            { 
+            {
                 ary = new List<object>(new[] { input });
             }
 
@@ -847,7 +847,7 @@ namespace DotLiquid
 
             return ary.Distinct().ToList();
         }
-        
+
         /// <summary>
         /// Returns the absolute value of a number.
         /// </summary>
@@ -906,7 +906,7 @@ namespace DotLiquid
                 return input;
             }
         }
-        
+
         /// <summary>
         /// Removes any nil values from an array.
         /// </summary>
@@ -937,51 +937,48 @@ namespace DotLiquid
         /// </summary>
         /// <param name="input">an array to be filtered</param>
         /// <param name="property">The name of the property to filter by</param>
-        /// <param name="value">Value to retain, if null object containing this property are retained</param>
+        /// <param name="target_value">Value to retain, if null object containing this property are retained</param>
         /// <returns></returns>
-        public static IEnumerable Where(object input, string property, string value = null)
+        public static IEnumerable Where(object input, string property, string target_value = null)
         {
             if (input == null)
                 return null;
 
-            if (property.IsNullOrWhiteSpace()){
-                throw new ArgumentNullException($"'{nameof(property)}' cannot be null or empty.", nameof(property));
-            }
+            if (property.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(paramName: nameof(property), message: $"'{nameof(property)}' cannot be null or empty.");
 
             List<object> inputList;
-            if(input is IEnumerable<Hash> enumerableHash && !string.IsNullOrEmpty(property))
+            if (input is IEnumerable<Hash> enumerableHash && !string.IsNullOrEmpty(property))
                 inputList = enumerableHash.Cast<object>().ToList();
             else if (input is IEnumerable enumerableInput)
-                inputList = enumerableInput.Flatten().Cast<object>().ToList();
+                inputList = enumerableInput.Cast<object>().ToList();
             else
-            { 
-                inputList = new List<object>(new[] { input });
-            }
+                return null;
 
-            if (!inputList.Any())
-                return inputList;
-
-            return inputList.FindAll(s => Matches(s, property, value));
+            return inputList.FindAll(s => Matches(s, property, target_value));
         }
 
-        private static bool Matches(object any, string property, string value)
+        private static bool Matches(object any, string property, string target_value)
         {
             bool matches = false;
-            if (any is IDictionary && ((IDictionary)any).Contains(property))
+            if (any is IDictionary dictionary && dictionary.Contains(property))
             {
                 // the 'any' dictionary has the filter property
-                var propertyValue = ((IDictionary)any)[property];
-                if (value == null) {
+                var propertyValue = dictionary[property];
+                if (target_value == null)
+                {
                     // If no filter value provided, check the property value is truthy.
-                    matches = propertyValue!=null && !false.Equals(propertyValue);
-                } else {
-                    matches = value.Equals( propertyValue ); 
+                    matches = propertyValue != null && !false.Equals(propertyValue);
+                }
+                else
+                {
+                    matches = target_value.Equals(propertyValue);
                 }
             }
             else if (any.RespondTo(property))
             {
                 // the 'any' object has the filter property
-                matches = value.IsNullOrWhiteSpace() || value.Equals(any.Send(property)); 
+                matches = target_value.IsNullOrWhiteSpace() || target_value.Equals(any.Send(property));
             }
             // else the any object does not contain the filter property
 

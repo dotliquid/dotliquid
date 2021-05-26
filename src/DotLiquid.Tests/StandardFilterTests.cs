@@ -152,7 +152,7 @@ namespace DotLiquid.Tests
             Assert.AreEqual("a", StandardFilters.Slice("abc", -4, 2));
             Assert.AreEqual("", StandardFilters.Slice("abcdefg", -10, 1));
         }
-        
+
         [Test]
         public void TestJoin()
         {
@@ -181,7 +181,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestSort_OnHashList_WithProperty_DoesNotFlattenList()
         {
-            var list = new System.Collections.Generic.List<Hash>();
+            var list = new List<Hash>();
             var hash1 = CreateHash("1", "Text1");
             var hash2 = CreateHash("2", "Text2");
             var hash3 = CreateHash("3", "Text3");
@@ -199,7 +199,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestSort_OnDictionaryWithPropertyOnlyInSomeElement_ReturnsSortedDictionary()
         {
-            var list = new System.Collections.Generic.List<Hash>();
+            var list = new List<Hash>();
             var hash1 = CreateHash("1", "Text1");
             var hash2 = CreateHash("2", "Text2");
             var hashWithNoSortByProperty = new Hash();
@@ -279,7 +279,8 @@ namespace DotLiquid.Tests
         {
             var hash = Hash.FromAnonymousObject(new
             {
-                site = new {
+                site = new
+                {
                     pages = new[] {
                         new { category = "business" },
                         new { category = "celebrities" },
@@ -712,7 +713,7 @@ namespace DotLiquid.Tests
             TestFirstLast(namingConvention, (name) => char.ToUpperInvariant(name[0]) + name.Substring(1));
         }
 
-        private void TestFirstLast(NamingConventions.INamingConvention namingConvention, Func<string, string> filterNameFunc )
+        private void TestFirstLast(NamingConventions.INamingConvention namingConvention, Func<string, string> filterNameFunc)
         {
             var splitFilter = filterNameFunc("split");
             var firstFilter = filterNameFunc("first");
@@ -731,7 +732,7 @@ namespace DotLiquid.Tests
                 namingConvention: namingConvention);
             Helper.AssertTemplateResult(
                 expected: "Tom.",
-                template: "{{ 'Ground control to Major Tom.' | "+ splitFilter + ": ' ' | " + lastFilter + " }}",
+                template: "{{ 'Ground control to Major Tom.' | " + splitFilter + ": ' ' | " + lastFilter + " }}",
                 namingConvention: namingConvention);
             Helper.AssertTemplateResult(
                 expected: "tiger",
@@ -921,7 +922,7 @@ namespace DotLiquid.Tests
                 Helper.AssertTemplateResult(expected: "5.5", template: "{{ 3.5 | plus:2 }}", syntax: context.SyntaxCompatibilityLevel);
 
                 // Test that decimals are not introducing rounding-precision issues
-                Helper.AssertTemplateResult(expected: "148397.77", template: "{{ 148387.77 | plus:10 }}", syntax: context.SyntaxCompatibilityLevel); 
+                Helper.AssertTemplateResult(expected: "148397.77", template: "{{ 148387.77 | plus:10 }}", syntax: context.SyntaxCompatibilityLevel);
 
                 Helper.AssertTemplateResult(
                     expected: "2147483648",
@@ -1222,7 +1223,7 @@ namespace DotLiquid.Tests
             Assert.AreEqual("john%40liquid.com", StandardFilters.UrlEncode("john@liquid.com"));
             Assert.AreEqual(null, StandardFilters.UrlEncode(null));
         }
-        
+
         [Test]
         public void TestUrldecode()
         {
@@ -1274,9 +1275,9 @@ namespace DotLiquid.Tests
         public void TestUniq()
         {
             CollectionAssert.AreEqual(new[] { "ants", "bugs", "bees" }, StandardFilters.Uniq(new string[] { "ants", "bugs", "bees", "bugs", "ants" }));
-            CollectionAssert.AreEqual(new string[] {}, StandardFilters.Uniq(new string[] {}));
+            CollectionAssert.AreEqual(new string[] { }, StandardFilters.Uniq(new string[] { }));
             Assert.AreEqual(null, StandardFilters.Uniq(null));
-            Assert.AreEqual(new List<object> {5}, StandardFilters.Uniq(5));
+            Assert.AreEqual(new List<object> { 5 }, StandardFilters.Uniq(5));
         }
 
         [Test]
@@ -1328,7 +1329,7 @@ namespace DotLiquid.Tests
                 expected: "4",
                 template: "{{ 4 | at_least: 3 }}");
         }
-        
+
         [Test]
         public void TestAtMost()
         {
@@ -1351,12 +1352,12 @@ namespace DotLiquid.Tests
                 expected: "3",
                 template: "{{ 4 | at_most: 3 }}");
         }
-        
+
         [Test]
         public void TestCompact()
         {
-            CollectionAssert.AreEqual(new[] { "business", "celebrities", "lifestyle", "sports", "technology" }, StandardFilters.Compact(new string[] { "business", null, "celebrities", null, null, "lifestyle", "sports", null, "technology", null}));
-            CollectionAssert.AreEqual(new[] { "business", "celebrities"}, StandardFilters.Compact(new string[] { "business", "celebrities" }));
+            CollectionAssert.AreEqual(new[] { "business", "celebrities", "lifestyle", "sports", "technology" }, StandardFilters.Compact(new string[] { "business", null, "celebrities", null, null, "lifestyle", "sports", null, "technology", null }));
+            CollectionAssert.AreEqual(new[] { "business", "celebrities" }, StandardFilters.Compact(new string[] { "business", "celebrities" }));
             Assert.AreEqual(new List<object> { 5 }, StandardFilters.Compact(5));
             CollectionAssert.AreEqual(new string[] { }, StandardFilters.Compact(new string[] { }));
             Assert.AreEqual(null, StandardFilters.Compact(null));
@@ -1418,8 +1419,11 @@ namespace DotLiquid.Tests
             };
 
             // Check graceful handling of null and empty lists
-            Assert.AreEqual(null, StandardFilters.Where(null, "property", null));
-            CollectionAssert.AreEqual(new string[] { }, StandardFilters.Where(new string[] { }, "property", null));
+            Assert.AreEqual(expected: null, actual: StandardFilters.Where(null, "property", null));
+            CollectionAssert.AreEqual(expected: new string[] { }, actual: StandardFilters.Where(new string[] { }, "property", null));
+
+            // Ensure error reported if the property name is not provided.
+            Assert.Throws<ArgumentNullException>(() => StandardFilters.Where(input: products, property: " "));
 
             // Test filtering by value of a property
             var expectedKitchenProducts = new[] {
@@ -1437,6 +1441,10 @@ namespace DotLiquid.Tests
             var emptyArray = Array.Empty<object>();
             CollectionAssert.AreEqual(expected: emptyArray,
                 actual: StandardFilters.Where(products, "non_existent_property"));
+
+            // Confirm what happens to enumerable cotent that is a value type
+            var values = new[] { 1, 2, 3, 4, 5 };
+            Assert.AreEqual(expected: new string[] { }, actual: StandardFilters.Where(values, "value", "1"));
         }
 
         // First sample from specification at https://shopify.github.io/liquid/filters/where/
@@ -1461,7 +1469,7 @@ Kitchen products:
 {% for product in kitchen_products %}
 - {{ product.title }}
 {% endfor %}",
-                localVariables: Hash.FromAnonymousObject(new  { products }) );
+                localVariables: Hash.FromAnonymousObject(new { products }));
         }
 
         // Second sample from specification at https://shopify.github.io/liquid/filters/where/
@@ -1470,11 +1478,12 @@ Kitchen products:
         [Test]
         public void TestWhere_ShopifySample2()
         {
-            var products = new System.Collections.Generic.List<Hash>();
-            products.Add(new Hash { {"title","Coffee mug"}, {"available",true} });
-            products.Add(new Hash { {"title","Limited edition sneakers"} /*no 'available' property*/ });
-            products.Add(new Hash { {"title","Limited edition sneakers"}, {"available",false} }); // 'available' = false
-            products.Add(new Hash { {"title","Boring sneakers"}, {"available",true} });
+            List<Hash> products = new List<Hash> {
+                new Hash { { "title", "Coffee mug" }, { "available", true } },
+                new Hash { { "title", "Limited edition sneakers" } }, //no 'available' property
+                new Hash { { "title", "Limited edition sneakers" }, { "available", false } }, // 'available' = false
+                new Hash { { "title", "Boring sneakers" }, { "available", true } }
+            };
 
             Helper.AssertTemplateResult(
                 expected: "\r\n\r\nAvailable products:\r\n\r\n- Coffee mug\r\n\r\n- Boring sneakers\r\n",
@@ -1484,7 +1493,7 @@ Available products:
 {% for product in available_products %}
 - {{ product.title }}
 {% endfor %}",
-                localVariables: Hash.FromAnonymousObject(new  { products }) );
+                localVariables: Hash.FromAnonymousObject(new { products }));
         }
 
         // Third sample from specification at https://shopify.github.io/liquid/filters/where/
@@ -1493,18 +1502,18 @@ Available products:
         [Test]
         public void TestWhere_ShopifySample3()
         {
-            var products = new System.Collections.Generic.List<Hash>();
-            products.Add(new Hash { {"title","Little black dress"}, {"type","dress"} });
-            products.Add(new Hash { {"title","Tartan flat cap"}, /*no 'type' property*/ });
-            products.Add(new Hash { {"title","Hawaiian print sweater vest"}, {"type","shirt"} });
+            List<Hash> products = new List<Hash> {
+                new Hash { { "title", "Little black dress" }, { "type", "dress" } },
+                new Hash { { "title", "Tartan flat cap" }, }, // no 'type' property
+                new Hash { { "title", "Hawaiian print sweater vest" }, { "type", "shirt" }  }
+            };
 
             Helper.AssertTemplateResult(
                 expected: "\r\n\r\nFeatured product: Hawaiian print sweater vest",
                 template: @"{% assign new_shirt = products | where: ""type"", ""shirt"" | first %}
 
 Featured product: {{ new_shirt.title }}",
-                localVariables: Hash.FromAnonymousObject(new  { products }) );
+                localVariables: Hash.FromAnonymousObject(new { products }));
         }
     }
-
 }

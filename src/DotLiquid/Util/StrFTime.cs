@@ -128,11 +128,11 @@ namespace DotLiquid.Util
             var result = orig;
             directive = PreProcessDirective(directive, flags, width);
 
-            bool isDateTimeOffset = obj is DateTimeOffset dateTimeOffset;
+            bool isDateTimeOffset = obj is DateTimeOffset;
             if (OffsetFormats.ContainsKey(directive) && isDateTimeOffset)
-                result = OffsetFormats[directive].Invoke(dateTimeOffset);
+                result = OffsetFormats[directive].Invoke((DateTimeOffset)obj);
             else if (Formats.ContainsKey(directive))
-                result = Formats[directive].Invoke(isDateTimeOffset ? dateTimeOffset.DateTime : (DateTime)obj);
+                result = Formats[directive].Invoke(isDateTimeOffset ? ((DateTimeOffset)obj).DateTime : (DateTime)obj);
             else
                 return orig; // This is an unspecified directive
 

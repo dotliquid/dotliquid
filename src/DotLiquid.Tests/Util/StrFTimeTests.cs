@@ -74,6 +74,7 @@ namespace DotLiquid.Tests.Util
         [TestCase("%_2Y", ExpectedResult = "2012")] // Ensure space-pad does not truncate.
         // %z, %:z, %::z --> See TestTimeZoneUTC/TestTimeZoneLocal
         [TestCase("%", ExpectedResult = "%")]
+        [TestCase("%%", ExpectedResult = "%")]
         public string TestFormat(string format)
         {
             using (CultureHelper.SetCulture("en-GB"))

@@ -1419,11 +1419,11 @@ namespace DotLiquid.Tests
             };
 
             // Check graceful handling of null and empty lists
-            Assert.AreEqual(expected: null, actual: StandardFilters.Where(null, "property", null));
-            CollectionAssert.AreEqual(expected: new string[] { }, actual: StandardFilters.Where(new string[] { }, "property", null));
+            Assert.AreEqual(expected: null, actual: StandardFilters.Where(null, propertyName: "property"));
+            CollectionAssert.AreEqual(expected: new string[] { }, actual: StandardFilters.Where(new string[] { }, propertyName: "property"));
 
             // Ensure error reported if the property name is not provided.
-            Assert.Throws<ArgumentNullException>(() => StandardFilters.Where(input: products, property: " "));
+            Assert.Throws<ArgumentNullException>(() => StandardFilters.Where(input: products, propertyName: " "));
 
             // Test filtering by value of a property
             var expectedKitchenProducts = new[] {
@@ -1431,20 +1431,31 @@ namespace DotLiquid.Tests
                 new { title = "Garlic press", type = "kitchen" }
             };
             CollectionAssert.AreEqual(expected: expectedKitchenProducts,
-                actual: StandardFilters.Where(products, "type", "kitchen"));
+                actual: StandardFilters.Where(products, propertyName: "type", target_value: "kitchen"));
 
             // Test filtering for existence of a property
             CollectionAssert.AreEqual(expected: products,
-                actual: StandardFilters.Where(products, "type"));
+                actual: StandardFilters.Where(products, propertyName: "type"));
 
             // Test filtering for non-existant property
             var emptyArray = Array.Empty<object>();
             CollectionAssert.AreEqual(expected: emptyArray,
-                actual: StandardFilters.Where(products, "non_existent_property"));
+                actual: StandardFilters.Where(products, propertyName: "non_existent_property"));
 
-            // Confirm what happens to enumerable cotent that is a value type
+            // Confirm what happens to enumerable content that is a value type
             var values = new[] { 1, 2, 3, 4, 5 };
-            Assert.AreEqual(expected: new string[] { }, actual: StandardFilters.Where(values, "value", "1"));
+            Assert.AreEqual(expected: new string[] { }, actual: StandardFilters.Where(values, propertyName: "value", target_value: "xxx"));
+
+            // Ensure null elements are handled gracefully
+            var productsWithNullEntry = new[] {
+                new { title = "Vacuum", type = "cleaning" },
+                new { title = "Spatula", type = "kitchen" },
+                null,
+                new { title = "Cushion", type = (string)null },
+                new { title = "Television", type = "lounge" },
+                new { title = "Garlic press", type = "kitchen" }
+            };
+            Assert.AreEqual(expected: expectedKitchenProducts, actual: StandardFilters.Where(productsWithNullEntry, propertyName: "type", target_value: "kitchen"));
         }
 
         // First sample from specification at https://shopify.github.io/liquid/filters/where/
@@ -1480,7 +1491,7 @@ Kitchen products:
         {
             List<Hash> products = new List<Hash> {
                 new Hash { { "title", "Coffee mug" }, { "available", true } },
-                new Hash { { "title", "Limited edition sneakers" } }, //no 'available' property
+                new Hash { { "title", "Limited edition sneakers" } }, // no 'available' property
                 new Hash { { "title", "Limited edition sneakers" }, { "available", false } }, // 'available' = false
                 new Hash { { "title", "Boring sneakers" }, { "available", true } }
             };

@@ -936,43 +936,42 @@ namespace DotLiquid
         /// Creates an array including only the objects with a given property value, or any truthy value by default.
         /// </summary>
         /// <param name="input">an array to be filtered</param>
-        /// <param name="property">The name of the property to filter by</param>
+        /// <param name="propertyName">The name of the property to filter by</param>
         /// <param name="target_value">Value to retain, if null object containing this property are retained</param>
         /// <returns></returns>
-        public static IEnumerable Where(object input, string property, string target_value = null)
+        public static IEnumerable Where(IEnumerable input, string propertyName, string target_value = null)
         {
             if (input == null)
                 return null;
 
-            if (property.IsNullOrWhiteSpace())
-                throw new ArgumentNullException(paramName: nameof(property), message: $"'{nameof(property)}' cannot be null or empty.");
+            if (propertyName.IsNullOrWhiteSpace())
+                throw new ArgumentNullException(paramName: nameof(propertyName), message: $"'{nameof(propertyName)}' cannot be null or empty.");
 
-            List<object> inputList = (input is IEnumerable enumerableInput) ? enumerableInput.Cast<object>().ToList() : null;
-
-            return inputList.Where(s => s.Matches(property, target_value));
+            return input.Cast<object>().Where(source => source.HasMatchingProperty(propertyName, target_value));
         }
 
-        private static bool Matches(this object any, string property, string target_value)
+        /// <summary>
+        /// Checks if the given object has a matching property name.
+        /// * If target_value is provided, then the property is compared to target_value
+        /// * If target_value is null, then the property is checked for "Truthyness".
+        /// <param name="any">an object to be assessed</param>
+        /// <param name="propertyName">The name of the property to test for</param>
+        /// <param name="target_value">target property value</param>
+        /// <returns></returns>
+        /// </summary>
+        private static bool HasMatchingProperty(this object any, string propertyName, string target_value)
         {
             bool matches = false;
-            if (any is IDictionary dictionary && dictionary.Contains(property))
+            if (any is IDictionary dictionary && dictionary.Contains(propertyName))
             {
-                // the 'any' dictionary has the filter property
-                var propertyValue = dictionary[property];
-                if (target_value == null)
-                {
-                    // If no filter value provided, check the property value is truthy.
-                    matches = propertyValue != null && !false.Equals(propertyValue);
-                }
-                else
-                {
-                    matches = target_value.Equals(propertyValue);
-                }
+                // If target_value is null, check for a Truthy property, otherwise compare property to target_value
+                var propertyValue = dictionary[propertyName];
+                matches = target_value == null ? propertyValue.IsTruthy() : target_value.Equals(propertyValue);
             }
-            else if (any.RespondTo(property))
+            else if (any != null && any.RespondTo(propertyName))
             {
                 // the 'any' object has the filter property
-                matches = target_value.IsNullOrWhiteSpace() || target_value.Equals(any.Send(property));
+                matches = target_value.IsNullOrWhiteSpace() || target_value.Equals(any.Send(propertyName));
             }
             // else the any object does not contain the filter property
 

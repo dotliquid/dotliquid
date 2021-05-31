@@ -961,21 +961,12 @@ namespace DotLiquid
         /// </summary>
         private static bool HasMatchingProperty(this object any, string propertyName, string target_value)
         {
-            bool matches = false;
-            if (any is IDictionary dictionary && dictionary.Contains(propertyName))
-            {
-                // If target_value is null, check for a Truthy property, otherwise compare property to target_value
-                var propertyValue = dictionary[propertyName];
-                matches = target_value == null ? propertyValue.IsTruthy() : target_value.Equals(propertyValue);
-            }
-            else if (any != null && any.RespondTo(propertyName))
-            {
-                // the 'any' object has the filter property
-                matches = target_value.IsNullOrWhiteSpace() || target_value.Equals(any.Send(propertyName));
-            }
-            // else the any object does not contain the filter property
+            object propertyValue = any is IDictionary dictionary ? dictionary[propertyName]
+                : any == null ? null : any.Send(propertyName);
 
-            return matches;
+            return target_value == null || propertyValue == null
+                ? propertyValue.IsTruthy()
+                : string.Equals(target_value, propertyValue.ToString(), StringComparison.CurrentCulture);
         }
     }
 

@@ -1420,6 +1420,7 @@ namespace DotLiquid.Tests
 
             // Check graceful handling of null and empty lists
             Assert.AreEqual(expected: null, actual: StandardFilters.Where(null, propertyName: "property"));
+            CollectionAssert.AreEqual(expected: new string[] { }, actual: StandardFilters.Where("a string object", propertyName: "property"));
             CollectionAssert.AreEqual(expected: new string[] { }, actual: StandardFilters.Where(new string[] { }, propertyName: "property"));
 
             // Ensure error reported if the property name is not provided.

@@ -17,10 +17,7 @@ namespace DotLiquid
         /// </summary>
         /// <param name="any">any object</param>
         /// <returns></returns>
-        public static bool IsTruthy(this object any)
-        {
-            return !IsFalsy(any);
-        }
+        public static bool IsTruthy(this object any) => !IsFalsy(any);
 
         /// <summary>
         /// The only values that are Falsy in Liquid are nil and false.
@@ -29,7 +26,9 @@ namespace DotLiquid
         /// <returns></returns>
         public static bool IsFalsy(this object any)
         {
-            return any == null || (any is bool _bool && _bool == false) || "false".Equals(any.ToString().ToLowerInvariant());
+            return any == null
+                || (any is bool _bool && _bool == false)
+                || (any is string _string && "false".Equals(_string.ToLowerInvariant()));
         }
     }
 }

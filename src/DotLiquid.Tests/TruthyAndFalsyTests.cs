@@ -3,7 +3,6 @@ using NUnit.Framework;
 
 namespace DotLiquid.Tests
 {
-
     [TestFixture]
     public class TruthyAndFalsyTests
     {
@@ -55,6 +54,41 @@ namespace DotLiquid.Tests
             Assert.False(TruthyAndFalsy.IsFalsy(9.9f));
             Assert.False(TruthyAndFalsy.IsFalsy(new[] { "cat", "dog" }));
             Assert.False(TruthyAndFalsy.IsFalsy(Array.Empty<object>()));
+        }
+
+        [Test]
+        public void Test_ShopifySample1()
+        {
+            Helper.AssertTemplateResult(
+                expected: @"
+
+
+  This text will always appear since ""name"" is defined.
+",
+                template: @"{% assign name = ""Tobi"" %}
+
+{% if name %}
+  This text will always appear since ""name"" is defined.
+{% endif %}",
+                localVariables: null);
+        }
+
+        [Test]
+        public void Test_ShopifySample2()
+        {
+            var page = new
+            {
+                category = "" // exists, but empty
+            };
+
+            Helper.AssertTemplateResult(
+            expected: @"
+  <h1></h1>
+",
+            template: @"{% if page.category %}
+  <h1>{{ page.category }}</h1>
+{% endif %}",
+            localVariables: Hash.FromAnonymousObject(new { page }));
         }
     }
 }

@@ -954,15 +954,23 @@ namespace DotLiquid
         /// Checks if the given object has a matching property name.
         /// * If target_value is provided, then the property is compared to target_value
         /// * If target_value is null, then the property is checked for "Truthyness".
+        /// </summary>
         /// <param name="any">an object to be assessed</param>
         /// <param name="propertyName">The name of the property to test for</param>
         /// <param name="target_value">target property value</param>
         /// <returns></returns>
-        /// </summary>
         private static bool HasMatchingProperty(this object any, string propertyName, string target_value)
         {
-            object propertyValue = any is IDictionary dictionary ? dictionary[propertyName]
-                : any == null ? null : any.Send(propertyName);
+            // Check if the 'any' object has a propertyName
+            object propertyValue = null;
+            if (any is IDictionary dictionary && dictionary.Contains(key: propertyName))
+            {
+                propertyValue = dictionary[propertyName];
+            }
+            else if (any != null && any.RespondTo(propertyName))
+            {
+                propertyValue = any.Send(propertyName);
+            }
 
             return target_value == null || propertyValue == null
                 ? propertyValue.IsTruthy()

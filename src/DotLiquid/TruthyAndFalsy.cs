@@ -1,3 +1,4 @@
+using System;
 using System.Resources;
 using DotLiquid.Util;
 
@@ -16,19 +17,19 @@ namespace DotLiquid
         /// All values in Liquid are Truthy except nil and false.
         /// </summary>
         /// <param name="any">any object</param>
-        /// <returns></returns>
+        /// <returns>True if the object is Truthy</returns>
         public static bool IsTruthy(this object any) => !IsFalsy(any);
 
         /// <summary>
         /// The only values that are Falsy in Liquid are nil and false.
         /// </summary>
         /// <param name="any">any object</param>
-        /// <returns></returns>
+        /// <returns>True if the object is Falsy</returns>
         public static bool IsFalsy(this object any)
         {
             return any == null
                 || (any is bool _bool && _bool == false)
-                || (any is string _string && "false".Equals(_string.ToLowerInvariant()));
+                || (any is string _string && "false".Equals(_string, StringComparison.InvariantCultureIgnoreCase));
         }
     }
 }

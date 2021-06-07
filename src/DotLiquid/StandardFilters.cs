@@ -937,9 +937,9 @@ namespace DotLiquid
         /// </summary>
         /// <param name="input">an array to be filtered</param>
         /// <param name="propertyName">The name of the property to filter by</param>
-        /// <param name="target_value">Value to retain, if null object containing this property are retained</param>
+        /// <param name="targetValue">Value to retain, if null object containing this property are retained</param>
         /// <returns></returns>
-        public static IEnumerable Where(IEnumerable input, string propertyName, string target_value = null)
+        public static IEnumerable Where(IEnumerable input, string propertyName, object targetValue = null)
         {
             if (input == null)
                 return null;
@@ -947,19 +947,19 @@ namespace DotLiquid
             if (propertyName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(paramName: nameof(propertyName), message: $"'{nameof(propertyName)}' cannot be null or empty.");
 
-            return input.Cast<object>().Where(source => source.HasMatchingProperty(propertyName, target_value));
+            return input.Cast<object>().Where(source => source.HasMatchingProperty(propertyName, targetValue));
         }
 
         /// <summary>
         /// Checks if the given object has a matching property name.
-        /// * If target_value is provided, then the property is compared to target_value
-        /// * If target_value is null, then the property is checked for "Truthyness".
+        /// * If targetValue is provided, then the propertyValue is compared to targetValue
+        /// * If targetValue is null, then the property is checked for "Truthyness".
         /// </summary>
         /// <param name="any">an object to be assessed</param>
         /// <param name="propertyName">The name of the property to test for</param>
-        /// <param name="target_value">target property value</param>
+        /// <param name="targetValue">target property value</param>
         /// <returns></returns>
-        private static bool HasMatchingProperty(this object any, string propertyName, string target_value)
+        private static bool HasMatchingProperty(this object any, string propertyName, object targetValue)
         {
             // Check if the 'any' object has a propertyName
             object propertyValue = null;
@@ -972,9 +972,9 @@ namespace DotLiquid
                 propertyValue = any.Send(propertyName);
             }
 
-            return target_value == null || propertyValue == null
+            return targetValue == null || propertyValue == null
                 ? propertyValue.IsTruthy()
-                : string.Equals(target_value, propertyValue.ToString(), StringComparison.CurrentCulture);
+                : propertyValue.SafeTypeInsensitiveEqual(targetValue);
         }
     }
 

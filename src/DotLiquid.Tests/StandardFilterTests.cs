@@ -1432,7 +1432,7 @@ namespace DotLiquid.Tests
                 new { title = "Garlic press", type = "kitchen" }
             };
             CollectionAssert.AreEqual(expected: expectedKitchenProducts,
-                actual: StandardFilters.Where(products, propertyName: "type", target_value: "kitchen"));
+                actual: StandardFilters.Where(products, propertyName: "type", targetValue: "kitchen"));
 
             // Test filtering for existence of a property
             CollectionAssert.AreEqual(expected: products,
@@ -1445,7 +1445,7 @@ namespace DotLiquid.Tests
 
             // Confirm what happens to enumerable content that is a value type
             var values = new[] { 1, 2, 3, 4, 5 };
-            Assert.AreEqual(expected: new string[] { }, actual: StandardFilters.Where(values, propertyName: "value", target_value: "xxx"));
+            Assert.AreEqual(expected: new string[] { }, actual: StandardFilters.Where(values, propertyName: "value", targetValue: "xxx"));
 
             // Ensure null elements are handled gracefully
             var productsWithNullEntry = new[] {
@@ -1456,7 +1456,7 @@ namespace DotLiquid.Tests
                 new { title = "Television", type = "lounge" },
                 new { title = "Garlic press", type = "kitchen" }
             };
-            Assert.AreEqual(expected: expectedKitchenProducts, actual: StandardFilters.Where(productsWithNullEntry, propertyName: "type", target_value: "kitchen"));
+            Assert.AreEqual(expected: expectedKitchenProducts, actual: StandardFilters.Where(productsWithNullEntry, propertyName: "type", targetValue: "kitchen"));
         }
 
         // First sample from specification at https://shopify.github.io/liquid/filters/where/
@@ -1525,6 +1525,50 @@ Available products:
                 template: @"{% assign new_shirt = products | where: ""type"", ""shirt"" | first %}
 
 Featured product: {{ new_shirt.title }}",
+                localVariables: Hash.FromAnonymousObject(new { products }));
+        }
+
+        [Test]
+        public void TestWhere_NonStringCompare()
+        {
+            var products = new[] {
+                new { title = "Vacuum", type = "cleaning", price = 199.99f },
+                new { title = "Spatula", type = "kitchen", price = 7.0f },
+                new { title = "Television", type = "lounge", price = 1299.99f },
+                new { title = "Garlic press", type = "kitchen", price = 25.00f }
+            };
+
+            // The products array has a price of 199.99f, compare to the value 199.99
+            Helper.AssertTemplateResult(
+                expected: "\r\n\r\nCheapest products:\r\n\r\n- Vacuum\r\n",
+                template: @"{% assign cheap_products = products | where: ""price"", 199.99 %}
+
+Cheapest products:
+{% for product in cheap_products %}
+- {{ product.title }}
+{% endfor %}",
+                localVariables: Hash.FromAnonymousObject(new { products }));
+
+            // The products array has a price of 7.0f, compare to the integer 7
+            Helper.AssertTemplateResult(
+                expected: "\r\n\r\nCheapest products:\r\n\r\n- Spatula\r\n",
+                template: @"{% assign cheap_products = products | where: ""price"", 7 %}
+
+Cheapest products:
+{% for product in cheap_products %}
+- {{ product.title }}
+{% endfor %}",
+                localVariables: Hash.FromAnonymousObject(new { products }));
+
+            // The products array has a price of 7.0f, compare to the string '7.0'
+            Helper.AssertTemplateResult(
+                expected: "\r\n\r\nCheapest products:\r\n\r\n- Spatula\r\n",
+                template: @"{% assign cheap_products = products | where: ""price"", '7.0' %}
+
+Cheapest products:
+{% for product in cheap_products %}
+- {{ product.title }}
+{% endfor %}",
                 localVariables: Hash.FromAnonymousObject(new { products }));
         }
     }

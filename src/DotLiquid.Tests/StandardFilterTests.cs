@@ -1516,7 +1516,8 @@ Available products:
         {
             List<Hash> products = new List<Hash> {
                 new Hash { { "title", "Little black dress" }, { "type", "dress" } },
-                new Hash { { "title", "Tartan flat cap" }, }, // no 'type' property
+                new Hash { { "title", "Tartan flat cap" } }, // no 'type' property
+                new Hash { { "title", "leather driving gloves" }, { "type", null } }, // 'type' exists, value is null
                 new Hash { { "title", "Hawaiian print sweater vest" }, { "type", "shirt" }  }
             };
 

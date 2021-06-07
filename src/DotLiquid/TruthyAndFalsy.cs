@@ -29,7 +29,7 @@ namespace DotLiquid
         {
             return any == null
                 || (any is bool _bool && _bool == false)
-                || (any is string _string && "false".Equals(_string, StringComparison.InvariantCultureIgnoreCase));
+                || (any is string _string && "false".Equals(_string, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

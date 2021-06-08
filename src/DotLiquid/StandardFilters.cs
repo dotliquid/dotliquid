@@ -97,7 +97,7 @@ namespace DotLiquid
             return string.IsNullOrEmpty(input)
                 ? input
 #if CORE
-                : Regex.Replace(input, @"\b(\w)", m => m.Value.ToUpper());
+                : Regex.Replace(input, @"\b(\w)", m => m.Value.ToUpper(), RegexOptions.None, Template.RegexTimeOut);
 #else
                 : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input);
 #endif
@@ -223,7 +223,7 @@ namespace DotLiquid
         {
             return input.IsNullOrWhiteSpace()
                 ? input
-                : Regex.Replace(input, @"<.*?>", string.Empty);
+                : Regex.Replace(input, @"<.*?>", string.Empty, RegexOptions.None, Template.RegexTimeOut);
         }
 
         /// <summary>
@@ -235,7 +235,7 @@ namespace DotLiquid
         {
             return input.IsNullOrWhiteSpace()
                 ? input
-                : Regex.Replace(input, @"(\r?\n)", String.Empty);
+                : Regex.Replace(input, @"(\r?\n)", String.Empty, RegexOptions.None, Template.RegexTimeOut);
 
                 //: Regex.Replace(input, Environment.NewLine, string.Empty);
         }
@@ -384,7 +384,7 @@ namespace DotLiquid
 
             return string.IsNullOrEmpty(input)
                 ? input
-                : Regex.Replace(input, @string, replacement);
+                : Regex.Replace(input, @string, replacement, RegexOptions.None, Template.RegexTimeOut);
         }
 
 #if NET35
@@ -430,7 +430,7 @@ namespace DotLiquid
 
                 doneReplacement = true;
                 return replacement;
-            });
+            }, RegexOptions.None, Template.RegexTimeOut);
         }
 
         /// <summary>
@@ -494,7 +494,7 @@ namespace DotLiquid
         {
             return input.IsNullOrWhiteSpace()
                     ? input
-                    : Regex.Replace(input, @"(\r?\n)", "<br />$1");
+                    : Regex.Replace(input, @"(\r?\n)", "<br />$1", RegexOptions.None, Template.RegexTimeOut);
         }
 
         /// <summary>

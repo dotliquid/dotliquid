@@ -366,7 +366,16 @@ namespace DotLiquid.Properties {
                 return ResourceManager.GetString("VariableFilterNotFoundException", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Error - Variable &apos;{0}&apos; could not be found..
+        /// </summary>
+        internal static string VariableNotFoundException {
+            get {
+                return ResourceManager.GetString("VariableNotFoundException", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to key could not be found.
         /// </summary>

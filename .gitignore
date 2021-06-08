@@ -43,3 +43,4 @@ build/
  
 # Exclude ALL DLLs? (
 # *.dll
+*.coverage

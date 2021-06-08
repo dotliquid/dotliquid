@@ -61,7 +61,7 @@ namespace DotLiquid.Util
             { "T", (dateTime) => dateTime.ToString("HH:mm:ss", CultureInfo.CurrentCulture) },
             { "u", (dateTime) => ((int)(dateTime.DayOfWeek) == 0 ? ((int)(dateTime).DayOfWeek) + 7 : ((int)(dateTime).DayOfWeek)).ToString(CultureInfo.CurrentCulture) },
             { "U", (dateTime) => CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(dateTime, CultureInfo.CurrentCulture.DateTimeFormat.CalendarWeekRule, DayOfWeek.Sunday).ToString(CultureInfo.CurrentCulture).PadLeft(2, '0') },
-            { "v", (dateTime) => dateTime.ToString("%d-MMM-yyyy", CultureInfo.CurrentCulture).ToUpper(CultureInfo.CurrentCulture).PadLeft(11, ' ') },
+            { "v", (dateTime) => dateTime.ToString("%d-MMM-yyyy", CultureInfo.CurrentCulture).ToUpper().PadLeft(11, ' ') },
             { "V", (dateTime) => dateTime.GetIso8601WeekOfYear("V") },
             { "w", (dateTime) => ((int) dateTime.DayOfWeek).ToString(CultureInfo.CurrentCulture) },
             { "W", (dateTime) => CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(dateTime, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday).ToString(CultureInfo.CurrentCulture).PadLeft(2, '0') },
@@ -99,7 +99,7 @@ namespace DotLiquid.Util
         public static string ToStrFTime(this DateTime dateTime, string format)
         {
             return Regex.Replace(input: format, pattern: PATTERN_REGEX,
-                x => StrFTimeMatchEvaluator(
+                evaluator: x => StrFTimeMatchEvaluator(
                     x.Groups[0].Value,
                     x.Groups["flag"].Captures.Cast<Capture>().Select(y => y.Value).ToList(),
                     x.Groups["width"].Captures.Cast<Capture>().Select(y => (int?)Convert.ToInt32(y.Value)).FirstOrDefault(),
@@ -117,7 +117,7 @@ namespace DotLiquid.Util
         public static string ToStrFTime(this DateTimeOffset dateTimeOffset, string format)
         {
             return Regex.Replace(input: format, pattern: PATTERN_REGEX,
-                x => StrFTimeMatchEvaluator(
+                evaluator: x => StrFTimeMatchEvaluator(
                     x.Groups[0].Value,
                     x.Groups["flag"].Captures.Cast<Capture>().Select(y => y.Value).ToList(),
                     x.Groups["width"].Captures.Cast<Capture>().Select(y => (int?)Convert.ToInt32(y.Value)).FirstOrDefault(),
@@ -177,7 +177,7 @@ namespace DotLiquid.Util
                 case "0": //use zeros for padding
                     return str.TrimStart('0').PadLeft(padwidth, '0');
                 case "^": //upcase the result string
-                    return str.ToUpper(CultureInfo.CurrentCulture);
+                    return str.ToUpper();
                 case ":": // handled by PreProcessDirective
                 case "#": // not implemented
                     return str;

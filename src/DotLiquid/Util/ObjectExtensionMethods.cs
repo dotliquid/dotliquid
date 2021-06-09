@@ -69,6 +69,7 @@ namespace DotLiquid.Util
 
             return ObjectExtensionMethods.SafeTypeInsensitiveEqual(value: value, otherValue: otherValue);
         }
+
         /// <summary>
         /// Test values for equality accross type boundaries, null-safe
         /// </summary>
@@ -118,6 +119,27 @@ namespace DotLiquid.Util
                     return false;
                 }
             }
+        }
+
+        /// <summary>
+        /// All values in Liquid are Truthy except nil and false.
+        /// </summary>
+        /// <param name="any">any object</param>
+        /// <returns>True if the object is Truthy</returns>
+        /// <see href="https://shopify.github.io/liquid/basics/truthy-and-falsy/"/>
+        public static bool IsTruthy(this object any) => !IsFalsy(any);
+
+        /// <summary>
+        /// The only values that are Falsy in Liquid are nil and false.
+        /// </summary>
+        /// <param name="any">any object</param>
+        /// <returns>True if the object is Falsy</returns>
+        /// <see href="https://shopify.github.io/liquid/basics/truthy-and-falsy/"/>
+        public static bool IsFalsy(this object any)
+        {
+            return any == null
+                || (any is bool _bool && _bool == false)
+                || (any is string _string && "false".Equals(_string, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

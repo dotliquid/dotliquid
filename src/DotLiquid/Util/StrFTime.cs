@@ -136,12 +136,12 @@ namespace DotLiquid.Util
         /// the specifier is broken down into it's consituent parts of: flags, width, directive.
         ///
         /// A specifier consists of a percent (%) character, zero or more flags, optional minimum field width and a conversion directive as follows:
+        /// </summary>
         /// <param name="specifier">the entire specifier, such as %Y for a 4-digit year</param>
         /// <param name="flags">zero or more flags to change formatting, such as '0' (zero padding).</param>
         /// <param name="width">optional minimum field width</param>
         /// <param name="directive">The required data value, such as Y for a 4-digit year</param>
         /// <param name="source">the source date-time object</param>
-        /// </summary>
         private static String SpecifierEvaluator(String specifier, IEnumerable<String> flags, int? width, String directive, object source)
         {
             var result = specifier;

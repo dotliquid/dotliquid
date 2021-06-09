@@ -8,8 +8,13 @@ namespace DotLiquid.Util
 {
     public static class StrFTime
     {
-        // A Regex capturing al suportied flags and directives
-        private const string PATTERN_REGEX = @"%(?<flag>[-_0^:#])*(?<width>[1-9][0-9]*)?(?<directive>[a-zA-Z%\+])";
+        // Group names and Regex to capture all supported specifiers from a provided format string
+        private const string GROUP_FLAGS = "flags";
+        private const string GROUP_WIDTH = "width";
+        private const string GROUP_DIRECTIVE = "directive";
+        private const string SPECIFIER_REGEX = "%(?<" + GROUP_FLAGS + ">[-_0^:#])*"
+                                             + "(?<" + GROUP_WIDTH + ">[1-9][0-9]*)?"
+                                             + "(?<" + GROUP_DIRECTIVE + @">[a-zA-Z%])";
 
         private delegate string DateTimeDelegate(DateTime dateTime);
         private delegate string DateTimeOffsetDelegate(DateTimeOffset dateTimeOffset);
@@ -21,7 +26,7 @@ namespace DotLiquid.Util
             { "b", (dateTime) => dateTime.ToString("MMM", CultureInfo.CurrentCulture) },
             { "B", (dateTime) => dateTime.ToString("MMMM", CultureInfo.CurrentCulture) },
             { "c", (dateTime) => dateTime.ToString("ddd MMM dd HH:mm:ss yyyy", CultureInfo.CurrentCulture) },
-            { "C", (dateTime) => ((int)Math.Floor(Convert.ToDouble(dateTime.ToString("yyyy", CultureInfo.CurrentCulture))/100)).ToString() },
+            { "C", (dateTime) => ((int)Math.Floor(Convert.ToDouble(dateTime.ToString("yyyy", CultureInfo.CurrentCulture))/100)).ToString(CultureInfo.CurrentCulture) },
             { "d", (dateTime) => dateTime.ToString("dd", CultureInfo.CurrentCulture) },
             { "D", (dateTime) => dateTime.ToString("MM/dd/yy", CultureInfo.CurrentCulture) },
             { "e", (dateTime) => dateTime.ToString("%d", CultureInfo.CurrentCulture).PadLeft(2, ' ') },
@@ -78,7 +83,7 @@ namespace DotLiquid.Util
 
         private static readonly Dictionary<string, DateTimeOffsetDelegate> OffsetFormats = new Dictionary<string, DateTimeOffsetDelegate>
         {
-            { "s", (dateTimeOffset) => ((long)(dateTimeOffset - new DateTimeOffset(1970, 1, 1, 0,0,0, TimeSpan.Zero)).TotalSeconds).ToString() },
+            { "s", (dateTimeOffset) => ((long)(dateTimeOffset - new DateTimeOffset(1970, 1, 1, 0,0,0, TimeSpan.Zero)).TotalSeconds).ToString(CultureInfo.CurrentCulture) },
             { "z", (dateTimeOffset) => dateTimeOffset.ToString("%K", CultureInfo.CurrentCulture).Replace(":", string.Empty) },
             { ":z", (dateTimeOffset) => dateTimeOffset.ToString("%K", CultureInfo.CurrentCulture) },
             { "Z", (dateTimeOffset) => dateTimeOffset.ToString("zzz", CultureInfo.CurrentCulture) },
@@ -98,13 +103,13 @@ namespace DotLiquid.Util
         /// <returns>a string version of date-time matching pattern.</returns>
         public static string ToStrFTime(this DateTime dateTime, string format)
         {
-            return Regex.Replace(input: format, pattern: PATTERN_REGEX,
-                evaluator: x => StrFTimeMatchEvaluator(
-                    x.Groups[0].Value,
-                    x.Groups["flag"].Captures.Cast<Capture>().Select(y => y.Value).ToList(),
-                    x.Groups["width"].Captures.Cast<Capture>().Select(y => (int?)Convert.ToInt32(y.Value)).FirstOrDefault(),
-                    x.Groups["directive"].Captures.Cast<Capture>().Select(y => y.Value).FirstOrDefault(),
-                    dateTime
+            return Regex.Replace(input: format, pattern: SPECIFIER_REGEX,
+                evaluator: specifier => SpecifierEvaluator(
+                    specifier: specifier.Groups[0].Value,
+                    flags: specifier.Groups[GROUP_FLAGS].Captures.Cast<Capture>().Select(capture => capture.Value).ToList(),
+                    width: specifier.Groups[GROUP_WIDTH].Captures.Cast<Capture>().Select(capture => (int?)Convert.ToInt32(capture.Value)).FirstOrDefault(),
+                    directive: specifier.Groups[GROUP_DIRECTIVE].Captures.Cast<Capture>().Select(capture => capture.Value).FirstOrDefault(),
+                    source: dateTime
                     ));
         }
 
@@ -116,40 +121,39 @@ namespace DotLiquid.Util
         /// <returns>a string version of date-time matching pattern.</returns>
         public static string ToStrFTime(this DateTimeOffset dateTimeOffset, string format)
         {
-            return Regex.Replace(input: format, pattern: PATTERN_REGEX,
-                evaluator: x => StrFTimeMatchEvaluator(
-                    x.Groups[0].Value,
-                    x.Groups["flag"].Captures.Cast<Capture>().Select(y => y.Value).ToList(),
-                    x.Groups["width"].Captures.Cast<Capture>().Select(y => (int?)Convert.ToInt32(y.Value)).FirstOrDefault(),
-                    x.Groups["directive"].Captures.Cast<Capture>().Select(y => y.Value).FirstOrDefault(),
-                    dateTimeOffset
+            return Regex.Replace(input: format, pattern: SPECIFIER_REGEX,
+                evaluator: specifier => SpecifierEvaluator(
+                    specifier: specifier.Groups[0].Value,
+                    flags: specifier.Groups[GROUP_FLAGS].Captures.Cast<Capture>().Select(capture => capture.Value).ToList(),
+                    width: specifier.Groups[GROUP_WIDTH].Captures.Cast<Capture>().Select(capture => (int?)Convert.ToInt32(capture.Value)).FirstOrDefault(),
+                    directive: specifier.Groups[GROUP_DIRECTIVE].Captures.Cast<Capture>().Select(capture => capture.Value).FirstOrDefault(),
+                    source: dateTimeOffset
                     ));
         }
-
 
         /// <summary>
         /// Formats a date-time for a single specifier within the requested format. For ease of processing
         /// the specifier is broken down into it's consituent parts of: flags, width, directive.
         ///
         /// A specifier consists of a percent (%) character, zero or more flags, optional minimum field width and a conversion directive as follows:
-        /// <param name="orig">the entire specifier, such as %Y for a 4-digit year</param>
+        /// <param name="specifier">the entire specifier, such as %Y for a 4-digit year</param>
         /// <param name="flags">zero or more flags to change formatting, such as '0' (zero padding).</param>
         /// <param name="width">optional minimum field width</param>
         /// <param name="directive">The required data value, such as Y for a 4-digit year</param>
-        /// <param name="obj">the source date-time object</param>
+        /// <param name="source">the source date-time object</param>
         /// </summary>
-        private static String StrFTimeMatchEvaluator(String orig, IEnumerable<String> flags, int? width, String directive, object obj)
+        private static String SpecifierEvaluator(String specifier, IEnumerable<String> flags, int? width, String directive, object source)
         {
-            var result = orig;
+            var result = specifier;
             directive = PreProcessDirective(directive, flags, width);
 
-            bool isDateTimeOffset = obj is DateTimeOffset;
+            var isDateTimeOffset = source is DateTimeOffset dateTimeOffset;
             if (OffsetFormats.ContainsKey(directive) && isDateTimeOffset)
-                result = OffsetFormats[directive].Invoke((DateTimeOffset)obj);
+                result = OffsetFormats[directive].Invoke(dateTimeOffset);
             else if (Formats.ContainsKey(directive))
-                result = Formats[directive].Invoke(isDateTimeOffset ? ((DateTimeOffset)obj).DateTime : (DateTime)obj);
+                result = Formats[directive].Invoke(isDateTimeOffset ? dateTimeOffset.DateTime : (DateTime)source);
             else
-                return orig; // This is an unspecified directive
+                return specifier; // This is an unconfigured specifier
 
             return flags.ToList().Aggregate(result, (current, flag) => ApplyFlag(flag, (width ?? 2), current));
         }
@@ -157,10 +161,10 @@ namespace DotLiquid.Util
         // Pre-process the directive for some of the quirkier cases, such as '%:z' and '%3N'.
         private static String PreProcessDirective(String directive, IEnumerable<String> flags, int? width)
         {
-            var flagString = String.Join("", flags);
-            if ("z".Equals(directive) && ":".Equals(flagString))
+            var flagString = String.Concat(flags);
+            if ("z".Equals(directive, StringComparison.Ordinal) && ":".Equals(flagString, StringComparison.Ordinal))
                 return flagString + directive;
-            else if ("N".Equals(directive) && (width == 3 || width == 6))
+            else if ("N".Equals(directive, StringComparison.Ordinal) && (width == 3 || width == 6))
                 return "" + width + directive;
 
             return directive;

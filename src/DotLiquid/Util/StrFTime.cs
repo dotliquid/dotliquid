@@ -147,11 +147,10 @@ namespace DotLiquid.Util
             var result = specifier;
             directive = PreProcessDirective(directive, flags, width);
 
-            var isDateTimeOffset = source is DateTimeOffset dateTimeOffset;
-            if (OffsetFormats.ContainsKey(directive) && isDateTimeOffset)
-                result = OffsetFormats[directive].Invoke(dateTimeOffset);
+            if (OffsetFormats.ContainsKey(directive) && source is DateTimeOffset dateTimeOffset1)
+                result = OffsetFormats[directive].Invoke(dateTimeOffset1);
             else if (Formats.ContainsKey(directive))
-                result = Formats[directive].Invoke(isDateTimeOffset ? dateTimeOffset.DateTime : (DateTime)source);
+                result = Formats[directive].Invoke(source is DateTimeOffset dateTimeOffset2 ? dateTimeOffset2.DateTime : (DateTime)source);
             else
                 return specifier; // This is an unconfigured specifier
 

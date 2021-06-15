@@ -279,6 +279,17 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        public void TestVariableNotFoundExceptionFromInvalidVariableName()
+        {
+            Template template = Template.Parse("{{ . }}");
+            string rendered = template.Render();
+
+            Assert.AreEqual("", rendered);
+            Assert.AreEqual(1, template.Errors.Count);
+            Assert.AreEqual(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), "."), template.Errors[0].Message);
+        }
+
+        [Test]
         public void TestScoping()
         {
             Assert.DoesNotThrow(() =>

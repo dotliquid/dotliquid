@@ -465,6 +465,12 @@ namespace DotLiquid
 
             // first item in list, if any
             string firstPart = parts.TryGetAtIndex(0);
+            if (firstPart == null)
+            {
+                if (notifyNotFound)
+                    Errors.Add(new VariableNotFoundException(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), markup)));
+                return null;
+            }
 
             Match firstPartSquareBracketedMatch = SquareBracketedRegex.Match(firstPart);
             if (firstPartSquareBracketedMatch.Success)

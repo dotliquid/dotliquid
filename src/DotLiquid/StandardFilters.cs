@@ -254,7 +254,7 @@ namespace DotLiquid
                 var stringList = new List<string>();
                 foreach (var @char in input.ToCharArray())
                 {
-                    stringList.Add(@char.ToString(CultureInfo.InvariantCulture));
+                    stringList.Add(@char.ToString());
                 }
                 return stringList.ToArray();
             }

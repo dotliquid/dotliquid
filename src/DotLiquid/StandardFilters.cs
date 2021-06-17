@@ -393,17 +393,6 @@ namespace DotLiquid
         }
 
         /// <summary>
-        /// Sorts items in an array in case-insensitive order.
-        /// </summary>
-        /// <param name="input">array to be sorted</param>
-        /// <param name="property">optional argument specifies which property of the array’s items to use for sorting</param>
-        /// <returns></returns>
-        public static IEnumerable SortNatural(object input, string property = null)
-        {
-            return Sort(input, property); //Interim implementation to be replaced by PR #431
-        }
-
-        /// <summary>
         /// Map/collect on a given property
         /// </summary>
         /// <param name="enumerableInput">The enumerable.</param>

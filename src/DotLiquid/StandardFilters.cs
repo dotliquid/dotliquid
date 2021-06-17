@@ -168,14 +168,7 @@ namespace DotLiquid
             if (string.IsNullOrEmpty(input))
                 return input;
 
-            try
-            {
-                return WebUtility.HtmlEncode(WebUtility.HtmlDecode(input));
-            }
-            catch
-            {
-                return input;
-            }
+            return WebUtility.HtmlEncode(WebUtility.HtmlDecode(input));
         }
 
         /// <summary>

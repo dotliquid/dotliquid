@@ -89,6 +89,7 @@ namespace DotLiquid.Tests
         {
             Assert.AreEqual(null, StandardFilters.EscapeOnce(null));
             Assert.AreEqual("", StandardFilters.EscapeOnce(""));
+            Assert.AreEqual("&amp;xxx; looks like an escaped character, but isn&#39;t", StandardFilters.EscapeOnce("&xxx; looks like an escaped character, but isn't"));
             Assert.AreEqual("1 &lt; 2 &amp; 3", StandardFilters.EscapeOnce("1 &lt; 2 &amp; 3"));
             Assert.AreEqual("&lt;element&gt;1 &lt; 2 &amp; 3&lt;/element&gt;", StandardFilters.EscapeOnce("<element>1 &lt; 2 &amp; 3</element>"));
 

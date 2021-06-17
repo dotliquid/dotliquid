@@ -14,6 +14,7 @@ namespace DotLiquid
     /// <summary>
     /// Standard Liquid filters
     /// </summary>
+    /// <see href="https://shopify.github.io/liquid/filters/"/>
     public static class StandardFilters
     {
         /// <summary>
@@ -156,6 +157,28 @@ namespace DotLiquid
         }
 
         /// <summary>
+        /// Escapes a string without changing existing escaped entities.
+        /// It doesn’t change strings that don’t have anything to escape.
+        /// </summary>
+        /// <param name="input">String to escape</param>
+        /// <returns>Escaped string</returns>
+        /// <see href="https://shopify.github.io/liquid/filters/escape_once/"/>
+        public static string EscapeOnce(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return input;
+
+            try
+            {
+                return WebUtility.HtmlEncode(WebUtility.HtmlDecode(input));
+            }
+            catch
+            {
+                return input;
+            }
+        }
+
+        /// <summary>
         /// Escape html chars
         /// </summary>
         /// <param name="input">String to escape</param>
@@ -224,6 +247,18 @@ namespace DotLiquid
         /// <returns></returns>
         public static string[] Split(string input, string pattern)
         {
+            // If the pattern is empty and the input is a string convert to an array ...
+            // ... as specified in the Liquid Reverse filter example.
+            if (string.IsNullOrEmpty(pattern) && !string.IsNullOrEmpty(input))
+            {
+                var stringList = new List<string>();
+                foreach (var @char in input.ToCharArray())
+                {
+                    stringList.Add(@char.ToString(CultureInfo.InvariantCulture));
+                }
+                return stringList.ToArray();
+            }
+
             return input.IsNullOrWhiteSpace()
                 ? new[] { input }
                 : input.Split(new[] { pattern }, StringSplitOptions.RemoveEmptyEntries);
@@ -975,6 +1010,46 @@ namespace DotLiquid
             return targetValue == null || propertyValue == null
                 ? propertyValue.IsTruthy()
                 : propertyValue.SafeTypeInsensitiveEqual(targetValue);
+        }
+
+        /// <summary>
+        /// Concatenates (joins together) multiple arrays.
+        /// The resulting array contains all the items from the input arrays.
+        ///
+        /// Will not remove duplicate entries from the concatenated array
+        /// unless you also use the uniq filter.
+        /// </summary>
+        /// <param name="left">left hand (start) of the new concatenated array</param>
+        /// <param name="right">array to be appended to left</param>
+        /// <returns></returns>
+        /// <see href="https://shopify.github.io/liquid/filters/concat/"/>
+        public static IEnumerable Concat(IEnumerable left, IEnumerable right)
+        {
+            // If either side is null, return the other side.
+            if (left == null)
+                return right;
+            else if (right == null)
+                return left;
+
+            List<object> leftList = left.Cast<object>().ToList();
+            List<object> rightList = right.Cast<object>().ToList();
+            return leftList.Concat(rightList);
+        }
+
+        /// <summary>
+        /// Reverses the order of the items in an array. `reverse` cannot reverse a string.
+        /// </summary>
+        /// <param name="input"/>
+        /// <returns></returns>
+        /// <see href="https://shopify.github.io/liquid/filters/reverse/"/>
+        public static IEnumerable Reverse(IEnumerable input)
+        {
+            if (input == null)
+                return input;
+
+            List<object> inputList = input.Cast<object>().ToList();
+            inputList.Reverse();
+            return inputList;
         }
     }
 

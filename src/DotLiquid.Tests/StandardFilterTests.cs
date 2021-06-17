@@ -74,6 +74,31 @@ namespace DotLiquid.Tests
             Assert.AreEqual("", StandardFilters.Escape(""));
             Assert.AreEqual("&lt;strong&gt;", StandardFilters.Escape("<strong>"));
             Assert.AreEqual("&lt;strong&gt;", StandardFilters.H("<strong>"));
+
+            Helper.AssertTemplateResult(
+                 expected: "Have you read &#39;James &amp; the Giant Peach&#39;?",
+                 template: @"{{ ""Have you read 'James & the Giant Peach'?"" | escape }}");
+
+            Helper.AssertTemplateResult(
+                 expected: "Tetsuro Takara",
+                 template: "{{ 'Tetsuro Takara' | escape }}");
+        }
+
+        [Test]
+        public void TestEscapeOnce()
+        {
+            Assert.AreEqual(null, StandardFilters.EscapeOnce(null));
+            Assert.AreEqual("", StandardFilters.EscapeOnce(""));
+            Assert.AreEqual("1 &lt; 2 &amp; 3", StandardFilters.EscapeOnce("1 &lt; 2 &amp; 3"));
+            Assert.AreEqual("&lt;element&gt;1 &lt; 2 &amp; 3&lt;/element&gt;", StandardFilters.EscapeOnce("<element>1 &lt; 2 &amp; 3</element>"));
+
+            Helper.AssertTemplateResult(
+                 expected: "1 &lt; 2 &amp; 3",
+                 template: "{{ '1 < 2 & 3' | escape_once }}");
+
+            Helper.AssertTemplateResult(
+                 expected: "1 &lt; 2 &amp; 3",
+                 template: "{{ '1 &lt; 2 &amp; 3' | escape_once }}");
         }
 
         [Test]
@@ -99,6 +124,11 @@ namespace DotLiquid.Tests
         {
             Assert.AreEqual(new[] { "This", "is", "a", "sentence" }, StandardFilters.Split("This is a sentence", " "));
             Assert.AreEqual(new string[] { null }, StandardFilters.Split(null, null));
+
+            // A string with no pattern should be split into a string[], as required for the Liquid Reverse filter
+            Assert.AreEqual(new[] { "Y", "M", "C", "A" }, StandardFilters.Split("YMCA", null));
+            Assert.AreEqual(new[] { "Y", "M", "C", "A" }, StandardFilters.Split("YMCA", ""));
+            Assert.AreEqual(new[] { " " }, StandardFilters.Split(" ", ""));
         }
 
         [Test]
@@ -537,7 +567,7 @@ namespace DotLiquid.Tests
             });
         }
 
-        public void TestDate(Context context)
+        private void TestDate(Context context)
         {
             Liquid.UseRubyDateFormat = false;
             DateTimeFormatInfo dateTimeFormat = CultureInfo.CurrentCulture.DateTimeFormat;
@@ -1571,6 +1601,81 @@ Cheapest products:
 - {{ product.title }}
 {% endfor %}",
                 localVariables: Hash.FromAnonymousObject(new { products }));
+        }
+
+        [Test]
+        public void TestConcat()
+        {
+            var array1 = new String[] { "one", "two" };
+            var array2 = new String[] { "alpha", "bravo" };
+            var arrayCombined = new String[] { "one", "two", "alpha", "bravo" };
+
+            Assert.AreEqual(null, StandardFilters.Concat(null, null));
+            Assert.AreEqual(array1, StandardFilters.Concat(array1, null));
+            Assert.AreEqual(array1, StandardFilters.Concat(null, array1));
+            Assert.AreEqual(arrayCombined, StandardFilters.Concat(array1, array2));
+        }
+
+        [Test]
+        public void TestConcat_LiquidSample_SingleFilter()
+        {
+            Helper.AssertTemplateResult(
+                expected: "\r\n\r\n\r\n\r\n- apples\r\n\r\n- oranges\r\n\r\n- peaches\r\n\r\n- carrots\r\n\r\n- turnips\r\n\r\n- potatoes\r\n",
+                template: @"{% assign fruits = 'apples, oranges, peaches' | split: ', ' %}
+{% assign vegetables = 'carrots, turnips, potatoes' | split: ', ' %}
+{% assign everything = fruits | concat: vegetables %}
+{% for item in everything %}
+- {{ item }}
+{% endfor %}");
+        }
+
+        [Test]
+        public void TestConcat_LiquidSample_ChainedFilters()
+        {
+            Helper.AssertTemplateResult(
+                expected: "\r\n\r\n\r\n\r\n\r\n- apples\r\n\r\n- oranges\r\n\r\n- peaches\r\n\r\n- carrots\r\n\r\n- turnips\r\n\r\n- potatoes\r\n\r\n- chairs\r\n\r\n- tables\r\n\r\n- shelves\r\n",
+                template: @"{% assign fruits = 'apples, oranges, peaches' | split: ', ' %}
+{% assign vegetables = 'carrots, turnips, potatoes' | split: ', ' %}
+{% assign furniture = 'chairs, tables, shelves' | split: ', ' %}
+{% assign everything = fruits | concat: vegetables | concat: furniture %}
+{% for item in everything %}
+- {{ item }}
+{% endfor %}");
+        }
+
+        [Test]
+        public void TestReverse()
+        {
+            var array = new String[] { "one", "two", "three" };
+            var arrayReversed = new String[] { "three", "two", "one" };
+
+            Assert.AreEqual(null, StandardFilters.Reverse(null));
+            Assert.AreEqual(arrayReversed, StandardFilters.Reverse(array));
+            Assert.AreEqual(array, StandardFilters.Reverse(arrayReversed));
+        }
+
+        /// <summary>
+        /// Reverses the order of the items in an array. reverse cannot reverse a string.
+        /// </summary>
+        [Test]
+        public void TestReverse_LiquidSample()
+        {
+            Helper.AssertTemplateResult(
+                expected: "\r\nplums, peaches, oranges, apples",
+                template: @"{% assign my_array = 'apples, oranges, peaches, plums' | split: ', ' %}
+{{ my_array | reverse | join: ', ' }}");
+        }
+
+        /// <summary>
+        /// Although reverse cannot be used directly on a string, you can split a string into an array,
+        ///  reverse the array, and rejoin it by chaining together filters.
+        /// </summary>
+        [Test]
+        public void TestReverse_LiquidSample_StringOnly()
+        {
+            Helper.AssertTemplateResult(
+                expected: ".moT rojaM ot lortnoc dnuorG",
+                template: "{{ 'Ground control to Major Tom.' | split: '' | reverse | join: '' }}");
         }
     }
 }

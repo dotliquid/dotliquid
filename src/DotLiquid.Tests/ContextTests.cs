@@ -888,10 +888,10 @@ namespace DotLiquid.Tests
             _context["callcount"] = Hash.FromAnonymousObject(new
             {
                 lambda = (Proc)(c =>
-               {
-                   ++global;
-                   return global.ToString();
-               })
+                {
+                    ++global;
+                    return global.ToString();
+                })
             });
 
             Assert.AreEqual("1", _context["callcount.lambda"]);

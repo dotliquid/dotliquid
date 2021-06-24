@@ -234,26 +234,21 @@ namespace DotLiquid
 
         /// <summary>
         /// Split input string into an array of substrings separated by given pattern.
+        ///
+        /// If the pattern is empty the input string is converted to an array of 1-char
+        /// strings (as specified in the Liquid Reverse filter example).
         /// </summary>
         /// <param name="input"></param>
         /// <param name="pattern"></param>
         /// <returns></returns>
         public static string[] Split(string input, string pattern)
         {
-            // If the pattern is empty and the input is a string convert to an array ...
-            // ... as specified in the Liquid Reverse filter example.
-            if (string.IsNullOrEmpty(pattern) && !string.IsNullOrEmpty(input))
-            {
-                var stringList = new List<string>();
-                foreach (var @char in input.ToCharArray())
-                {
-                    stringList.Add(@char.ToString());
-                }
-                return stringList.ToArray();
-            }
+            if (input.IsNullOrWhiteSpace())
+                return new[] { input };
 
-            return input.IsNullOrWhiteSpace()
-                ? new[] { input }
+            // If the pattern is empty convert to an array as specified in the Liquid Reverse filter example.
+            return string.IsNullOrEmpty(pattern)
+                ? input.ToCharArray().Select(character => character.ToString()).ToArray()
                 : input.Split(new[] { pattern }, StringSplitOptions.RemoveEmptyEntries);
         }
 

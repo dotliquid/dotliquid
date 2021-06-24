@@ -871,10 +871,10 @@ namespace DotLiquid.Tests
         {
             int global = 0;
             _context["callcount"] = (Proc)(c =>
-           {
-               ++global;
-               return global.ToString();
-           });
+            {
+                ++global;
+                return global.ToString();
+            });
 
             Assert.AreEqual("1", _context["callcount"]);
             Assert.AreEqual("1", _context["callcount"]);

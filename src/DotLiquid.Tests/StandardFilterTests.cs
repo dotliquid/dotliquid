@@ -254,48 +254,6 @@ namespace DotLiquid.Tests
             };
 
         [Test]
-        [Ignore("Disabled until PR#431 is merged")]
-        public void TestSortNatural_LiquidSamples()
-        {
-            // Sorts items in an array in case-insensitive order.
-            Helper.AssertTemplateResult(
-                expected: @"
-
-giraffe, octopus, Sally Snake, zebra",
-                template: @"{% assign my_array = 'zebra, octopus, giraffe, Sally Snake' | split: ', ' %}
-
-{{ my_array | sort_natural | join: ', ' }}");
-
-            var collection = new
-            {
-                products = new List<Hash> {
-                    new Hash { { "title", "Little black dress" }, { "company", "Versace" } },
-                    new Hash { { "title", "Tartan flat cap" } }, // no 'type' property
-                    new Hash { { "title", "Leather driving gloves" }, { "company", null } }, // sort property exists, but value is null
-                    new Hash { { "title", "Hawaiian print sweater vest" }, { "company", "versace" }  } // lower-case v, before upper-case V
-                }
-            };
-
-            // An optional argument specifies which property of the array’s items to use for sorting.
-            Helper.AssertTemplateResult(
-                expected: @"
-
-  <h4>Tartan flat cap</h4>
-
-  <h4>Leather driving gloves</h4>
-
-  <h4>Hawaiian print sweater vest</h4>
-
-  <h4>Little black dress</h4>
-",
-                template: @"{% assign products_by_company = collection.products | sort_natural: 'company' %}
-{% for product in products_by_company %}
-  <h4>{{ product.title }}</h4>
-{% endfor %}",
-                localVariables: Hash.FromAnonymousObject(new { collection }));
-        }
-
-        [Test]
         public void TestMap()
         {
             CollectionAssert.AreEqual(new string[] { }, StandardFilters.Map(new string[] { }, "a"));

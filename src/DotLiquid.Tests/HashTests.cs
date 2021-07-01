@@ -138,6 +138,8 @@ namespace DotLiquid.Tests
         }
         protected override object GetValue(string key)
         {
+            if (base.Contains(key))
+                return base.GetValue(key);
             return _lambda(this, key);
         }
     }

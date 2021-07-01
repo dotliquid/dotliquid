@@ -152,6 +152,7 @@ namespace DotLiquid
             _defaultValue = defaultValue;
         }
 
+        [Obsolete("For testing use DotLiquid.Tests.HashTests.LambdaHash instead.")]
         public Hash(Func<Hash, string, object> lambda)
             : this()
         {

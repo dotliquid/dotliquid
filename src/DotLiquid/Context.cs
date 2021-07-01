@@ -430,14 +430,15 @@ namespace DotLiquid
             if (scope == null)
             {
                 foreach (Hash e in Environments)
-                    if ((variable = LookupAndEvaluate(e, key)) != null)
+                    if (TryEvaluateHashOrArrayLikeObject(e, key, out variable))
                     {
                         scope = e;
                         break;
                     }
             }
             scope = scope ?? Environments.LastOrDefault() ?? Scopes.Last();
-            variable = variable ?? LookupAndEvaluate(scope, key);
+            if (variable == null)
+                TryEvaluateHashOrArrayLikeObject(scope, key, out variable);
 
             variable = Liquidize(variable);
             if (variable is IContextAware contextAwareVariable)
@@ -510,37 +511,11 @@ namespace DotLiquid
                 {
                     // If object is a KeyValuePair, we treat it a bit differently - we might be rendering
                     // an included template.
-                    if (@object is KeyValuePair<string, object> && ((KeyValuePair<string, object>)@object).Key == (string)part)
-                    {
-                        object res = ((KeyValuePair<string, object>)@object).Value;
-                        @object = Liquidize(res);
-                    }
-                    // If object is a hash- or array-like object we look for the
-                    // presence of the key and if its available we return it
-                    else if (IsHashOrArrayLikeObject(@object, part))
+                    object res = null;
+                    if (TryEvaluateHashOrArrayLikeObject(@object, part, out res))
                     {
                         // If its a proc we will replace the entry with the proc
-                        object res = LookupAndEvaluate(@object, part);
                         @object = Liquidize(res);
-                    }
-                    // Some special cases. If the part wasn't in square brackets and
-                    // no key with the same name was found we interpret following calls
-                    // as commands and call them on the current object
-                    else if (!partResolved && (@object is IEnumerable) && (Template.NamingConvention.OperatorEquals(part as string, "size") || Template.NamingConvention.OperatorEquals(part as string, "first") || Template.NamingConvention.OperatorEquals(part as string, "last")))
-                    {
-                        var castCollection = ((IEnumerable)@object).Cast<object>();
-                        if (Template.NamingConvention.OperatorEquals(part as string, "size"))
-                            @object = castCollection.Count();
-                        else if (Template.NamingConvention.OperatorEquals(part as string, "first"))
-                        {
-                            object res = castCollection.FirstOrDefault();
-                            @object = Liquidize(res);
-                        }
-                        else if (Template.NamingConvention.OperatorEquals(part as string, "last"))
-                        {
-                            object res = castCollection.LastOrDefault();
-                            @object = Liquidize(res);
-                        }
                     }
                     // No key was present with the desired value and it wasn't one of the directly supported
                     // keywords either. The only thing we got left is to return nil
@@ -561,82 +536,63 @@ namespace DotLiquid
             return @object;
         }
 
-        private static bool IsHashOrArrayLikeObject(object obj, object part)
+        /// <summary>
+        /// Replacement for IsHashOrArrayLikeObject and LookupAndEvaluate.
+        /// Attempts to find and return the value of a key in the given object.
+        /// </summary>
+        /// <param name="obj">value to inspect</param>
+        /// <param name="key">key/label to check for</param>
+        /// <param name="value"></param>
+        /// <returns>true if the key was found in the given object</returns>
+        private bool TryEvaluateHashOrArrayLikeObject(object obj, object key, out object value)
         {
+            value = null;
+
             if (obj == null)
                 return false;
 
-            if ((obj is IDictionary && ((IDictionary)obj).Contains(part)))
-                return true;
-
-            // Resolve #350/#417, add support for rendering of a nested  ExpandoObject
-            if (obj is IDictionary<string, object> dictionaryObject && dictionaryObject.ContainsKey(part.ToString()))
-                return true;
-
-            if ((obj is IList) && (part is int || part is long))
-                return true;
-
-            if (TypeUtility.IsAnonymousType(obj.GetType()) && obj.GetType().GetRuntimeProperty((string)part) != null)
-                return true;
-
-            if ((obj is IIndexable) && ((IIndexable)obj).ContainsKey(part))
-                return true;
-
-            return false;
-        }
-
-        private object LookupAndEvaluate(object obj, object key)
-        {
-            object value;
-            if (obj is IDictionary dictionaryObj)
-            {
+            if (obj is KeyValuePair<string, object> keyValuePair && key is string stringKey && keyValuePair.Key == stringKey)
+                value = keyValuePair.Value;
+            else if (obj is IDictionary dictionaryObj && dictionaryObj.Contains(key))
                 value = dictionaryObj[key];
-            }
-            // Resolve #350/#417, add support for rendering of a nested  ExpandoObject
-            else if (obj is IDictionary<string, object> dictionaryObject)
-            {
+            // Resolve #350/#417, add support for rendering of a nested ExpandoObject
+            else if (obj is IDictionary<string, object> dictionaryObject && dictionaryObject.ContainsKey(key.ToString()))
                 value = dictionaryObject[key.ToString()];
-            }
-            else if (obj is IList listObj)
-            {
+            else if (obj is IList listObj && (key is int || key is long))
                 value = listObj[Convert.ToInt32(key)];
-            }
-            else if (TypeUtility.IsAnonymousType(obj.GetType()))
-            {
+            else if (TypeUtility.IsAnonymousType(obj.GetType()) && obj.GetType().GetRuntimeProperty((string)key) != null)
                 value = obj.GetType().GetRuntimeProperty((string)key).GetValue(obj, null);
-            }
-            else if (obj is IIndexable indexableObj)
-            {
+            else if (obj is IIndexable indexableObj && indexableObj.ContainsKey(key))
                 value = indexableObj[key];
-            }
-            else
+            else if (obj is IEnumerable enumerableObject && key is string enumerableKey)
             {
-                throw new NotSupportedException();
+                // Special cases: If no key with the same name was found we interpret size|first|last
+                // as commands and call them on the current IEnumerable object
+                var castCollection = enumerableObject.Cast<object>();
+                if (Template.NamingConvention.OperatorEquals(enumerableKey, "size"))
+                    value = castCollection.Count();
+                else if (Template.NamingConvention.OperatorEquals(enumerableKey, "first"))
+                    value = castCollection.FirstOrDefault();
+                else if (Template.NamingConvention.OperatorEquals(enumerableKey, "last"))
+                    value = castCollection.LastOrDefault();
             }
 
             if (value is Proc procValue)
             {
                 object newValue = procValue.Invoke(this);
                 if (obj is IDictionary dicObj)
-                {
                     dicObj[key] = newValue;
-                }
                 else if (obj is IList listObj)
-                {
                     listObj[Convert.ToInt32(key)] = newValue;
-                }
                 else if (TypeUtility.IsAnonymousType(obj.GetType()))
-                {
                     obj.GetType().GetRuntimeProperty((string)key).SetValue(obj, newValue, null);
-                }
                 else
-                {
                     throw new NotSupportedException();
-                }
-                return newValue;
+
+                value = newValue;
             }
 
-            return value;
+            return value != null;
         }
 
         private static object Liquidize(object obj)
@@ -732,7 +688,9 @@ namespace DotLiquid
                 foreach (Hash env in Environments)
                     if (env.ContainsKey(k))
                     {
-                        tempAssigns[k] = LookupAndEvaluate(env, k);
+                        object value = null;
+                        TryEvaluateHashOrArrayLikeObject(env, k, out value);
+                        tempAssigns[k] = value;
                         break;
                     }
 

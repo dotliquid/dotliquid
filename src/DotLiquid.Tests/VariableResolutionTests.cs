@@ -72,7 +72,7 @@ namespace DotLiquid.Tests
         public void TestHashWithDefaultProc()
         {
             Template template = Template.Parse("Hello {{ test }}");
-            Hash assigns = new Hash((h, k) => { throw new Exception("Unknown variable '" + k + "'"); });
+            Hash assigns = new LambdaHash((h, k) => { throw new Exception("Unknown variable '" + k + "'"); });
             assigns["test"] = "Tobi";
             Assert.AreEqual("Hello Tobi", template.Render(new RenderParameters(CultureInfo.InvariantCulture)
             {

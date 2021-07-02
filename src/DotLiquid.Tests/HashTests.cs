@@ -1,4 +1,3 @@
-using System;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests.Ns1
@@ -84,7 +83,7 @@ namespace DotLiquid.Tests
                 value[nameof(TestClass.TestClassProp)]);
 
             Assert.AreEqual(
-                includeBaseClassProperties ? TestBaseClassPropValue : null,
+                includeBaseClassProperties ? TestBaseClassPropValue :  null,
                 value[nameof(TestClass.TestBaseClassProp)]);
         }
 
@@ -94,7 +93,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestShouldNotMapPropertiesFromBaseClass()
         {
-            IncludeBaseClassPropertiesOrNot(includeBaseClassProperties: false);
+            IncludeBaseClassPropertiesOrNot(includeBaseClassProperties : false);
         }
 
         /// <summary>
@@ -103,7 +102,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestShouldMapPropertiesFromBaseClass()
         {
-            IncludeBaseClassPropertiesOrNot(includeBaseClassProperties: true);
+            IncludeBaseClassPropertiesOrNot(includeBaseClassProperties : true);
         }
 
         /// <summary>
@@ -118,29 +117,5 @@ namespace DotLiquid.Tests
             IncludeBaseClassPropertiesOrNot(true);
         }
         #endregion
-    }
-
-    /// <summary>
-    /// This class is used by unit tests to deliberately throw exceptions
-    /// when Hash.GetValue() is invoked.
-    /// Calls to Contains() always return true to ensure GetValue() is invoked.
-    /// </summary>
-    public class LambdaHash : Hash
-    {
-        private readonly Func<Hash, string, object> _lambda;
-        public LambdaHash(Func<Hash, string, object> lambda)
-        {
-            _lambda = lambda;
-        }
-        public override bool Contains(object key)
-        {
-            return true;
-        }
-        protected override object GetValue(string key)
-        {
-            if (base.Contains(key))
-                return base.GetValue(key);
-            return _lambda(this, key);
-        }
     }
 }

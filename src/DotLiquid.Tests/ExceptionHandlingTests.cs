@@ -129,7 +129,7 @@ namespace DotLiquid.Tests
         public void TestErrorsOutputModeRethrow()
         {
             var template = Template.Parse("{{test}}");
-            Hash assigns = new LambdaHash((h, k) => { throw new SyntaxException("Unknown variable '" + k + "'"); });
+            Hash assigns = new Hash((h, k) => { throw new SyntaxException("Unknown variable '" + k + "'"); });
 
             Assert.Throws<SyntaxException>(() =>
             {
@@ -145,7 +145,7 @@ namespace DotLiquid.Tests
         public void TestErrorsOutputModeSuppress()
         {
             var template = Template.Parse("{{test}}");
-            Hash assigns = new LambdaHash((h, k) => { throw new SyntaxException("Unknown variable '" + k + "'"); });
+            Hash assigns = new Hash((h, k) => { throw new SyntaxException("Unknown variable '" + k + "'"); });
 
             var output = template.Render(new RenderParameters(CultureInfo.InvariantCulture)
             {
@@ -159,7 +159,7 @@ namespace DotLiquid.Tests
         public void TestErrorsOutputModeDisplay()
         {
             var template = Template.Parse("{{test}}");
-            Hash assigns = new LambdaHash((h, k) => { throw new SyntaxException("Unknown variable '" + k + "'"); });
+            Hash assigns = new Hash((h, k) => { throw new SyntaxException("Unknown variable '" + k + "'"); });
 
             var output = template.Render(new RenderParameters(CultureInfo.InvariantCulture)
             {

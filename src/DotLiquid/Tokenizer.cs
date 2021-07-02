@@ -71,7 +71,7 @@ namespace DotLiquid
                             var tagName = tagMatch.Groups[1].Value;
                             if (Template.IsRawTag(tagName))
                             {
-                                var endTagRegex = EndTagRegexes.GetOrAdd(tagName, (key) => R.B(@"{0}\s*end{1}\s*{2}", Liquid.TagStart, key, Liquid.TagEnd));
+                                var endTagRegex = EndTagRegexes.GetOrAdd(tagName, (key) => R.B(@"{0}-?\s*end{1}\s*-?{2}", Liquid.TagStart, key, Liquid.TagEnd));
                                 var endTagMatch = endTagRegex.Match(source, markupEnumerator.Position);
                                 if (!endTagMatch.Success)
                                     throw new SyntaxException(Liquid.ResourceManager.GetString("BlockTagNotClosedException"), tagName);

@@ -2,12 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using DotLiquid.FileSystems;
-using DotLiquid.Util;
 using DotLiquid.NamingConventions;
+using System.Collections.Concurrent;
 
 namespace DotLiquid
 {
@@ -57,6 +55,7 @@ namespace DotLiquid
 
         private static readonly Dictionary<Type, Func<object, object>> SafeTypeTransformers;
         private static readonly Dictionary<Type, Func<object, object>> ValueTypeTransformers;
+        private static readonly ConcurrentDictionary<Type, Func<object, object>> ValueTypeTransformerCache;
 
         static Template()
         {
@@ -66,6 +65,7 @@ namespace DotLiquid
             Tags = new Dictionary<string, Tuple<ITagFactory, Type>>();
             SafeTypeTransformers = new Dictionary<Type, Func<object, object>>();
             ValueTypeTransformers = new Dictionary<Type, Func<object, object>>();
+            ValueTypeTransformerCache = new ConcurrentDictionary<Type, Func<object, object>>();
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace DotLiquid
             where T : Tag, new()
         {
             var tagType = typeof(T);
-            Tags[name] = new Tuple<ITagFactory,Type>(new ActivatorTagFactory(tagType, name), tagType);
+            Tags[name] = new Tuple<ITagFactory, Type>(new ActivatorTagFactory(tagType, name), tagType);
         }
 
         /// <summary>
@@ -181,6 +181,7 @@ namespace DotLiquid
         public static void RegisterValueTypeTransformer(Type type, Func<object, object> func)
         {
             ValueTypeTransformers[type] = func;
+            ValueTypeTransformerCache.Clear();
         }
 
         /// <summary>
@@ -195,16 +196,19 @@ namespace DotLiquid
                 return transformer;
 
             // Check for interfaces
-            var interfaces = type.GetTypeInfo().ImplementedInterfaces;
-            foreach (var interfaceType in interfaces)
+            return ValueTypeTransformerCache.GetOrAdd(type, (key) =>
             {
-                if (ValueTypeTransformers.TryGetValue(interfaceType, out transformer))
-                    return transformer;
-                if (interfaceType.GetTypeInfo().IsGenericType && ValueTypeTransformers.TryGetValue(
-                    interfaceType.GetGenericTypeDefinition(), out transformer))
-                    return transformer;
-            }
-            return null;
+                var interfaces = type.GetTypeInfo().ImplementedInterfaces;
+                foreach (var interfaceType in interfaces)
+                {
+                    if (ValueTypeTransformers.TryGetValue(interfaceType, out transformer))
+                        return transformer;
+                    if (interfaceType.GetTypeInfo().IsGenericType && ValueTypeTransformers.TryGetValue(
+                        interfaceType.GetGenericTypeDefinition(), out transformer))
+                        return transformer;
+                }
+                return null;
+            });
         }
 
         /// <summary>
@@ -334,7 +338,7 @@ namespace DotLiquid
         /// <param name="localVariables">Local variables.</param>
         /// <param name="formatProvider">String formatting provider.</param>
         /// <returns>The rendering result as string.</returns>
-        public string Render(Hash localVariables, IFormatProvider formatProvider=null)
+        public string Render(Hash localVariables, IFormatProvider formatProvider = null)
         {
             using (var writer = new StringWriter(formatProvider ?? CultureInfo.CurrentCulture))
             {
@@ -357,7 +361,7 @@ namespace DotLiquid
         {
             using (var writer = new StringWriter(parameters.FormatProvider))
             {
-                return this.Render(writer, parameters );
+                return this.Render(writer, parameters);
             }
         }
 
@@ -381,7 +385,7 @@ namespace DotLiquid
         /// <inheritdoc />
         private class StreamWriterWithFormatProvider : StreamWriter
         {
-            public StreamWriterWithFormatProvider(Stream stream, IFormatProvider formatProvider) : base( stream ) => FormatProvider = formatProvider;
+            public StreamWriterWithFormatProvider(Stream stream, IFormatProvider formatProvider) : base(stream) => FormatProvider = formatProvider;
 
             public override IFormatProvider FormatProvider { get; }
         }
@@ -395,7 +399,7 @@ namespace DotLiquid
         {
             // Can't dispose this new StreamWriter, because it would close the
             // passed-in stream, which isn't up to us.
-            StreamWriter streamWriter = new StreamWriterWithFormatProvider( stream, parameters.FormatProvider );
+            StreamWriter streamWriter = new StreamWriterWithFormatProvider(stream, parameters.FormatProvider);
             RenderInternal(streamWriter, parameters);
             streamWriter.Flush();
         }

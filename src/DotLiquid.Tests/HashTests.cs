@@ -83,7 +83,7 @@ namespace DotLiquid.Tests
                 value[nameof(TestClass.TestClassProp)]);
 
             Assert.AreEqual(
-                includeBaseClassProperties ? TestBaseClassPropValue :  null,
+                includeBaseClassProperties ? TestBaseClassPropValue : null,
                 value[nameof(TestClass.TestBaseClassProp)]);
         }
 
@@ -93,7 +93,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestShouldNotMapPropertiesFromBaseClass()
         {
-            IncludeBaseClassPropertiesOrNot(includeBaseClassProperties : false);
+            IncludeBaseClassPropertiesOrNot(includeBaseClassProperties: false);
         }
 
         /// <summary>
@@ -102,7 +102,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestShouldMapPropertiesFromBaseClass()
         {
-            IncludeBaseClassPropertiesOrNot(includeBaseClassProperties : true);
+            IncludeBaseClassPropertiesOrNot(includeBaseClassProperties: true);
         }
 
         /// <summary>
@@ -117,5 +117,35 @@ namespace DotLiquid.Tests
             IncludeBaseClassPropertiesOrNot(true);
         }
         #endregion
+
+        [Test]
+        public void TestDefaultConstructor()
+        {
+            var hash = new Hash(0); // default value of zero
+            hash["key"] = "value";
+
+            Assert.False(hash.Contains("unknown-key"));
+            Assert.False(hash.ContainsKey("unknown-key"));
+            Assert.AreEqual(0, hash["unknown-key"]); // ensure the default value is returned
+
+            Assert.True(hash.Contains("key"));
+            Assert.True(hash.ContainsKey("key"));
+            Assert.AreEqual("value", hash["key"]);
+        }
+
+        [Test]
+        public void TestLambdaConstructor()
+        {
+            var hash = new Hash((h, k) => { return "Lambda Value"; });
+            hash["key"] = "value";
+
+            Assert.True(hash.Contains("unknown-key"));
+            Assert.True(hash.ContainsKey("unknown-key"));
+            Assert.AreEqual("Lambda Value", hash["unknown-key"]);
+
+            Assert.True(hash.Contains("key"));
+            Assert.True(hash.ContainsKey("key"));
+            Assert.AreEqual("value", hash["key"]);
+        }
     }
 }

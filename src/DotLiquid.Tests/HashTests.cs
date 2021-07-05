@@ -1,3 +1,4 @@
+using System.Collections;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests.Ns1
@@ -131,6 +132,11 @@ namespace DotLiquid.Tests
             Assert.True(hash.Contains("key"));
             Assert.True(hash.ContainsKey("key"));
             Assert.AreEqual("value", hash["key"]);
+
+            hash.Remove("key");
+            Assert.False(hash.Contains("key"));
+            Assert.False(hash.ContainsKey("key"));
+            Assert.AreEqual(0, hash["key"]); // ensure the default value is returned after key removed
         }
 
         [Test]
@@ -146,6 +152,16 @@ namespace DotLiquid.Tests
             Assert.True(hash.Contains("key"));
             Assert.True(hash.ContainsKey("key"));
             Assert.AreEqual("value", hash["key"]);
+        }
+
+        [Test]
+        public void TestUnsupportedKeyType()
+        {
+            IDictionary hash = new Hash();
+            Assert.Throws<System.NotSupportedException>(() =>
+            {
+                var value = hash[0]; // Only a string key is premitted
+            });
         }
     }
 }

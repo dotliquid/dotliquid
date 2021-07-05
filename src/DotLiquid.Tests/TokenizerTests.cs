@@ -6,6 +6,15 @@ namespace DotLiquid.Tests
     public class TokenizerTests
     {
         [Test]
+        public void TestGetVariableEnumerator()
+        {
+            Assert.False(Tokenizer.GetVariableEnumerator(null).MoveNext());
+            Assert.False(Tokenizer.GetVariableEnumerator("").MoveNext());
+        }
+
+        ///TODO: TestGetVariableEnumerator_VariableNotTerminatedException
+
+        [Test]
         public void TestGetVariableEnumerator_StripLeadingParens()
         {
             var tokens = Tokenizer.GetVariableEnumerator("(b == 'bar'");

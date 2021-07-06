@@ -123,13 +123,13 @@ namespace DotLiquid.Tests
         [Test]
         public void TestSplit()
         {
-            Assert.AreEqual(new[] { "This", "is", "a", "sentence" }, StandardFilters.Split("This is a sentence", " "));
-            Assert.AreEqual(new string[] { null }, StandardFilters.Split(null, null));
+            CollectionAssert.AreEqual(new[] { "This", "is", "a", "sentence" }, StandardFilters.Split("This is a sentence", " "));
+            CollectionAssert.AreEqual(new string[] { null }, StandardFilters.Split(null, null));
 
             // A string with no pattern should be split into a string[], as required for the Liquid Reverse filter
-            Assert.AreEqual(new[] { "Y", "M", "C", "A" }, StandardFilters.Split("YMCA", null));
-            Assert.AreEqual(new[] { "Y", "M", "C", "A" }, StandardFilters.Split("YMCA", ""));
-            Assert.AreEqual(new[] { " " }, StandardFilters.Split(" ", ""));
+            CollectionAssert.AreEqual(new[] { "Y", "M", "C", "A" }, StandardFilters.Split("YMCA", null));
+            CollectionAssert.AreEqual(new[] { "Y", "M", "C", "A" }, StandardFilters.Split("YMCA", ""));
+            CollectionAssert.AreEqual(new[] { " " }, StandardFilters.Split(" ", ""));
         }
 
         [Test]
@@ -1609,12 +1609,12 @@ Cheapest products:
         {
             var array1 = new String[] { "one", "two" };
             var array2 = new String[] { "alpha", "bravo" };
-            var arrayCombined = new String[] { "one", "two", "alpha", "bravo" };
 
-            Assert.AreEqual(null, StandardFilters.Concat(null, null));
-            Assert.AreEqual(array1, StandardFilters.Concat(array1, null));
-            Assert.AreEqual(array1, StandardFilters.Concat(null, array1));
-            Assert.AreEqual(arrayCombined, StandardFilters.Concat(array1, array2));
+            CollectionAssert.AreEqual(null, StandardFilters.Concat(null, null));
+            CollectionAssert.AreEqual(array1, StandardFilters.Concat(array1, null));
+            CollectionAssert.AreEqual(array1, StandardFilters.Concat(null, array1));
+            CollectionAssert.AreEqual(new[] { "one", "two", "alpha", "bravo" }, StandardFilters.Concat(array1, array2));
+            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 }, StandardFilters.Concat(new[] { 1, 2 }, new[] { 3, 4 }));
         }
 
         [Test]
@@ -1650,9 +1650,10 @@ Cheapest products:
             var array = new String[] { "one", "two", "three" };
             var arrayReversed = new String[] { "three", "two", "one" };
 
-            Assert.AreEqual(null, StandardFilters.Reverse(null));
-            Assert.AreEqual(arrayReversed, StandardFilters.Reverse(array));
-            Assert.AreEqual(array, StandardFilters.Reverse(arrayReversed));
+            CollectionAssert.AreEqual(null, StandardFilters.Reverse(null));
+            CollectionAssert.AreEqual(arrayReversed, StandardFilters.Reverse(array));
+            CollectionAssert.AreEqual(array, StandardFilters.Reverse(arrayReversed));
+            CollectionAssert.AreEqual(new[] { 3, 2, 2, 1 }, StandardFilters.Reverse(new[] { 1, 2, 2, 3 }));
         }
 
         /// <summary>

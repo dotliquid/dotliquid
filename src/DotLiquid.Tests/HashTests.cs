@@ -120,7 +120,7 @@ namespace DotLiquid.Tests
         #endregion
 
         [Test]
-        public void TestDefaultConstructor()
+        public void TestDefaultValueConstructor()
         {
             var hash = new Hash(0); // default value of zero
             hash["key"] = "value";

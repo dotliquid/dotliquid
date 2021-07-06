@@ -27,9 +27,14 @@ namespace DotLiquid.Tests
             public string TestBaseClassProp { get; set; }
         }
 
-        public class TestClass : TestBaseClass
+        public class TestChildClass1 : TestBaseClass
         {
-            public string TestClassProp { get; set; }
+            public string TestChildClass1Prop { get; set; }
+        }
+
+        public class TestChildClass2 : TestChildClass1
+        {
+            public string TestChildClass2Prop { get; set; }
         }
 
         #region Mapper Cache Tests
@@ -69,22 +74,28 @@ namespace DotLiquid.Tests
 
         private void IncludeBaseClassPropertiesOrNot(bool includeBaseClassProperties)
         {
-            var TestClassPropValue = "TestClassPropValueValue";
+            var TestChildClass2Value = "TestChildClass2Prop";
+            var TestChildClass1Value = "TestChildClass1Prop";
             var TestBaseClassPropValue = "TestBaseClassPropValue";
 
-            var value = Hash.FromAnonymousObject(new TestClass()
+            var value = Hash.FromAnonymousObject(new TestChildClass2()
             {
-                TestClassProp = TestClassPropValue,
+                TestChildClass2Prop = TestChildClass2Value,
+                TestChildClass1Prop = TestChildClass1Value,
                 TestBaseClassProp = TestBaseClassPropValue
             }, includeBaseClassProperties);
 
             Assert.AreEqual(
-                TestClassPropValue,
-                value[nameof(TestClass.TestClassProp)]);
+                TestChildClass2Value,
+                value[nameof(TestChildClass2.TestChildClass2Prop)]);
 
             Assert.AreEqual(
-                includeBaseClassProperties ? TestBaseClassPropValue :  null,
-                value[nameof(TestClass.TestBaseClassProp)]);
+                includeBaseClassProperties ? TestChildClass1Value : null,
+                value[nameof(TestChildClass2.TestChildClass1Prop)]);
+
+            Assert.AreEqual(
+                includeBaseClassProperties ? TestBaseClassPropValue : null,
+                value[nameof(TestChildClass1.TestBaseClassProp)]);
         }
 
         /// <summary>
@@ -93,7 +104,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestShouldNotMapPropertiesFromBaseClass()
         {
-            IncludeBaseClassPropertiesOrNot(includeBaseClassProperties : false);
+            IncludeBaseClassPropertiesOrNot(includeBaseClassProperties: false);
         }
 
         /// <summary>
@@ -102,7 +113,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestShouldMapPropertiesFromBaseClass()
         {
-            IncludeBaseClassPropertiesOrNot(includeBaseClassProperties : true);
+            IncludeBaseClassPropertiesOrNot(includeBaseClassProperties: true);
         }
 
         /// <summary>

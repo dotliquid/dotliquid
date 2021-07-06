@@ -43,17 +43,39 @@ namespace DotLiquid
         private static void FromAnonymousObject(object anonymousObject, Hash hash, bool includeBaseClassProperties)
         {
             Action<object, Hash> mapper = GetObjToDictionaryMapper(anonymousObject.GetType(), includeBaseClassProperties);
-            mapper.Invoke(anonymousObject, hash);
+            mapper.Invoke(anonymousObject, hash);                
         }
 
         private static Action<object, Hash> GetObjToDictionaryMapper(Type type, bool includeBaseClassProperties)
         {
             var cacheKey = type.FullName + "_" + (includeBaseClassProperties ? "WithBaseProperties" : "WithoutBaseProperties");
-            return mapperCache.GetOrAdd(cacheKey, (key) => GenerateMapper(type, includeBaseClassProperties));
+
+            if (!mapperCache.TryGetValue(cacheKey, out Action<object, Hash> mapper))
+            {
+                /* Bogdan Mart: Note regarding concurrency:
+                 * This is concurrent dictionary, but if this will be called from two threads
+                 * this code would generate two same mappers, which will cause some CPU overhead.
+                 * But I have no idea on what I can lock here, first thought was to use lock(type),
+                 * but that could cause deadlock, if some outside code will lock Type.
+                 * Only correct solution would be to use ConcurrentDictionary<Type, Action<object, Hash>>
+                 * with some CAS race, and then locking, or Semaphore, but first will add complexity, 
+                 * second would add overhead in locking on Kernel-level named object.
+                 * 
+                 * So I assume tradeoff in not using locks here is better, 
+                 * we at most will waste some CPU cycles on code generation, 
+                 * but RAM would be collected, due to http://stackoverflow.com/questions/5340201/
+                 * 
+                 * If someone have conserns, than one can lock(mapperCache) but that would 
+                 * create bottleneck, as only one mapper could be generated at a time.
+                 */
+                mapper = GenerateMapper(type, includeBaseClassProperties);
+                mapperCache[cacheKey] = mapper;
+            }
+
+            return mapper;
         }
 
-        private static void AddBaseClassProperties(Type type, List<PropertyInfo> propertyList)
-        {
+        private static void AddBaseClassProperties(Type type, List<PropertyInfo> propertyList) {
             propertyList.AddRange(type.GetTypeInfo().BaseType.GetTypeInfo().DeclaredProperties
                 .Where(p => p.CanRead && p.GetMethod.IsPublic && !p.GetMethod.IsStatic).ToList());
         }
@@ -64,16 +86,16 @@ namespace DotLiquid
             ParameterExpression hashParam = Expression.Parameter(typeof(Hash), "hashParam");
             List<Expression> bodyInstructions = new List<Expression>();
 
-            var castedObj = Expression.Variable(type, "castedObj");
-
+            var castedObj = Expression.Variable(type,"castedObj");
+            
             bodyInstructions.Add(
-                Expression.Assign(castedObj, Expression.Convert(objParam, type))
+                Expression.Assign(castedObj,Expression.Convert(objParam,type))
             );
 
             //Add properties
             var propertyList = type.GetTypeInfo().DeclaredProperties
                 .Where(p => p.CanRead && p.GetMethod.IsPublic && !p.GetMethod.IsStatic).ToList();
-
+            
             //Add properties from base class 
             if (includeBaseClassProperties) AddBaseClassProperties(type, propertyList);
 
@@ -84,19 +106,19 @@ namespace DotLiquid
                         Expression.MakeIndex(
                             hashParam,
                             typeof(Hash).GetTypeInfo().GetDeclaredProperty("Item"),
-                            new[] { Expression.Constant(property.Name, typeof(string)) }
+                            new []{Expression.Constant(property.Name, typeof(string))}
                         ),
                         Expression.Convert(
-                            Expression.Property(castedObj, property),
+                            Expression.Property(castedObj,property),
                             typeof(object)
                         )
                     )
                 );
             }
 
-            var body = Expression.Block(typeof(void), new[] { castedObj }, bodyInstructions);
+            var body = Expression.Block(typeof(void),new []{castedObj},bodyInstructions);
 
-            var expr = Expression.Lambda<Action<object, Hash>>(body, objParam, hashParam);
+            var expr = Expression.Lambda < Action<object, Hash>>(body, objParam, hashParam);
 
             return expr.Compile();
         }
@@ -107,16 +129,16 @@ namespace DotLiquid
 
             foreach (var keyValue in dictionary)
             {
-                if (keyValue.Value is IDictionary<string, object>)
-                {
-                    result.Add(keyValue.Key, FromDictionary((IDictionary<string, object>)keyValue.Value));
-                }
-                else
-                {
-                    result.Add(keyValue);
-                }
+                    if (keyValue.Value is IDictionary<string, object>)
+                    {
+                        result.Add(keyValue.Key, FromDictionary((IDictionary<string, object>) keyValue.Value));
+                    }
+                    else
+                    {
+                        result.Add(keyValue);
+                    }
             }
-
+                
             return result;
         }
 
@@ -165,7 +187,7 @@ namespace DotLiquid
 
         public T Get<T>(string key)
         {
-            return (T)this[key];
+            return (T) this[key];
         }
 
         #region IDictionary<string, object>
@@ -177,7 +199,7 @@ namespace DotLiquid
 
         public void Remove(object key)
         {
-            ((IDictionary)_nestedDictionary).Remove(key);
+            ((IDictionary) _nestedDictionary).Remove(key);
         }
 
         object IDictionary.this[object key]
@@ -186,9 +208,9 @@ namespace DotLiquid
             {
                 if (!(key is string))
                     throw new NotSupportedException();
-                return GetValue((string)key);
+                return GetValue((string) key);
             }
-            set { ((IDictionary)_nestedDictionary)[key] = value; }
+            set { ((IDictionary) _nestedDictionary)[key] = value; }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -198,17 +220,17 @@ namespace DotLiquid
 
         public void Add(KeyValuePair<string, object> item)
         {
-            ((IDictionary<string, object>)_nestedDictionary).Add(item);
+            ((IDictionary<string, object>) _nestedDictionary).Add(item);
         }
 
         public virtual bool Contains(object key)
         {
-            return _lambda != null || ((IDictionary)_nestedDictionary).Contains(key);
+            return ((IDictionary) _nestedDictionary).Contains(key);
         }
 
         public void Add(object key, object value)
         {
-            ((IDictionary)_nestedDictionary).Add(key, value);
+            ((IDictionary) _nestedDictionary).Add(key, value);
         }
 
         public void Clear()
@@ -218,22 +240,22 @@ namespace DotLiquid
 
         IDictionaryEnumerator IDictionary.GetEnumerator()
         {
-            return ((IDictionary)_nestedDictionary).GetEnumerator();
+            return ((IDictionary) _nestedDictionary).GetEnumerator();
         }
 
         public bool Contains(KeyValuePair<string, object> item)
         {
-            return _lambda != null || ((IDictionary<string, object>)_nestedDictionary).Contains(item);
+            return ((IDictionary<string, object>) _nestedDictionary).Contains(item);
         }
 
         public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
         {
-            ((IDictionary<string, object>)_nestedDictionary).CopyTo(array, arrayIndex);
+            ((IDictionary<string, object>) _nestedDictionary).CopyTo(array, arrayIndex);
         }
 
         public bool Remove(KeyValuePair<string, object> item)
         {
-            return ((IDictionary<string, object>)_nestedDictionary).Remove(item);
+            return ((IDictionary<string, object>) _nestedDictionary).Remove(item);
         }
 
         #endregion
@@ -242,7 +264,7 @@ namespace DotLiquid
 
         public void CopyTo(Array array, int index)
         {
-            ((IDictionary)_nestedDictionary).CopyTo(array, index);
+            ((IDictionary) _nestedDictionary).CopyTo(array, index);
         }
 
         public int Count
@@ -252,32 +274,32 @@ namespace DotLiquid
 
         public object SyncRoot
         {
-            get { return ((IDictionary)_nestedDictionary).SyncRoot; }
+            get { return ((IDictionary) _nestedDictionary).SyncRoot; }
         }
 
         public bool IsSynchronized
         {
-            get { return ((IDictionary)_nestedDictionary).IsSynchronized; }
+            get { return ((IDictionary) _nestedDictionary).IsSynchronized; }
         }
 
         ICollection IDictionary.Values
         {
-            get { return ((IDictionary)_nestedDictionary).Values; }
+            get { return ((IDictionary) _nestedDictionary).Values; }
         }
 
         public bool IsReadOnly
         {
-            get { return ((IDictionary<string, object>)_nestedDictionary).IsReadOnly; }
+            get { return ((IDictionary<string, object>) _nestedDictionary).IsReadOnly; }
         }
 
         public bool IsFixedSize
         {
-            get { return ((IDictionary)_nestedDictionary).IsFixedSize; }
+            get { return ((IDictionary) _nestedDictionary).IsFixedSize; }
         }
 
         public bool ContainsKey(string key)
         {
-            return Contains(key);
+            return _nestedDictionary.ContainsKey(key);
         }
 
         public void Add(string key, object value)
@@ -308,7 +330,7 @@ namespace DotLiquid
 
         ICollection IDictionary.Keys
         {
-            get { return ((IDictionary)_nestedDictionary).Keys; }
+            get { return ((IDictionary) _nestedDictionary).Keys; }
         }
 
         public ICollection<object> Values

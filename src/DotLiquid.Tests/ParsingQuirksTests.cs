@@ -65,16 +65,5 @@ namespace DotLiquid.Tests
             Helper.AssertTemplateResult("{{ {% %} }}", "{{ '{{ {% %} }}' }}");
             Helper.AssertTemplateResult("{{ {% %} }}", "{% assign x = '{{ {% %} }}' %}{{x}}");
         }
-
-        [Test]
-        public void TestVariableNotTerminatedFromInvalidVariableName()
-        {
-            Template template = Template.Parse("{{ . }}");
-            string rendered = template.Render();
-
-            Assert.AreEqual("", rendered);
-            Assert.AreEqual(1, template.Errors.Count);
-            Assert.AreEqual(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), "."), template.Errors[0].Message);
-        }
     }
 }

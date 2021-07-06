@@ -15,12 +15,8 @@ namespace DotLiquid
     {
         private static readonly HashSet<char> SearchSingleQuoteEnd = new HashSet<char> { '\'' };
         private static readonly HashSet<char> SearchDoubleQuoteEnd = new HashSet<char> { '"' };
-        private static readonly HashSet<char> SearchVariableEnd = new HashSet<char> { '[', '.' };
-        private static readonly HashSet<char> SearchBracketBegin = new HashSet<char> { '[' };
-        private static readonly HashSet<char> SearchBracketEnd = new HashSet<char> { ']' };
         private static readonly HashSet<char> SearchQuoteOrVariableEnd = new HashSet<char> { '}', '\'', '"' };
         private static readonly HashSet<char> SearchQuoteOrTagEnd = new HashSet<char> { '%', '\'', '"' };
-        private static readonly char[] PARENS = new[] { '(', ')' };
         private static readonly Regex LiquidAnyStartingTagRegex = R.B(R.Q(@"({0})([-])?"), Liquid.AnyStartingTag);
         private static readonly Regex TagNameRegex = R.B(R.Q(@"{0}\s*(\w+)"), Liquid.AnyStartingTag);
         private static readonly ConcurrentDictionary<string, Regex> EndTagRegexes = new ConcurrentDictionary<string, Regex>();
@@ -75,7 +71,7 @@ namespace DotLiquid
                             var tagName = tagMatch.Groups[1].Value;
                             if (Template.IsRawTag(tagName))
                             {
-                                var endTagRegex = EndTagRegexes.GetOrAdd(tagName, (key) => R.B(@"{0}-?\s*end{1}\s*-?{2}", Liquid.TagStart, key, Liquid.TagEnd));
+                                var endTagRegex = EndTagRegexes.GetOrAdd(tagName, (key) => R.B(@"{0}\s*end{1}\s*{2}", Liquid.TagStart, key, Liquid.TagEnd));
                                 var endTagMatch = endTagRegex.Match(source, markupEnumerator.Position);
                                 if (!endTagMatch.Success)
                                     throw new SyntaxException(Liquid.ResourceManager.GetString("BlockTagNotClosedException"), tagName);
@@ -92,62 +88,6 @@ namespace DotLiquid
             }
 
             return tokens;
-        }
-
-        /// <summary>
-        /// Enumerates over a variable sequence in dotted or bracket notation
-        /// </summary>
-        /// <param name="source">The Liquid Variable string</param>
-        /// <returns></returns>
-        public static IEnumerator<string> GetVariableEnumerator(string source)
-        {
-            if (string.IsNullOrEmpty(source))
-                yield break;
-
-            // remove any pparenthesis that have not been stripped from the markup.
-            source = source.TrimStart(PARENS).TrimEnd(PARENS);
-
-            using (var markupEnumerator = new DotLiquid.Util.CharEnumerator(source))
-            {
-                var searchChars = SearchBracketBegin;
-
-                while (markupEnumerator.HasNext())
-                {
-                    var sb = new StringBuilder();
-                    var isEndOfPart = false;
-                    do
-                    {
-                        char nextChar = markupEnumerator.Next;
-                        if (searchChars.Contains(nextChar))
-                        {
-                            isEndOfPart = true;
-                            switch (nextChar)
-                            {
-                                case '[':
-                                    searchChars = SearchBracketEnd;
-                                    continue;
-                                case ']':
-                                    markupEnumerator.AppendNext(sb);
-                                    searchChars = SearchVariableEnd;
-                                    continue;
-                                case '.':
-                                    markupEnumerator.MoveNext();
-                                    searchChars = SearchBracketBegin;
-                                    continue;
-                            }
-                        }
-                        if (searchChars == SearchBracketBegin)
-                            searchChars = SearchVariableEnd;
-                    }
-                    while (!isEndOfPart && markupEnumerator.AppendNext(sb) && markupEnumerator.HasNext());
-
-                    if (markupEnumerator.Remaining == 0 && searchChars != SearchVariableEnd) //Somehow we reached the end without finding the end character(s)
-                        throw new SyntaxException(Liquid.ResourceManager.GetString("VariableNotTerminatedException"), source, Liquid.VariableEnd);
-
-                    if (sb.Length > 0)
-                        yield return sb.ToString();
-                }
-            }
         }
 
         /// <summary>

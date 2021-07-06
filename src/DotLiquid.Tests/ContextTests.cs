@@ -493,10 +493,6 @@ namespace DotLiquid.Tests
 
             Assert.AreEqual(1, _context["test.first"]);
             Assert.AreEqual(1, _context["test.last"]);
-
-            _context["test"] = new int[] { }; // Empty lists
-            Assert.AreEqual(null, _context["test.first"]);
-            Assert.AreEqual(null, _context["test.last"]);
         }
 
         [Test]
@@ -536,22 +532,14 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        // Updated test cases to match Ruby and allow a label for an array, such as "array['first']".
-        // See https://github.com/Shopify/liquid/blob/50d1a2ffc91e69c26af2eea278cbc9c4930126a9/test/integration/drop_test.rb#L232
         public void TestHashNotationOnlyForHashAccess()
         {
             _context["array"] = new[] { 1, 2, 3, 4, 5 };
-            _context["hash"] = new { last = "goodbye", first = "Hello" };
-            _context["emptyArray"] = new int[0];
+            _context["hash"] = new { first = "Hello" };
 
             Assert.AreEqual(1, _context["array.first"]);
-            Assert.AreEqual(5, _context["array.last"]);
-            Assert.AreEqual(1, _context["array['first']"]);
-            Assert.AreEqual(5, _context["array['last']"]);
+            Assert.AreEqual(null, _context["array['first']"]);
             Assert.AreEqual("Hello", _context["hash['first']"]);
-            Assert.AreEqual("goodbye", _context["hash['last']"]);
-            Assert.AreEqual(null, _context["emptyArray['first']"]);
-            Assert.AreEqual(null, _context["emptyArray['last']"]);
         }
 
         [Test]

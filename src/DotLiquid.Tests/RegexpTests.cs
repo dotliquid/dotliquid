@@ -15,7 +15,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestAllRegexesAreCompiled()
         {
-            var assembly = typeof(Template).GetTypeInfo().Assembly;
+            var assembly = typeof (Template).GetTypeInfo().Assembly;
             foreach (Type parent in assembly.GetTypes())
             {
                 foreach (var t in parent.GetTypeInfo().GetFields(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
@@ -24,7 +24,7 @@ namespace DotLiquid.Tests
                     {
                         if (t.IsStatic)
                         {
-                            Assert.AreNotEqual(0, RegexOptions.Compiled & ((Regex)t.GetValue(null)).Options);
+                            Assert.AreNotEqual(0, RegexOptions.Compiled & ((Regex) t.GetValue(null)).Options);
                         }
                         else
                         {
@@ -84,24 +84,17 @@ namespace DotLiquid.Tests
         [Test]
         public void TestVariableParser()
         {
-            CollectionAssert.AreEqual(new[] { "var" }, GetVariableParts("var"));
-            CollectionAssert.AreEqual(new[] { "var", "method" }, GetVariableParts("var.method"));
-            CollectionAssert.AreEqual(new[] { "var", "[method]" }, GetVariableParts("var[method]"));
-            CollectionAssert.AreEqual(new[] { "var", "[method]", "[0]" }, GetVariableParts("var[method][0]"));
-            CollectionAssert.AreEqual(new[] { "var", "[\"method\"]", "[0]" }, GetVariableParts("var[\"method\"][0]"));
-            CollectionAssert.AreEqual(new[] { "var", "[method]", "[0]", "method" }, GetVariableParts("var[method][0].method"));
+            CollectionAssert.AreEqual(new[] { "var" }, Run("var", Liquid.VariableParser));
+            CollectionAssert.AreEqual(new[] { "var", "method" }, Run("var.method", Liquid.VariableParser));
+            CollectionAssert.AreEqual(new[] { "var", "[method]" }, Run("var[method]", Liquid.VariableParser));
+            CollectionAssert.AreEqual(new[] { "var", "[method]", "[0]" }, Run("var[method][0]", Liquid.VariableParser));
+            CollectionAssert.AreEqual(new[] { "var", "[\"method\"]", "[0]" }, Run("var[\"method\"][0]", Liquid.VariableParser));
+            CollectionAssert.AreEqual(new[] { "var", "[method]", "[0]", "method" }, Run("var[method][0].method", Liquid.VariableParser));
         }
 
         private static List<string> Run(string input, string pattern)
         {
             return R.Scan(input, new Regex(pattern));
-        }
-
-        private static IEnumerable<string> GetVariableParts(string input)
-        {
-            using (var enumerator = Tokenizer.GetVariableEnumerator(input))
-                while (enumerator.MoveNext())
-                    yield return enumerator.Current;
         }
     }
 }

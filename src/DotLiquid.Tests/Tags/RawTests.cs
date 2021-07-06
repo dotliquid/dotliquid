@@ -21,15 +21,6 @@ namespace DotLiquid.Tests.Tags
         }
 
         [Test]
-        public void TestRawWithErbLikeTrimmingWhitespace()
-        {
-            Helper.AssertTemplateResult("{{ test }}", "{%- raw %}{{ test }}{%- endraw %}");
-            Helper.AssertTemplateResult("{{ test }}", "{% raw -%}{{ test }}{% endraw -%}");
-            Helper.AssertTemplateResult("{{ test }}", "{%- raw -%}{{ test }}{%- endraw -%}");
-            Helper.AssertTemplateResult("{{ test }}", "{%-raw-%}{{ test }}{%-endraw-%}");
-        }
-
-        [Test]
         public void TestPartialInRaw()
         {
             Helper.AssertTemplateResult(" Foobar {% invalid ", "{% raw %} Foobar {% invalid {% endraw %}");

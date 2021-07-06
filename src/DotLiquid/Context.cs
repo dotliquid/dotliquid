@@ -18,13 +18,13 @@ namespace DotLiquid
     /// </summary>
     public class Context
     {
-        private static readonly HashSet<char> SpecialCharsSet = new HashSet<char>() { '\'', '"', '(', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-' };//R.C(R.Q(@"^(?<char>['""\(0-9+-])"));
-        private static readonly HashSet<string> ArrayDotOperators = new HashSet<string>() { "first", "last", "size" };
         private static readonly Regex SingleQuotedRegex = R.C(R.Q(@"^'(.*)'$"));
         private static readonly Regex DoubleQuotedRegex = R.C(R.Q(@"^""(.*)""$"));
         private static readonly Regex IntegerRegex = R.C(R.Q(@"^([+-]?\d+)$"));
         private static readonly Regex RangeRegex = R.C(R.Q(@"^\((\S+)\.\.(\S+)\)$"));
         private static readonly Regex NumericRegex = R.C(R.Q(@"^([+-]?\d[\d\.|\,]+)$"));
+        private static readonly Regex SquareBracketedRegex = R.C(R.Q(@"^\[(.*)\]$"));
+        private static readonly Regex VariableParserRegex = R.C(Liquid.VariableParser);
 
         private readonly ErrorsOutputMode _errorsOutputMode;
 
@@ -359,70 +359,59 @@ namespace DotLiquid
                     return false;
                 case "blank":
                 case "empty":
-                    return new Symbol(o => (o is IEnumerable enumerableO) && !enumerableO.Cast<object>().Any());
+                    return new Symbol(o => o is IEnumerable && !((IEnumerable)o).Cast<object>().Any());
             }
 
-            var firstChar = key[0];
-            if (SpecialCharsSet.Contains(firstChar))
-            {
-                switch (firstChar)
-                {
-                    case '\'':
-                        // Single quoted strings.
-                        Match match = SingleQuotedRegex.Match(key);
-                        if (match.Success)
-                            return match.Groups[1].Value;
-                        break;
-                    case '"':
-                        // Double quoted strings.
-                        match = DoubleQuotedRegex.Match(key);
-                        if (match.Success)
-                            return match.Groups[1].Value;
-                        break;
-                    case '(':
-                        // Ranges.
-                        match = RangeRegex.Match(key);
-                        if (match.Success)
-                            return Range.Inclusive(Convert.ToInt32(Resolve(match.Groups[1].Value)),
-                                Convert.ToInt32(Resolve(match.Groups[2].Value)));
-                        break;
-                    default:
-                        // Integer.
-                        match = IntegerRegex.Match(key);
-                        if (match.Success)
-                        {
-                            try
-                            {
-                                return Convert.ToInt32(match.Groups[1].Value);
-                            }
-                            catch (OverflowException)
-                            {
-                                return Convert.ToInt64(match.Groups[1].Value);
-                            }
-                        }
+            // Single quoted strings.
+            Match match = SingleQuotedRegex.Match(key);
+            if (match.Success)
+                return match.Groups[1].Value;
 
-                        // Floating point numbers.
-                        match = NumericRegex.Match(key);
-                        if (match.Success)
-                        {
-                            // For cultures with "," as the decimal separator, allow
-                            // both "," and "." to be used as the separator.
-                            // First try to parse using current culture.
-                            // If that fails, try to parse using invariant culture.
-                            // Also, first try higher precision decimal.
-                            // If that fails, try to parse as double (precision float).
-                            // Double is less precise but has a larger range.
-                            if (decimal.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, FormatProvider, out decimal parsedDecimalCurrentCulture))
-                                return parsedDecimalCurrentCulture;
-                            if (decimal.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, CultureInfo.InvariantCulture, out decimal parsedDecimalInvariantCulture))
-                                return parsedDecimalInvariantCulture;
-                            if (double.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, FormatProvider, out double parsedDouble))
-                                return parsedDouble;
-                            return double.Parse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, CultureInfo.InvariantCulture);
-                        }
-                        break;
+            // Double quoted strings.
+            match = DoubleQuotedRegex.Match(key);
+            if (match.Success)
+                return match.Groups[1].Value;
+
+            // Integer.
+            match = IntegerRegex.Match(key);
+            if (match.Success)
+            {
+                try
+                {
+                    return Convert.ToInt32(match.Groups[1].Value);
+                }
+                catch (OverflowException)
+                {
+                    return Convert.ToInt64(match.Groups[1].Value);
                 }
             }
+
+            // Ranges.
+            match = RangeRegex.Match(key);
+            if (match.Success)
+                return Range.Inclusive(Convert.ToInt32(Resolve(match.Groups[1].Value)),
+                    Convert.ToInt32(Resolve(match.Groups[2].Value)));
+
+            // Floating point numbers.
+            match = NumericRegex.Match(key);
+            if (match.Success)
+            {
+                // For cultures with "," as the decimal separator, allow
+                // both "," and "." to be used as the separator.
+                // First try to parse using current culture.
+                // If that fails, try to parse using invariant culture.
+                // Also, first try higher precision decimal.
+                // If that fails, try to parse as double (precision float).
+                // Double is less precise but has a larger range.
+                if (decimal.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, FormatProvider, out decimal parsedDecimalCurrentCulture))
+                    return parsedDecimalCurrentCulture;
+                if (decimal.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, CultureInfo.InvariantCulture, out decimal parsedDecimalInvariantCulture))
+                    return parsedDecimalInvariantCulture;
+                if (double.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, FormatProvider, out double parsedDouble))
+                    return parsedDouble;
+                return double.Parse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, CultureInfo.InvariantCulture);
+            }
+
             return Variable(key, notifyNotFound);
         }
 
@@ -434,40 +423,28 @@ namespace DotLiquid
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        private bool TryFindVariable(string key, out object variable)
+        private object FindVariable(string key)
         {
-            bool foundVariable = false;
             Hash scope = Scopes.FirstOrDefault(s => s.ContainsKey(key));
-            object ret = null;
+            object variable = null;
             if (scope == null)
             {
                 foreach (Hash e in Environments)
-                {
-                    foundVariable = TryEvaluateHashOrArrayLikeObject(e, key, out ret);
-                    if (foundVariable)
+                    if ((variable = LookupAndEvaluate(e, key)) != null)
                     {
                         scope = e;
                         break;
                     }
-                }
-
-                if (scope == null)
-                {
-                    scope = Environments.LastOrDefault() ?? Scopes.Last();
-                    foundVariable = TryEvaluateHashOrArrayLikeObject(scope, key, out ret);
-                }
             }
-            else
-            {
-                foundVariable = TryEvaluateHashOrArrayLikeObject(scope, key, out ret);
-            }
+            scope = scope ?? Environments.LastOrDefault() ?? Scopes.Last();
+            variable = variable ?? LookupAndEvaluate(scope, key);
 
-            variable = Liquidize(ret);
+            variable = Liquidize(variable);
             if (variable is IContextAware contextAwareVariable)
             {
                 contextAwareVariable.Context = this;
             }
-            return foundVariable;
+            return variable;
         }
 
         /// <summary>
@@ -484,39 +461,33 @@ namespace DotLiquid
         /// <returns></returns>
         private object Variable(string markup, bool notifyNotFound)
         {
-            using (var partsEnumerator = Tokenizer.GetVariableEnumerator(markup))
+            List<string> parts = R.Scan(markup, VariableParserRegex);
+
+            // first item in list, if any
+            string firstPart = parts.TryGetAtIndex(0);
+
+            Match firstPartSquareBracketedMatch = SquareBracketedRegex.Match(firstPart);
+            if (firstPartSquareBracketedMatch.Success)
+                firstPart = Resolve(firstPartSquareBracketedMatch.Groups[1].Value).ToString();
+
+            object @object;
+            if ((@object = FindVariable(firstPart)) == null)
             {
-                if (TryGetVariable(partsEnumerator, out var variable))
-                    return variable;
                 if (notifyNotFound)
                     Errors.Add(new VariableNotFoundException(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), markup)));
                 return null;
             }
-        }
-
-        private bool TryGetVariable(IEnumerator<string> partsEnumerator, out object variable)
-        {
-            // first item in list, if any
-            string firstPart = partsEnumerator.MoveNext() ? partsEnumerator.Current : null;
-            if (firstPart != null && firstPart[0] == '[')
-                firstPart = Resolve(firstPart.Substring(1, firstPart.Length - 2)).ToString();
-
-            object @object;
-            if (firstPart == null || !TryFindVariable(firstPart, out @object))
-            {
-                variable = null;
-                return false;
-            }
 
             // try to resolve the rest of the parts (starting from the second item in the list)
-            while (partsEnumerator.MoveNext())
+            for (int i = 1; i < parts.Count; ++i)
             {
-                string forEachPart = partsEnumerator.Current;
-                bool partResolved = forEachPart[0] == '[';
+                var forEachPart = parts[i];
+                Match partSquareBracketedMatch = SquareBracketedRegex.Match(forEachPart);
+                bool partResolved = partSquareBracketedMatch.Success;
 
                 object part = forEachPart;
                 if (partResolved)
-                    part = Resolve(forEachPart.Substring(1, forEachPart.Length - 2));
+                    part = Resolve(partSquareBracketedMatch.Groups[1].Value);
 
                 // If object is a KeyValuePair, we treat it a bit differently - we might be rendering
                 // an included template.
@@ -539,17 +510,44 @@ namespace DotLiquid
                 {
                     // If object is a KeyValuePair, we treat it a bit differently - we might be rendering
                     // an included template.
-                    if (TryEvaluateHashOrArrayLikeObject(@object, part, out var value))
+                    if (@object is KeyValuePair<string, object> && ((KeyValuePair<string, object>)@object).Key == (string)part)
+                    {
+                        object res = ((KeyValuePair<string, object>)@object).Value;
+                        @object = Liquidize(res);
+                    }
+                    // If object is a hash- or array-like object we look for the
+                    // presence of the key and if its available we return it
+                    else if (IsHashOrArrayLikeObject(@object, part))
                     {
                         // If its a proc we will replace the entry with the proc
-                        @object = Liquidize(value);
+                        object res = LookupAndEvaluate(@object, part);
+                        @object = Liquidize(res);
+                    }
+                    // Some special cases. If the part wasn't in square brackets and
+                    // no key with the same name was found we interpret following calls
+                    // as commands and call them on the current object
+                    else if (!partResolved && (@object is IEnumerable) && (Template.NamingConvention.OperatorEquals(part as string, "size") || Template.NamingConvention.OperatorEquals(part as string, "first") || Template.NamingConvention.OperatorEquals(part as string, "last")))
+                    {
+                        var castCollection = ((IEnumerable)@object).Cast<object>();
+                        if (Template.NamingConvention.OperatorEquals(part as string, "size"))
+                            @object = castCollection.Count();
+                        else if (Template.NamingConvention.OperatorEquals(part as string, "first"))
+                        {
+                            object res = castCollection.FirstOrDefault();
+                            @object = Liquidize(res);
+                        }
+                        else if (Template.NamingConvention.OperatorEquals(part as string, "last"))
+                        {
+                            object res = castCollection.LastOrDefault();
+                            @object = Liquidize(res);
+                        }
                     }
                     // No key was present with the desired value and it wasn't one of the directly supported
                     // keywords either. The only thing we got left is to return nil
                     else
                     {
-                        variable = null;
-                        return false;
+                        Errors.Add(new VariableNotFoundException(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), markup)));
+                        return null;
                     }
                 }
 
@@ -559,72 +557,86 @@ namespace DotLiquid
                     contextAwareObject.Context = this;
                 }
             }
-            variable = @object;
-            return true;
+
+            return @object;
         }
 
-        /// <summary>
-        /// Replacement for IsHashOrArrayLikeObject and LookupAndEvaluate.
-        /// Attempts to find and return the value of a key in the given object.
-        /// </summary>
-        /// <param name="obj">value to inspect</param>
-        /// <param name="key">key/label to check for</param>
-        /// <param name="value"></param>
-        /// <returns>true if the key was found in the given object</returns>
-        private bool TryEvaluateHashOrArrayLikeObject(object obj, object key, out object value)
+        private static bool IsHashOrArrayLikeObject(object obj, object part)
         {
-            value = null;
-
             if (obj == null)
                 return false;
 
-            if (obj is KeyValuePair<string, object> keyValuePair && key is string stringKey && keyValuePair.Key == stringKey)
-                value = keyValuePair.Value;
-            else if (obj is IDictionary dictionaryObj && dictionaryObj.Contains(key))
-                value = dictionaryObj[key];
-            // Resolve #350/#417, add support for rendering of a nested ExpandoObject
-            else if (obj is IDictionary<string, object> dictionaryObject && dictionaryObject.ContainsKey(key.ToString()))
-                value = dictionaryObject[key.ToString()];
-            else if (obj is IList listObj && (key is int || key is long))
-                value = listObj[Convert.ToInt32(key)];
-            else if (TypeUtility.IsAnonymousType(obj.GetType()) && obj.GetType().GetRuntimeProperty((string)key) != null)
-                value = obj.GetType().GetRuntimeProperty((string)key).GetValue(obj, null);
-            else if (obj is IIndexable indexableObj && indexableObj.ContainsKey(key))
-                value = indexableObj[key];
-            else if (obj is IEnumerable enumerableObject && key is string enumerableKey
-                && ArrayDotOperators.Contains(enumerableKey.ToLowerInvariant()))
+            if ((obj is IDictionary && ((IDictionary)obj).Contains(part)))
+                return true;
+
+            // Resolve #350/#417, add support for rendering of a nested  ExpandoObject
+            if (obj is IDictionary<string, object> dictionaryObject && dictionaryObject.ContainsKey(part.ToString()))
+                return true;
+
+            if ((obj is IList) && (part is int || part is long))
+                return true;
+
+            if (TypeUtility.IsAnonymousType(obj.GetType()) && obj.GetType().GetRuntimeProperty((string)part) != null)
+                return true;
+
+            if ((obj is IIndexable) && ((IIndexable)obj).ContainsKey(part))
+                return true;
+
+            return false;
+        }
+
+        private object LookupAndEvaluate(object obj, object key)
+        {
+            object value;
+            if (obj is IDictionary dictionaryObj)
             {
-                // Special cases: If no key with the same name was found we interpret size|first|last
-                // as commands and call them on the current IEnumerable object
-                var castCollection = enumerableObject.Cast<object>();
-                if (Template.NamingConvention.OperatorEquals(enumerableKey, "size"))
-                    value = castCollection.Count();
-                else if (Template.NamingConvention.OperatorEquals(enumerableKey, "first"))
-                    value = castCollection.FirstOrDefault();
-                else if (Template.NamingConvention.OperatorEquals(enumerableKey, "last"))
-                    value = castCollection.LastOrDefault();
-                else
-                    return false;
+                value = dictionaryObj[key];
+            }
+            // Resolve #350/#417, add support for rendering of a nested  ExpandoObject
+            else if (obj is IDictionary<string, object> dictionaryObject)
+            {
+                value = dictionaryObject[key.ToString()];
+            }
+            else if (obj is IList listObj)
+            {
+                value = listObj[Convert.ToInt32(key)];
+            }
+            else if (TypeUtility.IsAnonymousType(obj.GetType()))
+            {
+                value = obj.GetType().GetRuntimeProperty((string)key).GetValue(obj, null);
+            }
+            else if (obj is IIndexable indexableObj)
+            {
+                value = indexableObj[key];
             }
             else
-                return false;
+            {
+                throw new NotSupportedException();
+            }
 
             if (value is Proc procValue)
             {
                 object newValue = procValue.Invoke(this);
                 if (obj is IDictionary dicObj)
+                {
                     dicObj[key] = newValue;
+                }
                 else if (obj is IList listObj)
+                {
                     listObj[Convert.ToInt32(key)] = newValue;
+                }
                 else if (TypeUtility.IsAnonymousType(obj.GetType()))
+                {
                     obj.GetType().GetRuntimeProperty((string)key).SetValue(obj, newValue, null);
+                }
                 else
+                {
                     throw new NotSupportedException();
-
-                value = newValue;
+                }
+                return newValue;
             }
 
-            return true;
+            return value;
         }
 
         private static object Liquidize(object obj)
@@ -720,8 +732,7 @@ namespace DotLiquid
                 foreach (Hash env in Environments)
                     if (env.ContainsKey(k))
                     {
-                        TryEvaluateHashOrArrayLikeObject(env, k, out var value);
-                        tempAssigns[k] = value;
+                        tempAssigns[k] = LookupAndEvaluate(env, k);
                         break;
                     }
 

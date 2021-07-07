@@ -161,6 +161,13 @@ namespace DotLiquid.Tests
             }
         }
 
+        private class ExpandoModel
+        {
+            public int IntProperty { get; set; }
+            public string StringProperty { get; set; }
+            public ExpandoObject Properties { get; set; }
+        }
+
         #endregion
 
         private Context _context;
@@ -790,13 +797,6 @@ namespace DotLiquid.Tests
             Assert.AreEqual("Hello", _context["dynamic.lambda.name"]);
         }
 
-        private class ExpandoModel
-        {
-            public int IntProperty { get; set; }
-            public string StringProperty { get; set; }
-            public ExpandoObject Properties { get; set; }
-        }
-
         /// <summary>
         /// Test case for [Issue #350](https://github.com/dotliquid/dotliquid/issues/350)
         /// </summary>
@@ -817,11 +817,6 @@ namespace DotLiquid.Tests
             var template = Template.Parse(templateString);
             Assert.AreEqual(expected: "Int: '23'; String: 'from string property'; Expando: 'ExpandoObject Key1 value'",
                             actual: template.Render(Hash.FromAnonymousObject(model)));
-        }
-
-        private class DataJson : Drop
-        {
-            public Dictionary<string, object> Data { get; set; }
         }
 
         /// <summary>

@@ -1654,6 +1654,7 @@ Cheapest products:
             CollectionAssert.AreEqual(arrayReversed, StandardFilters.Reverse(array));
             CollectionAssert.AreEqual(array, StandardFilters.Reverse(arrayReversed));
             CollectionAssert.AreEqual(new[] { 3, 2, 2, 1 }, StandardFilters.Reverse(new[] { 1, 2, 2, 3 }));
+            Assert.AreEqual(".moT rojaM ot lortnoc dnuorG", StandardFilters.Reverse("Ground control to Major Tom."));
         }
 
         /// <summary>

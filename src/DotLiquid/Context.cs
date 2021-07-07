@@ -592,7 +592,7 @@ namespace DotLiquid
             {
                 value = dictionaryObj[key];
             }
-            // Resolve #350/#417, add support for rendering of a nested  ExpandoObject
+            // Resolve #350/#417, add support for rendering of a nested ExpandoObject
             else if (obj is IDictionary<string, object> dictionaryObject)
             {
                 value = dictionaryObject[key.ToString()];

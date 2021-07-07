@@ -125,6 +125,7 @@ namespace DotLiquid.Tests
             var hash = new Hash(0); // default value of zero
             hash["key"] = "value";
 
+            // NOTE: the next two asserts will change to true when performance changes are introduced by PR #441.
             Assert.False(hash.Contains("unknown-key"));
             Assert.False(hash.ContainsKey("unknown-key"));
             Assert.AreEqual(0, hash["unknown-key"]); // ensure the default value is returned

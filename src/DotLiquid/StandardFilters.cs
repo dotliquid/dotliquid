@@ -165,10 +165,7 @@ namespace DotLiquid
         /// <see href="https://shopify.github.io/liquid/filters/escape_once/"/>
         public static string EscapeOnce(string input)
         {
-            if (string.IsNullOrEmpty(input))
-                return input;
-
-            return WebUtility.HtmlEncode(WebUtility.HtmlDecode(input));
+            return string.IsNullOrEmpty(input) ? input : WebUtility.HtmlEncode(WebUtility.HtmlDecode(input));
         }
 
         /// <summary>
@@ -234,10 +231,11 @@ namespace DotLiquid
 
         /// <summary>
         /// Split input string into an array of substrings separated by given pattern.
-        ///
+        /// </summary>
+        /// <remarks>
         /// If the pattern is empty the input string is converted to an array of 1-char
         /// strings (as specified in the Liquid Reverse filter example).
-        /// </summary>
+        /// </remarks>
         /// <param name="input"></param>
         /// <param name="pattern"></param>
         /// <returns></returns>
@@ -247,6 +245,7 @@ namespace DotLiquid
                 return new[] { input };
 
             // If the pattern is empty convert to an array as specified in the Liquid Reverse filter example.
+            // See: https://shopify.github.io/liquid/filters/reverse/
             return string.IsNullOrEmpty(pattern)
                 ? input.ToCharArray().Select(character => character.ToString()).ToArray()
                 : input.Split(new[] { pattern }, StringSplitOptions.RemoveEmptyEntries);
@@ -1003,13 +1002,13 @@ namespace DotLiquid
         /// <summary>
         /// Concatenates (joins together) multiple arrays.
         /// The resulting array contains all the items from the input arrays.
-        ///
+        /// </summary>
+        /// <remarks>
         /// Will not remove duplicate entries from the concatenated array
         /// unless you also use the uniq filter.
-        /// </summary>
+        /// </remarks>
         /// <param name="left">left hand (start) of the new concatenated array</param>
         /// <param name="right">array to be appended to left</param>
-        /// <returns></returns>
         /// <see href="https://shopify.github.io/liquid/filters/concat/"/>
         public static IEnumerable Concat(IEnumerable left, IEnumerable right)
         {
@@ -1019,9 +1018,7 @@ namespace DotLiquid
             else if (right == null)
                 return left;
 
-            List<object> leftList = left.Cast<object>().ToList();
-            List<object> rightList = right.Cast<object>().ToList();
-            return leftList.Concat(rightList);
+            return left.Cast<object>().ToList().Concat(right.Cast<object>());
         }
 
         /// <summary>

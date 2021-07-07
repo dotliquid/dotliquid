@@ -792,29 +792,31 @@ namespace DotLiquid.Tests
 
         private class ExpandoModel
         {
-            public int IntProp { get; set; }
-            public string StrProp { get; set; }
-            public ExpandoObject Props { get; set; }
+            public int IntProperty { get; set; }
+            public string StringProperty { get; set; }
+            public ExpandoObject Properties { get; set; }
         }
 
-        // Test case for [Issue #350](https://github.com/dotliquid/dotliquid/issues/350)
+        /// <summary>
+        /// Test case for [Issue #350](https://github.com/dotliquid/dotliquid/issues/350)
+        /// </summary>
         [Test]
         public void TestNestedExpandoTemplate_Issue350()
         {
             var model = new ExpandoModel()
             {
-                IntProp = 23,
-                StrProp = "from string prop",
-                Props = new ExpandoObject()
+                IntProperty = 23,
+                StringProperty = "from string property",
+                Properties = new ExpandoObject()
             };
-            var dic = (IDictionary<string, object>)model.Props;
-            dic.Add("Key1", "from expando prop");
+            var dictionary = (IDictionary<string, object>)model.Properties;
+            dictionary.Add("Key1", "ExpandoObject Key1 value");
 
-            Template.RegisterSafeType(typeof(ExpandoModel), new[] { "IntProp", "StrProp", "Props" });
-            const string templateString = @"Int: '{{IntProp}}'; String: '{{StrProp}}'; Expando: '{{Props.Key1}}'";
-            var t = Template.Parse(templateString);
-            Assert.AreEqual(expected: "Int: '23'; String: 'from string prop'; Expando: 'from expando prop'",
-                            actual: t.Render(Hash.FromAnonymousObject(model)));
+            Template.RegisterSafeType(typeof(ExpandoModel), new[] { "IntProperty", "StringProperty", "Properties" });
+            const string templateString = @"Int: '{{IntProperty}}'; String: '{{StringProperty}}'; Expando: '{{Properties.Key1}}'";
+            var template = Template.Parse(templateString);
+            Assert.AreEqual(expected: "Int: '23'; String: 'from string property'; Expando: 'ExpandoObject Key1 value'",
+                            actual: template.Render(Hash.FromAnonymousObject(model)));
         }
 
         private class DataJson : Drop
@@ -822,7 +824,9 @@ namespace DotLiquid.Tests
             public Dictionary<string, object> Data { get; set; }
         }
 
-        // Test case for [Issue #417](https://github.com/dotliquid/dotliquid/issues/417)
+        /// <summary>
+        /// Test case for [Issue #417](https://github.com/dotliquid/dotliquid/issues/417)
+        /// </summary>
         [Test]
         public void TestNestedExpandoTemplate_Issue417()
         {

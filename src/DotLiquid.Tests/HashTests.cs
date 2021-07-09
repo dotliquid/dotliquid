@@ -167,33 +167,25 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestMergeNestedDictionaries_ForLoop()
+        public void TestMergeNestedDictionaries()
         {
+            var hash = Hash.FromDictionary(new Dictionary<string, object> {{
+                    "People",
+                    new Dictionary<string, object> {
+                            { "ID1", new Dictionary<string, object>{ { "First", "Jane" }, { "Last", "Green" } } },
+                            { "ID2", new Dictionary<string, object>{ { "First", "Mike" }, { "Last", "Doe" } } }
+                        }
+                    }});
+
+            // Test using a for loop
             Helper.AssertTemplateResult(expected: "JaneMike",
                 template: "{% for item in People %}{{ item.First }}{%endfor%}",
-                localVariables: new Hash().Merge(new Dictionary<string, object> {{
-                    "People",
-                    new Dictionary<string, object> {
-                            { "ID1", new Dictionary<string, object>{ { "First", "Jane" }, { "Last", "Green" } } },
-                            { "ID2", new Dictionary<string, object>{ { "First", "Mike" }, { "Last", "Doe" } } }
-                        }
-                    }})
-            );
-        }
+                localVariables: hash);
 
-        [Test]
-        public void TestMergeNestedDictionaries_VariableAccess()
-        {
+            // Test using direct variable access
             Helper.AssertTemplateResult(expected: "Jane Doe",
                 template: "{{ People.ID1.First }} {{ People.ID2.Last }}",
-                localVariables: new Hash().Merge(new Dictionary<string, object> {{
-                    "People",
-                    new Dictionary<string, object> {
-                            { "ID1", new Dictionary<string, object>{ { "First", "Jane" }, { "Last", "Green" } } },
-                            { "ID2", new Dictionary<string, object>{ { "First", "Mike" }, { "Last", "Doe" } } }
-                        }
-                    }})
-            );
+                localVariables: hash);
         }
     }
 }

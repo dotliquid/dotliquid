@@ -126,7 +126,9 @@ namespace DotLiquid
 
         public static Hash FromDictionary(IDictionary<string, object> dictionary)
         {
-            return new Hash().Merge(dictionary);
+            var hash = new Hash();
+            hash.Merge(dictionary);
+            return hash;
         }
 
         #endregion
@@ -152,14 +154,10 @@ namespace DotLiquid
 
         #endregion
 
-        /// <summary>
-        /// Merge the contents of the given Dicionary into this Hash.
-        /// <summary>
-        public Hash Merge(IDictionary<string, object> otherValues)
+        public void Merge(IDictionary<string, object> otherValues)
         {
             foreach (string key in otherValues.Keys)
                 _nestedDictionary[key] = otherValues[key];
-            return this;
         }
 
         protected virtual object GetValue(string key)

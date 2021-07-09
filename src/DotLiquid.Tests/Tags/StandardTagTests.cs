@@ -616,10 +616,10 @@ namespace DotLiquid.Tests.Tags
             }};
 
             // Check for loops
-            Helper.AssertTemplateResult(expected: @"English 1: Jane Green (ID1), Mike Doe (ID2), 
-Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4), 
+            Helper.AssertTemplateResult(expected: @"English 1: Jane Green, Mike Doe, 
+Maths 2: Eric Schmidt, Bruce Banner, 
 ",
-                template: @"{% for class in Classes %}{{class.Name}} {{class.Level}}: {% for student in class.Students %}{{ student.First }} {{ student.Last }} ({{ forloop.itemName }}), {%endfor%}
+                template: @"{% for class in Classes %}{{class.Name}} {{class.Level}}: {% for student in class.Students %}{{ student.First }} {{ student.Last }}, {%endfor%}
 {%endfor%}",
                 localVariables: Hash.FromDictionary(classes));
 

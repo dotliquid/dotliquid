@@ -167,10 +167,25 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestMergeDictionaryConstructor()
+        public void TestMergeNestedDictionaries_ForLoop()
         {
             Helper.AssertTemplateResult(expected: "JaneMike",
                 template: "{% for item in People %}{{ item.First }}{%endfor%}",
+                localVariables: new Hash().Merge(new Dictionary<string, object> {{
+                    "People",
+                    new Dictionary<string, object> {
+                            { "ID1", new Dictionary<string, object>{ { "First", "Jane" }, { "Last", "Green" } } },
+                            { "ID2", new Dictionary<string, object>{ { "First", "Mike" }, { "Last", "Doe" } } }
+                        }
+                    }})
+            );
+        }
+
+        [Test]
+        public void TestMergeNestedDictionaries_VariableAccess()
+        {
+            Helper.AssertTemplateResult(expected: "Jane Doe",
+                template: "{{ People.ID1.First }} {{ People.ID2.Last }}",
                 localVariables: new Hash().Merge(new Dictionary<string, object> {{
                     "People",
                     new Dictionary<string, object> {

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests.Ns1
@@ -163,6 +164,21 @@ namespace DotLiquid.Tests
             {
                 var value = hash[0]; // Only a string key is premitted
             });
+        }
+
+        [Test]
+        public void TestMergeDictionaryConstructor()
+        {
+            Helper.AssertTemplateResult(expected: "JaneMike",
+                template: "{% for item in People %}{{ item.First }}{%endfor%}",
+                localVariables: new Hash().Merge(new Dictionary<string, object> {{
+                    "People",
+                    new Dictionary<string, object> {
+                            { "ID1", new Dictionary<string, object>{ { "First", "Jane" }, { "Last", "Green" } } },
+                            { "ID2", new Dictionary<string, object>{ { "First", "Mike" }, { "Last", "Doe" } } }
+                        }
+                    }})
+            );
         }
     }
 }

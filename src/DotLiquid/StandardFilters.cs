@@ -1029,7 +1029,7 @@ namespace DotLiquid
         /// <see href="https://shopify.github.io/liquid/filters/reverse/"/>
         public static IEnumerable Reverse(IEnumerable input)
         {
-            if (input == null)
+            if (input == null || input is string)
                 return input;
 
             List<object> inputList = input.Cast<object>().ToList();

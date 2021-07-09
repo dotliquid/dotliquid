@@ -81,7 +81,7 @@ namespace DotLiquid.Tests.Tags
         public void TestForWithNestedDictionary()
         {
             var dictionary = new Dictionary<string, object> { {
-            "People", 
+            "People",
             new Dictionary<string, object> {
                     { "ID1", new Dictionary<string, object>{ { "First", "Jane" }, { "Last", "Green" } } },
                     { "ID2", new Dictionary<string, object>{ { "First", "Mike" }, { "Last", "Doe" } } }
@@ -329,9 +329,9 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestContinueOutsideFor()
         {
-        var markup = "123{% continue %}456";
-        var expected = "123";
-        Helper.AssertTemplateResult(expected, markup);
+            var markup = "123{% continue %}456";
+            var expected = "123";
+            Helper.AssertTemplateResult(expected, markup);
         }
 
         [Test]
@@ -478,7 +478,7 @@ namespace DotLiquid.Tests.Tags
                 "{% case condition %}{% when 1 or 'string' or null %} its 1 or 2 or 3 {% when 4 %} its 4 {% endcase %}";
             Helper.AssertTemplateResult(" its 1 or 2 or 3 ", code2, Hash.FromAnonymousObject(new { condition = 1 }));
             Helper.AssertTemplateResult(" its 1 or 2 or 3 ", code2, Hash.FromAnonymousObject(new { condition = "string" }));
-            Helper.AssertTemplateResult(" its 1 or 2 or 3 ", code2, Hash.FromAnonymousObject(new { condition = (object) null }));
+            Helper.AssertTemplateResult(" its 1 or 2 or 3 ", code2, Hash.FromAnonymousObject(new { condition = (object)null }));
             Helper.AssertTemplateResult("", code2, Hash.FromAnonymousObject(new { condition = "something else" }));
         }
 
@@ -496,7 +496,7 @@ namespace DotLiquid.Tests.Tags
                 "{% case condition %}{% when 1, 'string', null %} its 1 or 2 or 3 {% when 4 %} its 4 {% endcase %}";
             Helper.AssertTemplateResult(" its 1 or 2 or 3 ", code2, Hash.FromAnonymousObject(new { condition = 1 }));
             Helper.AssertTemplateResult(" its 1 or 2 or 3 ", code2, Hash.FromAnonymousObject(new { condition = "string" }));
-            Helper.AssertTemplateResult(" its 1 or 2 or 3 ", code2, Hash.FromAnonymousObject(new { condition = (object) null }));
+            Helper.AssertTemplateResult(" its 1 or 2 or 3 ", code2, Hash.FromAnonymousObject(new { condition = (object)null }));
             Helper.AssertTemplateResult("", code2, Hash.FromAnonymousObject(new { condition = "something else" }));
         }
 
@@ -589,6 +589,44 @@ namespace DotLiquid.Tests.Tags
         {
             Hash assigns = Hash.FromAnonymousObject(new { array = new[] { 1, 2, 3 } });
             Helper.AssertTemplateResult("321", "{%for item in array reversed %}{{item}}{%endfor%}", assigns);
+        }
+
+        [Test]
+        public void TestNestedDictionaries()
+        {
+            var classes = new Dictionary<string, object> {{
+                    "Classes", new Dictionary<string, object> {
+                        { "C1", new Dictionary<string, object>{
+                            { "Name", "English" },
+                            { "Level", "1" },
+                            { "Students", new Dictionary<string, object> {
+                                { "ID1", new Dictionary<string, object>{ { "First", "Jane" }, { "Last", "Green" } } },
+                                { "ID2", new Dictionary<string, object>{ { "First", "Mike" }, { "Last", "Doe" } } } } }
+                            }
+                        },
+                        { "C2", new Dictionary<string, object>{
+                            { "Name", "Maths" },
+                            { "Level", "2" },
+                            { "Students", new Dictionary<string, object> {
+                                { "ID3", new Dictionary<string, object>{ { "First", "Eric" }, { "Last", "Schmidt" } } },
+                                { "ID4", new Dictionary<string, object>{ { "First", "Bruce" }, { "Last", "Banner" } } } } }
+                            }
+                        }
+                    }
+            }};
+
+            // Check for loops
+            Helper.AssertTemplateResult(expected: @"English 1: Jane Green (ID1), Mike Doe (ID2), 
+Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4), 
+",
+                template: @"{% for class in Classes %}{{class.Name}} {{class.Level}}: {% for student in class.Students %}{{ student.First }} {{ student.Last }} ({{ forloop.itemName }}), {%endfor%}
+{%endfor%}",
+                localVariables: Hash.FromDictionary(classes));
+
+            // Check dot notation
+            Helper.AssertTemplateResult(expected: "Eric Schmidt",
+                template: "{{ Classes.C2.Students.ID3.First }} {{ Classes.C2.Students.ID3.Last }}",
+                localVariables: Hash.FromDictionary(classes));
         }
 
         [Test]

@@ -229,7 +229,6 @@ namespace DotLiquid.Tags
         {
             if (value is Hash hashValue)
             {
-                hashValue["itemName"] = key;
                 context[parent] = value;
 
                 foreach (var hashItem in (Hash)value)

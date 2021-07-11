@@ -81,24 +81,14 @@ namespace DotLiquid.Tags
             context.Stack(() =>
             {
                 string key = context[_name].ToString();
-                var register = GetRegister(context);
-                int iteration = register.ContainsKey(key) ? register[key] : 0;
+                var register = GetRegister<int>(context, "cycle");
+                var iteration = register.ContainsKey(key) ? register[key] : 0;
                 result.Write(context[_variables[iteration]].ToString());
                 ++iteration;
                 if (iteration >= _variables.Length)
                     iteration = 0;
                 register[key] = iteration;
             });
-        }
-
-        /// <summary>
-        /// Get the cycle tag register, if not available initialise it.
-        /// </summary>
-        private static IDictionary<string, int> GetRegister(Context context)
-        {
-            if (!context.Registers.ContainsKey("cycle"))
-                context.Registers["cycle"] = new Dictionary<string, int>();
-            return context.Registers.Get<IDictionary<string, int>>("cycle");
         }
     }
 }

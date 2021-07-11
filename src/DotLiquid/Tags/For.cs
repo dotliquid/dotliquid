@@ -129,7 +129,7 @@ namespace DotLiquid.Tags
                 return;
             }
 
-            var register = GetRegister(context);
+            var register = GetRegister<object>(context, "for");
             int from = (_attributes.ContainsKey("offset"))
                 ? (_attributes["offset"] == "continue")
                     ? Convert.ToInt32(register[_name])
@@ -198,16 +198,6 @@ namespace DotLiquid.Tags
                     }
                 }
             });
-        }
-
-        /// <summary>
-        /// Get the for tag register, if not available initialise it.
-        /// </summary>
-        private static IDictionary<string, object> GetRegister(Context context)
-        {
-            if (!context.Registers.ContainsKey("for"))
-                context.Registers["for"] = new Dictionary<string, object>();
-            return context.Registers.Get<IDictionary<string, object>>("for");
         }
 
         private static List<object> SliceCollectionUsingEach(Context context, IEnumerable collection, int from, int? to)

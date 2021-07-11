@@ -88,5 +88,18 @@ namespace DotLiquid
                 return result.ToString();
             }
         }
+
+        /// <summary>
+        /// Return a named register as a dictionary keyed by a string with values of specified type T.
+        /// <summary>
+        /// <param name="context"></param>
+        /// <param name="registerName">Name of the register, for example 'cycle' for the Cycle tag</param>
+        /// <param name="T">Type of object stored in the register, for example cycle stores an int</param>
+        protected static IDictionary<string, T> GetRegister<T>(Context context, string registerName)
+        {
+            if (!context.Registers.ContainsKey("cycle"))
+                context.Registers["cycle"] = new Dictionary<string, T>();
+            return context.Registers.Get<IDictionary<string, T>>("cycle");
+        }
     }
 }

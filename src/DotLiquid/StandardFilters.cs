@@ -1025,14 +1025,13 @@ namespace DotLiquid
         /// Reverses the order of the items in an array. `reverse` cannot reverse a string.
         /// </summary>
         /// <param name="input"/>
-        /// <returns></returns>
         /// <see href="https://shopify.github.io/liquid/filters/reverse/"/>
         public static IEnumerable Reverse(IEnumerable input)
         {
             if (input == null || input is string)
                 return input;
 
-            List<object> inputList = input.Cast<object>().ToList();
+            var inputList = input.Cast<object>().ToList();
             inputList.Reverse();
             return inputList;
         }

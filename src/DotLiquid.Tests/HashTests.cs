@@ -162,7 +162,7 @@ namespace DotLiquid.Tests
             IDictionary hash = new Hash();
             Assert.Throws<System.NotSupportedException>(() =>
             {
-                var value = hash[0]; // Only a string key is premitted
+                var value = hash[0]; // Only a string key is permitted.
             });
         }
 
@@ -178,12 +178,14 @@ namespace DotLiquid.Tests
                     }});
 
             // Test using a for loop
-            Helper.AssertTemplateResult(expected: "JaneMike",
+            Helper.AssertTemplateResult(
+                expected: "JaneMike",
                 template: "{% for item in People %}{{ item.First }}{%endfor%}",
                 localVariables: hash);
 
             // Test using direct variable access
-            Helper.AssertTemplateResult(expected: "Jane Doe",
+            Helper.AssertTemplateResult(
+                expected: "Jane Doe",
                 template: "{{ People.ID1.First }} {{ People.ID2.Last }}",
                 localVariables: hash);
         }

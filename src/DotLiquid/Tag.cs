@@ -95,7 +95,7 @@ namespace DotLiquid
         /// <param name="context"></param>
         /// <param name="registerName">Name of the register, for example 'cycle' for the Cycle tag</param>
         /// <param name="T">Type of object stored in the register, for example cycle stores an int</param>
-        protected static IDictionary<string, T> GetRegister<T>(Context context, string registerName)
+        internal static IDictionary<string, T> GetRegister<T>(Context context, string registerName)
         {
             if (!context.Registers.ContainsKey(registerName))
                 context.Registers[registerName] = new Dictionary<string, T>();

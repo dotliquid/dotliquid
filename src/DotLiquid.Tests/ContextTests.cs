@@ -5,6 +5,7 @@ using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 using DotLiquid.Exceptions;
+using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -160,6 +161,13 @@ namespace DotLiquid.Tests
             }
         }
 
+        private class ExpandoModel
+        {
+            public int IntProperty { get; set; }
+            public string StringProperty { get; set; }
+            public ExpandoObject Properties { get; set; }
+        }
+
         #endregion
 
         private Context _context;
@@ -231,24 +239,24 @@ namespace DotLiquid.Tests
         {
             Template template = Template.Parse("{{ does_not_exist }}");
             string rendered = template.Render();
- 
+
             Assert.AreEqual("", rendered);
             Assert.AreEqual(1, template.Errors.Count);
             Assert.AreEqual(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), "does_not_exist"), template.Errors[0].Message);
         }
- 
+
         [Test]
         public void TestVariableNotFoundFromAnonymousObject()
         {
             Template template = Template.Parse("{{ first.test }}{{ second.test }}");
             string rendered = template.Render(Hash.FromAnonymousObject(new { second = new { foo = "hi!" } }));
- 
+
             Assert.AreEqual("", rendered);
             Assert.AreEqual(2, template.Errors.Count);
             Assert.AreEqual(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), "first.test"), template.Errors[0].Message);
             Assert.AreEqual(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), "second.test"), template.Errors[1].Message);
         }
- 
+
         [Test]
         public void TestVariableNotFoundException()
         {
@@ -681,15 +689,19 @@ namespace DotLiquid.Tests
                 template: "{{context}}",
                 localVariables: Hash.FromAnonymousObject(new { context = TimeSpan.FromDays(1) }));
 
-            Helper.AssertTemplateResult(
-                expected: "1/1/0001 12:00:00 AM",
-                template: "{{context}}",
-                localVariables: Hash.FromAnonymousObject(new { context = DateTime.MinValue }));
+            // The expected values are expressed in en-US, so ensure the template runs with that Culture.
+            using (CultureHelper.SetCulture("en-US"))
+            {
+                Helper.AssertTemplateResult(
+                    expected: "1/1/0001 12:00:00 AM",
+                    template: "{{context}}",
+                    localVariables: Hash.FromAnonymousObject(new { context = DateTime.MinValue }));
 
-            Helper.AssertTemplateResult(
-                expected: "9/10/2013 12:10:32 AM +01:00",
-                template: "{{context}}",
-                localVariables: Hash.FromAnonymousObject(new { context = new DateTimeOffset(2013, 9, 10, 0, 10, 32, new TimeSpan(1, 0, 0)) }));
+                Helper.AssertTemplateResult(
+                    expected: "9/10/2013 12:10:32 AM +01:00",
+                    template: "{{context}}",
+                    localVariables: Hash.FromAnonymousObject(new { context = new DateTimeOffset(2013, 9, 10, 0, 10, 32, new TimeSpan(1, 0, 0)) }));
+            }
 
             Helper.AssertTemplateResult(
                 expected: "d0f28a51-9393-4658-af0b-8c4b4c5c31ff",
@@ -785,10 +797,46 @@ namespace DotLiquid.Tests
             Assert.AreEqual("Hello", _context["dynamic.lambda.name"]);
         }
 
+        /// <summary>
+        /// Test case for [Issue #350](https://github.com/dotliquid/dotliquid/issues/350)
+        /// </summary>
+        [Test]
+        public void TestNestedExpandoTemplate_Issue350()
+        {
+            var model = new ExpandoModel()
+            {
+                IntProperty = 23,
+                StringProperty = "from string property",
+                Properties = new ExpandoObject()
+            };
+            var dictionary = (IDictionary<string, object>)model.Properties;
+            dictionary.Add("Key1", "ExpandoObject Key1 value");
+
+            Template.RegisterSafeType(typeof(ExpandoModel), new[] { "IntProperty", "StringProperty", "Properties" });
+            const string templateString = @"Int: '{{IntProperty}}'; String: '{{StringProperty}}'; Expando: '{{Properties.Key1}}'";
+            var template = Template.Parse(templateString);
+            Assert.AreEqual(expected: "Int: '23'; String: 'from string property'; Expando: 'ExpandoObject Key1 value'",
+                            actual: template.Render(Hash.FromAnonymousObject(model)));
+        }
+
+        /// <summary>
+        /// Test case for [Issue #417](https://github.com/dotliquid/dotliquid/issues/417)
+        /// </summary>
+        [Test]
+        public void TestNestedExpandoTemplate_Issue417()
+        {
+            var modelString = "{\"States\": [{\"Name\": \"Texas\",\"Code\": \"TX\"}, {\"Name\": \"New York\",\"Code\": \"NY\"}]}";
+            var template = "State Is:{{States[0].Name}}";
+
+            var model = JsonConvert.DeserializeObject<ExpandoObject>(modelString);
+            var modelHash = Hash.FromDictionary(model);
+            Assert.AreEqual(expected: "State Is:Texas", actual: Template.Parse(template).Render(modelHash));
+        }
+
         [Test]
         public void TestProcAsVariable()
         {
-            _context["dynamic"] = (Proc) delegate { return "Hello"; };
+            _context["dynamic"] = (Proc)delegate { return "Hello"; };
 
             Assert.AreEqual("Hello", _context["dynamic"]);
         }
@@ -796,7 +844,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestLambdaAsVariable()
         {
-            _context["dynamic"] = (Proc) (c => "Hello");
+            _context["dynamic"] = (Proc)(c => "Hello");
 
             Assert.AreEqual("Hello", _context["dynamic"]);
         }
@@ -804,7 +852,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestNestedLambdaAsVariable()
         {
-            _context["dynamic"] = Hash.FromAnonymousObject(new { lambda = (Proc) (c => "Hello") });
+            _context["dynamic"] = Hash.FromAnonymousObject(new { lambda = (Proc)(c => "Hello") });
 
             Assert.AreEqual("Hello", _context["dynamic.lambda"]);
         }
@@ -812,7 +860,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestArrayContainingLambdaAsVariable()
         {
-            _context["dynamic"] = new object[] { 1, 2, (Proc) (c => "Hello"), 4, 5 };
+            _context["dynamic"] = new object[] { 1, 2, (Proc)(c => "Hello"), 4, 5 };
 
             Assert.AreEqual("Hello", _context["dynamic[2]"]);
         }
@@ -821,7 +869,7 @@ namespace DotLiquid.Tests
         public void TestLambdaIsCalledOnce()
         {
             int global = 0;
-            _context["callcount"] = (Proc) (c =>
+            _context["callcount"] = (Proc)(c =>
             {
                 ++global;
                 return global.ToString();
@@ -838,7 +886,7 @@ namespace DotLiquid.Tests
             int global = 0;
             _context["callcount"] = Hash.FromAnonymousObject(new
             {
-                lambda = (Proc) (c =>
+                lambda = (Proc)(c =>
                 {
                     ++global;
                     return global.ToString();
@@ -872,7 +920,7 @@ namespace DotLiquid.Tests
         {
             _context.Registers["magic"] = 345392;
 
-            _context["magic"] = (Proc) (c => _context.Registers["magic"]);
+            _context["magic"] = (Proc)(c => _context.Registers["magic"]);
 
             Assert.AreEqual(345392, _context["magic"]);
         }
@@ -882,7 +930,7 @@ namespace DotLiquid.Tests
         {
             _context["category"] = new Category("foobar");
             Assert.IsInstanceOf<CategoryDrop>(_context["category"]);
-            Assert.AreEqual(_context, ((CategoryDrop) _context["category"]).Context);
+            Assert.AreEqual(_context, ((CategoryDrop)_context["category"]).Context);
         }
     }
 }

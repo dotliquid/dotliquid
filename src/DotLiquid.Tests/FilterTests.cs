@@ -59,12 +59,12 @@ namespace DotLiquid.Tests
 
         private static class FiltersWithMulitpleMethodSignatures
         {
-            public static string Concat(string one, string two)
+            public static string Concatenate(string one, string two)
             {
                 return string.Concat(one, two);
             }
 
-            public static string Concat(string one, string two, string three)
+            public static string Concatenate(string one, string two, string three)
             {
                 return string.Concat(one, two, three);
             }
@@ -193,8 +193,8 @@ namespace DotLiquid.Tests
         {
             Template.RegisterFilter(typeof(FiltersWithMulitpleMethodSignatures));
 
-            Assert.AreEqual("AB", Template.Parse("{{'A' | concat : 'B'}}").Render());
-            Assert.AreEqual("ABC", Template.Parse("{{'A' | concat : 'B', 'C'}}").Render());
+            Assert.AreEqual("AB", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
+            Assert.AreEqual("ABC", Template.Parse("{{'A' | concatenate : 'B', 'C'}}").Render());
         }
 
         [Test]

@@ -65,5 +65,54 @@ namespace DotLiquid.Tests
             Helper.AssertTemplateResult("{{ {% %} }}", "{{ '{{ {% %} }}' }}");
             Helper.AssertTemplateResult("{{ {% %} }}", "{% assign x = '{{ {% %} }}' %}{{x}}");
         }
+
+        [TestCase(".")]
+        [TestCase("x.")]
+        [TestCase("$x")]
+        [TestCase("x?")]
+        [TestCase("x¿")]
+        [TestCase(".y")]
+        public void TestVariableNotTerminatedFromInvalidVariableName(string variableName)
+        {
+            Template template = Template.Parse("{{ " + variableName + " }}");
+            SyntaxException ex = Assert.Throws<SyntaxException>(() => template.Render(new RenderParameters(System.Globalization.CultureInfo.InvariantCulture)
+            {
+                LocalVariables = Hash.FromAnonymousObject(new { x = "" }),
+                ErrorsOutputMode = ErrorsOutputMode.Rethrow,
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22
+            }));
+            Assert.AreEqual(string.Format(Liquid.ResourceManager.GetString("VariableNotTerminatedException"), variableName), ex.Message);
+
+            template = Template.Parse("{{ x[" + variableName + "] }}");
+            ex = Assert.Throws<SyntaxException>(() => template.Render(new RenderParameters(System.Globalization.CultureInfo.InvariantCulture)
+            {
+                LocalVariables = Hash.FromAnonymousObject(new { x = new { x = "" } }),
+                ErrorsOutputMode = ErrorsOutputMode.Rethrow,
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22
+            }));
+            Assert.AreEqual(string.Format(Liquid.ResourceManager.GetString("VariableNotTerminatedException"), variableName), ex.Message);
+        }
+
+        [Test]
+        public void TestNestedVariableNotTerminated()
+        {
+            var template = Template.Parse("{{ x[[] }}");
+            var ex = Assert.Throws<SyntaxException>(() => template.Render(new RenderParameters(System.Globalization.CultureInfo.InvariantCulture)
+            {
+                LocalVariables = Hash.FromAnonymousObject(new { x = new { x = "" } }),
+                ErrorsOutputMode = ErrorsOutputMode.Rethrow,
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22
+            }));
+            Assert.AreEqual(string.Format(Liquid.ResourceManager.GetString("VariableNotTerminatedException"), "["), ex.Message);
+        }
+
+        [TestCase("[\"]")]
+        [TestCase("[\"\"")]
+        [TestCase("[']")]
+        public void TestVariableTokenizerNotTerminated(string variableName)
+        {
+            var ex = Assert.Throws<SyntaxException>(() => Tokenizer.GetVariableEnumerator(variableName).MoveNext());
+            Assert.AreEqual(string.Format(Liquid.ResourceManager.GetString("VariableNotTerminatedException"), variableName), ex.Message);
+        }
     }
 }

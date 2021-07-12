@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -57,6 +58,7 @@ namespace DotLiquid
 
         private static readonly Dictionary<Type, Func<object, object>> SafeTypeTransformers;
         private static readonly Dictionary<Type, Func<object, object>> ValueTypeTransformers;
+        private static readonly ConcurrentDictionary<Type, Func<object, object>> ValueTypeTransformerCache;
 
         static Template()
         {
@@ -66,6 +68,7 @@ namespace DotLiquid
             Tags = new Dictionary<string, Tuple<ITagFactory, Type>>();
             SafeTypeTransformers = new Dictionary<Type, Func<object, object>>();
             ValueTypeTransformers = new Dictionary<Type, Func<object, object>>();
+            ValueTypeTransformerCache = new ConcurrentDictionary<Type, Func<object, object>>();
         }
 
         /// <summary>
@@ -181,6 +184,7 @@ namespace DotLiquid
         public static void RegisterValueTypeTransformer(Type type, Func<object, object> func)
         {
             ValueTypeTransformers[type] = func;
+            ValueTypeTransformerCache.Clear();
         }
 
         /// <summary>
@@ -195,16 +199,18 @@ namespace DotLiquid
                 return transformer;
 
             // Check for interfaces
-            var interfaces = type.GetTypeInfo().ImplementedInterfaces;
-            foreach (var interfaceType in interfaces)
+            return ValueTypeTransformerCache.GetOrAdd(type, (key) =>
             {
-                if (ValueTypeTransformers.TryGetValue(interfaceType, out transformer))
-                    return transformer;
-                if (interfaceType.GetTypeInfo().IsGenericType && ValueTypeTransformers.TryGetValue(
-                    interfaceType.GetGenericTypeDefinition(), out transformer))
-                    return transformer;
-            }
-            return null;
+                foreach (var interfaceType in type.GetTypeInfo().ImplementedInterfaces)
+                {
+                    if (ValueTypeTransformers.TryGetValue(interfaceType, out transformer))
+                        return transformer;
+                    if (interfaceType.GetTypeInfo().IsGenericType && ValueTypeTransformers.TryGetValue(interfaceType.GetGenericTypeDefinition(), out transformer))
+                        return transformer;
+                }
+
+                return null;
+            });
         }
 
         /// <summary>

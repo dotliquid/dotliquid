@@ -1,6 +1,5 @@
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
@@ -13,19 +12,19 @@ namespace DotLiquid
     /// </summary>
     internal static class Tokenizer
     {
-        private static readonly HashSet<char> SearchSingleQuoteEnd = new HashSet<char> { '\'' };
-        private static readonly HashSet<char> SearchDoubleQuoteEnd = new HashSet<char> { '"' };
+        private static readonly HashSet<char> SearchVariableEnd = new HashSet<char> { '[', '.' };
+        private static readonly char BracketEnd = ']';
         private static readonly HashSet<char> SearchQuoteOrVariableEnd = new HashSet<char> { '}', '\'', '"' };
         private static readonly HashSet<char> SearchQuoteOrTagEnd = new HashSet<char> { '%', '\'', '"' };
         private static readonly Regex LiquidAnyStartingTagRegex = R.B(R.Q(@"({0})([-])?"), Liquid.AnyStartingTag);
         private static readonly Regex TagNameRegex = R.B(R.Q(@"{0}\s*(\w+)"), Liquid.AnyStartingTag);
+        private static readonly Regex VariableSegmentRegex = R.C(Liquid.VariableSegment);
         private static readonly ConcurrentDictionary<string, Regex> EndTagRegexes = new ConcurrentDictionary<string, Regex>();
 
         /// <summary>
         /// Splits a string into an array of `tokens` that represent either a tag, object/variable, or literal string
         /// </summary>
         /// <param name="source">The Liquid Template string</param>
-        /// <returns></returns>
         /// <exception cref="SyntaxException"></exception>
         internal static List<string> Tokenize(string source)
         {
@@ -37,7 +36,7 @@ namespace DotLiquid
 
             var tokens = new List<string>();
 
-            using (var markupEnumerator = new DotLiquid.Util.CharEnumerator(source))
+            using (var markupEnumerator = new CharEnumerator(source))
             {
                 var match = LiquidAnyStartingTagRegex.Match(source, markupEnumerator.Position);
                 while (match.Success)
@@ -54,13 +53,20 @@ namespace DotLiquid
 
                     var isTag = match.Groups[1].Value == "{%";
                     // Ignore hyphen in tag name, add the tag/variable itself
-                    var sb = new StringBuilder(markupEnumerator.Remaining);
-                    sb.Append(match.Groups[1].Value);
+                    var nextToken = new StringBuilder(markupEnumerator.Remaining);
+                    nextToken.Append(match.Groups[1].Value);
                     ReadChars(markupEnumerator, match.Length);
 
                     // Add the parameters and tag closure
-                    ReadToEnd(sb, markupEnumerator, isTag ? SearchQuoteOrTagEnd : SearchQuoteOrVariableEnd);
-                    var token = sb.ToString();
+                    if (!ReadToEndOfTag(nextToken, markupEnumerator, isTag ? SearchQuoteOrTagEnd : SearchQuoteOrVariableEnd))
+                    {
+                        //Somehow we reached the end without finding the end character(s)
+                        if (isTag)
+                            throw new SyntaxException(Liquid.ResourceManager.GetString("BlockTagNotTerminatedException"), nextToken.ToString(), Liquid.TagEnd);
+                        else
+                            throw new SyntaxException(Liquid.ResourceManager.GetString("BlockVariableNotTerminatedException"), nextToken.ToString(), Liquid.VariableEnd);
+                    }
+                    var token = nextToken.ToString();
                     tokens.Add(token);
 
                     if (isTag)
@@ -91,12 +97,65 @@ namespace DotLiquid
         }
 
         /// <summary>
+        /// Enumerates over a variable sequence in dotted or bracket notation
+        /// </summary>
+        /// <param name="source">The Liquid Variable string</param>
+        /// <exception cref="SyntaxException"></exception>
+        internal static IEnumerator<string> GetVariableEnumerator(string source)
+        {
+            if (string.IsNullOrEmpty(source))
+                yield break;
+
+            using (var markupEnumerator = new CharEnumerator(source))
+            {
+                while (markupEnumerator.HasNext())
+                {
+                    var isComplete = false;
+                    var nextVariable = new StringBuilder();
+
+                    switch (markupEnumerator.Next)
+                    {
+                        case '[': // Example Syntax: [var] or ["literal"]
+                            markupEnumerator.AppendNext(nextVariable);
+                            if (!markupEnumerator.HasNext())
+                                break;
+
+                            switch (markupEnumerator.Next)
+                            {
+                                case '"':
+                                case '\'':
+                                    markupEnumerator.AppendNext(nextVariable);
+                                    isComplete = ReadToChar(nextVariable, markupEnumerator, markupEnumerator.Next) && ReadToChar(nextVariable, markupEnumerator, BracketEnd);
+                                    break;
+                                default:
+                                    isComplete = ReadToChar(nextVariable, markupEnumerator, BracketEnd);
+                                    break;
+                            }
+
+                            break;
+                        default:
+                            isComplete = ReadWordChar(nextVariable, markupEnumerator) && ReadToEndOfVariable(nextVariable, markupEnumerator);
+                            break;
+                    }
+
+                    if (!isComplete) //Somehow we reached the end without finding the end character(s)
+                        throw new SyntaxException(Liquid.ResourceManager.GetString("VariableNotTerminatedException"), source, Liquid.VariableEnd);
+
+                    if (markupEnumerator.HasNext() && markupEnumerator.Next == '.' && markupEnumerator.Remaining > 1)  // Don't include dot in tokens as it is a separator
+                        markupEnumerator.MoveNext();
+
+                    if (nextVariable.Length > 0)
+                        yield return nextVariable.ToString();
+                };
+            }
+        }
+
+        /// <summary>
         /// Reads a fixed number of characters and advances the enumerator position
         /// </summary>
         /// <param name="markupEnumerator">The string enumerator</param>
         /// <param name="markupLength">The number of characters to read</param>
-        /// <returns></returns>
-        private static string ReadChars(DotLiquid.Util.CharEnumerator markupEnumerator, int markupLength)
+        private static string ReadChars(CharEnumerator markupEnumerator, int markupLength)
         {
             var sb = new StringBuilder(markupLength);
             for (var i = 0; i < markupLength; i++)
@@ -107,15 +166,12 @@ namespace DotLiquid
         /// <summary>
         /// Reads a tag or object variable until the end sequence, <tt>%}</tt> or <tt>}}</tt> respectively and advances the enumerator position
         /// </summary>
-        /// <param name="sb">The string builder</param>
+        /// <param name="sb">The StringBuilder to write to</param>
         /// <param name="markupEnumerator">The string enumerator</param>
-        /// <param name="initialSearchChars">The character set to search for</param>
-        /// <exception cref="SyntaxException"></exception>
-        private static void ReadToEnd(StringBuilder sb, DotLiquid.Util.CharEnumerator markupEnumerator, HashSet<char> initialSearchChars)
+        /// <param name="searchChars">The character set to search for</param>
+        /// <returns>True if reaches end sequence, otherwise false</returns>
+        private static bool ReadToEndOfTag(StringBuilder sb, CharEnumerator markupEnumerator, HashSet<char> searchChars)
         {
-            var searchChars = initialSearchChars;
-            var isInQuotes = false;
-
             while (markupEnumerator.AppendNext(sb))
             {
                 char nextChar = markupEnumerator.Current;
@@ -124,32 +180,84 @@ namespace DotLiquid
                     switch (nextChar)
                     {
                         case '\'':
-                            isInQuotes = !isInQuotes;
-                            searchChars = isInQuotes ? SearchSingleQuoteEnd : initialSearchChars;
-                            break;
                         case '"':
-                            isInQuotes = !isInQuotes;
-                            searchChars = isInQuotes ? SearchDoubleQuoteEnd : initialSearchChars;
+                            ReadToChar(sb, markupEnumerator, nextChar);
                             break;
                         case '}':
                         case '%':
                             if (markupEnumerator.Remaining > 0 && markupEnumerator.Next == '}')
                             {
                                 markupEnumerator.AppendNext(sb);
-                                return;
+                                return true;
                             }
                             break;
                     }
                 }
             };
 
-            if (markupEnumerator.Remaining == 0) //Somehow we reached the end without finding the end character(s)
-            {
-                if (initialSearchChars == SearchQuoteOrTagEnd)
-                    throw new SyntaxException(Liquid.ResourceManager.GetString("BlockTagNotTerminatedException"), sb.ToString(), Liquid.TagEnd);
-                else
-                    throw new SyntaxException(Liquid.ResourceManager.GetString("BlockVariableNotTerminatedException"), sb.ToString(), Liquid.VariableEnd);
-            }
+            return false;
         }
+
+        /// <summary>
+        /// Reads a token until, and inclusive of, the end character and advances the enumerator position
+        /// </summary>
+        /// <param name="sb">The StringBuilder to write to</param>
+        /// <param name="markupEnumerator">The string enumerator</param>
+        /// <param name="endChar">The character that indicates end of token</param>
+        /// <returns>True if reaches endChar, otherwise false</returns>
+        private static bool ReadToChar(StringBuilder sb, CharEnumerator markupEnumerator, char endChar)
+        {
+            while (markupEnumerator.AppendNext(sb))
+            {
+                if (markupEnumerator.Current == endChar)
+                    return true;
+            };
+
+            return false;
+        }
+
+        /// <summary>
+        /// Reads a token until the end of a variable segment and advances the enumerator position
+        /// </summary>
+        /// <param name="sb">The StringBuilder to write to</param>
+        /// <param name="markupEnumerator">The string enumerator</param>
+        /// <returns>True if valid variable, otherwise false</returns>
+        private static bool ReadToEndOfVariable(StringBuilder sb, CharEnumerator markupEnumerator)
+        {
+            while (markupEnumerator.HasNext())
+            {
+                var nextChar = markupEnumerator.Next;
+                if (SearchVariableEnd.Contains(nextChar))
+                    return true;
+
+                if (!ReadWordChar(sb, markupEnumerator))
+                    return false;
+            };
+            return true;
+        }
+
+        /// <summary>
+        /// Reads a single word-character and advances the enumerator position
+        /// </summary>
+        /// <param name="sb">The StringBuilder to write to</param>
+        /// <param name="markupEnumerator">The string enumerator</param>
+        /// <returns>True if upcoming character is a word character, otherwise false</returns>
+        private static bool ReadWordChar(StringBuilder sb, CharEnumerator markupEnumerator)
+        {
+            var nextChar = markupEnumerator.Next;
+            if (nextChar < 128) // For better performance, avoid regex for standard ascii
+            {
+                if (!((uint)nextChar - '0' < 10 || (uint)nextChar - 'A' < 26 || (uint)nextChar - 'a' < 26 || nextChar == '_' || nextChar == '-'))
+                    return false;
+            }
+            else if (!VariableSegmentRegex.IsMatch(nextChar.ToString()))
+            {
+                return false;
+            }
+
+            markupEnumerator.AppendNext(sb);
+            return true;
+        }
+
     }
 }

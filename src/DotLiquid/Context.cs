@@ -18,12 +18,12 @@ namespace DotLiquid
     /// </summary>
     public class Context
     {
+        private static readonly HashSet<char> SpecialCharsSet =  new HashSet<char>() { '\'', '"', '(' , '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-' };
         private static readonly Regex SingleQuotedRegex = R.C(R.Q(@"^'(.*)'$"));
         private static readonly Regex DoubleQuotedRegex = R.C(R.Q(@"^""(.*)""$"));
         private static readonly Regex IntegerRegex = R.C(R.Q(@"^([+-]?\d+)$"));
         private static readonly Regex RangeRegex = R.C(R.Q(@"^\((\S+)\.\.(\S+)\)$"));
         private static readonly Regex NumericRegex = R.C(R.Q(@"^([+-]?\d[\d\.|\,]+)$"));
-        private static readonly Regex SquareBracketedRegex = R.C(R.Q(@"^\[(.*)\]$"));
         private static readonly Regex VariableParserRegex = R.C(Liquid.VariableParser);
 
         private readonly ErrorsOutputMode _errorsOutputMode;
@@ -359,59 +359,70 @@ namespace DotLiquid
                     return false;
                 case "blank":
                 case "empty":
-                    return new Symbol(o => o is IEnumerable && !((IEnumerable)o).Cast<object>().Any());
+                    return new Symbol(o => (o is IEnumerable enumerableO) && !enumerableO.Cast<object>().Any());
             }
 
-            // Single quoted strings.
-            Match match = SingleQuotedRegex.Match(key);
-            if (match.Success)
-                return match.Groups[1].Value;
-
-            // Double quoted strings.
-            match = DoubleQuotedRegex.Match(key);
-            if (match.Success)
-                return match.Groups[1].Value;
-
-            // Integer.
-            match = IntegerRegex.Match(key);
-            if (match.Success)
+            var firstChar = key[0];
+            if (SpecialCharsSet.Contains(firstChar))
             {
-                try
+                switch (firstChar)
                 {
-                    return Convert.ToInt32(match.Groups[1].Value);
-                }
-                catch (OverflowException)
-                {
-                    return Convert.ToInt64(match.Groups[1].Value);
+                    case '\'':
+                        // Single quoted strings.
+                        Match match = SingleQuotedRegex.Match(key);
+                        if (match.Success)
+                            return match.Groups[1].Value;
+                        break;
+                    case '"':
+                        // Double quoted strings.
+                        match = DoubleQuotedRegex.Match(key);
+                        if (match.Success)
+                            return match.Groups[1].Value;
+                        break;
+                    case '(':
+                        // Ranges.
+                        match = RangeRegex.Match(key);
+                        if (match.Success)
+                            return Range.Inclusive(Convert.ToInt32(Resolve(match.Groups[1].Value)),
+                                Convert.ToInt32(Resolve(match.Groups[2].Value)));
+                        break;
+                    default:
+                        // Integer.
+                        match = IntegerRegex.Match(key);
+                        if (match.Success)
+                        {
+                            try
+                            {
+                                return Convert.ToInt32(match.Groups[1].Value);
+                            }
+                            catch (OverflowException)
+                            {
+                                return Convert.ToInt64(match.Groups[1].Value);
+                            }
+                        }
+
+                        // Floating point numbers.
+                        match = NumericRegex.Match(key);
+                        if (match.Success)
+                        {
+                            // For cultures with "," as the decimal separator, allow
+                            // both "," and "." to be used as the separator.
+                            // First try to parse using current culture.
+                            // If that fails, try to parse using invariant culture.
+                            // Also, first try higher precision decimal.
+                            // If that fails, try to parse as double (precision float).
+                            // Double is less precise but has a larger range.
+                            if (decimal.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, FormatProvider, out decimal parsedDecimalCurrentCulture))
+                                return parsedDecimalCurrentCulture;
+                            if (decimal.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, CultureInfo.InvariantCulture, out decimal parsedDecimalInvariantCulture))
+                                return parsedDecimalInvariantCulture;
+                            if (double.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, FormatProvider, out double parsedDouble))
+                                return parsedDouble;
+                            return double.Parse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, CultureInfo.InvariantCulture);
+                        }
+                        break;
                 }
             }
-
-            // Ranges.
-            match = RangeRegex.Match(key);
-            if (match.Success)
-                return Range.Inclusive(Convert.ToInt32(Resolve(match.Groups[1].Value)),
-                    Convert.ToInt32(Resolve(match.Groups[2].Value)));
-
-            // Floating point numbers.
-            match = NumericRegex.Match(key);
-            if (match.Success)
-            {
-                // For cultures with "," as the decimal separator, allow
-                // both "," and "." to be used as the separator.
-                // First try to parse using current culture.
-                // If that fails, try to parse using invariant culture.
-                // Also, first try higher precision decimal.
-                // If that fails, try to parse as double (precision float).
-                // Double is less precise but has a larger range.
-                if (decimal.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, FormatProvider, out decimal parsedDecimalCurrentCulture))
-                    return parsedDecimalCurrentCulture;
-                if (decimal.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, CultureInfo.InvariantCulture, out decimal parsedDecimalInvariantCulture))
-                    return parsedDecimalInvariantCulture;
-                if (double.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, FormatProvider, out double parsedDouble))
-                    return parsedDouble;
-                return double.Parse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, CultureInfo.InvariantCulture);
-            }
-
             return Variable(key, notifyNotFound);
         }
 
@@ -422,6 +433,7 @@ namespace DotLiquid
         /// the hierarchy
         /// </summary>
         /// <param name="key"></param>
+        /// <param name="variable"></param>
         /// <returns></returns>
         private bool TryFindVariable(string key, out object variable)
         {
@@ -473,33 +485,39 @@ namespace DotLiquid
         /// <returns></returns>
         private object Variable(string markup, bool notifyNotFound)
         {
-            List<string> parts = R.Scan(markup, VariableParserRegex);
-
-            // first item in list, if any
-            string firstPart = parts.TryGetAtIndex(0);
-
-            Match firstPartSquareBracketedMatch = SquareBracketedRegex.Match(firstPart);
-            if (firstPartSquareBracketedMatch.Success)
-                firstPart = Resolve(firstPartSquareBracketedMatch.Groups[1].Value).ToString();
-
-            object @object;
-            if (firstPart == null || !TryFindVariable(firstPart, out @object))
+            using (var partsEnumerator = SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid22 ? Tokenizer.GetVariableEnumerator(markup) : R.Scan(markup, VariableParserRegex).GetEnumerator())
             {
+                if (TryGetVariable(partsEnumerator, out var variable))
+                    return variable;
                 if (notifyNotFound)
                     Errors.Add(new VariableNotFoundException(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), markup)));
                 return null;
             }
+        }
+
+        private bool TryGetVariable(IEnumerator<string> partsEnumerator, out object variable)
+        {
+            // first item in list, if any
+            string firstPart = partsEnumerator.MoveNext() ? partsEnumerator.Current : null;
+            if (firstPart != null && firstPart[0] == '[')
+                firstPart = Resolve(firstPart.Substring(1, firstPart.Length - 2)).ToString();
+
+            object @object;
+            if (firstPart == null || !TryFindVariable(firstPart, out @object))
+            {
+                variable = null;
+                return false;
+            }
 
             // try to resolve the rest of the parts (starting from the second item in the list)
-            for (int i = 1; i < parts.Count; ++i)
+            while (partsEnumerator.MoveNext())
             {
-                var forEachPart = parts[i];
-                Match partSquareBracketedMatch = SquareBracketedRegex.Match(forEachPart);
-                bool partResolved = partSquareBracketedMatch.Success;
+                string forEachPart = partsEnumerator.Current;
+                bool partResolved = forEachPart[0] == '[';
 
                 object part = forEachPart;
                 if (partResolved)
-                    part = Resolve(partSquareBracketedMatch.Groups[1].Value);
+                    part = Resolve(forEachPart.Substring(1, forEachPart.Length - 2));
 
                 // If object is a KeyValuePair, we treat it a bit differently - we might be rendering
                 // an included template.
@@ -557,8 +575,8 @@ namespace DotLiquid
                     // keywords either. The only thing we got left is to return nil
                     else
                     {
-                        Errors.Add(new VariableNotFoundException(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), markup)));
-                        return null;
+                        variable = null;
+                        return false;
                     }
                 }
 
@@ -568,8 +586,8 @@ namespace DotLiquid
                     contextAwareObject.Context = this;
                 }
             }
-
-            return @object;
+            variable = @object;
+            return true;
         }
 
         private bool TryEvaluateHashOrArrayLikeObject(object obj, object key, out object value)
@@ -716,7 +734,7 @@ namespace DotLiquid
                 foreach (Hash env in Environments)
                     if (env.ContainsKey(k))
                     {
-                        tempAssigns[k] = LookupAndEvaluate(env, k);
+                        tempAssigns[k] = env[k];
                         break;
                     }
 

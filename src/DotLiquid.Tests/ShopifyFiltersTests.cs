@@ -1,3 +1,4 @@
+using System.Collections;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -87,22 +88,29 @@ My encoded string is: {{ my_secret_string }}"
                 );
         }
 
-        [TestCase("Hello World!", "\"Hello World!\"", false)]
-        [TestCase("\"", "\"\\u0022\"", false)]
-        [TestCase("'", "\"\\u0027\"", false)]
-        [TestCase(123, "123", false)]
-        [TestCase(123.12, "123.12", false)]
-        [TestCase(-123.12, "-123.12", false)]
-        [TestCase(null, null, false)]
-        [TestCase("", "\"\"", false)]
-        [TestCase(new int[] { 1, 2, 3 }, "[1,2,3]", false)]
-        [TestCase(new string[] { "a", "b", "c" }, "[\"a\",\"b\",\"c\"]", false)]
-        [TestCase(new object[0], "[]", false)]
-        [TestCase(new object[] { 1, "a", true }, "[1,\"a\",true]", false)]
-        [TestCase(new string[] { "a", "b", "c" }, "[\r\n  \"a\",\r\n  \"b\",\r\n  \"c\"\r\n]", true)]
-        public void TestJson(object value, string expected, bool indented)
+        [TestCase("Hello World!", "\"Hello World!\"")]
+        [TestCase("\"", "\"\\u0022\"")]
+        [TestCase("'", "\"\\u0027\"")]
+        [TestCase(123, "123")]
+        [TestCase(123.12, "123.12")]
+        [TestCase(-123.12, "-123.12")]
+        [TestCase(null, null)]
+        [TestCase("", "\"\"")]
+        public void TestJson(object value, string expected)
         {
-            Assert.AreEqual(expected, ShopifyFilters.Json(value, indented));
+            Assert.AreEqual(expected, ShopifyFilters.Json(value));
+        }
+
+        [TestCase(new int[] { 1, 2, 3 }, "[1,2,3]")]
+        [TestCase(new string[] { "a", "b", "c" }, "[\"a\",\"b\",\"c\"]")]
+        [TestCase(new object[0], "[]")]
+        [TestCase(new object[] { 1, "a", true }, "[1,\"a\",true]")]
+        [TestCase(new string[] { "a", "b", "c" }, "[\"a\",\"b\",\"c\"]")]
+        public void TestJsonCollections(object value, string expected)
+        {
+            var result = ShopifyFilters.Json(value);
+            Assert.IsInstanceOf<IEnumerable>(result);
+            CollectionAssert.AreEqual(expected, (IEnumerable)result);
         }
 
         [Test]

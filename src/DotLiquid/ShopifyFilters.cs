@@ -103,17 +103,9 @@ namespace DotLiquid
         /// </summary>
         /// <see href="https://shopify.dev/api/liquid/filters/additional-filters#json"/>
         /// <param name="input" />
-        /// <param name="writeIndented" />
-        public static object Json(object input, bool writeIndented = false)
+        public static object Json(object input)
         {
-            if (input == null)
-                return input;
-
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = writeIndented
-            };
-            return JsonSerializer.Serialize(input, options);
+            return input is null ? input : JsonSerializer.Serialize(input);
         }
     }
 }

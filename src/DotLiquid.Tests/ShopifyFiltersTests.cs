@@ -88,6 +88,7 @@ My encoded string is: {{ my_secret_string }}"
                 );
         }
 
+#if NETSTANDARD2_0
         [TestCase("Hello World!", "\"Hello World!\"")]
         [TestCase("\"", "\"\\u0022\"")]
         [TestCase("'", "\"\\u0027\"")]
@@ -100,7 +101,9 @@ My encoded string is: {{ my_secret_string }}"
         {
             Assert.AreEqual(expected, ShopifyFilters.Json(value));
         }
+#endif
 
+#if NETSTANDARD2_0
         [TestCase(new int[] { 1, 2, 3 }, "[1,2,3]")]
         [TestCase(new string[] { "a", "b", "c" }, "[\"a\",\"b\",\"c\"]")]
         [TestCase(new object[0], "[]")]
@@ -112,7 +115,9 @@ My encoded string is: {{ my_secret_string }}"
             Assert.IsInstanceOf<IEnumerable>(result);
             CollectionAssert.AreEqual(expected, (IEnumerable)result);
         }
+#endif
 
+#if NETSTANDARD2_0
         [Test]
         public void TestJson_ShopifyCollectionsSample()
         {
@@ -143,7 +148,9 @@ My encoded string is: {{ my_secret_string }}"
                 localVariables: Hash.FromAnonymousObject(anonymousCollections)
                 );
         }
+#endif
 
+#if NETSTANDARD2_0
         [Test]
         public void TestJson_ShopifyCartSample()
         {
@@ -167,5 +174,6 @@ My encoded string is: {{ my_secret_string }}"
                 template: "{{ cart | json }}",
                 localVariables: Hash.FromAnonymousObject(anonymousCart));
         }
+#endif
     }
 }

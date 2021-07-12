@@ -33,13 +33,16 @@
 
   <ItemGroup>
     <PackageReference Include="SonarAnalyzer.CSharp" Version="5.11.0.1761" />
-    <PackageReference Include="System.Text.Json" Version="4.7.2" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="LICENSE.txt">
       <Pack>true</Pack>
     </None>
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <PackageReference Include="System.Text.Json" Version="4.7.2" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">

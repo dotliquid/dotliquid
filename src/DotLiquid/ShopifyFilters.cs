@@ -1,7 +1,6 @@
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
 
 namespace DotLiquid
 {
@@ -98,6 +97,7 @@ namespace DotLiquid
             return stringBuilder.ToString(); // Return the hexadecimal string.
         }
 
+#if NETSTANDARD2_0
         /// <summary>
         /// Converts a string into JSON format.
         /// </summary>
@@ -105,7 +105,8 @@ namespace DotLiquid
         /// <param name="input" />
         public static object Json(object input)
         {
-            return input is null ? input : JsonSerializer.Serialize(input);
+            return input is null ? input : System.Text.Json.JsonSerializer.Serialize(input);
         }
+#endif
     }
 }

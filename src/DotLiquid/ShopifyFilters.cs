@@ -16,10 +16,9 @@ namespace DotLiquid
         /// </summary>
         /// <see href="https://shopify.dev/docs/themes/liquid/reference/filters/string-filters#md5"/>
         /// <param name="input"/>
-        /// <returns></returns>
         public static string Md5(string input)
         {
-            return GetHash(MD5.Create(), input);
+            return ComputeHash(MD5.Create(), input);
         }
 
         /// <summary> 
@@ -27,10 +26,9 @@ namespace DotLiquid
         /// </summary>
         /// <see href="https://shopify.dev/docs/themes/liquid/reference/filters/string-filters#sha1" />
         /// <param name="input"></param>
-        /// <returns></returns>
         public static string Sha1(string input)
         {
-            return GetHash(SHA1.Create(), input);
+            return ComputeHash(SHA1.Create(), input);
         }
 
         /// <summary>
@@ -38,10 +36,9 @@ namespace DotLiquid
         /// </summary>
         /// <see href="https://shopify.dev/docs/themes/liquid/reference/filters/string-filters#sha256" />
         /// <param name="input"></param>
-        /// <returns></returns>
         public static string Sha256(string input)
         {
-            return GetHash(SHA256.Create(), input);
+            return ComputeHash(SHA256.Create(), input);
         }
 
         /// <summary>
@@ -51,15 +48,14 @@ namespace DotLiquid
         /// <see href="https://shopify.dev/docs/themes/liquid/reference/filters/string-filters#hmac_sha1" />
         /// <param name="input" />
         /// <param name="secretKey" />
-        /// <returns></returns>
         public static string HmacSha1(string input, string secretKey)
         {
             if (input.IsNullOrWhiteSpace() || secretKey.IsNullOrWhiteSpace())
                 return input;
 
-            HMACSHA1 hmac = new HMACSHA1(Encoding.UTF8.GetBytes(secretKey));
+            var hmac = new HMACSHA1(Encoding.UTF8.GetBytes(secretKey));
             hmac.Initialize();
-            return GetHash(hmac, input);
+            return ComputeHash(hmac, input);
         }
 
         /// <summary>
@@ -69,15 +65,14 @@ namespace DotLiquid
         /// <see href="https://shopify.dev/docs/themes/liquid/reference/filters/string-filters#hmac_sha256" />
         /// <param name="input" />
         /// <param name="secretKey" />
-        /// <returns></returns>
         public static string HmacSha256(string input, string secretKey)
         {
             if (input.IsNullOrWhiteSpace() || secretKey.IsNullOrWhiteSpace())
                 return input;
 
-            HMACSHA256 hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey));
+            var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey));
             hmac.Initialize();
-            return GetHash(hmac, input);
+            return ComputeHash(hmac, input);
         }
 
         /// <summary>
@@ -85,23 +80,22 @@ namespace DotLiquid
         /// </summary>
         /// <param name="hashAlgorithm" />
         /// <param name="input" />
-        /// <returns></returns>
-        private static string GetHash(HashAlgorithm hashAlgorithm, string input)
+        private static string ComputeHash(HashAlgorithm hashAlgorithm, string input)
         {
             if (input.IsNullOrWhiteSpace())
                 return input;
 
             // Convert the input string to a byte array and compute the hash.
-            byte[] data = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(input));
+            var hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(input));
 
             // Create a new Stringbuilder to collect the bytes when converted to Hex
-            var sBuilder = new StringBuilder();
+            var stringBuilder = new StringBuilder();
 
-            // Format each byte of the hashed data as a hexadecimal.
-            for (int i = 0; i < data.Length; i++)
-                sBuilder.Append(data[i].ToString(format: "x2", provider: CultureInfo.InvariantCulture));
+            // Format each byte of the hashed data as a hexadecimal (x2).
+            for (int i = 0; i < hash.Length; i++)
+                stringBuilder.Append(hash[i].ToString(format: "x2", provider: CultureInfo.InvariantCulture));
 
-            return sBuilder.ToString(); // Return the hexadecimal string.
+            return stringBuilder.ToString(); // Return the hexadecimal string.
         }
 
         /// <summary>
@@ -110,7 +104,6 @@ namespace DotLiquid
         /// <see href="https://shopify.dev/api/liquid/filters/additional-filters#json"/>
         /// <param name="input" />
         /// <param name="writeIndented" />
-        /// <returns></returns>
         public static object Json(object input, bool writeIndented = false)
         {
             if (input == null)

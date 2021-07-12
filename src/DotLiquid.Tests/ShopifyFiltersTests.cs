@@ -1,4 +1,3 @@
-using System.Globalization;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -75,10 +74,12 @@ My encoded string is: {{ my_secret_string }}"
             Assert.AreEqual(null, ShopifyFilters.HmacSha256(null, ""));
             Assert.AreEqual("", ShopifyFilters.HmacSha256("", ""));
             Assert.AreEqual("", ShopifyFilters.HmacSha256("", " "));
+
+            // NOTE: the Shopify sample incorrectly shows the hmac_sha1 response,
+            // as reported in https://community.shopify.com/c/Technical-Q-A/Using-Liquid-hmac-sha256-filter/m-p/559613#M1019
             Assert.AreEqual("c21f97cf997fac667c9bac39462a5813b1a41ce1b811743b0e9157393efbcc3c",
                 ShopifyFilters.HmacSha256("ShopifyIsAwesome!", "secret_key"));
 
-            //TODO: raise an issue with the shopify site as their example shows a sha1 hash
             Helper.AssertTemplateResult(
                 expected: "\r\nMy encoded string is: c21f97cf997fac667c9bac39462a5813b1a41ce1b811743b0e9157393efbcc3c",
                 template: @"{% assign my_secret_string = ""ShopifyIsAwesome!"" | hmac_sha256: ""secret_key"" %}
@@ -104,7 +105,6 @@ My encoded string is: {{ my_secret_string }}"
             Assert.AreEqual(expected, ShopifyFilters.Json(value, indented));
         }
 
-        // Sample: `var json_product = {{ collections.featured.products.first | json }};`
         [Test]
         public void TestJson_ShopifyCollectionsSample()
         {
@@ -119,7 +119,7 @@ My encoded string is: {{ my_secret_string }}"
                             new { title = "Shopify", category = "business" },
                             new { title = "Rihanna", category = "celebrities" },
                             new { title = "foo", category = null as string },
-                            new { title = "World traveler", category = "lifestyle" },
+                            new { title = "World traveller", category = "lifestyle" },
                             new { title = "Soccer", category = "sports" },
                             new { title = "foo", category = null as string },
                             new { title = "Liquid", category = "technology" },
@@ -128,6 +128,7 @@ My encoded string is: {{ my_secret_string }}"
                 }
             };
 
+            // Shopify Sample: `var json_product = {{ collections.featured.products.first | json }};`
             Helper.AssertTemplateResult(
                 expected: "{\"title\":\"Shopify\",\"category\":\"business\"}",
                 template: "{{ collections.featured.products.first | json }}",
@@ -135,7 +136,6 @@ My encoded string is: {{ my_secret_string }}"
                 );
         }
 
-        // Sample: `var json_cart = {{ cart | json }};`
         [Test]
         public void TestJson_ShopifyCartSample()
         {
@@ -153,6 +153,7 @@ My encoded string is: {{ my_secret_string }}"
                 }
             };
 
+            // Sample: `var json_cart = {{ cart | json }};`
             Helper.AssertTemplateResult(
                 expected: "{\"loggedIn\":false,\"total\":19.98,\"items\":[{\"sku\":\"njkdw82\",\"unitPrice\":9.99,\"quantity\":2}]}",
                 template: "{{ cart | json }}",

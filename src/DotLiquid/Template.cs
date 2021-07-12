@@ -240,12 +240,23 @@ namespace DotLiquid
         /// <summary>
         /// Creates a new <tt>Template</tt> object from liquid source code
         /// </summary>
-        /// <param name="source"></param>
+        /// <param name="source">The Liquid Template string</param>
         /// <returns></returns>
         public static Template Parse(string source)
         {
+            return Parse(source, Template.DefaultSyntaxCompatibilityLevel);
+        }
+
+        /// <summary>
+        /// Creates a new <tt>Template</tt> object from liquid source code
+        /// </summary>
+        /// <param name="source">The Liquid Template string</param>
+        /// <param name="syntaxCompatibilityLevel">The Liquid syntax flag used for backward compatibility</param>
+        /// <returns></returns>
+        public static Template Parse(string source, SyntaxCompatibility syntaxCompatibilityLevel)
+        {
             Template template = new Template();
-            template.ParseInternal(source);
+            template.ParseInternal(source, syntaxCompatibilityLevel);
             return template;
         }
 
@@ -304,14 +315,15 @@ namespace DotLiquid
         /// Returns self for easy chaining
         /// </summary>
         /// <param name="source">The source code.</param>
+        /// <param name="syntaxCompatibilityLevel">The Liquid syntax flag used for backward compatibility</param>
         /// <returns>The template.</returns>
-        internal Template ParseInternal(string source)
+        internal Template ParseInternal(string source, SyntaxCompatibility syntaxCompatibilityLevel)
         {
             source = DotLiquid.Tags.Literal.FromShortHand(source);
             source = DotLiquid.Tags.Comment.FromShortHand(source);
 
             this.Root = new Document();
-            this.Root.Initialize(tagName: null, markup: null, tokens: Template.Tokenize(source));
+            this.Root.Initialize(tagName: null, markup: null, tokens: Tokenizer.Tokenize(source, syntaxCompatibilityLevel));
             return this;
         }
 
@@ -444,16 +456,6 @@ namespace DotLiquid
                 if (!IsThreadSafe)
                     _errors = context.Errors;
             }
-        }
-
-        /// <summary>
-        /// Uses the <tt>Liquid::TemplateParser</tt> regexp to tokenize the passed source
-        /// </summary>
-        /// <param name="source"></param>
-        /// <returns></returns>
-        internal static List<string> Tokenize(string source)
-        {
-            return Tokenizer.Tokenize(source);
         }
     }
 }

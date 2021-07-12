@@ -16,6 +16,8 @@ namespace DotLiquid
         private static readonly char BracketEnd = ']';
         private static readonly HashSet<char> SearchQuoteOrVariableEnd = new HashSet<char> { '}', '\'', '"' };
         private static readonly HashSet<char> SearchQuoteOrTagEnd = new HashSet<char> { '%', '\'', '"' };
+        private static readonly char[] WhitespaceCharsV20 = new char[] { '\t', ' ' };
+        private static readonly char[] WhitespaceCharsV22 = new char[] { '\t', '\n', '\v', '\f', '\r', ' ' };
         private static readonly Regex LiquidAnyStartingTagRegex = R.B(R.Q(@"({0})([-])?"), Liquid.AnyStartingTag);
         private static readonly Regex TagNameRegex = R.B(R.Q(@"{0}\s*(\w+)"), Liquid.AnyStartingTag);
         private static readonly Regex VariableSegmentRegex = R.C(Liquid.VariableSegment);
@@ -25,14 +27,19 @@ namespace DotLiquid
         /// Splits a string into an array of `tokens` that represent either a tag, object/variable, or literal string
         /// </summary>
         /// <param name="source">The Liquid Template string</param>
+        /// <param name="syntaxCompatibilityLevel">The Liquid syntax flag used for backward compatibility</param>
         /// <exception cref="SyntaxException"></exception>
-        internal static List<string> Tokenize(string source)
+        internal static List<string> Tokenize(string source, SyntaxCompatibility syntaxCompatibilityLevel)
         {
             if (string.IsNullOrEmpty(source))
                 return new List<string>();
 
-            // Trim trailing whitespace.
-            source = Regex.Replace(source, string.Format(@"-({0}|{1})(\n|\r\n|[ \t]+)?", Liquid.VariableEnd, Liquid.TagEnd), "$1", RegexOptions.None, Template.RegexTimeOut);
+            // Trim leading whitespace - backward compatible list of chars
+            var whitespaceChars = syntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22 ? WhitespaceCharsV20 : WhitespaceCharsV22;
+
+            // Trim trailing whitespace - new lines or spaces/tabs but not both
+            if (syntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22)
+                source = Regex.Replace(source, string.Format(@"-({0}|{1})(\n|\r\n|[ \t]+)?", Liquid.VariableEnd, Liquid.TagEnd), "$1", RegexOptions.None, Template.RegexTimeOut);
 
             var tokens = new List<string>();
 
@@ -46,7 +53,7 @@ namespace DotLiquid
                     {
                         var tokenBeforeMatch = ReadChars(markupEnumerator, match.Index - markupEnumerator.Position);
                         if (match.Groups[2].Success)
-                            tokenBeforeMatch = tokenBeforeMatch.TrimEnd(new char[] { '\t', ' ' });
+                            tokenBeforeMatch = tokenBeforeMatch.TrimEnd(whitespaceChars);
                         if (tokenBeforeMatch != string.Empty)
                             tokens.Add(tokenBeforeMatch);
                     }
@@ -58,14 +65,17 @@ namespace DotLiquid
                     ReadChars(markupEnumerator, match.Length);
 
                     // Add the parameters and tag closure
-                    if (!ReadToEndOfTag(nextToken, markupEnumerator, isTag ? SearchQuoteOrTagEnd : SearchQuoteOrVariableEnd))
+                    if (isTag)
                     {
-                        //Somehow we reached the end without finding the end character(s)
-                        if (isTag)
+                        if (!ReadToEndOfTag(nextToken, markupEnumerator, SearchQuoteOrTagEnd, syntaxCompatibilityLevel))
                             throw new SyntaxException(Liquid.ResourceManager.GetString("BlockTagNotTerminatedException"), nextToken.ToString(), Liquid.TagEnd);
-                        else
+                    }
+                    else
+                    {
+                        if (!ReadToEndOfTag(nextToken, markupEnumerator, SearchQuoteOrVariableEnd, syntaxCompatibilityLevel))
                             throw new SyntaxException(Liquid.ResourceManager.GetString("BlockVariableNotTerminatedException"), nextToken.ToString(), Liquid.VariableEnd);
                     }
+
                     var token = nextToken.ToString();
                     tokens.Add(token);
 
@@ -170,7 +180,7 @@ namespace DotLiquid
         /// <param name="markupEnumerator">The string enumerator</param>
         /// <param name="searchChars">The character set to search for</param>
         /// <returns>True if reaches end sequence, otherwise false</returns>
-        private static bool ReadToEndOfTag(StringBuilder sb, CharEnumerator markupEnumerator, HashSet<char> searchChars)
+        private static bool ReadToEndOfTag(StringBuilder sb, CharEnumerator markupEnumerator, HashSet<char> searchChars, SyntaxCompatibility syntaxCompatibilityLevel)
         {
             while (markupEnumerator.AppendNext(sb))
             {
@@ -187,7 +197,22 @@ namespace DotLiquid
                         case '%':
                             if (markupEnumerator.Remaining > 0 && markupEnumerator.Next == '}')
                             {
+                                var previousCharIsWhitespaceControl = syntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid22 && markupEnumerator.Previous == '-';
                                 markupEnumerator.AppendNext(sb);
+                                if (previousCharIsWhitespaceControl)
+                                {
+                                    // Remove hyphen from token
+                                    sb.Remove(sb.Length - 3, 1);
+
+                                    // Trim trailing whitespace by skipping ahead beyond the tag end
+                                    while (markupEnumerator.Remaining > 0)
+                                    {
+                                        if (((uint)markupEnumerator.Next - '\t') <= 5 || markupEnumerator.Next == ' ')
+                                            markupEnumerator.MoveNext();
+                                        else
+                                            break;
+                                    }
+                                }
                                 return true;
                             }
                             break;
@@ -195,6 +220,7 @@ namespace DotLiquid
                 }
             };
 
+            //Somehow we reached the end without finding the end character(s)
             return false;
         }
 

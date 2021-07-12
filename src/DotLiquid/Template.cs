@@ -319,9 +319,6 @@ namespace DotLiquid
         /// <returns>The template.</returns>
         internal Template ParseInternal(string source, SyntaxCompatibility syntaxCompatibilityLevel)
         {
-            source = DotLiquid.Tags.Literal.FromShortHand(source);
-            source = DotLiquid.Tags.Comment.FromShortHand(source);
-
             this.Root = new Document();
             this.Root.Initialize(tagName: null, markup: null, tokens: Tokenizer.Tokenize(source, syntaxCompatibilityLevel));
             return this;

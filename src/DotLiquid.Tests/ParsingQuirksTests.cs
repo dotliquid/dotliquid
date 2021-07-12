@@ -114,5 +114,13 @@ namespace DotLiquid.Tests
             var ex = Assert.Throws<SyntaxException>(() => Tokenizer.GetVariableEnumerator(variableName).MoveNext());
             Assert.AreEqual(string.Format(Liquid.ResourceManager.GetString("VariableNotTerminatedException"), variableName), ex.Message);
         }
+
+        [Test]
+        public void TestShortHandSyntaxIsIgnored()
+        {
+            //These tests are based on actual handling on Ruby Liquid, not indicative of wanted behavior
+            Assert.AreEqual("}", Template.Parse("{{{}}}", SyntaxCompatibility.DotLiquid22).Render());
+            Assert.AreEqual(string.Empty, Template.Parse("{{%%}}", SyntaxCompatibility.DotLiquid22).Render());
+        }
     }
 }

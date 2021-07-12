@@ -39,7 +39,11 @@ namespace DotLiquid
 
             // Trim trailing whitespace - new lines or spaces/tabs but not both
             if (syntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22)
+            {
+                source = DotLiquid.Tags.Literal.FromShortHand(source);
+                source = DotLiquid.Tags.Comment.FromShortHand(source);
                 source = Regex.Replace(source, string.Format(@"-({0}|{1})(\n|\r\n|[ \t]+)?", Liquid.VariableEnd, Liquid.TagEnd), "$1", RegexOptions.None, Template.RegexTimeOut);
+            }
 
             var tokens = new List<string>();
 

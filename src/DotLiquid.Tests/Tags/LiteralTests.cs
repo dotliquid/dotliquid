@@ -14,8 +14,7 @@ namespace DotLiquid.Tests.Tags
         {
             Template t = Template.Parse("{% literal %}{% endliteral %}");
             Assert.AreEqual(string.Empty, t.Render());
-            t = Template.Parse("{{{}}}");
-            Assert.AreEqual(string.Empty, t.Render());
+            Assert.AreEqual(string.Empty, Template.Parse("{{{}}}", SyntaxCompatibility.DotLiquid20).Render());
         }
 
         [Test]
@@ -35,14 +34,14 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestShorthandSyntax()
         {
-            Template t = Template.Parse("{{{{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}}}}");
+            Template t = Template.Parse("{{{{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}}}}", SyntaxCompatibility.DotLiquid20);
             Assert.AreEqual("{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}", t.Render());
         }
 
         [Test]
         public void TestLiteralsDontRemoveComments()
         {
-            Template t = Template.Parse("{{{ {# comment #} }}}");
+            Template t = Template.Parse("{{{ {# comment #} }}}", SyntaxCompatibility.DotLiquid20);
             Assert.AreEqual("{# comment #}", t.Render());
         }
 

@@ -286,9 +286,14 @@ namespace DotLiquid
             get { return ((IDictionary)_nestedDictionary).IsFixedSize; }
         }
 
+        /// <summary>
+        /// Determines whether the <see cref="DotLiquid.Hash">Hash</see> contains the specified key.
+        /// </summary>
+        /// <param name="key">The key to locate in the <see cref="DotLiquid.Hash">Hash</see></param>
+        /// <returns>true if the <see cref="DotLiquid.Hash">Hash</see> contains an element with the specified key or a default value; otherwise, false.</returns>
         public bool ContainsKey(string key)
         {
-            return _nestedDictionary.ContainsKey(key);
+            return _lambda != null || _defaultValue != null || _nestedDictionary.ContainsKey(key);
         }
 
         public void Add(string key, object value)

@@ -423,28 +423,40 @@ namespace DotLiquid
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        private object FindVariable(string key)
+        private bool TryFindVariable(string key, out object variable)
         {
+            bool foundVariable = false;
             Hash scope = Scopes.FirstOrDefault(s => s.ContainsKey(key));
-            object variable = null;
+            object ret = null;
             if (scope == null)
             {
                 foreach (Hash e in Environments)
-                    if ((variable = LookupAndEvaluate(e, key)) != null)
+                {
+                    foundVariable = TryEvaluateHashOrArrayLikeObject(e, key, out ret);
+                    if (foundVariable)
                     {
                         scope = e;
                         break;
                     }
-            }
-            scope = scope ?? Environments.LastOrDefault() ?? Scopes.Last();
-            variable = variable ?? LookupAndEvaluate(scope, key);
+                }
 
-            variable = Liquidize(variable);
+                if (scope == null)
+                {
+                    scope = Environments.LastOrDefault() ?? Scopes.Last();
+                    foundVariable = TryEvaluateHashOrArrayLikeObject(scope, key, out ret);
+                }
+            }
+            else
+            {
+                foundVariable = TryEvaluateHashOrArrayLikeObject(scope, key, out ret);
+            }
+
+            variable = Liquidize(ret);
             if (variable is IContextAware contextAwareVariable)
             {
                 contextAwareVariable.Context = this;
             }
-            return variable;
+            return foundVariable;
         }
 
         /// <summary>
@@ -471,7 +483,7 @@ namespace DotLiquid
                 firstPart = Resolve(firstPartSquareBracketedMatch.Groups[1].Value).ToString();
 
             object @object;
-            if ((@object = FindVariable(firstPart)) == null)
+            if (firstPart == null || !TryFindVariable(firstPart, out @object))
             {
                 if (notifyNotFound)
                     Errors.Add(new VariableNotFoundException(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), markup)));
@@ -517,11 +529,10 @@ namespace DotLiquid
                     }
                     // If object is a hash- or array-like object we look for the
                     // presence of the key and if its available we return it
-                    else if (IsHashOrArrayLikeObject(@object, part))
+                    else if (TryEvaluateHashOrArrayLikeObject(@object, part, out var hashObj))
                     {
                         // If its a proc we will replace the entry with the proc
-                        object res = LookupAndEvaluate(@object, part);
-                        @object = Liquidize(res);
+                        @object = Liquidize(hashObj);
                     }
                     // Some special cases. If the part wasn't in square brackets and
                     // no key with the same name was found we interpret following calls
@@ -561,59 +572,32 @@ namespace DotLiquid
             return @object;
         }
 
-        private static bool IsHashOrArrayLikeObject(object obj, object part)
+        private bool TryEvaluateHashOrArrayLikeObject(object obj, object key, out object value)
         {
+            value = null;
+
             if (obj == null)
                 return false;
 
-            if ((obj is IDictionary && ((IDictionary)obj).Contains(part)))
-                return true;
+            if ((obj is IDictionary dictionaryObj && dictionaryObj.Contains(key)))
+                value = dictionaryObj[key];
 
             // Resolve #350/#417, add support for rendering of a nested  ExpandoObject
-            if (obj is IDictionary<string, object> dictionaryObject && dictionaryObject.ContainsKey(part.ToString()))
-                return true;
-
-            if ((obj is IList) && (part is int || part is long))
-                return true;
-
-            if (TypeUtility.IsAnonymousType(obj.GetType()) && obj.GetType().GetRuntimeProperty((string)part) != null)
-                return true;
-
-            if ((obj is IIndexable) && ((IIndexable)obj).ContainsKey(part))
-                return true;
-
-            return false;
-        }
-
-        private object LookupAndEvaluate(object obj, object key)
-        {
-            object value;
-            if (obj is IDictionary dictionaryObj)
-            {
-                value = dictionaryObj[key];
-            }
-            // Resolve #350/#417, add support for rendering of a nested ExpandoObject
-            else if (obj is IDictionary<string, object> dictionaryObject)
-            {
+            else if (obj is IDictionary<string, object> dictionaryObject && dictionaryObject.ContainsKey(key.ToString()))
                 value = dictionaryObject[key.ToString()];
-            }
-            else if (obj is IList listObj)
-            {
-                value = listObj[Convert.ToInt32(key)];
-            }
-            else if (TypeUtility.IsAnonymousType(obj.GetType()))
-            {
-                value = obj.GetType().GetRuntimeProperty((string)key).GetValue(obj, null);
-            }
-            else if (obj is IIndexable indexableObj)
-            {
-                value = indexableObj[key];
-            }
-            else
-            {
-                throw new NotSupportedException();
-            }
 
+            else if ((obj is IList listObj) && (key is int || key is long))
+                value = listObj[Convert.ToInt32(key)];
+
+            else if (TypeUtility.IsAnonymousType(obj.GetType()) && obj.GetType().GetRuntimeProperty((string)key) != null)
+                value = obj.GetType().GetRuntimeProperty((string)key).GetValue(obj, null);
+
+            else if ((obj is IIndexable indexableObj) && indexableObj.ContainsKey(key))
+                value = indexableObj[key];
+
+            else
+                return false;
+        
             if (value is Proc procValue)
             {
                 object newValue = procValue.Invoke(this);
@@ -633,12 +617,12 @@ namespace DotLiquid
                 {
                     throw new NotSupportedException();
                 }
-                return newValue;
+                value = newValue;
             }
 
-            return value;
+            return true;
         }
-
+        
         private static object Liquidize(object obj)
         {
             if (obj == null)

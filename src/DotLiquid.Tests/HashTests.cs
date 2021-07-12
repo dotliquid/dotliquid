@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests.Ns1
@@ -83,7 +85,7 @@ namespace DotLiquid.Tests
                 value[nameof(TestClass.TestClassProp)]);
 
             Assert.AreEqual(
-                includeBaseClassProperties ? TestBaseClassPropValue :  null,
+                includeBaseClassProperties ? TestBaseClassPropValue : null,
                 value[nameof(TestClass.TestBaseClassProp)]);
         }
 
@@ -93,7 +95,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestShouldNotMapPropertiesFromBaseClass()
         {
-            IncludeBaseClassPropertiesOrNot(includeBaseClassProperties : false);
+            IncludeBaseClassPropertiesOrNot(includeBaseClassProperties: false);
         }
 
         /// <summary>
@@ -102,7 +104,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestShouldMapPropertiesFromBaseClass()
         {
-            IncludeBaseClassPropertiesOrNot(includeBaseClassProperties : true);
+            IncludeBaseClassPropertiesOrNot(includeBaseClassProperties: true);
         }
 
         /// <summary>
@@ -117,5 +119,75 @@ namespace DotLiquid.Tests
             IncludeBaseClassPropertiesOrNot(true);
         }
         #endregion
+
+        [Test]
+        public void TestDefaultValueConstructor()
+        {
+            var hash = new Hash(0); // default value of zero
+            hash["key"] = "value";
+
+            // NOTE: the next two asserts will change to true when performance changes are introduced by PR #441.
+            Assert.False(hash.Contains("unknown-key"));
+            Assert.False(hash.ContainsKey("unknown-key"));
+            Assert.AreEqual(0, hash["unknown-key"]); // ensure the default value is returned
+
+            Assert.True(hash.Contains("key"));
+            Assert.True(hash.ContainsKey("key"));
+            Assert.AreEqual("value", hash["key"]);
+
+            hash.Remove("key");
+            Assert.False(hash.Contains("key"));
+            Assert.False(hash.ContainsKey("key"));
+            Assert.AreEqual(0, hash["key"]); // ensure the default value is returned after key removed
+        }
+
+        [Test]
+        public void TestLambdaConstructor()
+        {
+            var hash = new Hash((h, k) => { return "Lambda Value"; });
+            hash["key"] = "value";
+
+            Assert.False(hash.Contains("unknown-key"));
+            Assert.False(hash.ContainsKey("unknown-key"));
+            Assert.AreEqual("Lambda Value", hash["unknown-key"]);
+
+            Assert.True(hash.Contains("key"));
+            Assert.True(hash.ContainsKey("key"));
+            Assert.AreEqual("value", hash["key"]);
+        }
+
+        [Test]
+        public void TestUnsupportedKeyType()
+        {
+            IDictionary hash = new Hash();
+            Assert.Throws<System.NotSupportedException>(() =>
+            {
+                var value = hash[0]; // Only a string key is permitted.
+            });
+        }
+
+        [Test]
+        public void TestMergeNestedDictionaries()
+        {
+            var hash = Hash.FromDictionary(new Dictionary<string, object> {{
+                    "People",
+                    new Dictionary<string, object> {
+                            { "ID1", new Dictionary<string, object>{ { "First", "Jane" }, { "Last", "Green" } } },
+                            { "ID2", new Dictionary<string, object>{ { "First", "Mike" }, { "Last", "Doe" } } }
+                        }
+                    }});
+
+            // Test using a for loop
+            Helper.AssertTemplateResult(
+                expected: "JaneMike",
+                template: "{% for item in People %}{{ item.First }}{%endfor%}",
+                localVariables: hash);
+
+            // Test using direct variable access
+            Helper.AssertTemplateResult(
+                expected: "Jane Doe",
+                template: "{{ People.ID1.First }} {{ People.ID2.Last }}",
+                localVariables: hash);
+        }
     }
 }

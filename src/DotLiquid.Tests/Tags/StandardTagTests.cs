@@ -81,7 +81,7 @@ namespace DotLiquid.Tests.Tags
         public void TestForWithNestedDictionary()
         {
             var dictionary = new Dictionary<string, object> { {
-            "People", 
+            "People",
             new Dictionary<string, object> {
                     { "ID1", new Dictionary<string, object>{ { "First", "Jane" }, { "Last", "Green" } } },
                     { "ID2", new Dictionary<string, object>{ { "First", "Mike" }, { "Last", "Doe" } } }
@@ -329,9 +329,9 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestContinueOutsideFor()
         {
-        var markup = "123{% continue %}456";
-        var expected = "123";
-        Helper.AssertTemplateResult(expected, markup);
+            var markup = "123{% continue %}456";
+            var expected = "123";
+            Helper.AssertTemplateResult(expected, markup);
         }
 
         [Test]
@@ -478,7 +478,7 @@ namespace DotLiquid.Tests.Tags
                 "{% case condition %}{% when 1 or 'string' or null %} its 1 or 2 or 3 {% when 4 %} its 4 {% endcase %}";
             Helper.AssertTemplateResult(" its 1 or 2 or 3 ", code2, Hash.FromAnonymousObject(new { condition = 1 }));
             Helper.AssertTemplateResult(" its 1 or 2 or 3 ", code2, Hash.FromAnonymousObject(new { condition = "string" }));
-            Helper.AssertTemplateResult(" its 1 or 2 or 3 ", code2, Hash.FromAnonymousObject(new { condition = (object) null }));
+            Helper.AssertTemplateResult(" its 1 or 2 or 3 ", code2, Hash.FromAnonymousObject(new { condition = (object)null }));
             Helper.AssertTemplateResult("", code2, Hash.FromAnonymousObject(new { condition = "something else" }));
         }
 
@@ -496,7 +496,7 @@ namespace DotLiquid.Tests.Tags
                 "{% case condition %}{% when 1, 'string', null %} its 1 or 2 or 3 {% when 4 %} its 4 {% endcase %}";
             Helper.AssertTemplateResult(" its 1 or 2 or 3 ", code2, Hash.FromAnonymousObject(new { condition = 1 }));
             Helper.AssertTemplateResult(" its 1 or 2 or 3 ", code2, Hash.FromAnonymousObject(new { condition = "string" }));
-            Helper.AssertTemplateResult(" its 1 or 2 or 3 ", code2, Hash.FromAnonymousObject(new { condition = (object) null }));
+            Helper.AssertTemplateResult(" its 1 or 2 or 3 ", code2, Hash.FromAnonymousObject(new { condition = (object)null }));
             Helper.AssertTemplateResult("", code2, Hash.FromAnonymousObject(new { condition = "something else" }));
         }
 
@@ -599,6 +599,15 @@ namespace DotLiquid.Tests.Tags
 
             assigns = Hash.FromAnonymousObject(new { array = new[] { 1, 1, 1, 1 } });
             Helper.AssertTemplateResult("1", "{%for item in array%}{%ifchanged%}{{item}}{% endifchanged %}{%endfor%}", assigns);
+        }
+
+        [Test]
+        public void TestGetRegister()
+        {
+            var context = new Context(CultureInfo.InvariantCulture);
+            Tag.GetRegister<int>(context, "cycle");
+            Tag.GetRegister<object>(context, "for");
+            Assert.IsInstanceOf<IDictionary<string, int>>(Tag.GetRegister<int>(context, "cycle"));
         }
     }
 }

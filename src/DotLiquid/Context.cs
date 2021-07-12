@@ -128,7 +128,7 @@ namespace DotLiquid
         /// Creates a new rendering context
         /// </summary>
         public Context(IFormatProvider formatProvider)
-            : this(new List<Hash>(), new Hash(), new Hash(), ErrorsOutputMode.Display, 0, 0, formatProvider )
+            : this(new List<Hash>(), new Hash(), new Hash(), ErrorsOutputMode.Display, 0, 0, formatProvider)
         {
         }
 
@@ -569,6 +569,10 @@ namespace DotLiquid
             if ((obj is IDictionary && ((IDictionary)obj).Contains(part)))
                 return true;
 
+            // Resolve #350/#417, add support for rendering of a nested  ExpandoObject
+            if (obj is IDictionary<string, object> dictionaryObject && dictionaryObject.ContainsKey(part.ToString()))
+                return true;
+
             if ((obj is IList) && (part is int || part is long))
                 return true;
 
@@ -585,23 +589,28 @@ namespace DotLiquid
         {
             object value;
             if (obj is IDictionary dictionaryObj)
-            { 
+            {
                 value = dictionaryObj[key];
             }
+            // Resolve #350/#417, add support for rendering of a nested ExpandoObject
+            else if (obj is IDictionary<string, object> dictionaryObject)
+            {
+                value = dictionaryObject[key.ToString()];
+            }
             else if (obj is IList listObj)
-            { 
+            {
                 value = listObj[Convert.ToInt32(key)];
             }
             else if (TypeUtility.IsAnonymousType(obj.GetType()))
-            { 
+            {
                 value = obj.GetType().GetRuntimeProperty((string)key).GetValue(obj, null);
             }
             else if (obj is IIndexable indexableObj)
-            { 
+            {
                 value = indexableObj[key];
             }
             else
-            { 
+            {
                 throw new NotSupportedException();
             }
 
@@ -617,11 +626,11 @@ namespace DotLiquid
                     listObj[Convert.ToInt32(key)] = newValue;
                 }
                 else if (TypeUtility.IsAnonymousType(obj.GetType()))
-                { 
+                {
                     obj.GetType().GetRuntimeProperty((string)key).SetValue(obj, newValue, null);
                 }
                 else
-                { 
+                {
                     throw new NotSupportedException();
                 }
                 return newValue;
@@ -685,7 +694,7 @@ namespace DotLiquid
 
             if (obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
             {
-                var attr = (LiquidTypeAttribute) obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
+                var attr = (LiquidTypeAttribute)obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
                 return new DropProxy(obj, attr.AllowedMembers);
             }
 

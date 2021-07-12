@@ -230,7 +230,7 @@ namespace DotLiquid.Tags
             {
                 context[parent] = value;
 
-                // Iterate entries and recursively call this method for any IDcitionary values.
+                // Iterate entries and recursively call this method for any IDictionary values.
                 foreach (var entry in dictionary.Where<KeyValuePair<string, object>>(entry => entry.Value is IDictionary<string, object>))
                     BuildContext(context, parent + "." + key, entry.Key, entry.Value);
             }

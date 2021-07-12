@@ -117,22 +117,18 @@ namespace DotLiquid
         /// <returns></returns>
         public static string Capitalize(Context context, string input)
         {
+            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22)
+            {
+                if (context.SyntaxCompatibilityLevel == SyntaxCompatibility.DotLiquid21)
+                    return ExtendedFilters.UpcaseFirst(context, input);
+                return ExtendedFilters.Titleize(context, input);
+            }
+
             if (input.IsNullOrWhiteSpace())
                 return input;
 
-            if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21)
-            {
-                var trimmed = input.TrimStart();
-                return input.Substring(0, input.Length - trimmed.Length) + char.ToUpper(trimmed[0]) + trimmed.Substring(1);
-            }
-
-            return string.IsNullOrEmpty(input)
-                ? input
-#if CORE
-                : Regex.Replace(input, @"\b(\w)", m => m.Value.ToUpper(), RegexOptions.None, Template.RegexTimeOut);
-#else
-                : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input);
-#endif
+            var trimmed = input.TrimStart();
+            return input.Substring(0, input.Length - trimmed.Length) + char.ToUpper(trimmed[0]) + trimmed.Substring(1).ToLower();
         }
 
         /// <summary>

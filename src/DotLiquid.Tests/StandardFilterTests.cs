@@ -12,6 +12,7 @@ namespace DotLiquid.Tests
     {
         private Context _contextV20;
         private Context _contextV21;
+        private Context _contextV22;
 
         [OneTimeSetUp]
         public void SetUp()
@@ -23,6 +24,10 @@ namespace DotLiquid.Tests
             _contextV21 = new Context(CultureInfo.InvariantCulture)
             {
                 SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid21
+            };
+            _contextV22 = new Context(CultureInfo.InvariantCulture)
+            {
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22
             };
         }
 
@@ -1299,6 +1304,21 @@ namespace DotLiquid.Tests
             Helper.AssertTemplateResult(
                 expected: "My great title",
                 template: "{{ 'my great title' | capitalize }}",
+                syntax: context.SyntaxCompatibilityLevel);
+        }
+
+        [Test]
+        public void TestCapitalizeV22()
+        {
+            var context = _contextV22;
+            Assert.AreEqual(null, StandardFilters.Capitalize(context: context, input: null));
+            Assert.AreEqual("", StandardFilters.Capitalize(context: context, input: ""));
+            Assert.AreEqual(" ", StandardFilters.Capitalize(context: context, input: " "));
+            Assert.AreEqual("My boss is mr. doe.", StandardFilters.Capitalize(context: context, input: "my boss is Mr. Doe."));
+
+            Helper.AssertTemplateResult(
+                expected: "My great title",
+                template: "{{ 'my Great Title' | capitalize }}",
                 syntax: context.SyntaxCompatibilityLevel);
         }
 

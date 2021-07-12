@@ -7,17 +7,26 @@ namespace DotLiquid.Tests.Tags
     public class RawTests
     {
         [Test]
-        public void TestTagInRaw ()
+        public void TestTagInRaw()
         {
-            Helper.AssertTemplateResult ("{% comment %} test {% endcomment %}",
+            Helper.AssertTemplateResult("{% comment %} test {% endcomment %}",
                 "{% raw %}{% comment %} test {% endcomment %}{% endraw %}");
         }
 
         [Test]
-        public void TestOutputInRaw ()
+        public void TestOutputInRaw()
         {
-            Helper.AssertTemplateResult ("{{ test }}",
+            Helper.AssertTemplateResult("{{ test }}",
                 "{% raw %}{{ test }}{% endraw %}");
+        }
+
+        [Test]
+        public void TestRawWithErbLikeTrimmingWhitespace()
+        {
+            Helper.AssertTemplateResult("{{ test }}", "{%- raw %}{{ test }}{%- endraw %}");
+            Helper.AssertTemplateResult("{{ test }}", "{% raw -%}{{ test }}{% endraw -%}");
+            Helper.AssertTemplateResult("{{ test }}", "{%- raw -%}{{ test }}{%- endraw -%}");
+            Helper.AssertTemplateResult("{{ test }}", "{%-raw-%}{{ test }}{%-endraw-%}");
         }
 
         [Test]

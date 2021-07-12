@@ -638,5 +638,14 @@ Maths 2: Eric Schmidt, Bruce Banner,
             assigns = Hash.FromAnonymousObject(new { array = new[] { 1, 1, 1, 1 } });
             Helper.AssertTemplateResult("1", "{%for item in array%}{%ifchanged%}{{item}}{% endifchanged %}{%endfor%}", assigns);
         }
+
+        [Test]
+        public void TestGetRegister()
+        {
+            var context = new Context(CultureInfo.InvariantCulture);
+            Tag.GetRegister<int>(context, "cycle");
+            Tag.GetRegister<object>(context, "for");
+            Assert.IsInstanceOf<IDictionary<string, int>>(Tag.GetRegister<int>(context, "cycle"));
+        }
     }
 }

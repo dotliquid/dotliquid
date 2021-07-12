@@ -78,17 +78,16 @@ namespace DotLiquid.Tags
         /// <param name="result"></param>
         public override void Render(Context context, TextWriter result)
         {
-            context.Registers["cycle"] = context.Registers["cycle"] ?? new Hash(0);
-
             context.Stack(() =>
             {
                 string key = context[_name].ToString();
-                int iteration = (int) (((Hash) context.Registers["cycle"])[key] ?? 0);
+                var register = GetRegister<int>(context, "cycle");
+                var iteration = register.ContainsKey(key) ? register[key] : 0;
                 result.Write(context[_variables[iteration]].ToString());
                 ++iteration;
                 if (iteration >= _variables.Length)
                     iteration = 0;
-                ((Hash) context.Registers["cycle"])[key] = iteration;
+                register[key] = iteration;
             });
         }
     }

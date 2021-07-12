@@ -118,8 +118,6 @@ namespace DotLiquid.Tags
         /// <param name="result"></param>
         public override void Render(Context context, TextWriter result)
         {
-            context.Registers["for"] = context.Registers["for"] ?? new Hash(0);
-
             // treat non IEnumerable as empty
             if (!(context[_collectionName] is IEnumerable collection))
             {
@@ -131,9 +129,10 @@ namespace DotLiquid.Tags
                 return;
             }
 
+            var register = GetRegister<object>(context, "for");
             int from = (_attributes.ContainsKey("offset"))
                 ? (_attributes["offset"] == "continue")
-                    ? Convert.ToInt32(context.Registers.Get<Hash>("for")[_name])
+                    ? Convert.ToInt32(register[_name])
                     : Convert.ToInt32(context[_attributes["offset"]])
                 : 0;
 
@@ -148,7 +147,7 @@ namespace DotLiquid.Tags
             int length = segment.Count;
 
             // Store our progress through the collection for the continue flag
-            context.Registers.Get<Hash>("for")[_name] = from + length;
+            register[_name] = from + length;
 
             context.Stack(() =>
             {
@@ -174,7 +173,7 @@ namespace DotLiquid.Tags
                     else
                         context[_variableName] = item;
 
-                    context["forloop"] = Hash.FromDictionary(new Dictionary<string, object>
+                    context["forloop"] = new Dictionary<string, object>
                     {
                         ["name"] = _name,
                         ["length"] = length,
@@ -184,7 +183,7 @@ namespace DotLiquid.Tags
                         ["rindex0"] = length - index - 1,
                         ["first"] = (index == 0),
                         ["last"] = (index == length - 1)
-                    });
+                    };
                     try
                     {
                         RenderAll(ForBlock, context, result);
@@ -227,18 +226,13 @@ namespace DotLiquid.Tags
 
         private void BuildContext(Context context, string parent, string key, object value)
         {
-            if (value is Hash hashValue)
+            if (value is IDictionary<string, object> dictionary)
             {
                 context[parent] = value;
 
-                foreach (var hashItem in (Hash)value)
-                {
-                    if (hashItem.Value is Hash)
-                    {
-                        BuildContext(context, parent + "." + key, hashItem.Key, hashItem.Value);
-                    }
-                }
-
+                // Iterate entries and recursively call this method for any IDcitionary values.
+                foreach (var entry in dictionary.Where<KeyValuePair<string, object>>(entry => entry.Value is IDictionary<string, object>))
+                    BuildContext(context, parent + "." + key, entry.Key, entry.Value);
             }
         }
     }

@@ -162,17 +162,10 @@ namespace DotLiquid.Tags
                 {
                     context.CheckTimeout();
 
-                    var item = segment[index];
-                    if (item is KeyValuePair<string, object> pair)
-                    {
-                        var itemKey = pair.Key;
-                        var itemValue = pair.Value;
-                        BuildContext(context, _variableName, itemKey, itemValue);
+                    context[_variableName] = segment[index];
 
-                    }
-                    else
-                        context[_variableName] = item;
-
+                    // Ensure the 'for-loop' object is available to templates.
+                    // See: https://shopify.dev/api/liquid/objects/for-loops
                     context["forloop"] = new Dictionary<string, object>
                     {
                         ["name"] = _name,
@@ -184,6 +177,7 @@ namespace DotLiquid.Tags
                         ["first"] = (index == 0),
                         ["last"] = (index == length - 1)
                     };
+
                     try
                     {
                         RenderAll(ForBlock, context, result);
@@ -222,18 +216,6 @@ namespace DotLiquid.Tags
                 }
             }
             return segments;
-        }
-
-        private void BuildContext(Context context, string parent, string key, object value)
-        {
-            if (value is IDictionary<string, object> dictionary)
-            {
-                context[parent] = value;
-
-                // Iterate entries and recursively call this method for any IDictionary values.
-                foreach (var entry in dictionary.Where<KeyValuePair<string, object>>(entry => entry.Value is IDictionary<string, object>))
-                    BuildContext(context, parent + "." + key, entry.Key, entry.Value);
-            }
         }
     }
 }

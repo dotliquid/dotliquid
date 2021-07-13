@@ -156,7 +156,7 @@ namespace DotLiquid
         /// Adds a filter from a function
         /// </summary>
         /// <typeparam name="TIn">Type of the first parameter</typeparam>
-        /// <typeparam name="TIn2">Type of the second paramter</typeparam>
+        /// <typeparam name="TIn2">Type of the second parameter</typeparam>
         /// <typeparam name="TOut">Type of the returned value</typeparam>
         /// <param name="filterName">Filter name</param>
         /// <param name="func">Filter function</param>
@@ -510,18 +510,18 @@ namespace DotLiquid
                 {
                     // If object is a KeyValuePair, we treat it a bit differently - we might be rendering
                     // an included template.
-                    if (@object is KeyValuePair<string, object> && ((KeyValuePair<string, object>)@object).Key == (string)part)
+                    if (@object is KeyValuePair<string, object> pair
+                        && part is string stringPart
+                        && (pair.Key == stringPart || (pair.Value is IDictionary<string, object> nestedDictionary && nestedDictionary.ContainsKey(stringPart))))
                     {
-                        object res = ((KeyValuePair<string, object>)@object).Value;
+                        object res = pair.Key == stringPart ? pair.Value : ((IDictionary<string, object>)pair.Value)[stringPart];
                         @object = Liquidize(res);
                     }
                     // If object is a hash- or array-like object we look for the
                     // presence of the key and if its available we return it
-                    else if (IsHashOrArrayLikeObject(@object, part))
+                    else if (TryLookupAndEvaluateHashLikeObject(@object, part, out var hashValue))
                     {
-                        // If its a proc we will replace the entry with the proc
-                        object res = LookupAndEvaluate(@object, part);
-                        @object = Liquidize(res);
+                        @object = Liquidize(hashValue);
                     }
                     // Some special cases. If the part wasn't in square brackets and
                     // no key with the same name was found we interpret following calls
@@ -561,28 +561,42 @@ namespace DotLiquid
             return @object;
         }
 
-        private static bool IsHashOrArrayLikeObject(object obj, object part)
+        private bool TryLookupAndEvaluateHashLikeObject(object obj, object key, out object value)
         {
+            value = null;
+
             if (obj == null)
                 return false;
+            else if (obj is IDictionary dictionaryObj && dictionaryObj.Contains(key))
+                value = dictionaryObj[key];
+            // Resolve #350/#417, add support for rendering of a nested ExpandoObject
+            else if (obj is IDictionary<string, object> dictionaryObject && dictionaryObject.ContainsKey(key.ToString()))
+                value = dictionaryObject[key.ToString()];
+            else if (obj is IList listObj && (key is int || key is long))
+                value = listObj[Convert.ToInt32(key)];
+            else if (TypeUtility.IsAnonymousType(obj.GetType()) && key is string stringKey && obj.GetType().GetRuntimeProperty(stringKey) != null)
+                value = obj.GetType().GetRuntimeProperty(stringKey).GetValue(obj, null);
+            else if (obj is IIndexable indexableObj && indexableObj.ContainsKey(key))
+                value = indexableObj[key];
+            else
+                return false;
 
-            if ((obj is IDictionary && ((IDictionary)obj).Contains(part)))
-                return true;
+            // If its a proc we will replace the entry with the proc
+            if (value is Proc procValue)
+            {
+                object newValue = procValue.Invoke(this);
+                if (obj is IDictionary dicObj)
+                    dicObj[key] = newValue;
+                else if (obj is IList listObj)
+                    listObj[Convert.ToInt32(key)] = newValue;
+                else if (TypeUtility.IsAnonymousType(obj.GetType()) && key is string stringKey)
+                    obj.GetType().GetRuntimeProperty(stringKey).SetValue(obj, newValue, null);
+                else
+                    throw new NotSupportedException(message: "Encountered an unsupported DotLiquid.Proc");
+                value = newValue;
+            }
 
-            // Resolve #350/#417, add support for rendering of a nested  ExpandoObject
-            if (obj is IDictionary<string, object> dictionaryObject && dictionaryObject.ContainsKey(part.ToString()))
-                return true;
-
-            if ((obj is IList) && (part is int || part is long))
-                return true;
-
-            if (TypeUtility.IsAnonymousType(obj.GetType()) && obj.GetType().GetRuntimeProperty((string)part) != null)
-                return true;
-
-            if ((obj is IIndexable) && ((IIndexable)obj).ContainsKey(part))
-                return true;
-
-            return false;
+            return true;
         }
 
         private object LookupAndEvaluate(object obj, object key)

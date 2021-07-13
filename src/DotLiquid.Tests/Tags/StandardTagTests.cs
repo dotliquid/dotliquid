@@ -592,6 +592,47 @@ namespace DotLiquid.Tests.Tags
         }
 
         [Test]
+        public void TestNestedDictionaries()
+        {
+            var classes = new Dictionary<string, object> {{
+                    "Classes", new Dictionary<string, object> {
+                        { "C1", new Dictionary<string, object>{
+                            { "Name", "English" },
+                            { "Level", "1" },
+                            { "Students", new Dictionary<string, object> {
+                                { "ID1", new Dictionary<string, object>{ { "First", "Jane" }, { "Last", "Green" } } },
+                                { "ID2", new Dictionary<string, object>{ { "First", "Mike" }, { "Last", "Doe" } } } } }
+                            }
+                        },
+                        { "C2", new Dictionary<string, object>{
+                            { "Name", "Maths" },
+                            { "Level", "2" },
+                            { "Students", new Dictionary<string, object> {
+                                { "ID3", new Dictionary<string, object>{ { "First", "Eric" }, { "Last", "Schmidt" } } },
+                                { "ID4", new Dictionary<string, object>{ { "First", "Bruce" }, { "Last", "Banner" } } } } }
+                            }
+                        }
+                    }
+            }};
+
+            // Check for loops, demonstrate values can be accessed using either:
+            // a: <item>.Value.<value-name> --> explicitly access values of a nested Hash/IDictionary
+            // b: <item>.<value-name> --> implicitly access values of a nested Hash/IDictionary (and retain backwards compatibility)
+            // c: <item>.Key --> access the Key, in case the template needs it (replacing the non-standard <item>.itemName) 
+            Helper.AssertTemplateResult(expected: @"English 1: Jane Green (ID1), Mike Doe (ID2), 
+Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4), 
+",
+                template: @"{% for class in Classes %}{{class.Name}} {{class.Value.Level}}: {% for student in class.Students %}{{ student.First }} {{ student.Value.Last }} ({{ student.Key }}), {%endfor%}
+{%endfor%}",
+                localVariables: Hash.FromDictionary(classes));
+
+            // Check dot notation
+            Helper.AssertTemplateResult(expected: "Eric Schmidt",
+                template: "{{ Classes.C2.Students.ID3.First }} {{ Classes.C2.Students.ID3.Last }}",
+                localVariables: Hash.FromDictionary(classes));
+        }
+
+        [Test]
         public void TestIfChanged()
         {
             Hash assigns = Hash.FromAnonymousObject(new { array = new[] { 1, 1, 2, 2, 3, 3 } });

@@ -55,6 +55,7 @@ namespace DotLiquid
             Template.RegisterTag<Tags.Html.TableRow>("tablerow");
 
             Template.RegisterFilter(typeof(StandardFilters));
+            Template.RegisterFilter(typeof(ShopifyFilters));
         }
     }
 }

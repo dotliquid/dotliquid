@@ -222,6 +222,9 @@
   <data name="VariableNotFoundException" xml:space="preserve">
     <value>Error - Variable '{0}' could not be found</value>
   </data>
+  <data name="VariableNotTerminatedException" xml:space="preserve">
+    <value>Variable '{0}' was not properly terminated</value>
+  </data>
   <data name="WeakTableKeyNotFoundException" xml:space="preserve">
     <value>key could not be found</value>
   </data>

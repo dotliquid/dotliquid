@@ -81,17 +81,6 @@ namespace DotLiquid.Tests
             CollectionAssert.AreEqual(new[] { "arg1", "arg2", "\"arg 3\"", "arg4" }, Run("arg1 arg2 \"arg 3\" arg4", Liquid.QuotedFragment));
         }
 
-        [Test]
-        public void TestVariableParser()
-        {
-            CollectionAssert.AreEqual(new[] { "var" }, Run("var", Liquid.VariableParser));
-            CollectionAssert.AreEqual(new[] { "var", "method" }, Run("var.method", Liquid.VariableParser));
-            CollectionAssert.AreEqual(new[] { "var", "[method]" }, Run("var[method]", Liquid.VariableParser));
-            CollectionAssert.AreEqual(new[] { "var", "[method]", "[0]" }, Run("var[method][0]", Liquid.VariableParser));
-            CollectionAssert.AreEqual(new[] { "var", "[\"method\"]", "[0]" }, Run("var[\"method\"][0]", Liquid.VariableParser));
-            CollectionAssert.AreEqual(new[] { "var", "[method]", "[0]", "method" }, Run("var[method][0].method", Liquid.VariableParser));
-        }
-
         private static List<string> Run(string input, string pattern)
         {
             return R.Scan(input, new Regex(pattern));

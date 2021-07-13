@@ -171,11 +171,16 @@ namespace DotLiquid.Tests
         #endregion
 
         private Context _context;
+        private Context _contextV22;
 
         [OneTimeSetUp]
         public void SetUp()
         {
             _context = new Context(CultureInfo.InvariantCulture);
+            _contextV22 = new Context(CultureInfo.InvariantCulture)
+            {
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22
+            };
         }
 
         [Test]
@@ -931,6 +936,37 @@ namespace DotLiquid.Tests
             _context["category"] = new Category("foobar");
             Assert.IsInstanceOf<CategoryDrop>(_context["category"]);
             Assert.AreEqual(_context, ((CategoryDrop)_context["category"]).Context);
+        }
+
+        [Test]
+        public void TestVariableParserV21()
+        {
+            var regex = new System.Text.RegularExpressions.Regex(Liquid.VariableParser);
+            TestVariableParser((input) => DotLiquid.Util.R.Scan(input, regex));
+        }
+
+        [Test]
+        public void TestVariableParserV22()
+        {
+            TestVariableParser((input) => GetVariableParts(input));
+        }
+
+        private void TestVariableParser(Func<string, IEnumerable<string>> variableSplitterFunc)
+        {
+            CollectionAssert.IsEmpty(GetVariableParts(""));
+            CollectionAssert.AreEqual(new[] { "var" }, variableSplitterFunc("var"));
+            CollectionAssert.AreEqual(new[] { "var", "method" }, variableSplitterFunc("var.method"));
+            CollectionAssert.AreEqual(new[] { "var", "[method]" }, variableSplitterFunc("var[method]"));
+            CollectionAssert.AreEqual(new[] { "var", "[method]", "[0]" }, variableSplitterFunc("var[method][0]"));
+            CollectionAssert.AreEqual(new[] { "var", "[\"method\"]", "[0]" }, variableSplitterFunc("var[\"method\"][0]"));
+            CollectionAssert.AreEqual(new[] { "var", "[method]", "[0]", "method" }, variableSplitterFunc("var[method][0].method"));
+        }
+
+        private static IEnumerable<string> GetVariableParts(string input)
+        {
+            using (var enumerator = Tokenizer.GetVariableEnumerator(input))
+                while (enumerator.MoveNext())
+                    yield return enumerator.Current;
         }
     }
 }

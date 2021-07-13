@@ -126,9 +126,8 @@ namespace DotLiquid.Tests
             var hash = new Hash(0); // default value of zero
             hash["key"] = "value";
 
-            // NOTE: the next two asserts will change to true when performance changes are introduced by PR #441.
-            Assert.False(hash.Contains("unknown-key"));
-            Assert.False(hash.ContainsKey("unknown-key"));
+            Assert.True(hash.Contains("unknown-key"));
+            Assert.True(hash.ContainsKey("unknown-key"));
             Assert.AreEqual(0, hash["unknown-key"]); // ensure the default value is returned
 
             Assert.True(hash.Contains("key"));
@@ -136,8 +135,8 @@ namespace DotLiquid.Tests
             Assert.AreEqual("value", hash["key"]);
 
             hash.Remove("key");
-            Assert.False(hash.Contains("key"));
-            Assert.False(hash.ContainsKey("key"));
+            Assert.True(hash.Contains("key"));
+            Assert.True(hash.ContainsKey("key"));
             Assert.AreEqual(0, hash["key"]); // ensure the default value is returned after key removed
         }
 
@@ -147,8 +146,8 @@ namespace DotLiquid.Tests
             var hash = new Hash((h, k) => { return "Lambda Value"; });
             hash["key"] = "value";
 
-            Assert.False(hash.Contains("unknown-key"));
-            Assert.False(hash.ContainsKey("unknown-key"));
+            Assert.True(hash.Contains("unknown-key"));
+            Assert.True(hash.ContainsKey("unknown-key"));
             Assert.AreEqual("Lambda Value", hash["unknown-key"]);
 
             Assert.True(hash.Contains("key"));

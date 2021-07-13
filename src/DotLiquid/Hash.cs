@@ -214,7 +214,7 @@ namespace DotLiquid
 
         public virtual bool Contains(object key)
         {
-            return ((IDictionary)_nestedDictionary).Contains(key);
+            return _lambda != null || ((IDictionary)_nestedDictionary).Contains(key);
         }
 
         public void Add(object key, object value)
@@ -288,7 +288,7 @@ namespace DotLiquid
 
         public bool ContainsKey(string key)
         {
-            return _nestedDictionary.ContainsKey(key);
+            return Contains(key);
         }
 
         public void Add(string key, object value)

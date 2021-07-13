@@ -616,9 +616,9 @@ namespace DotLiquid.Tests.Tags
             }};
 
             // Check for loops, demonstrate values can be accessed using either:
-            // a: item.Value.<value-name> --> to access values of a nested Hash/dictionary
-            // b: item.Key --> if the dictionary key is needed (replacing the non-standard <item>.itemName) 
-            // c: <item>.<value-name> --> to retain backwards compatibility
+            // a: <item>.Value.<value-name> --> explicitly access values of a nested Hash/IDictionary
+            // b: <item>.<value-name> --> implicitly access values of a nested Hash/IDictionary (and retain backwards compatibility)
+            // c: <item>.Key --> access the Key, in case the template needs it (replacing the non-standard <item>.itemName) 
             Helper.AssertTemplateResult(expected: @"English 1: Jane Green (ID1), Mike Doe (ID2), 
 Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4), 
 ",

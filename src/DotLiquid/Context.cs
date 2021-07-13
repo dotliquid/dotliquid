@@ -430,14 +430,15 @@ namespace DotLiquid
             if (scope == null)
             {
                 foreach (Hash e in Environments)
-                    if ((variable = LookupAndEvaluate(e, key)) != null)
+                    if (TryFindKeyInHashLikeObject(e, key, out variable))
                     {
                         scope = e;
                         break;
                     }
             }
             scope = scope ?? Environments.LastOrDefault() ?? Scopes.Last();
-            variable = variable ?? LookupAndEvaluate(scope, key);
+            if (variable is null)
+                TryFindKeyInHashLikeObject(scope, key, out variable);
 
             variable = Liquidize(variable);
             if (variable is IContextAware contextAwareVariable)
@@ -519,7 +520,7 @@ namespace DotLiquid
                     }
                     // If object is a hash- or array-like object we look for the
                     // presence of the key and if its available we return it
-                    else if (TryLookupAndEvaluateHashLikeObject(@object, part, out var hashValue))
+                    else if (TryFindKeyInHashLikeObject(@object, part, out var hashValue))
                     {
                         @object = Liquidize(hashValue);
                     }
@@ -561,7 +562,10 @@ namespace DotLiquid
             return @object;
         }
 
-        private bool TryLookupAndEvaluateHashLikeObject(object obj, object key, out object value)
+        /// <summary>
+        /// Try to find value of a key in a Hash like object, if the key is found return the value using an out parameter.
+        /// </summary>
+        private bool TryFindKeyInHashLikeObject(object obj, object key, out object value)
         {
             value = null;
 
@@ -597,60 +601,6 @@ namespace DotLiquid
             }
 
             return true;
-        }
-
-        private object LookupAndEvaluate(object obj, object key)
-        {
-            object value;
-            if (obj is IDictionary dictionaryObj)
-            {
-                value = dictionaryObj[key];
-            }
-            // Resolve #350/#417, add support for rendering of a nested ExpandoObject
-            else if (obj is IDictionary<string, object> dictionaryObject)
-            {
-                value = dictionaryObject[key.ToString()];
-            }
-            else if (obj is IList listObj)
-            {
-                value = listObj[Convert.ToInt32(key)];
-            }
-            else if (TypeUtility.IsAnonymousType(obj.GetType()))
-            {
-                value = obj.GetType().GetRuntimeProperty((string)key).GetValue(obj, null);
-            }
-            else if (obj is IIndexable indexableObj)
-            {
-                value = indexableObj[key];
-            }
-            else
-            {
-                throw new NotSupportedException();
-            }
-
-            if (value is Proc procValue)
-            {
-                object newValue = procValue.Invoke(this);
-                if (obj is IDictionary dicObj)
-                {
-                    dicObj[key] = newValue;
-                }
-                else if (obj is IList listObj)
-                {
-                    listObj[Convert.ToInt32(key)] = newValue;
-                }
-                else if (TypeUtility.IsAnonymousType(obj.GetType()))
-                {
-                    obj.GetType().GetRuntimeProperty((string)key).SetValue(obj, newValue, null);
-                }
-                else
-                {
-                    throw new NotSupportedException();
-                }
-                return newValue;
-            }
-
-            return value;
         }
 
         private static object Liquidize(object obj)
@@ -746,7 +696,8 @@ namespace DotLiquid
                 foreach (Hash env in Environments)
                     if (env.ContainsKey(k))
                     {
-                        tempAssigns[k] = LookupAndEvaluate(env, k);
+                        TryFindKeyInHashLikeObject(env, k, out var value);
+                        tempAssigns[k] = value;
                         break;
                     }
 

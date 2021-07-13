@@ -438,16 +438,16 @@ namespace DotLiquid
         private bool TryFindVariable(string key, out object variable)
         {
             bool foundVariable = false;
+            object foundValue = null;
             Hash scope = Scopes.FirstOrDefault(s => s.ContainsKey(key));
-            object ret = null;
             if (scope == null)
             {
-                foreach (Hash e in Environments)
+                foreach (Hash environment in Environments)
                 {
-                    foundVariable = TryEvaluateHashOrArrayLikeObject(e, key, out ret);
+                    foundVariable = TryEvaluateHashOrArrayLikeObject(environment, key, out foundValue);
                     if (foundVariable)
                     {
-                        scope = e;
+                        scope = environment;
                         break;
                     }
                 }
@@ -455,15 +455,16 @@ namespace DotLiquid
                 if (scope == null)
                 {
                     scope = Environments.LastOrDefault() ?? Scopes.Last();
-                    foundVariable = TryEvaluateHashOrArrayLikeObject(scope, key, out ret);
+                    foundVariable = TryEvaluateHashOrArrayLikeObject(scope, key, out foundValue);
                 }
             }
             else
             {
-                foundVariable = TryEvaluateHashOrArrayLikeObject(scope, key, out ret);
+                foundVariable = TryEvaluateHashOrArrayLikeObject(scope, key, out foundValue);
             }
 
-            variable = Liquidize(ret);
+
+            variable = Liquidize(foundValue);
             if (variable is IContextAware contextAwareVariable)
             {
                 contextAwareVariable.Context = this;

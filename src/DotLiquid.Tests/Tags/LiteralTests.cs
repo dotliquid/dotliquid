@@ -12,37 +12,36 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestEmptyLiteral()
         {
-            Template t = Template.Parse("{% literal %}{% endliteral %}");
-            Assert.AreEqual(string.Empty, t.Render());
+            Assert.AreEqual(string.Empty, Template.Parse("{% literal %}{% endliteral %}").Render());
             Assert.AreEqual(string.Empty, Template.Parse("{{{}}}", SyntaxCompatibility.DotLiquid20).Render());
         }
 
         [Test]
         public void TestSimpleLiteralValue()
         {
-            Template t = Template.Parse("{% literal %}howdy{% endliteral %}");
-            Assert.AreEqual("howdy", t.Render());
+            Assert.AreEqual("howdy", Template.Parse("{% literal %}howdy{% endliteral %}").Render());
         }
 
         [Test]
         public void TestLiteralsIgnoreLiquidMarkup()
         {
-            Template t = Template.Parse("{% literal %}{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}{% endliteral %}");
-            Assert.AreEqual("{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}", t.Render());
+            Assert.AreEqual(
+                expected: "{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}",
+                actual: Template.Parse("{% literal %}{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}{% endliteral %}").Render());
         }
 
         [Test]
         public void TestShorthandSyntax()
         {
-            Template t = Template.Parse("{{{{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}}}}", SyntaxCompatibility.DotLiquid20);
-            Assert.AreEqual("{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}", t.Render());
+            Assert.AreEqual(
+                expected: "{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}",
+                actual: Template.Parse("{{{{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}}}}", SyntaxCompatibility.DotLiquid20).Render());
         }
 
         [Test]
         public void TestLiteralsDontRemoveComments()
         {
-            Template t = Template.Parse("{{{ {# comment #} }}}", SyntaxCompatibility.DotLiquid20);
-            Assert.AreEqual("{# comment #}", t.Render());
+            Assert.AreEqual("{# comment #}", Template.Parse("{{{ {# comment #} }}}", SyntaxCompatibility.DotLiquid20).Render());
         }
 
         [Test]

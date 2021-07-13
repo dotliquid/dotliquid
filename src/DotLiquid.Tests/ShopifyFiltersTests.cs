@@ -25,7 +25,8 @@ namespace DotLiquid.Tests
                 ShopifyFilters.Sha1("ShopifyIsAwesome!"));
 
             Helper.AssertTemplateResult(
-                expected: "\r\nMy encoded string is: c7322e3812d3da7bc621300ca1797517c34f63b6",
+                expected: @"
+My encoded string is: c7322e3812d3da7bc621300ca1797517c34f63b6",
                 template: @"{% assign my_secret_string = ""ShopifyIsAwesome!"" | sha1 %}
 My encoded string is: {{ my_secret_string }}"
                 );
@@ -41,7 +42,8 @@ My encoded string is: {{ my_secret_string }}"
                 ShopifyFilters.Sha256("ShopifyIsAwesome!"));
 
             Helper.AssertTemplateResult(
-                expected: "\r\nMy encoded string is: c29cce758876791f34b8a1543f0ec3f8e886b5271004d473cfe75ac3148463cb",
+                expected: @"
+My encoded string is: c29cce758876791f34b8a1543f0ec3f8e886b5271004d473cfe75ac3148463cb",
                 template: @"{% assign my_secret_string = ""ShopifyIsAwesome!"" | sha256 %}
 My encoded string is: {{ my_secret_string }}"
                 );
@@ -60,7 +62,8 @@ My encoded string is: {{ my_secret_string }}"
                 ShopifyFilters.HmacSha1("ShopifyIsAwesome!", "secret_key"));
 
             Helper.AssertTemplateResult(
-                expected: "\r\nMy encoded string is: 30ab3459e46e7b209b45dba8378fcbba67297304",
+                expected: @"
+My encoded string is: 30ab3459e46e7b209b45dba8378fcbba67297304",
                 template: @"{% assign my_secret_string = ""ShopifyIsAwesome!"" | hmac_sha1: ""secret_key"" %}
 My encoded string is: {{ my_secret_string }}"
                 );
@@ -82,7 +85,8 @@ My encoded string is: {{ my_secret_string }}"
                 ShopifyFilters.HmacSha256("ShopifyIsAwesome!", "secret_key"));
 
             Helper.AssertTemplateResult(
-                expected: "\r\nMy encoded string is: c21f97cf997fac667c9bac39462a5813b1a41ce1b811743b0e9157393efbcc3c",
+                expected: @"
+My encoded string is: c21f97cf997fac667c9bac39462a5813b1a41ce1b811743b0e9157393efbcc3c",
                 template: @"{% assign my_secret_string = ""ShopifyIsAwesome!"" | hmac_sha256: ""secret_key"" %}
 My encoded string is: {{ my_secret_string }}"
                 );

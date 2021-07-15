@@ -181,10 +181,16 @@ namespace DotLiquid
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public object this [string key, bool notifyNotFound = true]
+        public object this [string key, bool notifyNotFound]
         {
             get { return Resolve(key, notifyNotFound); }
             set { Scopes[0][key] = value; }
+        }
+
+        public object this[string key]
+        {
+            get { return this[key, true];  }
+            set { this[key, true] = value; }
         }
 
         public bool HasKey(string key)

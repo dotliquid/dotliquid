@@ -349,25 +349,31 @@ namespace DotLiquid.Tests
             Context context = new Context(CultureInfo.InvariantCulture);
             context.AddFilters(new[] { typeof(TestFilters) });
             Assert.AreEqual("hi? hi!", context.Invoke("hi", new List<object> { "hi?" }));
+            context.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22;
+            Assert.AreEqual("hi? hi!", context.Invoke("hi", new List<object> { "hi?" }));
 
             context = new Context(CultureInfo.InvariantCulture);
             Assert.AreEqual("hi?", context.Invoke("hi", new List<object> { "hi?" }));
-
-            context.AddFilters(new[] { typeof(TestFilters) });
-            Assert.AreEqual("hi? hi!", context.Invoke("hi", new List<object> { "hi?" }));
+            context.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22;
+            Assert.Throws<FilterNotFoundException>(() => context.Invoke("hi", new List<object> { "hi?" }));
         }
 
         [Test]
         public void TestAddContextFilter()
         {
-            Context context = new Context(CultureInfo.InvariantCulture);
+            // This test differs from TestAddFilter only in that the Hi method within this class has a Context parameter in addition to the input string
+            Context context = new Context(CultureInfo.InvariantCulture) { SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20 };
             context["name"] = "King Kong";
 
             context.AddFilters(new[] { typeof(TestContextFilters) });
             Assert.AreEqual("hi? hi from King Kong!", context.Invoke("hi", new List<object> { "hi?" }));
+            context.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22;
+            Assert.AreEqual("hi? hi from King Kong!", context.Invoke("hi", new List<object> { "hi?" }));
 
-            context = new Context(CultureInfo.InvariantCulture);
+            context = new Context(CultureInfo.InvariantCulture) { SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20 };
             Assert.AreEqual("hi?", context.Invoke("hi", new List<object> { "hi?" }));
+            context.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22;
+            Assert.Throws<FilterNotFoundException>(() => context.Invoke("hi", new List<object> { "hi?" })); 
         }
 
         [Test]

@@ -230,6 +230,9 @@ namespace DotLiquid
                 return Strainer.Invoke(method, args);
             }
 
+            if (SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid22)
+                throw new FilterNotFoundException(method); // this will be caught and rethrown in caller with correct message
+
             return args.First();
         }
 

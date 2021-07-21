@@ -31,8 +31,7 @@ namespace DotLiquid.Tests
 
             Helper.AssertTemplateResult(
                 expected: "Title",
-                template: "{{ 'title' | titleize }}",
-                syntax: context.SyntaxCompatibilityLevel);
+                template: "{{ 'title' | titleize }}");
         }
 
         [Test]
@@ -46,8 +45,7 @@ namespace DotLiquid.Tests
 
             Helper.AssertTemplateResult(
                 expected: "My great title",
-                template: "{{ 'my great title' | upcase_first }}",
-                syntax: context.SyntaxCompatibilityLevel);
+                template: "{{ 'my great title' | upcase_first }}");
         }
     }
 }

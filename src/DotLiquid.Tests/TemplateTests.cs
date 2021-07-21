@@ -9,38 +9,38 @@ namespace DotLiquid.Tests
     public class TemplateTests
     {
 
-        private System.Collections.Generic.List<string> Tokenize(string input)
+        private System.Collections.Generic.List<string> TokenizeValidateBackwardCompat(string input)
         {
             var v20 = Tokenizer.Tokenize(input, SyntaxCompatibility.DotLiquid20);
             var v22 = Tokenizer.Tokenize(input, SyntaxCompatibility.DotLiquid22);
-            Assert.AreEqual(v20, v22);
+            CollectionAssert.AreEqual(v20, v22);
             return v22;
         }
 
         [Test]
         public void TestTokenizeStrings()
         {
-            CollectionAssert.AreEqual(new[] { " " }, Tokenize(" "));
-            CollectionAssert.AreEqual(new[] { "hello world" }, Tokenize("hello world"));
+            CollectionAssert.AreEqual(new[] { " " }, TokenizeValidateBackwardCompat(" "));
+            CollectionAssert.AreEqual(new[] { "hello world" }, TokenizeValidateBackwardCompat("hello world"));
         }
 
         [Test]
         public void TestTokenizeVariables()
         {
-            CollectionAssert.AreEqual(new[] { "{{funk}}" }, Tokenize("{{funk}}"));
-            CollectionAssert.AreEqual(new[] { " ", "{{funk}}", " " }, Tokenize(" {{funk}} "));
-            CollectionAssert.AreEqual(new[] { " ", "{{funk}}", " ", "{{so}}", " ", "{{brother}}", " " }, Tokenize(" {{funk}} {{so}} {{brother}} "));
-            CollectionAssert.AreEqual(new[] { " ", "{{  funk  }}", " " }, Tokenize(" {{  funk  }} "));
+            CollectionAssert.AreEqual(new[] { "{{funk}}" }, TokenizeValidateBackwardCompat("{{funk}}"));
+            CollectionAssert.AreEqual(new[] { " ", "{{funk}}", " " }, TokenizeValidateBackwardCompat(" {{funk}} "));
+            CollectionAssert.AreEqual(new[] { " ", "{{funk}}", " ", "{{so}}", " ", "{{brother}}", " " }, TokenizeValidateBackwardCompat(" {{funk}} {{so}} {{brother}} "));
+            CollectionAssert.AreEqual(new[] { " ", "{{  funk  }}", " " }, TokenizeValidateBackwardCompat(" {{  funk  }} "));
         }
 
         [Test]
         public void TestTokenizeBlocks()
         {
-            CollectionAssert.AreEqual(new[] { "{%assign%}" }, Tokenize("{%assign%}"));
-            CollectionAssert.AreEqual(new[] { " ", "{%assign%}", " " }, Tokenize(" {%assign%} "));
+            CollectionAssert.AreEqual(new[] { "{%assign%}" }, TokenizeValidateBackwardCompat("{%assign%}"));
+            CollectionAssert.AreEqual(new[] { " ", "{%assign%}", " " }, TokenizeValidateBackwardCompat(" {%assign%} "));
 
-            CollectionAssert.AreEqual(new[] { " ", "{%comment%}", " ", "{%endcomment%}", " " }, Tokenize(" {%comment%} {%endcomment%} "));
-            CollectionAssert.AreEqual(new[] { "  ", "{% comment %}", " ", "{% endcomment %}", " " }, Tokenize("  {% comment %} {% endcomment %} "));
+            CollectionAssert.AreEqual(new[] { " ", "{%comment%}", " ", "{%endcomment%}", " " }, TokenizeValidateBackwardCompat(" {%comment%} {%endcomment%} "));
+            CollectionAssert.AreEqual(new[] { "  ", "{% comment %}", " ", "{% endcomment %}", " " }, TokenizeValidateBackwardCompat("  {% comment %} {% endcomment %} "));
         }
 
         [Test]

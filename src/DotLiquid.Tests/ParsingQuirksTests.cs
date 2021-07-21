@@ -126,9 +126,9 @@ namespace DotLiquid.Tests
         [Test]
         public void TestShortHandSyntaxIsIgnored()
         {
-            //These tests are based on actual handling on Ruby Liquid, not indicative of wanted behavior
+            //These tests are based on actual handling on Ruby Liquid, not indicative of wanted behavior. Behavior for legacy dotliquid parser is in TestEmptyLiteral
             Assert.AreEqual("}", Template.Parse("{{{}}}", SyntaxCompatibility.DotLiquid22).Render());
-            Assert.AreEqual(string.Empty, Template.Parse("{{%%}}", SyntaxCompatibility.DotLiquid22).Render());
+            Assert.AreEqual("{##}", Template.Parse("{##}", SyntaxCompatibility.DotLiquid22).Render());
         }
     }
 }

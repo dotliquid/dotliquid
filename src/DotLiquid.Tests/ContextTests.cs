@@ -953,7 +953,7 @@ namespace DotLiquid.Tests
 
         private void TestVariableParser(Func<string, IEnumerable<string>> variableSplitterFunc)
         {
-            CollectionAssert.IsEmpty(GetVariableParts(""));
+            CollectionAssert.IsEmpty(variableSplitterFunc(""));
             CollectionAssert.AreEqual(new[] { "var" }, variableSplitterFunc("var"));
             CollectionAssert.AreEqual(new[] { "var", "method" }, variableSplitterFunc("var.method"));
             CollectionAssert.AreEqual(new[] { "var", "[method]" }, variableSplitterFunc("var[method]"));

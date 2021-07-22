@@ -15,17 +15,14 @@ namespace DotLiquid.Tags
     /// </summary>
     public class RegisterFilters : Tag
     {
-        private static readonly Regex Syntax = R.B(R.Q(@"\s*(.+)\s*"));
-
         private string className;
         private Type classType;
 
         /// <inheritdoc/>
         public override void Initialize(string tagName, string markup, List<string> tokens)
         {
-            Match syntaxMatch = Syntax.Match(markup);
-            if (syntaxMatch.Success)
-                className = syntaxMatch.Groups[1].Value.Trim(new[] { '\'', '"' });
+            // Remove whitespace or quotes
+            className = markup.Trim(new[] { ' ', '\'', '"' });
 
             // The class name must be non-empty
             if (string.IsNullOrWhiteSpace(className))

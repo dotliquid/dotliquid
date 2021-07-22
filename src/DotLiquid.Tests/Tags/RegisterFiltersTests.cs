@@ -11,10 +11,12 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestInitialise()
         {
-            new RegisterFilters().Initialize("register_filters", "DotLiquid.ShopifyFilters", null); // no quotes
-            new RegisterFilters().Initialize("register_filters", "'DotLiquid.ShopifyFilters'", null); // single quoted literal
-            new RegisterFilters().Initialize("register_filters", "\"DotLiquid.ShopifyFilters\"", null); // double  quoted literal
-            Assert.Throws<SyntaxException>(() => new RegisterFilters().Initialize("register_filters", "  ", null)); // whitespace markup
+            new RegisterFilters().Initialize("register_filters", " DotLiquid.ShopifyFilters", null); // no quotes
+            new RegisterFilters().Initialize("register_filters", "'DotLiquid.ShopifyFilters' ", null); // single quoted literal
+            new RegisterFilters().Initialize("register_filters", " \"DotLiquid.ShopifyFilters\" ", null); // double  quoted literal
+
+            Assert.Throws<SyntaxException>(() => new RegisterFilters().Initialize("register_filters", "", null)); // empty markup
+            Assert.Throws<SyntaxException>(() => new RegisterFilters().Initialize("register_filters", "   ", null)); // whitespace markup
             Assert.Throws<FilterNotFoundException>(() => new RegisterFilters().Initialize("register_filters", "DotLiquid.NotARealClassName", null)); // Invalid class name
         }
 

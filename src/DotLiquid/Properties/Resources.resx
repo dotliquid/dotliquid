@@ -234,4 +234,7 @@
   <data name="SimpleTagSyntaxException" xml:space="preserve">
     <value>Syntax Error in '{0}' tag - Valid syntax: {0}</value>
   </data>
+  <data name="FilterClassNotFoundException" xml:space="preserve">
+    <value>Error unable to find and register filter class '{0}'</value>
+  </data>
 </root>

@@ -1,6 +1,7 @@
+using System;
+using System.Collections.Generic;
 using DotLiquid.NamingConventions;
 using NUnit.Framework;
-using System;
 
 namespace DotLiquid.Tests
 {
@@ -51,14 +52,19 @@ namespace DotLiquid.Tests
             AssertTemplateResult(expected: expected, template: template, anonymousObject: null, namingConvention: namingConvention);
         }
 
-        public static void AssertTemplateResult(string expected, string template, Hash localVariables, SyntaxCompatibility syntax = SyntaxCompatibility.DotLiquid20)
+        public static void AssertTemplateResult(string expected, string template, Hash localVariables, IEnumerable<Type> localFilters, SyntaxCompatibility syntax = SyntaxCompatibility.DotLiquid20)
         {
             var parameters = new RenderParameters(System.Globalization.CultureInfo.CurrentCulture)
             {
                 LocalVariables = localVariables,
-                SyntaxCompatibilityLevel = syntax
+                SyntaxCompatibilityLevel = syntax,
+                Filters = localFilters
             };
             Assert.AreEqual(expected, Template.Parse(template).Render(parameters));
+        }
+        public static void AssertTemplateResult(string expected, string template, Hash localVariables, SyntaxCompatibility syntax = SyntaxCompatibility.DotLiquid20)
+        {
+            AssertTemplateResult(expected: expected, template: template, localVariables: localVariables, localFilters: null, syntax: syntax);
         }
 
         public static void AssertTemplateResult(string expected, string template, SyntaxCompatibility syntax = SyntaxCompatibility.DotLiquid20)

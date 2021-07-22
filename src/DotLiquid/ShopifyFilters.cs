@@ -17,7 +17,7 @@ namespace DotLiquid
         /// <param name="input"/>
         public static string Md5(string input)
         {
-            return ComputeHash(MD5.Create(), input);
+            return input.IsNullOrWhiteSpace() ? input : ComputeHash(MD5.Create(), input);
         }
 
         /// <summary> 
@@ -27,7 +27,7 @@ namespace DotLiquid
         /// <param name="input"></param>
         public static string Sha1(string input)
         {
-            return ComputeHash(SHA1.Create(), input);
+            return input.IsNullOrWhiteSpace() ? input : ComputeHash(SHA1.Create(), input);
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace DotLiquid
         /// <param name="input"></param>
         public static string Sha256(string input)
         {
-            return ComputeHash(SHA256.Create(), input);
+            return input.IsNullOrWhiteSpace() ? input : ComputeHash(SHA256.Create(), input);
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace DotLiquid
         /// <param name="secretKey" />
         public static string HmacSha1(string input, string secretKey)
         {
-            if (input.IsNullOrWhiteSpace() || secretKey.IsNullOrWhiteSpace())
+            if (input.IsNullOrWhiteSpace() || secretKey is null)
                 return input;
 
             var hmac = new HMACSHA1(Encoding.UTF8.GetBytes(secretKey));
@@ -66,7 +66,7 @@ namespace DotLiquid
         /// <param name="secretKey" />
         public static string HmacSha256(string input, string secretKey)
         {
-            if (input.IsNullOrWhiteSpace() || secretKey.IsNullOrWhiteSpace())
+            if (input.IsNullOrWhiteSpace() || secretKey is null)
                 return input;
 
             var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey));
@@ -81,9 +81,6 @@ namespace DotLiquid
         /// <param name="input" />
         private static string ComputeHash(HashAlgorithm hashAlgorithm, string input)
         {
-            if (input.IsNullOrWhiteSpace())
-                return input;
-
             // Convert the input string to a byte array and compute the hash.
             var hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(input));
 

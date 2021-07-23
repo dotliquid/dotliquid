@@ -1,37 +1,49 @@
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
-using System;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
 
 namespace DotLiquid.Tags
 {
     /// <summary>
-    /// Adds a Filter class containing one or more non-standard filters to the current context.
-    /// Duplicate/Additional calls to register the same filter class are benign and will be ignored. 
+    /// Adds filters in a whitelisted class to the current context.
     ///
-    /// {%- register_filters 'DotLiquid.ShopifyFilters' -%}
+    /// {%- addfilters 'ShopifyFilters' -%}
     /// </summary>
-    public class RegisterFilters : Tag
+    public class AddFilters : Tag
     {
-        private string className;
-        private Type classType;
+        private static readonly Regex Syntax = R.B(R.Q(@"\s*([""'].+[""'])\s*"));
+
+        private static readonly IDictionary<string, Type> FILTER_WHITELIST = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
+        static AddFilters()
+        {
+            WhitelistFilter(typeof(ShopifyFilters));
+        }
+
+        /// <summary>
+        /// Add the provided class to the whitelist of classes that can be added by a Liquid Designer
+        /// </summary>
+        /// <param name="filterClassType">A class containing filter operations.</param>
+        /// <param name="alias">An alias for the class, if not provided the classes short name is used</param>
+        public static void WhitelistFilter(Type filterClassType, string alias = null)
+        {
+            alias = alias ?? filterClassType.Name;
+            FILTER_WHITELIST[alias] = filterClassType;
+        }
+
+        private string alias;
 
         /// <inheritdoc/>
         public override void Initialize(string tagName, string markup, List<string> tokens)
         {
-            // Remove whitespace or quotes
-            className = markup.Trim(new[] { ' ', '\'', '"' });
+            Match syntaxMatch = Syntax.Match(markup);
+            if (!syntaxMatch.Success)
+                throw new SyntaxException(Liquid.ResourceManager.GetString("AddFiltersTagSyntaxException"));
 
-            // The class name must be non-empty
-            if (string.IsNullOrWhiteSpace(className))
-                throw new SyntaxException(Liquid.ResourceManager.GetString("SimpleTagSyntaxException"), new[] { tagName });
-
-            // Attempt to find the class type
-            classType = Type.GetType(className);
-            if (classType is null)
-                throw new FilterNotFoundException(Liquid.ResourceManager.GetString("FilterClassNotFoundException"), new[] { markup });
+            alias = syntaxMatch.Groups[1].Value;
 
             base.Initialize(tagName, markup, tokens);
         }
@@ -39,8 +51,24 @@ namespace DotLiquid.Tags
         /// <inheritdoc/>
         public override void Render(Context context, TextWriter result)
         {
-            // Add the filter class to the context
-            context.AddFilters(new[] { classType });
+            var renderedAlias = getAliasValue(context);
+            if (!FILTER_WHITELIST.ContainsKey(renderedAlias))
+            {
+                throw new FilterNotFoundException(
+                    message: Liquid.ResourceManager.GetString("FilterClassNotFoundException"),
+                    args: new[] { alias, string.Join(",", FILTER_WHITELIST.Keys) });
+            }
+
+            context.AddFilters(new[] { FILTER_WHITELIST[renderedAlias] });
+        }
+
+        private string getAliasValue(Context context)
+        {
+            using (TextWriter writer = new StringWriter(CultureInfo.InvariantCulture))
+            {
+                new Variable(alias).Render(context, writer);
+                return writer.ToString();
+            }
         }
     }
 }

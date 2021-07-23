@@ -51,7 +51,7 @@ namespace DotLiquid
             Template.RegisterTag<Tags.Literal>("literal");
             Template.RegisterTag<Tags.Unless>("unless");
             Template.RegisterTag<Tags.Raw>("raw");
-            Template.RegisterTag<Tags.RegisterFilters>("register_filters");
+            Template.RegisterTag<Tags.AddFilters>("addfilters");
 
             Template.RegisterTag<Tags.Html.TableRow>("tablerow");
 

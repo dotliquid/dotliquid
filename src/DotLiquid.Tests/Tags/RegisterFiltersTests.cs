@@ -1,3 +1,4 @@
+using System.Globalization;
 using DotLiquid.Exceptions;
 using DotLiquid.Tags;
 using NUnit.Framework;
@@ -6,24 +7,20 @@ using NUnit.Framework.Internal;
 namespace DotLiquid.Tests.Tags
 {
     [TestFixture]
-    public class RegisterFiltersTests
+    public class AddFiltersTests
     {
         [Test]
         public void TestInitialise()
         {
-            new RegisterFilters().Initialize("register_filters", " DotLiquid.ShopifyFilters", null); // no quotes
-            new RegisterFilters().Initialize("register_filters", "'DotLiquid.ShopifyFilters' ", null); // single quoted literal
-            new RegisterFilters().Initialize("register_filters", " \"DotLiquid.ShopifyFilters\" ", null); // double  quoted literal
-
-            Assert.Throws<SyntaxException>(() => new RegisterFilters().Initialize("register_filters", "", null)); // empty markup
-            Assert.Throws<SyntaxException>(() => new RegisterFilters().Initialize("register_filters", "   ", null)); // whitespace markup
-            Assert.Throws<FilterNotFoundException>(() => new RegisterFilters().Initialize("register_filters", "DotLiquid.NotARealClassName", null)); // Invalid class name
+            Assert.Throws<SyntaxException>(() => new AddFilters().Initialize("addfilters", "", null)); // empty markup
+            Assert.Throws<SyntaxException>(() => new AddFilters().Initialize("addfilters", "   ", null)); // whitespace markup
+            Assert.Throws<SyntaxException>(() => new AddFilters().Initialize("addfilters", "ShopifyFilters", null)); // Not quoted
         }
 
         [Test]
-        public void TestFilterNotAdded()
+        public void TestWithoutAddFilter()
         {
-            // The filter is not registered, so verify the value is not hashed.
+            // addfilter is not included, so verify the value is not hashed.
             Helper.AssertTemplateResult(
                 expected: @"
 My encoded string is: ShopifyIsAwesome!",
@@ -32,14 +29,24 @@ My encoded string is: {{ my_secret_string }}");
         }
 
         [Test]
-        public void TestFilterAdded()
+        public void TestWhitelisted()
         {
-            // DotLiquid.ShopifyFilters is registered, so ensure the value is sha1 hashed.
+            // addfilter is included, so ensure the value is sha1 hashed.
             Helper.AssertTemplateResult(
                 expected: @"
 My encoded string is: c7322e3812d3da7bc621300ca1797517c34f63b6",
-                template: @"{%register_filters 'DotLiquid.ShopifyFilters'%}{% assign my_secret_string = ""ShopifyIsAwesome!"" | sha1 %}
+                template: @"{%addfilters 'shopifyFilters'%}{% assign my_secret_string = ""ShopifyIsAwesome!"" | sha1 %}
 My encoded string is: {{ my_secret_string }}");
+        }
+
+        [TestCase("'DotLiquid.ShopifyFilters'")]
+        [TestCase("'DotLiquid.Template'")]
+        [TestCase("'Template'")]
+        public void TestNotWhitelisted(string template)
+        {
+            var filter = new AddFilters();
+            filter.Initialize("addfilters", "'DotLiquid.ShopifyFilters'", null);
+            Assert.Throws<FilterNotFoundException>(() => filter.Render(new Context(CultureInfo.InvariantCulture), null));
         }
     }
 }

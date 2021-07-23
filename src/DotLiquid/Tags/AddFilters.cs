@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
@@ -17,21 +16,16 @@ namespace DotLiquid.Tags
     {
         private static readonly Regex Syntax = R.B(R.Q(@"\s*([""'].+[""'])\s*"));
 
-        private static readonly IDictionary<string, Type> FILTER_WHITELIST = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
-        static AddFilters()
-        {
-            WhitelistFilter(typeof(ShopifyFilters));
-        }
+        private static readonly IDictionary<string, Type> WHITELIST = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Add the provided class to the whitelist of classes that can be added by a Liquid Designer
         /// </summary>
         /// <param name="filterClassType">A class containing filter operations.</param>
         /// <param name="alias">An alias for the class, if not provided the classes short name is used</param>
-        public static void WhitelistFilter(Type filterClassType, string alias = null)
+        public static void Whitelist(Type filterClassType, string alias = null)
         {
-            alias = alias ?? filterClassType.Name;
-            FILTER_WHITELIST[alias] = filterClassType;
+            WHITELIST[alias ?? filterClassType.Name] = filterClassType;
         }
 
         private string alias;
@@ -51,24 +45,15 @@ namespace DotLiquid.Tags
         /// <inheritdoc/>
         public override void Render(Context context, TextWriter result)
         {
-            var renderedAlias = getAliasValue(context);
-            if (!FILTER_WHITELIST.ContainsKey(renderedAlias))
+            var aliasValue = context[alias].ToString();
+            if (!WHITELIST.ContainsKey(aliasValue))
             {
                 throw new FilterNotFoundException(
                     message: Liquid.ResourceManager.GetString("FilterClassNotFoundException"),
-                    args: new[] { alias, string.Join(",", FILTER_WHITELIST.Keys) });
+                    args: new[] { alias, string.Join(",", WHITELIST.Keys) });
             }
 
-            context.AddFilters(new[] { FILTER_WHITELIST[renderedAlias] });
-        }
-
-        private string getAliasValue(Context context)
-        {
-            using (TextWriter writer = new StringWriter(CultureInfo.InvariantCulture))
-            {
-                new Variable(alias).Render(context, writer);
-                return writer.ToString();
-            }
+            context.AddFilters(new[] { WHITELIST[aliasValue] });
         }
     }
 }

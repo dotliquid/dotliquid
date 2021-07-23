@@ -28,24 +28,27 @@ My encoded string is: ShopifyIsAwesome!",
 My encoded string is: {{ my_secret_string }}");
         }
 
-        [Test]
-        public void TestWhitelisted()
+        [TestCase("'ShopifyFilters'")] // correct case, single quoted
+        [TestCase("\"ShopifyFilters\"")] // correct case, double quoted
+        [TestCase("'shopifyfilters'")] // lower case
+        [TestCase("'SHOPIFYFILTERS'")] // upper case
+        public void TestWhitelisted(string aliasLiteral)
         {
             // addfilter is included, so ensure the value is sha1 hashed.
             Helper.AssertTemplateResult(
                 expected: @"
 My encoded string is: c7322e3812d3da7bc621300ca1797517c34f63b6",
-                template: @"{%addfilters 'shopifyFilters'%}{% assign my_secret_string = ""ShopifyIsAwesome!"" | sha1 %}
+                template: @"{%addfilters " + aliasLiteral + @"%}{% assign my_secret_string = ""ShopifyIsAwesome!"" | sha1 %}
 My encoded string is: {{ my_secret_string }}");
         }
 
-        [TestCase("'DotLiquid.ShopifyFilters'")]
-        [TestCase("'DotLiquid.Template'")]
-        [TestCase("'Template'")]
+        [TestCase("'DotLiquid.ShopifyFilters'")] // Fully qualified class names are invalid (even if they match a whitelisted Type)
+        [TestCase("'DotLiquid.Template'")] // Fully qualified class names are invalid
+        [TestCase("'Template'")] // Classes in the DotLiquid namespace are not available by default
         public void TestNotWhitelisted(string template)
         {
             var filter = new AddFilters();
-            filter.Initialize("addfilters", "'DotLiquid.ShopifyFilters'", null);
+            filter.Initialize("addfilters", template, null);
             Assert.Throws<FilterNotFoundException>(() => filter.Render(new Context(CultureInfo.InvariantCulture), null));
         }
     }

@@ -232,7 +232,7 @@
     <value>Render Error - Maximum number of iterations {0} exceeded</value>
   </data>
   <data name="SimpleTagSyntaxException" xml:space="preserve">
-    <value>Errore di sintassi nel tag '{0}' - La sintassi corretta è: {1}</value>
+    <value>Errore di sintassi nel tag '{0}' - La sintassi corretta è: {0}</value>
   </data>
   <data name="AddFiltersTagSyntaxException" xml:space="preserve">
     <value>Errore di sintassi nel tag 'addfilters' - La sintassi corretta è: addfilters [alias]</value>

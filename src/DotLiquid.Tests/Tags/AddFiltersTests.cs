@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Collections.Generic;
 using DotLiquid.Exceptions;
 using DotLiquid.Tags;
 using NUnit.Framework;
@@ -20,12 +21,18 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestWithoutAddFilter()
         {
+            var dictionary = new Dictionary<string, object> { { "a_value_to_be_hashed", "ShopifyIsAwesome!" } };
+
             // addfilter is not included, so verify the value is not hashed.
             Helper.AssertTemplateResult(
                 expected: @"
-My encoded string is: ShopifyIsAwesome!",
-                template: @"{% assign my_secret_string = ""ShopifyIsAwesome!"" | sha1 %}
-My encoded string is: {{ my_secret_string }}");
+Before: ShopifyIsAwesome!
+After:  c7322e3812d3da7bc621300ca1797517c34f63b6",
+                template: @"
+Before: {{ a_value_to_be_hashed | sha1 }}
+{%- addfilters 'ShopifyFilters' -%}
+After:  {{ a_value_to_be_hashed | sha1 }}",
+                localVariables: Hash.FromDictionary(dictionary));
         }
 
         [TestCase("'ShopifyFilters'")] // correct case, single quoted

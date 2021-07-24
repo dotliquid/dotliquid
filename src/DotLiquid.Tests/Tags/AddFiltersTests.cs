@@ -41,12 +41,22 @@ After:  {{ a_value_to_be_hashed | sha1 }}",
         [TestCase("'SHOPIFYFILTERS'")] // upper case
         public void TestWhitelisted(string aliasLiteral)
         {
+            // Whitelist an extra alias for testing. 
+            AddFilters.Whitelist(typeof(ShopifyFilters), "anotheralias");
+
             // addfilter is included, so ensure the value is sha1 hashed.
             Helper.AssertTemplateResult(
                 expected: @"
 My encoded string is: c7322e3812d3da7bc621300ca1797517c34f63b6",
                 template: @"{%addfilters " + aliasLiteral + @"%}{% assign my_secret_string = ""ShopifyIsAwesome!"" | sha1 %}
 My encoded string is: {{ my_secret_string }}");
+
+            // Create another alias for the shopify filters and ensure it addfilter is included, so ensure the value is sha1 hashed.
+            Helper.AssertTemplateResult(
+                expected: @"
+My encoded string is: c7322e3812d3da7bc621300ca1797517c34f63b6",
+                template: @"{%addfilters 'anotheralias'%}{% assign plain_text = ""ShopifyIsAwesome!"" | sha1 %}
+My encoded string is: {{ plain_text }}");
         }
 
         [TestCase("'DotLiquid.ShopifyFilters'")] // Fully qualified class names are invalid (even if they match a whitelisted Type)

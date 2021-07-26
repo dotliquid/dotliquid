@@ -131,7 +131,7 @@ namespace DotLiquid
 #if CORE
                 : Regex.Replace(input, @"\b(\w)", m => m.Value.ToUpper(), RegexOptions.None, Template.RegexTimeOut);
 #else
-                : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input);
+                : context.CurrentCulture.TextInfo.ToTitleCase(input);
 #endif
         }
 
@@ -296,23 +296,25 @@ namespace DotLiquid
         /// <summary>
         /// Converts the input object into a formatted currency as specified by the culture info.
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="cultureInfo"></param>
-        /// <returns></returns>
-        public static string Currency(object input, string cultureInfo = null)
+        /// <remarks>
+        /// This is a DotLiquid custom filter with similarities to the Shopify [Money](https://shopify.dev/api/liquid/filters/money-filters#money) filter.
+        /// </remarks>
+        /// <param name="context">default source of culture information</param>
+        /// <param name="input">value to be parsed and formatted as a Currency</param>
+        /// <param name="languageTag">optional override culture, for example 'fr-FR'</param>
+        public static string Currency(Context context, object input, string languageTag = null)
         {
-
-            if (decimal.TryParse(input.ToString(), out decimal amount))
+            var culture = context.CurrentCulture;
+            if (!languageTag.IsNullOrWhiteSpace())
             {
-                if (cultureInfo.IsNullOrWhiteSpace())
-                {
-                    cultureInfo = CultureInfo.CurrentCulture.Name;
-                }
-
-                var culture = new CultureInfo(cultureInfo);
-
-                return amount.ToString("C", culture);
+                culture = new CultureInfo(languageTag);
             }
+
+            // Attempt to convert to a currency using the context current culture.
+            if (IsReal(input))
+                return Convert.ToDecimal(input).ToString("C", culture);
+            if (decimal.TryParse(input.ToString(), NumberStyles.Currency, context.CurrentCulture, out decimal amount))
+                return amount.ToString("C", culture);
 
             return input.ToString();
         }
@@ -573,15 +575,15 @@ namespace DotLiquid
             if (input is DateTime date)
             {
                 if (format.IsNullOrWhiteSpace())
-                    return date.ToString();
+                    return date.ToString(context.CurrentCulture);
 
-                return Liquid.UseRubyDateFormat
-                    ? context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21 ? new DateTimeOffset(date).ToStrFTime(format) : date.ToStrFTime(format)
-                    : date.ToString(format);
+                return context.UseRubyDateFormat
+                    ? context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21 ? new DateTimeOffset(date).ToStrFTime(format, context.CurrentCulture) : date.ToStrFTime(format, context.CurrentCulture)
+                    : date.ToString(format, context.CurrentCulture);
             }
 
             if (context.SyntaxCompatibilityLevel == SyntaxCompatibility.DotLiquid20)
-                return DateLegacyParsing(input.ToString(), format);
+                return DateLegacyParsing(context, input.ToString(), format);
 
             if (format.IsNullOrWhiteSpace())
                 return input.ToString();
@@ -613,10 +615,12 @@ namespace DotLiquid
                 }
             }
 
-            return Liquid.UseRubyDateFormat ? dateTimeOffset.ToStrFTime(format) : dateTimeOffset.ToString(format);
+            return context.UseRubyDateFormat
+                ? dateTimeOffset.ToStrFTime(format, context.CurrentCulture)
+                : dateTimeOffset.ToString(format, context.CurrentCulture);
         }
 
-        private static string DateLegacyParsing(string value, string format)
+        private static string DateLegacyParsing(Context context, string value, string format)
         {
             DateTime date;
 
@@ -625,9 +629,9 @@ namespace DotLiquid
                 date = DateTime.Now;
 
                 if (format.IsNullOrWhiteSpace())
-                    return date.ToString();
+                    return date.ToString(context.CurrentCulture);
             }
-            else if (!DateTime.TryParse(value, out date))
+            else if (!DateTime.TryParse(value, context.CurrentCulture, DateTimeStyles.None, out date))
             {
                 return value;
             }
@@ -635,7 +639,7 @@ namespace DotLiquid
             if (format.IsNullOrWhiteSpace())
                 return value;
 
-            return Liquid.UseRubyDateFormat ? date.ToStrFTime(format) : date.ToString(format);
+            return context.UseRubyDateFormat ? date.ToStrFTime(format, context.CurrentCulture) : date.ToString(format, context.CurrentCulture);
         }
 
         /// <summary>
@@ -873,27 +877,27 @@ namespace DotLiquid
         /// <summary>
         /// Returns the absolute value of a number.
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        public static double Abs(object input)
+        /// <param name="context"/>
+        /// <param name="input"/>
+        public static double Abs(Context context, object input)
         {
             Double n;
-            return Double.TryParse(input.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out n) ? Math.Abs(n) : 0;
+            return Double.TryParse(input.ToString(), System.Globalization.NumberStyles.Number, context.CurrentCulture, out n) ? Math.Abs(n) : 0;
         }
 
         /// <summary>
         /// Limits a number to a minimum value.
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="atLeast"></param>
-        /// <returns></returns>
-        public static object AtLeast(object input, object atLeast)
+        /// <param name="context"/>
+        /// <param name="input"/>
+        /// <param name="atLeast"/>
+        public static object AtLeast(Context context, object input, object atLeast)
         {
             double n;
-            var inputNumber = Double.TryParse(input.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out n);
+            var inputNumber = Double.TryParse(input.ToString(), System.Globalization.NumberStyles.Number, context.CurrentCulture, out n);
 
             double min;
-            var atLeastNumber = Double.TryParse(atLeast.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out min);
+            var atLeastNumber = Double.TryParse(atLeast.ToString(), System.Globalization.NumberStyles.Number, context.CurrentCulture, out min);
 
             if (inputNumber && atLeastNumber)
             {
@@ -908,16 +912,16 @@ namespace DotLiquid
         /// <summary>
         /// Limits a number to a maximum value.
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="atMost"></param>
-        /// <returns></returns>
-        public static object AtMost(object input, object atMost)
+        /// <param name="context"/>
+        /// <param name="input"/>
+        /// <param name="atMost"/>
+        public static object AtMost(Context context, object input, object atMost)
         {
             double n;
-            var inputNumber = Double.TryParse(input.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out n);
+            var inputNumber = Double.TryParse(input.ToString(), System.Globalization.NumberStyles.Number, context.CurrentCulture, out n);
 
             double max;
-            var atMostNumber = Double.TryParse(atMost.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out max);
+            var atMostNumber = Double.TryParse(atMost.ToString(), System.Globalization.NumberStyles.Number, context.CurrentCulture, out max);
 
             if (inputNumber && atMostNumber)
             {

@@ -33,6 +33,27 @@ namespace DotLiquid
         /// </summary>
         public SyntaxCompatibility SyntaxCompatibilityLevel { get; set; }
 
+        /// <summary>
+        /// Ruby Date Format flag, switches Date filter syntax between Ruby and CSharp formats.
+        /// </summary>
+        public bool UseRubyDateFormat { get; set; }
+
+        /// <summary>Returns the CurrentCutlure specified for this Context</summary>
+        /// <throws>NotSupportedException</throws>
+        public CultureInfo CurrentCulture
+        {
+            get
+            {
+                return this.FormatProvider is CultureInfo cultureInfo
+                    ? cultureInfo
+                    : throw new NotSupportedException("FormatProvider is not an instance of CultureInfo");
+            }
+            set
+            {
+                this.FormatProvider = value;
+            }
+        }
+
         private readonly int _maxIterations;
 
         public int MaxIterations
@@ -120,6 +141,7 @@ namespace DotLiquid
             _cancellationToken = cancellationToken;
             FormatProvider = formatProvider;
             SyntaxCompatibilityLevel = Template.DefaultSyntaxCompatibilityLevel;
+            UseRubyDateFormat = Liquid.UseRubyDateFormat;
 
             SquashInstanceAssignsWithEnvironments();
         }
@@ -156,7 +178,7 @@ namespace DotLiquid
         /// Adds a filter from a function
         /// </summary>
         /// <typeparam name="TIn">Type of the first parameter</typeparam>
-        /// <typeparam name="TIn2">Type of the second paramter</typeparam>
+        /// <typeparam name="TIn2">Type of the second parameter</typeparam>
         /// <typeparam name="TOut">Type of the returned value</typeparam>
         /// <param name="filterName">Filter name</param>
         /// <param name="func">Filter function</param>
@@ -415,7 +437,7 @@ namespace DotLiquid
             return Variable(key, notifyNotFound);
         }
 
-        public IFormatProvider FormatProvider { get; }
+        public IFormatProvider FormatProvider { get; private set; }
 
         /// <summary>
         /// Fetches an object starting at the local scope and then moving up

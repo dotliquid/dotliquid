@@ -234,4 +234,7 @@
   <data name="SimpleTagSyntaxException" xml:space="preserve">
     <value>Syntax Error in '{0}' tag - Valid syntax: {0}</value>
   </data>
+  <data name="ParamTagSyntaxException" xml:space="preserve">
+    <value>An unsupported parameter was passed to the Param tag: '{0}'</value>
+  </data>
 </root>

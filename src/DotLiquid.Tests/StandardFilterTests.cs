@@ -504,12 +504,8 @@ namespace DotLiquid.Tests
         [TestCase("6.8458", "$6.85")]
         public void TestAmericanCurrencyFromString(string input, string expected)
         {
-#if CORE
-            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
-#else
-            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-#endif
-            Assert.AreEqual(expected, StandardFilters.Currency(input));
+            _contextV20.CurrentCulture = new CultureInfo("en-US");//_contextV20 is initialised with InvariantCulture, these tests require en-US
+            Assert.AreEqual(expected, StandardFilters.Currency(context: _contextV20, input: input));
         }
 
         [TestCase("6.72", "6,72 €")]
@@ -520,43 +516,45 @@ namespace DotLiquid.Tests
         [TestCase("6.8458", "6,85 €")]
         public void TestEuroCurrencyFromString(string input, string expected)
         {
-#if CORE
-            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
-#else
-            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-#endif
-            Assert.AreEqual(expected, StandardFilters.Currency(input, "de-DE"));
+            _contextV20.CurrentCulture = new CultureInfo("en-US");//_contextV20 is initialised with InvariantCulture, these tests require en-US
+            Assert.AreEqual(expected, StandardFilters.Currency(context: _contextV20, input: input, languageTag: "de-DE"));
         }
 
         [Test]
         public void TestMalformedCurrency()
         {
-            Assert.AreEqual("teststring", StandardFilters.Currency("teststring", "de-DE"));
+            //_contextV20 is initialised with InvariantCulture
+            Assert.AreEqual("teststring", StandardFilters.Currency(context: _contextV20, input: "teststring", languageTag: "de-DE"));
         }
 
         [Test]
         public void TestCurrencyWithinTemplateRender()
         {
-#if CORE
-            CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
-#else
-            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-#endif
+            using (CultureHelper.SetCulture("en-US"))
+            {
+                Template dollarTemplate = Template.Parse(@"{{ amount | currency }}");
+                Template euroTemplate = Template.Parse(@"{{ amount | currency: ""de-DE"" }}");
 
-            Template dollarTemplate = Template.Parse(@"{{ amount | currency }}");
-            Template euroTemplate = Template.Parse(@"{{ amount | currency: ""de-DE"" }}");
-
-            Assert.AreEqual("$7,000.00", dollarTemplate.Render(Hash.FromAnonymousObject(new { amount = "7000" })));
-            Assert.AreEqual("7.000,00 €", euroTemplate.Render(Hash.FromAnonymousObject(new { amount = 7000 })));
+                Assert.AreEqual("$7,000.00", dollarTemplate.Render(Hash.FromAnonymousObject(new { amount = "7000" })));
+                Assert.AreEqual("7.000,00 €", euroTemplate.Render(Hash.FromAnonymousObject(new { amount = 7000 })));
+            }
         }
 
         [Test]
         public void TestCurrencyFromDoubleInput()
         {
-            Assert.AreEqual("$6.85", StandardFilters.Currency(6.8458, "en-US"));
-            Assert.AreEqual("$6.72", StandardFilters.Currency(6.72, "en-CA"));
-            Assert.AreEqual("6.000.000,00 €", StandardFilters.Currency(6000000, "de-DE"));
-            Assert.AreEqual("6.000.000,78 €", StandardFilters.Currency(6000000.78, "de-DE"));
+            Assert.AreEqual("$6.85", StandardFilters.Currency(context: _contextV20, input: 6.8458, languageTag: "en-US"));
+            Assert.AreEqual("$6.72", StandardFilters.Currency(context: _contextV20, input: 6.72, languageTag: "en-CA"));
+            Assert.AreEqual("6.000.000,00 €", StandardFilters.Currency(context: _contextV20, input: 6000000, languageTag: "de-DE"));
+            Assert.AreEqual("6.000.000,78 €", StandardFilters.Currency(context: _contextV20, input: 6000000.78, languageTag: "de-DE"));
+        }
+
+        [Test]
+        public void TestCurrencyLanguageTag()
+        {
+            Assert.AreEqual("6.000.000,00 €", StandardFilters.Currency(context: _contextV20, input: 6000000, languageTag: "de-DE")); // language+country
+            Assert.AreEqual("6.000.000,00 €", StandardFilters.Currency(context: _contextV20, input: 6000000, languageTag: "de")); // language only
+            Assert.Throws<CultureNotFoundException>(() => StandardFilters.Currency(context: _contextV20, input: "teststring", languageTag: "german")); // invalid language
         }
 
         [Test]
@@ -570,8 +568,8 @@ namespace DotLiquid.Tests
 
         private void TestDate(Context context)
         {
-            Liquid.UseRubyDateFormat = false;
-            DateTimeFormatInfo dateTimeFormat = CultureInfo.CurrentCulture.DateTimeFormat;
+            context.UseRubyDateFormat = false;
+            DateTimeFormatInfo dateTimeFormat = context.CurrentCulture.DateTimeFormat;
 
             Assert.AreEqual(dateTimeFormat.GetMonthName(5), StandardFilters.Date(context: context, input: DateTime.Parse("2006-05-05 10:00:00"), format: "MMMM"));
             Assert.AreEqual(dateTimeFormat.GetMonthName(6), StandardFilters.Date(context: context, input: DateTime.Parse("2006-06-05 10:00:00"), format: "MMMM"));
@@ -583,8 +581,8 @@ namespace DotLiquid.Tests
 
             Assert.AreEqual("08/01/2006 10:00:00", StandardFilters.Date(context: context, input: "08/01/2006 10:00:00", format: string.Empty));
             Assert.AreEqual("08/02/2006 10:00:00", StandardFilters.Date(context: context, input: "08/02/2006 10:00:00", format: null));
-            Assert.AreEqual(new DateTime(2006, 8, 3, 10, 0, 0).ToString(), StandardFilters.Date(context: context, input: new DateTime(2006, 8, 3, 10, 0, 0), format: string.Empty));
-            Assert.AreEqual(new DateTime(2006, 8, 4, 10, 0, 0).ToString(), StandardFilters.Date(context: context, input: new DateTime(2006, 8, 4, 10, 0, 0), format: null));
+            Assert.AreEqual(new DateTime(2006, 8, 3, 10, 0, 0).ToString(context.CurrentCulture), StandardFilters.Date(context: context, input: new DateTime(2006, 8, 3, 10, 0, 0), format: string.Empty));
+            Assert.AreEqual(new DateTime(2006, 8, 4, 10, 0, 0).ToString(context.CurrentCulture), StandardFilters.Date(context: context, input: new DateTime(2006, 8, 4, 10, 0, 0), format: null));
 
             Assert.AreEqual(new DateTime(2006, 7, 5).ToString("MM/dd/yyyy"), StandardFilters.Date(context: context, input: "2006-07-05 10:00:00", format: "MM/dd/yyyy"));
 
@@ -620,7 +618,7 @@ namespace DotLiquid.Tests
                 Assert.AreEqual(new DateTimeOffset(testDate).ToString("zzz"), StandardFilters.Date(context: context, input: new DateTimeOffset(testDate, TimeSpan.FromHours(-14)), format: "zzz"));
 
                 // Legacy parser doesn't handle local offset & explicit offset in calculating epoch
-                Liquid.UseRubyDateFormat = true;
+                Liquid.UseRubyDateFormat = true; // ensure all Contexts created within tests are defaulted to Ruby date format
                 var unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).ToLocalTime();
                 var unixEpochOffset = new DateTimeOffset(unixEpoch).Offset.TotalSeconds;
                 Helper.AssertTemplateResult(expected: "0", template: "{{ epoch | date: '%s' }}", localVariables: Hash.FromAnonymousObject(new { epoch = unixEpoch.ToUniversalTime() }));
@@ -630,10 +628,10 @@ namespace DotLiquid.Tests
                 Helper.AssertTemplateResult(expected: unixEpochOffset.ToString(), template: "{{ epoch | date: '%s' }}", localVariables: Hash.FromAnonymousObject(new { epoch = new DateTimeOffset(unixEpoch).ToOffset(TimeSpan.FromHours(-14)) }));
 
                 // Legacy parser defaults to the .NET default format
-                Assert.AreEqual(DateTime.Now.ToString(), StandardFilters.Date(context: context, input: "now", format: null));
-                Assert.AreEqual(DateTime.Now.ToString(), StandardFilters.Date(context: context, input: "today", format: null));
-                Assert.AreEqual(DateTime.Now.ToString(), StandardFilters.Date(context: context, input: "now", format: string.Empty));
-                Assert.AreEqual(DateTime.Now.ToString(), StandardFilters.Date(context: context, input: "today", format: string.Empty));
+                Assert.AreEqual(DateTime.Now.ToString(context.CurrentCulture), StandardFilters.Date(context: context, input: "now", format: null));
+                Assert.AreEqual(DateTime.Now.ToString(context.CurrentCulture), StandardFilters.Date(context: context, input: "today", format: null));
+                Assert.AreEqual(DateTime.Now.ToString(context.CurrentCulture), StandardFilters.Date(context: context, input: "now", format: string.Empty));
+                Assert.AreEqual(DateTime.Now.ToString(context.CurrentCulture), StandardFilters.Date(context: context, input: "today", format: string.Empty));
             });
         }
 
@@ -642,11 +640,11 @@ namespace DotLiquid.Tests
         {
             Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
             {
-                var context = _contextV21;
+                var context = _contextV21;// _contextV21 specifies InvariantCulture
                 var unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).ToLocalTime();
-                Assert.AreEqual(unixEpoch.ToString("g"), StandardFilters.Date(context: context, input: 0, format: "g"));
-                Assert.AreEqual(unixEpoch.AddSeconds(Int32.MaxValue).AddSeconds(1).ToString("g"), StandardFilters.Date(context: context, input: 2147483648, format: "g")); // Beyond Int32 boundary
-                Assert.AreEqual(unixEpoch.AddSeconds(UInt32.MaxValue).AddSeconds(1).ToString("g"), StandardFilters.Date(context: context, input: 4294967296, format: "g")); // Beyond UInt32 boundary
+                Assert.AreEqual("01/01/1970 00:00", StandardFilters.Date(context: context, input: 0, format: "g"));
+                Assert.AreEqual("01/19/2038 03:14", StandardFilters.Date(context: context, input: 2147483648, format: "g")); // Beyond Int32 boundary
+                Assert.AreEqual("02/07/2106 06:28", StandardFilters.Date(context: context, input: 4294967296, format: "g")); // Beyond UInt32 boundary
                 Helper.AssertTemplateResult(expected: unixEpoch.ToString("g"), template: "{{ 0 | date: 'g' }}", syntax: context.SyntaxCompatibilityLevel);
                 Helper.AssertTemplateResult(expected: unixEpoch.AddSeconds(Int32.MaxValue).AddSeconds(1).ToString("g"), template: "{{ 2147483648 | date: 'g' }}", syntax: context.SyntaxCompatibilityLevel);
                 Helper.AssertTemplateResult(expected: unixEpoch.AddSeconds(UInt32.MaxValue).AddSeconds(1).ToString("g"), template: "{{ 4294967296 | date: 'g' }}", syntax: context.SyntaxCompatibilityLevel);
@@ -663,7 +661,7 @@ namespace DotLiquid.Tests
                 Helper.AssertTemplateResult(expected: "2021-05-20T12:14:15+00:00", template: "{{ iso8601DateTime | date: 'yyyy-MM-ddThh:mm:sszzz' }}", localVariables: Hash.FromAnonymousObject(new { iso8601DateTime = "2021-05-20T12:14:15Z" }), syntax: context.SyntaxCompatibilityLevel);
                 Helper.AssertTemplateResult(expected: "2021-05-20T12:14:15", template: "{{ iso8601DateTime | date: 'yyyy-MM-ddThh:mm:ss' }}", localVariables: Hash.FromAnonymousObject(new { iso8601DateTime = "2021-05-20T12:14:15" }), syntax: context.SyntaxCompatibilityLevel);
 
-                Liquid.UseRubyDateFormat = true;
+                Liquid.UseRubyDateFormat = true; // ensure all Contexts created within tests are defaulted to Ruby date format
                 Helper.AssertTemplateResult(expected: "0", template: "{{ epoch | date: '%s' }}", localVariables: Hash.FromAnonymousObject(new { epoch = 0 }), syntax: context.SyntaxCompatibilityLevel);
                 Helper.AssertTemplateResult(expected: "2147483648", template: "{{ epoch | date: '%s' }}", localVariables: Hash.FromAnonymousObject(new { epoch = 2147483648 }), syntax: context.SyntaxCompatibilityLevel);
                 Helper.AssertTemplateResult(expected: "4294967296", template: "{{ epoch | date: '%s' }}", localVariables: Hash.FromAnonymousObject(new { epoch = 4294967296 }), syntax: context.SyntaxCompatibilityLevel);
@@ -688,21 +686,21 @@ namespace DotLiquid.Tests
             Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
             {
                 var context = _contextV20;
-                Liquid.UseRubyDateFormat = true;
-                DateTimeFormatInfo dateTimeFormat = CultureInfo.CurrentCulture.DateTimeFormat;
+                context.CurrentCulture = new CultureInfo("en-US"); //_contextV20 is initialised with InvariantCulture, these tests require en-US
+                context.UseRubyDateFormat = true;
 
-                Assert.AreEqual(dateTimeFormat.GetMonthName(5), StandardFilters.Date(context: context, input: DateTime.Parse("2006-05-05 10:00:00"), format: "%B"));
-                Assert.AreEqual(dateTimeFormat.GetMonthName(6), StandardFilters.Date(context: context, input: DateTime.Parse("2006-06-05 10:00:00"), format: "%B"));
-                Assert.AreEqual(dateTimeFormat.GetMonthName(7), StandardFilters.Date(context: context, input: DateTime.Parse("2006-07-05 10:00:00"), format: "%B"));
+                Assert.AreEqual("May", StandardFilters.Date(context: context, input: DateTime.Parse("2006-05-05 10:00:00"), format: "%B"));
+                Assert.AreEqual("June", StandardFilters.Date(context: context, input: DateTime.Parse("2006-06-05 10:00:00"), format: "%B"));
+                Assert.AreEqual("July", StandardFilters.Date(context: context, input: DateTime.Parse("2006-07-05 10:00:00"), format: "%B"));
 
-                Assert.AreEqual(dateTimeFormat.GetMonthName(5), StandardFilters.Date(context: context, input: "2006-05-05 10:00:00", format: "%B"));
-                Assert.AreEqual(dateTimeFormat.GetMonthName(6), StandardFilters.Date(context: context, input: "2006-06-05 10:00:00", format: "%B"));
-                Assert.AreEqual(dateTimeFormat.GetMonthName(7), StandardFilters.Date(context: context, input: "2006-07-05 10:00:00", format: "%B"));
+                Assert.AreEqual("May", StandardFilters.Date(context: context, input: "2006-05-05 10:00:00", format: "%B"));
+                Assert.AreEqual("June", StandardFilters.Date(context: context, input: "2006-06-05 10:00:00", format: "%B"));
+                Assert.AreEqual("July", StandardFilters.Date(context: context, input: "2006-07-05 10:00:00", format: "%B"));
 
                 Assert.AreEqual("05/07/2006 10:00:00", StandardFilters.Date(context: context, input: "05/07/2006 10:00:00", format: string.Empty));
                 Assert.AreEqual("05/07/2006 10:00:00", StandardFilters.Date(context: context, input: "05/07/2006 10:00:00", format: null));
-                Assert.AreEqual(new DateTime(2006, 8, 3, 10, 0, 0).ToString(), StandardFilters.Date(context: context, input: new DateTime(2006, 8, 3, 10, 0, 0), format: string.Empty));
-                Assert.AreEqual(new DateTime(2006, 8, 4, 10, 0, 0).ToString(), StandardFilters.Date(context: context, input: new DateTime(2006, 8, 4, 10, 0, 0), format: null));
+                Assert.AreEqual("8/3/2006 10:00:00 AM", StandardFilters.Date(context: context, input: new DateTime(2006, 8, 3, 10, 0, 0), format: string.Empty));
+                Assert.AreEqual("8/4/2006 10:00:00 AM", StandardFilters.Date(context: context, input: new DateTime(2006, 8, 4, 10, 0, 0), format: null));
 
                 Assert.AreEqual("07/05/2006", StandardFilters.Date(context: context, input: "2006-07-05 10:00:00", format: "%m/%d/%Y"));
 
@@ -712,6 +710,7 @@ namespace DotLiquid.Tests
 
                 Assert.AreEqual("hi", StandardFilters.Date(context: context, input: "hi", format: "%M"));
 
+                Liquid.UseRubyDateFormat = true; // ensure all Context objects created within tests are defaulted to Ruby date format
                 Template template = Template.Parse(@"{{ hi | date:""%M"" }}");
                 Assert.AreEqual("hi", template.Render(Hash.FromAnonymousObject(new { hi = "hi" })));
 
@@ -1314,15 +1313,15 @@ namespace DotLiquid.Tests
         [Test]
         public void TestAbs()
         {
-            Assert.AreEqual(0, StandardFilters.Abs("notNumber"));
-            Assert.AreEqual(10, StandardFilters.Abs(10));
-            Assert.AreEqual(5, StandardFilters.Abs(-5));
-            Assert.AreEqual(19.86, StandardFilters.Abs(19.86));
-            Assert.AreEqual(19.86, StandardFilters.Abs(-19.86));
-            Assert.AreEqual(10, StandardFilters.Abs("10"));
-            Assert.AreEqual(5, StandardFilters.Abs("-5"));
-            Assert.AreEqual(30.60, StandardFilters.Abs("30.60"));
-            Assert.AreEqual(0, StandardFilters.Abs("30.60a"));
+            Assert.AreEqual(0, StandardFilters.Abs(_contextV20, "notNumber"));
+            Assert.AreEqual(10, StandardFilters.Abs(_contextV20, 10));
+            Assert.AreEqual(5, StandardFilters.Abs(_contextV20, -5));
+            Assert.AreEqual(19.86, StandardFilters.Abs(_contextV20, 19.86));
+            Assert.AreEqual(19.86, StandardFilters.Abs(_contextV20, -19.86));
+            Assert.AreEqual(10, StandardFilters.Abs(_contextV20, "10"));
+            Assert.AreEqual(5, StandardFilters.Abs(_contextV20, "-5"));
+            Assert.AreEqual(30.60, StandardFilters.Abs(_contextV20, "30.60"));
+            Assert.AreEqual(0, StandardFilters.Abs(_contextV20, "30.60a"));
 
             Helper.AssertTemplateResult(
                 expected: "17",
@@ -1341,17 +1340,17 @@ namespace DotLiquid.Tests
         [Test]
         public void TestAtLeast()
         {
-            Assert.AreEqual("notNumber", StandardFilters.AtLeast("notNumber", 5));
-            Assert.AreEqual(5, StandardFilters.AtLeast(5, 5));
-            Assert.AreEqual(5, StandardFilters.AtLeast(3, 5));
-            Assert.AreEqual(6, StandardFilters.AtLeast(6, 5));
-            Assert.AreEqual(10, StandardFilters.AtLeast(10, 5));
-            Assert.AreEqual(9.85, StandardFilters.AtLeast(9.85, 5));
-            Assert.AreEqual(5, StandardFilters.AtLeast(3.56, 5));
-            Assert.AreEqual(10, StandardFilters.AtLeast("10", 5));
-            Assert.AreEqual(5, StandardFilters.AtLeast("4", 5));
-            Assert.AreEqual("10a", StandardFilters.AtLeast("10a", 5));
-            Assert.AreEqual("4b", StandardFilters.AtLeast("4b", 5));
+            Assert.AreEqual("notNumber", StandardFilters.AtLeast(_contextV20, "notNumber", 5));
+            Assert.AreEqual(5, StandardFilters.AtLeast(_contextV20, 5, 5));
+            Assert.AreEqual(5, StandardFilters.AtLeast(_contextV20, 3, 5));
+            Assert.AreEqual(6, StandardFilters.AtLeast(_contextV20, 6, 5));
+            Assert.AreEqual(10, StandardFilters.AtLeast(_contextV20, 10, 5));
+            Assert.AreEqual(9.85, StandardFilters.AtLeast(_contextV20, 9.85, 5));
+            Assert.AreEqual(5, StandardFilters.AtLeast(_contextV20, 3.56, 5));
+            Assert.AreEqual(10, StandardFilters.AtLeast(_contextV20, "10", 5));
+            Assert.AreEqual(5, StandardFilters.AtLeast(_contextV20, "4", 5));
+            Assert.AreEqual("10a", StandardFilters.AtLeast(_contextV20, "10a", 5));
+            Assert.AreEqual("4b", StandardFilters.AtLeast(_contextV20, "4b", 5));
 
             Helper.AssertTemplateResult(
                 expected: "5",
@@ -1364,17 +1363,17 @@ namespace DotLiquid.Tests
         [Test]
         public void TestAtMost()
         {
-            Assert.AreEqual("notNumber", StandardFilters.AtMost("notNumber", 5));
-            Assert.AreEqual(5, StandardFilters.AtMost(5, 5));
-            Assert.AreEqual(3, StandardFilters.AtMost(3, 5));
-            Assert.AreEqual(5, StandardFilters.AtMost(6, 5));
-            Assert.AreEqual(5, StandardFilters.AtMost(10, 5));
-            Assert.AreEqual(5, StandardFilters.AtMost(9.85, 5));
-            Assert.AreEqual(3.56, StandardFilters.AtMost(3.56, 5));
-            Assert.AreEqual(5, StandardFilters.AtMost("10", 5));
-            Assert.AreEqual(4, StandardFilters.AtMost("4", 5));
-            Assert.AreEqual("4a", StandardFilters.AtMost("4a", 5));
-            Assert.AreEqual("10b", StandardFilters.AtMost("10b", 5));
+            Assert.AreEqual("notNumber", StandardFilters.AtMost(_contextV20, "notNumber", 5));
+            Assert.AreEqual(5, StandardFilters.AtMost(_contextV20, 5, 5));
+            Assert.AreEqual(3, StandardFilters.AtMost(_contextV20, 3, 5));
+            Assert.AreEqual(5, StandardFilters.AtMost(_contextV20, 6, 5));
+            Assert.AreEqual(5, StandardFilters.AtMost(_contextV20, 10, 5));
+            Assert.AreEqual(5, StandardFilters.AtMost(_contextV20, 9.85, 5));
+            Assert.AreEqual(3.56, StandardFilters.AtMost(_contextV20, 3.56, 5));
+            Assert.AreEqual(5, StandardFilters.AtMost(_contextV20, "10", 5));
+            Assert.AreEqual(4, StandardFilters.AtMost(_contextV20, "4", 5));
+            Assert.AreEqual("4a", StandardFilters.AtMost(_contextV20, "4a", 5));
+            Assert.AreEqual("10b", StandardFilters.AtMost(_contextV20, "10b", 5));
 
             Helper.AssertTemplateResult(
                 expected: "4",

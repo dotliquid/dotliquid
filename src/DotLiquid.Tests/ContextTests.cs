@@ -932,5 +932,14 @@ namespace DotLiquid.Tests
             Assert.IsInstanceOf<CategoryDrop>(_context["category"]);
             Assert.AreEqual(_context, ((CategoryDrop)_context["category"]).Context);
         }
+
+        [Test]
+        public void TestConstructor()
+        {
+            var context = new Context(new CultureInfo("jp-JP"));
+            Assert.AreEqual(Template.DefaultSyntaxCompatibilityLevel, context.SyntaxCompatibilityLevel);
+            Assert.AreEqual(Liquid.UseRubyDateFormat, context.UseRubyDateFormat);
+            Assert.AreEqual("jp-JP", context.CurrentCulture.Name);
+        }
     }
 }

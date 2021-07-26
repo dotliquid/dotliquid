@@ -1126,8 +1126,8 @@ namespace DotLiquid.Tests
                 Helper.AssertTemplateResult("184", "{{ 183.357 | ceil }}");
                 Helper.AssertTemplateResult("4", "{{ \"3.5\" | ceil }}");
 
-                Assert.Null(StandardFilters.Ceil(""));
-                Assert.Null(StandardFilters.Ceil("two"));
+                Assert.Null(StandardFilters.Ceil(_contextV20, ""));
+                Assert.Null(StandardFilters.Ceil(_contextV20, "two"));
             }
         }
 
@@ -1141,8 +1141,8 @@ namespace DotLiquid.Tests
                 Helper.AssertTemplateResult("183", "{{ 183.357 | floor }}");
                 Helper.AssertTemplateResult("3", "{{ \"3.5\" | floor }}");
 
-                Assert.Null(StandardFilters.Floor(""));
-                Assert.Null(StandardFilters.Floor("two"));
+                Assert.Null(StandardFilters.Floor(_contextV20, ""));
+                Assert.Null(StandardFilters.Floor(_contextV20, "two"));
             }
         }
 

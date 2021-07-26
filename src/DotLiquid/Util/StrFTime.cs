@@ -159,7 +159,7 @@ namespace DotLiquid.Util
             else if (Formats.ContainsKey(directive))
                 result = Formats[directive].Invoke(source is DateTimeOffset dateTimeOffset2 ? dateTimeOffset2.DateTime : (DateTime)source, culture);
             else
-                return specifier; // This is an unconfigured specifier
+                return specifier; // Not a configured specifier
 
             return flags.ToList().Aggregate(result, (current, flag) => ApplyFlag(flag, (width ?? 2), current));
         }

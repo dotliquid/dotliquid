@@ -147,8 +147,8 @@ namespace DotLiquid.Tests
             var hash = new Hash((h, k) => { return "Lambda Value"; });
             hash["key"] = "value";
 
-            Assert.True(hash.Contains("unknown-key"));
-            Assert.True(hash.ContainsKey("unknown-key"));
+            Assert.False(hash.Contains("unknown-key"));
+            Assert.False(hash.ContainsKey("unknown-key"));
             Assert.AreEqual("Lambda Value", hash["unknown-key"]);
 
             Assert.True(hash.Contains("key"));

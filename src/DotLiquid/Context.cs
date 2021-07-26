@@ -38,7 +38,9 @@ namespace DotLiquid
         /// </summary>
         public bool UseRubyDateFormat { get; set; }
 
-        /// <summary>Returns the CurrentCutlure specified for this Context</summary>
+        /// <summary>
+        /// Returns the CurrentCulture specified for this Context
+        /// </summary>
         /// <throws>NotSupportedException</throws>
         public CultureInfo CurrentCulture
         {

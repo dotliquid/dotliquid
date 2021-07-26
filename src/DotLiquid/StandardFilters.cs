@@ -609,7 +609,7 @@ namespace DotLiquid
                 {
                     dateTimeOffset = DateTimeOffset.Now;
                 }
-                else if (!DateTimeOffset.TryParse(value, out dateTimeOffset))
+                else if (!DateTimeOffset.TryParse(value, context.CurrentCulture, DateTimeStyles.None, out dateTimeOffset))
                 {
                     return value;
                 }
@@ -743,11 +743,12 @@ namespace DotLiquid
         /// <summary>
         /// Rounds a decimal value up to the next integer, unless already the integer value, removing all decimal places 
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns>The rounded value; null if an exception have occured</returns>
-        public static object Ceil(object input)
+        /// <param name="context"/>
+        /// <param name="input"/>
+        /// <returns>The rounded value; null if an exception have occurred</returns>
+        public static object Ceil(Context context, object input)
         {
-            if (decimal.TryParse(input.ToString(), out decimal d))
+            if (decimal.TryParse(input.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
                 return Math.Ceiling(d);
             else
                 return null;
@@ -756,11 +757,12 @@ namespace DotLiquid
         /// <summary>
         /// Rounds a decimal value down to an integer, removing all decimal places 
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns>The rounded value; null if an exception have occured</returns>
-        public static object Floor(object input)
+        /// <param name="context"/>
+        /// <param name="input"/>
+        /// <returns>The rounded value; null if an exception have occurred</returns>
+        public static object Floor(Context context, object input)
         {
-            if (decimal.TryParse(input.ToString(), out decimal d))
+            if (decimal.TryParse(input.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
                 return Math.Floor(d);
             else
                 return null;
@@ -882,7 +884,7 @@ namespace DotLiquid
         public static double Abs(Context context, object input)
         {
             Double n;
-            return Double.TryParse(input.ToString(), System.Globalization.NumberStyles.Number, context.CurrentCulture, out n) ? Math.Abs(n) : 0;
+            return Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n) ? Math.Abs(n) : 0;
         }
 
         /// <summary>
@@ -894,10 +896,10 @@ namespace DotLiquid
         public static object AtLeast(Context context, object input, object atLeast)
         {
             double n;
-            var inputNumber = Double.TryParse(input.ToString(), System.Globalization.NumberStyles.Number, context.CurrentCulture, out n);
+            var inputNumber = Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
 
             double min;
-            var atLeastNumber = Double.TryParse(atLeast.ToString(), System.Globalization.NumberStyles.Number, context.CurrentCulture, out min);
+            var atLeastNumber = Double.TryParse(atLeast.ToString(), NumberStyles.Number, context.CurrentCulture, out min);
 
             if (inputNumber && atLeastNumber)
             {
@@ -918,10 +920,10 @@ namespace DotLiquid
         public static object AtMost(Context context, object input, object atMost)
         {
             double n;
-            var inputNumber = Double.TryParse(input.ToString(), System.Globalization.NumberStyles.Number, context.CurrentCulture, out n);
+            var inputNumber = Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
 
             double max;
-            var atMostNumber = Double.TryParse(atMost.ToString(), System.Globalization.NumberStyles.Number, context.CurrentCulture, out max);
+            var atMostNumber = Double.TryParse(atMost.ToString(), NumberStyles.Number, context.CurrentCulture, out max);
 
             if (inputNumber && atMostNumber)
             {

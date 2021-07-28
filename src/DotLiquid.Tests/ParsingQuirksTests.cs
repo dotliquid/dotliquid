@@ -65,5 +65,70 @@ namespace DotLiquid.Tests
             Helper.AssertTemplateResult("{{ {% %} }}", "{{ '{{ {% %} }}' }}");
             Helper.AssertTemplateResult("{{ {% %} }}", "{% assign x = '{{ {% %} }}' %}{{x}}");
         }
+
+        [TestCase(".")]
+        [TestCase("x.")]
+        [TestCase("$x")]
+        [TestCase("x?")]
+        [TestCase("x¿")]
+        [TestCase(".y")]
+        public void TestVariableNotTerminatedFromInvalidVariableName(string variableName)
+        {
+            var template = Template.Parse("{{ " + variableName + " }}");
+            SyntaxException ex = Assert.Throws<SyntaxException>(() => template.Render(new RenderParameters(System.Globalization.CultureInfo.InvariantCulture)
+            {
+                LocalVariables = Hash.FromAnonymousObject(new { x = "" }),
+                ErrorsOutputMode = ErrorsOutputMode.Rethrow,
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22
+            }));
+            Assert.AreEqual(
+                expected: string.Format(Liquid.ResourceManager.GetString("VariableNotTerminatedException"), variableName),
+                actual: ex.Message);
+
+            template = Template.Parse("{{ x[" + variableName + "] }}");
+            ex = Assert.Throws<SyntaxException>(() => template.Render(new RenderParameters(System.Globalization.CultureInfo.InvariantCulture)
+            {
+                LocalVariables = Hash.FromAnonymousObject(new { x = new { x = "" } }),
+                ErrorsOutputMode = ErrorsOutputMode.Rethrow,
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22
+            }));
+            Assert.AreEqual(
+                expected: string.Format(Liquid.ResourceManager.GetString("VariableNotTerminatedException"), variableName),
+                actual: ex.Message);
+        }
+
+        [Test]
+        public void TestNestedVariableNotTerminated()
+        {
+            var template = Template.Parse("{{ x[[] }}");
+            var ex = Assert.Throws<SyntaxException>(() => template.Render(new RenderParameters(System.Globalization.CultureInfo.InvariantCulture)
+            {
+                LocalVariables = Hash.FromAnonymousObject(new { x = new { x = "" } }),
+                ErrorsOutputMode = ErrorsOutputMode.Rethrow,
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22
+            }));
+            Assert.AreEqual(
+                expected: string.Format(Liquid.ResourceManager.GetString("VariableNotTerminatedException"), "["),
+                actual: ex.Message);
+        }
+
+        [TestCase("[\"]")]
+        [TestCase("[\"\"")]
+        [TestCase("[']")]
+        public void TestVariableTokenizerNotTerminated(string variableName)
+        {
+            var ex = Assert.Throws<SyntaxException>(() => Tokenizer.GetVariableEnumerator(variableName).MoveNext());
+            Assert.AreEqual(
+                expected: string.Format(Liquid.ResourceManager.GetString("VariableNotTerminatedException"), variableName),
+                actual: ex.Message);
+        }
+
+        [Test]
+        public void TestShortHandSyntaxIsIgnored()
+        {
+            // These tests are based on actual handling on Ruby Liquid, not indicative of wanted behavior. Behavior for legacy dotliquid parser is in TestEmptyLiteral
+            Assert.AreEqual("}", Template.Parse("{{{}}}", SyntaxCompatibility.DotLiquid22).Render());
+            Assert.AreEqual("{##}", Template.Parse("{##}", SyntaxCompatibility.DotLiquid22).Render());
+        }
     }
 }

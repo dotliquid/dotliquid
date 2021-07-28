@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -57,6 +58,7 @@ namespace DotLiquid
 
         private static readonly Dictionary<Type, Func<object, object>> SafeTypeTransformers;
         private static readonly Dictionary<Type, Func<object, object>> ValueTypeTransformers;
+        private static readonly ConcurrentDictionary<Type, Func<object, object>> ValueTypeTransformerCache;
 
         static Template()
         {
@@ -66,6 +68,7 @@ namespace DotLiquid
             Tags = new Dictionary<string, Tuple<ITagFactory, Type>>();
             SafeTypeTransformers = new Dictionary<Type, Func<object, object>>();
             ValueTypeTransformers = new Dictionary<Type, Func<object, object>>();
+            ValueTypeTransformerCache = new ConcurrentDictionary<Type, Func<object, object>>();
         }
 
         /// <summary>
@@ -181,6 +184,7 @@ namespace DotLiquid
         public static void RegisterValueTypeTransformer(Type type, Func<object, object> func)
         {
             ValueTypeTransformers[type] = func;
+            ValueTypeTransformerCache.Clear();
         }
 
         /// <summary>
@@ -195,16 +199,18 @@ namespace DotLiquid
                 return transformer;
 
             // Check for interfaces
-            var interfaces = type.GetTypeInfo().ImplementedInterfaces;
-            foreach (var interfaceType in interfaces)
+            return ValueTypeTransformerCache.GetOrAdd(type, (key) =>
             {
-                if (ValueTypeTransformers.TryGetValue(interfaceType, out transformer))
-                    return transformer;
-                if (interfaceType.GetTypeInfo().IsGenericType && ValueTypeTransformers.TryGetValue(
-                    interfaceType.GetGenericTypeDefinition(), out transformer))
-                    return transformer;
-            }
-            return null;
+                foreach (var interfaceType in type.GetTypeInfo().ImplementedInterfaces)
+                {
+                    if (ValueTypeTransformers.TryGetValue(interfaceType, out transformer))
+                        return transformer;
+                    if (interfaceType.GetTypeInfo().IsGenericType && ValueTypeTransformers.TryGetValue(interfaceType.GetGenericTypeDefinition(), out transformer))
+                        return transformer;
+                }
+
+                return null;
+            });
         }
 
         /// <summary>
@@ -234,12 +240,23 @@ namespace DotLiquid
         /// <summary>
         /// Creates a new <tt>Template</tt> object from liquid source code
         /// </summary>
-        /// <param name="source"></param>
+        /// <param name="source">The Liquid Template string</param>
         /// <returns></returns>
         public static Template Parse(string source)
         {
+            return Parse(source, Template.DefaultSyntaxCompatibilityLevel);
+        }
+
+        /// <summary>
+        /// Creates a new <tt>Template</tt> object from liquid source code
+        /// </summary>
+        /// <param name="source">The Liquid Template string</param>
+        /// <param name="syntaxCompatibilityLevel">The Liquid syntax flag used for backward compatibility</param>
+        /// <returns></returns>
+        public static Template Parse(string source, SyntaxCompatibility syntaxCompatibilityLevel)
+        {
             Template template = new Template();
-            template.ParseInternal(source);
+            template.ParseInternal(source, syntaxCompatibilityLevel);
             return template;
         }
 
@@ -298,14 +315,12 @@ namespace DotLiquid
         /// Returns self for easy chaining
         /// </summary>
         /// <param name="source">The source code.</param>
+        /// <param name="syntaxCompatibilityLevel">The Liquid syntax flag used for backward compatibility</param>
         /// <returns>The template.</returns>
-        internal Template ParseInternal(string source)
+        internal Template ParseInternal(string source, SyntaxCompatibility syntaxCompatibilityLevel)
         {
-            source = DotLiquid.Tags.Literal.FromShortHand(source);
-            source = DotLiquid.Tags.Comment.FromShortHand(source);
-
             this.Root = new Document();
-            this.Root.Initialize(tagName: null, markup: null, tokens: Template.Tokenize(source));
+            this.Root.Initialize(tagName: null, markup: null, tokens: Tokenizer.Tokenize(source, syntaxCompatibilityLevel));
             return this;
         }
 
@@ -438,16 +453,6 @@ namespace DotLiquid
                 if (!IsThreadSafe)
                     _errors = context.Errors;
             }
-        }
-
-        /// <summary>
-        /// Uses the <tt>Liquid::TemplateParser</tt> regexp to tokenize the passed source
-        /// </summary>
-        /// <param name="source"></param>
-        /// <returns></returns>
-        internal static List<string> Tokenize(string source)
-        {
-            return Tokenizer.Tokenize(source);
         }
     }
 }

@@ -17,6 +17,34 @@ namespace DotLiquid
     /// <see href="https://shopify.github.io/liquid/filters/"/>
     public static class StandardFilters
     {
+
+#if NETSTANDARD1_3
+        private class StringAwareObjectComparer : IComparer
+        {
+            private readonly StringComparer _stringComparer;
+
+            public StringAwareObjectComparer(StringComparer stringComparer)
+            {
+                _stringComparer = stringComparer;
+            }
+
+            public int Compare(Object x, Object y)
+            {
+                if (x == y)
+                    return 0;
+                if (x == null)
+                    return -1;
+                if (y == null)
+                    return 1;
+
+                if (x is string textX && y is string textY)
+                    return _stringComparer.Compare(textX, textY);
+
+                return Comparer<object>.Default.Compare(x, y);
+            }
+        }
+#endif
+
         /// <summary>
         /// Return the size of an array or of an string
         /// </summary>
@@ -117,22 +145,18 @@ namespace DotLiquid
         /// <returns></returns>
         public static string Capitalize(Context context, string input)
         {
+            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22)
+            {
+                if (context.SyntaxCompatibilityLevel == SyntaxCompatibility.DotLiquid21)
+                    return ExtendedFilters.UpcaseFirst(context, input);
+                return ExtendedFilters.Titleize(context, input);
+            }
+
             if (input.IsNullOrWhiteSpace())
                 return input;
 
-            if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21)
-            {
-                var trimmed = input.TrimStart();
-                return input.Substring(0, input.Length - trimmed.Length) + char.ToUpper(trimmed[0]) + trimmed.Substring(1);
-            }
-
-            return string.IsNullOrEmpty(input)
-                ? input
-#if CORE
-                : Regex.Replace(input, @"\b(\w)", m => m.Value.ToUpper(), RegexOptions.None, Template.RegexTimeOut);
-#else
-                : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input);
-#endif
+            var trimmed = input.TrimStart();
+            return input.Substring(0, input.Length - trimmed.Length) + char.ToUpper(trimmed[0]) + trimmed.Substring(1).ToLower();
         }
 
         /// <summary>
@@ -347,16 +371,36 @@ namespace DotLiquid
 
         /// <summary>
         /// Sort elements of the array
-        /// provide optional property with which to sort an array of hashes or drops
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="property"></param>
-        /// <returns></returns>
-        public static IEnumerable Sort(object input, string property = null)
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">The object to sort</param>
+        /// <param name="property">Optional property with which to sort an array of hashes or drops</param>
+        public static IEnumerable Sort(Context context, object input, string property = null)
         {
             if (input == null)
                 return null;
 
+            if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid22)
+                return SortInternal(StringComparer.Ordinal, input, property);
+            else
+                return SortInternal(StringComparer.OrdinalIgnoreCase, input, property);
+        }
+
+        /// <summary>
+        /// Sort elements of the array in case-insensitive order
+        /// </summary>
+        /// <param name="input">The object to sort</param>
+        /// <param name="property">Optional property with which to sort an array of hashes or drops</param>
+        public static IEnumerable SortNatural(object input, string property = null)
+        {
+            if (input == null)
+                return null;
+
+            return SortInternal(StringComparer.OrdinalIgnoreCase, input, property);
+        }
+
+        private static IEnumerable SortInternal(StringComparer stringComparer, object input, string property = null)
+        {
             List<object> ary;
             if (input is IEnumerable<Hash> enumerableHash && !string.IsNullOrEmpty(property))
                 ary = enumerableHash.Cast<object>().ToList();
@@ -370,17 +414,23 @@ namespace DotLiquid
             if (!ary.Any())
                 return ary;
 
+#if NETSTANDARD1_3
+            var comparer = new StringAwareObjectComparer(stringComparer);
+#else
+            var comparer = stringComparer;
+#endif 
+
             if (string.IsNullOrEmpty(property))
             {
-                ary.Sort();
+                ary.Sort((a, b) => comparer.Compare(a, b));
             }
             else if ((ary.All(o => o is IDictionary)) && (ary.Any(o => ((IDictionary)o).Contains(property))))
             {
-                ary.Sort((a, b) => Comparer<object>.Default.Compare(((IDictionary)a)[property], ((IDictionary)b)[property]));
+                ary.Sort((a, b) => comparer.Compare(((IDictionary)a)[property], ((IDictionary)b)[property]));
             }
             else if (ary.All(o => o.RespondTo(property)))
             {
-                ary.Sort((a, b) => Comparer<object>.Default.Compare(a.Send(property), b.Send(property)));
+                ary.Sort((a, b) => comparer.Compare(a.Send(property), b.Send(property)));
             }
 
             return ary;

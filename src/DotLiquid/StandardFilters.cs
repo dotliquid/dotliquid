@@ -152,13 +152,11 @@ namespace DotLiquid
                 return ExtendedFilters.Titleize(context, input);
             }
 
-            return string.IsNullOrEmpty(input)
-                ? input
-#if CORE
-                : Regex.Replace(input, @"\b(\w)", m => m.Value.ToUpper(), RegexOptions.None, Template.RegexTimeOut);
-#else
-                : context.CurrentCulture.TextInfo.ToTitleCase(input);
-#endif
+            if (input.IsNullOrWhiteSpace())
+                return input;
+
+            var trimmed = input.TrimStart();
+            return input.Substring(0, input.Length - trimmed.Length) + char.ToUpper(trimmed[0]) + trimmed.Substring(1).ToLower();
         }
 
         /// <summary>

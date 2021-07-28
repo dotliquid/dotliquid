@@ -508,16 +508,20 @@ namespace DotLiquid.Tests
             Assert.AreEqual(expected, StandardFilters.Currency(context: _contextV20, input: input));
         }
 
-        [TestCase("6.72", "6,72 €")]
-        [TestCase("6000", "6.000,00 €")]
-        [TestCase("6000000", "6.000.000,00 €")]
-        [TestCase("6000.4", "6.000,40 €")]
-        [TestCase("6000000.4", "6.000.000,40 €")]
-        [TestCase("6.8458", "6,85 €")]
-        public void TestEuroCurrencyFromString(string input, string expected)
+        [TestCase("6.72", "6,72 €", "de-DE")]
+        [TestCase("6000", "6.000,00 €", "de-DE")]
+        [TestCase("6000000", "6.000.000,00 €", "de-DE")]
+        [TestCase("6000.4", "6.000,40 €", "de-DE")]
+        [TestCase("6000000.4", "6.000.000,40 €", "de-DE")]
+        [TestCase("6.8458", "6,85 €", "de-DE")]
+        [TestCase(6000001d, "6.000.001,00 €", "de-DE")]
+        [TestCase("6000000.00", "6 000 000,00 €", "fr-FR")]
+        [TestCase("99.999", "100,00 €", "es")]
+        [TestCase("99.999", "100,00 €", "pt-PT")]
+        public void TestEuroCurrencyFromString(object input, string expected, string languageTag)
         {
             _contextV20.CurrentCulture = new CultureInfo("en-US");//_contextV20 is initialised with InvariantCulture, these tests require en-US
-            Assert.AreEqual(expected, StandardFilters.Currency(context: _contextV20, input: input, languageTag: "de-DE"));
+            Assert.AreEqual(expected, StandardFilters.Currency(context: _contextV20, input: input, languageTag: languageTag));
         }
 
         [Test]

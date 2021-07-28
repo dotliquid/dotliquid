@@ -38,14 +38,15 @@ namespace DotLiquid.Tags
 
         /// <summary>
         /// Apply override parameters to the Context for rendering.
-        /// <summary>
+        /// </summary>
+        /// <exception cref="SyntaxException">For unknown parameters or invalidaid options for a given parameter.</exception>
         public override void Render(Context context, TextWriter result)
         {
             // Apply the parameter
             var value = context[_value].ToString();
             switch (_name.ToLower())
             {
-                case "culture": // value should be a locale, such as en-US, en-GB or fr-FR
+                case "culture": // value should be a language tag, such as en-US, en-GB or fr-FR
                     if (value.IsNullOrWhiteSpace())
                         value = String.Empty; // String.Empty ensure the InvariantCulture is returned
 #if CORE

@@ -297,11 +297,12 @@ namespace DotLiquid
         /// Converts the input object into a formatted currency as specified by the culture info.
         /// </summary>
         /// <remarks>
-        /// This is a DotLiquid custom filter with similarities to the Shopify [Money](https://shopify.dev/api/liquid/filters/money-filters#money) filter.
+        /// This is a DotLiquid custom filter.
         /// </remarks>
         /// <param name="context">default source of culture information</param>
         /// <param name="input">value to be parsed and formatted as a Currency</param>
         /// <param name="languageTag">optional override culture, for example 'fr-FR'</param>
+        /// <seealso href="https://shopify.dev/api/liquid/filters/money-filters#money" >Shopify Money filter</seealso>
         public static string Currency(Context context, object input, string languageTag = null)
         {
             var culture = context.CurrentCulture;
@@ -466,7 +467,7 @@ namespace DotLiquid
         }
 
         /// <summary>
-        /// Replace the first occurence of a string with another
+        /// Replace the first occurrence of a string with another
         /// </summary>
         /// <param name="context"></param>
         /// <param name="input"></param>
@@ -725,7 +726,7 @@ namespace DotLiquid
         /// </summary>
         /// <param name="input"></param>
         /// <param name="places"></param>
-        /// <returns>The rounded value; null if an exception have occured</returns>
+        /// <returns>The rounded value; null if an exception have occurred</returns>
         public static object Round(object input, object places = null)
         {
             try
@@ -811,7 +812,7 @@ namespace DotLiquid
                 return null;
 
             // NOTE(David Burg): Try for maximal precision if the input and operand fit the decimal's range.
-            // This avoids rounding errors in financial arithmetics.
+            // This avoids rounding errors in financial arithmetic.
             // E.g.: 0.1 | Plus 10 | Minus 10 to remain 0.1, not 0.0999999999999996
             // Otherwise revert to maximum range (possible precision loss).
             var shouldConvertStrings = context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21 && ((input is string) || (operand is string));

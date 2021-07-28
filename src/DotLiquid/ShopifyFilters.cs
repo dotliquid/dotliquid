@@ -93,17 +93,5 @@ namespace DotLiquid
 
             return stringBuilder.ToString(); // Return the hexadecimal string.
         }
-
-#if NETCOREAPP3_1
-        /// <summary>
-        /// Converts a string into JSON format.
-        /// </summary>
-        /// <see href="https://shopify.dev/api/liquid/filters/additional-filters#json"/>
-        /// <param name="input" />
-        public static object Json(object input)
-        {
-            return input is null ? input : System.Text.Json.JsonSerializer.Serialize(input);
-        }
-#endif
     }
 }

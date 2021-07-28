@@ -171,11 +171,16 @@ namespace DotLiquid.Tests
         #endregion
 
         private Context _context;
+        private Context _contextV22;
 
         [OneTimeSetUp]
         public void SetUp()
         {
             _context = new Context(CultureInfo.InvariantCulture);
+            _contextV22 = new Context(CultureInfo.InvariantCulture)
+            {
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22
+            };
         }
 
         [Test]
@@ -344,25 +349,31 @@ namespace DotLiquid.Tests
             Context context = new Context(CultureInfo.InvariantCulture);
             context.AddFilters(new[] { typeof(TestFilters) });
             Assert.AreEqual("hi? hi!", context.Invoke("hi", new List<object> { "hi?" }));
+            context.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22;
+            Assert.AreEqual("hi? hi!", context.Invoke("hi", new List<object> { "hi?" }));
 
             context = new Context(CultureInfo.InvariantCulture);
             Assert.AreEqual("hi?", context.Invoke("hi", new List<object> { "hi?" }));
-
-            context.AddFilters(new[] { typeof(TestFilters) });
-            Assert.AreEqual("hi? hi!", context.Invoke("hi", new List<object> { "hi?" }));
+            context.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22;
+            Assert.Throws<FilterNotFoundException>(() => context.Invoke("hi", new List<object> { "hi?" }));
         }
 
         [Test]
         public void TestAddContextFilter()
         {
-            Context context = new Context(CultureInfo.InvariantCulture);
+            // This test differs from TestAddFilter only in that the Hi method within this class has a Context parameter in addition to the input string
+            Context context = new Context(CultureInfo.InvariantCulture) { SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20 };
             context["name"] = "King Kong";
 
             context.AddFilters(new[] { typeof(TestContextFilters) });
             Assert.AreEqual("hi? hi from King Kong!", context.Invoke("hi", new List<object> { "hi?" }));
+            context.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22;
+            Assert.AreEqual("hi? hi from King Kong!", context.Invoke("hi", new List<object> { "hi?" }));
 
-            context = new Context(CultureInfo.InvariantCulture);
+            context = new Context(CultureInfo.InvariantCulture) { SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20 };
             Assert.AreEqual("hi?", context.Invoke("hi", new List<object> { "hi?" }));
+            context.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22;
+            Assert.Throws<FilterNotFoundException>(() => context.Invoke("hi", new List<object> { "hi?" })); 
         }
 
         [Test]
@@ -931,6 +942,37 @@ namespace DotLiquid.Tests
             _context["category"] = new Category("foobar");
             Assert.IsInstanceOf<CategoryDrop>(_context["category"]);
             Assert.AreEqual(_context, ((CategoryDrop)_context["category"]).Context);
+        }
+
+        [Test]
+        public void TestVariableParserV21()
+        {
+            var regex = new System.Text.RegularExpressions.Regex(Liquid.VariableParser);
+            TestVariableParser((input) => DotLiquid.Util.R.Scan(input, regex));
+        }
+
+        [Test]
+        public void TestVariableParserV22()
+        {
+            TestVariableParser((input) => GetVariableParts(input));
+        }
+
+        private void TestVariableParser(Func<string, IEnumerable<string>> variableSplitterFunc)
+        {
+            CollectionAssert.IsEmpty(variableSplitterFunc(""));
+            CollectionAssert.AreEqual(new[] { "var" }, variableSplitterFunc("var"));
+            CollectionAssert.AreEqual(new[] { "var", "method" }, variableSplitterFunc("var.method"));
+            CollectionAssert.AreEqual(new[] { "var", "[method]" }, variableSplitterFunc("var[method]"));
+            CollectionAssert.AreEqual(new[] { "var", "[method]", "[0]" }, variableSplitterFunc("var[method][0]"));
+            CollectionAssert.AreEqual(new[] { "var", "[\"method\"]", "[0]" }, variableSplitterFunc("var[\"method\"][0]"));
+            CollectionAssert.AreEqual(new[] { "var", "[method]", "[0]", "method" }, variableSplitterFunc("var[method][0].method"));
+        }
+
+        private static IEnumerable<string> GetVariableParts(string input)
+        {
+            using (var enumerator = Tokenizer.GetVariableEnumerator(input))
+                while (enumerator.MoveNext())
+                    yield return enumerator.Current;
         }
     }
 }

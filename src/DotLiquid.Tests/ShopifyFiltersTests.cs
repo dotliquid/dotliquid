@@ -112,7 +112,7 @@ My encoded string is: {{ my_secret_string }}",
                 localFilters: new[] { typeof(ShopifyFilters) });
         }
 
-#if NETSTANDARD2_0
+#if NETCOREAPP3_1
         [TestCase("Hello World!", "\"Hello World!\"")]
         [TestCase("\"", "\"\\u0022\"")]
         [TestCase("'", "\"\\u0027\"")]
@@ -127,7 +127,7 @@ My encoded string is: {{ my_secret_string }}",
         }
 #endif
 
-#if NETSTANDARD2_0
+#if NETCOREAPP3_1
         [TestCase(new int[] { 1, 2, 3 }, "[1,2,3]")]
         [TestCase(new string[] { "a", "b", "c" }, "[\"a\",\"b\",\"c\"]")]
         [TestCase(new object[0], "[]")]
@@ -141,7 +141,7 @@ My encoded string is: {{ my_secret_string }}",
         }
 #endif
 
-#if NETSTANDARD2_0
+#if NETCOREAPP3_1
         [Test]
         public void TestJson_ShopifyCollectionsSample()
         {
@@ -170,11 +170,11 @@ My encoded string is: {{ my_secret_string }}",
                 expected: "{\"title\":\"Shopify\",\"category\":\"business\"}",
                 template: "{{ collections.featured.products.first | json }}",
                 localVariables: Hash.FromAnonymousObject(anonymousCollections),
-                filters: new[] { typeof(ShopifyFilters) });
+                localFilters: new[] { typeof(ShopifyFilters) });
         }
 #endif
 
-#if NETSTANDARD2_0
+#if NETCOREAPP3_1
         [Test]
         public void TestJson_ShopifyCartSample()
         {
@@ -197,7 +197,7 @@ My encoded string is: {{ my_secret_string }}",
                 expected: "{\"loggedIn\":false,\"total\":19.98,\"items\":[{\"sku\":\"njkdw82\",\"unitPrice\":9.99,\"quantity\":2}]}",
                 template: "{{ cart | json }}",
                 localVariables: Hash.FromAnonymousObject(anonymousCart),
-                filters: new[] { typeof(ShopifyFilters) });
+                localFilters: new[] { typeof(ShopifyFilters) });
         }
 #endif
     }

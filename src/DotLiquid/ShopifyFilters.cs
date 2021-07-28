@@ -94,7 +94,7 @@ namespace DotLiquid
             return stringBuilder.ToString(); // Return the hexadecimal string.
         }
 
-#if NETSTANDARD2_0
+#if NETCOREAPP3_1
         /// <summary>
         /// Converts a string into JSON format.
         /// </summary>

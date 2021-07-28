@@ -53,7 +53,7 @@ namespace DotLiquid.Tests.Tags
         public void TestSyntaxCompatibility_InvalidOption()
         {
             Helper.AssertTemplateResult(
-                expected: "Liquid syntax error: The specified SyntaxCompatibility in invalid, supported options are: DotLiquid20,DotLiquid21",
+                expected: "Liquid syntax error: The specified SyntaxCompatibility in invalid, supported options are: DotLiquid20,DotLiquid21,DotLiquid22",
                 template: "{% param syntax='UnknownValue'%}");
         }
 

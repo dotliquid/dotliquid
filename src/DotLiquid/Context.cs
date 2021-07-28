@@ -41,7 +41,7 @@ namespace DotLiquid
         /// <summary>
         /// Returns the CurrentCulture specified for this Context
         /// </summary>
-        /// <throws>NotSupportedException</throws>
+        /// <exception cref="NotSupportedException">If the FormatProvider does not implement CultureInfo</exception>
         public CultureInfo CurrentCulture
         {
             get

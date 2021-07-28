@@ -152,7 +152,7 @@ namespace DotLiquid
                             break;
                     }
 
-                    if (!isComplete) //Somehow we reached the end without finding the end character(s)
+                    if (!isComplete) // Somehow we reached the end without finding the end character(s)
                         throw new SyntaxException(Liquid.ResourceManager.GetString("VariableNotTerminatedException"), source, Liquid.VariableEnd);
 
                     if (markupEnumerator.HasNext() && markupEnumerator.Next == '.' && markupEnumerator.Remaining > 1)  // Don't include dot in tokens as it is a separator
@@ -224,7 +224,7 @@ namespace DotLiquid
                 }
             };
 
-            //Somehow we reached the end without finding the end character(s)
+            // Somehow we reached the end without finding the end character(s)
             return false;
         }
 
@@ -234,7 +234,7 @@ namespace DotLiquid
         /// <param name="sb">The StringBuilder to write to</param>
         /// <param name="markupEnumerator">The string enumerator</param>
         /// <param name="endChar">The character that indicates end of token</param>
-        /// <returns>True if reaches endChar, otherwise false</returns>
+        /// <returns><see langword="true"/> if reaches <paramref name="endChar"/>, otherwise <see langword="false"/></returns>
         private static bool ReadToChar(StringBuilder sb, CharEnumerator markupEnumerator, char endChar)
         {
             while (markupEnumerator.AppendNext(sb))
@@ -288,6 +288,5 @@ namespace DotLiquid
             markupEnumerator.AppendNext(sb);
             return true;
         }
-
     }
 }

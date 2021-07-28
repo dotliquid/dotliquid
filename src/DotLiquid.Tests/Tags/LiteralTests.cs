@@ -13,6 +13,7 @@ namespace DotLiquid.Tests.Tags
         public void TestEmptyLiteral()
         {
             Assert.AreEqual(string.Empty, Template.Parse("{% literal %}{% endliteral %}").Render());
+
             // Next test is specific to legacy parser and was removed from Ruby Liquid. Test that it is ignored is in TestShortHandSyntaxIsIgnored
             Assert.AreEqual(string.Empty, Template.Parse("{{{}}}", SyntaxCompatibility.DotLiquid20).Render());
         }

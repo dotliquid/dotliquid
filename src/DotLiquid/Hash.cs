@@ -159,7 +159,6 @@ namespace DotLiquid
                 _nestedDictionary[key] = otherValues[key];
         }
 
-
         /// <summary>
         /// Gets the value associated with the specified key.
         /// </summary>
@@ -182,7 +181,7 @@ namespace DotLiquid
         /// <summary>
         /// Provides strongly-typed access to each of the keys in the Hash
         /// </summary>
-        /// <typeparam name="T"> A generic parameter that specifies the return type of the column.</typeparam>
+        /// <typeparam name="T">A generic parameter that specifies the return type of the column.</typeparam>
         /// <param name="key">The key of the value to get.</param>
         /// <returns>The value, of type T, associated with the specified key.</returns>
         public T Get<T>(string key)
@@ -233,7 +232,7 @@ namespace DotLiquid
         /// <returns>true if the <see cref="DotLiquid.Hash">Hash</see> contains an element with the specified key or a default value; otherwise, false.</returns>
         public virtual bool Contains(object key)
         {
-            return _lambda != null || _defaultValue != null || ((IDictionary) _nestedDictionary).Contains(key);
+            return _lambda != null || _defaultValue != null || ((IDictionary)_nestedDictionary).Contains(key);
         }
 
         /// <inheritdoc/>

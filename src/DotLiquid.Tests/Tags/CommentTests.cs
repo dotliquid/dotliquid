@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
-using DotLiquid.Exceptions;
-using NUnit.Framework;
 using DotLiquid.Tags;
+using NUnit.Framework;
 
 namespace DotLiquid.Tests.Tags
 {
@@ -13,6 +10,7 @@ namespace DotLiquid.Tests.Tags
         public void TestEmptyComment()
         {
             Assert.AreEqual(string.Empty, Template.Parse("{% comment %}{% endcomment %}").Render());
+
             // Next test is specific to legacy parser and was removed from Ruby Liquid. Test that it is ignored is in TestShortHandSyntaxIsIgnored
             Assert.AreEqual(string.Empty, Template.Parse("{##}", SyntaxCompatibility.DotLiquid20).Render());
         }

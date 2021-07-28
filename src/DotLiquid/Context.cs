@@ -18,7 +18,7 @@ namespace DotLiquid
     /// </summary>
     public class Context
     {
-        private static readonly HashSet<char> SpecialCharsSet =  new HashSet<char>() { '\'', '"', '(' , '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-' };
+        private static readonly HashSet<char> SpecialCharsSet = new HashSet<char>() { '\'', '"', '(', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-' };
         private static readonly Regex SingleQuotedRegex = R.C(R.Q(@"^'(.*)'$"));
         private static readonly Regex DoubleQuotedRegex = R.C(R.Q(@"^""(.*)""$"));
         private static readonly Regex IntegerRegex = R.C(R.Q(@"^([+-]?\d+)$"));
@@ -466,7 +466,6 @@ namespace DotLiquid
                 foundVariable = TryEvaluateHashOrArrayLikeObject(scope, key, out foundValue);
             }
 
-
             variable = Liquidize(foundValue);
             if (variable is IContextAware contextAwareVariable)
             {
@@ -619,7 +618,7 @@ namespace DotLiquid
 
             else
                 return false;
-        
+
             if (value is Proc procValue)
             {
                 object newValue = procValue.Invoke(this);
@@ -644,7 +643,7 @@ namespace DotLiquid
 
             return true;
         }
-        
+
         private static object Liquidize(object obj)
         {
             if (obj == null)

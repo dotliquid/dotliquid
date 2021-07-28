@@ -8,8 +8,7 @@ namespace DotLiquid.Tests
     [TestFixture]
     public class TemplateTests
     {
-
-        private System.Collections.Generic.List<string> TokenizeValidateBackwardCompat(string input)
+        private System.Collections.Generic.List<string> TokenizeValidateBackwardCompatibility(string input)
         {
             var v20 = Tokenizer.Tokenize(input, SyntaxCompatibility.DotLiquid20);
             var v22 = Tokenizer.Tokenize(input, SyntaxCompatibility.DotLiquid22);
@@ -20,27 +19,27 @@ namespace DotLiquid.Tests
         [Test]
         public void TestTokenizeStrings()
         {
-            CollectionAssert.AreEqual(new[] { " " }, TokenizeValidateBackwardCompat(" "));
-            CollectionAssert.AreEqual(new[] { "hello world" }, TokenizeValidateBackwardCompat("hello world"));
+            CollectionAssert.AreEqual(new[] { " " }, TokenizeValidateBackwardCompatibility(" "));
+            CollectionAssert.AreEqual(new[] { "hello world" }, TokenizeValidateBackwardCompatibility("hello world"));
         }
 
         [Test]
         public void TestTokenizeVariables()
         {
-            CollectionAssert.AreEqual(new[] { "{{funk}}" }, TokenizeValidateBackwardCompat("{{funk}}"));
-            CollectionAssert.AreEqual(new[] { " ", "{{funk}}", " " }, TokenizeValidateBackwardCompat(" {{funk}} "));
-            CollectionAssert.AreEqual(new[] { " ", "{{funk}}", " ", "{{so}}", " ", "{{brother}}", " " }, TokenizeValidateBackwardCompat(" {{funk}} {{so}} {{brother}} "));
-            CollectionAssert.AreEqual(new[] { " ", "{{  funk  }}", " " }, TokenizeValidateBackwardCompat(" {{  funk  }} "));
+            CollectionAssert.AreEqual(new[] { "{{funk}}" }, TokenizeValidateBackwardCompatibility("{{funk}}"));
+            CollectionAssert.AreEqual(new[] { " ", "{{funk}}", " " }, TokenizeValidateBackwardCompatibility(" {{funk}} "));
+            CollectionAssert.AreEqual(new[] { " ", "{{funk}}", " ", "{{so}}", " ", "{{brother}}", " " }, TokenizeValidateBackwardCompatibility(" {{funk}} {{so}} {{brother}} "));
+            CollectionAssert.AreEqual(new[] { " ", "{{  funk  }}", " " }, TokenizeValidateBackwardCompatibility(" {{  funk  }} "));
         }
 
         [Test]
         public void TestTokenizeBlocks()
         {
-            CollectionAssert.AreEqual(new[] { "{%assign%}" }, TokenizeValidateBackwardCompat("{%assign%}"));
-            CollectionAssert.AreEqual(new[] { " ", "{%assign%}", " " }, TokenizeValidateBackwardCompat(" {%assign%} "));
+            CollectionAssert.AreEqual(new[] { "{%assign%}" }, TokenizeValidateBackwardCompatibility("{%assign%}"));
+            CollectionAssert.AreEqual(new[] { " ", "{%assign%}", " " }, TokenizeValidateBackwardCompatibility(" {%assign%} "));
 
-            CollectionAssert.AreEqual(new[] { " ", "{%comment%}", " ", "{%endcomment%}", " " }, TokenizeValidateBackwardCompat(" {%comment%} {%endcomment%} "));
-            CollectionAssert.AreEqual(new[] { "  ", "{% comment %}", " ", "{% endcomment %}", " " }, TokenizeValidateBackwardCompat("  {% comment %} {% endcomment %} "));
+            CollectionAssert.AreEqual(new[] { " ", "{%comment%}", " ", "{%endcomment%}", " " }, TokenizeValidateBackwardCompatibility(" {%comment%} {%endcomment%} "));
+            CollectionAssert.AreEqual(new[] { "  ", "{% comment %}", " ", "{% endcomment %}", " " }, TokenizeValidateBackwardCompatibility("  {% comment %} {% endcomment %} "));
         }
 
         [Test]
@@ -108,7 +107,7 @@ namespace DotLiquid.Tests
         {
             Template t = new Template();
             int global = 0;
-            t.Assigns["number"] = (Proc) (c => ++global);
+            t.Assigns["number"] = (Proc)(c => ++global);
             Assert.AreEqual("1", t.ParseInternal("{{number}}", SyntaxCompatibility.DotLiquid22).Render());
             Assert.AreEqual("1", t.ParseInternal("{{number}}", SyntaxCompatibility.DotLiquid22).Render());
             Assert.AreEqual("1", t.Render());
@@ -119,7 +118,7 @@ namespace DotLiquid.Tests
         {
             Template t = new Template();
             int global = 0;
-            Hash assigns = Hash.FromAnonymousObject(new { number = (Proc) (c => ++global) });
+            Hash assigns = Hash.FromAnonymousObject(new { number = (Proc)(c => ++global) });
             Assert.AreEqual("1", t.ParseInternal("{{number}}", SyntaxCompatibility.DotLiquid22).Render(assigns));
             Assert.AreEqual("1", t.ParseInternal("{{number}}", SyntaxCompatibility.DotLiquid22).Render(assigns));
             Assert.AreEqual("1", t.Render(assigns));
@@ -153,7 +152,7 @@ namespace DotLiquid.Tests
 </ul>";
             Assert.AreEqual(
                 "<ul>\r\n    <li>foo</li>\r\n    <li>bar</li>\r\n    <li>baz</li>\r\n</ul>",
-                Template.Parse(template, SyntaxCompatibility.DotLiquid20).Render(Hash.FromAnonymousObject(new { tasks = new [] { "foo", "bar", "baz" } })));
+                Template.Parse(template, SyntaxCompatibility.DotLiquid20).Render(Hash.FromAnonymousObject(new { tasks = new[] { "foo", "bar", "baz" } })));
             Assert.AreEqual(
                 "<ul>\r\n<li>foo</li><li>bar</li><li>baz</li></ul>",
                 Template.Parse(template, SyntaxCompatibility.DotLiquid22).Render(Hash.FromAnonymousObject(new { tasks = new[] { "foo", "bar", "baz" } })));
@@ -304,7 +303,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestHtmlEncodingFilter()
         {
-            Template.RegisterValueTypeTransformer(typeof(string), m => WebUtility.HtmlEncode((string) m));
+            Template.RegisterValueTypeTransformer(typeof(string), m => WebUtility.HtmlEncode((string)m));
 
             Template template = Template.Parse("{{var1}} {{var2}}");
 
@@ -327,7 +326,7 @@ namespace DotLiquid.Tests
         public void TestRegisterSimpleTypeTransformIntoAnonymousType()
         {
             // specify a transform function
-            Template.RegisterSafeType(typeof(MySimpleType2), x => new { Name = ((MySimpleType2)x).Name } );
+            Template.RegisterSafeType(typeof(MySimpleType2), x => new { Name = ((MySimpleType2)x).Name });
             Template template = Template.Parse("{{context.Name}}");
 
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType2 { Name = "worked" } }));
@@ -339,7 +338,7 @@ namespace DotLiquid.Tests
         public void TestRegisterInterfaceTransformIntoAnonymousType()
         {
             // specify a transform function
-            Template.RegisterSafeType(typeof(IMySimpleInterface2), x => new { Name = ((IMySimpleInterface2) x).Name });
+            Template.RegisterSafeType(typeof(IMySimpleInterface2), x => new { Name = ((IMySimpleInterface2)x).Name });
             Template template = Template.Parse("{{context.Name}}");
 
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType2 { Name = "worked" } }));
@@ -422,7 +421,7 @@ namespace DotLiquid.Tests
 
                 // RenderParameters Applies Template Defaults 
                 Template.DefaultSyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid21;
-                var renderParamsDefault = new RenderParameters(CultureInfo.CurrentCulture); 
+                var renderParamsDefault = new RenderParameters(CultureInfo.CurrentCulture);
                 Assert.AreEqual(Template.DefaultSyntaxCompatibilityLevel, renderParamsDefault.SyntaxCompatibilityLevel);
 
                 // Context Applies Template Defaults

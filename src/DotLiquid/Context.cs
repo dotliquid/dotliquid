@@ -522,20 +522,26 @@ namespace DotLiquid
                 if (partResolved)
                     part = Resolve(forEachPart.Substring(1, forEachPart.Length - 2));
 
-                // If object is a KeyValuePair, we treat it a bit differently - we might be rendering
-                // an included template.
-                if (IsKeyValuePair(@object) && (part.SafeTypeInsensitiveEqual(0L) || part.Equals("Key")))
+                // If object is a KeyValuePair and the required part is either 0 or 'Key', return the Key.
+                // Pre DotLiquid2.2 we also allow 'itemName' as an alias for 'Key', this was originally in `For.BuildContext`
+                bool isKeyValuePair = TryGetKeyValuePair(@object, out var pairKey, out var pairValue);
+                if (isKeyValuePair && (part.SafeTypeInsensitiveEqual(0L) || part.Equals("Key") || (SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22 && part.Equals("itemName"))))
                 {
-                    object res = @object.GetType().GetRuntimeProperty("Key").GetValue(@object);
-                    @object = Liquidize(res);
+                    @object = Liquidize(pairKey);
                 }
-                // If object is a hash- or array-like object we look for the
-                // presence of the key and if its available we return it
-                else if (IsKeyValuePair(@object) && (part.SafeTypeInsensitiveEqual(1L) || part.Equals("Value")))
+                // If object is a KeyValuePair and the required part is either 1 or 'Value', return the Value.
+                else if (isKeyValuePair && (part.SafeTypeInsensitiveEqual(1L) || part.Equals("Value")))
                 {
-                    // If its a proc we will replace the entry with the proc
-                    object res = @object.GetType().GetRuntimeProperty("Value").GetValue(@object);
-                    @object = Liquidize(res);
+                    @object = Liquidize(pairValue);
+                }
+                // Pre DotLiquid 2.2 enable the non-standard access of properties within a nested IDictionary Value.
+                // This provides backwards compatibility in template forloops.
+                else if (SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22
+                    && isKeyValuePair
+                    && part is string stringPart
+                    && pairValue is IDictionary<string, object> nestedDictionary && nestedDictionary.ContainsKey(stringPart))
+                {
+                    @object = Liquidize(nestedDictionary[stringPart]);
                 }
                 // No key was present with the desired value and it wasn't one of the directly supported
                 // keywords either. The only thing we got left is to return nil
@@ -543,13 +549,9 @@ namespace DotLiquid
                 {
                     // If object is a KeyValuePair, we treat it a bit differently - we might be rendering
                     // an included template.
-                    // Or, if the value is a nested Hash, attempt to match the nested Key (for backwards compatibility in template forloops) 
-                    if (@object is KeyValuePair<string, object> pair
-                        && part is string stringPart
-                        && (pair.Key == stringPart || (pair.Value is IDictionary<string, object> nestedDictionary && nestedDictionary.ContainsKey(stringPart))))
+                    if (isKeyValuePair && pairKey.Equals(part))
                     {
-                        object res = pair.Key == stringPart ? pair.Value : ((IDictionary<string, object>)pair.Value)[stringPart];
-                        @object = Liquidize(res);
+                        @object = Liquidize(pairValue);
                     }
                     // If object is a hash- or array-like object we look for the
                     // presence of the key and if its available we return it
@@ -706,7 +708,7 @@ namespace DotLiquid
                 return new DropProxy(obj, attr.AllowedMembers);
             }
 
-            if (IsKeyValuePair(obj))
+            if (TryGetKeyValuePair(obj, out var key, out var value))
             {
                 return obj;
             }
@@ -714,8 +716,9 @@ namespace DotLiquid
             throw new SyntaxException(Liquid.ResourceManager.GetString("ContextObjectInvalidException"), obj.ToString());
         }
 
-        private static bool IsKeyValuePair(object obj)
+        private static bool TryGetKeyValuePair(object obj, out object key, out object value)
         {
+            key = value = null;
             if (obj != null)
             {
                 Type valueType = obj.GetType();
@@ -724,6 +727,8 @@ namespace DotLiquid
                     Type baseType = valueType.GetGenericTypeDefinition();
                     if (baseType == typeof(KeyValuePair<,>))
                     {
+                        key = valueType.GetRuntimeProperty("Key").GetValue(obj);
+                        value = valueType.GetRuntimeProperty("Value").GetValue(obj);
                         return true;
                     }
                 }

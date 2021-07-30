@@ -88,10 +88,36 @@ namespace DotLiquid.Tests.Tags
                 }
             } };
 
-            Helper.AssertTemplateResult("JaneMike", "{% for item in People %}{{ item.First }}{%endfor%}",
-                Hash.FromDictionary(dictionary));
+            // Validate that:
+            // 1) Nested dictionary properties can be accessed with or without specifying Value.
+            // 2) itemName can still be used as an alias for Key.
+            Helper.AssertTemplateResult(
+                expected: "ID1:Jane Green,ID2:Mike Doe,",
+                template: "{% for item in People %}{{ item.itemName }}:{{ item.First }} {{ item.Value.Last }},{%endfor%}",
+                localVariables: Hash.FromDictionary(dictionary),
+                syntax: SyntaxCompatibility.DotLiquid20);
         }
 
+        [Test]
+        public void TestForWithNestedDictionary_DotLiquid22()
+        {
+            var dictionary = new Dictionary<string, object> { {
+            "People",
+            new Dictionary<string, object> {
+                    { "ID1", new Dictionary<string, object>{ { "First", "Jane" }, { "Last", "Green" } } },
+                    { "ID2", new Dictionary<string, object>{ { "First", "Mike" }, { "Last", "Doe" } } }
+                }
+            } };
+
+            // Validate that:
+            // 1) Nested dictionary properties can only be accessed when specifying Value.
+            // 2) itemName is no longer supported as an alias for Key.
+            Helper.AssertTemplateResult(
+                expected: "ID1:Jane,ID2:Mike,",
+                template: "{% for item in People %}{{ item.itemName }}{{ item.First }}{{ item.Key }}:{{ item.Value.First }},{%endfor%}",
+                localVariables: Hash.FromDictionary(dictionary),
+                syntax: SyntaxCompatibility.DotLiquid22);
+        }
 
         public class TestDictObject : Drop
         {
@@ -592,7 +618,7 @@ namespace DotLiquid.Tests.Tags
         }
 
         [Test]
-        public void TestNestedDictionaries()
+        public void TestNestedDictionaries_DotLiquid22()
         {
             var classes = new Dictionary<string, object> {{
                     "Classes", new Dictionary<string, object> {
@@ -615,21 +641,23 @@ namespace DotLiquid.Tests.Tags
                     }
             }};
 
-            // Check for loops, demonstrate values can be accessed using either:
-            // a: <item>.Value.<value-name> --> explicitly access values of a nested Hash/IDictionary
-            // b: <item>.<value-name> --> implicitly access values of a nested Hash/IDictionary (and retain backwards compatibility)
-            // c: <item>.Key --> access the Key, in case the template needs it (replacing the non-standard <item>.itemName) 
+            // Check for-loops, verify that:
+            // - item.Key OR item[0] --> access the Key
+            // - item.Value.property OR item[1].property --> access values of a nested Hash/IDictionary
+            // - Pre 2.2 syntax (item.property> OR item.itemName) is ignored 
             Helper.AssertTemplateResult(expected: @"English 1: Jane Green (ID1), Mike Doe (ID2), 
 Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4), 
 ",
-                template: @"{% for class in Classes %}{{class.Name}} {{class.Value.Level}}: {% for student in class.Students %}{{ student.First }} {{ student.Value.Last }} ({{ student.Key }}), {%endfor%}
+                template: @"{% for class in Classes %}{{class.Name}}{{class.Value.Name}} {{class.Value.Level}}: {% for student in class.Value.Students %}{{ student[1].First }} {{ student[1].Last }} ({{ student[0] }}), {%endfor%}
 {%endfor%}",
-                localVariables: Hash.FromDictionary(classes));
+                localVariables: Hash.FromDictionary(classes),
+                syntax: SyntaxCompatibility.DotLiquid22);
 
             // Check dot notation
             Helper.AssertTemplateResult(expected: "Eric Schmidt",
                 template: "{{ Classes.C2.Students.ID3.First }} {{ Classes.C2.Students.ID3.Last }}",
-                localVariables: Hash.FromDictionary(classes));
+                localVariables: Hash.FromDictionary(classes),
+                syntax: SyntaxCompatibility.DotLiquid22);
         }
 
         [Test]

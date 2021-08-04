@@ -524,14 +524,15 @@ namespace DotLiquid
 
                 // If object is a KeyValuePair, we treat it a bit differently - we might be rendering
                 // an included template.
-                if (IsKeyValuePair(@object) && (part.SafeTypeInsensitiveEqual(0L) || part.Equals("Key")))
+                var isKvp = IsKeyValuePair(@object);
+                if (isKvp && (part.SafeTypeInsensitiveEqual(0L) || part.Equals("Key")))
                 {
                     object res = @object.GetType().GetRuntimeProperty("Key").GetValue(@object);
                     @object = Liquidize(res);
                 }
                 // If object is a hash- or array-like object we look for the
                 // presence of the key and if its available we return it
-                else if (IsKeyValuePair(@object) && (part.SafeTypeInsensitiveEqual(1L) || part.Equals("Value")))
+                else if (isKvp && (part.SafeTypeInsensitiveEqual(1L) || part.Equals("Value")))
                 {
                     // If its a proc we will replace the entry with the proc
                     object res = @object.GetType().GetRuntimeProperty("Value").GetValue(@object);
@@ -654,7 +655,7 @@ namespace DotLiquid
             {
                 return liquidizableObj.ToLiquid();
             }
-            if (obj is string)
+            if (obj is string || obj is IEnumerable || obj is decimal || obj is DateTime || obj is DateTimeOffset || obj is TimeSpan || obj is Guid)
             {
                 return obj;
             }
@@ -662,31 +663,18 @@ namespace DotLiquid
             {
                 return obj;
             }
-            if (obj.GetType().GetTypeInfo().IsPrimitive)
+
+            var objType = obj.GetType();
+#if NETSTANDARD1_3
+            if (objType.GetTypeInfo().IsPrimitive)
+#else
+            if (objType.IsPrimitive)
+#endif
             {
                 return obj;
             }
-            if (obj is decimal)
-            {
-                return obj;
-            }
-            if (obj is DateTime)
-            {
-                return obj;
-            }
-            if (obj is DateTimeOffset)
-            {
-                return obj;
-            }
-            if (obj is TimeSpan)
-            {
-                return obj;
-            }
-            if (obj is Guid)
-            {
-                return obj;
-            }
-            if (TypeUtility.IsAnonymousType(obj.GetType()))
+            
+            if (TypeUtility.IsAnonymousType(objType))
             {
                 return obj;
             }
@@ -716,7 +704,11 @@ namespace DotLiquid
             if (obj != null)
             {
                 Type valueType = obj.GetType();
+#if NETSTANDARD1_3
                 if (valueType.GetTypeInfo().IsGenericType)
+#else
+                if (valueType.IsGenericType)
+#endif
                 {
                     Type baseType = valueType.GetGenericTypeDefinition();
                     if (baseType == typeof(KeyValuePair<,>))

@@ -524,15 +524,15 @@ namespace DotLiquid
 
                 // If object is a KeyValuePair, we treat it a bit differently - we might be rendering
                 // an included template.
-                var isKvp = IsKeyValuePair(@object);
-                if (isKvp && (part.SafeTypeInsensitiveEqual(0L) || part.Equals("Key")))
+                var isKeyValuePair = IsKeyValuePair(@object);
+                if (isKeyValuePair && (part.SafeTypeInsensitiveEqual(0L) || part.Equals("Key")))
                 {
                     object res = @object.GetType().GetRuntimeProperty("Key").GetValue(@object);
                     @object = Liquidize(res);
                 }
                 // If object is a hash- or array-like object we look for the
                 // presence of the key and if its available we return it
-                else if (isKvp && (part.SafeTypeInsensitiveEqual(1L) || part.Equals("Value")))
+                else if (isKeyValuePair && (part.SafeTypeInsensitiveEqual(1L) || part.Equals("Value")))
                 {
                     // If its a proc we will replace the entry with the proc
                     object res = @object.GetType().GetRuntimeProperty("Value").GetValue(@object);
@@ -659,35 +659,31 @@ namespace DotLiquid
             {
                 return obj;
             }
-            if (obj is IEnumerable)
-            {
-                return obj;
-            }
 
-            var objType = obj.GetType();
+            var valueType = obj.GetType();
 #if NETSTANDARD1_3
-            if (objType.GetTypeInfo().IsPrimitive)
+            if (valueType.GetTypeInfo().IsPrimitive)
 #else
-            if (objType.IsPrimitive)
+            if (valueType.IsPrimitive)
 #endif
             {
                 return obj;
             }
-            
-            if (TypeUtility.IsAnonymousType(objType))
+
+            if (TypeUtility.IsAnonymousType(valueType))
             {
                 return obj;
             }
 
-            var safeTypeTransformer = Template.GetSafeTypeTransformer(obj.GetType());
+            var safeTypeTransformer = Template.GetSafeTypeTransformer(valueType);
             if (safeTypeTransformer != null)
             {
                 return safeTypeTransformer(obj);
             }
 
-            if (obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
+            var attr = (LiquidTypeAttribute)valueType.GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).FirstOrDefault();
+            if (attr != null)
             {
-                var attr = (LiquidTypeAttribute)obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
                 return new DropProxy(obj, attr.AllowedMembers);
             }
 

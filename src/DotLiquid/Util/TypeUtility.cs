@@ -5,11 +5,11 @@ namespace DotLiquid.Util
 {
     internal static class TypeUtility
     {
-        private static ConditionalWeakTable<Type, ReflectionCache> _cache = new ConditionalWeakTable<Type, ReflectionCache>();
+        private static ConditionalWeakTable<Type, ReflectionCacheValue> _cache = new ConditionalWeakTable<Type, ReflectionCacheValue>();
 
         public static bool IsAnonymousType(Type t)
         {
-            return _cache.GetValue(t, (key) => new ReflectionCache(t)).IsAnonymous;
+            return _cache.GetValue(t, (key) => new ReflectionCacheValue(t)).IsAnonymous;
         }
     }
 }

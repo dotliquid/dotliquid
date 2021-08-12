@@ -541,24 +541,22 @@ namespace DotLiquid
                     @object = Liquidize(hashObj);
                 }
                 // Some special cases. If the part wasn't in square brackets and
-                // no key with the same name was found we interpret following calls
+                // no key with the same name was found we interpret first/last/size
                 // as commands and call them on the current object
-                else if (!partResolved && (@object is IEnumerable) && (Template.NamingConvention.OperatorEquals(part as string, "size") || Template.NamingConvention.OperatorEquals(part as string, "first") || Template.NamingConvention.OperatorEquals(part as string, "last")))
+                else if (!partResolved && (@object is IEnumerable enumerable) && (Template.NamingConvention.OperatorEquals(part as string, "size") || Template.NamingConvention.OperatorEquals(part as string, "first") || Template.NamingConvention.OperatorEquals(part as string, "last")))
                 {
-                    var castCollection = ((IEnumerable)@object).Cast<object>();
+                    var castCollection = enumerable.Cast<object>();
                     if (Template.NamingConvention.OperatorEquals(part as string, "size"))
                     {
                         @object = castCollection.Count();
                     }
                     else if (Template.NamingConvention.OperatorEquals(part as string, "first"))
                     {
-                        object res = castCollection.FirstOrDefault();
-                        @object = Liquidize(res);
+                        @object = Liquidize(castCollection.FirstOrDefault());
                     }
-                    else if (Template.NamingConvention.OperatorEquals(part as string, "last"))
+                    else
                     {
-                        object res = castCollection.LastOrDefault();
-                        @object = Liquidize(res);
+                        @object = Liquidize(castCollection.LastOrDefault());
                     }
                 }
                 // No key was present with the desired value and it wasn't one of the directly supported

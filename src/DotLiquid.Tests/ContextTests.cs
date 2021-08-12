@@ -495,22 +495,25 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestTryFirst()
+        public void TestFirstLastSize()
         {
             _context["test"] = new[] { 1, 2, 3, 4, 5 };
 
             Assert.AreEqual(1, _context["test.first"]);
             Assert.AreEqual(5, _context["test.last"]);
+            Assert.AreEqual(5, _context["test.size"]);
 
             _context["test"] = new { test = new[] { 1, 2, 3, 4, 5 } };
 
             Assert.AreEqual(1, _context["test.test.first"]);
             Assert.AreEqual(5, _context["test.test.last"]);
+            Assert.AreEqual(5, _context["test.test.size"]);
 
             _context["test"] = new[] { 1 };
 
             Assert.AreEqual(1, _context["test.first"]);
             Assert.AreEqual(1, _context["test.last"]);
+            Assert.AreEqual(1, _context["test.size"]);
         }
 
         [Test]
@@ -522,6 +525,8 @@ namespace DotLiquid.Tests
             Assert.AreEqual(5, _context["products[\"count\"]"]);
             Assert.AreEqual("deepsnow", _context["products['tags'][0]"]);
             Assert.AreEqual("deepsnow", _context["products['tags'].first"]);
+            Assert.AreEqual("freestyle", _context["products['tags'].last"]);
+            Assert.AreEqual(2, _context["products['tags'].size"]);
             Assert.AreEqual("draft151cm", _context["product['variants'][0][\"title\"]"]);
             Assert.AreEqual("element151cm", _context["product['variants'][1]['title']"]);
             Assert.AreEqual("draft151cm", _context["product['variants'][0]['title']"]);

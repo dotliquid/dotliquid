@@ -523,7 +523,6 @@ namespace DotLiquid
                     part = Resolve(forEachPart.Substring(1, forEachPart.Length - 2));
 
                 // If object is a KeyValuePair and the required part is either 0 or 'Key', return the Key.
-                // Pre DotLiquid2.2 we also allow 'itemName' as an alias for 'Key', this was originally in `For.BuildContext`
                 var isKeyValuePair = TryGetKeyValuePair(@object, out var pairKey, out var pairValue);
                 if (isKeyValuePair && (part.SafeTypeInsensitiveEqual(0L) || part.Equals("Key")))
                 {

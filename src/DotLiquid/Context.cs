@@ -525,7 +525,7 @@ namespace DotLiquid
                 // If object is a KeyValuePair and the required part is either 0 or 'Key', return the Key.
                 // Pre DotLiquid2.2 we also allow 'itemName' as an alias for 'Key', this was originally in `For.BuildContext`
                 var isKeyValuePair = TryGetKeyValuePair(@object, out var pairKey, out var pairValue);
-                if (isKeyValuePair && (part.SafeTypeInsensitiveEqual(0L) || part.Equals("Key") || (SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22 && part.Equals("itemName"))))
+                if (isKeyValuePair && (part.SafeTypeInsensitiveEqual(0L) || part.Equals("Key")))
                 {
                     @object = Liquidize(pairKey);
                 }
@@ -533,15 +533,6 @@ namespace DotLiquid
                 else if (isKeyValuePair && (part.SafeTypeInsensitiveEqual(1L) || part.Equals("Value") || pairKey.Equals(part)))
                 {
                     @object = Liquidize(pairValue);
-                }
-                // Pre DotLiquid 2.2 enable the non-standard access of properties within a nested IDictionary Value.
-                // This provides backwards compatibility in template for loops.
-                else if (SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22
-                    && isKeyValuePair
-                    && part is string stringPart
-                    && pairValue is IDictionary<string, object> nestedDictionary && nestedDictionary.ContainsKey(stringPart))
-                {
-                    @object = Liquidize(nestedDictionary[stringPart]);
                 }
                 // If object is a hash- or array-like object we look for the
                 // presence of the key and if its available we return it

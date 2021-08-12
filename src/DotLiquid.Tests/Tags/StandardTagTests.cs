@@ -678,5 +678,26 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
             Tag.GetRegister<object>(context, "for");
             Assert.IsInstanceOf<IDictionary<string, int>>(Tag.GetRegister<int>(context, "cycle"));
         }
+
+        [Test]
+        public void TestLegacyKeyValueDrop()
+        {
+            var valueDictionary = new Dictionary<string, object> { { "First", "Jane" }, { "Last", "Green" } };
+            var drop = new DotLiquid.Tags.LegacyKeyValueDrop("key", valueDictionary);
+
+            // Confirm Key access
+            Assert.AreEqual("key", drop.BeforeMethod("0")); // Ruby syntax equivalent for Key
+            Assert.AreEqual("key", drop.BeforeMethod("Key")); // C# equivalent syntax
+            Assert.AreEqual("key", drop.BeforeMethod("itemName")); // non-standard alias for KeyValuePair.Key
+
+            // Confirm Value access
+            Assert.AreSame(valueDictionary, drop.BeforeMethod("1")); //Ruby syntax equivalent for KeyValuePair.Value
+            Assert.AreSame(valueDictionary, drop.BeforeMethod("Value")); // C# equivalent syntax
+
+            // Confirm Value.Property access
+            Assert.AreEqual("Jane", drop.BeforeMethod("First"));
+            Assert.AreEqual("Green", drop.BeforeMethod("Last"));
+            Assert.IsNull(drop.BeforeMethod("UnknownProperty"));
+        }
     }
 }

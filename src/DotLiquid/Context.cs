@@ -524,18 +524,18 @@ namespace DotLiquid
 
                 // If object is a KeyValuePair and the required part is either 0 or 'Key', return the Key.
                 // Pre DotLiquid2.2 we also allow 'itemName' as an alias for 'Key', this was originally in `For.BuildContext`
-                bool isKeyValuePair = TryGetKeyValuePair(@object, out var pairKey, out var pairValue);
+                var isKeyValuePair = TryGetKeyValuePair(@object, out var pairKey, out var pairValue);
                 if (isKeyValuePair && (part.SafeTypeInsensitiveEqual(0L) || part.Equals("Key") || (SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22 && part.Equals("itemName"))))
                 {
                     @object = Liquidize(pairKey);
                 }
-                // If object is a KeyValuePair and the required part is either 1 or 'Value', return the Value.
-                else if (isKeyValuePair && (part.SafeTypeInsensitiveEqual(1L) || part.Equals("Value")))
+                // If object is a KeyValuePair and the required part is either 1 or 'Value' or part matches the key, return the Value.
+                else if (isKeyValuePair && (part.SafeTypeInsensitiveEqual(1L) || part.Equals("Value") || pairKey.Equals(part)))
                 {
                     @object = Liquidize(pairValue);
                 }
                 // Pre DotLiquid 2.2 enable the non-standard access of properties within a nested IDictionary Value.
-                // This provides backwards compatibility in template forloops.
+                // This provides backwards compatibility in template for loops.
                 else if (SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22
                     && isKeyValuePair
                     && part is string stringPart
@@ -543,49 +543,40 @@ namespace DotLiquid
                 {
                     @object = Liquidize(nestedDictionary[stringPart]);
                 }
+                // If object is a hash- or array-like object we look for the
+                // presence of the key and if its available we return it
+                else if (TryEvaluateHashOrArrayLikeObject(@object, part, out var hashObj))
+                {
+                    // If its a proc we will replace the entry with the proc
+                    @object = Liquidize(hashObj);
+                }
+                // Some special cases. If the part wasn't in square brackets and
+                // no key with the same name was found we interpret following calls
+                // as commands and call them on the current object
+                else if (!partResolved && (@object is IEnumerable) && (Template.NamingConvention.OperatorEquals(part as string, "size") || Template.NamingConvention.OperatorEquals(part as string, "first") || Template.NamingConvention.OperatorEquals(part as string, "last")))
+                {
+                    var castCollection = ((IEnumerable)@object).Cast<object>();
+                    if (Template.NamingConvention.OperatorEquals(part as string, "size"))
+                    {
+                        @object = castCollection.Count();
+                    }
+                    else if (Template.NamingConvention.OperatorEquals(part as string, "first"))
+                    {
+                        object res = castCollection.FirstOrDefault();
+                        @object = Liquidize(res);
+                    }
+                    else if (Template.NamingConvention.OperatorEquals(part as string, "last"))
+                    {
+                        object res = castCollection.LastOrDefault();
+                        @object = Liquidize(res);
+                    }
+                }
                 // No key was present with the desired value and it wasn't one of the directly supported
                 // keywords either. The only thing we got left is to return nil
                 else
                 {
-                    // If object is a KeyValuePair, we treat it a bit differently - we might be rendering
-                    // an included template.
-                    if (isKeyValuePair && pairKey.Equals(part))
-                    {
-                        @object = Liquidize(pairValue);
-                    }
-                    // If object is a hash- or array-like object we look for the
-                    // presence of the key and if its available we return it
-                    else if (TryEvaluateHashOrArrayLikeObject(@object, part, out var hashObj))
-                    {
-                        // If its a proc we will replace the entry with the proc
-                        @object = Liquidize(hashObj);
-                    }
-                    // Some special cases. If the part wasn't in square brackets and
-                    // no key with the same name was found we interpret following calls
-                    // as commands and call them on the current object
-                    else if (!partResolved && (@object is IEnumerable) && (Template.NamingConvention.OperatorEquals(part as string, "size") || Template.NamingConvention.OperatorEquals(part as string, "first") || Template.NamingConvention.OperatorEquals(part as string, "last")))
-                    {
-                        var castCollection = ((IEnumerable)@object).Cast<object>();
-                        if (Template.NamingConvention.OperatorEquals(part as string, "size"))
-                            @object = castCollection.Count();
-                        else if (Template.NamingConvention.OperatorEquals(part as string, "first"))
-                        {
-                            object res = castCollection.FirstOrDefault();
-                            @object = Liquidize(res);
-                        }
-                        else if (Template.NamingConvention.OperatorEquals(part as string, "last"))
-                        {
-                            object res = castCollection.LastOrDefault();
-                            @object = Liquidize(res);
-                        }
-                    }
-                    // No key was present with the desired value and it wasn't one of the directly supported
-                    // keywords either. The only thing we got left is to return nil
-                    else
-                    {
-                        variable = null;
-                        return false;
-                    }
+                    variable = null;
+                    return false;
                 }
 
                 // If we are dealing with a drop here we have to
@@ -659,61 +650,49 @@ namespace DotLiquid
             {
                 return liquidizableObj.ToLiquid();
             }
-            if (obj is string)
-            {
-                return obj;
-            }
-            if (obj is IEnumerable)
-            {
-                return obj;
-            }
-            if (obj.GetType().GetTypeInfo().IsPrimitive)
-            {
-                return obj;
-            }
-            if (obj is decimal)
-            {
-                return obj;
-            }
-            if (obj is DateTime)
-            {
-                return obj;
-            }
-            if (obj is DateTimeOffset)
-            {
-                return obj;
-            }
-            if (obj is TimeSpan)
-            {
-                return obj;
-            }
-            if (obj is Guid)
-            {
-                return obj;
-            }
-            if (TypeUtility.IsAnonymousType(obj.GetType()))
+            if (obj is string || obj is IEnumerable || obj is decimal || obj is DateTime || obj is DateTimeOffset || obj is TimeSpan || obj is Guid)
             {
                 return obj;
             }
 
-            var safeTypeTransformer = Template.GetSafeTypeTransformer(obj.GetType());
+            var valueType = obj.GetType();
+#if NETSTANDARD1_3
+            if (valueType.GetTypeInfo().IsPrimitive)
+#else
+            if (valueType.IsPrimitive)
+#endif
+            {
+                return obj;
+            }
+
+            if (TypeUtility.IsAnonymousType(valueType))
+            {
+                return obj;
+            }
+
+            var safeTypeTransformer = Template.GetSafeTypeTransformer(valueType);
             if (safeTypeTransformer != null)
             {
                 return safeTypeTransformer(obj);
             }
 
-            if (obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
+            var attr = (LiquidTypeAttribute)valueType.GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).FirstOrDefault();
+            if (attr != null)
             {
-                var attr = (LiquidTypeAttribute)obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
                 return new DropProxy(obj, attr.AllowedMembers);
             }
 
-            if (TryGetKeyValuePair(obj, out var key, out var value))
+            if (IsKeyValuePair(obj))
             {
                 return obj;
             }
 
             throw new SyntaxException(Liquid.ResourceManager.GetString("ContextObjectInvalidException"), obj.ToString());
+        }
+
+        private static bool IsKeyValuePair(object obj)
+        {
+            return TryGetKeyValuePair(obj, out var key, out var value);
         }
 
         private static bool TryGetKeyValuePair(object obj, out object key, out object value)
@@ -722,7 +701,11 @@ namespace DotLiquid
             if (obj != null)
             {
                 Type valueType = obj.GetType();
+#if NETSTANDARD1_3
                 if (valueType.GetTypeInfo().IsGenericType)
+#else
+                if (valueType.IsGenericType)
+#endif
                 {
                     Type baseType = valueType.GetGenericTypeDefinition();
                     if (baseType == typeof(KeyValuePair<,>))

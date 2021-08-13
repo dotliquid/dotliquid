@@ -670,17 +670,12 @@ namespace DotLiquid
                 return new DropProxy(obj, attr.AllowedMembers);
             }
 
-            if (IsKeyValuePair(obj))
+            if (TryGetKeyValuePair(obj, out _, out _))
             {
                 return obj;
             }
 
             throw new SyntaxException(Liquid.ResourceManager.GetString("ContextObjectInvalidException"), obj.ToString());
-        }
-
-        private static bool IsKeyValuePair(object obj)
-        {
-            return TryGetKeyValuePair(obj, out var key, out var value);
         }
 
         private static bool TryGetKeyValuePair(object obj, out object key, out object value)

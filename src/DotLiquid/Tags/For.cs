@@ -231,7 +231,7 @@ namespace DotLiquid.Tags
     /// * An undocumented property `itemName` which is an implicit alias for KeyValuePair.Key
     /// * Implicit access of properties within a nested IDictionary Value
     /// </remarks>
-    class LegacyKeyValueDrop : Drop
+    internal class LegacyKeyValueDrop : Drop
     {
         private readonly string key;
         private readonly IDictionary<string, object> value;

@@ -655,7 +655,7 @@ namespace DotLiquid
             {
                 return liquidizableObj.ToLiquid();
             }
-            if (obj is string || obj is IEnumerable || obj is decimal || obj is DateTime || obj is DateTimeOffset || obj is TimeSpan || obj is Guid)
+            if (obj is string || obj is IEnumerable || obj is decimal || obj is DateTime || obj is DateTimeOffset || obj is TimeSpan || obj is Guid || obj is Enum)
             {
                 return obj;
             }

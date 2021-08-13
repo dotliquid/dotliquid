@@ -233,6 +233,20 @@ namespace DotLiquid.Tests
             Assert.AreEqual(null, _context["nil"]);
         }
 
+        private enum TestEnum { Yes, No }
+
+        [Test]
+        public void TestGetVariable_Enum()
+        {
+            _context["yes"] = TestEnum.Yes;
+            _context["no"] = TestEnum.No;
+            _context["not_enum"] = TestEnum.Yes.ToString();
+
+            Assert.AreEqual(TestEnum.Yes, _context["yes"]);
+            Assert.AreEqual(TestEnum.No, _context["no"]);
+            Assert.AreNotEqual(TestEnum.Yes, _context["not_enum"]);
+        }
+
         [Test]
         public void TestVariablesNotExisting()
         {
@@ -373,7 +387,7 @@ namespace DotLiquid.Tests
             context = new Context(CultureInfo.InvariantCulture) { SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20 };
             Assert.AreEqual("hi?", context.Invoke("hi", new List<object> { "hi?" }));
             context.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22;
-            Assert.Throws<FilterNotFoundException>(() => context.Invoke("hi", new List<object> { "hi?" })); 
+            Assert.Throws<FilterNotFoundException>(() => context.Invoke("hi", new List<object> { "hi?" }));
         }
 
         [Test]

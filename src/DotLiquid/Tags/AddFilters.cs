@@ -16,7 +16,7 @@ namespace DotLiquid.Tags
     {
         private static readonly Regex Syntax = R.B(R.Q(@"\s*([""'].+[""'])\s*"));
 
-        private static readonly IDictionary<string, Type> WHITELIST = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
+        private static readonly IDictionary<string, Type> Whitelist = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Add the provided class to the whitelist of classes that can be added by a Liquid Designer
@@ -25,7 +25,7 @@ namespace DotLiquid.Tags
         /// <param name="alias">An alias for the class, if not provided the classes short name is used</param>
         public static void Whitelist(Type filterClassType, string alias = null)
         {
-            WHITELIST[alias ?? filterClassType.Name] = filterClassType;
+            Whitelist[alias ?? filterClassType.Name] = filterClassType;
         }
 
         private string alias;
@@ -46,14 +46,14 @@ namespace DotLiquid.Tags
         public override void Render(Context context, TextWriter result)
         {
             var aliasValue = context[alias].ToString();
-            if (!WHITELIST.ContainsKey(aliasValue))
+            if (!Whitelist.ContainsKey(aliasValue))
             {
                 throw new FilterNotFoundException(
                     message: Liquid.ResourceManager.GetString("FilterClassNotFoundException"),
-                    args: new[] { alias, string.Join(",", WHITELIST.Keys) });
+                    args: new[] { alias, string.Join(",", Whitelist.Keys) });
             }
 
-            context.AddFilters(new[] { WHITELIST[aliasValue] });
+            context.AddFilters(new[] { Whitelist[aliasValue] });
         }
     }
 }

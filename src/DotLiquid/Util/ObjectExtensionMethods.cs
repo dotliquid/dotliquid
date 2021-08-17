@@ -30,6 +30,13 @@ namespace DotLiquid.Util
             return false;
         }
 
+        /// <summary>
+        /// Use reflection to invoke a method, or access a property with the given name.
+        /// </summary>
+        /// <param name="value">an object to be interrogated</param>
+        /// <param name="member">the name of the method or property to "send"</param>
+        /// <param name="parameters">if a method, zero or more parameters to be used for invocation</param>
+        /// <returns>The method return value, or property value if it exists</returns>
         public static object Send(this object value, string member, object[] parameters = null)
         {
             if (value == null)
@@ -44,6 +51,25 @@ namespace DotLiquid.Util
             PropertyInfo propertyInfo = type.GetRuntimeProperty(member);
             if (propertyInfo != null)
                 return propertyInfo.GetValue(value, null);
+
+            return null;
+        }
+
+        /// <summary>
+        /// Use reflection to get the value of a property with the given name.
+        /// </summary>
+        /// <param name="object">an object to be interrogated</param>
+        /// <param name="propertyName">the name of the property to get</param>
+        /// <returns>The property value if it exists, otherwise null</returns>
+        public static object GetPropertyValue(this object @object, string propertyName)
+        {
+            if (@object is null)
+                return null;
+
+            Type type = @object.GetType();
+            PropertyInfo propertyInfo = type.GetRuntimeProperty(propertyName);
+            if (propertyInfo != null)
+                return propertyInfo.GetValue(@object, null);
 
             return null;
         }

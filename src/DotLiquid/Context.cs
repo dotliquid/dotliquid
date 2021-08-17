@@ -523,15 +523,17 @@ namespace DotLiquid
                     part = Resolve(forEachPart.Substring(1, forEachPart.Length - 2));
 
                 // If object is a KeyValuePair and the required part is either 0 or 'Key', return the Key.
-                var isKeyValuePair = TryGetKeyValuePair(@object, out var pairKey, out var pairValue);
+                var isKeyValuePair = IsKeyValuePair(@object);
                 if (isKeyValuePair && (part.SafeTypeInsensitiveEqual(0L) || part.Equals("Key")))
                 {
-                    @object = Liquidize(pairKey);
+                    @object = Liquidize(@object.GetPropertyValue("Key"));
                 }
                 // If object is a KeyValuePair and the required part is either 1 or 'Value' or part matches the key, return the Value.
-                else if (isKeyValuePair && (part.SafeTypeInsensitiveEqual(1L) || part.Equals("Value") || pairKey.Equals(part)))
+                else if (isKeyValuePair && (part.SafeTypeInsensitiveEqual(1L)
+                                        || part.Equals("Value")
+                                        || part.Equals(@object.GetPropertyValue("Key"))))
                 {
-                    @object = Liquidize(pairValue);
+                    @object = Liquidize(@object.GetPropertyValue("Value"));
                 }
                 // If object is a hash- or array-like object we look for the
                 // presence of the key and if its available we return it
@@ -670,7 +672,7 @@ namespace DotLiquid
                 return new DropProxy(obj, attr.AllowedMembers);
             }
 
-            if (TryGetKeyValuePair(obj, out _, out _))
+            if (IsKeyValuePair(obj))
             {
                 return obj;
             }
@@ -678,9 +680,8 @@ namespace DotLiquid
             throw new SyntaxException(Liquid.ResourceManager.GetString("ContextObjectInvalidException"), obj.ToString());
         }
 
-        private static bool TryGetKeyValuePair(object obj, out object key, out object value)
+        private static bool IsKeyValuePair(object obj)
         {
-            key = value = null;
             if (obj != null)
             {
                 Type valueType = obj.GetType();
@@ -693,8 +694,6 @@ namespace DotLiquid
                     Type baseType = valueType.GetGenericTypeDefinition();
                     if (baseType == typeof(KeyValuePair<,>))
                     {
-                        key = valueType.GetRuntimeProperty("Key").GetValue(obj);
-                        value = valueType.GetRuntimeProperty("Value").GetValue(obj);
                         return true;
                     }
                 }

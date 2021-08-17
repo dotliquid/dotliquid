@@ -63,10 +63,7 @@ namespace DotLiquid.Util
         /// <returns>The property value if it exists, otherwise null</returns>
         public static object GetPropertyValue(this object @object, string propertyName)
         {
-            if (@object is null)
-                return null;
-
-            return @object.GetType().GetRuntimeProperty(propertyName)?.GetValue(@object, null);
+            return @object?.GetType().GetRuntimeProperty(propertyName)?.GetValue(@object, null);
         }
 
         /// <summary>

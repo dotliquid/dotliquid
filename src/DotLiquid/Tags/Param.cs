@@ -50,11 +50,18 @@ namespace DotLiquid.Tags
                 case "culture": // value should be a language tag, such as en-US, en-GB or fr-FR
                     if (value.IsNullOrWhiteSpace())
                         value = String.Empty; // String.Empty will ensure the InvariantCulture is returned
+                    try
+                    {
 #if CORE
-                    context.CurrentCulture = new CultureInfo(value);
+                        context.CurrentCulture = new CultureInfo(value);
 #else
-                    context.CurrentCulture = CultureInfo.GetCultureInfo(value);
+                        context.CurrentCulture = CultureInfo.GetCultureInfo(value);
 #endif
+                    }
+                    catch (CultureNotFoundException exception)
+                    {
+                        throw new SyntaxException("CultureNotFoundException", value);
+                    }
                     break;
                 case "date_format": //ruby|csharp
                     context.UseRubyDateFormat = String.Equals("ruby", value, StringComparison.OrdinalIgnoreCase) ? true : false;
@@ -63,11 +70,10 @@ namespace DotLiquid.Tags
                     if (Enum.TryParse<SyntaxCompatibility>(value, out var syntax))
                         context.SyntaxCompatibilityLevel = syntax;
                     else
-                        throw new SyntaxException("The specified SyntaxCompatibility in invalid, supported options are: "
-                            + string.Join(",", System.Enum.GetNames(typeof(SyntaxCompatibility))));
+                        throw new SyntaxException("SyntaxCompatibilityException", value, string.Join(",", System.Enum.GetNames(typeof(SyntaxCompatibility))));
                     break;
                 default:
-                    throw new SyntaxException(Liquid.ResourceManager.GetString("ParamTagSyntaxException"), this.paramName);
+                    throw new SyntaxException("ParamTagSyntaxException", this.paramName);
             }
         }
     }

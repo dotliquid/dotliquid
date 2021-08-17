@@ -53,7 +53,7 @@ namespace DotLiquid.Tests.Tags
         public void TestSyntaxCompatibility_InvalidOption()
         {
             Helper.AssertTemplateResult(
-                expected: "Liquid syntax error: The specified SyntaxCompatibility in invalid, supported options are: DotLiquid20,DotLiquid21,DotLiquid22",
+                expected: "Liquid syntax error: The SyntaxCompatibility 'UnknownValue' is invalid, supported options are: DotLiquid20,DotLiquid21,DotLiquid22",
                 template: "{% param syntax='UnknownValue'%}");
         }
 
@@ -104,7 +104,7 @@ namespace DotLiquid.Tests.Tags
             using (CultureHelper.SetCulture("en-US"))
             {
                 Helper.AssertTemplateResult(
-                    expected: "Liquid error: Culture is not supported. (Parameter 'name')\r\nxxx-YYY is an invalid culture identifier.$7,000.00",
+                    expected: "Liquid syntax error: Culture 'xxx-YYY' is not supported$7,000.00",
                     template: "{% param culture='xxx-YYY'%}{{ 7000 | currency }}"); // Unknown culture
             }
         }

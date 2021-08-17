@@ -1,9 +1,9 @@
 using System;
-using System.Globalization;
-using System.Threading;
-using System.Linq;
-using NUnit.Framework;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Threading;
+using NUnit.Framework;
 
 namespace DotLiquid.Tests
 {
@@ -245,7 +245,7 @@ namespace DotLiquid.Tests
             var hashes = new List<Hash>();
             for (var i = 0; i < strings.Length; i++)
                 hashes.Add(CreateHash(ints[i], strings[i]));
-            CollectionAssert.AreEqual(new[] { hashes[3], hashes[2], hashes[1], hashes[0]  },
+            CollectionAssert.AreEqual(new[] { hashes[3], hashes[2], hashes[1], hashes[0] },
                 StandardFilters.Sort(_contextV22, hashes, "content"));
             CollectionAssert.AreEqual(new[] { hashes[3], hashes[2], hashes[1], hashes[0] },
                 StandardFilters.Sort(_contextV22, hashes, "sortby"));
@@ -711,9 +711,9 @@ namespace DotLiquid.Tests
             {
                 var context = _contextV21;// _contextV21 specifies InvariantCulture
                 var unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).ToLocalTime();
-                Assert.AreEqual("01/01/1970 00:00", StandardFilters.Date(context: context, input: 0, format: "g"));
-                Assert.AreEqual("01/19/2038 03:14", StandardFilters.Date(context: context, input: 2147483648, format: "g")); // Beyond Int32 boundary
-                Assert.AreEqual("02/07/2106 06:28", StandardFilters.Date(context: context, input: 4294967296, format: "g")); // Beyond UInt32 boundary
+                Assert.AreEqual(unixEpoch.ToString("g", context.FormatProvider), StandardFilters.Date(context: context, input: 0, format: "g"));
+                Assert.AreEqual(unixEpoch.AddSeconds(Int32.MaxValue).AddSeconds(1).ToString("g", context.FormatProvider), StandardFilters.Date(context: context, input: 2147483648, format: "g")); // Beyond Int32 boundary
+                Assert.AreEqual(unixEpoch.AddSeconds(UInt32.MaxValue).AddSeconds(1).ToString("g", context.FormatProvider), StandardFilters.Date(context: context, input: 4294967296, format: "g")); // Beyond UInt32 boundary
                 Helper.AssertTemplateResult(expected: unixEpoch.ToString("g"), template: "{{ 0 | date: 'g' }}", syntax: context.SyntaxCompatibilityLevel);
                 Helper.AssertTemplateResult(expected: unixEpoch.AddSeconds(Int32.MaxValue).AddSeconds(1).ToString("g"), template: "{{ 2147483648 | date: 'g' }}", syntax: context.SyntaxCompatibilityLevel);
                 Helper.AssertTemplateResult(expected: unixEpoch.AddSeconds(UInt32.MaxValue).AddSeconds(1).ToString("g"), template: "{{ 4294967296 | date: 'g' }}", syntax: context.SyntaxCompatibilityLevel);
@@ -755,8 +755,8 @@ namespace DotLiquid.Tests
             Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
             {
                 var context = _contextV20;
-                context.CurrentCulture = new CultureInfo("en-US"); //_contextV20 is initialised with InvariantCulture, these tests require en-US
                 context.UseRubyDateFormat = true;
+                context.CurrentCulture = new CultureInfo("en-US"); //_contextV20 is initialised with InvariantCulture, these tests require en-US
 
                 Assert.AreEqual("May", StandardFilters.Date(context: context, input: DateTime.Parse("2006-05-05 10:00:00"), format: "%B"));
                 Assert.AreEqual("June", StandardFilters.Date(context: context, input: DateTime.Parse("2006-06-05 10:00:00"), format: "%B"));
@@ -768,8 +768,8 @@ namespace DotLiquid.Tests
 
                 Assert.AreEqual("05/07/2006 10:00:00", StandardFilters.Date(context: context, input: "05/07/2006 10:00:00", format: string.Empty));
                 Assert.AreEqual("05/07/2006 10:00:00", StandardFilters.Date(context: context, input: "05/07/2006 10:00:00", format: null));
-                Assert.AreEqual("8/3/2006 10:00:00 AM", StandardFilters.Date(context: context, input: new DateTime(2006, 8, 3, 10, 0, 0), format: string.Empty));
-                Assert.AreEqual("8/4/2006 10:00:00 AM", StandardFilters.Date(context: context, input: new DateTime(2006, 8, 4, 10, 0, 0), format: null));
+                Assert.AreEqual(new DateTime(2006, 8, 3, 10, 0, 0).ToString(context.FormatProvider), StandardFilters.Date(context: context, input: new DateTime(2006, 8, 3, 10, 0, 0), format: string.Empty));
+                Assert.AreEqual(new DateTime(2006, 8, 4, 10, 0, 0).ToString(context.FormatProvider), StandardFilters.Date(context: context, input: new DateTime(2006, 8, 4, 10, 0, 0), format: null));
 
                 Assert.AreEqual("07/05/2006", StandardFilters.Date(context: context, input: "2006-07-05 10:00:00", format: "%m/%d/%Y"));
 

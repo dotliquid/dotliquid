@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Globalization;
+using System.IO;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
@@ -15,8 +15,9 @@ namespace DotLiquid.Tags
     {
         private static readonly Regex Syntax = R.B(R.Q(@"([\w\-]+)\s*=\s*(.+)\s*"));
 
-        private string _name;
-        private string _value;
+        private string paramName;
+
+        private string paramValue;
 
         /// <summary>
         /// Initializes the Param tag
@@ -26,29 +27,29 @@ namespace DotLiquid.Tags
         /// <param name="tokens">Tokens of the parsed tag</param>
         public override void Initialize(string tagName, string markup, List<string> tokens)
         {
-            Match syntaxMatch = Syntax.Match(markup);
+            var syntaxMatch = Syntax.Match(markup);
             if (!syntaxMatch.Success)
                 throw new SyntaxException("Invalid markup format for tag Param: " + markup);
 
-            _name = syntaxMatch.Groups[1].Value;
-            _value = syntaxMatch.Groups[2].Value;
+            this.paramName = syntaxMatch.Groups[1].Value;
+            this.paramValue = syntaxMatch.Groups[2].Value;
 
-            base.Initialize(tagName, markup, tokens);
+            base.Initialize(tagName: tagName, markup: markup, tokens: tokens);
         }
 
         /// <summary>
         /// Apply override parameters to the Context for rendering.
         /// </summary>
-        /// <exception cref="SyntaxException">For unknown parameters or invalidaid options for a given parameter.</exception>
+        /// <exception cref="SyntaxException">For unknown parameters or invalid options for a given parameter.</exception>
         public override void Render(Context context, TextWriter result)
         {
             // Apply the parameter
-            var value = context[_value].ToString();
-            switch (_name.ToLower())
+            var value = context[this.paramValue].ToString();
+            switch (this.paramName.ToLower())
             {
                 case "culture": // value should be a language tag, such as en-US, en-GB or fr-FR
                     if (value.IsNullOrWhiteSpace())
-                        value = String.Empty; // String.Empty ensure the InvariantCulture is returned
+                        value = String.Empty; // String.Empty will ensure the InvariantCulture is returned
 #if CORE
                     context.CurrentCulture = new CultureInfo(value);
 #else
@@ -58,7 +59,7 @@ namespace DotLiquid.Tags
                 case "date_format": //ruby|csharp
                     context.UseRubyDateFormat = String.Equals("ruby", value, StringComparison.OrdinalIgnoreCase) ? true : false;
                     break;
-                case "syntax": //DotLiquid20|DotLiquid21|...
+                case "syntax": //DotLiquid20|DotLiquid21|DotLiquid22|...
                     if (Enum.TryParse<SyntaxCompatibility>(value, out var syntax))
                         context.SyntaxCompatibilityLevel = syntax;
                     else
@@ -66,7 +67,7 @@ namespace DotLiquid.Tags
                             + string.Join(",", System.Enum.GetNames(typeof(SyntaxCompatibility))));
                     break;
                 default:
-                    throw new SyntaxException(Liquid.ResourceManager.GetString("ParamTagSyntaxException"), _name);
+                    throw new SyntaxException(Liquid.ResourceManager.GetString("ParamTagSyntaxException"), this.paramName);
             }
         }
     }

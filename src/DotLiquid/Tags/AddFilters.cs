@@ -8,7 +8,7 @@ using DotLiquid.Util;
 namespace DotLiquid.Tags
 {
     /// <summary>
-    /// Adds filters in a whitelisted class to the current context.
+    /// Adds filters in a safelisted class to the current context.
     ///
     /// {%- addfilters 'ShopifyFilters' -%}
     /// </summary>
@@ -16,16 +16,16 @@ namespace DotLiquid.Tags
     {
         private static readonly Regex Syntax = R.B(R.Q(@"\s*([""'].+[""'])\s*"));
 
-        private static readonly IDictionary<string, Type> Whitelisted = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
+        private static readonly IDictionary<string, Type> Safelisted = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
-        /// Add the provided class to the whitelist of classes that can be added by a Liquid Designer
+        /// Add the provided class to the safelist of classes that can be added by a Liquid Designer
         /// </summary>
         /// <param name="filterClassType">A class containing filter operations.</param>
         /// <param name="alias">An alias for the class, if not provided the class' short name is used</param>
-        public static void Whitelist(Type filterClassType, string alias = null)
+        public static void Safelist(Type filterClassType, string alias = null)
         {
-            Whitelisted[alias ?? filterClassType.Name] = filterClassType;
+            Safelisted[alias ?? filterClassType.Name] = filterClassType;
         }
 
         private string alias;
@@ -46,14 +46,14 @@ namespace DotLiquid.Tags
         public override void Render(Context context, TextWriter result)
         {
             var aliasValue = context[alias].ToString();
-            if (!Whitelisted.ContainsKey(aliasValue))
+            if (!Safelisted.ContainsKey(aliasValue))
             {
                 throw new FilterNotFoundException(
                     message: Liquid.ResourceManager.GetString("FilterClassNotFoundException"),
-                    args: new[] { alias, string.Join(",", Whitelisted.Keys) });
+                    args: new[] { alias, string.Join(",", Safelisted.Keys) });
             }
 
-            context.AddFilters(new[] { Whitelisted[aliasValue] });
+            context.AddFilters(new[] { Safelisted[aliasValue] });
         }
     }
 }

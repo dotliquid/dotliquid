@@ -54,9 +54,9 @@ namespace DotLiquid
 
             Template.RegisterFilter(typeof(StandardFilters));
 
-            // Whitelist optional filters so that they can be enabled by Designers.
-            Tags.AddFilters.Whitelist(typeof(ExtendedFilters));
-            Tags.AddFilters.Whitelist(typeof(ShopifyFilters));
+            // Safe list optional filters so that they can be enabled by Designers.
+            Tags.AddFilters.Safelist(typeof(ExtendedFilters));
+            Tags.AddFilters.Safelist(typeof(ShopifyFilters));
         }
     }
 }

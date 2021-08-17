@@ -39,10 +39,10 @@ After:  {{ a_value_to_be_hashed | sha1 }}",
         [TestCase("\"ShopifyFilters\"")] // correct case, double quoted
         [TestCase("'shopifyfilters'")] // lower case
         [TestCase("'SHOPIFYFILTERS'")] // upper case
-        public void TestWhitelisted(string aliasLiteral)
+        public void TestSafelisted(string aliasLiteral)
         {
-            // Whitelist an extra alias for testing. 
-            AddFilters.Whitelist(typeof(ShopifyFilters), "anotheralias");
+            // Safelist an extra alias for testing. 
+            AddFilters.Safelist(typeof(ShopifyFilters), "anotheralias");
 
             // addfilter is included, so ensure the value is sha1 hashed.
             Helper.AssertTemplateResult(
@@ -59,10 +59,10 @@ My encoded string is: c7322e3812d3da7bc621300ca1797517c34f63b6",
 My encoded string is: {{ plain_text }}");
         }
 
-        [TestCase("'DotLiquid.ShopifyFilters'")] // Fully qualified class names are invalid (even if they match a whitelisted Type)
+        [TestCase("'DotLiquid.ShopifyFilters'")] // Fully qualified class names are invalid (even if they match a safelisted Type)
         [TestCase("'DotLiquid.Template'")] // Fully qualified class names are invalid
         [TestCase("'Template'")] // Classes in the DotLiquid namespace are not available by default
-        public void TestNotWhitelisted(string template)
+        public void TestNotSafelisted(string template)
         {
             var filter = new AddFilters();
             filter.Initialize("addfilters", template, null);

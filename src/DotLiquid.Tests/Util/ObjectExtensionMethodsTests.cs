@@ -27,7 +27,7 @@ namespace DotLiquid.Tests.Util
             Assert.True(2.0d.SafeTypeInsensitiveEqual("2.0"));  // double to string equality
         }
 
-         [Test]
+        [Test]
         public void TestIsTruthy()
         {
             Assert.False(ObjectExtensionMethods.IsTruthy(null));
@@ -104,6 +104,19 @@ namespace DotLiquid.Tests.Util
   <h1>{{ page.category }}</h1>
 {% endif %}",
             localVariables: Hash.FromAnonymousObject(new { page }));
+        }
+
+        [Test]
+        public void TestGetPropertyValue()
+        {
+            var keyValuePair = new KeyValuePair<string, object>("*key*", "*value*");
+
+            Assert.IsNull(ObjectExtensionMethods.GetPropertyValue(null, "any"));
+            Assert.IsNull(keyValuePair.GetPropertyValue("NonExistant"));
+            Assert.IsNull(new KeyValuePair<string, object>("*key*", null).GetPropertyValue("Value"));
+
+            Assert.AreEqual("*key*", keyValuePair.GetPropertyValue("Key"));
+            Assert.AreEqual("*value*", keyValuePair.GetPropertyValue("Value"));
         }
     }
 }

@@ -131,5 +131,17 @@ namespace DotLiquid.Tests.Util
         {
             return DateTime.Parse("2012-12-31").ToStrFTime(format, EN_GB);
         }
+
+        [Test]
+        public void TestToStrFTime_ArgumentException()
+        {
+            var dateTime = new DateTime(2012, 1, 8, 14, 32, 14, 123);
+            var format = "%g";
+            CultureInfo cultureInfo = null;
+            Assert.Throws<ArgumentException>(() => StrFTime.ToStrFTime(dateTime, format, cultureInfo));
+
+            DateTimeOffset dateTimeOffset = new DateTimeOffset(dateTime, TimeSpan.FromHours(0));
+            Assert.Throws<ArgumentException>(() => StrFTime.ToStrFTime(dateTimeOffset, format, cultureInfo));
+        }
     }
 }

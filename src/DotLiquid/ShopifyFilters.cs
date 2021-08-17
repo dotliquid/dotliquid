@@ -14,7 +14,7 @@ namespace DotLiquid
         /// Converts a string into an MD5 hash.
         /// </summary>
         /// <see href="https://shopify.dev/docs/themes/liquid/reference/filters/string-filters#md5"/>
-        /// <param name="input"/>
+        /// <param name="input">The input to be encoded</param>
         public static string Md5(string input)
         {
             return input.IsNullOrWhiteSpace() ? input : ComputeHash(MD5.Create(), input);
@@ -24,7 +24,7 @@ namespace DotLiquid
         /// Converts a string into a SHA-1 hash.
         /// </summary>
         /// <see href="https://shopify.dev/docs/themes/liquid/reference/filters/string-filters#sha1" />
-        /// <param name="input"></param>
+        /// <param name="input">The input to be encoded</param>
         public static string Sha1(string input)
         {
             return input.IsNullOrWhiteSpace() ? input : ComputeHash(SHA1.Create(), input);
@@ -34,7 +34,7 @@ namespace DotLiquid
         /// Converts a string into a SHA-256 hash.
         /// </summary>
         /// <see href="https://shopify.dev/docs/themes/liquid/reference/filters/string-filters#sha256" />
-        /// <param name="input"></param>
+        /// <param name="input">The input to be encoded</param>
         public static string Sha256(string input)
         {
             return input.IsNullOrWhiteSpace() ? input : ComputeHash(SHA256.Create(), input);
@@ -46,7 +46,7 @@ namespace DotLiquid
         /// </summary>
         /// <see href="https://shopify.dev/docs/themes/liquid/reference/filters/string-filters#hmac_sha1" />
         /// <param name="input" />
-        /// <param name="secretKey" />
+        /// <param name="secretKey">The secret key</param>
         public static string HmacSha1(string input, string secretKey)
         {
             if (input.IsNullOrWhiteSpace() || secretKey is null)

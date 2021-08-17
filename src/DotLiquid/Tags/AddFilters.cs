@@ -22,7 +22,7 @@ namespace DotLiquid.Tags
         /// Add the provided class to the whitelist of classes that can be added by a Liquid Designer
         /// </summary>
         /// <param name="filterClassType">A class containing filter operations.</param>
-        /// <param name="alias">An alias for the class, if not provided the classes short name is used</param>
+        /// <param name="alias">An alias for the class, if not provided the class' short name is used</param>
         public static void Whitelist(Type filterClassType, string alias = null)
         {
             _Whitelist[alias ?? filterClassType.Name] = filterClassType;
@@ -33,13 +33,13 @@ namespace DotLiquid.Tags
         /// <inheritdoc/>
         public override void Initialize(string tagName, string markup, List<string> tokens)
         {
-            Match syntaxMatch = Syntax.Match(markup);
+            var syntaxMatch = Syntax.Match(markup);
             if (!syntaxMatch.Success)
                 throw new SyntaxException(Liquid.ResourceManager.GetString("AddFiltersTagSyntaxException"));
 
-            alias = syntaxMatch.Groups[1].Value;
+            this.alias = syntaxMatch.Groups[1].Value;
 
-            base.Initialize(tagName, markup, tokens);
+            base.Initialize(tagName: tagName, markup: markup, tokens: tokens);
         }
 
         /// <inheritdoc/>

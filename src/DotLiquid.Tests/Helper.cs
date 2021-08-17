@@ -62,6 +62,7 @@ namespace DotLiquid.Tests
             };
             Assert.AreEqual(expected, Template.Parse(template).Render(parameters));
         }
+
         public static void AssertTemplateResult(string expected, string template, Hash localVariables, SyntaxCompatibility syntax = SyntaxCompatibility.DotLiquid20)
         {
             AssertTemplateResult(expected: expected, template: template, localVariables: localVariables, localFilters: null, syntax: syntax);

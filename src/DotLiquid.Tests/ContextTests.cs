@@ -957,6 +957,16 @@ namespace DotLiquid.Tests
             TestVariableParser((input) => GetVariableParts(input));
         }
 
+        [Test]
+        public void TestCurrentCulture_NotSupportedException()
+        {
+            _context.CurrentCulture = null;
+            Assert.Throws<NotSupportedException>(() =>
+            {
+                _context.CurrentCulture.ToString();
+            });
+        }
+
         private void TestVariableParser(Func<string, IEnumerable<string>> variableSplitterFunc)
         {
             CollectionAssert.IsEmpty(variableSplitterFunc(""));

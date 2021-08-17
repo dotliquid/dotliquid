@@ -102,11 +102,11 @@ namespace DotLiquid.Tests.Tags
         public void TestForWithNestedDictionary_DotLiquid22()
         {
             var dictionary = new Dictionary<string, object> { {
-            "People",
-            new Dictionary<string, object> {
-                    { "ID1", new Dictionary<string, object>{ { "First", "Jane" }, { "Last", "Green" } } },
-                    { "ID2", new Dictionary<string, object>{ { "First", "Mike" }, { "Last", "Doe" } } }
-                }
+                "People",
+                new Dictionary<string, object> {
+                        { "ID1", new Dictionary<string, object>{ { "First", "Jane" }, { "Last", "Green" } } },
+                        { "ID2", new Dictionary<string, object>{ { "First", "Mike" }, { "Last", "Doe" } } }
+                    }
             } };
 
             // Validate that:
@@ -645,7 +645,8 @@ namespace DotLiquid.Tests.Tags
             // - item.Key OR item[0] --> access the Key
             // - item.Value.property OR item[1].property --> access values of a nested Hash/IDictionary
             // - Pre 2.2 syntax (item.property> OR item.itemName) is ignored 
-            Helper.AssertTemplateResult(expected: @"English 1: Jane Green (ID1), Mike Doe (ID2), 
+            Helper.AssertTemplateResult(
+                expected: @"English 1: Jane Green (ID1), Mike Doe (ID2), 
 Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4), 
 ",
                 template: @"{% for class in Classes %}{{class.Name}}{{class.Value.Name}} {{class.Value.Level}}: {% for student in class.Value.Students %}{{ student[1].First }} {{ student[1].Last }} ({{ student[0] }}), {%endfor%}
@@ -654,7 +655,8 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
                 syntax: SyntaxCompatibility.DotLiquid22);
 
             // Check dot notation
-            Helper.AssertTemplateResult(expected: "Eric Schmidt",
+            Helper.AssertTemplateResult(
+                expected: "Eric Schmidt",
                 template: "{{ Classes.C2.Students.ID3.First }} {{ Classes.C2.Students.ID3.Last }}",
                 localVariables: Hash.FromDictionary(classes),
                 syntax: SyntaxCompatibility.DotLiquid22);

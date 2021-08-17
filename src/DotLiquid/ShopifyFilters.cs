@@ -17,7 +17,13 @@ namespace DotLiquid
         /// <param name="input">The input to be encoded</param>
         public static string Md5(string input)
         {
-            return input.IsNullOrWhiteSpace() ? input : ComputeHash(MD5.Create(), input);
+            if (input.IsNullOrWhiteSpace())
+                return input;
+
+            using (var hashAlgorithm = MD5.Create())
+            {
+                return ComputeHash(hashAlgorithm, input);
+            }
         }
 
         /// <summary> 
@@ -27,7 +33,13 @@ namespace DotLiquid
         /// <param name="input">The input to be encoded</param>
         public static string Sha1(string input)
         {
-            return input.IsNullOrWhiteSpace() ? input : ComputeHash(SHA1.Create(), input);
+            if (input.IsNullOrWhiteSpace())
+                return input;
+
+            using (var hashAlgorithm = SHA1.Create())
+            {
+                return ComputeHash(hashAlgorithm, input);
+            }
         }
 
         /// <summary>
@@ -37,7 +49,13 @@ namespace DotLiquid
         /// <param name="input">The input to be encoded</param>
         public static string Sha256(string input)
         {
-            return input.IsNullOrWhiteSpace() ? input : ComputeHash(SHA256.Create(), input);
+            if (input.IsNullOrWhiteSpace())
+                return input;
+
+            using (var hashAlgorithm = SHA256.Create())
+            {
+                return ComputeHash(hashAlgorithm, input);
+            }
         }
 
         /// <summary>
@@ -45,16 +63,18 @@ namespace DotLiquid
         /// Pass the secret key for the message as a parameter to the filter.
         /// </summary>
         /// <see href="https://shopify.dev/docs/themes/liquid/reference/filters/string-filters#hmac_sha1" />
-        /// <param name="input" />
+        /// <param name="input">The input to be encoded</param>
         /// <param name="secretKey">The secret key</param>
         public static string HmacSha1(string input, string secretKey)
         {
             if (input.IsNullOrWhiteSpace() || secretKey is null)
                 return input;
 
-            var hmac = new HMACSHA1(Encoding.UTF8.GetBytes(secretKey));
-            hmac.Initialize();
-            return ComputeHash(hmac, input);
+            using (var hmac = new HMACSHA1(Encoding.UTF8.GetBytes(secretKey)))
+            {
+                hmac.Initialize();
+                return ComputeHash(hmac, input);
+            }
         }
 
         /// <summary>
@@ -62,23 +82,25 @@ namespace DotLiquid
         /// Pass the secret key for the message as a parameter to the filter.
         /// </summary>
         /// <see href="https://shopify.dev/docs/themes/liquid/reference/filters/string-filters#hmac_sha256" />
-        /// <param name="input" />
-        /// <param name="secretKey" />
+        /// <param name="input">The input to be encoded</param>
+        /// <param name="secretKey">The secret key</param>
         public static string HmacSha256(string input, string secretKey)
         {
             if (input.IsNullOrWhiteSpace() || secretKey is null)
                 return input;
 
-            var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey));
-            hmac.Initialize();
-            return ComputeHash(hmac, input);
+            using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey)))
+            {
+                hmac.Initialize();
+                return ComputeHash(hmac, input);
+            }
         }
 
         /// <summary>
         /// Generates a Hexadecimal hash of the provided input string.
         /// </summary>
-        /// <param name="hashAlgorithm" />
-        /// <param name="input" />
+        /// <param name="hashAlgorithm" >The algorithm to be used for encoding</param>
+        /// <param name="input">The input to be encoded</param>
         private static string ComputeHash(HashAlgorithm hashAlgorithm, string input)
         {
             // Convert the input string to a byte array and compute the hash.

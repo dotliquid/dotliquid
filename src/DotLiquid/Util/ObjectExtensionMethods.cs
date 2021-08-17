@@ -66,8 +66,7 @@ namespace DotLiquid.Util
             if (@object is null)
                 return null;
 
-            var propertyInfo = @object.GetType().GetRuntimeProperty(propertyName);
-            return propertyInfo?.GetValue(@object, null);
+            return @object.GetType().GetRuntimeProperty(propertyName)?.GetValue(@object, null);
         }
 
         /// <summary>

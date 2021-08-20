@@ -17,7 +17,7 @@ namespace DotLiquid
         /// <param name="input">The input to be encoded</param>
         public static string Md5(string input)
         {
-            if (input.IsNullOrWhiteSpace())
+            if (input == null)
                 return input;
 
             using (var hashAlgorithm = MD5.Create())
@@ -33,7 +33,7 @@ namespace DotLiquid
         /// <param name="input">The input to be encoded</param>
         public static string Sha1(string input)
         {
-            if (input.IsNullOrWhiteSpace())
+            if (input == null)
                 return input;
 
             using (var hashAlgorithm = SHA1.Create())
@@ -49,7 +49,7 @@ namespace DotLiquid
         /// <param name="input">The input to be encoded</param>
         public static string Sha256(string input)
         {
-            if (input.IsNullOrWhiteSpace())
+            if (input == null)
                 return input;
 
             using (var hashAlgorithm = SHA256.Create())
@@ -67,7 +67,7 @@ namespace DotLiquid
         /// <param name="secretKey">The secret key</param>
         public static string HmacSha1(string input, string secretKey)
         {
-            if (input.IsNullOrWhiteSpace() || secretKey is null)
+            if (input == null || secretKey == null)
                 return input;
 
             using (var hmac = new HMACSHA1(Encoding.UTF8.GetBytes(secretKey)))
@@ -86,7 +86,7 @@ namespace DotLiquid
         /// <param name="secretKey">The secret key</param>
         public static string HmacSha256(string input, string secretKey)
         {
-            if (input.IsNullOrWhiteSpace() || secretKey is null)
+            if (input == null || secretKey is null)
                 return input;
 
             using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey)))

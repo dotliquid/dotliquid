@@ -386,7 +386,7 @@ namespace DotLiquid
                         // Ranges.
                         match = RangeRegex.Match(key);
                         if (match.Success)
-                            return Range.Inclusive(Convert.ToInt32(Resolve(match.Groups[1].Value)),
+                            return DotLiquid.Util.Range.Inclusive(Convert.ToInt32(Resolve(match.Groups[1].Value)),
                                 Convert.ToInt32(Resolve(match.Groups[2].Value)));
                         break;
                     default:

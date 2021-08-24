@@ -4,7 +4,7 @@ using DotLiquid.Util;
 namespace DotLiquid
 {
     /// <summary>
-    /// Utiliy containing regexes for Liquid syntax and registering default tags and blocks
+    /// Utility containing regexes for Liquid syntax and registering default tags and blocks
     /// </summary>
     public static class Liquid
     {
@@ -48,10 +48,15 @@ namespace DotLiquid
             Template.RegisterTag<Tags.Literal>("literal");
             Template.RegisterTag<Tags.Unless>("unless");
             Template.RegisterTag<Tags.Raw>("raw");
+            Template.RegisterTag<Tags.AddFilters>("addfilters");
 
             Template.RegisterTag<Tags.Html.TableRow>("tablerow");
 
             Template.RegisterFilter(typeof(StandardFilters));
+
+            // Safe list optional filters so that they can be enabled by Designers.
+            Tags.AddFilters.Safelist(typeof(ExtendedFilters));
+            Tags.AddFilters.Safelist(typeof(ShopifyFilters));
         }
     }
 }

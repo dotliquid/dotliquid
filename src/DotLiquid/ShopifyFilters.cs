@@ -86,7 +86,7 @@ namespace DotLiquid
         /// <param name="secretKey">The secret key</param>
         public static string HmacSha256(string input, string secretKey)
         {
-            if (input == null || secretKey is null)
+            if (input == null || secretKey == null)
                 return input;
 
             using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey)))

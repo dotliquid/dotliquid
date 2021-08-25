@@ -144,6 +144,7 @@ namespace DotLiquid.Tests
             Assert.AreEqual("test", StandardFilters.StripHtml("<div id='test'>test</div>"));
             Assert.AreEqual("", StandardFilters.StripHtml("<script type='text/javascript'>document.write('some stuff');</script>"));
             Assert.AreEqual("", StandardFilters.StripHtml("<style type='text/css'>foo bar</style>"));
+            Assert.AreEqual("", StandardFilters.StripHtml("<STYLE type='text/css'>foo bar</style>"));
             Assert.AreEqual("test", StandardFilters.StripHtml("<div\nclass='multiline'>test</div>"));
             Assert.AreEqual("test", StandardFilters.StripHtml("<!-- foo bar \n test -->test"));
             Assert.AreEqual(null, StandardFilters.StripHtml(null));

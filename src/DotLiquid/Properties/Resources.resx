@@ -245,6 +245,7 @@
   </data>
   <data name="CultureNotFoundException" xml:space="preserve">
     <value>Culture '{0}' is not supported</value>
+  </data>
   <data name="AddFiltersTagSyntaxException" xml:space="preserve">
     <value>Syntax Error in 'addfilters' tag - Valid syntax: addfilters [alias]</value>
   </data>

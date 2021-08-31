@@ -956,6 +956,7 @@ namespace DotLiquid.Tests
         {
             TestVariableParser((input) => GetVariableParts(input));
         }
+
         private void TestVariableParser(Func<string, IEnumerable<string>> variableSplitterFunc)
         {
             CollectionAssert.IsEmpty(variableSplitterFunc(""));

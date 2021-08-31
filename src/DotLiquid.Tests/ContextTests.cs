@@ -373,7 +373,7 @@ namespace DotLiquid.Tests
             context = new Context(CultureInfo.InvariantCulture) { SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20 };
             Assert.AreEqual("hi?", context.Invoke("hi", new List<object> { "hi?" }));
             context.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22;
-            Assert.Throws<FilterNotFoundException>(() => context.Invoke("hi", new List<object> { "hi?" })); 
+            Assert.Throws<FilterNotFoundException>(() => context.Invoke("hi", new List<object> { "hi?" }));
         }
 
         [Test]
@@ -945,7 +945,7 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestConstructor()
+        public void TestVariableParserV21()
         {
             var regex = new System.Text.RegularExpressions.Regex(Liquid.VariableParser);
             TestVariableParser((input) => DotLiquid.Util.R.Scan(input, regex));
@@ -955,16 +955,6 @@ namespace DotLiquid.Tests
         public void TestVariableParserV22()
         {
             TestVariableParser((input) => GetVariableParts(input));
-        }
-
-        [Test]
-        public void TestCurrentCulture_NotSupportedException()
-        {
-            _context.CurrentCulture = null;
-            Assert.Throws<NotSupportedException>(() =>
-            {
-                _context.CurrentCulture.ToString();
-            });
         }
 
         private void TestVariableParser(Func<string, IEnumerable<string>> variableSplitterFunc)
@@ -983,6 +973,25 @@ namespace DotLiquid.Tests
             using (var enumerator = Tokenizer.GetVariableEnumerator(input))
                 while (enumerator.MoveNext())
                     yield return enumerator.Current;
+        }
+
+        [Test]
+        public void TestConstructor()
+        {
+            var context = new Context(new CultureInfo("jp-JP"));
+            Assert.AreEqual(Template.DefaultSyntaxCompatibilityLevel, context.SyntaxCompatibilityLevel);
+            Assert.AreEqual(Liquid.UseRubyDateFormat, context.UseRubyDateFormat);
+            Assert.AreEqual("jp-JP", context.CurrentCulture.Name);
+        }
+
+        [Test]
+        public void TestCurrentCulture_NotSupportedException()
+        {
+            _context.CurrentCulture = null;
+            Assert.Throws<NotSupportedException>(() =>
+            {
+                _context.CurrentCulture.ToString();
+            });
         }
     }
 }

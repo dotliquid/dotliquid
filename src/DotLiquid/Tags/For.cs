@@ -163,16 +163,13 @@ namespace DotLiquid.Tags
                     context.CheckTimeout();
 
                     var item = segment[index];
-                    if (item is KeyValuePair<string, object> pair)
-                    {
-                        var itemKey = pair.Key;
-                        var itemValue = pair.Value;
-                        BuildContext(context, _variableName, itemKey, itemValue);
-
-                    }
+                    if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22 && item is KeyValuePair<string, object> pair && pair.Value is IDictionary<string, object> valueDict)
+                        context[_variableName] = new LegacyKeyValueDrop(pair.Key, valueDict);
                     else
                         context[_variableName] = item;
 
+                    // Ensure the 'for-loop' object is available to templates.
+                    // See: https://shopify.dev/api/liquid/objects/for-loops
                     context["forloop"] = new Dictionary<string, object>
                     {
                         ["name"] = _name,
@@ -184,6 +181,7 @@ namespace DotLiquid.Tags
                         ["first"] = (index == 0),
                         ["last"] = (index == length - 1)
                     };
+
                     try
                     {
                         RenderAll(ForBlock, context, result);
@@ -223,18 +221,43 @@ namespace DotLiquid.Tags
             }
             return segments;
         }
+    }
 
-        private void BuildContext(Context context, string parent, string key, object value)
+    /// <summary>
+    /// internal class to encapsulate pre DotLiquid 2.2 compatibility in for loop.
+    /// </summary>
+    /// <remarks>
+    /// DotLiquid 2.2 compatibility includes:
+    /// * An undocumented property `itemName` which is an implicit alias for KeyValuePair.Key
+    /// * Implicit access of properties within a nested IDictionary Value
+    /// </remarks>
+    internal class LegacyKeyValueDrop : Drop
+    {
+        private readonly string key;
+        private readonly IDictionary<string, object> value;
+
+        public LegacyKeyValueDrop(string key, IDictionary<string, object> value)
         {
-            if (value is IDictionary<string, object> dictionary)
-            {
-                dictionary["itemName"] = key;
-                context[parent] = value;
+            this.key = key;
+            this.value = value;
+        }
 
-                // Iterate entries and recursively call this method for any IDcitionary values.
-                foreach (var entry in dictionary.Where<KeyValuePair<string, object>>(entry => entry.Value is IDictionary<string, object>))
-                    BuildContext(context, parent + "." + key, entry.Key, entry.Value);
-            }
+        public override object BeforeMethod(string method)
+        {
+            if (method.SafeTypeInsensitiveEqual(0L) || method.Equals("Key") || method.Equals("itemName"))
+                return key;
+            else if (method.SafeTypeInsensitiveEqual(1L) || method.Equals("Value"))
+                return value;
+            else if (value.ContainsKey(method))
+                return value[method];
+            return null;
+        }
+
+        public override bool ContainsKey(object name)
+        {
+            string method = name.ToString();
+            return method.SafeTypeInsensitiveEqual(0L) || method.Equals("Key") || method.Equals("itemName")
+                || method.SafeTypeInsensitiveEqual(1L) || method.Equals("Value") || value.ContainsKey(method);
         }
     }
 }

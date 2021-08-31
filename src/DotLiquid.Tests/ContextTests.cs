@@ -373,7 +373,7 @@ namespace DotLiquid.Tests
             context = new Context(CultureInfo.InvariantCulture) { SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20 };
             Assert.AreEqual("hi?", context.Invoke("hi", new List<object> { "hi?" }));
             context.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22;
-            Assert.Throws<FilterNotFoundException>(() => context.Invoke("hi", new List<object> { "hi?" })); 
+            Assert.Throws<FilterNotFoundException>(() => context.Invoke("hi", new List<object> { "hi?" }));
         }
 
         [Test]
@@ -945,12 +945,52 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        public void TestVariableParserV21()
+        {
+            var regex = new System.Text.RegularExpressions.Regex(Liquid.VariableParser);
+            TestVariableParser((input) => DotLiquid.Util.R.Scan(input, regex));
+        }
+
+        [Test]
+        public void TestVariableParserV22()
+        {
+            TestVariableParser((input) => GetVariableParts(input));
+        }
+        private void TestVariableParser(Func<string, IEnumerable<string>> variableSplitterFunc)
+        {
+            CollectionAssert.IsEmpty(variableSplitterFunc(""));
+            CollectionAssert.AreEqual(new[] { "var" }, variableSplitterFunc("var"));
+            CollectionAssert.AreEqual(new[] { "var", "method" }, variableSplitterFunc("var.method"));
+            CollectionAssert.AreEqual(new[] { "var", "[method]" }, variableSplitterFunc("var[method]"));
+            CollectionAssert.AreEqual(new[] { "var", "[method]", "[0]" }, variableSplitterFunc("var[method][0]"));
+            CollectionAssert.AreEqual(new[] { "var", "[\"method\"]", "[0]" }, variableSplitterFunc("var[\"method\"][0]"));
+            CollectionAssert.AreEqual(new[] { "var", "[method]", "[0]", "method" }, variableSplitterFunc("var[method][0].method"));
+        }
+
+        private static IEnumerable<string> GetVariableParts(string input)
+        {
+            using (var enumerator = Tokenizer.GetVariableEnumerator(input))
+                while (enumerator.MoveNext())
+                    yield return enumerator.Current;
+        }
+
+        [Test]
         public void TestConstructor()
         {
             var context = new Context(new CultureInfo("jp-JP"));
             Assert.AreEqual(Template.DefaultSyntaxCompatibilityLevel, context.SyntaxCompatibilityLevel);
             Assert.AreEqual(Liquid.UseRubyDateFormat, context.UseRubyDateFormat);
             Assert.AreEqual("jp-JP", context.CurrentCulture.Name);
+        }
+
+        [Test]
+        public void TestCurrentCulture_NotSupportedException()
+        {
+            _context.CurrentCulture = null;
+            Assert.Throws<NotSupportedException>(() =>
+            {
+                _context.CurrentCulture.ToString();
+            });
         }
     }
 }

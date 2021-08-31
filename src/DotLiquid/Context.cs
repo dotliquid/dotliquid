@@ -410,7 +410,7 @@ namespace DotLiquid
                         // Ranges.
                         match = RangeRegex.Match(key);
                         if (match.Success)
-                            return Range.Inclusive(Convert.ToInt32(Resolve(match.Groups[1].Value)),
+                            return DotLiquid.Util.Range.Inclusive(Convert.ToInt32(Resolve(match.Groups[1].Value)),
                                 Convert.ToInt32(Resolve(match.Groups[2].Value)));
                         break;
                     default:
@@ -546,66 +546,51 @@ namespace DotLiquid
                 if (partResolved)
                     part = Resolve(forEachPart.Substring(1, forEachPart.Length - 2));
 
-                // If object is a KeyValuePair, we treat it a bit differently - we might be rendering
-                // an included template.
+                // If object is a KeyValuePair and the required part is either 0 or 'Key', return the Key.
                 var isKeyValuePair = IsKeyValuePair(@object);
                 if (isKeyValuePair && (part.SafeTypeInsensitiveEqual(0L) || part.Equals("Key")))
                 {
-                    object res = @object.GetType().GetRuntimeProperty("Key").GetValue(@object);
-                    @object = Liquidize(res);
+                    @object = Liquidize(@object.GetPropertyValue("Key"));
+                }
+                // If object is a KeyValuePair and the required part is either 1 or 'Value' or part matches the key, return the Value.
+                else if (isKeyValuePair && (part.SafeTypeInsensitiveEqual(1L)
+                                        || part.Equals("Value")
+                                        || part.Equals(@object.GetPropertyValue("Key"))))
+                {
+                    @object = Liquidize(@object.GetPropertyValue("Value"));
                 }
                 // If object is a hash- or array-like object we look for the
                 // presence of the key and if its available we return it
-                else if (isKeyValuePair && (part.SafeTypeInsensitiveEqual(1L) || part.Equals("Value")))
+                else if (TryEvaluateHashOrArrayLikeObject(@object, part, out var hashObj))
                 {
                     // If its a proc we will replace the entry with the proc
-                    object res = @object.GetType().GetRuntimeProperty("Value").GetValue(@object);
-                    @object = Liquidize(res);
+                    @object = Liquidize(hashObj);
+                }
+                // Some special cases. If the part wasn't in square brackets and
+                // no key with the same name was found we interpret first/last/size
+                // as commands and call them on the current object
+                else if (!partResolved && (@object is IEnumerable enumerable) && (Template.NamingConvention.OperatorEquals(part as string, "size") || Template.NamingConvention.OperatorEquals(part as string, "first") || Template.NamingConvention.OperatorEquals(part as string, "last")))
+                {
+                    var castCollection = enumerable.Cast<object>();
+                    if (Template.NamingConvention.OperatorEquals(part as string, "size"))
+                    {
+                        @object = castCollection.Count();
+                    }
+                    else if (Template.NamingConvention.OperatorEquals(part as string, "first"))
+                    {
+                        @object = Liquidize(castCollection.FirstOrDefault());
+                    }
+                    else
+                    {
+                        @object = Liquidize(castCollection.LastOrDefault());
+                    }
                 }
                 // No key was present with the desired value and it wasn't one of the directly supported
                 // keywords either. The only thing we got left is to return nil
                 else
                 {
-                    // If object is a KeyValuePair, we treat it a bit differently - we might be rendering
-                    // an included template.
-                    if (@object is KeyValuePair<string, object> && ((KeyValuePair<string, object>)@object).Key == (string)part)
-                    {
-                        object res = ((KeyValuePair<string, object>)@object).Value;
-                        @object = Liquidize(res);
-                    }
-                    // If object is a hash- or array-like object we look for the
-                    // presence of the key and if its available we return it
-                    else if (TryEvaluateHashOrArrayLikeObject(@object, part, out var hashObj))
-                    {
-                        // If its a proc we will replace the entry with the proc
-                        @object = Liquidize(hashObj);
-                    }
-                    // Some special cases. If the part wasn't in square brackets and
-                    // no key with the same name was found we interpret following calls
-                    // as commands and call them on the current object
-                    else if (!partResolved && (@object is IEnumerable) && (Template.NamingConvention.OperatorEquals(part as string, "size") || Template.NamingConvention.OperatorEquals(part as string, "first") || Template.NamingConvention.OperatorEquals(part as string, "last")))
-                    {
-                        var castCollection = ((IEnumerable)@object).Cast<object>();
-                        if (Template.NamingConvention.OperatorEquals(part as string, "size"))
-                            @object = castCollection.Count();
-                        else if (Template.NamingConvention.OperatorEquals(part as string, "first"))
-                        {
-                            object res = castCollection.FirstOrDefault();
-                            @object = Liquidize(res);
-                        }
-                        else if (Template.NamingConvention.OperatorEquals(part as string, "last"))
-                        {
-                            object res = castCollection.LastOrDefault();
-                            @object = Liquidize(res);
-                        }
-                    }
-                    // No key was present with the desired value and it wasn't one of the directly supported
-                    // keywords either. The only thing we got left is to return nil
-                    else
-                    {
-                        variable = null;
-                        return false;
-                    }
+                    variable = null;
+                    return false;
                 }
 
                 // If we are dealing with a drop here we have to
@@ -679,7 +664,7 @@ namespace DotLiquid
             {
                 return liquidizableObj.ToLiquid();
             }
-            if (obj is string || obj is IEnumerable || obj is decimal || obj is DateTime || obj is DateTimeOffset || obj is TimeSpan || obj is Guid)
+            if (obj is string || obj is IEnumerable || obj is decimal || obj is DateTime || obj is DateTimeOffset || obj is TimeSpan || obj is Guid || obj is Enum)
             {
                 return obj;
             }

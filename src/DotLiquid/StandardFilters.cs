@@ -321,21 +321,21 @@ namespace DotLiquid
         }
 
         /// <summary>
-        /// Converts the input object into a formatted currency as specified by the culture info.
+        /// Converts the input object into a formatted currency as specified by the context cuture, or languageTag parameter (if provided).
         /// </summary>
         /// <remarks>
-        /// This is a DotLiquid custom filter.
+        /// If the input is a string it is ALWAYS parsed using the context culture, the optional languageTag parameter is only applied for rendering.
         /// </remarks>
         /// <param name="context">default source of culture information</param>
         /// <param name="input">value to be parsed and formatted as a Currency</param>
-        /// <param name="languageTag">optional override culture, for example 'fr-FR'</param>
+        /// <param name="languageTag">optional override language for rendering, for example 'fr-FR'</param>
         /// <seealso href="https://shopify.dev/api/liquid/filters/money-filters#money" >Shopify Money filter</seealso>
         public static string Currency(Context context, object input, string languageTag = null)
         {
             var culture = context.CurrentCulture;
-            if (!languageTag.IsNullOrWhiteSpace())
+            if (languageTag != null) //Allow an empty string, which represent the InvariantCulture
             {
-                culture = new CultureInfo(languageTag);
+                culture = new CultureInfo(languageTag.Trim());
             }
 
             // Attempt to convert to a currency using the context current culture.

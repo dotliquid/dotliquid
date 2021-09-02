@@ -591,6 +591,10 @@ namespace DotLiquid.Tests
         [TestCase("6000000.00", "6 000 000,00 €", "fr-FR")]
         [TestCase("99.999", "100,00 €", "es")]
         [TestCase("99.999", "100,00 €", "pt-PT")]
+        [TestCase(7000, "¤7,000.00", "")] // "" = InvariantCulture
+        [TestCase(7000, "¤7,000.00", " ")] // "" = InvariantCulture
+        [TestCase(int.MaxValue, "2 147 483 647,00 €", "fr-FR")]
+        [TestCase(long.MaxValue, "9 223 372 036 854 775 807,00 €", "fr")]
         public void TestEuroCurrencyFromString(object input, string expected, string languageTag)
         {
             _contextV20.CurrentCulture = new CultureInfo("en-US");//_contextV20 is initialised with InvariantCulture, these tests require en-US

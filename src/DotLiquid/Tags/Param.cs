@@ -25,6 +25,7 @@ namespace DotLiquid.Tags
         /// <param name="tagName">Name of the parsed tag</param>
         /// <param name="markup">Markup of the parsed tag</param>
         /// <param name="tokens">Tokens of the parsed tag</param>
+        /// <exception cref="SyntaxException">If parameter format is invalid.</exception>
         public override void Initialize(string tagName, string markup, List<string> tokens)
         {
             var syntaxMatch = Syntax.Match(markup);
@@ -40,7 +41,8 @@ namespace DotLiquid.Tags
         /// <summary>
         /// Apply override parameters to the Context for rendering.
         /// </summary>
-        /// <exception cref="SyntaxException">For unknown parameters or invalid options for a given parameter.</exception>
+        /// <exception cref="SyntaxException">For unknown parameters or invalid options for a known parameter.</exception>
+        /// <exception cref="FilterNotFoundException">If a non-safelisted filter class is encountered.</exception>
         public override void Render(Context context, TextWriter result)
         {
             // Apply the parameter
@@ -63,14 +65,23 @@ namespace DotLiquid.Tags
                         throw new SyntaxException("CultureNotFoundException", value);
                     }
                     break;
-                case "date_format": //ruby|csharp
+                case "dateformat": // CSharp syntax
+                case "date_format": // Ruby syntax
                     context.UseRubyDateFormat = String.Equals("ruby", value, StringComparison.OrdinalIgnoreCase) ? true : false;
                     break;
-                case "syntax": //DotLiquid20|DotLiquid21|DotLiquid22|...
+                case "syntax": // DotLiquid20|DotLiquid21|DotLiquid22|...
                     if (Enum.TryParse<SyntaxCompatibility>(value, out var syntax))
                         context.SyntaxCompatibilityLevel = syntax;
                     else
                         throw new SyntaxException("SyntaxCompatibilityException", value, string.Join(",", System.Enum.GetNames(typeof(SyntaxCompatibility))));
+                    break;
+                case "using": // using additional filters
+                    if (Template.TryGetSafelistedFilter(value, out var filterClassType))
+                        context.AddFilters(new[] { filterClassType });
+                    else
+                        throw new FilterNotFoundException(
+                            message: Liquid.ResourceManager.GetString("FilterClassNotFoundException"),
+                            args: new[] { this.paramValue, string.Join(",", Template.GetSafelistedFilterAliases()) });
                     break;
                 default:
                     throw new SyntaxException("ParamTagSyntaxException", this.paramName);

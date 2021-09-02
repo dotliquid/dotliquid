@@ -22,7 +22,7 @@ namespace DotLiquid.Tests.Tags
         }
 
         [Test]
-        public void TestInitialize()
+        public void TestInitialize_SyntaxValidation()
         {
             var tokens = new List<string>();
             Assert.Throws<SyntaxException>(() => new Param().Initialize(tagName: "param", markup: "", tokens: tokens));
@@ -53,7 +53,7 @@ namespace DotLiquid.Tests.Tags
         public void TestSyntaxCompatibility_InvalidOption()
         {
             Helper.AssertTemplateResult(
-                expected: "Liquid syntax error: The SyntaxCompatibility 'UnknownValue' is invalid, supported options are: DotLiquid20,DotLiquid21,DotLiquid22",
+                expected: "Liquid syntax error: The SyntaxCompatibility 'UnknownValue' is invalid, supported options are: " + string.Join(",", System.Enum.GetNames(typeof(SyntaxCompatibility))),
                 template: "{% param syntax='UnknownValue'%}");
         }
 
@@ -78,22 +78,16 @@ namespace DotLiquid.Tests.Tags
                 localVariables: Hash.FromAnonymousObject(new { sourceDate = "2020-02-03T12:13:14Z" }));
         }
 
-        [TestCase(7000, "", ExpectedResult = "¤7,000.00")] // "" = InvariantCulture
-        [TestCase("7000", "en-US", ExpectedResult = "$7,000.00")]
-        [TestCase(7000, "en-US", ExpectedResult = "$7,000.00")]
-        [TestCase("6,72", "de-DE", ExpectedResult = "6,72 €")]
-        [TestCase(6.72d, "de-DE", ExpectedResult = "6,72 €")]
-        [TestCase(9.999d, "de-DE", ExpectedResult = "10,00 €")]
-        [TestCase("7000.49999", "en-US", ExpectedResult = "$7,000.50")]
-        [TestCase("7000,49999", "fr-FR", ExpectedResult = "7 000,50 €")]
-        [TestCase(int.MaxValue, "fr-FR", ExpectedResult = "2 147 483 647,00 €")]
-        [TestCase(long.MaxValue, "en-GB", ExpectedResult = "£9,223,372,036,854,775,807.00")]
-        public string TestCultures(object @amount, string cultureValue)
+        [Test]
+        public void TestCulture()
         {
-            using (CultureHelper.SetCulture("jp-JP")) // Pre-select a thread culture not required for the tests (jp-JP)
+            using (CultureHelper.SetCulture("en-US")) // Pre-select a thread culture for Before value (jp-JP)
             {
-                return Template.Parse("{% param culture=cultureValue%}{{ amount | currency }}")
-                    .Render(localVariables: Hash.FromAnonymousObject(new { amount = @amount, cultureValue = cultureValue }));
+                Helper.AssertTemplateResult(
+                    expected: "Before=$1,000.50, After=£1,000.50",
+                    template: "Before={{ amount | currency }}{% param culture=cultureValue%}, After={{ amount | currency }}",
+                    localVariables: Hash.FromAnonymousObject(new { amount = 1000.4999d, cultureValue = "en-GB" })
+                );
             }
         }
 
@@ -107,6 +101,32 @@ namespace DotLiquid.Tests.Tags
                     expected: "Liquid syntax error: Culture 'xxx-YYY' is not supported$7,000.00",
                     template: "{% param culture='xxx-YYY'%}{{ 7000 | currency }}"); // Unknown culture
             }
+        }
+
+        [Test]
+        public void TestUsing()
+        {
+            // using param is not included, so verify the value is not hashed.
+            Helper.AssertTemplateResult(
+                expected: @"
+Before: ShopifyIsAwesome!
+After:  c7322e3812d3da7bc621300ca1797517c34f63b6",
+                template: @"
+Before: {{ 'ShopifyIsAwesome!' | sha1 }}
+{%-param using='ShopifyFilters'-%}
+After:  {{ 'ShopifyIsAwesome!' | sha1 }}"
+                // ,localVariables: Hash.FromDictionary(dictionary)
+                );
+        }
+
+        [TestCase("'DotLiquid.ShopifyFilters'")] // Fully qualified class names are invalid (even if they match a safelisted Type)
+        [TestCase("'DotLiquid.Template'")] // Fully qualified class names are invalid
+        [TestCase("'Template'")] // Classes in the DotLiquid namespace are not available by default
+        public void TestUsing_NotSafelisted(string template)
+        {
+            var filter = new Param();
+            filter.Initialize("param", "using=" + template, null);
+            Assert.Throws<FilterNotFoundException>(() => filter.Render(new Context(CultureInfo.InvariantCulture), null));
         }
     }
 }

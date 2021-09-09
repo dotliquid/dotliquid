@@ -83,6 +83,56 @@ namespace DotLiquid.Tests
             }
         }
 
+        private static class FiltersWithMulitpleMethodSignaturesDifferentClassesOne
+        {
+            public static string Concatenate(string one, string two)
+            {
+                return string.Concat(one, two);
+            }
+        }
+
+
+        private static class FilterWithSameMethodSignatureDifferentClassOne
+        {
+            public static string Concatenate(string one, string two)
+            {
+                return string.Concat(one, two, "Class One");
+            }
+        }
+
+        private static class FilterWithSameMethodSignatureDifferentClassTwo
+        {
+            public static string Concatenate(string one, string two)
+            {
+                return string.Concat(one, two, "Class Two");
+            }
+        }
+
+        private static class FiltersWithMulitpleMethodSignaturesDifferentClassesTwo
+        {
+            public static string Concatenate(Context context, string one, string two, string three)
+            {
+                return string.Concat(one, two, three);
+            }
+        }
+
+        private static class FiltersWithMulitpleMethodSignaturesDifferentClassesWithContextParamTwo
+        {
+            public static string ConcatWithContext(Context context, string one, string two, string three)
+            {
+                return string.Concat(one, two, three);
+            }
+        }
+
+        private static class FiltersWithMulitpleMethodSignaturesDifferentClassesWithContextParamOne
+        {
+            public static string ConcatWithContext(Context context, string one, string two)
+            {
+                return string.Concat(one, two);
+            }
+
+        }
+
         private static class ContextFilters
         {
             public static string BankStatement(Context context, object input)
@@ -204,6 +254,36 @@ namespace DotLiquid.Tests
 
             Assert.AreEqual("AB", Template.Parse("{{'A' | concat_with_context : 'B'}}").Render());
             Assert.AreEqual("ABC", Template.Parse("{{'A' | concat_with_context : 'B', 'C'}}").Render());
+        }
+
+        [Test]
+        public void TestFilterWithMultipleMethodSignaturesDifferentClasses()
+        {
+            Template.RegisterFilter(typeof(FiltersWithMulitpleMethodSignaturesDifferentClassesOne));
+            Template.RegisterFilter(typeof(FiltersWithMulitpleMethodSignaturesDifferentClassesTwo));
+
+            Assert.AreEqual("AB", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
+            Assert.AreEqual("ABC", Template.Parse("{{'A' | concatenate : 'B', 'C'}}").Render());
+        }
+
+        [Test]
+        public void TestFilterWithMultipleMethodSignaturesAndContextParamInDifferentClasse()
+        {
+            Template.RegisterFilter(typeof(FiltersWithMulitpleMethodSignaturesDifferentClassesWithContextParamOne));
+            Template.RegisterFilter(typeof(FiltersWithMulitpleMethodSignaturesDifferentClassesWithContextParamTwo));
+
+            Assert.AreEqual("AB", Template.Parse("{{'A' | concat_with_context : 'B'}}").Render());
+            Assert.AreEqual("ABC", Template.Parse("{{'A' | concat_with_context : 'B', 'C'}}").Render());
+        }
+
+        [Test]
+        public void TestFilterOverridesMethodWithSameMethodSignaturesDifferentClasses()
+        {
+            Template.RegisterFilter(typeof(FilterWithSameMethodSignatureDifferentClassOne));
+            Template.RegisterFilter(typeof(FilterWithSameMethodSignatureDifferentClassTwo));
+
+            Assert.AreEqual("ABClass Two", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
+            Assert.AreNotEqual("ABClass One", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
         }
 
         /*/// <summary>

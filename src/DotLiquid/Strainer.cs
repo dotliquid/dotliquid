@@ -15,6 +15,27 @@ namespace DotLiquid
                 return dic[key] = factory();
             return found;
         }
+
+    }
+
+    static class MethodInfoExtensions
+    {
+        public static int GetNonContextParameterCount(this MethodInfo method)
+        {
+            return method.GetParameters().Count(p => p.ParameterType != typeof(Context));
+        }
+
+        public static bool MatchesMethod(this MethodInfo method, KeyValuePair<string, IList<Tuple<object, MethodInfo>>> compareMethod)
+        {
+            string methodName = Template.NamingConvention.GetMemberName(method.Name);
+            if (compareMethod.Key != methodName)
+            {
+                return false;
+            }
+            int methodParamCount = method.GetNonContextParameterCount();
+
+            return compareMethod.Value.Any(m => m.Item2.GetNonContextParameterCount() == methodParamCount);
+        }
     }
 
     /// <summary>
@@ -66,6 +87,7 @@ namespace DotLiquid
             _context = context;
         }
 
+
         /// <summary>
         /// In this C# implementation, we can't use mixins. So we grab all the static
         /// methods from the specified type and use them instead.
@@ -73,18 +95,25 @@ namespace DotLiquid
         /// <param name="type"></param>
         public void Extend(Type type)
         {
-            // From what I can tell, calls to Extend should replace existing filters. So be it.
+            // From what I can tell, calls to Extend should replace existing filters with the same number of params. So be it.
             var methods = type.GetRuntimeMethods().Where(m => m.IsPublic && m.IsStatic);
-            var methodNames = methods.Select(m => Template.NamingConvention.GetMemberName(m.Name));
-
-            foreach (var methodName in methodNames)
-                _methods.Remove(methodName);
+            foreach (var method in methods)
+            {
+                string methodName = Template.NamingConvention.GetMemberName(method.Name);
+                if  (_methods.Any(m => method.MatchesMethod(m)))
+                {
+                    _methods.Remove(methodName);
+                }
+            }
 
             foreach (MethodInfo methodInfo in methods)
             {
                 AddMethodInfo(methodInfo.Name, null, methodInfo);
             } // foreach
         }
+
+
+
 
         public void AddFunction<TIn, TOut>(string rawName, Func<TIn, TOut> func)
         {
@@ -117,7 +146,7 @@ namespace DotLiquid
         {
             // First, try to find a method with the same number of arguments minus context which we set automatically further down.
             var methodInfo = _methods[method].FirstOrDefault(m => 
-                m.Item2.GetParameters().Count(p => p.ParameterType != typeof(Context)) == args.Count);
+                m.Item2.GetNonContextParameterCount() == args.Count);
 
             // If we failed to do so, try one with max numbers of arguments, hoping
             // that those not explicitly specified will be taken care of

@@ -238,6 +238,7 @@ namespace DotLiquid.Tests
             Assert.AreEqual("[1150]", new Variable("var | add_sub: 200, 50").Render(_context));
         }
 
+
         [Test]
         public void TestFilterWithMultipleMethodSignatures()
         {
@@ -247,6 +248,16 @@ namespace DotLiquid.Tests
             Assert.AreEqual("ABC", Template.Parse("{{'A' | concatenate : 'B', 'C'}}").Render());
         }
 
+
+        [Test]
+        public void TestFilterInContextWithMultipleMethodSignatures()
+        {
+            _context.AddFilters(typeof(FiltersWithMultipleMethodSignatures));
+
+            Assert.AreEqual("AB", new Variable("'A' | concatenate : 'B'").Render(_context));
+            Assert.AreEqual("ABC", new Variable("'A' | concatenate : 'B', 'C'").Render(_context));
+        }
+
         [Test]
         public void TestFilterWithMultipleMethodSignaturesAndContextParam()
         {
@@ -254,6 +265,15 @@ namespace DotLiquid.Tests
 
             Assert.AreEqual("AB", Template.Parse("{{'A' | concat_with_context : 'B'}}").Render());
             Assert.AreEqual("ABC", Template.Parse("{{'A' | concat_with_context : 'B', 'C'}}").Render());
+        }
+
+        [Test]
+        public void TestFilterInContextWithMultipleMethodSignaturesAndContextParam()
+        {
+            _context.AddFilters(typeof(FiltersWithMultipleMethodSignaturesAndContextParam));
+
+            Assert.AreEqual("AB", new Variable("'A' | concat_with_context : 'B'").Render(_context));
+            Assert.AreEqual("ABC", new Variable("'A' | concat_with_context : 'B', 'C'").Render(_context));
         }
 
         [Test]
@@ -267,6 +287,16 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        public void TestFilterInContextWithMultipleMethodSignaturesDifferentClasses()
+        {
+            _context.AddFilters(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesOne));
+            _context.AddFilters(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesTwo));
+
+            Assert.AreEqual("AB", new Variable("'A' | concatenate : 'B'").Render(_context));
+            Assert.AreEqual("ABC", new Variable("'A' | concatenate : 'B', 'C'").Render(_context));
+        }
+
+        [Test]
         public void TestFilterWithMultipleMethodSignaturesAndContextParamInDifferentClasse()
         {
             Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamOne));
@@ -274,6 +304,17 @@ namespace DotLiquid.Tests
 
             Assert.AreEqual("AB", Template.Parse("{{'A' | concat_with_context : 'B'}}").Render());
             Assert.AreEqual("ABC", Template.Parse("{{'A' | concat_with_context : 'B', 'C'}}").Render());
+        }
+
+
+        [Test]
+        public void TestFilterInContextWithMultipleMethodSignaturesAndContextParamInDifferentClasse()
+        {
+            _context.AddFilters(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamOne));
+            _context.AddFilters(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamTwo));
+
+            Assert.AreEqual("AB", new Variable("'A' | concat_with_context : 'B'").Render(_context));
+            Assert.AreEqual("ABC", new Variable("'A' | concat_with_context : 'B', 'C'").Render(_context));
         }
 
         [Test]
@@ -284,6 +325,16 @@ namespace DotLiquid.Tests
 
             Assert.AreEqual("ABClass Two", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
             Assert.AreNotEqual("ABClass One", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
+        }
+
+        [Test]
+        public void TestFilterInContextOverridesMethodWithSameMethodSignaturesDifferentClasses()
+        {
+            _context.AddFilters(typeof(FilterWithSameMethodSignatureDifferentClassOne));
+            _context.AddFilters(typeof(FilterWithSameMethodSignatureDifferentClassTwo));
+
+            Assert.AreEqual("ABClass Two", new Variable("'A' | concatenate : 'B'").Render(_context));
+            Assert.AreNotEqual("ABClass One", new Variable("'A' | concatenate : 'B'").Render(_context));
         }
 
         /*/// <summary>

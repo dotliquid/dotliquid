@@ -57,7 +57,7 @@ namespace DotLiquid.Tests
             }
         }
 
-        private static class FiltersWithMulitpleMethodSignatures
+        private static class FiltersWithMultipleMethodSignatures
         {
             public static string Concatenate(string one, string two)
             {
@@ -83,7 +83,7 @@ namespace DotLiquid.Tests
             }
         }
 
-        private static class FiltersWithMulitpleMethodSignaturesDifferentClassesOne
+        private static class FiltersWithMultipleMethodSignaturesDifferentClassesOne
         {
             public static string Concatenate(string one, string two)
             {
@@ -108,7 +108,7 @@ namespace DotLiquid.Tests
             }
         }
 
-        private static class FiltersWithMulitpleMethodSignaturesDifferentClassesTwo
+        private static class FiltersWithMultipleMethodSignaturesDifferentClassesTwo
         {
             public static string Concatenate(Context context, string one, string two, string three)
             {
@@ -116,7 +116,7 @@ namespace DotLiquid.Tests
             }
         }
 
-        private static class FiltersWithMulitpleMethodSignaturesDifferentClassesWithContextParamTwo
+        private static class FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamTwo
         {
             public static string ConcatWithContext(Context context, string one, string two, string three)
             {
@@ -124,7 +124,7 @@ namespace DotLiquid.Tests
             }
         }
 
-        private static class FiltersWithMulitpleMethodSignaturesDifferentClassesWithContextParamOne
+        private static class FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamOne
         {
             public static string ConcatWithContext(Context context, string one, string two)
             {
@@ -241,7 +241,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestFilterWithMultipleMethodSignatures()
         {
-            Template.RegisterFilter(typeof(FiltersWithMulitpleMethodSignatures));
+            Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignatures));
 
             Assert.AreEqual("AB", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
             Assert.AreEqual("ABC", Template.Parse("{{'A' | concatenate : 'B', 'C'}}").Render());
@@ -259,8 +259,8 @@ namespace DotLiquid.Tests
         [Test]
         public void TestFilterWithMultipleMethodSignaturesDifferentClasses()
         {
-            Template.RegisterFilter(typeof(FiltersWithMulitpleMethodSignaturesDifferentClassesOne));
-            Template.RegisterFilter(typeof(FiltersWithMulitpleMethodSignaturesDifferentClassesTwo));
+            Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesOne));
+            Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesTwo));
 
             Assert.AreEqual("AB", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
             Assert.AreEqual("ABC", Template.Parse("{{'A' | concatenate : 'B', 'C'}}").Render());
@@ -269,8 +269,8 @@ namespace DotLiquid.Tests
         [Test]
         public void TestFilterWithMultipleMethodSignaturesAndContextParamInDifferentClasse()
         {
-            Template.RegisterFilter(typeof(FiltersWithMulitpleMethodSignaturesDifferentClassesWithContextParamOne));
-            Template.RegisterFilter(typeof(FiltersWithMulitpleMethodSignaturesDifferentClassesWithContextParamTwo));
+            Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamOne));
+            Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamTwo));
 
             Assert.AreEqual("AB", Template.Parse("{{'A' | concat_with_context : 'B'}}").Render());
             Assert.AreEqual("ABC", Template.Parse("{{'A' | concat_with_context : 'B', 'C'}}").Render());

@@ -297,7 +297,19 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestFilterWithMultipleMethodSignaturesAndContextParamInDifferentClasse()
+        public void TestFilterAsLocalFilterWithMultipleMethodSignaturesDifferentClasses()
+        {
+
+            Helper.AssertTemplateResult(
+                expected: "AB // ABC",
+                template: "{{'A' | concatenate : 'B'}} // {{'A' | concatenate : 'B', 'C'}}",
+                localVariables: null,
+                localFilters: new[] { typeof(FiltersWithMultipleMethodSignaturesDifferentClassesOne), typeof(FiltersWithMultipleMethodSignaturesDifferentClassesTwo) });
+        }
+
+
+        [Test]
+        public void TestFilterWithMultipleMethodSignaturesAndContextParamInDifferentClasses()
         {
             Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamOne));
             Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamTwo));
@@ -306,9 +318,20 @@ namespace DotLiquid.Tests
             Assert.AreEqual("ABC", Template.Parse("{{'A' | concat_with_context : 'B', 'C'}}").Render());
         }
 
+        [Test]
+        public void TestFilterAsLocalFilterWithMultipleMethodSignaturesAndContextDifferentClasses()
+        {
+
+            Helper.AssertTemplateResult(
+                expected: "AB // ABC",
+                template: "{{'A' | concat_with_context : 'B'}} // {{'A' | concat_with_context : 'B', 'C'}}",
+                localVariables: null,
+                localFilters: new[] { typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamOne), typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamTwo) });
+        }
+
 
         [Test]
-        public void TestFilterInContextWithMultipleMethodSignaturesAndContextParamInDifferentClasse()
+        public void TestFilterInContextWithMultipleMethodSignaturesAndContextParamInDifferentClasses()
         {
             _context.AddFilters(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamOne));
             _context.AddFilters(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamTwo));
@@ -336,6 +359,18 @@ namespace DotLiquid.Tests
             Assert.AreEqual("ABClass Two", new Variable("'A' | concatenate : 'B'").Render(_context));
             Assert.AreNotEqual("ABClass One", new Variable("'A' | concatenate : 'B'").Render(_context));
         }
+
+
+        [Test]
+        public void TestFilterAsLocalOverridesMethodWithSameMethodSignaturesDifferentClasses()
+        {
+            Helper.AssertTemplateResult(
+                           expected: "ABClass Two",
+                           template: "{{'A' | concatenate : 'B'}}",
+                           localVariables: null,
+                           localFilters: new[] { typeof(FilterWithSameMethodSignatureDifferentClassOne), typeof(FilterWithSameMethodSignatureDifferentClassTwo) });
+        }
+
 
         /*/// <summary>
         /// ATM the trailing value is silently ignored. Should raise an exception?

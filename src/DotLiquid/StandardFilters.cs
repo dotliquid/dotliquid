@@ -659,7 +659,17 @@ namespace DotLiquid
                 }
                 else if (!DateTimeOffset.TryParse(value, out dateTimeOffset))
                 {
-                    return value;
+                    // As a final role of the dice, check if the string holds an integer that can be treated as a UNIX timestamp
+                    if (!long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var timestamp))
+                    {
+                        return value;
+                    }
+
+                    // Integers from -62_135_596_800 (01-Jan-0000) through +62_135_596_800 (31-Dec-3938) are treated as seconds,
+                    // anything outside this range is treated as milliseconds
+                    dateTimeOffset = (Math.Abs(timestamp) < 62_135_596_800 ?
+                        DateTimeOffset.FromUnixTimeSeconds(timestamp) :
+                        DateTimeOffset.FromUnixTimeMilliseconds(timestamp)).ToLocalTime();
                 }
             }
 

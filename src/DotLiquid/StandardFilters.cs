@@ -665,9 +665,9 @@ namespace DotLiquid
                         return value;
                     }
 
-                    // Integers from -62_135_596_800 (01-Jan-0000) through +62_135_596_800 (31-Dec-3938) are treated as seconds,
+                    // Integers from -62_135_596_800 (01-Jan-0000) through +62_135_596_800 (01-Jan-3939) are treated as seconds,
                     // anything outside this range is treated as milliseconds
-                    dateTimeOffset = (Math.Abs(timestamp) < 62_135_596_800 ?
+                    dateTimeOffset = (Math.Abs(timestamp) <= 62_135_596_800 ?
                         DateTimeOffset.FromUnixTimeSeconds(timestamp) :
                         DateTimeOffset.FromUnixTimeMilliseconds(timestamp)).ToLocalTime();
                 }

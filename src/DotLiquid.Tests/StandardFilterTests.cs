@@ -753,9 +753,9 @@ namespace DotLiquid.Tests
         [TestCase("978307200", "2001-01-01T12:00:00+00:00")] // seconds, the millennium
         [TestCase("2147483648", "2038-01-19T03:14:08+00:00")] // seconds, Int32.MaxValue (32-bit overflow)
         [TestCase("-2147483648", "1901-12-13T08:45:52+00:00")] // seconds, Int32.MinValue (32-bit overflow)
-        [TestCase("62135596799", "3938-12-31T11:59:59+00:00")] // seconds, longest int interpreted as seconds (31-Dec-3938)
-        [TestCase("-62135596799", "0001-01-01T12:00:01+00:00")] // seconds, lowest value interpreted as seconds (01-Jan-0000)
-        [TestCase("62135596800", "1971-12-21T03:53:16+00:00")] // milliseconds, shortest int interpreted as milliseconds
+        [TestCase("62135596800", "3939-01-01T12:00:00+00:00")] // seconds, longest int interpreted as seconds (31-Dec-3938)
+        [TestCase("-62135596800", "0001-01-01T12:00:00+00:00")] // seconds, lowest value interpreted as seconds (01-Jan-0000)
+        [TestCase("62135596801", "1971-12-21T03:53:16+00:00")] // milliseconds, shortest int interpreted as milliseconds
         [TestCase("1582967411000", "2020-02-29T09:10:11+00:00")] // milliseconds, leap day in 2020
         [TestCase("1.0", "1.0")] // decimals are ignored
         [TestCase("1,000", "1,000")] // currency or number with separators are ignored.

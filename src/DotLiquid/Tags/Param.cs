@@ -15,7 +15,17 @@ namespace DotLiquid.Tags
     {
         private static readonly Regex Syntax = R.B(R.Q(@"([\w\-]+)\s*=\s*(.+)\s*"));
 
-        private string paramName;
+        private delegate void ParamDelegate(Context context, string value);
+
+        private static readonly Dictionary<string, ParamDelegate> Params = new Dictionary<string, ParamDelegate>()
+        {
+            { "culture",     (context, value) => SetCulture(context, value) },
+            { "dateformat",  (context, value) => SetDateFormat(context, value) },
+            { "syntax",      (context, value) => SetSyntax( context, value) },
+            { "using",       (context, value) => AddUsing( context, value) }
+        };
+
+        private ParamDelegate param;
 
         private string paramValue;
 
@@ -32,7 +42,13 @@ namespace DotLiquid.Tags
             if (!syntaxMatch.Success)
                 throw new SyntaxException("Invalid markup format for tag Param: " + markup);
 
-            this.paramName = syntaxMatch.Groups[1].Value;
+            // Ensure the markup refers to a valid param (discard underscore to support both Ruby and C# naming)
+            var paramName = syntaxMatch.Groups[1].Value.Replace("_", "").ToLower();
+            if (!Params.ContainsKey(paramName))
+                throw new SyntaxException("ParamTagSyntaxException", syntaxMatch.Groups[1].Value, Params.Keys.ToString());
+            this.param = Params[paramName];
+
+            // Make a copy of the value, which could be a variable or literal.
             this.paramValue = syntaxMatch.Groups[2].Value;
 
             base.Initialize(tagName: tagName, markup: markup, tokens: tokens);
@@ -43,49 +59,54 @@ namespace DotLiquid.Tags
         /// </summary>
         /// <exception cref="SyntaxException">For unknown parameters or invalid options for a known parameter.</exception>
         /// <exception cref="FilterNotFoundException">If a non-safelisted filter class is encountered.</exception>
-        public override void Render(Context context, TextWriter result)
+        public override void Render(Context context, TextWriter _)
         {
             // Apply the parameter
-            var value = context[this.paramValue].ToString();
-            switch (this.paramName.ToLower())
+            param(context, context[this.paramValue].ToString());
+        }
+
+        private static void SetDateFormat(Context context, string value)
+        {
+            // Ruby or .NET date formats
+            if (!"ruby".Equals(value, StringComparison.OrdinalIgnoreCase) && !"dotnet".Equals(value, StringComparison.OrdinalIgnoreCase))
+                throw new SyntaxException("ParamOptionSyntaxException", "date_format", value, "dotnet, ruby");
+
+            context.UseRubyDateFormat = String.Equals("dotnet", value, StringComparison.OrdinalIgnoreCase) ? false : true;
+        }
+
+        private static void SetCulture(Context context, string value)
+        {
+            if (value.IsNullOrWhiteSpace())
+                value = String.Empty; // String.Empty will ensure the InvariantCulture is returned
+            try
             {
-                case "culture": // value should be a language tag, such as en-US, en-GB or fr-FR
-                    if (value.IsNullOrWhiteSpace())
-                        value = String.Empty; // String.Empty will ensure the InvariantCulture is returned
-                    try
-                    {
 #if CORE
-                        context.CurrentCulture = new CultureInfo(value);
+                context.CurrentCulture = new CultureInfo(value);
 #else
-                        context.CurrentCulture = CultureInfo.GetCultureInfo(value);
+                context.CurrentCulture = CultureInfo.GetCultureInfo(value);
 #endif
-                    }
-                    catch (CultureNotFoundException exception)
-                    {
-                        throw new SyntaxException("CultureNotFoundException", value);
-                    }
-                    break;
-                case "dateformat": // CSharp syntax
-                case "date_format": // Ruby syntax
-                    context.UseRubyDateFormat = String.Equals("ruby", value, StringComparison.OrdinalIgnoreCase) ? true : false;
-                    break;
-                case "syntax": // DotLiquid20|DotLiquid21|DotLiquid22|...
-                    if (Enum.TryParse<SyntaxCompatibility>(value, out var syntax))
-                        context.SyntaxCompatibilityLevel = syntax;
-                    else
-                        throw new SyntaxException("SyntaxCompatibilityException", value, string.Join(",", System.Enum.GetNames(typeof(SyntaxCompatibility))));
-                    break;
-                case "using": // using additional filters
-                    if (Template.TryGetSafelistedFilter(value, out var filterClassType))
-                        context.AddFilters(new[] { filterClassType });
-                    else
-                        throw new FilterNotFoundException(
-                            message: Liquid.ResourceManager.GetString("FilterClassNotFoundException"),
-                            args: new[] { this.paramValue, string.Join(",", Template.GetSafelistedFilterAliases()) });
-                    break;
-                default:
-                    throw new SyntaxException("ParamTagSyntaxException", this.paramName);
             }
+            catch (CultureNotFoundException exception)
+            {
+                throw new SyntaxException("CultureNotFoundException", value);
+            }
+        }
+
+        private static void SetSyntax(Context context, string value)
+        {
+            // DotLiquid20|DotLiquid21|DotLiquid22|...
+            if (Enum.TryParse<SyntaxCompatibility>(value, out var syntax))
+                context.SyntaxCompatibilityLevel = syntax;
+            else
+                throw new SyntaxException("ParamOptionSyntaxException", "syntax", value, string.Join(",", System.Enum.GetNames(typeof(SyntaxCompatibility))));
+        }
+
+        private static void AddUsing(Context context, string value)
+        {
+            if (Template.TryGetSafelistedFilter(value, out var filterClassType))
+                context.AddFilters(new[] { filterClassType });
+            else
+                throw new SyntaxException("ParamOptionSyntaxException", "using", value, string.Join(",", string.Join(",", Template.GetSafelistedFilterAliases())));
         }
     }
 }

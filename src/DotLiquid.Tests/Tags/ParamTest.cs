@@ -10,17 +10,6 @@ namespace DotLiquid.Tests.Tags
     [TestFixture]
     public class ParamTests
     {
-        private Context _contextV20;
-
-        [OneTimeSetUp]
-        public void SetUp()
-        {
-            _contextV20 = new Context(new CultureInfo("jp-JP")) // Pre-select a langauge not required for any tests (jp-JP)
-            {
-                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20
-            };
-        }
-
         [Test]
         public void TestInitialize_SyntaxValidation()
         {
@@ -29,14 +18,21 @@ namespace DotLiquid.Tests.Tags
             Assert.Throws<SyntaxException>(() => new Param().Initialize(tagName: "param", markup: "   ", tokens: tokens));
             Assert.Throws<SyntaxException>(() => new Param().Initialize(tagName: "param", markup: "date_format", tokens: tokens));
             Assert.Throws<SyntaxException>(() => new Param().Initialize(tagName: "param", markup: "date_format=", tokens: tokens));
+            Assert.Throws<SyntaxException>(() => new Param().Initialize(tagName: "param", markup: "useDotNet='true'", tokens: tokens));
         }
 
-        [Test]
-        public void TestInvalidOptions()
+        [TestCase("date_format='unknown'")] // unknown is not a valid date_format
+        [TestCase("syntax='UnknownValue'")] // UnknownValue is not a valid syntax version
+        [TestCase("using='DotLiquid.ShopifyFilters'")] // Fully qualified class names are invalid (even if they match a safelisted Type)
+        [TestCase("using='DotLiquid.Template'")] // Fully qualified class names are invalid
+        [TestCase("using='Template'")] // Ensure classes in the DotLiquid namespace are not available by accident.
+        public void TestInvalidOptions(string markup)
         {
-            Helper.AssertTemplateResult(
-                expected: "Liquid syntax error: An unsupported parameter was passed to the Param tag: 'useCSharp'",
-                template: "{% param useCSharp='true'%}{{ test }}");
+            var tag = new Param();
+            tag.Initialize(tagName: "param", markup: markup, tokens: null);
+
+            var context = new Context(new CultureInfo("en-US"));
+            Assert.Throws<SyntaxException>(() => tag.Render(context, new StringWriter()));
         }
 
         [Test]
@@ -50,31 +46,11 @@ namespace DotLiquid.Tests.Tags
         }
 
         [Test]
-        public void TestSyntaxCompatibility_InvalidOption()
+        public void TestDateFormats()
         {
             Helper.AssertTemplateResult(
-                expected: "Liquid syntax error: The SyntaxCompatibility 'UnknownValue' is invalid, supported options are: " + string.Join(",", System.Enum.GetNames(typeof(SyntaxCompatibility))),
-                template: "{% param syntax='UnknownValue'%}");
-        }
-
-        [TestCase("date_format='ruby'", ExpectedResult = true)]
-        [TestCase("date_format = 'cSharp'", ExpectedResult = false)]
-        [TestCase("date_format='unknown'", ExpectedResult = false)]
-        [TestCase("date_format=' '", ExpectedResult = false)]
-        public bool TestDateFormat(string markup)
-        {
-            var param = new Param();
-            param.Initialize(tagName: "param", markup: markup, tokens: null);
-            param.Render(_contextV20, new StringWriter());
-            return _contextV20.UseRubyDateFormat;
-        }
-
-        [Test]
-        public void TestRubyDates()
-        {
-            Helper.AssertTemplateResult(
-                expected: "C#=2020, Ruby=2020, C#=2020",
-                template: "C#={{sourceDate | date: 'yyyy'}}{%param date_format='ruBy'%}, Ruby={{sourceDate | date: '%Y'}}{%param DATE_FORMAT='csharp'%}, C#={{sourceDate | date: 'yyyy'}}",
+                expected: ".NET=2020, Ruby=2020, .NET=2020",
+                template: ".NET={{sourceDate | date: 'yyyy'}}{%param date_format='ruBy'%}, Ruby={{sourceDate | date: '%Y'}}{%param DATEFORMAT = 'dotnet'%}, .NET={{sourceDate | date: 'yyyy'}}",
                 localVariables: Hash.FromAnonymousObject(new { sourceDate = "2020-02-03T12:13:14Z" }));
         }
 
@@ -121,18 +97,7 @@ After:  c7322e3812d3da7bc621300ca1797517c34f63b6",
 Before: {{ 'ShopifyIsAwesome!' | sha1 }}
 {%-param using='ShopifyFilters'-%}
 After:  {{ 'ShopifyIsAwesome!' | sha1 }}"
-                // ,localVariables: Hash.FromDictionary(dictionary)
                 );
-        }
-
-        [TestCase("'DotLiquid.ShopifyFilters'")] // Fully qualified class names are invalid (even if they match a safelisted Type)
-        [TestCase("'DotLiquid.Template'")] // Fully qualified class names are invalid
-        [TestCase("'Template'")] // Classes in the DotLiquid namespace are not available by default
-        public void TestUsing_NotSafelisted(string template)
-        {
-            var filter = new Param();
-            filter.Initialize("param", "using=" + template, null);
-            Assert.Throws<FilterNotFoundException>(() => filter.Render(new Context(CultureInfo.InvariantCulture), null));
         }
     }
 }

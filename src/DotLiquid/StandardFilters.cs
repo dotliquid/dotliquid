@@ -651,10 +651,11 @@ namespace DotLiquid
             }
             else if (input is string stringInput && long.TryParse(stringInput, NumberStyles.Integer, CultureInfo.InvariantCulture, out var unixTimestamp))
             {
-                // If the timestamp is outside the range of the DateTimeOffset.FromUnixTimeSeconds() method, treat it as milliseconds
-                if (unixTimestamp < 62_135_596_800 || unixTimestamp > 253_402_300_799)
+                // If the timestamp is outside the range of the DateTimeOffset.FromUnixTimeSeconds() method, treat it as seconds
+                if (unixTimestamp < -62_135_596_800 || unixTimestamp > 253_402_300_799)
                     dateTimeOffset = DateTimeOffset.FromUnixTimeMilliseconds(unixTimestamp).ToLocalTime();
                 else
+                    dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(unixTimestamp).ToLocalTime();
             }
             else
             {

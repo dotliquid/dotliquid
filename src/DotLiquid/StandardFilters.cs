@@ -637,25 +637,21 @@ namespace DotLiquid
                 return input.ToString();
 
             DateTimeOffset dateTimeOffset;
+            long timestamp = 0L;
             if (input is DateTimeOffset inputOffset)
             {
                 dateTimeOffset = inputOffset;
             }
-            else if ((input is decimal) || (input is double) || (input is float) || (input is int) || (input is uint) || (input is long) || (input is ulong) || (input is short) || (input is ushort))
+            else if ((input is decimal) || (input is double) || (input is float) || (input is int) || (input is uint) || (input is long) || (input is ulong) || (input is short) || (input is ushort)
+                || (input is string stringInput && long.TryParse(stringInput, NumberStyles.Integer, CultureInfo.InvariantCulture, out timestamp)))
             {
-#if CORE
-                dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(input)).ToLocalTime();
-#else
-                dateTimeOffset = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(Convert.ToDouble(input)).ToLocalTime();
-#endif
-            }
-            else if (input is string stringInput && long.TryParse(stringInput, NumberStyles.Integer, CultureInfo.InvariantCulture, out var unixTimestamp))
-            {
-                // If the timestamp is outside the range of the DateTimeOffset.FromUnixTimeSeconds() method, treat it as seconds
-                if (unixTimestamp < -62_135_596_800 || unixTimestamp > 253_402_300_799)
-                    dateTimeOffset = DateTimeOffset.FromUnixTimeMilliseconds(unixTimestamp).ToLocalTime();
-                else
-                    dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(unixTimestamp).ToLocalTime();
+                // If input is a string timestamp we already have a long value, if not convert
+                timestamp = input is string ? timestamp : Convert.ToInt64(input);
+
+                // If the timestamp is outside the range supported by the DateTimeOffset.FromUnixTimeSeconds() method, treat it as milliseconds
+                dateTimeOffset = (timestamp < -62_135_596_800 || timestamp > 253_402_300_799 ?
+                    DateTimeOffset.FromUnixTimeMilliseconds(timestamp) :
+                    DateTimeOffset.FromUnixTimeSeconds(timestamp)).ToLocalTime();
             }
             else
             {

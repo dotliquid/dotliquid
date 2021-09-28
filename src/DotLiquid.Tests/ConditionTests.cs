@@ -379,26 +379,26 @@ namespace DotLiquid.Tests
         public void TestOrCondition()
         {
             Condition condition = new Condition("1", "==", "2");
-            Assert.IsFalse(condition.Evaluate(null,CultureInfo.InvariantCulture));
+            Assert.IsFalse(condition.Evaluate(null, CultureInfo.InvariantCulture));
 
             condition.Or(new Condition("2", "==", "1"));
-            Assert.IsFalse(condition.Evaluate(null,CultureInfo.InvariantCulture));
+            Assert.IsFalse(condition.Evaluate(null, CultureInfo.InvariantCulture));
 
             condition.Or(new Condition("1", "==", "1"));
-            Assert.IsTrue(condition.Evaluate(null,CultureInfo.InvariantCulture));
+            Assert.IsTrue(condition.Evaluate(null, CultureInfo.InvariantCulture));
         }
 
         [Test]
         public void TestAndCondition()
         {
             Condition condition = new Condition("1", "==", "1");
-            Assert.IsTrue(condition.Evaluate(null,CultureInfo.InvariantCulture));
+            Assert.IsTrue(condition.Evaluate(null, CultureInfo.InvariantCulture));
 
             condition.And(new Condition("2", "==", "2"));
-            Assert.IsTrue(condition.Evaluate(null,CultureInfo.InvariantCulture));
+            Assert.IsTrue(condition.Evaluate(null, CultureInfo.InvariantCulture));
 
             condition.And(new Condition("2", "==", "1"));
-            Assert.IsFalse(condition.Evaluate(null,CultureInfo.InvariantCulture));
+            Assert.IsFalse(condition.Evaluate(null, CultureInfo.InvariantCulture));
         }
 
         [Test]
@@ -680,6 +680,20 @@ namespace DotLiquid.Tests
             Helper.AssertTemplateResult("Liquid error: Unknown operator starts_with", "{% if 'bob' starts_with 'B' %} YES {% endif %}", null, new CSharpNamingConvention());
         }
 
+        private enum TestEnum { Yes, No }
+
+        [Test]
+        public void TestEqualOperatorsWorksOnEnum()
+        {
+            _context = new Context(CultureInfo.InvariantCulture);
+            _context["enum"] = TestEnum.Yes;
+
+            AssertEvaluatesTrue("enum", "==", "'Yes'");
+            AssertEvaluatesTrue("enum", "!=", "'No'");
+
+            AssertEvaluatesFalse("enum", "==", "'No'");
+            AssertEvaluatesFalse("enum", "!=", "'Yes'");
+        }
 
         #region Helper methods
 

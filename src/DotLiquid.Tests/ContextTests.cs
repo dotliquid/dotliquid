@@ -233,6 +233,20 @@ namespace DotLiquid.Tests
             Assert.AreEqual(null, _context["nil"]);
         }
 
+        private enum TestEnum { Yes, No }
+
+        [Test]
+        public void TestGetVariable_Enum()
+        {
+            _context["yes"] = TestEnum.Yes;
+            _context["no"] = TestEnum.No;
+            _context["not_enum"] = TestEnum.Yes.ToString();
+
+            Assert.AreEqual(TestEnum.Yes, _context["yes"]);
+            Assert.AreEqual(TestEnum.No, _context["no"]);
+            Assert.AreNotEqual(TestEnum.Yes, _context["not_enum"]);
+        }
+
         [Test]
         public void TestVariablesNotExisting()
         {
@@ -373,7 +387,7 @@ namespace DotLiquid.Tests
             context = new Context(CultureInfo.InvariantCulture) { SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20 };
             Assert.AreEqual("hi?", context.Invoke("hi", new List<object> { "hi?" }));
             context.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22;
-            Assert.Throws<FilterNotFoundException>(() => context.Invoke("hi", new List<object> { "hi?" })); 
+            Assert.Throws<FilterNotFoundException>(() => context.Invoke("hi", new List<object> { "hi?" }));
         }
 
         [Test]
@@ -495,22 +509,25 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestTryFirst()
+        public void TestFirstLastSize()
         {
             _context["test"] = new[] { 1, 2, 3, 4, 5 };
 
             Assert.AreEqual(1, _context["test.first"]);
             Assert.AreEqual(5, _context["test.last"]);
+            Assert.AreEqual(5, _context["test.size"]);
 
             _context["test"] = new { test = new[] { 1, 2, 3, 4, 5 } };
 
             Assert.AreEqual(1, _context["test.test.first"]);
             Assert.AreEqual(5, _context["test.test.last"]);
+            Assert.AreEqual(5, _context["test.test.size"]);
 
             _context["test"] = new[] { 1 };
 
             Assert.AreEqual(1, _context["test.first"]);
             Assert.AreEqual(1, _context["test.last"]);
+            Assert.AreEqual(1, _context["test.size"]);
         }
 
         [Test]
@@ -522,6 +539,8 @@ namespace DotLiquid.Tests
             Assert.AreEqual(5, _context["products[\"count\"]"]);
             Assert.AreEqual("deepsnow", _context["products['tags'][0]"]);
             Assert.AreEqual("deepsnow", _context["products['tags'].first"]);
+            Assert.AreEqual("freestyle", _context["products['tags'].last"]);
+            Assert.AreEqual(2, _context["products['tags'].size"]);
             Assert.AreEqual("draft151cm", _context["product['variants'][0][\"title\"]"]);
             Assert.AreEqual("element151cm", _context["product['variants'][1]['title']"]);
             Assert.AreEqual("draft151cm", _context["product['variants'][0]['title']"]);

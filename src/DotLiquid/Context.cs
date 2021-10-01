@@ -39,16 +39,19 @@ namespace DotLiquid
         public bool UseRubyDateFormat { get; set; }
 
         /// <summary>
-        /// Returns the CurrentCulture specified for this Context
+        /// Returns the CurrentCulture specified for this Context.
         /// </summary>
-        /// <exception cref="NotSupportedException">If the FormatProvider does not implement CultureInfo</exception>
+        /// <remarks>
+        /// **WARNING**: If the context was created with an IFormatProvider that is not also
+        /// a CultureInfo it is replaced with the current threads CurrentCulture.
+        /// </remarks>
         public CultureInfo CurrentCulture
         {
             get
             {
                 return this.FormatProvider is CultureInfo cultureInfo
                     ? cultureInfo
-                    : throw new NotSupportedException("FormatProvider is not an instance of CultureInfo");
+                    : CultureInfo.CurrentCulture;
             }
             set
             {
@@ -94,7 +97,7 @@ namespace DotLiquid
         /// <param name="errorsOutputMode"></param>
         /// <param name="maxIterations"></param>
         /// <param name="timeout"></param>
-        /// <param name="formatProvider"></param>
+        /// <param name="formatProvider">A CultureInfo instance that will be used to parse filter input and format filter output</param>
         [Obsolete("The method with timeout argument is deprecated. Please use the one with CancellationToken.")]
         public Context
             (List<Hash> environments
@@ -118,7 +121,7 @@ namespace DotLiquid
         /// <param name="registers"></param>
         /// <param name="errorsOutputMode"></param>
         /// <param name="maxIterations"></param>
-        /// <param name="formatProvider"></param>
+        /// <param name="formatProvider">A CultureInfo instance that will be used to parse filter input and format filter output</param>
         /// <param name="cancellationToken"></param>
         public Context
             (List<Hash> environments
@@ -151,6 +154,7 @@ namespace DotLiquid
         /// <summary>
         /// Creates a new rendering context
         /// </summary>
+        /// <param name="formatProvider">A CultureInfo instance that will be used to parse filter input and format filter output</param>
         public Context(IFormatProvider formatProvider)
             : this(new List<Hash>(), new Hash(), new Hash(), ErrorsOutputMode.Display, 0, 0, formatProvider)
         {

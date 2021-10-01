@@ -1003,14 +1003,21 @@ namespace DotLiquid.Tests
             Assert.AreEqual("jp-JP", context.CurrentCulture.Name);
         }
 
+        /// <summary>
+        /// The expectation is that a Context is created with a CultureInfo, however,
+        /// the parameter is defined as an IFormatProvider so this is not enforced by
+        /// the compiler.
+        /// </summary>
+        /// <remarks>
+        /// This test verifies that a CultureInfo is returned by Context.CultureInfo even
+        /// if Context was created with a non-CultureInfo
+        /// </remarks>
         [Test]
-        public void TestCurrentCulture_NotSupportedException()
+        public void TestCurrentCulture_NotACultureInfo()
         {
-            _context.CurrentCulture = null;
-            Assert.Throws<NotSupportedException>(() =>
-            {
-                _context.CurrentCulture.ToString();
-            });
+            // Create context with an IFormatProvider that is not a CultureInfo
+            Context context = new Context(CultureInfo.CurrentCulture.NumberFormat);
+            Assert.AreSame(CultureInfo.CurrentCulture, context.CurrentCulture);
         }
     }
 }

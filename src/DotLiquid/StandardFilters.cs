@@ -315,14 +315,11 @@ namespace DotLiquid
         /// <param name="context">default source of culture information</param>
         /// <param name="input">value to be parsed and formatted as a Currency</param>
         /// <param name="languageTag">optional override language for rendering, for example 'fr-FR'</param>
-        /// <seealso href="https://shopify.dev/api/liquid/filters/money-filters#money" >Shopify Money filter</seealso>
+        /// <seealso href="https://shopify.dev/api/liquid/filters/money-filters#money">Shopify Money filter</seealso>
         public static string Currency(Context context, object input, string languageTag = null)
         {
-            var culture = context.CurrentCulture;
-            if (languageTag != null) //Allow an empty string, which represent the InvariantCulture
-            {
-                culture = new CultureInfo(languageTag.Trim());
-            }
+            // Check for null only, allow an empty string as it represent the InvariantCulture
+            var culture = languageTag == null ? context.CurrentCulture : new CultureInfo(languageTag.Trim());
 
             // Attempt to convert to a currency using the context current culture.
             if (IsReal(input))

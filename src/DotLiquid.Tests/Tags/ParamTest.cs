@@ -38,7 +38,7 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestSyntaxCompatibility()
         {
-            // Initialise as DotLiquid20, then assert that the DotLiquid21 rules for Capitalize are followed.
+            // Initialize as DotLiquid20, then assert that the DotLiquid21 rules for Capitalize are followed.
             Helper.AssertTemplateResult(
                 expected: "My great title",
                 template: "{% param Syntax= 'DotLiquid21'%}{{ 'my great title' | capitalize }}",

@@ -577,7 +577,16 @@ namespace DotLiquid.Tests
         [TestCase("6.8458", "$6.85")]
         public void TestAmericanCurrencyFromString(string input, string expected)
         {
-            _contextV20.CurrentCulture = new CultureInfo("en-US");//_contextV20 is initialised with InvariantCulture, these tests require en-US
+            // Set the thread culture and test for backward compatibility
+            using (CultureHelper.SetCulture("en-US"))
+            {
+                Helper.AssertTemplateResult(
+                    expected: expected,
+                    template: "{{ input | currency }}",
+                    localVariables: Hash.FromAnonymousObject(new { input = input }));
+            }
+
+            _contextV20.CurrentCulture = new CultureInfo("en-US"); // _contextV20 is initialized with InvariantCulture, these tests require en-US
             Assert.AreEqual(expected, StandardFilters.Currency(context: _contextV20, input: input));
         }
 
@@ -597,14 +606,31 @@ namespace DotLiquid.Tests
         [TestCase(long.MaxValue, "9 223 372 036 854 775 807,00 €", "fr")]
         public void TestEuroCurrencyFromString(object input, string expected, string languageTag)
         {
-            _contextV20.CurrentCulture = new CultureInfo("en-US");//_contextV20 is initialised with InvariantCulture, these tests require en-US
+            // Set the thread culture and test for backward compatibility
+            using (CultureHelper.SetCulture("en-US"))
+            {
+                Helper.AssertTemplateResult(
+                    expected: expected,
+                    template: "{{ input | currency: languageTag }}",
+                    localVariables: Hash.FromAnonymousObject(new { input = input, languageTag = languageTag }));
+            }
+
+            _contextV20.CurrentCulture = new CultureInfo("en-US"); // _contextV20 is initialized with InvariantCulture, these tests require en-US
             Assert.AreEqual(expected, StandardFilters.Currency(context: _contextV20, input: input, languageTag: languageTag));
         }
 
         [Test]
         public void TestMalformedCurrency()
         {
-            //_contextV20 is initialised with InvariantCulture
+            // Set the thread culture and test for backward compatibility
+            using (CultureHelper.SetCulture("en-US"))
+            {
+                Helper.AssertTemplateResult(
+                    expected: "teststring",
+                    template: "{{ 'teststring' | currency: 'de-DE' }}");
+            }
+
+            // _contextV20 is initialized with InvariantCulture
             Assert.AreEqual("teststring", StandardFilters.Currency(context: _contextV20, input: "teststring", languageTag: "de-DE"));
         }
 
@@ -768,7 +794,7 @@ namespace DotLiquid.Tests
             {
                 var context = _contextV20;
                 context.UseRubyDateFormat = true;
-                context.CurrentCulture = new CultureInfo("en-US"); //_contextV20 is initialised with InvariantCulture, these tests require en-US
+                context.CurrentCulture = new CultureInfo("en-US"); // _contextV20 is initialized with InvariantCulture, these tests require en-US
 
                 Assert.AreEqual("May", StandardFilters.Date(context: context, input: DateTime.Parse("2006-05-05 10:00:00"), format: "%B"));
                 Assert.AreEqual("June", StandardFilters.Date(context: context, input: DateTime.Parse("2006-06-05 10:00:00"), format: "%B"));

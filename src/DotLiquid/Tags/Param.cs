@@ -45,10 +45,12 @@ namespace DotLiquid.Tags
             // Ensure the markup refers to a valid param (discard underscore to support both Ruby and C# naming)
             var paramName = syntaxMatch.Groups[1].Value.Replace("_", "").ToLower();
             if (!Params.ContainsKey(paramName))
-                throw new SyntaxException("ParamTagSyntaxException", syntaxMatch.Groups[1].Value, Params.Keys.ToString());
-            this.param = Params[paramName];
+                throw new SyntaxException(
+                    message: "ParamTagSyntaxException",
+                    args: new string[] { syntaxMatch.Groups[1].Value, Params.Keys.ToString() });
 
-            // Make a copy of the value, which could be a variable or literal.
+            // Save the Param and the Value (which could be a variable or literal).
+            this.param = Params[paramName];
             this.paramValue = syntaxMatch.Groups[2].Value;
 
             base.Initialize(tagName: tagName, markup: markup, tokens: tokens);

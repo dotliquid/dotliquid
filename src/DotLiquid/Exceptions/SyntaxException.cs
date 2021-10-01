@@ -16,7 +16,7 @@ namespace DotLiquid.Exceptions
         /// <param name="message">Either a key specified in <c>Resources.resx</c> or a bespoke error message</param>
         /// <param name="args">Optional list of strings that are used to replace numbers tokens in the message</param>
         public SyntaxException(string message, params string[] args)
-            : base(formatMessage(message, args))
+            : base(SyntaxException.formatMessage(message, args))
         {
         }
 

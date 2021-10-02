@@ -43,6 +43,11 @@ namespace DotLiquid
         private Strainer _strainer;
 
         /// <summary>
+        /// A cancellation token which indicates if the template render has been cancelled
+        /// </summary>
+        public CancellationToken CancellationToken => _cancellationToken;
+
+        /// <summary>
         /// Environments
         /// </summary>
         public List<Hash> Environments { get; private set; }

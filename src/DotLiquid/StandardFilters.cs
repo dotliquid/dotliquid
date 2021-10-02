@@ -650,17 +650,10 @@ namespace DotLiquid
             {
                 // If input is a string timestamp we already have a long value, if not convert
                 timestamp = input is string ? timestamp : Convert.ToInt64(input);
-
-                // Check if the timestamp is outside the range supported by the DateTimeOffset.FromUnixTimeSeconds() method
-                var isMilliseconds = timestamp < -62_135_596_800 || timestamp > 253_402_300_799;
 #if NET45
-                dateTimeOffset = (isMilliseconds ?
-                    new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddMilliseconds(timestamp) :
-                    new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(timestamp)).ToLocalTime();
+                dateTimeOffset = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(timestamp).ToLocalTime();
 #else
-                dateTimeOffset = (isMilliseconds ?
-                    DateTimeOffset.FromUnixTimeMilliseconds(timestamp) :
-                    DateTimeOffset.FromUnixTimeSeconds(timestamp)).ToLocalTime();
+                dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(timestamp).ToLocalTime();
 #endif
             }
             else

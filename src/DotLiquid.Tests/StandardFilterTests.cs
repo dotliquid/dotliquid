@@ -763,9 +763,6 @@ namespace DotLiquid.Tests
         [TestCase("-2147483648", "1901-12-13T08:45:52+00:00")] // seconds, Int32.MinValue (32-bit overflow)
         [TestCase("-62135596800", "0001-01-01T12:00:00+00:00")] // seconds, lower range supported by DateTimeOffset.FromUnixTimeSeconds (01-Jan-0000)
         [TestCase("253402300799", "9999-12-31T11:59:59+00:00")] // seconds, upper range supported by DateTimeOffset.FromUnixTimeSeconds (31-Dec-9999)
-        [TestCase("-62135596801", "1968-01-12T08:06:43+00:00")] // milliseconds, less than range supported by DateTimeOffset.FromUnixTimeSeconds
-        [TestCase("253402300800", "1978-01-11T09:31:40+00:00")] // milliseconds, more than range supported by DateTimeOffset.FromUnixTimeSeconds
-        [TestCase("1582967411000", "2020-02-29T09:10:11+00:00")] // milliseconds, leap day in 2020
         [TestCase("1.0", "1.0")] // decimals are ignored
         [TestCase("1,000", "1,000")] // number with separators are ignored.
         public void TestDate_UnixEpochTimestampStrings(string timestampString, string expectedValue)

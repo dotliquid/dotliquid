@@ -1,5 +1,6 @@
-using System.Text.RegularExpressions;
 using System.Globalization;
+using System;
+using DotLiquid.Util;
 
 namespace DotLiquid
 {
@@ -11,9 +12,8 @@ namespace DotLiquid
         /// <summary>
         /// Capitalize all the words in the input sentence
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="input"></param>
-        /// <returns></returns>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
         public static string Titleize(Context context, string input)
         {
             return input.IsNullOrWhiteSpace()
@@ -28,9 +28,8 @@ namespace DotLiquid
         /// <summary>
         /// Converts just the first character to uppercase
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="input"></param>
-        /// <returns></returns>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
         public static string UpcaseFirst(Context context, string input)
         {
             if (input.IsNullOrWhiteSpace())
@@ -38,6 +37,62 @@ namespace DotLiquid
 
             var trimmed = input.TrimStart();
             return input.Substring(0, input.Length - trimmed.Length) + char.ToUpper(trimmed[0]) + trimmed.Substring(1);
+        }
+
+        /// <summary>
+        /// Convert a millisecond UNIX Epoch timestamp or date-time string into a target timezone as a formatted date string.
+        /// </summary>
+        /// <remarks>
+        /// If you have a UNIX Epoch timestamp in seconds use the Date filter, or divide your timestamp by 1000 using the DividedBy filter.
+        /// </remarks>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed to a string</param>
+        /// <param name="format">.NET or Ruby StrFTime format specifying output formatting</param>
+        /// <param name="convertToTimezoneId">Windows timezone ID to convert to, if null either the input's timezone, or system default will be used</param>
+        public static object ConvertTime(Context context, object input, string format, string convertToTimezoneId = null)
+        {
+            if (input == null || format.IsNullOrWhiteSpace())
+                return input;
+
+            DateTimeOffset dateTimeOffset;
+            if (input is DateTime dateTime)
+                dateTimeOffset = new DateTimeOffset(dateTime);
+            else if (input is DateTimeOffset inputOffset)
+                dateTimeOffset = inputOffset;
+            else if ((input is decimal) || (input is double) || (input is float) || (input is int) || (input is uint) || (input is long) || (input is ulong) || (input is short) || (input is ushort))
+                dateTimeOffset = CreateDateTimeOffsetFromUnixTimestamp(Convert.ToInt64(input));
+            else if (input is string stringInput)
+                if ((string.Equals(stringInput, "now", StringComparison.OrdinalIgnoreCase) || string.Equals(stringInput, "today", StringComparison.OrdinalIgnoreCase)))
+                    dateTimeOffset = DateTimeOffset.Now; // special word
+                else if (long.TryParse(stringInput, NumberStyles.Integer, CultureInfo.InvariantCulture, out var timestamp))
+                    dateTimeOffset = CreateDateTimeOffsetFromUnixTimestamp(timestamp);
+                else if (!DateTimeOffset.TryParse(stringInput, out dateTimeOffset))
+                    return input; // not a date literal string
+
+            // If a target timezone is specified attempt to convert the date-time
+            if (!string.IsNullOrEmpty(convertToTimezoneId))
+                try
+                {
+                    dateTimeOffset = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(dateTimeOffset, convertToTimezoneId);
+                }
+                catch { }
+
+            // TODO: change to context.UseRubyDateFormat if PR #450 is merged
+            return Liquid.UseRubyDateFormat ? dateTimeOffset.ToStrFTime(format) : dateTimeOffset.ToString(format);
+        }
+
+        /// <summary>
+        /// Create a DateTimeOffset from the provided UNIX Epoch timestamp, inferring whether the
+        /// timestamp is seconds or milliseconds.
+        /// </summary>
+        /// <return cref="DateTimeOffset">A Date in UTC</return>
+        private static DateTimeOffset CreateDateTimeOffsetFromUnixTimestamp(long milliseconds)
+        {
+#if NET45
+            return new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddMilliseconds(milliseconds);
+#else
+            return DateTimeOffset.FromUnixTimeMilliseconds(milliseconds);
+#endif
         }
     }
 }

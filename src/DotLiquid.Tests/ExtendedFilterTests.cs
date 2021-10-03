@@ -47,6 +47,7 @@ namespace DotLiquid.Tests
         [TestCase(null, null, null, null)]
         [TestCase("", null, null, "")]
         [TestCase(0, null, null, 0)]
+        [TestCase(true, "UTC", "MMMM", true)] // cannot be converted to a date-time
         [TestCase(0, null, "yyyy-MM-ddThh:mm:sszzz", "1970-01-01T12:00:00+00:00")] // The UNIX Epoch
         [TestCase("0", null, "yyyy-MM-ddThh:mm:sszzz", "1970-01-01T12:00:00+00:00")] // The UNIX Epoch
         [TestCase("-1", null, "yyyy-MM-ddThh:mm:sszzz", "1969-12-31T11:59:59+00:00")] // 1 second before the UNIX Epoch
@@ -73,11 +74,11 @@ namespace DotLiquid.Tests
         [TestCase("2021-05-20T12:14:15-08:00", null, "yyyy-MM-ddThh:mm:sszzz", "2021-05-20T12:14:15-08:00")]
         [TestCase("2021-06-20T12:14:15+09:00", null, "yyyy-MM-ddThh:mm:sszzz", "2021-06-20T12:14:15+09:00")]
         [TestCase("2021-06-20T12:14:15+09:00", "UTC", "yyyy-MM-ddThh:mm:sszzz", "2021-06-20T03:14:15+00:00")]
-        public void TestConvertTime_Dotnet(object timestamp, string targetTimezone, string dateFormat, object expectedValue)
+        public void TestConvertTime_Dotnet(object input, string convertToTimezoneId, string format, object expectedValue)
         {
             Assert.AreEqual(
                 expected: expectedValue,
-                actual: ExtendedFilters.ConvertTime(context: null, input: timestamp, format: dateFormat, convertToTimezoneId: targetTimezone));
+                actual: ExtendedFilters.ConvertTime(context: null, input: input, format: format, convertToTimezoneId: convertToTimezoneId));
         }
 
         [TestCase(1582967411000L, "Eastern Standard Time", "%s", "1582967411")] // %s (seconds since epoch) should not be affected by timeone
@@ -85,26 +86,33 @@ namespace DotLiquid.Tests
         [TestCase(1582967411000L, "Eastern Standard Time", "%FT%T%:z", "2020-02-29T04:10:11-05:00")] // milliseconds, Convert to EST
         [TestCase(1590999011000, "W. Europe Standard Time", "%FT%T%:z", "2020-06-01T10:10:11+02:00")] // milliseconds, european summer time (DST)
         [TestCase(0L, "UTC", "%s", "0")]
-        public void TestConvertTime_Ruby(object timestamp, string targetTimezone, string dateFormat, object expectedValue)
+        public void TestConvertTime_Ruby(object input, string convertToTimezoneId, string format, object expectedValue)
         {
             Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
             {
                 Liquid.UseRubyDateFormat = true;
                 Assert.AreEqual(
                     expected: expectedValue,
-                    actual: ExtendedFilters.ConvertTime(context: null, input: timestamp, format: dateFormat, convertToTimezoneId: targetTimezone));
+                    actual: ExtendedFilters.ConvertTime(context: null, input: input, format: format, convertToTimezoneId: convertToTimezoneId));
             });
         }
 
         [Test]
-        public void TestConvertTime_SpecialWords()
+        public void TestConvertTime()
         {
             Context context = new Context(CultureInfo.CurrentCulture);
+
+            // DateTimeOffset / DateTime tests
+            Assert.AreEqual(DateTime.Now.ToString("2020-02-29T09:10:11+00:00"), ExtendedFilters.ConvertTime(context: context, input: DateTimeOffset.Parse("2020-02-29T10:10:11+01:00"), format: "yyyy-MM-ddThh:mm:sszzz", "UTC"));
+            Assert.AreEqual(DateTime.Now.ToString("2020-02-29T09:10:11+00:00"), ExtendedFilters.ConvertTime(context: context, input: DateTime.Parse("2020-02-29T10:10:11+01:00"), format: "yyyy-MM-ddThh:mm:sszzz", "UTC"));
+
+            // Special Words (- ).NET)
             Assert.AreEqual(DateTime.Now.ToString("MM/dd/yyyy"), ExtendedFilters.ConvertTime(context: context, input: "now", format: "MM/dd/yyyy"));
             Assert.AreEqual(DateTime.Now.ToString("MM/dd/yyyy"), ExtendedFilters.ConvertTime(context: context, input: "today", format: "MM/dd/yyyy"));
             Assert.AreEqual(DateTime.Now.ToString("MM/dd/yyyy"), ExtendedFilters.ConvertTime(context: context, input: "Now", format: "MM/dd/yyyy"));
             Assert.AreEqual(DateTime.Now.ToString("MM/dd/yyyy"), ExtendedFilters.ConvertTime(context: context, input: "Today", format: "MM/dd/yyyy"));
 
+            // Special Words (Ruby)
             Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
             {
                 Liquid.UseRubyDateFormat = true; // TODO: use context.UseRubyDates if PR #450 is merged

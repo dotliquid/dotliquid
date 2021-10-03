@@ -1,5 +1,6 @@
-using System.Globalization;
 using System;
+using System.Globalization;
+using System.Text.RegularExpressions;
 using DotLiquid.Util;
 
 namespace DotLiquid
@@ -54,26 +55,37 @@ namespace DotLiquid
             if (input == null || format.IsNullOrWhiteSpace())
                 return input;
 
-            DateTimeOffset dateTimeOffset;
-            if (input is DateTime dateTime)
+            if (input is DateTimeOffset dateTimeOffset)
+            { }
+            else if (input is DateTime dateTime)
+            {
                 dateTimeOffset = new DateTimeOffset(dateTime);
-            else if (input is DateTimeOffset inputOffset)
-                dateTimeOffset = inputOffset;
+            }
             else if ((input is decimal) || (input is double) || (input is float) || (input is int) || (input is uint) || (input is long) || (input is ulong) || (input is short) || (input is ushort))
+            {
                 dateTimeOffset = CreateDateTimeOffsetFromUnixTimestamp(Convert.ToInt64(input));
+            }
             else if (input is string stringInput)
-                if ((string.Equals(stringInput, "now", StringComparison.OrdinalIgnoreCase) || string.Equals(stringInput, "today", StringComparison.OrdinalIgnoreCase)))
+            {
+                if (string.Equals(stringInput, "now", StringComparison.OrdinalIgnoreCase)
+                 || string.Equals(stringInput, "today", StringComparison.OrdinalIgnoreCase))
                     dateTimeOffset = DateTimeOffset.Now; // special word
                 else if (long.TryParse(stringInput, NumberStyles.Integer, CultureInfo.InvariantCulture, out var timestamp))
                     dateTimeOffset = CreateDateTimeOffsetFromUnixTimestamp(timestamp);
                 else if (!DateTimeOffset.TryParse(stringInput, out dateTimeOffset))
                     return input; // not a date literal string
+            }
+            else
+            {
+                return input; // cannot be converted to a DateTimeOffset
+            }
 
             // If a target timezone is specified attempt to convert the date-time
             if (!string.IsNullOrEmpty(convertToTimezoneId))
                 try
                 {
-                    dateTimeOffset = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(dateTimeOffset, convertToTimezoneId);
+                    TimeZoneInfo destinationTimeZone = TimeZoneInfo.FindSystemTimeZoneById(convertToTimezoneId);
+                    dateTimeOffset = TimeZoneInfo.ConvertTime(dateTimeOffset, destinationTimeZone);
                 }
                 catch { }
 
@@ -88,7 +100,7 @@ namespace DotLiquid
         /// <return cref="DateTimeOffset">A Date in UTC</return>
         private static DateTimeOffset CreateDateTimeOffsetFromUnixTimestamp(long milliseconds)
         {
-#if NET45
+#if !NET45
             return new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddMilliseconds(milliseconds);
 #else
             return DateTimeOffset.FromUnixTimeMilliseconds(milliseconds);

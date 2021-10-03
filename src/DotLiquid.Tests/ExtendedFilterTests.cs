@@ -103,8 +103,8 @@ namespace DotLiquid.Tests
             Context context = new Context(CultureInfo.CurrentCulture);
 
             // DateTimeOffset / DateTime tests
-            Assert.AreEqual(DateTime.Now.ToString("2020-02-29T09:10:11+00:00"), ExtendedFilters.ConvertTime(context: context, input: DateTimeOffset.Parse("2020-02-29T10:10:11+01:00"), format: "yyyy-MM-ddThh:mm:sszzz", "UTC"));
-            Assert.AreEqual(DateTime.Now.ToString("2020-02-29T09:10:11+00:00"), ExtendedFilters.ConvertTime(context: context, input: DateTime.Parse("2020-02-29T10:10:11+01:00"), format: "yyyy-MM-ddThh:mm:sszzz", "UTC"));
+            Assert.AreEqual(DateTime.Now.ToString("2020-02-29T09:10:11+00:00"), ExtendedFilters.ConvertTime(context: context, input: DateTimeOffset.Parse("2020-02-29T10:10:11+01:00"), format: "yyyy-MM-ddThh:mm:sszzz", convertToTimezoneId: "UTC"));
+            Assert.AreEqual(DateTime.Now.ToString("2020-02-29T09:10:11+00:00"), ExtendedFilters.ConvertTime(context: context, input: DateTime.Parse("2020-02-29T10:10:11+01:00"), format: "yyyy-MM-ddThh:mm:sszzz", convertToTimezoneId: "UTC"));
 
             // Special Words (- ).NET)
             Assert.AreEqual(DateTime.Now.ToString("MM/dd/yyyy"), ExtendedFilters.ConvertTime(context: context, input: "now", format: "MM/dd/yyyy"));

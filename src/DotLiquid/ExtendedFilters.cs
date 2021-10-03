@@ -100,7 +100,7 @@ namespace DotLiquid
         /// <return cref="DateTimeOffset">A Date in UTC</return>
         private static DateTimeOffset CreateDateTimeOffsetFromUnixTimestamp(long milliseconds)
         {
-#if !NET45
+#if NET45
             return new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddMilliseconds(milliseconds);
 #else
             return DateTimeOffset.FromUnixTimeMilliseconds(milliseconds);

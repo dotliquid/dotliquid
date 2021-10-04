@@ -243,4 +243,7 @@
   <data name="FilterClassNotFoundException" xml:space="preserve">
     <value>Errore - impossibile aggiungere filtri per '{0}', le opzioni supportate sono: {1}</value>
   </data>
+  <data name="TimeZoneNotAvailableException" xml:space="preserve">
+    <value>Errore: impossibile caricare le informazioni sul fuso orario per l'id '{0}'</value>
+  </data>
 </root>

@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using DotLiquid.Exceptions;
 using DotLiquid.Util;
 
 namespace DotLiquid
@@ -87,7 +88,10 @@ namespace DotLiquid
                     TimeZoneInfo destinationTimeZone = TimeZoneInfo.FindSystemTimeZoneById(convertToTimezoneId);
                     dateTimeOffset = TimeZoneInfo.ConvertTime(dateTimeOffset, destinationTimeZone);
                 }
-                catch { }
+                catch
+                {
+                    throw new SyntaxException(message: Liquid.ResourceManager.GetString("TimeZoneNotAvailableException"), args: convertToTimezoneId);
+                }
 
             // TODO: change to context.UseRubyDateFormat if PR #450 is merged
             return Liquid.UseRubyDateFormat ? dateTimeOffset.ToStrFTime(format) : dateTimeOffset.ToString(format);

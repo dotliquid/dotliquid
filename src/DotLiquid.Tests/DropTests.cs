@@ -373,28 +373,35 @@ namespace DotLiquid.Tests
         [Test]
         public void TestCancelBlockingOperationDrop()
         {
-            var cancellationToken = new CancellationToken(true);
-            var context = new Context(new List<Hash>(), new Hash(), new Hash(), ErrorsOutputMode.Display, 0, CultureInfo.InvariantCulture, cancellationToken);
-            var renderParameters = new RenderParameters(CultureInfo.InvariantCulture)
+            using (var cancellationTokenSource = new CancellationTokenSource())
             {
-                Context = context,
-                LocalVariables = Hash.FromAnonymousObject(new { context = new CancellationDrop() })
-            };
-            Assert.Throws<OperationCanceledException>(() => Template.Parse("{{ context.halt }}").Render(renderParameters));
+                var cancellationToken = cancellationTokenSource.Token;
+                var context = new Context(new List<Hash>(),
+                    Hash.FromAnonymousObject(new { context = new CancellationDrop() }),
+                    new Hash(),
+                    ErrorsOutputMode.Display,
+                    0,
+                    CultureInfo.InvariantCulture,
+                    cancellationToken);
+                var renderParameters = new RenderParameters(CultureInfo.InvariantCulture)
+                {
+                    Context = context
+                };
+                cancellationTokenSource.Cancel();
+                Assert.Throws<OperationCanceledException>(() => Template.Parse("{{ context.halt }}").Render(renderParameters));
+            }
         }
 
         [Test]
         public void TestRenderUncancelledOperationDrop()
         {
-            var context = new Context(CultureInfo.InvariantCulture);
             var cancellationDrop = new CancellationDrop();
             var renderParameters = new RenderParameters(CultureInfo.InvariantCulture)
             {
-                Context = context,
                 LocalVariables = Hash.FromAnonymousObject(new { context = cancellationDrop, dummy = new[] { 1, 2, 3 } })
             };
             cancellationDrop.Signal.Set();
-            Assert.AreEqual("halthalthalt", Template.Parse("{% for a in dummy %}{{ context.halt }}{% endfor %}").Render(renderParameters));
+            Assert.AreEqual("HaltHaltHalt", Template.Parse("{% for a in dummy %}{{ context.halt }}{% endfor %}").Render(renderParameters));
         }
 
         [Test]

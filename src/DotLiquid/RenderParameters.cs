@@ -12,12 +12,20 @@ namespace DotLiquid
         /// <summary>
         /// A list of errors that occurred during render
         /// </summary>
-        public IReadOnlyList<Exception> Errors => _errors;
+        public IReadOnlyList<Exception> Errors => _errors ?? (_errors = new List<Exception>());
 
         /// <summary>
         /// If you provide a Context object, you do not need to set any other parameters.
         /// </summary>
-        public Context Context { get; set; }
+        public Context Context
+        {
+            get => _context;
+            set
+            {
+                _errors = value.Errors;
+                _context = value;
+            }
+        }
 
         /// <summary>
         /// Hash of local variables used during rendering
@@ -78,7 +86,8 @@ namespace DotLiquid
             set { _maxIterations = value; }
         }
 
-        private readonly List<Exception> _errors = new List<Exception>();
+        private Context _context;
+        private List<Exception> _errors;
         private int _timeout = 0;
         public IFormatProvider FormatProvider { get; }
 
@@ -125,7 +134,7 @@ namespace DotLiquid
                 environments.Add(template.Assigns);
             }
 
-            context = new Context(environments, instanceAssigns, contextRegisters, ErrorsOutputMode, MaxIterations, Timeout, FormatProvider, _errors, default)
+            context = new Context(environments, instanceAssigns, contextRegisters, ErrorsOutputMode, MaxIterations, Timeout, FormatProvider, _errors ?? (_errors = new List<Exception>()), default)
             {
                 SyntaxCompatibilityLevel = this.SyntaxCompatibilityLevel
             };

@@ -410,7 +410,7 @@ namespace DotLiquid
         {
             // Can't dispose this new StreamWriter, because it would close the
             // passed-in stream, which isn't up to us.
-            StreamWriter streamWriter = new StreamWriterWithFormatProvider(stream, parameters.FormatProvider);
+            StreamWriter streamWriter = new StreamWriterWithFormatProvider( stream, parameters.FormatProvider );
             RenderInternal(streamWriter, parameters);
             streamWriter.Flush();
         }

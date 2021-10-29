@@ -375,18 +375,9 @@ namespace DotLiquid.Tests
         {
             using (var cancellationTokenSource = new CancellationTokenSource())
             {
-                var cancellationToken = cancellationTokenSource.Token;
-                var context = new Context(
-                    environments: new List<Hash>(),
-                    outerScope: Hash.FromAnonymousObject(new { context = new CancellationDrop() }),
-                    registers: new Hash(),
-                    errorsOutputMode: ErrorsOutputMode.Display,
-                    maxIterations: 0,
-                    formatProvider: CultureInfo.InvariantCulture,
-                    cancellationToken: cancellationToken);
                 var renderParameters = new RenderParameters(CultureInfo.InvariantCulture)
                 {
-                    Context = context
+                    CancellationToken = cancellationTokenSource.Token
                 };
                 cancellationTokenSource.Cancel();
                 Assert.Throws<OperationCanceledException>(() => Template.Parse("{{ context.halt }}").Render(renderParameters));
@@ -399,7 +390,8 @@ namespace DotLiquid.Tests
             var cancellationDrop = new CancellationDrop();
             var renderParameters = new RenderParameters(CultureInfo.InvariantCulture)
             {
-                LocalVariables = Hash.FromAnonymousObject(new { context = cancellationDrop, dummy = new[] { 1, 2, 3 } })
+                LocalVariables = Hash.FromAnonymousObject(new { context = cancellationDrop, dummy = new[] { 1, 2, 3 } }),
+                CancellationToken = new CancellationToken(canceled: false)
             };
             cancellationDrop.Signal.Set();
             Assert.AreEqual("HaltHaltHalt", Template.Parse("{% for a in dummy %}{{ context.halt }}{% endfor %}").Render(renderParameters));

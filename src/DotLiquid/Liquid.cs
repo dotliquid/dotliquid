@@ -1,4 +1,4 @@
-﻿using System.Resources;
+using System.Resources;
 using DotLiquid.Util;
 
 namespace DotLiquid
@@ -49,6 +49,7 @@ namespace DotLiquid
             Template.RegisterTag<Tags.Unless>("unless");
             Template.RegisterTag<Tags.Raw>("raw");
             Template.RegisterTag<Tags.AddFilters>("addfilters");
+            Template.RegisterTag<Tags.Increment>("increment");
 
             Template.RegisterTag<Tags.Html.TableRow>("tablerow");
 

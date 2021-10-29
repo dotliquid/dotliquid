@@ -42,6 +42,9 @@ namespace DotLiquid
 
         private Strainer _strainer;
 
+        private Dictionary<string, int> _counters;
+        internal Dictionary<string, int> Counters => _counters ?? (_counters = new Dictionary<string, int>());
+
         /// <summary>
         /// Environments
         /// </summary>

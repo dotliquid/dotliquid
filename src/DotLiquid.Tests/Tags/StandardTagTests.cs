@@ -701,5 +701,26 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
             Assert.AreEqual("Green", drop.BeforeMethod("Last"));
             Assert.IsNull(drop.BeforeMethod("UnknownProperty"));
         }
+
+        [Test]
+        public void IncrementNonExistentValue()
+        {
+            var template = Template.Parse("{% increment counter %}{% increment counter %}{% increment counter %}");
+            var output = template.Render(CultureInfo.InvariantCulture);
+
+            Assert.AreEqual("012", output);
+        }
+
+        [Test]
+        public void IncrementDoesNotAlterLocalVariables()
+        {
+            var template = Template.Parse("{% increment counter %}-{{counter}}-{% increment counter %}-{{counter}}-{% increment counter %}");
+            var output = template.Render(new RenderParameters(CultureInfo.InvariantCulture)
+            {
+                LocalVariables = Hash.FromAnonymousObject(new { counter = 42 })
+            });
+
+            Assert.AreEqual("0-42-1-42-2", output);
+        }
     }
 }

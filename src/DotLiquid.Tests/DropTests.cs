@@ -376,13 +376,14 @@ namespace DotLiquid.Tests
             using (var cancellationTokenSource = new CancellationTokenSource())
             {
                 var cancellationToken = cancellationTokenSource.Token;
-                var context = new Context(new List<Hash>(),
-                    Hash.FromAnonymousObject(new { context = new CancellationDrop() }),
-                    new Hash(),
-                    ErrorsOutputMode.Display,
-                    0,
-                    CultureInfo.InvariantCulture,
-                    cancellationToken);
+                var context = new Context(
+                    environments: new List<Hash>(),
+                    outerScope: Hash.FromAnonymousObject(new { context = new CancellationDrop() }),
+                    registers: new Hash(),
+                    errorsOutputMode: ErrorsOutputMode.Display,
+                    maxIterations: 0,
+                    formatProvider: CultureInfo.InvariantCulture,
+                    cancellationToken: cancellationToken);
                 var renderParameters = new RenderParameters(CultureInfo.InvariantCulture)
                 {
                     Context = context

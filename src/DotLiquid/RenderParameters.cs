@@ -10,6 +10,11 @@ namespace DotLiquid
     public class RenderParameters
     {
         /// <summary>
+        /// A list of errors that occurred during render
+        /// </summary>
+        public IList<Exception> Errors => _errors;
+
+        /// <summary>
         /// If you provide a Context object, you do not need to set any other parameters.
         /// </summary>
         public Context Context { get; set; }
@@ -73,6 +78,7 @@ namespace DotLiquid
             set { _maxIterations = value; }
         }
 
+        private readonly List<Exception> _errors = new List<Exception>();
         private int _timeout = 0;
         public IFormatProvider FormatProvider { get; }
 
@@ -105,21 +111,24 @@ namespace DotLiquid
             List<Hash> environments = new List<Hash>();
             if (LocalVariables != null)
                 environments.Add(LocalVariables);
+            Hash instanceAssigns, contextRegisters;
             if (template.IsThreadSafe)
             {
-                context = new Context(environments, new Hash(), new Hash(), ErrorsOutputMode, MaxIterations, Timeout, FormatProvider)
-                {
-                    SyntaxCompatibilityLevel = this.SyntaxCompatibilityLevel
-                };
+                instanceAssigns = new Hash();
+                contextRegisters = new Hash();
+                
             }
             else
             {
+                instanceAssigns = template.InstanceAssigns;
+                contextRegisters = template.Registers;
                 environments.Add(template.Assigns);
-                context = new Context(environments, template.InstanceAssigns, template.Registers, ErrorsOutputMode, MaxIterations, Timeout, FormatProvider)
-                {
-                    SyntaxCompatibilityLevel = this.SyntaxCompatibilityLevel
-                };
             }
+
+            context = new Context(environments, instanceAssigns, contextRegisters, ErrorsOutputMode, MaxIterations, Timeout, FormatProvider, _errors, default)
+            {
+                SyntaxCompatibilityLevel = this.SyntaxCompatibilityLevel
+            };
             registers = Registers;
             filters = Filters;
         }

@@ -81,10 +81,8 @@ namespace DotLiquid
              , int maxIterations
              , int timeout
              , IFormatProvider formatProvider)
-            : this(environments, outerScope, registers, errorsOutputMode, maxIterations, formatProvider, CancellationToken.None)
+            : this(environments, outerScope, registers, errorsOutputMode, maxIterations, timeout, formatProvider, new List<Exception>(), CancellationToken.None)
         {
-            _timeout = timeout;
-            RestartTimeout();
         }
 
         /// <summary>
@@ -105,6 +103,28 @@ namespace DotLiquid
              , int maxIterations
              , IFormatProvider formatProvider
              , CancellationToken cancellationToken)
+            : this(environments, outerScope,registers, errorsOutputMode, maxIterations, null, formatProvider, new List<Exception>(), cancellationToken)
+        {
+        }
+
+        /// <summary>
+        /// Creates a new rendering context
+        /// </summary>
+        public Context(IFormatProvider formatProvider)
+            : this(new List<Hash>(), new Hash(), new Hash(), ErrorsOutputMode.Display, 0, 0, formatProvider)
+        {
+        }
+
+        internal Context
+            (List<Hash> environments
+             , Hash outerScope
+             , Hash registers
+             , ErrorsOutputMode errorsOutputMode
+             , int maxIterations
+             , int? timeout
+             , IFormatProvider formatProvider
+             , List<Exception> errors
+             , CancellationToken cancellationToken)
         {
             Environments = environments;
 
@@ -114,7 +134,7 @@ namespace DotLiquid
 
             Registers = registers;
 
-            Errors = new List<Exception>();
+            Errors = errors;
             _errorsOutputMode = errorsOutputMode;
             _maxIterations = maxIterations;
             _cancellationToken = cancellationToken;
@@ -122,14 +142,12 @@ namespace DotLiquid
             SyntaxCompatibilityLevel = Template.DefaultSyntaxCompatibilityLevel;
 
             SquashInstanceAssignsWithEnvironments();
-        }
 
-        /// <summary>
-        /// Creates a new rendering context
-        /// </summary>
-        public Context(IFormatProvider formatProvider)
-            : this(new List<Hash>(), new Hash(), new Hash(), ErrorsOutputMode.Display, 0, 0, formatProvider)
-        {
+            if (timeout.HasValue)
+            {
+                _timeout = timeout.Value;
+                RestartTimeout();
+            }
         }
 
         /// <summary>

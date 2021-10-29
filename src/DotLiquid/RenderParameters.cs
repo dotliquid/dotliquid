@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 
 namespace DotLiquid
 {
@@ -134,7 +135,7 @@ namespace DotLiquid
                 environments.Add(template.Assigns);
             }
 
-            context = new Context(environments, instanceAssigns, contextRegisters, ErrorsOutputMode, MaxIterations, Timeout, FormatProvider, _errors ?? (_errors = new List<Exception>()), default)
+            context = new Context(environments, instanceAssigns, contextRegisters, ErrorsOutputMode, MaxIterations, Timeout, FormatProvider, _errors ?? (_errors = new List<Exception>()), CancellationToken.None)
             {
                 SyntaxCompatibilityLevel = this.SyntaxCompatibilityLevel
             };

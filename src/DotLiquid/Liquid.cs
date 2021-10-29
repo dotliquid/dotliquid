@@ -50,6 +50,7 @@ namespace DotLiquid
             Template.RegisterTag<Tags.Raw>("raw");
             Template.RegisterTag<Tags.AddFilters>("addfilters");
             Template.RegisterTag<Tags.Increment>("increment");
+            Template.RegisterTag<Tags.Decrement>("decrement");
 
             Template.RegisterTag<Tags.Html.TableRow>("tablerow");
 

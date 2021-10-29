@@ -722,5 +722,26 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
 
             Assert.AreEqual("0-42-1-42-2", output);
         }
+
+        [Test]
+        public void DecrementNonExistentValue()
+        {
+            var template = Template.Parse("{% decrement counter %}{% decrement counter %}{% decrement counter %}");
+            var output = template.Render(CultureInfo.InvariantCulture);
+
+            Assert.AreEqual("-1-2-3", output);
+        }
+
+        [Test]
+        public void DecrementDoesNotAlterLocalVariables()
+        {
+            var template = Template.Parse("{{counter}}{% decrement counter %}-{{counter}}{% decrement counter %}-{{counter}}{% decrement counter %}");
+            var output = template.Render(new RenderParameters(CultureInfo.InvariantCulture)
+            {
+                LocalVariables = Hash.FromAnonymousObject(new { counter = 42 })
+            });
+
+            Assert.AreEqual("42-1-42-2-42-3", output);
+        }
     }
 }

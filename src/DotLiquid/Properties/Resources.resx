@@ -243,6 +243,9 @@
   <data name="FilterClassNotFoundException" xml:space="preserve">
     <value>Error - unable to add filters for '{0}', supported options are: {1}</value>
   </data>
+  <data name="DecrementSyntaxException" xml:space="preserve">
+    <value>Syntax Error in 'decrement' tag - Valid syntax: decrement [var]</value>
+  </data>
   <data name="IncrementSyntaxException" xml:space="preserve">
     <value>Syntax Error in 'increment' tag - Valid syntax: increment [var]</value>
   </data>

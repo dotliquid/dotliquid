@@ -113,7 +113,7 @@ namespace DotLiquid
                 environments.Add(LocalVariables);
             if (template.IsThreadSafe)
             {
-                context = new Context(environments, new Hash(), new Hash(), ErrorsOutputMode, MaxIterations, FormatProvider, CancellationToken)
+                context = new Context(environments, new Hash(), new Hash(), ErrorsOutputMode, MaxIterations, FormatProvider, Timeout, CancellationToken)
                 {
                     SyntaxCompatibilityLevel = this.SyntaxCompatibilityLevel
                 };
@@ -121,7 +121,7 @@ namespace DotLiquid
             else
             {
                 environments.Add(template.Assigns);
-                context = new Context(environments, template.InstanceAssigns, template.Registers, ErrorsOutputMode, MaxIterations, FormatProvider, CancellationToken)
+                context = new Context(environments, template.InstanceAssigns, template.Registers, ErrorsOutputMode, MaxIterations, FormatProvider, Timeout, CancellationToken)
                 {
                     SyntaxCompatibilityLevel = this.SyntaxCompatibilityLevel
                 };

@@ -12,7 +12,7 @@ namespace DotLiquid
         /// <summary>
         /// A list of errors that occurred during render
         /// </summary>
-        public IList<Exception> Errors => _errors;
+        public IReadOnlyList<Exception> Errors => _errors;
 
         /// <summary>
         /// If you provide a Context object, you do not need to set any other parameters.

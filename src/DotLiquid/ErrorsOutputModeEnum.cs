@@ -16,7 +16,7 @@ namespace DotLiquid
         Suppress,
 
         /// <summary>
-        /// DIsplay the errors
+        /// Display the errors
         /// </summary>
         Display
     }

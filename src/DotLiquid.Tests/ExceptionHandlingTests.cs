@@ -168,5 +168,20 @@ namespace DotLiquid.Tests
             });
             Assert.IsNotEmpty(output);
         }
+
+        [Test]
+        public void CollectRenderErrors()
+        {
+            var template = Template.Parse("{{nope.nope}}");
+            var parameters = new RenderParameters(CultureInfo.InvariantCulture)
+            {
+                ErrorsOutputMode = ErrorsOutputMode.Suppress
+            };
+
+            var output = template.Render(parameters);
+
+            Assert.IsEmpty(output);
+            CollectionAssert.IsNotEmpty(parameters.Errors);
+        }
     }
 }

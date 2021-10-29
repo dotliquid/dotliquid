@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 
 namespace DotLiquid
 {
@@ -10,9 +11,22 @@ namespace DotLiquid
     public class RenderParameters
     {
         /// <summary>
+        /// A list of errors that occurred during render
+        /// </summary>
+        public IReadOnlyList<Exception> Errors => _errors ?? (_errors = new List<Exception>());
+
+        /// <summary>
         /// If you provide a Context object, you do not need to set any other parameters.
         /// </summary>
-        public Context Context { get; set; }
+        public Context Context
+        {
+            get => _context;
+            set
+            {
+                _errors = value.Errors;
+                _context = value;
+            }
+        }
 
         /// <summary>
         /// Hash of local variables used during rendering
@@ -73,6 +87,8 @@ namespace DotLiquid
             set { _maxIterations = value; }
         }
 
+        private Context _context;
+        private List<Exception> _errors;
         private int _timeout = 0;
         public IFormatProvider FormatProvider { get; }
 
@@ -105,21 +121,24 @@ namespace DotLiquid
             List<Hash> environments = new List<Hash>();
             if (LocalVariables != null)
                 environments.Add(LocalVariables);
+            Hash instanceAssigns, contextRegisters;
             if (template.IsThreadSafe)
             {
-                context = new Context(environments, new Hash(), new Hash(), ErrorsOutputMode, MaxIterations, Timeout, FormatProvider)
-                {
-                    SyntaxCompatibilityLevel = this.SyntaxCompatibilityLevel
-                };
+                instanceAssigns = new Hash();
+                contextRegisters = new Hash();
+                
             }
             else
             {
+                instanceAssigns = template.InstanceAssigns;
+                contextRegisters = template.Registers;
                 environments.Add(template.Assigns);
-                context = new Context(environments, template.InstanceAssigns, template.Registers, ErrorsOutputMode, MaxIterations, Timeout, FormatProvider)
-                {
-                    SyntaxCompatibilityLevel = this.SyntaxCompatibilityLevel
-                };
             }
+
+            context = new Context(environments, instanceAssigns, contextRegisters, ErrorsOutputMode, MaxIterations, Timeout, FormatProvider, _errors ?? (_errors = new List<Exception>()), CancellationToken.None)
+            {
+                SyntaxCompatibilityLevel = this.SyntaxCompatibilityLevel
+            };
             registers = Registers;
             filters = Filters;
         }

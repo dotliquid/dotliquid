@@ -724,6 +724,12 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
         }
 
         [Test]
+        public void IncrementDetectsBadSyntax()
+        {
+            Assert.Throws<SyntaxException>(() => Template.Parse("{% increment %}"));
+        }
+
+        [Test]
         public void DecrementNonExistentValue()
         {
             var template = Template.Parse("{% decrement counter %}{% decrement counter %}{% decrement counter %}");
@@ -742,6 +748,12 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
             });
 
             Assert.AreEqual("42-1-42-2-42-3", output);
+        }
+
+        [Test]
+        public void DecrementDetectsBadSyntax()
+        {
+            Assert.Throws<SyntaxException>(() => Template.Parse("{% decrement %}"));
         }
     }
 }

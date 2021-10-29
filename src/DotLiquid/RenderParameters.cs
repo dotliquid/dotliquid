@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 
 namespace DotLiquid
 {
@@ -9,6 +10,11 @@ namespace DotLiquid
     /// </summary>
     public class RenderParameters
     {
+        /// <summary>
+        /// A cancellation token that can be used to abort the render
+        /// </summary>
+        public CancellationToken CancellationToken { get; set; }
+
         /// <summary>
         /// If you provide a Context object, you do not need to set any other parameters.
         /// </summary>
@@ -107,7 +113,7 @@ namespace DotLiquid
                 environments.Add(LocalVariables);
             if (template.IsThreadSafe)
             {
-                context = new Context(environments, new Hash(), new Hash(), ErrorsOutputMode, MaxIterations, Timeout, FormatProvider)
+                context = new Context(environments, new Hash(), new Hash(), ErrorsOutputMode, MaxIterations, FormatProvider, Timeout, CancellationToken)
                 {
                     SyntaxCompatibilityLevel = this.SyntaxCompatibilityLevel
                 };
@@ -115,7 +121,7 @@ namespace DotLiquid
             else
             {
                 environments.Add(template.Assigns);
-                context = new Context(environments, template.InstanceAssigns, template.Registers, ErrorsOutputMode, MaxIterations, Timeout, FormatProvider)
+                context = new Context(environments, template.InstanceAssigns, template.Registers, ErrorsOutputMode, MaxIterations, FormatProvider, Timeout, CancellationToken)
                 {
                     SyntaxCompatibilityLevel = this.SyntaxCompatibilityLevel
                 };

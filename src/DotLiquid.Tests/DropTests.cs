@@ -1,8 +1,11 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using DotLiquid.NamingConventions;
 using NUnit.Framework;
 
@@ -46,6 +49,20 @@ namespace DotLiquid.Tests
             public override object BeforeMethod(string method)
             {
                 return Context[method];
+            }
+        }
+
+        internal class CancellationDrop : Drop
+        {
+            public ManualResetEventSlim Signal { get; } = new ManualResetEventSlim();
+
+            public string Halt
+            {
+                get
+                {
+                    Signal.Wait(Context.CancellationToken);
+                    return nameof(Halt);
+                }
             }
         }
 
@@ -351,6 +368,33 @@ namespace DotLiquid.Tests
         public void TestAccessContextFromDrop()
         {
             Assert.AreEqual("123", Template.Parse("{% for a in dummy %}{{ context.loop_pos }}{% endfor %}").Render(Hash.FromAnonymousObject(new { context = new ContextDrop(), dummy = new[] { 1, 2, 3 } })));
+        }
+
+        [Test]
+        public void TestCancelBlockingOperationDrop()
+        {
+            using (var cancellationTokenSource = new CancellationTokenSource())
+            {
+                var renderParameters = new RenderParameters(CultureInfo.InvariantCulture)
+                {
+                    CancellationToken = cancellationTokenSource.Token
+                };
+                cancellationTokenSource.Cancel();
+                Assert.Throws<OperationCanceledException>(() => Template.Parse("{{ context.halt }}").Render(renderParameters));
+            }
+        }
+
+        [Test]
+        public void TestRenderUncancelledOperationDrop()
+        {
+            var cancellationDrop = new CancellationDrop();
+            var renderParameters = new RenderParameters(CultureInfo.InvariantCulture)
+            {
+                LocalVariables = Hash.FromAnonymousObject(new { context = cancellationDrop, dummy = new[] { 1, 2, 3 } }),
+                CancellationToken = new CancellationToken(canceled: false)
+            };
+            cancellationDrop.Signal.Set();
+            Assert.AreEqual("HaltHaltHalt", Template.Parse("{% for a in dummy %}{{ context.halt }}{% endfor %}").Render(renderParameters));
         }
 
         [Test]

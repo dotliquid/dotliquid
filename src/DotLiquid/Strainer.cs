@@ -94,7 +94,6 @@ namespace DotLiquid
         /// <param name="type"></param>
         public void Extend(Type type)
         {
-            // From what I can tell, calls to Extend should replace existing filters with the same number of params. So be it.
             var methods = type.GetRuntimeMethods().Where(m => m.IsPublic && m.IsStatic);
             foreach (var method in methods)
             {

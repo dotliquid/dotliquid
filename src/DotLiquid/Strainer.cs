@@ -4,40 +4,10 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using DotLiquid.Exceptions;
+using DotLiquid.Util;
 
 namespace DotLiquid
 {
-    static class DictionaryExtensions
-    {
-        public static V TryAdd<K, V>(this IDictionary<K, V> dic, K key, Func<V> factory)
-        {
-            if (!dic.TryGetValue(key, out V found))
-                return dic[key] = factory();
-            return found;
-        }
-    }
-
-    static class MethodInfoExtensions
-    {
-        public static int GetNonContextParameterCount(this MethodInfo method)
-        {
-            return method.GetParameters().Count(p => p.ParameterType != typeof(Context));
-        }
-
-        public static bool MatchesMethod(this MethodInfo method, KeyValuePair<string, IList<Tuple<object, MethodInfo>>> compareMethod)
-        {
-            string methodName = Template.NamingConvention.GetMemberName(method.Name);
-            if (compareMethod.Key != methodName)
-            {
-                return false;
-            }
-
-            var methodParamCount = method.GetNonContextParameterCount();
-
-            return compareMethod.Value.Any(m => m.Item2.GetNonContextParameterCount() == methodParamCount);
-        }
-    }
-
     /// <summary>
     /// Strainer is the parent class for the filters system.
     /// New filters are mixed into the strainer class which is then instanciated for each liquid template render run.

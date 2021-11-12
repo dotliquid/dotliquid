@@ -130,7 +130,6 @@ namespace DotLiquid.Tests
             {
                 return string.Concat(one, two);
             }
-
         }
 
         private static class ContextFilters
@@ -238,7 +237,6 @@ namespace DotLiquid.Tests
             Assert.AreEqual("[1150]", new Variable("var | add_sub: 200, 50").Render(_context));
         }
 
-
         [Test]
         public void TestFilterWithMultipleMethodSignatures()
         {
@@ -247,7 +245,6 @@ namespace DotLiquid.Tests
             Assert.AreEqual("AB", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
             Assert.AreEqual("ABC", Template.Parse("{{'A' | concatenate : 'B', 'C'}}").Render());
         }
-
 
         [Test]
         public void TestFilterInContextWithMultipleMethodSignatures()
@@ -299,14 +296,12 @@ namespace DotLiquid.Tests
         [Test]
         public void TestFilterAsLocalFilterWithMultipleMethodSignaturesDifferentClasses()
         {
-
             Helper.AssertTemplateResult(
                 expected: "AB // ABC",
                 template: "{{'A' | concatenate : 'B'}} // {{'A' | concatenate : 'B', 'C'}}",
                 localVariables: null,
                 localFilters: new[] { typeof(FiltersWithMultipleMethodSignaturesDifferentClassesOne), typeof(FiltersWithMultipleMethodSignaturesDifferentClassesTwo) });
         }
-
 
         [Test]
         public void TestFilterWithMultipleMethodSignaturesAndContextParamInDifferentClasses()
@@ -328,7 +323,6 @@ namespace DotLiquid.Tests
                 localVariables: null,
                 localFilters: new[] { typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamOne), typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamTwo) });
         }
-
 
         [Test]
         public void TestFilterInContextWithMultipleMethodSignaturesAndContextParamInDifferentClasses()
@@ -360,7 +354,6 @@ namespace DotLiquid.Tests
             Assert.AreNotEqual("ABClass One", new Variable("'A' | concatenate : 'B'").Render(_context));
         }
 
-
         [Test]
         public void TestFilterAsLocalOverridesMethodWithSameMethodSignaturesDifferentClasses()
         {
@@ -370,7 +363,6 @@ namespace DotLiquid.Tests
                            localVariables: null,
                            localFilters: new[] { typeof(FilterWithSameMethodSignatureDifferentClassOne), typeof(FilterWithSameMethodSignatureDifferentClassTwo) });
         }
-
 
         /*/// <summary>
         /// ATM the trailing value is silently ignored. Should raise an exception?

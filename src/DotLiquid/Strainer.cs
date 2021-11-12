@@ -15,7 +15,6 @@ namespace DotLiquid
                 return dic[key] = factory();
             return found;
         }
-
     }
 
     static class MethodInfoExtensions
@@ -32,7 +31,8 @@ namespace DotLiquid
             {
                 return false;
             }
-            int methodParamCount = method.GetNonContextParameterCount();
+
+            var methodParamCount = method.GetNonContextParameterCount();
 
             return compareMethod.Value.Any(m => m.Item2.GetNonContextParameterCount() == methodParamCount);
         }
@@ -86,7 +86,6 @@ namespace DotLiquid
         {
             _context = context;
         }
-
 
         /// <summary>
         /// In this C# implementation, we can't use mixins. So we grab all the static

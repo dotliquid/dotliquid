@@ -17,7 +17,7 @@ namespace DotLiquid.Util
         /// <returns></returns>
         public static int GetNonContextParameterCount(this MethodInfo method)
         {
-            return method.GetParameters().Count(p => p.ParameterType != typeof(Context));
+            return method.GetParameters().Count(parameter => parameter.ParameterType != typeof(Context));
         }
         /// <summary>
         /// Check if current method matches compareMethod in name and in parameters

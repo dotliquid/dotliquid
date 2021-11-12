@@ -334,6 +334,9 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        // When two methods with the same name and method signature are registered, the method that is added last is preferred.
+        // This allows overriding any existing methods, including methods defined in the DotLiqid library.
+        // This is useful in contexts where a defined method may need to have a different behavior.
         public void TestFilterOverridesMethodWithSameMethodSignaturesDifferentClasses()
         {
             Template.RegisterFilter(typeof(FilterWithSameMethodSignatureDifferentClassTwo));

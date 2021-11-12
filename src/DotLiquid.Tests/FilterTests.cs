@@ -363,7 +363,7 @@ namespace DotLiquid.Tests
                            expected: "ABClass One",
                            template: "{{'A' | concatenate : 'B'}}",
                            localVariables: null,
-                           localFilters: new[] {  typeof(FilterWithSameMethodSignatureDifferentClassTwo), typeof(FilterWithSameMethodSignatureDifferentClassOne) });
+                           localFilters: new[] { typeof(FilterWithSameMethodSignatureDifferentClassTwo), typeof(FilterWithSameMethodSignatureDifferentClassOne) });
         }
 
         /*/// <summary>

@@ -306,9 +306,8 @@ namespace DotLiquid.Tests
         [Test]
         public void TestFilterWithMultipleMethodSignaturesAndContextParamInDifferentClasses()
         {
-            Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamOne));
             Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamTwo));
-
+            Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamOne));
             Assert.AreEqual("AB", Template.Parse("{{'A' | concat_with_context : 'B'}}").Render());
             Assert.AreEqual("ABC", Template.Parse("{{'A' | concat_with_context : 'B', 'C'}}").Render());
         }
@@ -337,11 +336,11 @@ namespace DotLiquid.Tests
         [Test]
         public void TestFilterOverridesMethodWithSameMethodSignaturesDifferentClasses()
         {
-            Template.RegisterFilter(typeof(FilterWithSameMethodSignatureDifferentClassOne));
             Template.RegisterFilter(typeof(FilterWithSameMethodSignatureDifferentClassTwo));
+            Template.RegisterFilter(typeof(FilterWithSameMethodSignatureDifferentClassOne));
 
-            Assert.AreEqual("ABClass Two", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
-            Assert.AreNotEqual("ABClass One", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
+            Assert.AreEqual("ABClass One", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
+            Assert.AreNotEqual("ABClass Two", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
         }
 
         [Test]
@@ -358,10 +357,10 @@ namespace DotLiquid.Tests
         public void TestFilterAsLocalOverridesMethodWithSameMethodSignaturesDifferentClasses()
         {
             Helper.AssertTemplateResult(
-                           expected: "ABClass Two",
+                           expected: "ABClass One",
                            template: "{{'A' | concatenate : 'B'}}",
                            localVariables: null,
-                           localFilters: new[] { typeof(FilterWithSameMethodSignatureDifferentClassOne), typeof(FilterWithSameMethodSignatureDifferentClassTwo) });
+                           localFilters: new[] {  typeof(FilterWithSameMethodSignatureDifferentClassTwo), typeof(FilterWithSameMethodSignatureDifferentClassOne) });
         }
 
         /*/// <summary>

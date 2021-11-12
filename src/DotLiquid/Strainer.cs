@@ -110,9 +110,6 @@ namespace DotLiquid
             } // foreach
         }
 
-
-
-
         public void AddFunction<TIn, TOut>(string rawName, Func<TIn, TOut> func)
         {
             AddMethodInfo(rawName, func.Target, func.GetMethodInfo());

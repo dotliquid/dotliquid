@@ -96,11 +96,7 @@ namespace DotLiquid
 
             return string.IsNullOrEmpty(input)
                 ? input
-// #if CORE
                 : Regex.Replace(input, @"\b(\w)", m => m.Value.ToUpper(), RegexOptions.None, Template.RegexTimeOut);
-// #else
-//                 : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input);
-// #endif
         }
 
         public static string Escape(string input)

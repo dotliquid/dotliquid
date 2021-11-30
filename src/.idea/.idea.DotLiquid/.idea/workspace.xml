@@ -10,17 +10,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="af2a8fef-6a60-44cf-814d-d5bb147a9436" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/DotLiquid.sln.DotSettings" beforeDir="false" afterPath="$PROJECT_DIR$/DotLiquid.sln.DotSettings" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DotLiquid/DotLiquid.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/DotLiquid/DotLiquid.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DotLiquid/Exceptions/ArgumentException.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DotLiquid/Exceptions/ArgumentException.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DotLiquid/Exceptions/ContextException.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DotLiquid/Exceptions/ContextException.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DotLiquid/Exceptions/FileSystemException.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DotLiquid/Exceptions/FileSystemException.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DotLiquid/Exceptions/FilterNotFoundException.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DotLiquid/Exceptions/FilterNotFoundException.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.DotLiquid/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.DotLiquid/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/DotLiquid/Exceptions/LiquidException.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DotLiquid/Exceptions/LiquidException.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DotLiquid/Exceptions/StackLevelException.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DotLiquid/Exceptions/StackLevelException.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DotLiquid/Exceptions/SyntaxException.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DotLiquid/Exceptions/SyntaxException.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DotLiquid/Exceptions/VariableNotFoundException.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DotLiquid/Exceptions/VariableNotFoundException.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DotLiquid/Properties/AssemblyInfo.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DotLiquid/Properties/AssemblyInfo.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DotLiquid/StandardFilters.cs" beforeDir="false" afterPath="$PROJECT_DIR$/DotLiquid/StandardFilters.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,8 +30,8 @@
       <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
     </file-type-list>
   </component>
-  <component name="HighlightingSettingsPerFile">
-    <setting file="vcs://C:/projects/dotliquid/src/DotLiquid/RenderParameters.cs" root0="SKIP_HIGHLIGHTING" />
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectId" id="219WRAJucm3HkoMYKbn76Ot5n3I" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -117,7 +109,8 @@
       <option name="presentableId" value="Default" />
       <updated>1637353773188</updated>
       <workItem from="1637353801429" duration="434000" />
-      <workItem from="1637354390954" duration="1047000" />
+      <workItem from="1637354390954" duration="1162000" />
+      <workItem from="1638303101106" duration="339000" />
     </task>
     <servers />
   </component>

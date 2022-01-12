@@ -993,5 +993,31 @@ namespace DotLiquid.Tests
                 while (enumerator.MoveNext())
                     yield return enumerator.Current;
         }
+
+        [Test]
+        public void TestConstructor()
+        {
+            var context = new Context(new CultureInfo("jp-JP"));
+            Assert.AreEqual(Template.DefaultSyntaxCompatibilityLevel, context.SyntaxCompatibilityLevel);
+            Assert.AreEqual(Liquid.UseRubyDateFormat, context.UseRubyDateFormat);
+            Assert.AreEqual("jp-JP", context.CurrentCulture.Name);
+        }
+
+        /// <summary>
+        /// The expectation is that a Context is created with a CultureInfo, however,
+        /// the parameter is defined as an IFormatProvider so this is not enforced by
+        /// the compiler.
+        /// </summary>
+        /// <remarks>
+        /// This test verifies that a CultureInfo is returned by Context.CultureInfo even
+        /// if Context was created with a non-CultureInfo
+        /// </remarks>
+        [Test]
+        public void TestCurrentCulture_NotACultureInfo()
+        {
+            // Create context with an IFormatProvider that is not a CultureInfo
+            Context context = new Context(CultureInfo.CurrentCulture.NumberFormat);
+            Assert.AreSame(CultureInfo.CurrentCulture, context.CurrentCulture);
+        }
     }
 }

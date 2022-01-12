@@ -67,13 +67,34 @@ namespace DotLiquid
         }
 
         /// <summary>
+        /// Returns a substring of one character or series of array items beginning at the index specified by the first argument.
+        /// </summary>
+        /// <param name="input">The input to be sliced</param>
+        /// <param name="start">zero-based start position of string or array, negative values count back from the end of the string/array.</param>
+        /// <param name="len">An optional second argument specifies the length of the substring or number of array items to be returned</param>
+        /// <returns></returns>
+        public static object Slice(object input, int start, int len = 1)
+        {
+            if (input is IEnumerable<string> enumerableInput)
+            {
+                var skipCount = start < 0 ? Math.Max(0, enumerableInput.Count() + start) : start;
+                return string.Join("", enumerableInput.Skip(skipCount).Take<string>(len));
+            }
+            else if (input is string stringInput)
+            {
+                return SliceString(stringInput as string, start, len);
+            }
+
+            return input;
+        }
+
         /// Return a Part of a String
         /// </summary>
         /// <param name="input"></param>
         /// <param name="start"></param>
         /// <param name="len"></param>
         /// <returns></returns>
-        public static string Slice(string input, long start, long len = 1)
+        private static string SliceString(string input, long start, long len)
         {
             if (input == null || start > input.Length)
                 return null;

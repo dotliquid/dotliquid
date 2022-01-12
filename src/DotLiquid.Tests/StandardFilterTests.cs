@@ -195,6 +195,24 @@ namespace DotLiquid.Tests
             Assert.AreEqual("efg", StandardFilters.Slice("abcdefg", 4, 30));
             Assert.AreEqual("a", StandardFilters.Slice("abc", -4, 2));
             Assert.AreEqual("", StandardFilters.Slice("abcdefg", -10, 1));
+
+            // Test for arrays
+            var testArray = new string[] { "a", "b", "c", "d" };
+            Assert.AreEqual("a", StandardFilters.Slice(testArray, 0));
+            Assert.AreEqual("bc", StandardFilters.Slice(testArray, 1, 2));
+            Assert.AreEqual("c", StandardFilters.Slice(testArray, -2, 1));
+            Assert.AreEqual("d", StandardFilters.Slice(testArray, -1, 1));
+
+            // Test from Liquid specification at https://shopify.github.io/liquid/filters/slice/
+            Helper.AssertTemplateResult(
+                expected: @"
+PaulGeorge",
+                template: @"{% assign beatles = 'John, Paul, George, Ringo' | split: ', ' %}
+{{ beatles | slice: 1, 2 }}");
+
+            Helper.AssertTemplateResult(
+                expected: "ui",
+                template: "{{ 'Liquid' | slice: -3, 2 }}");
         }
 
         [Test]
@@ -253,7 +271,7 @@ namespace DotLiquid.Tests
             var hashes = new List<Hash>();
             for (var i = 0; i < strings.Length; i++)
                 hashes.Add(CreateHash(ints[i], strings[i]));
-            CollectionAssert.AreEqual(new[] { hashes[3], hashes[2], hashes[1], hashes[0]  },
+            CollectionAssert.AreEqual(new[] { hashes[3], hashes[2], hashes[1], hashes[0] },
                 StandardFilters.Sort(_contextV22, hashes, "content"));
             CollectionAssert.AreEqual(new[] { hashes[3], hashes[2], hashes[1], hashes[0] },
                 StandardFilters.Sort(_contextV22, hashes, "sortby"));

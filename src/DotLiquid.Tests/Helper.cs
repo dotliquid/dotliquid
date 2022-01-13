@@ -1,39 +1,76 @@
-﻿using DotLiquid.NamingConventions;
+using System;
+using System.Collections.Generic;
+using DotLiquid.NamingConventions;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
 {
     public class Helper
     {
-        public static void AssertTemplateResult(string expected, string template, Hash localVariables, INamingConvention namingConvention)
+        public static void LockTemplateStaticVars(INamingConvention namingConvention, Action test)
         {
             //Have to lock Template.NamingConvention for this test to
             //prevent other tests from being run simultaneously that
             //require the default naming convention.
             var currentNamingConvention = Template.NamingConvention;
-            lock(Template.NamingConvention)
+            var currentSyntax = Template.DefaultSyntaxCompatibilityLevel;
+            var currentIsRubyDateFormat = Liquid.UseRubyDateFormat;
+            lock (Template.NamingConvention)
             {
                 Template.NamingConvention = namingConvention;
 
                 try
                 {
-                    AssertTemplateResult(expected, template, localVariables);
+                    test();
                 }
                 finally
                 {
                     Template.NamingConvention = currentNamingConvention;
+                    Template.DefaultSyntaxCompatibilityLevel = currentSyntax;
+                    Liquid.UseRubyDateFormat = currentIsRubyDateFormat;
                 }
             }
         }
 
-        public static void AssertTemplateResult(string expected, string template, Hash localVariables)
+
+        public static void AssertTemplateResult(string expected, string template, object anonymousObject, INamingConvention namingConvention, SyntaxCompatibility syntax = SyntaxCompatibility.DotLiquid20)
         {
-            Assert.AreEqual(expected, Template.Parse(template).Render(localVariables));
+            LockTemplateStaticVars(namingConvention, () =>
+            {
+                var localVariables = anonymousObject == null ? null : Hash.FromAnonymousObject(anonymousObject);
+                var parameters = new RenderParameters(System.Globalization.CultureInfo.CurrentCulture)
+                {
+                    LocalVariables = localVariables,
+                    SyntaxCompatibilityLevel = syntax
+                };
+                Assert.AreEqual(expected, Template.Parse(template).Render(parameters));
+            });
         }
 
-        public static void AssertTemplateResult(string expected, string template)
+        public static void AssertTemplateResult(string expected, string template, INamingConvention namingConvention)
         {
-            AssertTemplateResult(expected, template, null);
+            AssertTemplateResult(expected: expected, template: template, anonymousObject: null, namingConvention: namingConvention);
+        }
+
+        public static void AssertTemplateResult(string expected, string template, Hash localVariables, IEnumerable<Type> localFilters, SyntaxCompatibility syntax = SyntaxCompatibility.DotLiquid20)
+        {
+            var parameters = new RenderParameters(System.Globalization.CultureInfo.CurrentCulture)
+            {
+                LocalVariables = localVariables,
+                SyntaxCompatibilityLevel = syntax,
+                Filters = localFilters
+            };
+            Assert.AreEqual(expected, Template.Parse(template).Render(parameters));
+        }
+
+        public static void AssertTemplateResult(string expected, string template, Hash localVariables, SyntaxCompatibility syntax = SyntaxCompatibility.DotLiquid20)
+        {
+            AssertTemplateResult(expected: expected, template: template, localVariables: localVariables, localFilters: null, syntax: syntax);
+        }
+
+        public static void AssertTemplateResult(string expected, string template, SyntaxCompatibility syntax = SyntaxCompatibility.DotLiquid20)
+        {
+            AssertTemplateResult(expected: expected, template: template, localVariables: null, syntax: syntax);
         }
 
         [LiquidTypeAttribute("PropAllowed")]

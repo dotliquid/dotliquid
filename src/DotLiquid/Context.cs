@@ -18,16 +18,47 @@ namespace DotLiquid
     /// </summary>
     public class Context
     {
+        private static readonly HashSet<char> SpecialCharsSet = new HashSet<char>() { '\'', '"', '(', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-' };
         private static readonly Regex SingleQuotedRegex = R.C(R.Q(@"^'(.*)'$"));
         private static readonly Regex DoubleQuotedRegex = R.C(R.Q(@"^""(.*)""$"));
         private static readonly Regex IntegerRegex = R.C(R.Q(@"^([+-]?\d+)$"));
         private static readonly Regex RangeRegex = R.C(R.Q(@"^\((\S+)\.\.(\S+)\)$"));
         private static readonly Regex NumericRegex = R.C(R.Q(@"^([+-]?\d[\d\.|\,]+)$"));
-        private static readonly Regex SquareBracketedRegex = R.C(R.Q(@"^\[(.*)\]$"));
         private static readonly Regex VariableParserRegex = R.C(Liquid.VariableParser);
 
         private readonly ErrorsOutputMode _errorsOutputMode;
-        
+
+        /// <summary>
+        /// Liquid syntax flag used for backward compatibility
+        /// </summary>
+        public SyntaxCompatibility SyntaxCompatibilityLevel { get; set; }
+
+        /// <summary>
+        /// Ruby Date Format flag, switches Date filter syntax between Ruby and CSharp formats.
+        /// </summary>
+        public bool UseRubyDateFormat { get; set; }
+
+        /// <summary>
+        /// Returns the CurrentCulture specified for this Context.
+        /// </summary>
+        /// <remarks>
+        /// **WARNING**: If the context was created with an IFormatProvider that is not also
+        /// a CultureInfo it is replaced with the current threads CurrentCulture.
+        /// </remarks>
+        public CultureInfo CurrentCulture
+        {
+            get
+            {
+                return this.FormatProvider is CultureInfo cultureInfo
+                    ? cultureInfo
+                    : CultureInfo.CurrentCulture;
+            }
+            set
+            {
+                this.FormatProvider = value;
+            }
+        }
+
         private readonly int _maxIterations;
 
         public int MaxIterations
@@ -66,7 +97,7 @@ namespace DotLiquid
         /// <param name="errorsOutputMode"></param>
         /// <param name="maxIterations"></param>
         /// <param name="timeout"></param>
-        /// <param name="formatProvider"></param>
+        /// <param name="formatProvider">A CultureInfo instance that will be used to parse filter input and format filter output</param>
         [Obsolete("The method with timeout argument is deprecated. Please use the one with CancellationToken.")]
         public Context
             (List<Hash> environments
@@ -90,7 +121,7 @@ namespace DotLiquid
         /// <param name="registers"></param>
         /// <param name="errorsOutputMode"></param>
         /// <param name="maxIterations"></param>
-        /// <param name="formatProvider"></param>
+        /// <param name="formatProvider">A CultureInfo instance that will be used to parse filter input and format filter output</param>
         /// <param name="cancellationToken"></param>
         public Context
             (List<Hash> environments
@@ -114,6 +145,8 @@ namespace DotLiquid
             _maxIterations = maxIterations;
             _cancellationToken = cancellationToken;
             FormatProvider = formatProvider;
+            SyntaxCompatibilityLevel = Template.DefaultSyntaxCompatibilityLevel;
+            UseRubyDateFormat = Liquid.UseRubyDateFormat;
 
             SquashInstanceAssignsWithEnvironments();
         }
@@ -121,8 +154,9 @@ namespace DotLiquid
         /// <summary>
         /// Creates a new rendering context
         /// </summary>
+        /// <param name="formatProvider">A CultureInfo instance that will be used to parse filter input and format filter output</param>
         public Context(IFormatProvider formatProvider)
-            : this(new List<Hash>(), new Hash(), new Hash(), ErrorsOutputMode.Display, 0, 0, formatProvider )
+            : this(new List<Hash>(), new Hash(), new Hash(), ErrorsOutputMode.Display, 0, 0, formatProvider)
         {
         }
 
@@ -150,7 +184,7 @@ namespace DotLiquid
         /// Adds a filter from a function
         /// </summary>
         /// <typeparam name="TIn">Type of the first parameter</typeparam>
-        /// <typeparam name="TIn2">Type of the second paramter</typeparam>
+        /// <typeparam name="TIn2">Type of the second parameter</typeparam>
         /// <typeparam name="TOut">Type of the returned value</typeparam>
         /// <param name="filterName">Filter name</param>
         /// <param name="func">Filter function</param>
@@ -223,6 +257,9 @@ namespace DotLiquid
             {
                 return Strainer.Invoke(method, args);
             }
+
+            if (SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid22)
+                throw new FilterNotFoundException(method); // this will be caught and rethrown in caller with correct message
 
             return args.First();
         }
@@ -353,92 +390,116 @@ namespace DotLiquid
                     return false;
                 case "blank":
                 case "empty":
-                    return new Symbol(o => o is IEnumerable && !((IEnumerable)o).Cast<object>().Any());
+                    return new Symbol(o => (o is IEnumerable enumerableO) && !enumerableO.Cast<object>().Any());
             }
 
-            // Single quoted strings.
-            Match match = SingleQuotedRegex.Match(key);
-            if (match.Success)
-                return match.Groups[1].Value;
-
-            // Double quoted strings.
-            match = DoubleQuotedRegex.Match(key);
-            if (match.Success)
-                return match.Groups[1].Value;
-
-            // Integer.
-            match = IntegerRegex.Match(key);
-            if (match.Success)
+            var firstChar = key[0];
+            if (SpecialCharsSet.Contains(firstChar))
             {
-                try
+                switch (firstChar)
                 {
-                    return Convert.ToInt32(match.Groups[1].Value);
-                }
-                catch (OverflowException)
-                {
-                    return Convert.ToInt64(match.Groups[1].Value);
+                    case '\'':
+                        // Single quoted strings.
+                        Match match = SingleQuotedRegex.Match(key);
+                        if (match.Success)
+                            return match.Groups[1].Value;
+                        break;
+                    case '"':
+                        // Double quoted strings.
+                        match = DoubleQuotedRegex.Match(key);
+                        if (match.Success)
+                            return match.Groups[1].Value;
+                        break;
+                    case '(':
+                        // Ranges.
+                        match = RangeRegex.Match(key);
+                        if (match.Success)
+                            return DotLiquid.Util.Range.Inclusive(Convert.ToInt32(Resolve(match.Groups[1].Value)),
+                                Convert.ToInt32(Resolve(match.Groups[2].Value)));
+                        break;
+                    default:
+                        // Integer.
+                        match = IntegerRegex.Match(key);
+                        if (match.Success)
+                        {
+                            try
+                            {
+                                return Convert.ToInt32(match.Groups[1].Value);
+                            }
+                            catch (OverflowException)
+                            {
+                                return Convert.ToInt64(match.Groups[1].Value);
+                            }
+                        }
+
+                        // Floating point numbers.
+                        match = NumericRegex.Match(key);
+                        if (match.Success)
+                        {
+                            // For cultures with "," as the decimal separator, allow
+                            // both "," and "." to be used as the separator.
+                            // First try to parse using current culture.
+                            // If that fails, try to parse using invariant culture.
+                            // Also, first try higher precision decimal.
+                            // If that fails, try to parse as double (precision float).
+                            // Double is less precise but has a larger range.
+                            if (decimal.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, FormatProvider, out decimal parsedDecimalCurrentCulture))
+                                return parsedDecimalCurrentCulture;
+                            if (decimal.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, CultureInfo.InvariantCulture, out decimal parsedDecimalInvariantCulture))
+                                return parsedDecimalInvariantCulture;
+                            if (double.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, FormatProvider, out double parsedDouble))
+                                return parsedDouble;
+                            return double.Parse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, CultureInfo.InvariantCulture);
+                        }
+                        break;
                 }
             }
-
-            // Ranges.
-            match = RangeRegex.Match(key);
-            if (match.Success)
-                return Range.Inclusive(Convert.ToInt32(Resolve(match.Groups[1].Value)),
-                    Convert.ToInt32(Resolve(match.Groups[2].Value)));
-
-            // Floating point numbers.
-            match = NumericRegex.Match(key);
-            if (match.Success)
-            {
-                // For cultures with "," as the decimal separator, allow
-                // both "," and "." to be used as the separator.
-                // First try to parse using current culture.
-                // If that fails, try to parse using invariant culture.
-                // Also, first try higher precision decimal.
-                // If that fails, try to parse as double (precision float).
-                // Double is less precise but has a larger range.
-                if (decimal.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, FormatProvider, out decimal parsedDecimalCurrentCulture))
-                    return parsedDecimalCurrentCulture;
-                if (decimal.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, CultureInfo.InvariantCulture, out decimal parsedDecimalInvariantCulture))
-                    return parsedDecimalInvariantCulture;
-                if (double.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, FormatProvider, out double parsedDouble))
-                    return parsedDouble;
-                return double.Parse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, CultureInfo.InvariantCulture);
-            }
-
             return Variable(key, notifyNotFound);
         }
 
-        public IFormatProvider FormatProvider { get; }
+        public IFormatProvider FormatProvider { get; private set; }
 
         /// <summary>
         /// Fetches an object starting at the local scope and then moving up
         /// the hierarchy
         /// </summary>
         /// <param name="key"></param>
+        /// <param name="variable"></param>
         /// <returns></returns>
-        private object FindVariable(string key)
+        private bool TryFindVariable(string key, out object variable)
         {
+            bool foundVariable = false;
+            object foundValue = null;
             Hash scope = Scopes.FirstOrDefault(s => s.ContainsKey(key));
-            object variable = null;
             if (scope == null)
             {
-                foreach (Hash e in Environments)
-                    if ((variable = LookupAndEvaluate(e, key)) != null)
+                foreach (Hash environment in Environments)
+                {
+                    foundVariable = TryEvaluateHashOrArrayLikeObject(environment, key, out foundValue);
+                    if (foundVariable)
                     {
-                        scope = e;
+                        scope = environment;
                         break;
                     }
-            }
-            scope = scope ?? Environments.LastOrDefault() ?? Scopes.Last();
-            variable = variable ?? LookupAndEvaluate(scope, key);
+                }
 
-            variable = Liquidize(variable);
+                if (scope == null)
+                {
+                    scope = Environments.LastOrDefault() ?? Scopes.Last();
+                    foundVariable = TryEvaluateHashOrArrayLikeObject(scope, key, out foundValue);
+                }
+            }
+            else
+            {
+                foundVariable = TryEvaluateHashOrArrayLikeObject(scope, key, out foundValue);
+            }
+
+            variable = Liquidize(foundValue);
             if (variable is IContextAware contextAwareVariable)
             {
                 contextAwareVariable.Context = this;
             }
-            return variable;
+            return foundVariable;
         }
 
         /// <summary>
@@ -455,94 +516,85 @@ namespace DotLiquid
         /// <returns></returns>
         private object Variable(string markup, bool notifyNotFound)
         {
-            List<string> parts = R.Scan(markup, VariableParserRegex);
-
-            // first item in list, if any
-            string firstPart = parts.TryGetAtIndex(0);
-
-            Match firstPartSquareBracketedMatch = SquareBracketedRegex.Match(firstPart);
-            if (firstPartSquareBracketedMatch.Success)
-                firstPart = Resolve(firstPartSquareBracketedMatch.Groups[1].Value).ToString();
-
-            object @object;
-            if ((@object = FindVariable(firstPart)) == null)
+            using (var partsEnumerator = SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid22 ? Tokenizer.GetVariableEnumerator(markup) : R.Scan(markup, VariableParserRegex).GetEnumerator())
             {
+                if (TryGetVariable(partsEnumerator, out var variable))
+                    return variable;
                 if (notifyNotFound)
                     Errors.Add(new VariableNotFoundException(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), markup)));
                 return null;
             }
+        }
+
+        private bool TryGetVariable(IEnumerator<string> partsEnumerator, out object variable)
+        {
+            // first item in list, if any
+            string firstPart = partsEnumerator.MoveNext() ? partsEnumerator.Current : null;
+            if (firstPart != null && firstPart[0] == '[')
+                firstPart = Resolve(firstPart.Substring(1, firstPart.Length - 2)).ToString();
+
+            object @object;
+            if (firstPart == null || !TryFindVariable(firstPart, out @object))
+            {
+                variable = null;
+                return false;
+            }
 
             // try to resolve the rest of the parts (starting from the second item in the list)
-            for (int i = 1; i < parts.Count; ++i)
+            while (partsEnumerator.MoveNext())
             {
-                var forEachPart = parts[i];
-                Match partSquareBracketedMatch = SquareBracketedRegex.Match(forEachPart);
-                bool partResolved = partSquareBracketedMatch.Success;
+                string forEachPart = partsEnumerator.Current;
+                bool partResolved = forEachPart[0] == '[';
 
                 object part = forEachPart;
                 if (partResolved)
-                    part = Resolve(partSquareBracketedMatch.Groups[1].Value);
+                    part = Resolve(forEachPart.Substring(1, forEachPart.Length - 2));
 
-                // If object is a KeyValuePair, we treat it a bit differently - we might be rendering
-                // an included template.
-                if (IsKeyValuePair(@object) && (part.SafeTypeInsensitiveEqual(0L) || part.Equals("Key")))
+                // If object is a KeyValuePair and the required part is either 0 or 'Key', return the Key.
+                var isKeyValuePair = IsKeyValuePair(@object);
+                if (isKeyValuePair && (part.SafeTypeInsensitiveEqual(0L) || part.Equals("Key")))
                 {
-                    object res = @object.GetType().GetRuntimeProperty("Key").GetValue(@object);
-                    @object = Liquidize(res);
+                    @object = Liquidize(@object.GetPropertyValue("Key"));
+                }
+                // If object is a KeyValuePair and the required part is either 1 or 'Value' or part matches the key, return the Value.
+                else if (isKeyValuePair && (part.SafeTypeInsensitiveEqual(1L)
+                                        || part.Equals("Value")
+                                        || part.Equals(@object.GetPropertyValue("Key"))))
+                {
+                    @object = Liquidize(@object.GetPropertyValue("Value"));
                 }
                 // If object is a hash- or array-like object we look for the
                 // presence of the key and if its available we return it
-                else if (IsKeyValuePair(@object) && (part.SafeTypeInsensitiveEqual(1L) || part.Equals("Value")))
+                else if (TryEvaluateHashOrArrayLikeObject(@object, part, out var hashObj))
                 {
                     // If its a proc we will replace the entry with the proc
-                    object res = @object.GetType().GetRuntimeProperty("Value").GetValue(@object);
-                    @object = Liquidize(res);
+                    @object = Liquidize(hashObj);
+                }
+                // Some special cases. If the part wasn't in square brackets and
+                // no key with the same name was found we interpret first/last/size
+                // as commands and call them on the current object
+                else if (!partResolved && (@object is IEnumerable enumerable) && (Template.NamingConvention.OperatorEquals(part as string, "size") || Template.NamingConvention.OperatorEquals(part as string, "first") || Template.NamingConvention.OperatorEquals(part as string, "last")))
+                {
+                    var castCollection = enumerable.Cast<object>();
+                    if (Template.NamingConvention.OperatorEquals(part as string, "size"))
+                    {
+                        @object = castCollection.Count();
+                    }
+                    else if (Template.NamingConvention.OperatorEquals(part as string, "first"))
+                    {
+                        @object = Liquidize(castCollection.FirstOrDefault());
+                    }
+                    else
+                    {
+                        @object = Liquidize(castCollection.LastOrDefault());
+                    }
                 }
                 // No key was present with the desired value and it wasn't one of the directly supported
                 // keywords either. The only thing we got left is to return nil
                 else
                 {
-                    // If object is a KeyValuePair, we treat it a bit differently - we might be rendering
-                    // an included template.
-                    if (@object is KeyValuePair<string, object> && ((KeyValuePair<string, object>)@object).Key == (string)part)
-                    {
-                        object res = ((KeyValuePair<string, object>)@object).Value;
-                        @object = Liquidize(res);
-                    }
-                    // If object is a hash- or array-like object we look for the
-                    // presence of the key and if its available we return it
-                    else if (IsHashOrArrayLikeObject(@object, part))
-                    {
-                        // If its a proc we will replace the entry with the proc
-                        object res = LookupAndEvaluate(@object, part);
-                        @object = Liquidize(res);
-                    }
-                    // Some special cases. If the part wasn't in square brackets and
-                    // no key with the same name was found we interpret following calls
-                    // as commands and call them on the current object
-                    else if (!partResolved && (@object is IEnumerable) && ((part as string) == "size" || (part as string) == "first" || (part as string) == "last"))
-                    {
-                        var castCollection = ((IEnumerable)@object).Cast<object>();
-                        if ((part as string) == "size")
-                            @object = castCollection.Count();
-                        else if ((part as string) == "first")
-                        {
-                            object res = castCollection.FirstOrDefault();
-                            @object = Liquidize(res);
-                        }
-                        else if ((part as string) == "last")
-                        {
-                            object res = castCollection.LastOrDefault();
-                            @object = Liquidize(res);
-                        }
-                    }
-                    // No key was present with the desired value and it wasn't one of the directly supported
-                    // keywords either. The only thing we got left is to return nil
-                    else
-                    {
-                        Errors.Add(new VariableNotFoundException(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), markup)));
-                        return null;
-                    }
+                    variable = null;
+                    return false;
                 }
 
                 // If we are dealing with a drop here we have to
@@ -551,53 +603,35 @@ namespace DotLiquid
                     contextAwareObject.Context = this;
                 }
             }
-
-            return @object;
+            variable = @object;
+            return true;
         }
 
-        private static bool IsHashOrArrayLikeObject(object obj, object part)
+        private bool TryEvaluateHashOrArrayLikeObject(object obj, object key, out object value)
         {
+            value = null;
+
             if (obj == null)
                 return false;
 
-            if ((obj is IDictionary && ((IDictionary)obj).Contains(part)))
-                return true;
-
-            if ((obj is IList) && (part is int || part is long))
-                return true;
-
-            if (TypeUtility.IsAnonymousType(obj.GetType()) && obj.GetType().GetRuntimeProperty((string)part) != null)
-                return true;
-
-            if ((obj is IIndexable) && ((IIndexable)obj).ContainsKey(part))
-                return true;
-
-            return false;
-        }
-
-        private object LookupAndEvaluate(object obj, object key)
-        {
-            object value;
-            if (obj is IDictionary dictionaryObj)
-            { 
+            if ((obj is IDictionary dictionaryObj && dictionaryObj.Contains(key)))
                 value = dictionaryObj[key];
-            }
-            else if (obj is IList listObj)
-            { 
+
+            // Resolve #350/#417, add support for rendering of a nested  ExpandoObject
+            else if (obj is IDictionary<string, object> dictionaryObject && dictionaryObject.ContainsKey(key.ToString()))
+                value = dictionaryObject[key.ToString()];
+
+            else if ((obj is IList listObj) && (key is int || key is long))
                 value = listObj[Convert.ToInt32(key)];
-            }
-            else if (TypeUtility.IsAnonymousType(obj.GetType()))
-            { 
+
+            else if (TypeUtility.IsAnonymousType(obj.GetType()) && obj.GetType().GetRuntimeProperty((string)key) != null)
                 value = obj.GetType().GetRuntimeProperty((string)key).GetValue(obj, null);
-            }
-            else if (obj is IIndexable indexableObj)
-            { 
+
+            else if ((obj is IIndexable indexableObj) && indexableObj.ContainsKey(key))
                 value = indexableObj[key];
-            }
+
             else
-            { 
-                throw new NotSupportedException();
-            }
+                return false;
 
             if (value is Proc procValue)
             {
@@ -611,17 +645,17 @@ namespace DotLiquid
                     listObj[Convert.ToInt32(key)] = newValue;
                 }
                 else if (TypeUtility.IsAnonymousType(obj.GetType()))
-                { 
+                {
                     obj.GetType().GetRuntimeProperty((string)key).SetValue(obj, newValue, null);
                 }
                 else
-                { 
+                {
                     throw new NotSupportedException();
                 }
-                return newValue;
+                value = newValue;
             }
 
-            return value;
+            return true;
         }
 
         private static object Liquidize(object obj)
@@ -634,52 +668,35 @@ namespace DotLiquid
             {
                 return liquidizableObj.ToLiquid();
             }
-            if (obj is string)
-            {
-                return obj;
-            }
-            if (obj is IEnumerable)
-            {
-                return obj;
-            }
-            if (obj.GetType().GetTypeInfo().IsPrimitive)
-            {
-                return obj;
-            }
-            if (obj is decimal)
-            {
-                return obj;
-            }
-            if (obj is DateTime)
-            {
-                return obj;
-            }
-            if (obj is DateTimeOffset)
-            {
-                return obj;
-            }
-            if (obj is TimeSpan)
-            {
-                return obj;
-            }
-            if (obj is Guid)
-            {
-                return obj;
-            }
-            if (TypeUtility.IsAnonymousType(obj.GetType()))
+            if (obj is string || obj is IEnumerable || obj is decimal || obj is DateTime || obj is DateTimeOffset || obj is TimeSpan || obj is Guid || obj is Enum)
             {
                 return obj;
             }
 
-            var safeTypeTransformer = Template.GetSafeTypeTransformer(obj.GetType());
+            var valueType = obj.GetType();
+#if NETSTANDARD1_3
+            if (valueType.GetTypeInfo().IsPrimitive)
+#else
+            if (valueType.IsPrimitive)
+#endif
+            {
+                return obj;
+            }
+
+            if (TypeUtility.IsAnonymousType(valueType))
+            {
+                return obj;
+            }
+
+            var safeTypeTransformer = Template.GetSafeTypeTransformer(valueType);
             if (safeTypeTransformer != null)
             {
                 return safeTypeTransformer(obj);
             }
 
-            if (obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).Any())
+            var attr = (LiquidTypeAttribute)valueType.GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).FirstOrDefault();
+            if (attr != null)
             {
-                var attr = (LiquidTypeAttribute) obj.GetType().GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).First();
                 return new DropProxy(obj, attr.AllowedMembers);
             }
 
@@ -696,7 +713,11 @@ namespace DotLiquid
             if (obj != null)
             {
                 Type valueType = obj.GetType();
+#if NETSTANDARD1_3
                 if (valueType.GetTypeInfo().IsGenericType)
+#else
+                if (valueType.IsGenericType)
+#endif
                 {
                     Type baseType = valueType.GetGenericTypeDefinition();
                     if (baseType == typeof(KeyValuePair<,>))
@@ -717,7 +738,7 @@ namespace DotLiquid
                 foreach (Hash env in Environments)
                     if (env.ContainsKey(k))
                     {
-                        tempAssigns[k] = LookupAndEvaluate(env, k);
+                        tempAssigns[k] = env[k];
                         break;
                     }
 

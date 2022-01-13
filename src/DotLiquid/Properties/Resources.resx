@@ -222,6 +222,9 @@
   <data name="VariableNotFoundException" xml:space="preserve">
     <value>Error - Variable '{0}' could not be found</value>
   </data>
+  <data name="VariableNotTerminatedException" xml:space="preserve">
+    <value>Variable '{0}' was not properly terminated</value>
+  </data>
   <data name="WeakTableKeyNotFoundException" xml:space="preserve">
     <value>key could not be found</value>
   </data>
@@ -230,5 +233,17 @@
   </data>
   <data name="ForTagMaximumIterationsExceededException" xml:space="preserve">
     <value>Render Error - Maximum number of iterations {0} exceeded</value>
+  </data>
+  <data name="SimpleTagSyntaxException" xml:space="preserve">
+    <value>Syntax Error in '{0}' tag - Valid syntax: {0}</value>
+  </data>
+  <data name="ParamTagSyntaxException" xml:space="preserve">
+    <value>Unsupported parameter: '{0}', supported options are: {1}</value>
+  </data>
+  <data name="ParamOptionSyntaxException" xml:space="preserve">
+    <value>Invalid {0} option: '{1}', supported options are: {2}</value>
+  </data>
+  <data name="CultureNotFoundException" xml:space="preserve">
+    <value>Culture '{0}' is not supported</value>
   </data>
 </root>

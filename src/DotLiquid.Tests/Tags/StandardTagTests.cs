@@ -44,6 +44,13 @@ namespace DotLiquid.Tests.Tags
             Helper.AssertTemplateResult("", "{% comment %}{% endcomment %}");
             Helper.AssertTemplateResult("", "{%comment%}comment{%endcomment%}");
             Helper.AssertTemplateResult("", "{% comment %}comment{% endcomment %}");
+            //Helper.AssertTemplateResult("", "{% comment %} 1 {% comment %} 2 {% endcomment %} 3 {% endcomment %}");
+
+            Helper.AssertTemplateResult("", "{%comment%}{%blabla%}{%endcomment%}");
+            Helper.AssertTemplateResult("", "{% comment %}{% blabla %}{% endcomment %}");
+            Helper.AssertTemplateResult("", "{%comment%}{% endif %}{%endcomment%}");
+            Helper.AssertTemplateResult("", "{% comment %}{% endwhatever %}{% endcomment %}");
+            //Helper.AssertTemplateResult("", "{% comment %}{% raw %} {{%%%%}}  }} { {% endcomment -%} {% comment {% endraw %} {% endcomment %}");
 
             Helper.AssertTemplateResult("foobar", "foo{%comment%}comment{%endcomment%}bar");
             Helper.AssertTemplateResult("foobar", "foo{% comment %}comment{% endcomment %}bar");
@@ -74,17 +81,43 @@ namespace DotLiquid.Tests.Tags
         public void TestForWithNestedDictionary()
         {
             var dictionary = new Dictionary<string, object> { {
-            "People", 
+            "People",
             new Dictionary<string, object> {
                     { "ID1", new Dictionary<string, object>{ { "First", "Jane" }, { "Last", "Green" } } },
                     { "ID2", new Dictionary<string, object>{ { "First", "Mike" }, { "Last", "Doe" } } }
                 }
             } };
 
-            Helper.AssertTemplateResult("JaneMike", "{% for item in People %}{{ item.First }}{%endfor%}",
-                Hash.FromDictionary(dictionary));
+            // Validate that:
+            // 1) Nested dictionary properties can be accessed with or without specifying Value.
+            // 2) itemName can still be used as an alias for Key.
+            Helper.AssertTemplateResult(
+                expected: "ID1:Jane Green,ID2:Mike Doe,",
+                template: "{% for item in People %}{{ item.itemName }}:{{ item.First }} {{ item.Value.Last }},{%endfor%}",
+                localVariables: Hash.FromDictionary(dictionary),
+                syntax: SyntaxCompatibility.DotLiquid20);
         }
 
+        [Test]
+        public void TestForWithNestedDictionary_DotLiquid22()
+        {
+            var dictionary = new Dictionary<string, object> { {
+                "People",
+                new Dictionary<string, object> {
+                        { "ID1", new Dictionary<string, object>{ { "First", "Jane" }, { "Last", "Green" } } },
+                        { "ID2", new Dictionary<string, object>{ { "First", "Mike" }, { "Last", "Doe" } } }
+                    }
+            } };
+
+            // Validate that:
+            // 1) Nested dictionary properties can only be accessed when specifying Value.
+            // 2) itemName is no longer supported as an alias for Key.
+            Helper.AssertTemplateResult(
+                expected: "ID1:Jane,ID2:Mike,",
+                template: "{% for item in People %}{{ item.itemName }}{{ item.First }}{{ item.Key }}:{{ item.Value.First }},{%endfor%}",
+                localVariables: Hash.FromDictionary(dictionary),
+                syntax: SyntaxCompatibility.DotLiquid22);
+        }
 
         public class TestDictObject : Drop
         {
@@ -166,6 +199,15 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.AssertTemplateResult("+--", "{%for item in array%}{% if forloop.first %}+{% else %}-{% endif %}{%endfor%}",
                 Hash.FromAnonymousObject(new { array = new[] { 1, 2, 3 } }));
+        }
+
+        [Test]
+        public void TestForElse()
+        {
+            // parity tests with https://github.com/Shopify/liquid/blob/master/test/integration/tags/for_tag_test.rb
+            Helper.AssertTemplateResult("+++", "{%for item in array%}+{%else%}-{%endfor%}", Hash.FromAnonymousObject(new { array = new[] { 1, 2, 3 } }));
+            Helper.AssertTemplateResult("-", "{%for item in array%}+{%else%}-{%endfor%}", Hash.FromAnonymousObject(new { array = new int[0] }));
+            Helper.AssertTemplateResult("-", "{%for item in array%}+{%else%}-{%endfor%}", Hash.FromAnonymousObject(new { array = (int[])null }));
         }
 
         [Test]
@@ -313,9 +355,9 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestContinueOutsideFor()
         {
-        var markup = "123{% continue %}456";
-        var expected = "123";
-        Helper.AssertTemplateResult(expected, markup);
+            var markup = "123{% continue %}456";
+            var expected = "123";
+            Helper.AssertTemplateResult(expected, markup);
         }
 
         [Test]
@@ -462,7 +504,7 @@ namespace DotLiquid.Tests.Tags
                 "{% case condition %}{% when 1 or 'string' or null %} its 1 or 2 or 3 {% when 4 %} its 4 {% endcase %}";
             Helper.AssertTemplateResult(" its 1 or 2 or 3 ", code2, Hash.FromAnonymousObject(new { condition = 1 }));
             Helper.AssertTemplateResult(" its 1 or 2 or 3 ", code2, Hash.FromAnonymousObject(new { condition = "string" }));
-            Helper.AssertTemplateResult(" its 1 or 2 or 3 ", code2, Hash.FromAnonymousObject(new { condition = (object) null }));
+            Helper.AssertTemplateResult(" its 1 or 2 or 3 ", code2, Hash.FromAnonymousObject(new { condition = (object)null }));
             Helper.AssertTemplateResult("", code2, Hash.FromAnonymousObject(new { condition = "something else" }));
         }
 
@@ -480,7 +522,7 @@ namespace DotLiquid.Tests.Tags
                 "{% case condition %}{% when 1, 'string', null %} its 1 or 2 or 3 {% when 4 %} its 4 {% endcase %}";
             Helper.AssertTemplateResult(" its 1 or 2 or 3 ", code2, Hash.FromAnonymousObject(new { condition = 1 }));
             Helper.AssertTemplateResult(" its 1 or 2 or 3 ", code2, Hash.FromAnonymousObject(new { condition = "string" }));
-            Helper.AssertTemplateResult(" its 1 or 2 or 3 ", code2, Hash.FromAnonymousObject(new { condition = (object) null }));
+            Helper.AssertTemplateResult(" its 1 or 2 or 3 ", code2, Hash.FromAnonymousObject(new { condition = (object)null }));
             Helper.AssertTemplateResult("", code2, Hash.FromAnonymousObject(new { condition = "something else" }));
         }
 
@@ -576,6 +618,51 @@ namespace DotLiquid.Tests.Tags
         }
 
         [Test]
+        public void TestNestedDictionaries_DotLiquid22()
+        {
+            var classes = new Dictionary<string, object> {{
+                    "Classes", new Dictionary<string, object> {
+                        { "C1", new Dictionary<string, object>{
+                            { "Name", "English" },
+                            { "Level", "1" },
+                            { "Students", new Dictionary<string, object> {
+                                { "ID1", new Dictionary<string, object>{ { "First", "Jane" }, { "Last", "Green" } } },
+                                { "ID2", new Dictionary<string, object>{ { "First", "Mike" }, { "Last", "Doe" } } } } }
+                            }
+                        },
+                        { "C2", new Dictionary<string, object>{
+                            { "Name", "Maths" },
+                            { "Level", "2" },
+                            { "Students", new Dictionary<string, object> {
+                                { "ID3", new Dictionary<string, object>{ { "First", "Eric" }, { "Last", "Schmidt" } } },
+                                { "ID4", new Dictionary<string, object>{ { "First", "Bruce" }, { "Last", "Banner" } } } } }
+                            }
+                        }
+                    }
+            }};
+
+            // Check for-loops, verify that:
+            // - item.Key OR item[0] --> access the Key
+            // - item.Value.property OR item[1].property --> access values of a nested Hash/IDictionary
+            // - Pre 2.2 syntax (item.property> OR item.itemName) is ignored 
+            Helper.AssertTemplateResult(
+                expected: @"English 1: Jane Green (ID1), Mike Doe (ID2), 
+Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4), 
+",
+                template: @"{% for class in Classes %}{{class.Name}}{{class.Value.Name}} {{class.Value.Level}}: {% for student in class.Value.Students %}{{ student[1].First }} {{ student[1].Last }} ({{ student[0] }}), {%endfor%}
+{%endfor%}",
+                localVariables: Hash.FromDictionary(classes),
+                syntax: SyntaxCompatibility.DotLiquid22);
+
+            // Check dot notation
+            Helper.AssertTemplateResult(
+                expected: "Eric Schmidt",
+                template: "{{ Classes.C2.Students.ID3.First }} {{ Classes.C2.Students.ID3.Last }}",
+                localVariables: Hash.FromDictionary(classes),
+                syntax: SyntaxCompatibility.DotLiquid22);
+        }
+
+        [Test]
         public void TestIfChanged()
         {
             Hash assigns = Hash.FromAnonymousObject(new { array = new[] { 1, 1, 2, 2, 3, 3 } });
@@ -583,6 +670,36 @@ namespace DotLiquid.Tests.Tags
 
             assigns = Hash.FromAnonymousObject(new { array = new[] { 1, 1, 1, 1 } });
             Helper.AssertTemplateResult("1", "{%for item in array%}{%ifchanged%}{{item}}{% endifchanged %}{%endfor%}", assigns);
+        }
+
+        [Test]
+        public void TestGetRegister()
+        {
+            var context = new Context(CultureInfo.InvariantCulture);
+            Tag.GetRegister<int>(context, "cycle");
+            Tag.GetRegister<object>(context, "for");
+            Assert.IsInstanceOf<IDictionary<string, int>>(Tag.GetRegister<int>(context, "cycle"));
+        }
+
+        [Test]
+        public void TestLegacyKeyValueDrop()
+        {
+            var valueDictionary = new Dictionary<string, object> { { "First", "Jane" }, { "Last", "Green" } };
+            var drop = new DotLiquid.Tags.LegacyKeyValueDrop("key", valueDictionary);
+
+            // Confirm Key access
+            Assert.AreEqual("key", drop.BeforeMethod("0")); // Ruby syntax equivalent for Key
+            Assert.AreEqual("key", drop.BeforeMethod("Key")); // C# equivalent syntax
+            Assert.AreEqual("key", drop.BeforeMethod("itemName")); // non-standard alias for KeyValuePair.Key
+
+            // Confirm Value access
+            Assert.AreSame(valueDictionary, drop.BeforeMethod("1")); //Ruby syntax equivalent for KeyValuePair.Value
+            Assert.AreSame(valueDictionary, drop.BeforeMethod("Value")); // C# equivalent syntax
+
+            // Confirm Value.Property access
+            Assert.AreEqual("Jane", drop.BeforeMethod("First"));
+            Assert.AreEqual("Green", drop.BeforeMethod("Last"));
+            Assert.IsNull(drop.BeforeMethod("UnknownProperty"));
         }
     }
 }

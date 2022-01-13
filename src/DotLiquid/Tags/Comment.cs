@@ -5,7 +5,7 @@ using DotLiquid.Util;
 
 namespace DotLiquid.Tags
 {
-    public class Comment : DotLiquid.Block
+    public class Comment : DotLiquid.RawBlock
     {
         private static readonly Regex ShortHandRegex = R.C(Liquid.CommentShorthand);
 

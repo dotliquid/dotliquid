@@ -2,7 +2,6 @@
 
 [![DotLiquid tag on Stack Overflow](https://img.shields.io/badge/stackoverflow-dotliquid-orange.svg)](https://stackoverflow.com/questions/tagged/dotliquid)
 [![AppVeyor build](https://ci.appveyor.com/api/projects/status/github/dotliquid/dotliquid?branch=master&svg=true)](https://ci.appveyor.com/project/tgjones/dotliquid)
-[![TravisCI build](https://travis-ci.org/dotliquid/dotliquid.svg?branch=master)](https://travis-ci.org/dotliquid/dotliquid)
 [![codecov](https://codecov.io/gh/dotliquid/dotliquid/branch/master/graph/badge.svg)](https://codecov.io/gh/dotliquid/dotliquid)
 [![NuGet](https://img.shields.io/nuget/v/dotliquid.svg)](https://www.nuget.org/packages/dotliquid)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/dotliquid/dotliquid?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
@@ -26,9 +25,7 @@ For more information about the original Liquid project, see
 
 ### Quick start
 
-1. Download the latest release from the [downloads
-   page](https://github.com/dotliquid/dotliquid/downloads) or [NuGet](https://www.nuget.org/packages/dotliquid).  The zip file
-   contains DotLiquid.dll, which is the only one you need.
+1. Download the latest release from [NuGet](https://www.nuget.org/packages/dotliquid).
 2. Read the [docs](//github.com/dotliquid/dotliquid/wiki) for information
    on writing and using DotLiquid templates.
 
@@ -78,6 +75,7 @@ Are you using DotLiquid in an open source project? Tell us with a PR!
  - [Docfx](https://github.com/dotnet/docfx)
  - [DotLiquid.Mailer](https://github.com/miseeger/DotLiquid.Mailer)
  - [DotLiquid Template Engine for Suave.IO](https://www.nuget.org/packages/Suave.DotLiquid/)
+ - [DotLiquid Template Engine for Giraffe](https://github.com/giraffe-fsharp/Giraffe.DotLiquid)
  - [DotLiquid View Engine for ASP.NET MVC](https://www.nuget.org/packages/DotLiquid.ViewEngine)
  - [DotLiquid View Engine for Nancy](https://www.nuget.org/packages/Nancy.Viewengines.DotLiquid)
- - [GrandNode](https://github.com/grandnode/grandnode)
+ - [GrandNode 2.0](https://github.com/grandnode/grandnode2)

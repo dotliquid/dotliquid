@@ -31,7 +31,8 @@ We prefer if each new feature must have been discussed first before submitting i
 
 ## Testing
 
- - Tests are mandatory for new functionality, please add some in the tests suite.
+ - Tests are mandatory for new functionality, please add some in the tests suite. 
+ - See [the Shopify tests](https://github.com/Shopify/liquid/tree/master/test) as a starting point.
  
 You can see the result either:
 - in Visual Studio or other IDE supporting NUnit 3

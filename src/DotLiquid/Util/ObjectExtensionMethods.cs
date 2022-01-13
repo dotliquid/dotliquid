@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -6,6 +7,11 @@ namespace DotLiquid.Util
 {
     public static class ObjectExtensionMethods
     {
+        private static HashSet<HashSet<Type>> _BackCompatComparableTypeBoundaries = new HashSet<HashSet<Type>>() {
+            new HashSet<Type> { typeof(decimal), typeof(double), typeof(float), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(short), typeof(ushort) },
+            new HashSet<Type> { typeof(string), typeof(char) }
+        };
+
         public static bool RespondTo(this object value, string member, bool ensureNoParameters = true)
         {
             if (value == null)
@@ -24,6 +30,13 @@ namespace DotLiquid.Util
             return false;
         }
 
+        /// <summary>
+        /// Use reflection to invoke a method, or access a property with the given name.
+        /// </summary>
+        /// <param name="value">an object to be interrogated</param>
+        /// <param name="member">the name of the method or property to "send"</param>
+        /// <param name="parameters">if a method, zero or more parameters to be used for invocation</param>
+        /// <returns>The method return value, or property value if it exists</returns>
         public static object Send(this object value, string member, object[] parameters = null)
         {
             if (value == null)
@@ -43,6 +56,17 @@ namespace DotLiquid.Util
         }
 
         /// <summary>
+        /// Use reflection to get the value of a property with the given name.
+        /// </summary>
+        /// <param name="object">an object to be interrogated</param>
+        /// <param name="propertyName">the name of the property to get</param>
+        /// <returns>The property value if it exists, otherwise null</returns>
+        public static object GetPropertyValue(this object @object, string propertyName)
+        {
+            return @object?.GetType().GetRuntimeProperty(propertyName)?.GetValue(@object, null);
+        }
+
+        /// <summary>
         /// Test values for equality accross type boundaries except string to non-char, null-safe
         /// </summary>
         /// <param name="value">The first value.</param>
@@ -50,15 +74,20 @@ namespace DotLiquid.Util
         /// <returns>True if the values are equal, false otherwise.</returns>
         public static bool BackCompatSafeTypeInsensitiveEqual(this object value, object otherValue)
         {
-            // NOTE(daviburg): Historically testing for equality cross integer and string boundaries resulted in not equal.
-            // This ensures we preserve the behavior.
-            if (value is string && !(otherValue is char) || otherValue is string && !(value is char))
+            if (value != null && otherValue != null)
             {
-                return false;
+                // NOTE(daviburg): Historically testing for equality cross integer and string boundaries resulted in not equal.
+                // This ensures we preserve the behavior.
+                var comparedTypes = new HashSet<Type>() { value.GetType(), otherValue.GetType() };
+                if (comparedTypes.Count > 1 && _BackCompatComparableTypeBoundaries.All(boundary => !comparedTypes.IsSubsetOf(boundary)))
+                {
+                    return false;
+                }
             }
 
             return ObjectExtensionMethods.SafeTypeInsensitiveEqual(value: value, otherValue: otherValue);
         }
+
         /// <summary>
         /// Test values for equality accross type boundaries, null-safe
         /// </summary>
@@ -108,6 +137,27 @@ namespace DotLiquid.Util
                     return false;
                 }
             }
+        }
+
+        /// <summary>
+        /// All values in Liquid are Truthy except nil and false.
+        /// </summary>
+        /// <param name="any">any object</param>
+        /// <returns>True if the object is Truthy</returns>
+        /// <see href="https://shopify.github.io/liquid/basics/truthy-and-falsy/"/>
+        public static bool IsTruthy(this object any) => !IsFalsy(any);
+
+        /// <summary>
+        /// The only values that are Falsy in Liquid are nil and false.
+        /// </summary>
+        /// <param name="any">any object</param>
+        /// <returns>True if the object is Falsy</returns>
+        /// <see href="https://shopify.github.io/liquid/basics/truthy-and-falsy/"/>
+        public static bool IsFalsy(this object any)
+        {
+            return any == null
+                || (any is bool _bool && _bool == false)
+                || (any is string _string && "false".Equals(_string, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

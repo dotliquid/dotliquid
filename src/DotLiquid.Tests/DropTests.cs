@@ -391,14 +391,11 @@ namespace DotLiquid.Tests
         [Test]
         public void TestRubyNamingConventionPrintsHelpfulErrorIfMissingPropertyWouldMatchCSharpNamingConvention()
         {
-            INamingConvention savedNamingConvention = Template.NamingConvention;
-            Template.NamingConvention = new RubyNamingConvention();
-            Template template = Template.Parse("{{ value.ProductID }}");
-            Assert.AreEqual("Missing property. Did you mean 'product_id'?", template.Render(Hash.FromAnonymousObject(new
-            {
-                value = new CamelCaseDrop()
-            })));
-            Template.NamingConvention = savedNamingConvention;
+            Helper.AssertTemplateResult(
+                expected:"Missing property. Did you mean 'product_id'?",
+                template: "{{ value.ProductID }}",
+                anonymousObject: new { value = new CamelCaseDrop() },
+                namingConvention: new RubyNamingConvention());
         }
     }
 }

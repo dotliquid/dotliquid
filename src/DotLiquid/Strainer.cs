@@ -4,19 +4,10 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using DotLiquid.Exceptions;
+using DotLiquid.Util;
 
 namespace DotLiquid
 {
-    static class DictionaryExtensions
-    {
-        public static V TryAdd<K, V>(this IDictionary<K, V> dic, K key, Func<V> factory)
-        {
-            if (!dic.TryGetValue(key, out V found))
-                return dic[key] = factory();
-            return found;
-        }
-    }
-
     /// <summary>
     /// Strainer is the parent class for the filters system.
     /// New filters are mixed into the strainer class which is then instanciated for each liquid template render run.
@@ -73,12 +64,16 @@ namespace DotLiquid
         /// <param name="type"></param>
         public void Extend(Type type)
         {
-            // From what I can tell, calls to Extend should replace existing filters. So be it.
+            // Calls to Extend replace existing filters with the same number of params.
             var methods = type.GetRuntimeMethods().Where(m => m.IsPublic && m.IsStatic);
-            var methodNames = methods.Select(m => Template.NamingConvention.GetMemberName(m.Name));
-
-            foreach (var methodName in methodNames)
-                _methods.Remove(methodName);
+            foreach (var method in methods)
+            {
+                string methodName = Template.NamingConvention.GetMemberName(method.Name);
+                if  (_methods.Any(m => method.MatchesMethod(m)))
+                {
+                    _methods.Remove(methodName);
+                }
+            }
 
             foreach (MethodInfo methodInfo in methods)
             {
@@ -117,7 +112,7 @@ namespace DotLiquid
         {
             // First, try to find a method with the same number of arguments minus context which we set automatically further down.
             var methodInfo = _methods[method].FirstOrDefault(m => 
-                m.Item2.GetParameters().Count(p => p.ParameterType != typeof(Context)) == args.Count);
+                m.Item2.GetNonContextParameterCount() == args.Count);
 
             // If we failed to do so, try one with max numbers of arguments, hoping
             // that those not explicitly specified will be taken care of

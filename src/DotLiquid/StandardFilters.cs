@@ -69,48 +69,35 @@ namespace DotLiquid
         /// Returns a substring of one character or series of array items beginning at the index specified by the first argument.
         /// </summary>
         /// <param name="input">The input to be sliced</param>
-        /// <param name="start">zero-based start position of string or array, negative values count back from the end of the string/array.</param>
-        /// <param name="len">An optional second argument specifies the length of the substring or number of array items to be returned</param>
-        public static object Slice(object input, int start, int len = 1)
+        /// <param name="offset">zero-based start position of string or array, negative values count back from the end of the string/array.</param>
+        /// <param name="length">An optional argument specifies the length of the substring or number of array items to be returned</param>
+        public static object Slice(object input, int offset, int length = 1)
         {
-            if (input is IEnumerable<string> enumerableInput)
+            if (input is IEnumerable enumerableInput)
             {
-                var skipCount = start < 0 ? Math.Max(0, enumerableInput.Count() + start) : start;
-                return string.Join("", enumerableInput.Skip(skipCount).Take<string>(len));
-            }
-            else if (input is string stringInput)
-            {
-                return SliceString(stringInput as string, start, len);
+                var inputSize = Size(input);
+                var skip = offset;
+                var take = length;
+
+                // Check if the offset is specified from the end of the string/array
+                if (offset < 0)
+                {
+                    if (Math.Abs(offset) < inputSize)
+                    {
+                        skip = inputSize + offset;
+                    }
+                    else
+                    {
+                        // the required slice starts before element zero of the string/array
+                        skip = 0;
+                        take = inputSize + offset + length;
+                    }
+                }
+
+                return enumerableInput.Cast<object>().Skip(skip).Take<object>(take);
             }
 
             return input;
-        }
-
-        /// <summary>
-        /// Return a Part of a String
-        /// </summary>
-        /// <param name="input">Input to be transformed by this filter</param>
-        /// <param name="start">start position of string</param>
-        /// <param name="len">optional length of slice to be returned</param>
-        private static string SliceString(string input, long start, long len)
-        {
-            if (input == null || start > input.Length)
-                return null;
-
-            if (start < 0)
-            {
-                start += input.Length;
-                if (start < 0)
-                {
-                    len = Math.Max(0, len + start);
-                    start = 0;
-                }
-            }
-            if (start + len > input.Length)
-            {
-                len = input.Length - start;
-            }
-            return input.Substring(Convert.ToInt32(start), Convert.ToInt32(len));
         }
 
         /// <summary>

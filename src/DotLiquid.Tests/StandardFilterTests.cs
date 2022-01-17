@@ -238,7 +238,6 @@ namespace DotLiquid.Tests
             TestSliceArrays(context);
         }
 
-        [Test]
         private void TestSliceArrays(Context context)
         {
             // Test replicated from the Ruby library

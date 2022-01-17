@@ -13,6 +13,7 @@ namespace DotLiquid.Tests
         private Context _contextV20;
         private Context _contextV21;
         private Context _contextV22;
+        private Context _contextV22a;
 
         [OneTimeSetUp]
         public void SetUp()
@@ -28,6 +29,10 @@ namespace DotLiquid.Tests
             _contextV22 = new Context(CultureInfo.InvariantCulture)
             {
                 SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22
+            };
+            _contextV22a = new Context(CultureInfo.InvariantCulture)
+            {
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22a
             };
         }
 
@@ -184,56 +189,78 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestSlice()
+        public void TestSlice_V22()
         {
-            Assert.AreEqual(null, StandardFilters.Slice(null, 1));
-            Assert.AreEqual("", StandardFilters.Slice("", 10)); // Liquid returns an empty string for an empty slice
-            Assert.AreEqual("abc", StandardFilters.Slice("abcdefg", 0, 3));
-            Assert.AreEqual("bcd", StandardFilters.Slice("abcdefg", 1, 3));
-            Assert.AreEqual("efg", StandardFilters.Slice("abcdefg", -3, 3));
-            Assert.AreEqual("efg", StandardFilters.Slice("abcdefg", -3, 30));
-            Assert.AreEqual("efg", StandardFilters.Slice("abcdefg", 4, 30));
-            Assert.AreEqual("a", StandardFilters.Slice("abc", -4, 2));
-            Assert.AreEqual("", StandardFilters.Slice("abcdefg", -10, 1));
+            Context context = _contextV22;
 
-            // Test replicated from the Ruby library
-            Assert.AreEqual("oob", StandardFilters.Slice("foobar", 1, 3));
-            Assert.AreEqual("oobar", StandardFilters.Slice("foobar", 1, 1000));
-            Assert.AreEqual("", StandardFilters.Slice("foobar", 1, 0));
-            Assert.AreEqual("o", StandardFilters.Slice("foobar", 1, 1));
-            Assert.AreEqual("bar", StandardFilters.Slice("foobar", 3, 3));
-            Assert.AreEqual("ar", StandardFilters.Slice("foobar", -2, 2));
-            Assert.AreEqual("ar", StandardFilters.Slice("foobar", -2, 1000));
-            Assert.AreEqual("r", StandardFilters.Slice("foobar", -1));
-            // Assert.AreEqual("", StandardFilters.Slice(null, 0)); // DotLiquid returns null for a null input
-            Assert.AreEqual("", StandardFilters.Slice("foobar", 100, 10));
-            Assert.AreEqual("", StandardFilters.Slice("foobar", -100, 10));
-            Assert.AreEqual("oob", StandardFilters.Slice("foobar", 1, 3));
+            Assert.AreEqual(null, StandardFilters.Slice(context, null, 1)); // DotLiquid legacy returns null, Liquid expects an empty string
+            Assert.AreEqual(null, StandardFilters.Slice(context, "", 10)); // DotLiquid legacy returns null, Liquid expects an empty string
+            Assert.AreEqual("abc", StandardFilters.Slice(context, "abcdefg", 0, 3));
+            Assert.AreEqual("bcd", StandardFilters.Slice(context, "abcdefg", 1, 3));
+            Assert.AreEqual("efg", StandardFilters.Slice(context, "abcdefg", -3, 3));
+            Assert.AreEqual("efg", StandardFilters.Slice(context, "abcdefg", -3, 30));
+            Assert.AreEqual("efg", StandardFilters.Slice(context, "abcdefg", 4, 30));
+            Assert.AreEqual("a", StandardFilters.Slice(context, "abc", -4, 2));
+            Assert.AreEqual("", StandardFilters.Slice(context, "abcdefg", -10, 1));
+
+            TestSliceArrays(context);
         }
 
         [Test]
-        public void TestSliceArrays()
+        public void TestSlice_V22a()
+        {
+            Context context = _contextV22a;
+
+            Assert.AreEqual("", StandardFilters.Slice(context, null, 1)); // Liquid returns an empty string (DotLiquid pre-22a returns null)
+            Assert.AreEqual("", StandardFilters.Slice(context, "", 10)); // Liquid returns an empty string (DotLiquid pre-22a returns null)
+            Assert.AreEqual("abc", StandardFilters.Slice(context, "abcdefg", 0, 3));
+            Assert.AreEqual("bcd", StandardFilters.Slice(context, "abcdefg", 1, 3));
+            Assert.AreEqual("efg", StandardFilters.Slice(context, "abcdefg", -3, 3));
+            Assert.AreEqual("efg", StandardFilters.Slice(context, "abcdefg", -3, 30));
+            Assert.AreEqual("efg", StandardFilters.Slice(context, "abcdefg", 4, 30));
+            Assert.AreEqual("a", StandardFilters.Slice(context, "abc", -4, 2));
+            Assert.AreEqual("", StandardFilters.Slice(context, "abcdefg", -10, 1));
+
+            // Test replicated from the Ruby library (https://github.com/Shopify/liquid/blob/master/test/integration/standard_filter_test.rb)
+            Assert.AreEqual("oob", StandardFilters.Slice(context, "foobar", 1, 3));
+            Assert.AreEqual("oobar", StandardFilters.Slice(context, "foobar", 1, 1000));
+            Assert.AreEqual("", StandardFilters.Slice(context, "foobar", 1, 0));
+            Assert.AreEqual("o", StandardFilters.Slice(context, "foobar", 1, 1));
+            Assert.AreEqual("bar", StandardFilters.Slice(context, "foobar", 3, 3));
+            Assert.AreEqual("ar", StandardFilters.Slice(context, "foobar", -2, 2));
+            Assert.AreEqual("ar", StandardFilters.Slice(context, "foobar", -2, 1000));
+            Assert.AreEqual("r", StandardFilters.Slice(context, "foobar", -1));
+            Assert.AreEqual("", StandardFilters.Slice(context, null, 0)); // Liquid returns an empty string (DotLiquid pre-22a returns null)
+            Assert.AreEqual("", StandardFilters.Slice(context, "foobar", 100, 10));
+            Assert.AreEqual("", StandardFilters.Slice(context, "foobar", -100, 10));
+            Assert.AreEqual("oob", StandardFilters.Slice(context, "foobar", 1, 3));
+
+            TestSliceArrays(context);
+        }
+
+        [Test]
+        private void TestSliceArrays(Context context)
         {
             // Test replicated from the Ruby library
             var testArray = new[] { "f", "o", "o", "b", "a", "r" };
-            CollectionAssert.AreEqual(ToStringArray("oob"), (IEnumerable<object>)StandardFilters.Slice(testArray, 1, 3));
-            CollectionAssert.AreEqual(ToStringArray("oobar"), (IEnumerable<object>)StandardFilters.Slice(testArray, 1, 1000));
-            CollectionAssert.AreEqual(ToStringArray(""), (IEnumerable<object>)StandardFilters.Slice(testArray, 1, 0));
-            CollectionAssert.AreEqual(ToStringArray("o"), (IEnumerable<object>)StandardFilters.Slice(testArray, 1, 1));
-            CollectionAssert.AreEqual(ToStringArray("bar"), (IEnumerable<object>)StandardFilters.Slice(testArray, 3, 3));
-            CollectionAssert.AreEqual(ToStringArray("ar"), (IEnumerable<object>)StandardFilters.Slice(testArray, -2, 2));
-            CollectionAssert.AreEqual(ToStringArray("ar"), (IEnumerable<object>)StandardFilters.Slice(testArray, -2, 1000));
-            CollectionAssert.AreEqual(ToStringArray("r"), (IEnumerable<object>)StandardFilters.Slice(testArray, -1));
-            CollectionAssert.AreEqual(ToStringArray(""), (IEnumerable<object>)StandardFilters.Slice(testArray, 100, 10));
-            CollectionAssert.AreEqual(ToStringArray(""), (IEnumerable<object>)StandardFilters.Slice(testArray, -100, 10));
+            CollectionAssert.AreEqual(ToStringArray("oob"), (IEnumerable<object>)StandardFilters.Slice(context, testArray, 1, 3));
+            CollectionAssert.AreEqual(ToStringArray("oobar"), (IEnumerable<object>)StandardFilters.Slice(context, testArray, 1, 1000));
+            CollectionAssert.AreEqual(ToStringArray(""), (IEnumerable<object>)StandardFilters.Slice(context, testArray, 1, 0));
+            CollectionAssert.AreEqual(ToStringArray("o"), (IEnumerable<object>)StandardFilters.Slice(context, testArray, 1, 1));
+            CollectionAssert.AreEqual(ToStringArray("bar"), (IEnumerable<object>)StandardFilters.Slice(context, testArray, 3, 3));
+            CollectionAssert.AreEqual(ToStringArray("ar"), (IEnumerable<object>)StandardFilters.Slice(context, testArray, -2, 2));
+            CollectionAssert.AreEqual(ToStringArray("ar"), (IEnumerable<object>)StandardFilters.Slice(context, testArray, -2, 1000));
+            CollectionAssert.AreEqual(ToStringArray("r"), (IEnumerable<object>)StandardFilters.Slice(context, testArray, -1));
+            CollectionAssert.AreEqual(ToStringArray(""), (IEnumerable<object>)StandardFilters.Slice(context, testArray, 100, 10));
+            CollectionAssert.AreEqual(ToStringArray(""), (IEnumerable<object>)StandardFilters.Slice(context, testArray, -100, 10));
 
             // additional tests
-            CollectionAssert.AreEqual(ToStringArray("fo"), (IEnumerable<object>)StandardFilters.Slice(testArray, -6, 2));
-            CollectionAssert.AreEqual(ToStringArray("fo"), (IEnumerable<object>)StandardFilters.Slice(testArray, -8, 4));
+            CollectionAssert.AreEqual(ToStringArray("fo"), (IEnumerable<object>)StandardFilters.Slice(context, testArray, -6, 2));
+            CollectionAssert.AreEqual(ToStringArray("fo"), (IEnumerable<object>)StandardFilters.Slice(context, testArray, -8, 4));
 
             // Non-string arrays tests
-            CollectionAssert.AreEqual(new[] { 2, 3, 4 }, (IEnumerable<object>)StandardFilters.Slice(new[] { 1, 2, 3, 4, 5 }, 1, 3));
-            CollectionAssert.AreEqual(new[] { 'b', 'c', 'd' }, (IEnumerable<object>)StandardFilters.Slice(new[] { 'a', 'b', 'c', 'd', 'e' }, -4, 3));
+            CollectionAssert.AreEqual(new[] { 2, 3, 4 }, (IEnumerable<object>)StandardFilters.Slice(context, new[] { 1, 2, 3, 4, 5 }, 1, 3));
+            CollectionAssert.AreEqual(new[] { 'b', 'c', 'd' }, (IEnumerable<object>)StandardFilters.Slice(context, new[] { 'a', 'b', 'c', 'd', 'e' }, -4, 3));
         }
 
         /// <summary>

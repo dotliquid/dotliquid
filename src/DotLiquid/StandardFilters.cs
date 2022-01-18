@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using System.Reflection;
 using System.Threading;
+using DotLiquid;
 using DotLiquid.Util;
 
 namespace DotLiquid
@@ -66,12 +67,52 @@ namespace DotLiquid
         }
 
         /// <summary>
+        /// Returns a substring of one character or series of array items beginning at the index specified by the first argument.
+        /// </summary>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">The input to be sliced</param>
+        /// <param name="offset">zero-based start position of string or array, negative values count back from the end of the string/array.</param>
+        /// <param name="length">An optional argument specifies the length of the substring or number of array items to be returned</param>
+        public static object Slice(Context context, object input, int offset, int length = 1)
+        {
+            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22a && input is string inputString)
+            {
+                return SliceString(input: inputString, start: offset, len: length);
+            }
+            else if (input is IEnumerable enumerableInput)
+            {
+                var inputSize = Size(input);
+                var skip = offset;
+                var take = length;
+
+                // Check if the offset is specified from the end of the string/array
+                if (offset < 0)
+                {
+                    if (Math.Abs(offset) < inputSize)
+                    {
+                        skip = inputSize + offset;
+                    }
+                    else
+                    {
+                        // the required slice starts before element zero of the string/array
+                        skip = 0;
+                        take = inputSize + offset + length;
+                    }
+                }
+
+                return enumerableInput.Cast<object>().Skip(skip).Take<object>(take);
+            }
+
+            return (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid22a && input == null) ? string.Empty : input;
+        }
+
+        /// <summary>
         /// Return a Part of a String
         /// </summary>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="start">start position of string</param>
         /// <param name="len">optional length of slice to be returned</param>
-        public static string Slice(string input, long start, long len = 1)
+        private static string SliceString(string input, long start, long len)
         {
             if (input == null || start > input.Length)
                 return null;

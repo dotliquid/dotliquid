@@ -193,16 +193,15 @@ namespace DotLiquid.Tests
         {
             Context context = _contextV22;
 
-            Assert.AreEqual(null, StandardFilters.Slice(context, null, 1)); // DotLiquid legacy returns null, Liquid expects an empty string
-            Assert.AreEqual(null, StandardFilters.Slice(context, "", 10)); // DotLiquid legacy returns null, Liquid expects an empty string
-            Assert.AreEqual("abc", StandardFilters.Slice(context, "abcdefg", 0, 3));
-            Assert.AreEqual("bcd", StandardFilters.Slice(context, "abcdefg", 1, 3));
-            Assert.AreEqual("efg", StandardFilters.Slice(context, "abcdefg", -3, 3));
-            Assert.AreEqual("efg", StandardFilters.Slice(context, "abcdefg", -3, 30));
-            Assert.AreEqual("efg", StandardFilters.Slice(context, "abcdefg", 4, 30));
-            Assert.AreEqual("a", StandardFilters.Slice(context, "abc", -4, 2));
-            Assert.AreEqual("", StandardFilters.Slice(context, "abcdefg", -10, 1));
+            // Verify backwards compatibility for pre-22a syntax (DotLiquid returns null for null input or empty slice)
+            Assert.AreEqual(null, StandardFilters.Slice(context, null, 1)); // DotLiquid test case
+            Assert.AreEqual(null, StandardFilters.Slice(context, "", 10)); // DotLiquid test case
 
+            Assert.AreEqual(null, StandardFilters.Slice(context, null, 0)); // Liquid test case
+            Assert.AreEqual(null, StandardFilters.Slice(context, "foobar", 100, 10)); // Liquid test case
+
+            // Verify DotLiquid is consistent with Liquid for everything else
+            TestSliceString(context);
             TestSliceArrays(context);
         }
 
@@ -211,8 +210,20 @@ namespace DotLiquid.Tests
         {
             Context context = _contextV22a;
 
-            Assert.AreEqual("", StandardFilters.Slice(context, null, 1)); // Liquid returns an empty string (DotLiquid pre-22a returns null)
-            Assert.AreEqual("", StandardFilters.Slice(context, "", 10)); // Liquid returns an empty string (DotLiquid pre-22a returns null)
+            // Verify Liquid compliance from V22a syntax:
+            Assert.AreEqual("", StandardFilters.Slice(context, null, 1)); // DotLiquid test case
+            Assert.AreEqual("", StandardFilters.Slice(context, "", 10)); // DotLiquid test case
+
+            Assert.AreEqual("", StandardFilters.Slice(context, null, 0)); // Liquid test case
+            Assert.AreEqual("", StandardFilters.Slice(context, "foobar", 100, 10)); // Liquid test case
+
+            // Verify DotLiquid is consistent with Liquid for everything else
+            TestSliceString(context);
+            TestSliceArrays(context);
+        }
+
+        private void TestSliceString(Context context)
+        {
             Assert.AreEqual("abc", StandardFilters.Slice(context, "abcdefg", 0, 3));
             Assert.AreEqual("bcd", StandardFilters.Slice(context, "abcdefg", 1, 3));
             Assert.AreEqual("efg", StandardFilters.Slice(context, "abcdefg", -3, 3));
@@ -230,12 +241,8 @@ namespace DotLiquid.Tests
             Assert.AreEqual("ar", StandardFilters.Slice(context, "foobar", -2, 2));
             Assert.AreEqual("ar", StandardFilters.Slice(context, "foobar", -2, 1000));
             Assert.AreEqual("r", StandardFilters.Slice(context, "foobar", -1));
-            Assert.AreEqual("", StandardFilters.Slice(context, null, 0)); // Liquid returns an empty string (DotLiquid pre-22a returns null)
-            Assert.AreEqual("", StandardFilters.Slice(context, "foobar", 100, 10));
             Assert.AreEqual("", StandardFilters.Slice(context, "foobar", -100, 10));
             Assert.AreEqual("oob", StandardFilters.Slice(context, "foobar", 1, 3));
-
-            TestSliceArrays(context);
         }
 
         private void TestSliceArrays(Context context)

@@ -106,12 +106,12 @@ namespace DotLiquid
             return (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid22a && input == null) ? string.Empty : input;
         }
 
+        /// <summary>
         /// Return a Part of a String
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="start"></param>
-        /// <param name="len"></param>
-        /// <returns></returns>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="start">start position of string</param>
+        /// <param name="len">optional length of slice to be returned</param>
         private static string SliceString(string input, long start, long len)
         {
             if (input == null || start > input.Length)

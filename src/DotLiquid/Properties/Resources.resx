@@ -237,11 +237,14 @@
   <data name="SimpleTagSyntaxException" xml:space="preserve">
     <value>Syntax Error in '{0}' tag - Valid syntax: {0}</value>
   </data>
-  <data name="AddFiltersTagSyntaxException" xml:space="preserve">
-    <value>Syntax Error in 'addfilters' tag - Valid syntax: addfilters [alias]</value>
+  <data name="ParamTagSyntaxException" xml:space="preserve">
+    <value>Unsupported parameter: '{0}', supported options are: {1}</value>
   </data>
-  <data name="FilterClassNotFoundException" xml:space="preserve">
-    <value>Error - unable to add filters for '{0}', supported options are: {1}</value>
+  <data name="ParamOptionSyntaxException" xml:space="preserve">
+    <value>Invalid {0} option: '{1}', supported options are: {2}</value>
+  </data>
+  <data name="CultureNotFoundException" xml:space="preserve">
+    <value>Culture '{0}' is not supported</value>
   </data>
   <data name="TimeZoneNotAvailableException" xml:space="preserve">
     <value>Error - unable to load timezone information for id '{0}'</value>

@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using System.Reflection;
 using System.Threading;
+using DotLiquid;
 using DotLiquid.Util;
 
 namespace DotLiquid
@@ -51,8 +52,7 @@ namespace DotLiquid
         /// <summary>
         /// Return the size of an array or of an string
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
+        /// <param name="input">Input to be transformed by this filter</param>
         public static int Size(object input)
         {
             if (input is string stringInput)
@@ -67,13 +67,52 @@ namespace DotLiquid
         }
 
         /// <summary>
+        /// Returns a substring of one character or series of array items beginning at the index specified by the first argument.
+        /// </summary>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">The input to be sliced</param>
+        /// <param name="offset">zero-based start position of string or array, negative values count back from the end of the string/array.</param>
+        /// <param name="length">An optional argument specifies the length of the substring or number of array items to be returned</param>
+        public static object Slice(Context context, object input, int offset, int length = 1)
+        {
+            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22a && input is string inputString)
+            {
+                return SliceString(input: inputString, start: offset, len: length);
+            }
+            else if (input is IEnumerable enumerableInput)
+            {
+                var inputSize = Size(input);
+                var skip = offset;
+                var take = length;
+
+                // Check if the offset is specified from the end of the string/array
+                if (offset < 0)
+                {
+                    if (Math.Abs(offset) < inputSize)
+                    {
+                        skip = inputSize + offset;
+                    }
+                    else
+                    {
+                        // the required slice starts before element zero of the string/array
+                        skip = 0;
+                        take = inputSize + offset + length;
+                    }
+                }
+
+                return enumerableInput.Cast<object>().Skip(skip).Take<object>(take);
+            }
+
+            return (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid22a && input == null) ? string.Empty : input;
+        }
+
+        /// <summary>
         /// Return a Part of a String
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="start"></param>
-        /// <param name="len"></param>
-        /// <returns></returns>
-        public static string Slice(string input, long start, long len = 1)
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="start">start position of string</param>
+        /// <param name="len">optional length of slice to be returned</param>
+        private static string SliceString(string input, long start, long len)
         {
             if (input == null || start > input.Length)
                 return null;
@@ -97,8 +136,7 @@ namespace DotLiquid
         /// <summary>
         /// convert a input string to DOWNCASE
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
+        /// <param name="input">Input to be transformed by this filter</param>
         public static string Downcase(string input)
         {
             return input == null ? input : input.ToLower();
@@ -107,8 +145,7 @@ namespace DotLiquid
         /// <summary>
         /// convert a input string to UPCASE
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
+        /// <param name="input">Input to be transformed by this filter</param>
         public static string Upcase(string input)
         {
             return input == null
@@ -119,8 +156,7 @@ namespace DotLiquid
         /// <summary>
         /// convert a input string to URLENCODE
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
+        /// <param name="input">Input to be transformed by this filter</param>
         public static string UrlEncode(string input)
         {
             return input == null
@@ -131,8 +167,7 @@ namespace DotLiquid
         /// <summary>
         /// convert a input string to URLDECODE
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
+        /// <param name="input">Input to be transformed by this filter</param>
         public static string UrlDecode(string input)
         {
             return input == null
@@ -143,9 +178,8 @@ namespace DotLiquid
         /// <summary>
         /// capitalize words in the input sentence
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="input"></param>
-        /// <returns></returns>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
         public static string Capitalize(Context context, string input)
         {
             if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22)
@@ -209,10 +243,9 @@ namespace DotLiquid
         /// <summary>
         /// Truncates a string down to x characters
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="length"></param>
-        /// <param name="truncateString"></param>
-        /// <returns></returns>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="length">optional maximum length of returned string, defaults to 50</param>
+        /// <param name="truncateString">Optional suffix to append when string is truncated, defaults to ellipsis(...)</param>
         public static string Truncate(string input, int length = 50, string truncateString = "...")
         {
             if (string.IsNullOrEmpty(input))
@@ -234,10 +267,9 @@ namespace DotLiquid
         /// <summary>
         /// Truncate a string down to x words
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="words"></param>
-        /// <param name="truncateString"></param>
-        /// <returns></returns>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="words">optional maximum number of words in returned string, defaults to 15</param>
+        /// <param name="truncateString">Optional suffix to append when string is truncated, defaults to ellipsis(...)</param>
         public static string TruncateWords(string input, int words = 15, string truncateString = "...")
         {
             if (string.IsNullOrEmpty(input))
@@ -263,9 +295,8 @@ namespace DotLiquid
         /// If the pattern is empty the input string is converted to an array of 1-char
         /// strings (as specified in the Liquid Reverse filter example).
         /// </remarks>
-        /// <param name="input"></param>
-        /// <param name="pattern"></param>
-        /// <returns></returns>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="pattern">separator string</param>
         public static string[] Split(string input, string pattern)
         {
             if (input.IsNullOrWhiteSpace())
@@ -281,8 +312,7 @@ namespace DotLiquid
         /// <summary>
         /// Strip all html nodes from input
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
+        /// <param name="input">Input to be transformed by this filter</param>
         public static string StripHtml(string input)
         {
             return input.IsNullOrWhiteSpace()
@@ -293,8 +323,7 @@ namespace DotLiquid
         /// <summary>
         /// Strip all whitespace from input
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
+        /// <param name="input">Input to be transformed by this filter</param>
         public static string Strip(string input)
         {
             return input?.Trim();
@@ -303,8 +332,7 @@ namespace DotLiquid
         /// <summary>
         /// Strip all leading whitespace from input
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
+        /// <param name="input">Input to be transformed by this filter</param>
         public static string Lstrip(string input)
         {
             return input?.TrimStart();
@@ -313,33 +341,32 @@ namespace DotLiquid
         /// <summary>
         /// Strip all trailing whitespace from input
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
+        /// <param name="input">Input to be transformed by this filter</param>
         public static string Rstrip(string input)
         {
             return input?.TrimEnd();
         }
 
         /// <summary>
-        /// Converts the input object into a formatted currency as specified by the culture info.
+        /// Converts the input object into a formatted currency as specified by the context cuture, or languageTag parameter (if provided).
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="cultureInfo"></param>
-        /// <returns></returns>
-        public static string Currency(object input, string cultureInfo = null)
+        /// <remarks>
+        /// If the input is a string it is ALWAYS parsed using the context culture, the optional languageTag parameter is only applied for rendering.
+        /// </remarks>
+        /// <param name="context">default source of culture information</param>
+        /// <param name="input">value to be parsed and formatted as a Currency</param>
+        /// <param name="languageTag">optional override language for rendering, for example 'fr-FR'</param>
+        /// <seealso href="https://shopify.dev/api/liquid/filters/money-filters#money">Shopify Money filter</seealso>
+        public static string Currency(Context context, object input, string languageTag = null)
         {
+            // Check for null only, allow an empty string as it represent the InvariantCulture
+            var culture = languageTag == null ? context.CurrentCulture : new CultureInfo(languageTag.Trim());
 
-            if (decimal.TryParse(input.ToString(), out decimal amount))
-            {
-                if (cultureInfo.IsNullOrWhiteSpace())
-                {
-                    cultureInfo = CultureInfo.CurrentCulture.Name;
-                }
-
-                var culture = new CultureInfo(cultureInfo);
-
+            // Attempt to convert to a currency using the context current culture.
+            if (IsReal(input))
+                return Convert.ToDecimal(input).ToString("C", culture);
+            if (decimal.TryParse(input.ToString(), NumberStyles.Currency, context.CurrentCulture, out decimal amount))
                 return amount.ToString("C", culture);
-            }
 
             return input.ToString();
         }
@@ -347,8 +374,7 @@ namespace DotLiquid
         /// <summary>
         /// Remove all newlines from the string
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
+        /// <param name="input">Input to be transformed by this filter</param>
         public static string StripNewlines(string input)
         {
             return input.IsNullOrWhiteSpace()
@@ -359,9 +385,8 @@ namespace DotLiquid
         /// <summary>
         /// Join elements of the array with a certain character between them
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="glue"></param>
-        /// <returns></returns>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="glue">separator to be inserted between array elements</param>
         public static string Join(IEnumerable input, string glue = " ")
         {
             if (input == null)
@@ -444,7 +469,6 @@ namespace DotLiquid
         /// </summary>
         /// <param name="enumerableInput">The enumerable.</param>
         /// <param name="property">The property to map.</param>
-        /// <returns></returns>
         public static IEnumerable Map(IEnumerable enumerableInput, string property)
         {
             if (enumerableInput == null)
@@ -498,13 +522,12 @@ namespace DotLiquid
         }
 
         /// <summary>
-        /// Replace occurrences of a string with another
+        /// Replaces every occurrence of the first argument in a string with the second argument
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="input"></param>
-        /// <param name="string"></param>
-        /// <param name="replacement"></param>
-        /// <returns></returns>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="string">Subtring to be replaced</param>
+        /// <param name="replacement">Replacement string to be inserted</param>
         public static string Replace(Context context, string input, string @string, string replacement = "")
         {
             if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(@string))
@@ -517,13 +540,12 @@ namespace DotLiquid
         }
 
         /// <summary>
-        /// Replace the first occurence of a string with another
+        /// Replace the first occurrence of a string with another
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="input"></param>
-        /// <param name="string"></param>
-        /// <param name="replacement"></param>
-        /// <returns></returns>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="string">Subtring to be replaced</param>
+        /// <param name="replacement">Replacement string to be inserted</param>
         public static string ReplaceFirst(Context context, string input, string @string, string replacement = "")
         {
             if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(@string))
@@ -547,11 +569,10 @@ namespace DotLiquid
         }
 
         /// <summary>
-        /// Remove a substring
+        /// Removes every occurrence of the specified substring from a string.
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="string"></param>
-        /// <returns></returns>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="string">String to be removed from input</param>
         public static string Remove(string input, string @string)
         {
             return input.IsNullOrWhiteSpace()
@@ -562,10 +583,9 @@ namespace DotLiquid
         /// <summary>
         /// Remove the first occurrence of a substring
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="input"></param>
-        /// <param name="string"></param>
-        /// <returns></returns>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="string">String to be removed from input</param>
         public static string RemoveFirst(Context context, string input, string @string)
         {
             return input.IsNullOrWhiteSpace()
@@ -576,9 +596,8 @@ namespace DotLiquid
         /// <summary>
         /// Add one string to another
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="string"></param>
-        /// <returns></returns>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="string">String to be added to the end of input</param>
         public static string Append(string input, string @string)
         {
             return input == null
@@ -589,9 +608,8 @@ namespace DotLiquid
         /// <summary>
         /// Prepend a string to another
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="string"></param>
-        /// <returns></returns>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="string">String to be added to the beginning of input</param>
         public static string Prepend(string input, string @string)
         {
             return input == null
@@ -602,8 +620,7 @@ namespace DotLiquid
         /// <summary>
         /// Add <br /> tags in front of all newlines in input string
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
+        /// <param name="input">Input to be transformed by this filter</param>
         public static string NewlineToBr(string input)
         {
             return input.IsNullOrWhiteSpace()
@@ -614,10 +631,10 @@ namespace DotLiquid
         /// <summary>
         /// Formats a date using a .NET date format string
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="input"></param>
-        /// <param name="format"></param>
-        /// <returns></returns>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="format">Date format to be applied</param>
+        /// <see cref="Liquid.UseRubyDateFormat">See UseRubyFormat fo guidance on .NET vs. Ruby format support</see>
         public static string Date(Context context, object input, string format)
         {
             if (input == null)
@@ -626,15 +643,15 @@ namespace DotLiquid
             if (input is DateTime date)
             {
                 if (format.IsNullOrWhiteSpace())
-                    return date.ToString();
+                    return date.ToString(context.CurrentCulture);
 
-                return Liquid.UseRubyDateFormat
-                    ? context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21 ? new DateTimeOffset(date).ToStrFTime(format) : date.ToStrFTime(format)
-                    : date.ToString(format);
+                return context.UseRubyDateFormat
+                    ? context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21 ? new DateTimeOffset(date).ToStrFTime(format, context.CurrentCulture) : date.ToStrFTime(format, context.CurrentCulture)
+                    : date.ToString(format, context.CurrentCulture);
             }
 
             if (context.SyntaxCompatibilityLevel == SyntaxCompatibility.DotLiquid20)
-                return DateLegacyParsing(input.ToString(), format);
+                return DateLegacyParsing(context, input.ToString(), format);
 
             if (format.IsNullOrWhiteSpace())
                 return input.ToString();
@@ -664,16 +681,18 @@ namespace DotLiquid
                 {
                     dateTimeOffset = DateTimeOffset.Now;
                 }
-                else if (!DateTimeOffset.TryParse(value, out dateTimeOffset))
+                else if (!DateTimeOffset.TryParse(value, context.CurrentCulture, DateTimeStyles.None, out dateTimeOffset))
                 {
                     return value;
                 }
             }
 
-            return Liquid.UseRubyDateFormat ? dateTimeOffset.ToStrFTime(format) : dateTimeOffset.ToString(format);
+            return context.UseRubyDateFormat
+                ? dateTimeOffset.ToStrFTime(format, context.CurrentCulture)
+                : dateTimeOffset.ToString(format, context.CurrentCulture);
         }
 
-        private static string DateLegacyParsing(string value, string format)
+        private static string DateLegacyParsing(Context context, string value, string format)
         {
             DateTime date;
 
@@ -682,9 +701,9 @@ namespace DotLiquid
                 date = DateTime.Now;
 
                 if (format.IsNullOrWhiteSpace())
-                    return date.ToString();
+                    return date.ToString(context.CurrentCulture);
             }
-            else if (!DateTime.TryParse(value, out date))
+            else if (!DateTime.TryParse(value, context.CurrentCulture, DateTimeStyles.None, out date))
             {
                 return value;
             }
@@ -692,7 +711,7 @@ namespace DotLiquid
             if (format.IsNullOrWhiteSpace())
                 return value;
 
-            return Liquid.UseRubyDateFormat ? date.ToStrFTime(format) : date.ToString(format);
+            return context.UseRubyDateFormat ? date.ToStrFTime(format, context.CurrentCulture) : date.ToString(format, context.CurrentCulture);
         }
 
         /// <summary>
@@ -702,7 +721,6 @@ namespace DotLiquid
         ///   {{ product.images | first | to_img }}
         /// </summary>
         /// <param name="array"></param>
-        /// <returns></returns>
         public static object First(IEnumerable array)
         {
             if (array == null)
@@ -718,7 +736,6 @@ namespace DotLiquid
         ///   {{ product.images | last | to_img }}
         /// </summary>
         /// <param name="array"></param>
-        /// <returns></returns>
         public static object Last(IEnumerable array)
         {
             if (array == null)
@@ -730,10 +747,9 @@ namespace DotLiquid
         /// <summary>
         /// Addition
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="input"></param>
-        /// <param name="operand"></param>
-        /// <returns></returns>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="operand">Number to be added to input</param>
         public static object Plus(Context context, object input, object operand)
         {
             if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21)
@@ -747,10 +763,9 @@ namespace DotLiquid
         /// <summary>
         /// Subtraction
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="input"></param>
-        /// <param name="operand"></param>
-        /// <returns></returns>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="operand">Number to be subtracted from input</param>
         public static object Minus(Context context, object input, object operand)
         {
             return DoMathsOperation(context, input, operand, Expression.SubtractChecked);
@@ -759,10 +774,9 @@ namespace DotLiquid
         /// <summary>
         /// Multiplication
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="input"></param>
-        /// <param name="operand"></param>
-        /// <returns></returns>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="operand">Number to multiple input by</param>
         public static object Times(Context context, object input, object operand)
         {
             if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21)
@@ -776,9 +790,9 @@ namespace DotLiquid
         /// <summary>
         /// Rounds a decimal value to the specified places
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="places"></param>
-        /// <returns>The rounded value; null if an exception have occured</returns>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="places">Number of decimal places for rounding</param>
+        /// <returns>The rounded value; null if an exception have occurred</returns>
         public static object Round(object input, object places = null)
         {
             try
@@ -796,11 +810,12 @@ namespace DotLiquid
         /// <summary>
         /// Rounds a decimal value up to the next integer, unless already the integer value, removing all decimal places 
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns>The rounded value; null if an exception have occured</returns>
-        public static object Ceil(object input)
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <returns>The rounded value; null if an exception have occurred</returns>
+        public static object Ceil(Context context, object input)
         {
-            if (decimal.TryParse(input.ToString(), out decimal d))
+            if (decimal.TryParse(input.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
                 return Math.Ceiling(d);
             else
                 return null;
@@ -809,11 +824,12 @@ namespace DotLiquid
         /// <summary>
         /// Rounds a decimal value down to an integer, removing all decimal places 
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns>The rounded value; null if an exception have occured</returns>
-        public static object Floor(object input)
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <returns>The rounded value; null if an exception have occurred</returns>
+        public static object Floor(Context context, object input)
         {
-            if (decimal.TryParse(input.ToString(), out decimal d))
+            if (decimal.TryParse(input.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
                 return Math.Floor(d);
             else
                 return null;
@@ -822,10 +838,9 @@ namespace DotLiquid
         /// <summary>
         /// Division
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="input"></param>
-        /// <param name="operand"></param>
-        /// <returns></returns>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="operand">Number to divide input by</param>
         public static object DividedBy(Context context, object input, object operand)
         {
             return DoMathsOperation(context, input, operand, Expression.Divide);
@@ -834,10 +849,9 @@ namespace DotLiquid
         /// <summary>
         /// Performs an arithmetic remainder operation on the input
         /// </summary>
-        /// <param name="context"></param>
-        /// <param name="input"></param>
-        /// <param name="operand"></param>
-        /// <returns></returns>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="operand">Number to divide input by</param>
         public static object Modulo(Context context, object input, object operand)
         {
             return DoMathsOperation(context, input, operand, Expression.Modulo);
@@ -846,9 +860,8 @@ namespace DotLiquid
         /// <summary>
         /// If a value isn't set for a variable in the template, allow the user to specify a default value for that variable
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="defaultValue"></param>
-        /// <returns></returns>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="defaultValue">value to apply if input is nil, false or empty.</param>
         public static string Default(string input, string @defaultValue)
         {
             return !string.IsNullOrWhiteSpace(input) ? input : defaultValue;
@@ -862,7 +875,7 @@ namespace DotLiquid
                 return null;
 
             // NOTE(David Burg): Try for maximal precision if the input and operand fit the decimal's range.
-            // This avoids rounding errors in financial arithmetics.
+            // This avoids rounding errors in financial arithmetic.
             // E.g.: 0.1 | Plus 10 | Minus 10 to remain 0.1, not 0.0999999999999996
             // Otherwise revert to maximum range (possible precision loss).
             var shouldConvertStrings = context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21 && ((input is string) || (operand is string));
@@ -906,8 +919,7 @@ namespace DotLiquid
         /// <summary>
         /// Removes any duplicate elements in an array.
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
+        /// <param name="input">Input to be transformed by this filter</param>
         public static IEnumerable Uniq(object input)
         {
             if (input == null)
@@ -930,27 +942,27 @@ namespace DotLiquid
         /// <summary>
         /// Returns the absolute value of a number.
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        public static double Abs(object input)
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
+        public static double Abs(Context context, object input)
         {
             Double n;
-            return Double.TryParse(input.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out n) ? Math.Abs(n) : 0;
+            return Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n) ? Math.Abs(n) : 0;
         }
 
         /// <summary>
         /// Limits a number to a minimum value.
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="atLeast"></param>
-        /// <returns></returns>
-        public static object AtLeast(object input, object atLeast)
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="atLeast">Value to apply if more than input</param>
+        public static object AtLeast(Context context, object input, object atLeast)
         {
             double n;
-            var inputNumber = Double.TryParse(input.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out n);
+            var inputNumber = Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
 
             double min;
-            var atLeastNumber = Double.TryParse(atLeast.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out min);
+            var atLeastNumber = Double.TryParse(atLeast.ToString(), NumberStyles.Number, context.CurrentCulture, out min);
 
             if (inputNumber && atLeastNumber)
             {
@@ -965,16 +977,16 @@ namespace DotLiquid
         /// <summary>
         /// Limits a number to a maximum value.
         /// </summary>
-        /// <param name="input"></param>
-        /// <param name="atMost"></param>
-        /// <returns></returns>
-        public static object AtMost(object input, object atMost)
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="atMost">Value to apply if less than input</param>
+        public static object AtMost(Context context, object input, object atMost)
         {
             double n;
-            var inputNumber = Double.TryParse(input.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out n);
+            var inputNumber = Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
 
             double max;
-            var atMostNumber = Double.TryParse(atMost.ToString(), System.Globalization.NumberStyles.Number, CultureInfo.CurrentCulture, out max);
+            var atMostNumber = Double.TryParse(atMost.ToString(), NumberStyles.Number, context.CurrentCulture, out max);
 
             if (inputNumber && atMostNumber)
             {
@@ -989,8 +1001,7 @@ namespace DotLiquid
         /// <summary>
         /// Removes any nil values from an array.
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
+        /// <param name="input">Input to be transformed by this filter</param>
         public static IEnumerable Compact(object input)
         {
             if (input == null)
@@ -1017,7 +1028,6 @@ namespace DotLiquid
         /// <param name="input">an array to be filtered</param>
         /// <param name="propertyName">The name of the property to filter by</param>
         /// <param name="targetValue">Value to retain, if null object containing this property are retained</param>
-        /// <returns></returns>
         public static IEnumerable Where(IEnumerable input, string propertyName, object targetValue = null)
         {
             if (input == null)
@@ -1037,7 +1047,6 @@ namespace DotLiquid
         /// <param name="any">an object to be assessed</param>
         /// <param name="propertyName">The name of the property to test for</param>
         /// <param name="targetValue">target property value</param>
-        /// <returns></returns>
         private static bool HasMatchingProperty(this object any, string propertyName, object targetValue)
         {
             // Check if the 'any' object has a propertyName
@@ -1081,7 +1090,7 @@ namespace DotLiquid
         /// <summary>
         /// Reverses the order of the items in an array. `reverse` cannot reverse a string.
         /// </summary>
-        /// <param name="input"/>
+        /// <param name="input">Input to be transformed by this filter</param>
         /// <see href="https://shopify.github.io/liquid/filters/reverse/"/>
         public static IEnumerable Reverse(IEnumerable input)
         {

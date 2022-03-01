@@ -59,6 +59,7 @@ namespace DotLiquid
         private static readonly Dictionary<Type, Func<object, object>> SafeTypeTransformers;
         private static readonly Dictionary<Type, Func<object, object>> ValueTypeTransformers;
         private static readonly ConcurrentDictionary<Type, Func<object, object>> ValueTypeTransformerCache;
+        private static readonly IDictionary<string, Type> SafelistedFilters = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
 
         static Template()
         {
@@ -80,7 +81,7 @@ namespace DotLiquid
             where T : Tag, new()
         {
             var tagType = typeof(T);
-            Tags[name] = new Tuple<ITagFactory,Type>(new ActivatorTagFactory(tagType, name), tagType);
+            Tags[name] = new Tuple<ITagFactory, Type>(new ActivatorTagFactory(tagType, name), tagType);
         }
 
         /// <summary>
@@ -238,6 +239,35 @@ namespace DotLiquid
         }
 
         /// <summary>
+        /// Add the provided class to the safelist of classes that can be added by a Liquid Designer
+        /// </summary>
+        /// <param name="filterClassType">A class containing filter operations.</param>
+        /// <param name="alias">An alias for the class, if not provided the class' short name is used</param>
+        public static void SafelistFilter(Type filterClassType, string alias = null)
+        {
+            SafelistedFilters[alias ?? filterClassType.Name] = filterClassType;
+        }
+
+        /// <summary>
+        /// Checks if the given alias matches a whitelisted filter class.
+        /// </summary>
+        /// <param name="alias">An alias for a class containing filters.</param>
+        /// <param name="filterClassType">A class containing filter operations.</param>
+        public static bool TryGetSafelistedFilter(String alias, out Type filterClassType)
+        {
+            filterClassType = SafelistedFilters.ContainsKey(alias) ? SafelistedFilters[alias] : null;
+            return filterClassType != null;
+        }
+
+        /// <summary>
+        /// Return a collection of whitelisted filter aliases.
+        /// </summary>
+        public static ICollection<string> GetSafelistedFilterAliases()
+        {
+            return SafelistedFilters.Keys;
+        }
+
+        /// <summary>
         /// Creates a new <tt>Template</tt> object from liquid source code
         /// </summary>
         /// <param name="source">The Liquid Template string</param>
@@ -349,7 +379,7 @@ namespace DotLiquid
         /// <param name="localVariables">Local variables.</param>
         /// <param name="formatProvider">String formatting provider.</param>
         /// <returns>The rendering result as string.</returns>
-        public string Render(Hash localVariables, IFormatProvider formatProvider=null)
+        public string Render(Hash localVariables, IFormatProvider formatProvider = null)
         {
             using (var writer = new StringWriter(formatProvider ?? CultureInfo.CurrentCulture))
             {
@@ -372,7 +402,7 @@ namespace DotLiquid
         {
             using (var writer = new StringWriter(parameters.FormatProvider))
             {
-                return this.Render(writer, parameters );
+                return this.Render(writer, parameters);
             }
         }
 
@@ -396,7 +426,7 @@ namespace DotLiquid
         /// <inheritdoc />
         private class StreamWriterWithFormatProvider : StreamWriter
         {
-            public StreamWriterWithFormatProvider(Stream stream, IFormatProvider formatProvider) : base( stream ) => FormatProvider = formatProvider;
+            public StreamWriterWithFormatProvider(Stream stream, IFormatProvider formatProvider) : base(stream) => FormatProvider = formatProvider;
 
             public override IFormatProvider FormatProvider { get; }
         }
@@ -410,7 +440,7 @@ namespace DotLiquid
         {
             // Can't dispose this new StreamWriter, because it would close the
             // passed-in stream, which isn't up to us.
-            StreamWriter streamWriter = new StreamWriterWithFormatProvider( stream, parameters.FormatProvider );
+            StreamWriter streamWriter = new StreamWriterWithFormatProvider(stream, parameters.FormatProvider);
             RenderInternal(streamWriter, parameters);
             streamWriter.Flush();
         }

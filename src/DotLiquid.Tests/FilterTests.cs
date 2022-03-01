@@ -57,7 +57,7 @@ namespace DotLiquid.Tests
             }
         }
 
-        private static class FiltersWithMulitpleMethodSignatures
+        private static class FiltersWithMultipleMethodSignatures
         {
             public static string Concatenate(string one, string two)
             {
@@ -80,6 +80,55 @@ namespace DotLiquid.Tests
             public static string ConcatWithContext(Context context, string one, string two, string three)
             {
                 return string.Concat(one, two, three);
+            }
+        }
+
+        private static class FiltersWithMultipleMethodSignaturesDifferentClassesOne
+        {
+            public static string Concatenate(string one, string two)
+            {
+                return string.Concat(one, two);
+            }
+        }
+
+
+        private static class FilterWithSameMethodSignatureDifferentClassOne
+        {
+            public static string Concatenate(string one, string two)
+            {
+                return string.Concat(one, two, "Class One");
+            }
+        }
+
+        private static class FilterWithSameMethodSignatureDifferentClassTwo
+        {
+            public static string Concatenate(string one, string two)
+            {
+                return string.Concat(one, two, "Class Two");
+            }
+        }
+
+        private static class FiltersWithMultipleMethodSignaturesDifferentClassesTwo
+        {
+            public static string Concatenate(Context context, string one, string two, string three)
+            {
+                return string.Concat(one, two, three);
+            }
+        }
+
+        private static class FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamTwo
+        {
+            public static string ConcatWithContext(Context context, string one, string two, string three)
+            {
+                return string.Concat(one, two, three);
+            }
+        }
+
+        private static class FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamOne
+        {
+            public static string ConcatWithContext(Context context, string one, string two)
+            {
+                return string.Concat(one, two);
             }
         }
 
@@ -191,10 +240,19 @@ namespace DotLiquid.Tests
         [Test]
         public void TestFilterWithMultipleMethodSignatures()
         {
-            Template.RegisterFilter(typeof(FiltersWithMulitpleMethodSignatures));
+            Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignatures));
 
             Assert.AreEqual("AB", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
             Assert.AreEqual("ABC", Template.Parse("{{'A' | concatenate : 'B', 'C'}}").Render());
+        }
+
+        [Test]
+        public void TestFilterInContextWithMultipleMethodSignatures()
+        {
+            _context.AddFilters(typeof(FiltersWithMultipleMethodSignatures));
+
+            Assert.AreEqual("AB", new Variable("'A' | concatenate : 'B'").Render(_context));
+            Assert.AreEqual("ABC", new Variable("'A' | concatenate : 'B', 'C'").Render(_context));
         }
 
         [Test]
@@ -204,6 +262,108 @@ namespace DotLiquid.Tests
 
             Assert.AreEqual("AB", Template.Parse("{{'A' | concat_with_context : 'B'}}").Render());
             Assert.AreEqual("ABC", Template.Parse("{{'A' | concat_with_context : 'B', 'C'}}").Render());
+        }
+
+        [Test]
+        public void TestFilterInContextWithMultipleMethodSignaturesAndContextParam()
+        {
+            _context.AddFilters(typeof(FiltersWithMultipleMethodSignaturesAndContextParam));
+
+            Assert.AreEqual("AB", new Variable("'A' | concat_with_context : 'B'").Render(_context));
+            Assert.AreEqual("ABC", new Variable("'A' | concat_with_context : 'B', 'C'").Render(_context));
+        }
+
+        [Test]
+        public void TestFilterWithMultipleMethodSignaturesDifferentClasses()
+        {
+            Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesOne));
+            Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesTwo));
+
+            Assert.AreEqual("AB", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
+            Assert.AreEqual("ABC", Template.Parse("{{'A' | concatenate : 'B', 'C'}}").Render());
+        }
+
+        [Test]
+        public void TestFilterInContextWithMultipleMethodSignaturesDifferentClasses()
+        {
+            _context.AddFilters(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesOne));
+            _context.AddFilters(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesTwo));
+
+            Assert.AreEqual("AB", new Variable("'A' | concatenate : 'B'").Render(_context));
+            Assert.AreEqual("ABC", new Variable("'A' | concatenate : 'B', 'C'").Render(_context));
+        }
+
+        [Test]
+        public void TestFilterAsLocalFilterWithMultipleMethodSignaturesDifferentClasses()
+        {
+            Helper.AssertTemplateResult(
+                expected: "AB // ABC",
+                template: "{{'A' | concatenate : 'B'}} // {{'A' | concatenate : 'B', 'C'}}",
+                localVariables: null,
+                localFilters: new[] { typeof(FiltersWithMultipleMethodSignaturesDifferentClassesOne), typeof(FiltersWithMultipleMethodSignaturesDifferentClassesTwo) });
+        }
+
+        [Test]
+        public void TestFilterWithMultipleMethodSignaturesAndContextParamInDifferentClasses()
+        {
+            Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamTwo));
+            Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamOne));
+            Assert.AreEqual("AB", Template.Parse("{{'A' | concat_with_context : 'B'}}").Render());
+            Assert.AreEqual("ABC", Template.Parse("{{'A' | concat_with_context : 'B', 'C'}}").Render());
+        }
+
+        [Test]
+        public void TestFilterAsLocalFilterWithMultipleMethodSignaturesAndContextDifferentClasses()
+        {
+
+            Helper.AssertTemplateResult(
+                expected: "AB // ABC",
+                template: "{{'A' | concat_with_context : 'B'}} // {{'A' | concat_with_context : 'B', 'C'}}",
+                localVariables: null,
+                localFilters: new[] { typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamOne), typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamTwo) });
+        }
+
+        [Test]
+        public void TestFilterInContextWithMultipleMethodSignaturesAndContextParamInDifferentClasses()
+        {
+            _context.AddFilters(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamOne));
+            _context.AddFilters(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamTwo));
+
+            Assert.AreEqual("AB", new Variable("'A' | concat_with_context : 'B'").Render(_context));
+            Assert.AreEqual("ABC", new Variable("'A' | concat_with_context : 'B', 'C'").Render(_context));
+        }
+
+        [Test]
+        // When two methods with the same name and method signature are registered, the method that is added last is preferred.
+        // This allows overriding any existing methods, including methods defined in the DotLiqid library.
+        // This is useful in cases where a defined method may need to have a different behavior in certain contexts.
+        public void TestFilterOverridesMethodWithSameMethodSignaturesDifferentClasses()
+        {
+            Template.RegisterFilter(typeof(FilterWithSameMethodSignatureDifferentClassTwo));
+            Template.RegisterFilter(typeof(FilterWithSameMethodSignatureDifferentClassOne));
+
+            Assert.AreEqual("ABClass One", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
+            Assert.AreNotEqual("ABClass Two", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
+        }
+
+        [Test]
+        public void TestFilterInContextOverridesMethodWithSameMethodSignaturesDifferentClasses()
+        {
+            _context.AddFilters(typeof(FilterWithSameMethodSignatureDifferentClassOne));
+            _context.AddFilters(typeof(FilterWithSameMethodSignatureDifferentClassTwo));
+
+            Assert.AreEqual("ABClass Two", new Variable("'A' | concatenate : 'B'").Render(_context));
+            Assert.AreNotEqual("ABClass One", new Variable("'A' | concatenate : 'B'").Render(_context));
+        }
+
+        [Test]
+        public void TestFilterAsLocalOverridesMethodWithSameMethodSignaturesDifferentClasses()
+        {
+            Helper.AssertTemplateResult(
+                           expected: "ABClass One",
+                           template: "{{'A' | concatenate : 'B'}}",
+                           localVariables: null,
+                           localFilters: new[] { typeof(FilterWithSameMethodSignatureDifferentClassTwo), typeof(FilterWithSameMethodSignatureDifferentClassOne) });
         }
 
         /*/// <summary>

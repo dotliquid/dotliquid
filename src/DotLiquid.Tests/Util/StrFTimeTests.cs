@@ -9,6 +9,8 @@ namespace DotLiquid.Tests.Util
     [TestFixture]
     public class StrFTimeTests
     {
+        private static readonly CultureInfo EN_GB = new CultureInfo("en-GB");
+
         // Descriptions below are taken from the Ruby Time.strftime documentation.
         [TestCase("%a", ExpectedResult = "Sun")] // Abbreviated weekday name (Mon)
         [TestCase("%A", ExpectedResult = "Sunday")] // Full weekday name (Monday)
@@ -77,34 +79,26 @@ namespace DotLiquid.Tests.Util
         [TestCase("%%", ExpectedResult = "%")]
         public string TestFormat(string format)
         {
-            using (CultureHelper.SetCulture("en-GB"))
-            {
-                Assert.That(CultureInfo.CurrentCulture, Is.EqualTo(new CultureInfo("en-GB")));
-                var date = new DateTime(2012, 1, 8, 14, 32, 14, 123);
-                var localResult = date.ToStrFTime(format);
-                var utcResult = new DateTimeOffset(date, TimeSpan.FromHours(0)).ToStrFTime(format);
-                Assert.AreEqual(localResult, utcResult);
-                var estResult = new DateTimeOffset(date, TimeSpan.FromHours(-5)).ToStrFTime(format);
-                Assert.AreEqual(utcResult, estResult);
-                return localResult;
-            }
+            var date = new DateTime(2012, 1, 8, 14, 32, 14, 123);
+            var localResult = date.ToStrFTime(format, EN_GB);
+            var utcResult = new DateTimeOffset(date, TimeSpan.FromHours(0)).ToStrFTime(format, EN_GB);
+            Assert.AreEqual(localResult, utcResult);
+            var estResult = new DateTimeOffset(date, TimeSpan.FromHours(-5)).ToStrFTime(format, EN_GB);
+            Assert.AreEqual(utcResult, estResult);
+            return localResult;
         }
 
         [Test]
         // %s - Gives number of seconds since 1970-01-01 00:00:00 UTC
         public void TestEpoch()
         {
-            using (CultureHelper.SetCulture("en-GB"))
-            {
-                Assert.That(CultureInfo.CurrentCulture, Is.EqualTo(new CultureInfo("en-GB")));
-                var date = new DateTime(2012, 1, 8, 14, 32, 14, 123);
-                var localResult = date.ToStrFTime("%s");
-                Assert.AreEqual("1326033134", localResult);
-                var utcResult = new DateTimeOffset(date, TimeSpan.FromHours(0)).ToStrFTime("%s");
-                Assert.AreEqual("1326033134", utcResult);
-                var estResult = new DateTimeOffset(date, TimeSpan.FromHours(-5)).ToStrFTime("%s");
-                Assert.AreEqual("1326051134", estResult);
-            }
+            var date = new DateTime(2012, 1, 8, 14, 32, 14, 123);
+            var localResult = date.ToStrFTime("%s", EN_GB);
+            Assert.AreEqual("1326033134", localResult);
+            var utcResult = new DateTimeOffset(date, TimeSpan.FromHours(0)).ToStrFTime("%s", EN_GB);
+            Assert.AreEqual("1326033134", utcResult);
+            var estResult = new DateTimeOffset(date, TimeSpan.FromHours(-5)).ToStrFTime("%s", EN_GB);
+            Assert.AreEqual("1326051134", estResult);
         }
 
         [Test]
@@ -112,29 +106,21 @@ namespace DotLiquid.Tests.Util
         {
             var now = DateTimeOffset.Now;
             string timeZoneOffset = now.ToString("zzz");
-            Assert.That(now.DateTime.ToStrFTime("%Z"), Is.EqualTo(timeZoneOffset));
+            Assert.That(now.DateTime.ToStrFTime("%Z", EN_GB), Is.EqualTo(timeZoneOffset));
         }
 
         [TestCase("%z", ExpectedResult = "+0000")] // hour and minute offset from UTC without a colon
         [TestCase("%:z", ExpectedResult = "+00:00")] // hour and minute offset from UTC with a colon
         public string TestTimeZoneUTC(string format)
         {
-            using (CultureHelper.SetCulture("en-GB"))
-            {
-                Assert.That(CultureInfo.CurrentCulture, Is.EqualTo(new CultureInfo("en-GB")));
-                return DateTimeOffset.UtcNow.ToStrFTime(format);
-            }
+            return DateTimeOffset.UtcNow.ToStrFTime(format, EN_GB);
         }
 
         [TestCase("%z", ExpectedResult = "-0500")] // hour and minute offset from UTC without a colon
         [TestCase("%:z", ExpectedResult = "-05:00")] // hour and minute offset from UTC with a colon
         public string TestTimeZoneLocal(string format)
         {
-            using (CultureHelper.SetCulture("en-GB"))
-            {
-                Assert.That(CultureInfo.CurrentCulture, Is.EqualTo(new CultureInfo("en-GB")));
-                return DateTimeOffset.Parse("2012-06-10T14:32:14-05:00").ToStrFTime(format);
-            }
+            return DateTimeOffset.Parse("2012-06-10T14:32:14-05:00").ToStrFTime(format, EN_GB);
         }
 
         // '2012-12-31' is considered to be in the first week of 2013 (according to ISO-8601).
@@ -143,11 +129,19 @@ namespace DotLiquid.Tests.Util
         [TestCase("%V", ExpectedResult = "01")]
         public string TestIso8601WeekBasedDates(string format)
         {
-            using (CultureHelper.SetCulture("en-GB"))
-            {
-                Assert.That(CultureInfo.CurrentCulture, Is.EqualTo(new CultureInfo("en-GB")));
-                return DateTime.Parse("2012-12-31").ToStrFTime(format);
-            }
+            return DateTime.Parse("2012-12-31").ToStrFTime(format, EN_GB);
+        }
+
+        [Test]
+        public void TestToStrFTime_ArgumentException()
+        {
+            var dateTime = new DateTime(2012, 1, 8, 14, 32, 14, 123);
+            var format = "%g";
+            CultureInfo cultureInfo = null;
+            Assert.Throws<ArgumentException>(() => StrFTime.ToStrFTime(dateTime, format, cultureInfo));
+
+            DateTimeOffset dateTimeOffset = new DateTimeOffset(dateTime, TimeSpan.FromHours(0));
+            Assert.Throws<ArgumentException>(() => StrFTime.ToStrFTime(dateTimeOffset, format, cultureInfo));
         }
     }
 }

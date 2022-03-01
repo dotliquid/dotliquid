@@ -444,5 +444,25 @@ namespace DotLiquid.Tests
                 Assert.AreEqual(renderParamsExplicit.SyntaxCompatibilityLevel, explicitContext.SyntaxCompatibilityLevel);
             });
         }
+
+        [Test]
+        public void TestFilterSafelist()
+        {
+            Assert.IsFalse(Template.TryGetSafelistedFilter("test_alias", out var testAliasType));
+            Assert.IsNull(testAliasType);
+
+            // Safelist using default alias
+            Template.SafelistFilter(typeof(ShopifyFilters));
+            Assert.IsTrue(Template.TryGetSafelistedFilter("ShopifyFilters", out var shopifyFiltersType));
+            Assert.AreEqual(typeof(ShopifyFilters), shopifyFiltersType);
+
+            // Safelist using explicit alias
+            Template.SafelistFilter(typeof(ShopifyFilters), "test_alias");
+            Assert.IsTrue(Template.TryGetSafelistedFilter("test_alias", out testAliasType));
+            Assert.AreEqual(typeof(ShopifyFilters), testAliasType);
+
+            CollectionAssert.Contains(Template.GetSafelistedFilterAliases(), "ShopifyFilters");
+            CollectionAssert.Contains(Template.GetSafelistedFilterAliases(), "test_alias");
+        }
     }
 }

@@ -23,7 +23,7 @@ namespace DotLiquid
 #if CORE
                 : Regex.Replace(input, @"\b(\w)", m => m.Value.ToUpper(), RegexOptions.None, Template.RegexTimeOut);
 #else
-                : CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input);
+                : context.CurrentCulture.TextInfo.ToTitleCase(input);
 #endif
         }
 
@@ -90,11 +90,10 @@ namespace DotLiquid
                 }
                 catch
                 {
-                    throw new SyntaxException(message: Liquid.ResourceManager.GetString("TimeZoneNotAvailableException"), args: convertToTimezoneId);
+                    throw new SyntaxException(message: "TimeZoneNotAvailableException", args: convertToTimezoneId);
                 }
 
-            // TODO: change to context.UseRubyDateFormat if PR #450 is merged
-            return Liquid.UseRubyDateFormat ? dateTimeOffset.ToStrFTime(format) : dateTimeOffset.ToString(format);
+            return context.UseRubyDateFormat ? dateTimeOffset.ToStrFTime(format, context.CurrentCulture) : dateTimeOffset.ToString(format);
         }
 
         /// <summary>

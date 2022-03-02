@@ -657,7 +657,7 @@ namespace DotLiquid
                 return input.ToString();
 
             DateTimeOffset dateTimeOffset;
-            long timestamp = 0L;
+            var timestamp = 0L;
             if (input is DateTimeOffset inputOffset)
             {
                 dateTimeOffset = inputOffset;
@@ -665,7 +665,7 @@ namespace DotLiquid
             else if ((input is decimal) || (input is double) || (input is float) || (input is int) || (input is uint) || (input is long) || (input is ulong) || (input is short) || (input is ushort)
                 || (input is string stringInput && long.TryParse(stringInput, NumberStyles.Integer, CultureInfo.InvariantCulture, out timestamp)))
             {
-                // If input is a string timestamp we already have a long value, if not convert
+                // If input is a string timestamp we already have a long value, otherwise convert
                 timestamp = input is string ? timestamp : Convert.ToInt64(input);
 #if NET45
                 dateTimeOffset = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(timestamp).ToLocalTime();

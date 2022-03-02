@@ -42,66 +42,75 @@ namespace DotLiquid
         }
 
         /// <summary>
-        /// Convert a millisecond UNIX Epoch timestamp or date-time string into a target timezone as a formatted date string.
+        /// Convert a UNIX Epoch timestamp in milliseconds into a UTC DateTimeOffset.
         /// </summary>
-        /// <remarks>
-        /// If you have a UNIX Epoch timestamp in seconds use the Date filter, or divide your timestamp by 1000 using the DividedBy filter.
-        /// </remarks>
         /// <param name="context">The DotLiquid context</param>
-        /// <param name="input">Input to be transformed to a string</param>
-        /// <param name="format">.NET or Ruby StrFTime format specifying output formatting</param>
-        /// <param name="convertToTimezoneId">Windows timezone ID to convert to, if null either the input's timezone, or system default will be used</param>
-        public static object ConvertTime(Context context, object input, string format, string convertToTimezoneId = null)
+        /// <param name="input">string/long containing milliseconds</param>
+        public static object UnixMs(Context context, object input)
         {
-            if (input == null || format.IsNullOrWhiteSpace())
-                return input;
+            if ((input is double) || (input is long) || (input is ulong))
+            {
+                return CreateDateTimeOffsetFromUnixMilliseconds(Convert.ToInt64(input, context.FormatProvider));
+            }
+            else if (input is string stringInput &&
+                long.TryParse(stringInput, NumberStyles.Integer, CultureInfo.InvariantCulture, out var timestamp))
+            {
+                return CreateDateTimeOffsetFromUnixMilliseconds(timestamp);
+            }
 
-            if (input is DateTimeOffset dateTimeOffset)
-            { }
+            return input;
+        }
+
+        /// <summary>
+        /// Convert a date-time input to a different timezone.
+        /// </summary>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">DateTimeOffset, DateTime (unspecified, local or UTC) or a date string</param>
+        /// <param name="convertToTimezoneId">Windows timezone ID to convert to</param>
+        /// <seealso href="https://docs.microsoft.com/en-us/dotnet/api/system.timezoneinfo.findsystemtimezonebyid?view=netcore-3.1#remarks"/>
+        public static object TimeZone(Context context, object input, string convertToTimezoneId)
+        {
+            // Convert the input to a DateTimeOffset
+            if (input is DateTimeOffset dateTimeOffset ||
+                (input is string stringInput && DateTimeOffset.TryParse(stringInput, out dateTimeOffset)))
+            {
+                // Accept a DateTimeOffset or date-string
+            }
             else if (input is DateTime dateTime)
             {
                 dateTimeOffset = new DateTimeOffset(dateTime);
             }
-            else if ((input is decimal) || (input is double) || (input is float) || (input is int) || (input is uint) || (input is long) || (input is ulong) || (input is short) || (input is ushort))
-            {
-                dateTimeOffset = CreateDateTimeOffsetFromUnixTimestamp(Convert.ToInt64(input));
-            }
-            else if (input is string stringInput)
-            {
-                if (string.Equals(stringInput, "now", StringComparison.OrdinalIgnoreCase)
-                 || string.Equals(stringInput, "today", StringComparison.OrdinalIgnoreCase))
-                    dateTimeOffset = DateTimeOffset.Now; // special word
-                else if (long.TryParse(stringInput, NumberStyles.Integer, CultureInfo.InvariantCulture, out var timestamp))
-                    dateTimeOffset = CreateDateTimeOffsetFromUnixTimestamp(timestamp);
-                else if (!DateTimeOffset.TryParse(stringInput, out dateTimeOffset))
-                    return input; // not a date literal string
-            }
             else
             {
-                return input; // cannot be converted to a DateTimeOffset
+                return input; // not a supported input data type
             }
 
-            // If a target timezone is specified attempt to convert the date-time
-            if (!string.IsNullOrEmpty(convertToTimezoneId))
+            // Identify the target timezone
+            TimeZoneInfo destinationTimeZone = null;
+            if (string.Equals(convertToTimezoneId, "Local", StringComparison.OrdinalIgnoreCase))
+                destinationTimeZone = TimeZoneInfo.Local;
+            else if (string.Equals(convertToTimezoneId, "UTC", StringComparison.OrdinalIgnoreCase))
+                destinationTimeZone = TimeZoneInfo.Utc;
+            else
+                // Attempt to retrieve a timezone by ID
                 try
                 {
-                    TimeZoneInfo destinationTimeZone = TimeZoneInfo.FindSystemTimeZoneById(convertToTimezoneId);
-                    dateTimeOffset = TimeZoneInfo.ConvertTime(dateTimeOffset, destinationTimeZone);
+                    destinationTimeZone = TimeZoneInfo.FindSystemTimeZoneById(convertToTimezoneId);
                 }
                 catch
                 {
                     throw new SyntaxException(message: "TimeZoneNotAvailableException", args: convertToTimezoneId);
                 }
 
-            return context.UseRubyDateFormat ? dateTimeOffset.ToStrFTime(format, context.CurrentCulture) : dateTimeOffset.ToString(format);
+            // Convert and return date in target timezone
+            return TimeZoneInfo.ConvertTime(dateTimeOffset, destinationTimeZone);
         }
 
         /// <summary>
-        /// Create a DateTimeOffset from the provided UNIX Epoch timestamp, inferring whether the
-        /// timestamp is seconds or milliseconds.
+        /// Create a DateTimeOffset from the provided UNIX Epoch timestamp in milliseconds.
         /// </summary>
         /// <return cref="DateTimeOffset">A Date in UTC</return>
-        private static DateTimeOffset CreateDateTimeOffsetFromUnixTimestamp(long milliseconds)
+        private static DateTimeOffset CreateDateTimeOffsetFromUnixMilliseconds(long milliseconds)
         {
 #if NET45
             return new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddMilliseconds(milliseconds);

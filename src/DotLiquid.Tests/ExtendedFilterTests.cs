@@ -104,6 +104,11 @@ namespace DotLiquid.Tests
             Assert.AreEqual("2020-02-29T09:10:11+00:00", ToIso8601DateString(ExtendedFilters.TimeZone(context: context, input: dateTimeOffset, convertToTimezoneId: "Local")));
             Assert.AreEqual("2020-02-28T23:10:11-10:00", ToIso8601DateString(ExtendedFilters.TimeZone(context: context, input: dateTimeOffset, convertToTimezoneId: "Hawaiian Standard Time")));
 
+            // Ignore non-date types
+            Assert.AreEqual("xxxxx", ExtendedFilters.TimeZone(context: context, input: "xxxxx", convertToTimezoneId: "UTC"));
+            Assert.AreEqual(1234567890L, ExtendedFilters.TimeZone(context: context, input: 1234567890L, convertToTimezoneId: "UTC"));
+            Assert.AreEqual(1.0d, ExtendedFilters.TimeZone(context: context, input: 1.0d, convertToTimezoneId: "UTC"));
+
             // IANA timezone identifier (not be available until .NET6))
             Assert.Throws<SyntaxException>(() => ExtendedFilters.TimeZone(context: context, input: dateTimeOffset, convertToTimezoneId: "Europe/Paris"));
 

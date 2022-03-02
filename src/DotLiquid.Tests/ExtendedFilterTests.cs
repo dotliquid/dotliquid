@@ -123,25 +123,25 @@ namespace DotLiquid.Tests
             Helper.AssertTemplateResult(
                 expected: "2022-03-01T12:00:00+00:00",
                 template: "{{1646136000000 | unix_ms | date: 'yyyy-MM-ddTHH:mm:sszzz'}}",
-                SyntaxCompatibility.DotLiquid21); // DotLiquid21 to avoid legacy date parsing
+                syntax: SyntaxCompatibility.DotLiquid21); // DotLiquid21 to avoid legacy date parsing
 
             // Epoch millis string to ISO-8601 in EST (1646136000000 -> 2022-03-01T07:00:00-05:00)
             Helper.AssertTemplateResult(
                 expected: "2022-03-01T07:00:00-05:00",
                 template: "{{'1646136000000' | unix_ms | time_zone: 'Eastern Standard Time' | date: 'yyyy-MM-ddTHH:mm:sszzz'}}",
-                SyntaxCompatibility.DotLiquid21); // DotLiquid21 to avoid legacy date parsing
+                syntax: SyntaxCompatibility.DotLiquid21); // DotLiquid21 to avoid legacy date parsing
 
             // Epoch seconds to ISO-8601 in EST (1646136000000 -> 2022-03-01T07:00:00-05:00)
             Helper.AssertTemplateResult(
                 expected: "2022-03-01T07:00:00-05:00",
                 template: "{{1646136000 | date: 'yyyy-MM-ddTHH:mm:sszzz' | time_zone: 'Eastern Standard Time' | date: 'yyyy-MM-ddTHH:mm:sszzz'}}",
-                SyntaxCompatibility.DotLiquid21); // DotLiquid21 to avoid legacy date parsing
+                syntax: SyntaxCompatibility.DotLiquid21); // DotLiquid21 to avoid legacy date parsing
 
             // ISO-8601 UTC to ISO-8601 in EST (2000-01-01T00:00:00Z -> 1999-12-31T19:00:00-05:00)
             Helper.AssertTemplateResult(
                 expected: "1999-12-31T19:00:00-05:00",
                 template: "{{'2000-01-01T00:00:00Z' | time_zone: 'Eastern Standard Time' | date: 'yyyy-MM-ddTHH:mm:sszzz'}}",
-                SyntaxCompatibility.DotLiquid21); // DotLiquid21 to avoid legacy date parsing
+                syntax: SyntaxCompatibility.DotLiquid21); // DotLiquid21 to avoid legacy date parsing
         }
     }
 }

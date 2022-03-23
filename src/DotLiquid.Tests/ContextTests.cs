@@ -863,6 +863,40 @@ namespace DotLiquid.Tests
             Assert.AreEqual(expected: "State Is:Texas", actual: Template.Parse(template).Render(modelHash));
         }
 
+        /// <summary>
+        /// Test case for [Issue #474](https://github.com/dotliquid/dotliquid/issues/474)
+        /// </summary>
+        [Test]
+        public void TestDecimalIndexer_Issue474()
+        {
+
+            var template = @"{% assign idx = fraction | minus: 0.01 -%}
+{{ arr[0] }}
+{{ arr[idx] }}";
+
+            var modelHash = Hash.FromAnonymousObject(new { arr = new[] { "Zero", "One" }, fraction = 0.01 });
+            Assert.AreEqual(expected: "Zero\r\nZero", actual: Template.Parse(template).Render(modelHash));
+        }
+
+        /// <summary>
+        /// Test case for [Issue #474](https://github.com/dotliquid/dotliquid/issues/474)
+        /// </summary>
+        [Test]
+        public void TestAllTypesIndexer_Issue474()
+        {
+            var zero = 0;
+            var typesToTest = Util.ExpressionUtilityTest.GetNumericCombinations().Select(item => item.Item1).Distinct().ToList();
+            var arrayOfZeroTypes = typesToTest.Select(type => Convert.ChangeType(zero, type)).ToList();
+
+            var template = @"{% for idx in numerics -%}
+{{ arr[idx] }}
+{% endfor %}";
+
+            var modelHash = Hash.FromAnonymousObject(new { arr = new[] { "Zero", "One" }, numerics = arrayOfZeroTypes });
+            Assert.AreEqual(expected: string.Join("", Enumerable.Repeat("Zero\r\n", arrayOfZeroTypes.Count)), actual: Template.Parse(template).Render(modelHash));
+
+        }
+
         [Test]
         public void TestProcAsVariable()
         {

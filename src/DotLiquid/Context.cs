@@ -621,7 +621,8 @@ namespace DotLiquid
             else if (obj is IDictionary<string, object> dictionaryObject && dictionaryObject.ContainsKey(key.ToString()))
                 value = dictionaryObject[key.ToString()];
 
-            else if ((obj is IList listObj) && (key is int || key is long))
+            else if ((obj is IList listObj) && (key is int || key is uint || key is long || key is ulong || key is short || key is ushort || key is byte || key is sbyte
+                || (key is decimal dec && Math.Truncate(dec) == dec) || (key is double dbl && Math.Truncate(dbl) == dbl) || (key is float flt && Math.Truncate(flt) == flt)))
                 value = listObj[Convert.ToInt32(key)];
 
             else if (TypeUtility.IsAnonymousType(obj.GetType()) && obj.GetType().GetRuntimeProperty((string)key) != null)

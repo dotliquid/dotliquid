@@ -869,7 +869,6 @@ namespace DotLiquid.Tests
         [Test]
         public void TestDecimalIndexer_Issue474()
         {
-
             var template = @"{% assign idx = fraction | minus: 0.01 -%}
 {{ arr[0] }}
 {{ arr[idx] }}";
@@ -893,8 +892,7 @@ namespace DotLiquid.Tests
 {% endfor %}";
 
             var modelHash = Hash.FromAnonymousObject(new { arr = new[] { "Zero", "One" }, numerics = arrayOfZeroTypes });
-            Assert.AreEqual(expected: string.Join("", Enumerable.Repeat("Zero\r\n", arrayOfZeroTypes.Count)), actual: Template.Parse(template).Render(modelHash));
-
+            Assert.AreEqual(expected: string.Join(String.Empty, Enumerable.Repeat("Zero\r\n", arrayOfZeroTypes.Count)), actual: Template.Parse(template).Render(modelHash));
         }
 
         [Test]

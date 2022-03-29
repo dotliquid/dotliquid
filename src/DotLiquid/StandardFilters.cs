@@ -667,11 +667,7 @@ namespace DotLiquid
             {
                 // If input is a string timestamp we already have a long value, otherwise convert
                 timestamp = input is string ? timestamp : Convert.ToInt64(input);
-#if NET45
-                dateTimeOffset = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(timestamp).ToLocalTime();
-#else
-                dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(timestamp).ToLocalTime();
-#endif
+                dateTimeOffset = timestamp.CreateDateTimeOffsetFromUnixSeconds().ToLocalTime();
             }
             else
             {
@@ -1100,6 +1096,39 @@ namespace DotLiquid
             var inputList = input.Cast<object>().ToList();
             inputList.Reverse();
             return inputList;
+        }
+    }
+
+    internal static class LongExtensions
+    {
+#if NET45
+        private static readonly DateTimeOffset UNIX_EPOCH = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
+#endif
+
+        /// <summary>
+        /// Create a DateTimeOffset from the provided UNIX Epoch timestamp in seconds.
+        /// </summary>
+        /// <return cref="DateTimeOffset">A Date in UTC</return>
+        public static DateTimeOffset CreateDateTimeOffsetFromUnixSeconds(this long seconds)
+        {
+#if NET45
+            return UNIX_EPOCH.AddSeconds(seconds);
+#else
+            return DateTimeOffset.FromUnixTimeSeconds(seconds);
+#endif
+        }
+
+        /// <summary>
+        /// Create a DateTimeOffset from the provided UNIX Epoch timestamp in milliseconds.
+        /// </summary>
+        /// <return cref="DateTimeOffset">A Date in UTC</return>
+        public static DateTimeOffset CreateDateTimeOffsetFromUnixMilliseconds(this long milliseconds)
+        {
+#if NET45
+            return DateTimeOffset.UnixEpoch.AddMilliseconds(milliseconds);
+#else
+            return DateTimeOffset.FromUnixTimeMilliseconds(milliseconds);
+#endif
         }
     }
 

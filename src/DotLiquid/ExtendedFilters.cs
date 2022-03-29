@@ -1,8 +1,6 @@
 using System;
 using System.Globalization;
-using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
-using DotLiquid.Util;
 
 namespace DotLiquid
 {
@@ -11,7 +9,6 @@ namespace DotLiquid
     /// </summary>
     public static class ExtendedFilters
     {
-        private static readonly DateTimeOffset UNIX_EPOCH = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
         private static readonly string[] ISO_8601_FORMATS = new[] { "yyyy-MM-ddTHH:mm:sszzz", "yyyy-MM-ddTHH:mm:ssZ" };
 
         /// <summary>
@@ -53,12 +50,12 @@ namespace DotLiquid
         {
             if ((input is double) || (input is long) || (input is ulong))
             {
-                return CreateDateTimeOffsetFromUnixMilliseconds(Convert.ToInt64(input, context.FormatProvider));
+                return Convert.ToInt64(input, context.FormatProvider).CreateDateTimeOffsetFromUnixMilliseconds();
             }
             else if (input is string stringInput &&
                 long.TryParse(stringInput, NumberStyles.Integer, CultureInfo.InvariantCulture, out var timestamp))
             {
-                return CreateDateTimeOffsetFromUnixMilliseconds(timestamp);
+                return timestamp.CreateDateTimeOffsetFromUnixMilliseconds();
             }
 
             return input;
@@ -101,19 +98,6 @@ namespace DotLiquid
 
             // Convert and return date in target timezone
             return TimeZoneInfo.ConvertTime(dateTimeOffset, destinationTimeZone);
-        }
-
-        /// <summary>
-        /// Create a DateTimeOffset from the provided UNIX Epoch timestamp in milliseconds.
-        /// </summary>
-        /// <return cref="DateTimeOffset">A Date in UTC</return>
-        private static DateTimeOffset CreateDateTimeOffsetFromUnixMilliseconds(long milliseconds)
-        {
-#if NET45
-            return UNIX_EPOCH.AddMilliseconds(milliseconds);
-#else
-            return DateTimeOffset.FromUnixTimeMilliseconds(milliseconds);
-#endif
         }
     }
 }

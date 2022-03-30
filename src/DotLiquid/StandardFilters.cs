@@ -1125,7 +1125,7 @@ namespace DotLiquid
         public static DateTimeOffset CreateDateTimeOffsetFromUnixMilliseconds(this long milliseconds)
         {
 #if NET45
-            return DateTimeOffset.UnixEpoch.AddMilliseconds(milliseconds);
+            return UNIX_EPOCH.AddMilliseconds(milliseconds);
 #else
             return DateTimeOffset.FromUnixTimeMilliseconds(milliseconds);
 #endif

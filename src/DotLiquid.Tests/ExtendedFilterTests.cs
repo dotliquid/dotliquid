@@ -74,10 +74,15 @@ namespace DotLiquid.Tests
         {
             Context context = new Context(CultureInfo.CurrentCulture);
 
-            // Date string tests
-            Assert.AreEqual("2020-02-29T12:10:11+00:00", ToIso8601DateString(ExtendedFilters.TimeZone(context: context, input: "2020-02-29T12:10:11Z", convertToTimezoneId: "UTC")));
-            Assert.AreEqual("2020-02-29T12:10:11+00:00", ToIso8601DateString(ExtendedFilters.TimeZone(context: context, input: "2020-02-29T12:10:11+00:00", convertToTimezoneId: "UTC")));
+            // Date string - different source, same target
+            Assert.AreEqual("2020-02-29T12:10:11+00:00", ToIso8601DateString(ExtendedFilters.TimeZone(context: context, input: "2020-02-29T12:10:11Z", convertToTimezoneId: "UTC"))); // From UTC
+            Assert.AreEqual("2020-02-29T12:10:11+00:00", ToIso8601DateString(ExtendedFilters.TimeZone(context: context, input: "2020-02-29T12:10:11+00:00", convertToTimezoneId: "UTC"))); // From UTC
+            Assert.AreEqual("2020-02-29T12:10:11+00:00", ToIso8601DateString(ExtendedFilters.TimeZone(context: context, input: "2020-02-29T07:10:11-05:00", convertToTimezoneId: "UTC"))); // From Eastern Standard Time
+            Assert.AreEqual("2020-02-29T12:10:11+00:00", ToIso8601DateString(ExtendedFilters.TimeZone(context: context, input: "2020-02-29T13:10:11+01:00", convertToTimezoneId: "UTC"))); // From W. Europe Standard Time
+
+            // Date string - same source, different target
             Assert.AreEqual("2020-02-29T02:10:11-10:00", ToIso8601DateString(ExtendedFilters.TimeZone(context: context, input: "2020-02-29T12:10:11+00:00", convertToTimezoneId: "Hawaiian Standard Time")));
+            Assert.AreEqual("2020-02-29T07:10:11-05:00", ToIso8601DateString(ExtendedFilters.TimeZone(context: context, input: "2020-02-29T12:10:11Z", convertToTimezoneId: "Eastern Standard Time")));
             Assert.AreEqual("2020-02-29T07:10:11-05:00", ToIso8601DateString(ExtendedFilters.TimeZone(context: context, input: "2020-02-29T12:10:11+00:00", convertToTimezoneId: "Eastern Standard Time")));
             Assert.AreEqual("2020-02-29T13:10:11+01:00", ToIso8601DateString(ExtendedFilters.TimeZone(context: context, input: "2020-02-29T12:10:11+00:00", convertToTimezoneId: "W. Europe Standard Time")));
 

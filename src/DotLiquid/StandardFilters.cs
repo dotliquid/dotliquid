@@ -359,6 +359,9 @@ namespace DotLiquid
         /// <seealso href="https://shopify.dev/api/liquid/filters/money-filters#money">Shopify Money filter</seealso>
         public static string Currency(Context context, object input, string languageTag = null)
         {
+            // Check for null input, return null
+            if (input == null) return null;
+
             // Check for null only, allow an empty string as it represent the InvariantCulture
             var culture = languageTag == null ? context.CurrentCulture : new CultureInfo(languageTag.Trim());
 

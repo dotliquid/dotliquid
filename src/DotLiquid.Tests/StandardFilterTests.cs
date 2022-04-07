@@ -715,6 +715,21 @@ PaulGeorge",
         }
 
         [Test]
+        public void TestNullInputCurrency()
+        {
+            // Set the thread culture and test for backward compatibility
+            using (CultureHelper.SetCulture("en-US"))
+            {
+                Helper.AssertTemplateResult(
+                    expected: string.Empty,
+                    template: "{{ null | currency: 'de-DE' }}");
+            }
+
+            // _contextV20 is initialized with InvariantCulture
+            Assert.AreEqual(null, StandardFilters.Currency(context: _contextV20, input: null, languageTag: "de-DE"));
+        }
+
+        [Test]
         public void TestMalformedCurrency()
         {
             // Set the thread culture and test for backward compatibility

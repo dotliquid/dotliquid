@@ -715,19 +715,23 @@ PaulGeorge",
         }
 
         [Test]
-        public void TestNullInputCurrency()
+        [TestCase(null)]
+        [TestCase("")]
+        public void TestNullOrEmptyInputCurrency(string input)
         {
             // Set the thread culture and test for backward compatibility
             using (CultureHelper.SetCulture("en-US"))
             {
                 Helper.AssertTemplateResult(
                     expected: string.Empty,
-                    template: "{{ null | currency: 'de-DE' }}");
+                    template: "{{ input | currency: 'de-DE' }}");
             }
 
             // _contextV20 is initialized with InvariantCulture
-            Assert.AreEqual(null, StandardFilters.Currency(context: _contextV20, input: null, languageTag: "de-DE"));
-        }
+            Assert.AreEqual(
+                expected: input,
+                actual: StandardFilters.Currency(context: _contextV20, input: input, languageTag: "de-DE"));
+        }        
 
         [Test]
         public void TestMalformedCurrency()

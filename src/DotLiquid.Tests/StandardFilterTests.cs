@@ -724,7 +724,8 @@ PaulGeorge",
             {
                 Helper.AssertTemplateResult(
                     expected: string.Empty,
-                    template: "{{ input | currency: 'de-DE' }}");
+                    template: "{{ input | currency: 'de-DE' }}",
+                    localVariables: Hash.FromAnonymousObject(new { input = input }));
             }
 
             // _contextV20 is initialized with InvariantCulture

@@ -715,6 +715,26 @@ PaulGeorge",
         }
 
         [Test]
+        [TestCase(null)]
+        [TestCase("")]
+        public void TestNullOrEmptyInputCurrency(string input)
+        {
+            // Set the thread culture and test for backward compatibility
+            using (CultureHelper.SetCulture("en-US"))
+            {
+                Helper.AssertTemplateResult(
+                    expected: string.Empty,
+                    template: "{{ input | currency: 'de-DE' }}",
+                    localVariables: Hash.FromAnonymousObject(new { input = input }));
+            }
+
+            // _contextV20 is initialized with InvariantCulture
+            Assert.AreEqual(
+                expected: input,
+                actual: StandardFilters.Currency(context: _contextV20, input: input, languageTag: "de-DE"));
+        }        
+
+        [Test]
         public void TestMalformedCurrency()
         {
             // Set the thread culture and test for backward compatibility

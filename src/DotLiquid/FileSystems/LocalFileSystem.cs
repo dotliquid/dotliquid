@@ -19,6 +19,8 @@ namespace DotLiquid.FileSystems
     /// </summary>
     public class LocalFileSystem : IFileSystem
     {
+        internal readonly Regex DirectorySeparators = new Regex(@"[\\/]", RegexOptions.Compiled);
+
         public string Root { get; set; }
 
         public LocalFileSystem(string root)
@@ -26,6 +28,7 @@ namespace DotLiquid.FileSystems
             Root = root;
         }
 
+        /// <inheritdoc />
         public string ReadTemplateFile(Context context, string templateName)
         {
             string templatePath = (string) context[templateName];
@@ -37,14 +40,13 @@ namespace DotLiquid.FileSystems
 
         public string FullPath(string templatePath)
         {
-            if (templatePath == null || !Regex.IsMatch(templatePath, @"^[^.\/][a-zA-Z0-9_\/]+$"))
+            if (templatePath == null || !Regex.IsMatch(templatePath, @"^(?![\\\/\.])(?:[^<>:;,?""*|\x00-\x1F\/\\]+|[\/\\](?!\.))+(?<!\/)$"))
                 throw new FileSystemException(Liquid.ResourceManager.GetString("LocalFileSystemIllegalTemplateNameException"), templatePath);
 
-            string fullPath = templatePath.Contains("/")
+            string fullPath = DirectorySeparators.IsMatch(templatePath)
                 ? Path.Combine(Path.Combine(Root, Path.GetDirectoryName(templatePath)), string.Format("_{0}.liquid", Path.GetFileName(templatePath)))
                 : Path.Combine(Root, string.Format("_{0}.liquid", templatePath));
 
-            //string escapedPath = Root.Replace(@"\", @"\\").Replace("(", @"\(").Replace(")", @"\)");
             string escapedPath = Regex.Escape(Root);
             if (!Regex.IsMatch(Path.GetFullPath(fullPath), string.Format("^{0}", escapedPath)))
                 throw new FileSystemException(Liquid.ResourceManager.GetString("LocalFileSystemIllegalTemplatePathException"), Path.GetFullPath(fullPath));

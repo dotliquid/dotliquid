@@ -79,7 +79,7 @@ namespace DotLiquid.Tests
             EmbeddedFileSystem fileSystem = new EmbeddedFileSystem(assembly, "DotLiquid.Tests.Embedded");
             foreach (var validPath in validPaths)
                 Assert.AreEqual(
-                    expected: "DotLiquid.Tests.Embedded." + fileSystem.DirectorySeparators.Replace(validPath.Value, "."),
+                    expected: "DotLiquid.Tests.Embedded." + Liquid.DirectorySeparatorsRegex.Replace(validPath.Value, "."),
                     actual: fileSystem.FullPath(validPath.Key));
 
             foreach (var invalidPath in invalidPaths)

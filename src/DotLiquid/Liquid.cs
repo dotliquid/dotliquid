@@ -1,4 +1,7 @@
-﻿using System.Resources;
+using System;
+using System.Resources;
+using System.Text.RegularExpressions;
+using System.Threading;
 using DotLiquid.Util;
 
 namespace DotLiquid
@@ -29,6 +32,15 @@ namespace DotLiquid
         public static readonly string LiteralShorthand = R.Q(@"^(?:\{\{\{\s?)(.*?)(?:\s*\}\}\})$");
         public static readonly string CommentShorthand = R.Q(@"^(?:\{\s?\#\s?)(.*?)(?:\s*\#\s?\})$");
         public static bool UseRubyDateFormat = false;
+
+        internal static readonly string DirectorySeparators = @"[\\/]";
+        internal static readonly string LimitRelativePath = @"^(?![\\\/\.])(?:[^<>:;,?""*|\x00-\x1F\/\\]+|[\/\\](?!\.))+(?<!\/)$"; /* Blocks hidden files in linux and directory traversal .. */
+        private static readonly Lazy<Regex> LazyDirectorySeparatorsRegex = new Lazy<Regex>(() => R.C(DirectorySeparators), LazyThreadSafetyMode.ExecutionAndPublication);
+        private static readonly Lazy<Regex> LazyLimitRelativePathRegex = new Lazy<Regex>(() => R.C(LimitRelativePath), LazyThreadSafetyMode.ExecutionAndPublication);
+
+        internal static Regex DirectorySeparatorsRegex => LazyDirectorySeparatorsRegex.Value;
+        internal static Regex LimitRelativePathRegex => LazyLimitRelativePathRegex.Value;
+
 
         static Liquid()
         {

@@ -56,7 +56,7 @@ namespace DotLiquid.FileSystems
                     Liquid.ResourceManager.GetString("LocalFileSystemIllegalTemplateNameException"), templatePath);
 
             var basePath = DirectorySeparators.IsMatch(templatePath)
-                ? DirectorySeparators.Replace(Path.Combine(Root, Path.GetDirectoryName(templatePath)), ".")
+                ? DirectorySeparators.Replace(input: Path.Combine(Root, Path.GetDirectoryName(templatePath)), replacement: ".")
                 : Root;
 
             var fileName = string.Format("_{0}.liquid", Path.GetFileName(templatePath));

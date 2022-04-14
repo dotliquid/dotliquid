@@ -54,7 +54,9 @@ namespace DotLiquid.Tests
         {
             LocalFileSystem fileSystem = new LocalFileSystem(@"D:\Some\Path");
             foreach (var validPath in validPaths)
-                Assert.AreEqual(System.IO.Path.Combine(@"D:\Some\Path", validPath.Value.Replace('\\', Path.DirectorySeparatorChar)), fileSystem.FullPath(validPath.Key));
+                Assert.AreEqual(
+                    expected: Path.Combine(@"D:\Some\Path", validPath.Value.Replace('\\', Path.DirectorySeparatorChar)),
+                    actual: fileSystem.FullPath(validPath.Key));
 
             foreach (var invalidPath in invalidPaths)
                 Assert.Throws<FileSystemException>(() => fileSystem.FullPath(invalidPath));
@@ -76,7 +78,9 @@ namespace DotLiquid.Tests
             var assembly = typeof(FileSystemTests).GetTypeInfo().Assembly;
             EmbeddedFileSystem fileSystem = new EmbeddedFileSystem(assembly, "DotLiquid.Tests.Embedded");
             foreach (var validPath in validPaths)
-                Assert.AreEqual("DotLiquid.Tests.Embedded." + fileSystem.DirectorySeparators.Replace(validPath.Value, "."), fileSystem.FullPath(validPath.Key));
+                Assert.AreEqual(
+                    expected: "DotLiquid.Tests.Embedded." + fileSystem.DirectorySeparators.Replace(validPath.Value, "."),
+                    actual: fileSystem.FullPath(validPath.Key));
 
             foreach (var invalidPath in invalidPaths)
                 Assert.Throws<FileSystemException>(() => fileSystem.FullPath(invalidPath));

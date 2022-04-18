@@ -23,12 +23,14 @@ namespace DotLiquid.FileSystems
 
         public string Root { get; private set; }
 
+        /// <inheritdoc />
         public EmbeddedFileSystem(System.Reflection.Assembly assembly, string root)
         {
             Assembly = assembly;
             Root = root;
         }
 
+        /// <inheritdoc />
         public string ReadTemplateFile(Context context, string templateName)
         {
             var templatePath = (string)context[templateName];
@@ -47,17 +49,18 @@ namespace DotLiquid.FileSystems
 
         public string FullPath(string templatePath)
         {
-            if (templatePath == null || !Regex.IsMatch(templatePath, @"^[^.\/][a-zA-Z0-9_\/]+$"))
+            if (templatePath == null || !Liquid.LimitRelativePathRegex.IsMatch(templatePath))
                 throw new FileSystemException(
                     Liquid.ResourceManager.GetString("LocalFileSystemIllegalTemplateNameException"), templatePath);
 
-            var basePath = templatePath.Contains("/")
-                ? Path.Combine(Root, Path.GetDirectoryName(templatePath))
+            var directorySeparators = Liquid.DirectorySeparatorsRegex;
+            var basePath = directorySeparators.IsMatch(templatePath)
+                ? directorySeparators.Replace(input: Path.Combine(Root, Path.GetDirectoryName(templatePath)), replacement: ".")
                 : Root;
 
             var fileName = string.Format("_{0}.liquid", Path.GetFileName(templatePath));
 
-            var fullPath = Regex.Replace(Path.Combine(basePath, fileName), @"\\|/", ".");
+            var fullPath = $"{basePath}.{fileName}";
 
             return fullPath;
         }

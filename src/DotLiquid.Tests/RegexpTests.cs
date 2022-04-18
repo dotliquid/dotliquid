@@ -18,20 +18,11 @@ namespace DotLiquid.Tests
             var assembly = typeof (Template).GetTypeInfo().Assembly;
             foreach (Type parent in assembly.GetTypes())
             {
-                foreach (var t in parent.GetTypeInfo().GetFields(BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
+                foreach (var t in parent.GetTypeInfo().GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
                 {
                     if (t.FieldType == typeof(Regex))
                     {
-                        if (t.IsStatic)
-                        {
-                            Assert.AreNotEqual(0, RegexOptions.Compiled & ((Regex) t.GetValue(null)).Options);
-                        }
-                        else
-                        {
-                            Assert.AreNotEqual(0, RegexOptions.Compiled & ((Regex)t.GetValue(parent)).Options);
-                        }
-
-                        //Trace.TraceInformation(parent.Name + ": " + t.Name);
+                        Assert.AreNotEqual(0, RegexOptions.Compiled & ((Regex) t.GetValue(null)).Options);
                     }
                 }
             }

@@ -246,4 +246,7 @@
   <data name="CultureNotFoundException" xml:space="preserve">
     <value>Culture '{0}' is not supported</value>
   </data>
+  <data name="TimeZoneNotAvailableException" xml:space="preserve">
+    <value>Error - unable to load timezone information for id '{0}'</value>
+  </data>
 </root>

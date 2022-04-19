@@ -660,17 +660,17 @@ namespace DotLiquid
                 return input.ToString();
 
             DateTimeOffset dateTimeOffset;
+            var timestamp = 0L;
             if (input is DateTimeOffset inputOffset)
             {
                 dateTimeOffset = inputOffset;
             }
-            else if ((input is decimal) || (input is double) || (input is float) || (input is int) || (input is uint) || (input is long) || (input is ulong) || (input is short) || (input is ushort))
+            else if ((input is decimal) || (input is double) || (input is float) || (input is int) || (input is uint) || (input is long) || (input is ulong) || (input is short) || (input is ushort)
+                || (input is string stringInput && long.TryParse(stringInput, NumberStyles.Integer, CultureInfo.InvariantCulture, out timestamp)))
             {
-#if CORE
-                dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(input)).ToLocalTime();
-#else
-                dateTimeOffset = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(Convert.ToDouble(input)).ToLocalTime();
-#endif
+                // If input is a string timestamp we already have a long value, otherwise convert
+                timestamp = input is string ? timestamp : Convert.ToInt64(input);
+                dateTimeOffset = timestamp.CreateDateTimeOffsetFromUnixSeconds().ToLocalTime();
             }
             else
             {
@@ -1099,6 +1099,39 @@ namespace DotLiquid
             var inputList = input.Cast<object>().ToList();
             inputList.Reverse();
             return inputList;
+        }
+    }
+
+    internal static class LongExtensions
+    {
+#if NET45
+        private static readonly DateTimeOffset UNIX_EPOCH = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
+#endif
+
+        /// <summary>
+        /// Create a DateTimeOffset from the provided UNIX Epoch timestamp in seconds.
+        /// </summary>
+        /// <return cref="DateTimeOffset">A Date in UTC</return>
+        public static DateTimeOffset CreateDateTimeOffsetFromUnixSeconds(this long seconds)
+        {
+#if NET45
+            return UNIX_EPOCH.AddSeconds(seconds);
+#else
+            return DateTimeOffset.FromUnixTimeSeconds(seconds);
+#endif
+        }
+
+        /// <summary>
+        /// Create a DateTimeOffset from the provided UNIX Epoch timestamp in milliseconds.
+        /// </summary>
+        /// <return cref="DateTimeOffset">A Date in UTC</return>
+        public static DateTimeOffset CreateDateTimeOffsetFromUnixMilliseconds(this long milliseconds)
+        {
+#if NET45
+            return UNIX_EPOCH.AddMilliseconds(milliseconds);
+#else
+            return DateTimeOffset.FromUnixTimeMilliseconds(milliseconds);
+#endif
         }
     }
 

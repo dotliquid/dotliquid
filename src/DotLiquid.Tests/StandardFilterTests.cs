@@ -902,6 +902,28 @@ PaulGeorge",
             });
         }
 
+        [TestCase("1152098955", "2006-07-05T11:29:15+00:00")] //as per liquid test case (https://github.com/Shopify/liquid/blob/db3999a008e5b5ac999328bef55baccdd18e5089/test/integration/standard_filter_test.rb#L530)
+        [TestCase("0", "1970-01-01T12:00:00+00:00")] // The UNIX Epoch
+        [TestCase("-1", "1969-12-31T11:59:59+00:00")] // 1 second before the UNIX Epoch
+        [TestCase("978307200", "2001-01-01T12:00:00+00:00")] // seconds, the millennium
+        [TestCase("2147483648", "2038-01-19T03:14:08+00:00")] // seconds, Int32.MaxValue (32-bit overflow)
+        [TestCase("-2147483648", "1901-12-13T08:45:52+00:00")] // seconds, Int32.MinValue (32-bit overflow)
+        [TestCase("-62135596800", "0001-01-01T12:00:00+00:00")] // seconds, lower range supported by DateTimeOffset.FromUnixTimeSeconds (01-Jan-0000)
+        [TestCase("253402300799", "9999-12-31T11:59:59+00:00")] // seconds, upper range supported by DateTimeOffset.FromUnixTimeSeconds (31-Dec-9999)
+        [TestCase("1.0", "1.0")] // decimals are ignored
+        [TestCase("1,000", "1,000")] // number with separators are ignored.
+        public void TestDate_UnixEpochTimestampStrings(string timestampString, string expectedValue)
+        {
+            Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
+            {
+                Helper.AssertTemplateResult(
+                                expected: expectedValue,
+                                template: "{{ timestampString | date: 'yyyy-MM-ddThh:mm:sszzz' }}",
+                                localVariables: Hash.FromAnonymousObject(new { timestampString = timestampString }),
+                                syntax: SyntaxCompatibility.DotLiquid21);
+            });
+        }
+
         [Test]
         public void TestStrFTime()
         {

@@ -11,8 +11,6 @@ namespace DotLiquid.Tags
     /// </summary>
     public class Decrement : Tag
     {
-        private static readonly Regex Syntax = R.B(R.Q(@"(?<Variable>{0}+)\s*"), Liquid.VariableSignature);
-
         private string _variable;
 
         /// <summary>
@@ -24,7 +22,7 @@ namespace DotLiquid.Tags
         /// <exception cref="SyntaxException">If the decrement tag is malformed</exception>
         public override void Initialize(string tagName, string markup, List<string> tokens)
         {
-            Match syntaxMatch = Syntax.Match(markup);
+            Match syntaxMatch = Liquid.VariableSegmentRegex.Match(markup);
             if (syntaxMatch.Success)
             {
                 _variable = syntaxMatch.Groups["Variable"].Value;

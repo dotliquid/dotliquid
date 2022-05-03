@@ -390,6 +390,14 @@ namespace DotLiquid.Tests.Tags
         }
 
         [Test]
+        public void TestCaptureWithDashes()
+        {
+            Hash assigns = Hash.FromAnonymousObject(new { var = "content" });
+            Helper.AssertTemplateResult("content foo content foo ",
+                "{{ var-2 }}{% capture var-2 %}{{ var }} foo {% endcapture %}{{ var-2 }}{{ var-2 }}", assigns);
+        }
+
+        [Test]
         public void TestCaptureDetectsBadSyntax()
         {
             Assert.Throws<SyntaxException>(() =>

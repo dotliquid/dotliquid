@@ -384,24 +384,25 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestCapture()
         {
-            Hash assigns = Hash.FromAnonymousObject(new { var = "content" });
-            Helper.AssertTemplateResult("content foo content foo ",
-                "{{ var2 }}{% capture var2 %}{{ var }} foo {% endcapture %}{{ var2 }}{{ var2 }}", assigns);
+            Helper.AssertTemplateResult(
+                expected: "content foo content foo ",
+                template: "{{ var2 }}{% capture var2 %}{{ var }} foo {% endcapture %}{{ var2 }}{{ var2 }}",
+                localVariables: Hash.FromAnonymousObject(new { var = "content" }));
         }
 
         [Test]
         public void TestCaptureWithDashes()
         {
-            Hash assigns = Hash.FromAnonymousObject(new { var = "content" });
-            Helper.AssertTemplateResult("content foo content foo ",
-                "{{ var-2 }}{% capture var-2 %}{{ var }} foo {% endcapture %}{{ var-2 }}{{ var-2 }}", assigns);
+            Helper.AssertTemplateResult(
+                expected: "content foo content foo ",
+                template: "{{ var-2 }}{% capture var-2 %}{{ var }} foo {% endcapture %}{{ var-2 }}{{ var-2 }}",
+                localVariables: Hash.FromAnonymousObject(new { var = "content" }));
         }
 
         [Test]
         public void TestCaptureDetectsBadSyntax()
         {
-            Assert.Throws<SyntaxException>(() =>
-                Helper.AssertTemplateResult("content foo content foo ", "{{ var2 }}{% capture %}{{ var }} foo {% endcapture %}{{ var2 }}{{ var2 }}", Hash.FromAnonymousObject(new { var = "content" })));
+            Assert.Throws<SyntaxException>(() => Template.Parse("{{ var2 }}{% capture %}{{ var }} foo {% endcapture %}{{ var2 }}{{ var2 }}"));
         }
 
         [Test]
@@ -710,35 +711,71 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
             Assert.IsNull(drop.BeforeMethod("UnknownProperty"));
         }
 
-        [Test]
-        public void IncrementNonExistentValue()
-        {
-            var template = Template.Parse("{% increment counter %}{% increment counter %}{% increment counter %}");
-            var output = template.Render(CultureInfo.InvariantCulture);
 
-            Assert.AreEqual("012", output);
+        [Test]
+        public void TestIncrement()
+        {
+            Helper.AssertTemplateResult(expected: "0", template: "{%increment port %}");
+            Helper.AssertTemplateResult(expected: "0 1", template: "{%increment port %} {%increment port%}");
+            Helper.AssertTemplateResult(
+                expected: "0 0 1 2 1",
+                template: "{%increment port %} {%increment starboard%} {%increment port %} {%increment port%} {%increment starboard %}");
+            Helper.AssertTemplateResult(expected: "1 2", template: "{%increment port %} {%increment port %}", localVariables: Hash.FromAnonymousObject(new { port = 1 }));
         }
 
         [Test]
-        public void IncrementDoesNotAlterLocalVariables()
+        public void TestIncrementIntBoundary()
         {
-            var template = Template.Parse("{% increment counter %}-{{counter}}-{% increment counter %}-{{counter}}-{% increment counter %}");
-            var output = template.Render(new RenderParameters(CultureInfo.InvariantCulture)
-            {
-                LocalVariables = Hash.FromAnonymousObject(new { counter = 42 })
-            });
-
-            Assert.AreEqual("0-42-1-42-2", output);
+            Helper.AssertTemplateResult(
+                expected: "2147483648 2147483649",
+                template: "{%increment port %} {%increment port %}",
+                localVariables: Hash.FromAnonymousObject(new { port = 2147483648 }));
         }
 
         [Test]
-        public void IncrementDetectsBadSyntax()
+        public void TestIncrementDoesNotAlterAssignVariables()
+        {
+            // Sample from https://shopify.dev/api/liquid/tags/variable-tags#increment
+            Helper.AssertTemplateResult(
+                expected: @"0
+                    1
+                    2
+                    10",
+                template: @"{% assign my_number = 10 -%}
+                    {%- increment my_number %}
+                    {% increment my_number %}
+                    {% increment my_number %}
+                    {{ my_number }}");
+        }
+
+        [Test]
+        public void TestIncrementDetectsBadSyntax()
         {
             Assert.Throws<SyntaxException>(() => Template.Parse("{% increment %}"));
         }
 
         [Test]
-        public void DecrementNonExistentValue()
+        public void TestDecrement()
+        {
+            Helper.AssertTemplateResult(expected: "9", template: "{%decrement port %}", localVariables: Hash.FromAnonymousObject(new { port = 10 }));
+            Helper.AssertTemplateResult(expected: "-1 -2", template: "{%decrement port %} {%decrement port%}");
+            Helper.AssertTemplateResult(
+                expected: "1 5 2 2 5",
+                template: "{%increment port %} {%increment starboard%} {%increment port %} {%decrement port%} {%decrement starboard %}",
+                localVariables: Hash.FromAnonymousObject(new { port = 1, starboard = 5 }));
+        }
+
+        [Test]
+        public void TestDecrementIntBoundary()
+        {
+            Helper.AssertTemplateResult(
+                expected: "2147483648",
+                template: "{%decrement port %}",
+                localVariables: Hash.FromAnonymousObject(new { port = 2147483649 }));
+        }
+
+        [Test]
+        public void TestDecrementNonExistentValue()
         {
             var template = Template.Parse("{% decrement counter %}{% decrement counter %}{% decrement counter %}");
             var output = template.Render(CultureInfo.InvariantCulture);
@@ -747,19 +784,22 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
         }
 
         [Test]
-        public void DecrementDoesNotAlterLocalVariables()
+        public void TestDecrementDoesNotAlterLocalVariables()
         {
-            var template = Template.Parse("{{counter}}{% decrement counter %}-{{counter}}{% decrement counter %}-{{counter}}{% decrement counter %}");
-            var output = template.Render(new RenderParameters(CultureInfo.InvariantCulture)
-            {
-                LocalVariables = Hash.FromAnonymousObject(new { counter = 42 })
-            });
-
-            Assert.AreEqual("42-1-42-2-42-3", output);
+            Helper.AssertTemplateResult(
+                expected: @"-1
+                    -2
+                    -3
+                    10",
+                template: @"{% assign my_number = 10 -%}
+                    {%- decrement my_number %}
+                    {% decrement my_number %}
+                    {% decrement my_number %}
+                    {{ my_number }}");
         }
 
         [Test]
-        public void DecrementDetectsBadSyntax()
+        public void TestDecrementDetectsBadSyntax()
         {
             Assert.Throws<SyntaxException>(() => Template.Parse("{% decrement %}"));
         }

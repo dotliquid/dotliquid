@@ -22,15 +22,13 @@ namespace DotLiquid.Tags
     /// </summary>
     public class Capture : DotLiquid.Block
     {
-        private static readonly Regex Syntax = R.C(@"(\w+)");
-
         private string _to;
 
         public override void Initialize(string tagName, string markup, List<string> tokens)
         {
-            Match syntaxMatch = Syntax.Match(markup);
+            Match syntaxMatch = Liquid.VariableSegmentRegex.Match(markup);
             if (syntaxMatch.Success)
-                _to = syntaxMatch.Groups[1].Value;
+                _to = syntaxMatch.Groups["Variable"].Value;
             else
                 throw new SyntaxException(Liquid.ResourceManager.GetString("CaptureTagSyntaxException"));
 

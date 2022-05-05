@@ -246,4 +246,10 @@
   <data name="CultureNotFoundException" xml:space="preserve">
     <value>Culture '{0}' is not supported</value>
   </data>
+  <data name="DecrementSyntaxException" xml:space="preserve">
+    <value>Syntax Error in 'decrement' tag - Valid syntax: decrement [var]</value>
+  </data>
+  <data name="IncrementSyntaxException" xml:space="preserve">
+    <value>Syntax Error in 'increment' tag - Valid syntax: increment [var]</value>
+  </data>
 </root>

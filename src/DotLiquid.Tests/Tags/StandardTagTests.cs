@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using DotLiquid.Exceptions;
@@ -384,16 +385,25 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestCapture()
         {
-            Hash assigns = Hash.FromAnonymousObject(new { var = "content" });
-            Helper.AssertTemplateResult("content foo content foo ",
-                "{{ var2 }}{% capture var2 %}{{ var }} foo {% endcapture %}{{ var2 }}{{ var2 }}", assigns);
+            Helper.AssertTemplateResult(
+                expected: "content foo content foo ",
+                template: "{{ var2 }}{% capture var2 %}{{ var }} foo {% endcapture %}{{ var2 }}{{ var2 }}",
+                localVariables: Hash.FromAnonymousObject(new { var = "content" }));
+        }
+
+        [Test]
+        public void TestCaptureWithDashes()
+        {
+            Helper.AssertTemplateResult(
+                expected: "content foo content foo ",
+                template: "{{ var-2 }}{% capture var-2 %}{{ var }} foo {% endcapture %}{{ var-2 }}{{ var-2 }}",
+                localVariables: Hash.FromAnonymousObject(new { var = "content" }));
         }
 
         [Test]
         public void TestCaptureDetectsBadSyntax()
         {
-            Assert.Throws<SyntaxException>(() =>
-                Helper.AssertTemplateResult("content foo content foo ", "{{ var2 }}{% capture %}{{ var }} foo {% endcapture %}{{ var2 }}{{ var2 }}", Hash.FromAnonymousObject(new { var = "content" })));
+            Assert.Throws<SyntaxException>(() => Template.Parse("{{ var2 }}{% capture %}{{ var }} foo {% endcapture %}{{ var2 }}{{ var2 }}"));
         }
 
         [Test]
@@ -700,6 +710,110 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
             Assert.AreEqual("Jane", drop.BeforeMethod("First"));
             Assert.AreEqual("Green", drop.BeforeMethod("Last"));
             Assert.IsNull(drop.BeforeMethod("UnknownProperty"));
+        }
+
+
+        [Test]
+        public void TestIncrement()
+        {
+            Helper.AssertTemplateResult(expected: "0", template: "{%increment port %}");
+            Helper.AssertTemplateResult(expected: "0 1", template: "{%increment port %} {%increment port%}");
+            Helper.AssertTemplateResult(
+                expected: "0 0 1 2 1",
+                template: "{%increment port %} {%increment starboard%} {%increment port %} {%increment port%} {%increment starboard %}");
+            Helper.AssertTemplateResult(expected: "1 2", template: "{%increment port %} {%increment port %}", localVariables: Hash.FromAnonymousObject(new { port = 1 }));
+        }
+
+        [Test]
+        public void TestIncrementIntBoundary()
+        {
+            Helper.AssertTemplateResult(
+                expected: "2147483647 2147483648",
+                template: "{%increment port %} {%increment port %}",
+                localVariables: Hash.FromAnonymousObject(new { port = int.MaxValue }));
+
+            Helper.AssertTemplateResult(
+                expected: "-2147483649 -2147483648",
+                template: "{%increment port %} {%increment port %}",
+                localVariables: Hash.FromAnonymousObject(new { port = Convert.ToInt64(int.MinValue) - 1 }));
+        }
+
+        [Test]
+        public void TestIncrementDoesNotAlterAssignVariables()
+        {
+            // Sample from https://shopify.dev/api/liquid/tags/variable-tags#increment
+            Helper.AssertTemplateResult(
+                expected: @"0
+                    1
+                    2
+                    10",
+                template: @"{% assign my_number = 10 -%}
+                    {%- increment my_number %}
+                    {% increment my_number %}
+                    {% increment my_number %}
+                    {{ my_number }}");
+        }
+
+        [Test]
+        public void TestIncrementDetectsBadSyntax()
+        {
+            Assert.Throws<SyntaxException>(() => Template.Parse("{% increment %}"));
+            // [@microalps] The following two tests work in Ruby Liquid unexpectedly but are not allowed in DotLiquid for the time being
+            // We may need to fix/change this in the future, but this test is here to ensure any change is intentional and thought through
+            // See https://github.com/Shopify/liquid/issues/1570
+            Assert.Throws<SyntaxException>(() => Template.Parse("{% increment var1 var2 %}"));
+            Assert.Throws<SyntaxException>(() => Template.Parse("{% increment product.qty %}"));
+        }
+
+        [Test]
+        public void TestDecrement()
+        {
+            Helper.AssertTemplateResult(expected: "9", template: "{%decrement port %}", localVariables: Hash.FromAnonymousObject(new { port = 10 }));
+            Helper.AssertTemplateResult(expected: "-1 -2", template: "{%decrement port %} {%decrement port%}");
+            Helper.AssertTemplateResult(
+                expected: "1 5 2 2 5",
+                template: "{%increment port %} {%increment starboard%} {%increment port %} {%decrement port%} {%decrement starboard %}",
+                localVariables: Hash.FromAnonymousObject(new { port = 1, starboard = 5 }));
+        }
+
+        [Test]
+        public void TestDecrementIntBoundary()
+        {
+            Helper.AssertTemplateResult(
+                expected: "-2147483649",
+                template: "{%decrement port %}",
+                localVariables: Hash.FromAnonymousObject(new { port = int.MinValue }));
+
+            Helper.AssertTemplateResult(
+                expected: "2147483647",
+                template: "{%decrement port %}",
+                localVariables: Hash.FromAnonymousObject(new { port = Convert.ToInt64(int.MaxValue) + 1}));
+        }
+
+        [Test]
+        public void TestDecrementDoesNotAlterLocalVariables()
+        {
+            Helper.AssertTemplateResult(
+                expected: @"-1
+                    -2
+                    -3
+                    10",
+                template: @"{% assign my_number = 10 -%}
+                    {%- decrement my_number %}
+                    {% decrement my_number %}
+                    {% decrement my_number %}
+                    {{ my_number }}");
+        }
+
+        [Test]
+        public void TestDecrementDetectsBadSyntax()
+        {
+            Assert.Throws<SyntaxException>(() => Template.Parse("{% decrement %}"));
+            // [@microalps] The following two tests work in Ruby Liquid unexpectedly but are not allowed in DotLiquid for the time being
+            // We may need to fix/change this in the future, but this test is here to ensure any change is intentional and thought through
+            // See https://github.com/Shopify/liquid/issues/1570
+            Assert.Throws<SyntaxException>(() => Template.Parse("{% decrement var1 var2 %}"));
+            Assert.Throws<SyntaxException>(() => Template.Parse("{% decrement product.qty %}"));
         }
     }
 }

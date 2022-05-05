@@ -775,15 +775,6 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
         }
 
         [Test]
-        public void TestDecrementNonExistentValue()
-        {
-            var template = Template.Parse("{% decrement counter %}{% decrement counter %}{% decrement counter %}");
-            var output = template.Render(CultureInfo.InvariantCulture);
-
-            Assert.AreEqual("-1-2-3", output);
-        }
-
-        [Test]
         public void TestDecrementDoesNotAlterLocalVariables()
         {
             Helper.AssertTemplateResult(

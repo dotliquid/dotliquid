@@ -43,7 +43,7 @@ namespace DotLiquid.Tags
         /// <param name="result">The output buffer containing the currently rendered template</param>
         public override void Render(Context context, TextWriter result)
         {
-            Increment32(context, result, context.Environments[0].TryGetValue(_variable, out var counterObj) ? counterObj : 0);   
+            Increment32(context, result, context.Environments[0].TryGetValue(_variable, out var counterObj) ? counterObj : 0);
             base.Render(context, result);
         }
 
@@ -51,9 +51,12 @@ namespace DotLiquid.Tags
         {
             try
             {
-                var counter = Convert.ToInt32(current);
-                context.Environments[0][_variable] = counter + 1;
-                result.Write(counter);
+                checked
+                { //needed to force OverflowException at runtime
+                    var counter = Convert.ToInt32(current);
+                    context.Environments[0][_variable] = counter + 1;
+                    result.Write(counter);
+                }
             }
             catch (OverflowException)
             {

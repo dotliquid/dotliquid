@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using DotLiquid.Exceptions;
@@ -727,9 +728,14 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
         public void TestIncrementIntBoundary()
         {
             Helper.AssertTemplateResult(
-                expected: "2147483648 2147483649",
+                expected: "2147483647 2147483648",
                 template: "{%increment port %} {%increment port %}",
-                localVariables: Hash.FromAnonymousObject(new { port = 2147483648 }));
+                localVariables: Hash.FromAnonymousObject(new { port = int.MaxValue }));
+
+            Helper.AssertTemplateResult(
+                expected: "-2147483649 -2147483648",
+                template: "{%increment port %} {%increment port %}",
+                localVariables: Hash.FromAnonymousObject(new { port = Convert.ToInt64(int.MinValue) - 1 }));
         }
 
         [Test]
@@ -752,6 +758,11 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
         public void TestIncrementDetectsBadSyntax()
         {
             Assert.Throws<SyntaxException>(() => Template.Parse("{% increment %}"));
+            // [@microalps] The following two tests work in Ruby Liquid unexpectedly but are not allowed in DotLiquid for the time being
+            // We may need to fix/change this in the future, but this test is here to ensure any change is intentional and thought through
+            // See https://github.com/Shopify/liquid/issues/1570
+            Assert.Throws<SyntaxException>(() => Template.Parse("{% increment var1 var2 %}"));
+            Assert.Throws<SyntaxException>(() => Template.Parse("{% increment product.qty %}"));
         }
 
         [Test]
@@ -769,9 +780,14 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
         public void TestDecrementIntBoundary()
         {
             Helper.AssertTemplateResult(
-                expected: "2147483648",
+                expected: "-2147483649",
                 template: "{%decrement port %}",
-                localVariables: Hash.FromAnonymousObject(new { port = 2147483649 }));
+                localVariables: Hash.FromAnonymousObject(new { port = int.MinValue }));
+
+            Helper.AssertTemplateResult(
+                expected: "2147483647",
+                template: "{%decrement port %}",
+                localVariables: Hash.FromAnonymousObject(new { port = Convert.ToInt64(int.MaxValue) + 1}));
         }
 
         [Test]
@@ -793,6 +809,11 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
         public void TestDecrementDetectsBadSyntax()
         {
             Assert.Throws<SyntaxException>(() => Template.Parse("{% decrement %}"));
+            // [@microalps] The following two tests work in Ruby Liquid unexpectedly but are not allowed in DotLiquid for the time being
+            // We may need to fix/change this in the future, but this test is here to ensure any change is intentional and thought through
+            // See https://github.com/Shopify/liquid/issues/1570
+            Assert.Throws<SyntaxException>(() => Template.Parse("{% decrement var1 var2 %}"));
+            Assert.Throws<SyntaxException>(() => Template.Parse("{% decrement product.qty %}"));
         }
     }
 }

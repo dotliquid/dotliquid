@@ -51,9 +51,12 @@ namespace DotLiquid.Tags
         {
             try
             {
-                var counter = Convert.ToInt32(current) - 1;
-                context.Environments[0][_variable] = counter;
-                result.Write(counter);
+                checked
+                { //needed to force OverflowException at runtime
+                    var counter = Convert.ToInt32(current) - 1;
+                    context.Environments[0][_variable] = counter;
+                    result.Write(counter);
+                }
             }
             catch (OverflowException)
             {

@@ -14,6 +14,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotLiquid", "DotLiquid\DotL
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotLiquid.Website", "DotLiquid.Website\DotLiquid.Website.csproj", "{02864DC3-FAD6-400A-B84E-D163FD4DEA6A}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotLiquid.Website.Tests", "DotLiquid.Website.Tests\DotLiquid.Website.Tests.csproj", "{DB042750-6307-4947-A19F-FC48397D432F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web" DefaultTargets="Publish">
+<Project Sdk="Microsoft.NET.Sdk.Web" DefaultTargets="Build;Publish">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>

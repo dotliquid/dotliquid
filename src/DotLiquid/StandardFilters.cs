@@ -793,7 +793,7 @@ namespace DotLiquid
         public static object Times(Context context, object input, object operand)
         {
             try
-                {
+            {
                 if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21)
                     return DoMathsOperation(context, input, operand, Expression.MultiplyChecked);
 

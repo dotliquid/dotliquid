@@ -1206,6 +1206,31 @@ PaulGeorge",
         }
 
         [Test]
+        public void TestPlusNumericBoundary()
+        {
+            TestPlusNumericBoundaryByContext(_contextV20);
+            TestPlusNumericBoundaryByContext(_contextV21);
+            Helper.AssertTemplateResult(expected: "2147483648", template: "{{ '2147483647' | plus: 1 }}", syntax: _contextV21.SyntaxCompatibilityLevel);
+        }
+
+        private void TestPlusNumericBoundaryByContext(Context context)
+        {
+            // NOTE(David Burg): Tests promotion from 32-bit to 64-bit integer.
+            Helper.AssertTemplateResult(
+                expected: "2147483648",
+                template: "{{ big | plus: 1 }}",
+                localVariables: Hash.FromAnonymousObject(new { big = int.MaxValue }),
+                syntax: context.SyntaxCompatibilityLevel);
+
+            // NOTE(David Burg): We don't have support for BigInteger as this time.
+            Helper.AssertTemplateResult(
+                expected: "Liquid error: Arithmetic operation resulted in an overflow.",
+                template: "{{ big | plus: 1 }}",
+                localVariables: Hash.FromAnonymousObject(new { big = long.MaxValue }),
+                syntax: context.SyntaxCompatibilityLevel);
+        }
+
+        [Test]
         public void TestMinus()
         {
             TestMinus(_contextV20);
@@ -1239,6 +1264,27 @@ PaulGeorge",
             Helper.AssertTemplateResult(expected: "-1.5", template: "{{ '2.5' | minus: 4 }}", syntax: context.SyntaxCompatibilityLevel);
             Helper.AssertTemplateResult(expected: "-1", template: "{{ '2.5' | minus: '3.5' }}", syntax: context.SyntaxCompatibilityLevel);
             TestMinus(context);
+        }
+
+        [Test]
+        public void TestMinusNumericBoundary()
+        {
+            // NOTE(David Burg): Tests promotion from 32-bit to 64-bit integer.
+            Helper.AssertTemplateResult(
+                expected: "-2147483649",
+                template: "{{ big | minus: 1 }}",
+                localVariables: Hash.FromAnonymousObject(new { big = int.MinValue }));
+
+            // NOTE(David Burg): We don't have support for BigInteger as this time.
+            Helper.AssertTemplateResult(
+                expected: "Liquid error: Arithmetic operation resulted in an overflow.",
+                template: "{{ big | minus: 1 }}",
+                localVariables: Hash.FromAnonymousObject(new { big = long.MinValue }));
+
+            Helper.AssertTemplateResult(
+                expected: "-2147483649",
+                template: "{{ '-2147483648' | minus: 1 }}",
+                syntax: _contextV21.SyntaxCompatibilityLevel);
         }
 
         [Test]
@@ -1344,6 +1390,42 @@ PaulGeorge",
             Assert.AreEqual(8.43, StandardFilters.Times(context: context, input: 0.843m, operand: 10));
             Assert.AreEqual(412, StandardFilters.Times(context: context, input: 4.12m, operand: 100));
             Assert.AreEqual(7556.3, StandardFilters.Times(context: context, input: 7.5563m, operand: 1000));
+        }
+
+
+        [Test]
+        public void TestTimesNumericBoundary()
+        {
+            TestTimesNumericBoundaryByContext(_contextV20);
+            TestTimesNumericBoundaryByContext(_contextV21);
+            Helper.AssertTemplateResult(expected: "4294967294", template: "{{ '2147483647' | times: 2 }}", syntax: _contextV21.SyntaxCompatibilityLevel);
+        }
+
+        private void TestTimesNumericBoundaryByContext(Context context)
+        {
+            // NOTE(David Burg): Tests promotion from 32-bit to 64-bit integer.
+            Helper.AssertTemplateResult(
+                expected: "4294967294",
+                template: "{{ big | times: 2 }}",
+                localVariables: Hash.FromAnonymousObject(new { big = int.MaxValue }),
+                syntax: context.SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult(
+                expected: "-4294967296",
+                template: "{{ big | times: 2 }}",
+                localVariables: Hash.FromAnonymousObject(new { big = int.MinValue }),
+                syntax: context.SyntaxCompatibilityLevel);
+
+            // NOTE(David Burg): We don't have support for BigInteger as this time.
+            Helper.AssertTemplateResult(
+                expected: "Liquid error: Arithmetic operation resulted in an overflow.",
+                template: "{{ big | times: 2 }}",
+                localVariables: Hash.FromAnonymousObject(new { big = long.MaxValue }),
+                syntax: context.SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult(
+                expected: "Liquid error: Arithmetic operation resulted in an overflow.",
+                template: "{{ big | times: 2 }}",
+                localVariables: Hash.FromAnonymousObject(new { big = long.MinValue }),
+                syntax: context.SyntaxCompatibilityLevel);
         }
 
         [Test]

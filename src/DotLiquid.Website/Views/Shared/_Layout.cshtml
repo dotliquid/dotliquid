@@ -67,7 +67,9 @@
                 <ul>
                     <li><a href="http://timjones.io">Tim Jones</a></li>
                 </ul>
-                @await Component.InvokeAsync("Contributors")
+                <cache>
+                    @await Component.InvokeAsync("Contributors")
+                </cache>
             </div>
             <div class="footer-col">
                 <h5>Documentation</h5>

@@ -19,7 +19,7 @@ assembly_info:
 install:
   - cmd: choco install opencover.portable -y
   - cmd: choco install codecov -y
-  - cmd: dotnet restore src
+  - cmd: dotnet restore src/DotLiquid.sln
 
 build:
   verbosity: minimal # quiet|minimal|normal|detailed

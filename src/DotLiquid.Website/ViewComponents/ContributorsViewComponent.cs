@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 using Newtonsoft.Json;
 
 namespace DotLiquid.Website.ViewComponents
@@ -14,9 +13,9 @@ namespace DotLiquid.Website.ViewComponents
     {
         private readonly HttpClient _httpClient;
 
-        public ContributorsViewComponent(IMemoryCache cache)
+        public ContributorsViewComponent()
         {
-            _httpClient = new HttpClient(new GitHubHttpClientCacheHandler(cache));
+            _httpClient = new HttpClient(new GitHubHttpClientHandler());
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
@@ -50,31 +49,14 @@ namespace DotLiquid.Website.ViewComponents
         public string Blog { get; set; }
     }
 
-    public class GitHubHttpClientCacheHandler : HttpClientHandler
+    public class GitHubHttpClientHandler : HttpClientHandler
     {
-        private readonly IMemoryCache _cache;
-
-        public GitHubHttpClientCacheHandler(IMemoryCache cache)
-        {
-            _cache = cache;
-        }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            if (!_cache.TryGetValue(request.RequestUri.AbsoluteUri, out HttpResponseMessage response))
-            {
-                request.Headers.Add("User-Agent", "DotLiquid.Website");
-                request.Headers.Add("Accept", "application/vnd.github.v3+json");
-                response = await base.SendAsync(request, cancellationToken);
-
-                var cacheOptions = new MemoryCacheEntryOptions()
-                {
-                    SlidingExpiration = TimeSpan.FromHours(1)
-                };
-
-                _cache.Set(request.RequestUri.AbsoluteUri, response, cacheOptions);
-            }
-            return response;
+            request.Headers.Add("User-Agent", "DotLiquid.Website");
+            request.Headers.Add("Accept", "application/vnd.github.v3+json");
+            return await base.SendAsync(request, cancellationToken);
         }
     }
 }

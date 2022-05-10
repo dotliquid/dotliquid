@@ -15,7 +15,7 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <PublishDir>$(OutDir)\_PublishedWebsites\NetCoreApp\</PublishDir>
+    <PublishDir Condition=" '$(OutDir)' != '' ">$(OutDir)\_PublishedWebsites\NetCoreApp\</PublishDir>
   </PropertyGroup>
 
   <ItemGroup>

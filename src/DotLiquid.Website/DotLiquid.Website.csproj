@@ -15,7 +15,6 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <LangVersion>latest</LangVersion>
     <PublishDir>$(OutDir)\_PublishedWebsites\NetCoreApp\</PublishDir>
   </PropertyGroup>
 
@@ -36,7 +35,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="2.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
-    <PackageReference Include="TagHelperSamples.Markdown" Version="1.1.1" />
+    <PackageReference Include="TagHelperSamples.Markdown" Version="2.0.49" />
   </ItemGroup>
 
   <ItemGroup>

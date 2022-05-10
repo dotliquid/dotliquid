@@ -1,10 +1,17 @@
-﻿using System.IO;
+using System.IO;
 using Microsoft.AspNetCore.Hosting;
 
 namespace DotLiquid.Website
 {
-    public class Program
+    /// <summary>
+    /// The website main program
+    /// </summary>
+    static public class Program
     {
+        /// <summary>
+        /// Website main method to start up the host
+        /// </summary>
+        /// <param name="args">Default program input arguments</param>
         public static void Main(string[] args)
         {
             var host = new WebHostBuilder()

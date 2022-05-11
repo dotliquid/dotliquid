@@ -43,6 +43,14 @@ namespace DotLiquid.Tests
             public string Type { get; set; }
         }
 
+        [LiquidType("*")]
+        public class MyLiquidTypeWithConflictingGetter
+        {
+            public string Name { get; set; }
+
+            public string GetName() => Name;
+        }
+
         [Test]
         public void TestLiquidTypeAttributeWithNoAllowedMembers()
         {
@@ -100,6 +108,35 @@ namespace DotLiquid.Tests
                 template: "{{data.type}}",
                 anonymousObject: new { data = reservedType },
                 namingConvention: namingConvention);
+        }
+
+        [Test]
+        public void TestLiquidTypeWithConflictingGetter()
+        {
+            var reservedType = new MyLiquidTypeWithConflictingGetter() { Name = "worked" };
+            var namingConvention = new NamingConventions.RubyNamingConvention();
+
+            Helper.AssertTemplateResult(
+              expected: "worked",
+              template: "{{name}}",
+                anonymousObject: reservedType,
+                namingConvention: namingConvention);
+
+            Helper.AssertTemplateResult(
+                expected: "worked",
+                template: "{{data.name}}",
+                anonymousObject: new { data = reservedType },
+                namingConvention: namingConvention);
+        }
+
+        [Test]
+        public void TestLiquidTypeAccessToGlobalToString()
+        {
+            Helper.AssertTemplateResult(
+                expected: "DotLiquid.Tests.LiquidTypeAttributeTests+MyLiquidTypeWithGlobalMemberAllowance",
+                template: "{{ value.to_string }}",
+                anonymousObject: new { value = new MyLiquidTypeWithGlobalMemberAllowance() },
+                namingConvention: new NamingConventions.RubyNamingConvention());
         }
     }
 }

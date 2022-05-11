@@ -48,7 +48,7 @@ namespace DotLiquid.Tests
         {
             public string Name { get; set; }
 
-            public string GetName() => Name;
+            public string GetName() => $"GetName: {Name}";
         }
 
         [Test]

@@ -70,13 +70,13 @@ namespace DotLiquid
             IList<MemberInfo> methods = predicate != null
                                             ? type
                                                   .GetRuntimeMethods()
-                                                  .Where(m => m.IsPublic && !m.IsStatic)
+                                                  .Where(m => m.IsPublic && !m.IsStatic && m.DeclaringType != typeof(object))
                                                   .Where(predicate)
                                                   .Cast<MemberInfo>()
                                                   .ToList()
                                             : type
                                                   .GetRuntimeMethods()
-                                                  .Where(m => m.IsPublic && !m.IsStatic)
+                                                  .Where(m => m.IsPublic && !m.IsStatic && m.DeclaringType != typeof(object))
                                                   .Cast<MemberInfo>()
                                                   .ToList();
 

@@ -20,16 +20,14 @@ namespace DotLiquid
         {
             // Cache all methods and properties of this object, but don't include those
             // defined at or above the base Drop class.
-            CachedMethods = GetMemberDictionary(GetMethodsWithoutDuplicateNames(type, mi => mi.GetParameters().Length == 0),
-                                                mi => filterMemberCallback(mi));
+            CachedMethods = GetMemberDictionary(GetMethodsWithoutDuplicateNames(type, mi => mi.GetParameters().Length == 0 && filterMemberCallback(mi)));
 
-            CachedProperties = GetMemberDictionary(GetPropertiesWithoutDuplicateNames(type), mi => filterMemberCallback(mi));
+            CachedProperties = GetMemberDictionary(GetPropertiesWithoutDuplicateNames(type, mi => filterMemberCallback(mi)));
         }
 
-        private Dictionary<string, T> GetMemberDictionary<T>(IEnumerable<T> members, Func<T, bool> filterMemberCallback) where T : MemberInfo
+        private Dictionary<string, T> GetMemberDictionary<T>(IEnumerable<T> members) where T : MemberInfo
         {
-            return members.Where(filterMemberCallback)
-                          .ToDictionary(mi => Template.NamingConvention.GetMemberName(mi.Name), Template.NamingConvention.StringComparer);
+            return members.ToDictionary(mi => Template.NamingConvention.GetMemberName(mi.Name), Template.NamingConvention.StringComparer);
         }
 
         /// <summary>
@@ -37,21 +35,15 @@ namespace DotLiquid
         ///     the most derived declaring type.
         /// </summary>
         /// <param name="type">Type to get properties for</param>
-        /// <param name="bindingFlags">Binding flags for properties</param>
         /// <param name="predicate">Any additional filtering on properties</param>
         /// <returns>Filtered properties</returns>
-        private static IEnumerable<PropertyInfo> GetPropertiesWithoutDuplicateNames(Type type, Func<PropertyInfo, bool> predicate = null)
+        private static IEnumerable<PropertyInfo> GetPropertiesWithoutDuplicateNames(Type type, Func<PropertyInfo, bool> predicate)
         {
-            IList<MemberInfo> properties = predicate != null
-                                               ? type.GetRuntimeProperties()
-                                                     .Where(p => p.CanRead && p.GetMethod.IsPublic && !p.GetMethod.IsStatic)
-                                                     .Where(predicate)
-                                                     .Cast<MemberInfo>()
-                                                     .ToList()
-                                               : type.GetRuntimeProperties()
-                                                     .Where(p => p.CanRead && p.GetMethod.IsPublic && !p.GetMethod.IsStatic)
-                                                     .Cast<MemberInfo>()
-                                                     .ToList();
+            IList<MemberInfo> properties = type.GetRuntimeProperties()
+                .Where(p => p.CanRead && p.GetMethod.IsPublic && !p.GetMethod.IsStatic)
+                .Where(predicate)
+                .Cast<MemberInfo>()
+                .ToList();
 
             return GetMembersWithoutDuplicateNames(properties)
                 .Cast<PropertyInfo>();
@@ -62,23 +54,16 @@ namespace DotLiquid
         ///     derived declaring type.
         /// </summary>
         /// <param name="type">Type to get methods for</param>
-        /// <param name="bindingFlags">Binding flags for methods</param>
         /// <param name="predicate">Any additional filtering on methods</param>
         /// <returns>Filtered methods</returns>
-        private static IEnumerable<MethodInfo> GetMethodsWithoutDuplicateNames(Type type, Func<MethodInfo, bool> predicate = null)
+        private static IEnumerable<MethodInfo> GetMethodsWithoutDuplicateNames(Type type, Func<MethodInfo, bool> predicate)
         {
-            IList<MemberInfo> methods = predicate != null
-                                            ? type
-                                                  .GetRuntimeMethods()
-                                                  .Where(m => m.IsPublic && !m.IsStatic)
-                                                  .Where(predicate)
-                                                  .Cast<MemberInfo>()
-                                                  .ToList()
-                                            : type
-                                                  .GetRuntimeMethods()
-                                                  .Where(m => m.IsPublic && !m.IsStatic)
-                                                  .Cast<MemberInfo>()
-                                                  .ToList();
+            IList<MemberInfo> methods = type
+                .GetRuntimeMethods()
+                .Where(m => m.IsPublic && !m.IsStatic && !m.IsSpecialName)
+                .Where(predicate)
+                .Cast<MemberInfo>()
+                .ToList();
 
             return GetMembersWithoutDuplicateNames(methods)
                 .Cast<MethodInfo>();
@@ -115,7 +100,7 @@ namespace DotLiquid
         }
     }
 
-        internal static class TypeResolutionCache
+    internal static class TypeResolutionCache
     {
         [ThreadStatic]
         private static WeakTable<Type, TypeResolution> _cache;

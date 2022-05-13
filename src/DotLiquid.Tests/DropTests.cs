@@ -116,6 +116,20 @@ namespace DotLiquid.Tests
             }
         }
 
+        internal class ConflictingParentDrop : Drop
+        {
+            public string Name { get; set; } = nameof(ConflictingParentDrop);
+
+            public string GetClassName() => nameof(ConflictingParentDrop);
+        }
+
+        internal class ConflictingChildDrop : ConflictingParentDrop
+        {
+            public new string Name { get; set; } = nameof(ConflictingChildDrop);
+
+            public new string GetClassName() => nameof(ConflictingChildDrop);
+        }
+
         internal class EnumerableDrop : Drop, IEnumerable
         {
             public int Size
@@ -396,6 +410,25 @@ namespace DotLiquid.Tests
                 template: "{{ value.ProductID }}",
                 anonymousObject: new { value = new CamelCaseDrop() },
                 namingConvention: new RubyNamingConvention());
+        }
+
+        [Test]
+        public void TestTypeResolutionDuplicateNames()
+        {
+            Helper.LockTemplateStaticVars(new RubyNamingConvention(), () =>
+            {
+                var type = typeof(ConflictingChildDrop);
+                var resolver = new TypeResolution(type, mi => true);
+                CollectionAssert.Contains(resolver.CachedMethods.Keys, "get_class_name");
+                Assert.IsTrue(resolver.CachedMethods["get_class_name"].DeclaringType == type);
+                CollectionAssert.Contains(resolver.CachedProperties.Keys, "name");
+                Assert.IsTrue(resolver.CachedProperties["name"].DeclaringType == type);
+
+                Helper.AssertTemplateResult(
+                    expected: "ConflictingChildDrop|ConflictingChildDrop",
+                    template: "{{ value.name }}|{{ value.get_class_name }}",
+                    localVariables: Hash.FromAnonymousObject(new { value = new ConflictingChildDrop() }));
+            });
         }
     }
 }

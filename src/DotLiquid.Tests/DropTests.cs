@@ -419,9 +419,9 @@ namespace DotLiquid.Tests
             {
                 var type = typeof(ConflictingChildDrop);
                 var resolver = new TypeResolution(type, mi => true);
-                Assert.IsTrue(resolver.CachedMethods.ContainsKey("get_class_name"));
+                CollectionAssert.Contains(resolver.CachedMethods.Keys, "get_class_name");
                 Assert.IsTrue(resolver.CachedMethods["get_class_name"].DeclaringType == type);
-                Assert.IsTrue(resolver.CachedProperties.ContainsKey("name"));
+                CollectionAssert.Contains(resolver.CachedProperties.Keys, "name");
                 Assert.IsTrue(resolver.CachedProperties["name"].DeclaringType == type);
 
                 Helper.AssertTemplateResult(

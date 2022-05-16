@@ -14,8 +14,11 @@ Extending DotLiquid is very easy. If you do create useful filters or tags, pleas
 Creating filters is very easy. Filters are just methods which take one parameter and return a modified string.
 You can use your own filters by passing an array of filter types to the `Render` call like this:
 
-``` csharp
-template.Render(filters: new[] { typeof(MyTextFilters), typeof(MyDateFilters) });
+``` csharp    
+template.Render(new RenderParameters(CultureInfo.CurrentCulture) 
+    { 
+        Filters = new[] { typeof(MyTextFilters), typeof(MyDateFilters) }) 
+    });    
 ```
 
 Example:
@@ -27,10 +30,24 @@ public static class TextFilter
     {
         return TextileFormatter.FormatString(input);
     }
+    
+    public static string RegexReplace(string input, string pattern, string replacement)
+    {
+        return Regex.Replace(input, pattern, replacement);
+    }
 }
 
 Template template = Template.Parse(" {{ '*hi*' | textilize }} ");
-template.Render(filters: new[] { typeof(TextFilter) }); // => "<b>*hi*</b>"
+template.Render(new RenderParameters(CultureInfo.CurrentCulture) 
+    {
+        Filters = new System.Type[] { typeof(TextFilter) }
+    });  // => "<b>*hi*</b>" 
+
+template = Template.Parse(" {{ 'red is green' | regex_replace pattern: '(red|green)' replacement: 'blue' }}");
+template.Render(new RenderParameters(CultureInfo.CurrentCulture) 
+    {
+        Filters = new System.Type[] { typeof(TextFilter) }
+    }); // => "blue is blue"
 ```
 
 Alternatively, you can register your filters globally:
@@ -42,6 +59,11 @@ public static class TextFilter
     {
         return TextileFormatter.FormatString(input);
     }
+    
+    public static string RegexReplace(string input, string pattern, string replacement)
+    {
+        return Regex.Replace(input, pattern, replacement);
+    }
 }
 
 Template.RegisterFilter(typeof(TextFilter));
@@ -51,7 +73,10 @@ Once the filter is globally registered, you can simply use it. Filter names in l
 
 ``` csharp
 Template template = Template.Parse(" {{ '*hi*' | textilize }} ");
-template.Render(); // => "<b>*hi*</b>"
+template.Render(); // => "<b>*hi*</b>" 
+
+template = Template.Parse(" {{ 'red is green' | regex_replace pattern: '(red|green)' replacement: 'blue' }} ");
+template.Render(); // => "blue is blue" 
 ```
 
 A filter can access the current context if you add a Context object as the first argument to your filter method.  DotLiquid will automatically pass the current context to your filter:

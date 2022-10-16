@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26730.12
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2CF66DE5-5452-415E-B932-AC63BBD5648A}"
 	ProjectSection(SolutionItems) = preProject
@@ -13,10 +13,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotLiquid", "DotLiquid\DotLiquid.csproj", "{BD68C2F5-4DBB-4D15-A6E6-7840D91DAE5D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotLiquid.Tests", "DotLiquid.Tests\DotLiquid.Tests.csproj", "{FD16A298-CD28-4605-AFC2-D0355C488D72}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotLiquid.Website", "DotLiquid.Website\DotLiquid.Website.csproj", "{02864DC3-FAD6-400A-B84E-D163FD4DEA6A}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotLiquid.Website.Tests", "DotLiquid.Website.Tests\DotLiquid.Website.Tests.csproj", "{DB042750-6307-4947-A19F-FC48397D432F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,14 +28,6 @@ Global
 		{FD16A298-CD28-4605-AFC2-D0355C488D72}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FD16A298-CD28-4605-AFC2-D0355C488D72}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FD16A298-CD28-4605-AFC2-D0355C488D72}.Release|Any CPU.Build.0 = Release|Any CPU
-		{02864DC3-FAD6-400A-B84E-D163FD4DEA6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{02864DC3-FAD6-400A-B84E-D163FD4DEA6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{02864DC3-FAD6-400A-B84E-D163FD4DEA6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{02864DC3-FAD6-400A-B84E-D163FD4DEA6A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DB042750-6307-4947-A19F-FC48397D432F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DB042750-6307-4947-A19F-FC48397D432F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DB042750-6307-4947-A19F-FC48397D432F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DB042750-6307-4947-A19F-FC48397D432F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

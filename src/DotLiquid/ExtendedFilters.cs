@@ -38,5 +38,16 @@ namespace DotLiquid
             var trimmed = input.TrimStart();
             return input.Substring(0, input.Length - trimmed.Length) + char.ToUpper(trimmed[0]) + trimmed.Substring(1);
         }
+
+        /// <summary>
+        /// Replaces all strings that match a specified regular expression with a specified replacement string.
+        /// </summary>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="pattern">The regular expression pattern to match.</param>
+        /// <param name="replacement">The replacement string</param>
+        public static string RegexReplace(string input, string pattern, string replacement = "")
+        {
+            return Regex.Replace(input, pattern, replacement, RegexOptions.None, Template.RegexTimeOut);
+        }
     }
 }

@@ -47,5 +47,11 @@ namespace DotLiquid.Tests
                 expected: "My great title",
                 template: "{{ 'my great title' | upcase_first }}");
         }
+
+        [Test]
+        public void TestRegexReplace()
+        {
+            Assert.AreEqual(expected: "b b b b", actual: ExtendedFilters.RegexReplace(input: "a A A a", pattern: "[Aa]", replacement: "b"));
+        }
     }
 }

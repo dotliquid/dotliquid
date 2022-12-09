@@ -47,7 +47,7 @@ namespace DotLiquid
         /// <param name="replacement">The replacement string</param>
         public static string RegexReplace(string input, string pattern, string replacement = "")
         {
-            return Regex.Replace(input, pattern, replacement, RegexOptions.None, Template.RegexTimeOut);
+            return Regex.Replace(input: input, pattern: pattern, replacement: replacement, options: RegexOptions.None, matchTimeout: Template.RegexTimeOut);
         }
     }
 }

@@ -539,7 +539,7 @@ namespace DotLiquid
             if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21)
                 return input.Replace(@string, replacement);
 
-            return Regex.Replace(input, @string, replacement, RegexOptions.None, Template.RegexTimeOut);
+            return ExtendedFilters.RegexReplace(input: input, pattern: @string, replacement: replacement);
         }
 
         /// <summary>

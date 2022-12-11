@@ -283,6 +283,7 @@ namespace DotLiquid.Tests
         {
             AssertEvaluatesFalse("not_assigned", "contains", "0");
             AssertEvaluatesFalse("0", "contains", "not_assigned");
+            AssertEvaluatesFalse("'foo'", "contains", "not_assigned");
         }
 
         [Test]
@@ -313,6 +314,7 @@ namespace DotLiquid.Tests
         {
             AssertEvaluatesFalse("not_assigned", "startswith", "0");
             AssertEvaluatesFalse("0", "startswith", "not_assigned");
+            AssertEvaluatesFalse("'foo'", "startswith", "not_assigned");
         }
 
         [Test]
@@ -343,6 +345,7 @@ namespace DotLiquid.Tests
         {
             AssertEvaluatesFalse("not_assigned", "endswith", "0");
             AssertEvaluatesFalse("0", "endswith", "not_assigned");
+            AssertEvaluatesFalse("'foo'", "endswith", "not_assigned");
         }
 
         [Test]

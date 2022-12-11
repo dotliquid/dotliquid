@@ -861,14 +861,15 @@ namespace DotLiquid
         /// </summary>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="defaultValue">value to apply if input is nil, false or empty.</param>
-        public static object Default(object input, object defaultValue)
+        /// <param name="allowFalse">if this value is true and input is false value. return false instead of defaultValue</param>
+        public static object Default(object input, object defaultValue, bool allowFalse = false)
         {
             if (input == null)
                 return defaultValue;
             if (input is string s)
                 return s != string.Empty ? s : defaultValue;
             if (input is bool b)
-                return b ? true : defaultValue;
+                return b ? true : (allowFalse ? false : defaultValue);
             if (input is IEnumerable enumerable)
                 return enumerable.GetEnumerator().MoveNext() ? enumerable : defaultValue;
             return input;

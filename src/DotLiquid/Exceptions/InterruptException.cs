@@ -10,6 +10,7 @@ namespace DotLiquid.Exceptions
 
     public class BreakInterrupt : InterruptException
     {
+        public static readonly BreakInterrupt Instance = new BreakInterrupt();
         public BreakInterrupt()
             : base("Misplaced 'break' statement")
         {
@@ -18,6 +19,7 @@ namespace DotLiquid.Exceptions
 
     public class ContinueInterrupt : InterruptException
     {
+        public static readonly ContinueInterrupt Instance = new ContinueInterrupt();
         public ContinueInterrupt()
             : base("Misplaced 'continue' statement")
         {

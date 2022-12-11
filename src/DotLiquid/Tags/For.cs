@@ -182,17 +182,12 @@ namespace DotLiquid.Tags
                         ["last"] = (index == length - 1)
                     };
 
-                    try
+                    RenderAll(ForBlock, context, result);
+                    if (context.IsInterrupt())
                     {
-                        RenderAll(ForBlock, context, result);
-                    }
-                    catch (BreakInterrupt)
-                    {
-                        break;
-                    }
-                    catch (ContinueInterrupt)
-                    {
-                        // ContinueInterrupt is used only to skip the current value but not to stop the iteration
+                        var interrupt = context.PopInterrupt();
+                        if (interrupt is BreakInterrupt)
+                            break;
                     }
                 }
             });

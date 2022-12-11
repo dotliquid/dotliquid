@@ -59,6 +59,12 @@ namespace DotLiquid
             }
         }
 
+        private readonly Stack<InterruptException> _interrupted = new Stack<InterruptException>();
+
+        internal void PushInterrupt(InterruptException e) => _interrupted.Push(e);
+        internal InterruptException PopInterrupt() => _interrupted.Pop();
+        internal bool IsInterrupt() => _interrupted.Any();
+
         private readonly int _maxIterations;
 
         public int MaxIterations

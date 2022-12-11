@@ -861,9 +861,17 @@ namespace DotLiquid
         /// </summary>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="defaultValue">value to apply if input is nil, false or empty.</param>
-        public static string Default(string input, string @defaultValue)
+        public static object Default(object input, object defaultValue)
         {
-            return !string.IsNullOrWhiteSpace(input) ? input : defaultValue;
+            if (input == null)
+                return defaultValue;
+            if (input is string s)
+                return s != string.Empty ? s : defaultValue;
+            if (input is bool b)
+                return b ? true : defaultValue;
+            if (input is IEnumerable enumerable)
+                return enumerable.GetEnumerator().MoveNext() ? enumerable : defaultValue;
+            return input;
         }
 
         private static bool IsReal(object o) => o is double || o is float || o is decimal;

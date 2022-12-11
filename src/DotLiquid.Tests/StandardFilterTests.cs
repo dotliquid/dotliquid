@@ -1487,10 +1487,14 @@ PaulGeorge",
         [Test]
         public void TestDefault()
         {
-            Hash assigns = Hash.FromAnonymousObject(new { var1 = "foo", var2 = "bar" });
+            Hash assigns = Hash.FromAnonymousObject(new { var1 = "foo", var2 = "bar", array = new []{"1", "2"}, empty_array = new string[]{} });
             Helper.AssertTemplateResult("foo", "{{ var1 | default: 'foobar' }}", assigns);
             Helper.AssertTemplateResult("bar", "{{ var2 | default: 'foobar' }}", assigns);
             Helper.AssertTemplateResult("foobar", "{{ unknownvariable | default: 'foobar' }}", assigns);
+            Helper.AssertTemplateResult("foobar", "{{ false | default: 'foobar' }}", assigns);
+            Helper.AssertTemplateResult("foobar", "{{ '' | default: 'foobar' }}", assigns);
+            Helper.AssertTemplateResult("foobar", "{{ empty_array | default: 'foobar' }}", assigns);
+            Helper.AssertTemplateResult("12", "{{ array | default: 'foobar' }}", assigns);
         }
 
         [Test]

@@ -20,6 +20,15 @@ namespace DotLiquid.Tests.Tags.Html
         }
 
         [Test]
+        public void TestHtmlTableWithDefaultCols()
+        {
+            Helper.AssertTemplateResult(
+                string.Format("<tr class=\"row1\">{0}<td class=\"col1\"> 1 </td><td class=\"col2\"> 2 </td><td class=\"col3\"> 3 </td></tr>{0}", Environment.NewLine),
+                "{% tablerow n in numbers %} {{n}} {% endtablerow %}",
+                Hash.FromAnonymousObject(new { numbers = new[] { 1, 2, 3 } }));
+        }
+
+        [Test]
         public void TestHtmlTableWithDifferentCols()
         {
             Helper.AssertTemplateResult(
@@ -44,6 +53,15 @@ namespace DotLiquid.Tests.Tags.Html
                 string.Format("<tr class=\"row1\">{0}<td class=\"col1\">2</td><td class=\"col2\">3</td></tr>{0}<tr class=\"row2\"><td class=\"col1\">4</td></tr>{0}", Environment.NewLine),
                 "{% tablerow n in numbers cols:2 offset:1 limit:3 %}{{n}}{% endtablerow %}",
                 Hash.FromAnonymousObject(new { numbers = new[] { 1, 2, 3, 4, 5, 6 } }));
+        }
+
+        [Test]
+        public void TestDynamicVariableColsOffsetLimit()
+        {
+            Helper.AssertTemplateResult(
+                string.Format("<tr class=\"row1\">{0}<td class=\"col1\">2</td><td class=\"col2\">3</td></tr>{0}<tr class=\"row2\"><td class=\"col1\">4</td></tr>{0}", Environment.NewLine),
+                "{% tablerow n in numbers cols:cols offset:offset limit:limit %}{{n}}{% endtablerow %}",
+                Hash.FromAnonymousObject(new { numbers = new[] { 1, 2, 3, 4, 5, 6 }, cols = 2, offset = 1, limit = 3 }));
         }
     }
 }

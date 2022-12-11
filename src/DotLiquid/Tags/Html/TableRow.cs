@@ -63,20 +63,20 @@ namespace DotLiquid.Tags.Html
 
             if (_attributes.ContainsKey("offset"))
             {
-                int offset = Convert.ToInt32(_attributes["offset"]);
+                int offset = Convert.ToInt32(context[_attributes["offset"]]);
                 collection = collection.Skip(offset);
             }
 
             if (_attributes.ContainsKey("limit"))
             {
-                int limit = Convert.ToInt32(_attributes["limit"]);
+                int limit = Convert.ToInt32(context[_attributes["limit"]]);
                 collection = collection.Take(limit);
             }
 
             collection = collection.ToList();
             int length = collection.Count();
 
-            int cols = Convert.ToInt32(context[_attributes["cols"]]);
+            int cols = _attributes.ContainsKey("cols") ? Convert.ToInt32(context[_attributes["cols"]]) : length;
 
             int row = 1;
             int col = 0;

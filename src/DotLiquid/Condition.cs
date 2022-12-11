@@ -33,6 +33,22 @@ namespace DotLiquid
             { "hasValue", (left, right) => (left is IDictionary) ? ((IDictionary) left).Values.Cast<object>().Contains(right) : false }
         };
 
+        private static readonly object self = new object();
+
+        internal static readonly Dictionary<string, Func<object, bool>> BlankOperators = new Dictionary<string, Func<object, bool>>()
+        {
+            { "==", (obj) => BlankVariable(obj) },
+            { "!=", (obj) => !BlankVariable(obj) },
+            { "<>", (obj) => !BlankVariable(obj) },
+        };
+
+        internal static readonly Dictionary<string, Func<object, bool>> EmptyOperators = new Dictionary<string, Func<object, bool>>()
+        {
+            { "==", (obj) => EmptyVariable(obj) },
+            { "!=", (obj) => !EmptyVariable(obj) },
+            { "<>", (obj) => !EmptyVariable(obj) },
+        };
+
         private static bool Any(IEnumerable enumerable, Func<object, bool> condition)
         {
             foreach (var obj in enumerable)
@@ -128,6 +144,36 @@ namespace DotLiquid
             return left.SafeTypeInsensitiveEqual(right);
         }
 
+        private static bool BlankVariable(object obj)
+        {
+            if (obj == self)
+                return false;
+            switch (obj)
+            {
+                case null:
+                case bool b when b == false:
+                case string s when string.IsNullOrWhiteSpace(s):
+                case IEnumerable e when !e.GetEnumerator().MoveNext():
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        private static bool EmptyVariable(object obj)
+        {
+            if (obj == self)
+                return false;
+            switch (obj)
+            {
+                case string s when s == string.Empty:
+                case IEnumerable e when !e.GetEnumerator().MoveNext():
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
         private static bool InterpretCondition(string left, string right, string op, Context context)
         {
             // If the operator is empty this means that the decision statement is just
@@ -139,17 +185,33 @@ namespace DotLiquid
                 return (result != null && (!(result is bool) || (bool) result));
             }
 
-            object leftObject = context[left];
-            object rightObject = context[right];
-
             var opKey = Operators.Keys.FirstOrDefault(opk => opk.Equals(op)
                                                                 || opk.ToLowerInvariant().Equals(op)
                                                                 || Template.NamingConvention.OperatorEquals(opk, op)
                                                      );
             if (opKey == null)
-            { 
+            {
                 throw new Exceptions.ArgumentException(Liquid.ResourceManager.GetString("ConditionUnknownOperatorException"), op);
             }
+            if ((left == "blank" || right == "blank") && BlankOperators.TryGetValue(opKey, out var blank))
+            {
+                if (left == "blank" && right == "blank")
+                {
+                    return blank(self);
+                }
+                return blank(left == "blank" ? context[right] : context[left]);
+            }
+            if ((left == "empty" || right == "empty") && EmptyOperators.TryGetValue(opKey, out var empty))
+            {
+                if (left == "empty" && right == "empty")
+                {
+                    return empty(self);
+                }
+                return empty(left == "empty" ? context[right] : context[left]);
+            }
+
+            object leftObject = context[left];
+            object rightObject = context[right];
 
             return Operators[opKey](leftObject, rightObject);
         }

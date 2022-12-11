@@ -43,6 +43,10 @@ namespace DotLiquid.Tests
                 return other == this.ToString();
             }
         }
+
+        public class DummyDrop : Drop
+        {
+        }
         #endregion
 
         // NOTE(David Burg): This forces sequential execution of tests, risk side effect resulting in non deterministic behavior.
@@ -693,6 +697,76 @@ namespace DotLiquid.Tests
 
             AssertEvaluatesFalse("enum", "==", "'No'");
             AssertEvaluatesFalse("enum", "!=", "'Yes'");
+        }
+
+        [Test]
+        public void TestBlankObject()
+        {
+            _context = new Context(CultureInfo.InvariantCulture);
+            _context["dict"] = new Dictionary<string, string> { { "abc", "xyz"} };
+            _context["emptyDict"] = new Dictionary<string, string> { };
+            _context["list"] = new List<string> { "abc" };
+            _context["emptyList"] = new List<string> { };
+            _context["arr"] = new string[] { "foo" };
+            _context["emptyArr"] = new string[] {};
+            _context["foo"] = new DummyDrop();
+
+            AssertEvaluatesFalse("blank", "==", "blank");
+            AssertEvaluatesTrue("blank", "!=", "blank");
+            AssertEvaluatesTrue("blank", "<>", "blank");
+
+            AssertEvaluatesTrue("''", "==", "blank");
+            AssertEvaluatesTrue("'  '", "==", "blank");
+            AssertEvaluatesTrue("false", "==", "blank");
+            AssertEvaluatesTrue("nil", "==", "blank");
+            AssertEvaluatesTrue("noexists", "==", "blank");
+            AssertEvaluatesTrue("noexists.bar", "==", "blank");
+            AssertEvaluatesTrue("emptyDict", "==", "blank");
+            AssertEvaluatesTrue("emptyList", "==", "blank");
+            AssertEvaluatesTrue("emptyArr", "==", "blank");
+
+            AssertEvaluatesTrue("1", "!=", "blank");
+            AssertEvaluatesTrue("0", "!=", "blank");
+            AssertEvaluatesTrue("true", "!=", "blank");
+            AssertEvaluatesTrue("foo", "!=", "blank");
+            AssertEvaluatesTrue("dict", "!=", "blank");
+            AssertEvaluatesTrue("list", "!=", "blank");
+            AssertEvaluatesTrue("arr", "!=", "blank");
+        }
+
+        [Test]
+        public void TestEmptyObject()
+        {
+            _context = new Context(CultureInfo.InvariantCulture);
+            _context["dict"] = new Dictionary<string, string> { { "abc", "xyz"} };
+            _context["emptyDict"] = new Dictionary<string, string> { };
+            _context["list"] = new List<string> { "abc" };
+            _context["emptyList"] = new List<string> { };
+            _context["arr"] = new string[] { "foo" };
+            _context["emptyArr"] = new string[] {};
+            _context["foo"] = new DummyDrop();
+
+            AssertEvaluatesFalse("empty", "==", "empty");
+            AssertEvaluatesTrue("empty", "!=", "empty");
+            AssertEvaluatesTrue("empty", "<>", "empty");
+
+            AssertEvaluatesTrue("''", "==", "empty");
+            AssertEvaluatesTrue("emptyDict", "==", "empty");
+            AssertEvaluatesTrue("emptyList", "==", "empty");
+            AssertEvaluatesTrue("emptyArr", "==", "empty");
+
+            AssertEvaluatesTrue("'  '", "!=", "empty");
+            AssertEvaluatesTrue("false", "!=", "empty");
+            AssertEvaluatesTrue("nil", "!=", "empty");
+            AssertEvaluatesTrue("noexists", "!=", "empty");
+            AssertEvaluatesTrue("noexists.bar", "!=", "empty");
+            AssertEvaluatesTrue("1", "!=", "empty");
+            AssertEvaluatesTrue("0", "!=", "empty");
+            AssertEvaluatesTrue("true", "!=", "empty");
+            AssertEvaluatesTrue("foo", "!=", "empty");
+            AssertEvaluatesTrue("dict", "!=", "empty");
+            AssertEvaluatesTrue("list", "!=", "empty");
+            AssertEvaluatesTrue("arr", "!=", "empty");
         }
 
         #region Helper methods

@@ -1054,6 +1054,10 @@ namespace DotLiquid
             {
                 propertyValue = dictionary[propertyName];
             }
+            else if (any is IIndexable indexer && indexer.ContainsKey(propertyName))
+            {
+                propertyValue = indexer[propertyName];
+            }
             else if (any != null && any.RespondTo(propertyName))
             {
                 propertyValue = any.Send(propertyName);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using DotLiquid.NamingConventions;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -1841,6 +1842,25 @@ Cheapest products:
         }
 
         [Test]
+        public void TestWhere_RespectIndexable()
+        {
+            var products = new [] {
+                new ProductDrop { Title = "Vacuum", Type = "cleaning" },
+                new ProductDrop { Title = "Spatula", Type = "kitchen" },
+                new ProductDrop { Title = "Television", Type = "lounge" },
+                new ProductDrop { Title = "Garlic press", Type = "kitchen" }
+            };
+            var expectedKitchenProducts = products.Where(p => p.Type == "kitchen").ToArray();
+
+            Helper.LockTemplateStaticVars(new RubyNamingConvention(), () =>
+            {
+                CollectionAssert.AreEqual(
+                    expected: expectedKitchenProducts,
+                    actual: StandardFilters.Where(products, propertyName: "type", targetValue: "kitchen"));
+            });
+        }
+
+        [Test]
         public void TestConcat()
         {
             var array1 = new String[] { "one", "two" };
@@ -1915,6 +1935,12 @@ Cheapest products:
             Helper.AssertTemplateResult(
                 expected: ".moT rojaM ot lortnoc dnuorG",
                 template: "{{ 'Ground control to Major Tom.' | split: '' | reverse | join: '' }}");
+        }
+
+        private class ProductDrop : Drop
+        {
+            public string Title { get; set; }
+            public string Type { get; set; }
         }
     }
 }

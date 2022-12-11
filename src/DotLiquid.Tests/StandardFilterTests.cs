@@ -131,6 +131,24 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        public void TestTruncatewords()
+        {
+            Assert.AreEqual(null, StandardFilters.Truncatewords(null));
+            Assert.AreEqual("", StandardFilters.Truncatewords(""));
+            Assert.AreEqual("one two three", StandardFilters.Truncatewords("one two three", 4));
+            Assert.AreEqual("one two...", StandardFilters.Truncatewords("one two three", 2));
+            Assert.AreEqual("one two three", StandardFilters.Truncatewords("one two three"));
+            Assert.AreEqual("Two small (13&#8221; x 5.5&#8221; x 10&#8221; high) baskets fit inside one large basket (13&#8221;...", StandardFilters.Truncatewords("Two small (13&#8221; x 5.5&#8221; x 10&#8221; high) baskets fit inside one large basket (13&#8221; x 16&#8221; x 10.5&#8221; high) with cover.", 15));
+
+            Helper.AssertTemplateResult(expected: "Ground control to...", template: "{{ \"Ground control to Major Tom.\" | truncatewords: 3}}");
+            Helper.AssertTemplateResult(expected: "Ground control to--", template: "{{ \"Ground control to Major Tom.\" | truncatewords: 3, \"--\"}}");
+            Helper.AssertTemplateResult(expected: "Ground control to", template: "{{ \"Ground control to Major Tom.\" | truncatewords: 3, \"\"}}");
+            Helper.AssertTemplateResult(expected: "...", template: "{{ \"Ground control to Major Tom.\" | truncatewords: 0}}");
+            Helper.AssertTemplateResult(expected: "...", template: "{{ \"Ground control to Major Tom.\" | truncatewords: -1}}");
+            Helper.AssertTemplateResult(expected: "Liquid error: Value was either too large or too small for an Int32.", template: $"{{{{ \"Ground control to Major Tom.\" | truncatewords: {((long)int.MaxValue) + 1}}}}}");
+        }
+
+        [Test]
         public void TestSplit()
         {
             CollectionAssert.AreEqual(new[] { "This", "is", "a", "sentence" }, StandardFilters.Split("This is a sentence", " "));

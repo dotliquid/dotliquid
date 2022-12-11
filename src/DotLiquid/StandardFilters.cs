@@ -289,6 +289,17 @@ namespace DotLiquid
         }
 
         /// <summary>
+        /// Truncate a string down to x words
+        /// </summary>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="words">optional maximum number of words in returned string, defaults to 15</param>
+        /// <param name="truncateString">Optional suffix to append when string is truncated, defaults to ellipsis(...)</param>
+        public static string Truncatewords(string input, int words = 15, string truncateString = "...")
+        {
+            return TruncateWords(input, words, truncateString);
+        }
+
+        /// <summary>
         /// Split input string into an array of substrings separated by given pattern.
         /// </summary>
         /// <remarks>

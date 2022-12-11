@@ -201,6 +201,9 @@
   <data name="IncludeTagSyntaxException" xml:space="preserve">
     <value>Syntax Error in 'include' tag - Valid syntax: include [template]</value>
   </data>
+  <data name="RenderTagSyntaxException" xml:space="preserve">
+    <value>Syntax Error in 'render' tag - Valid syntax: render '[template]'</value>
+  </data>
   <data name="LocalFileSystemIllegalTemplateNameException" xml:space="preserve">
     <value>Error - Illegal template name '{0}'</value>
   </data>

@@ -170,16 +170,9 @@ namespace DotLiquid.Tags
 
                     // Ensure the 'for-loop' object is available to templates.
                     // See: https://shopify.dev/api/liquid/objects/for-loops
-                    context["forloop"] = new Dictionary<string, object>
+                    context["forloop"] = new ForloopDrop(length, index)
                     {
-                        ["name"] = _name,
-                        ["length"] = length,
-                        ["index"] = index + 1,
-                        ["index0"] = index,
-                        ["rindex"] = length - index,
-                        ["rindex0"] = length - index - 1,
-                        ["first"] = (index == 0),
-                        ["last"] = (index == length - 1)
+                        Name = _name
                     };
 
                     RenderAll(ForBlock, context, result);

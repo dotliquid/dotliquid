@@ -96,21 +96,6 @@ namespace DotLiquid.Tests.Tags
             }
         }
 
-        private class DictionaryFileSystem : IFileSystem
-        {
-            private readonly IDictionary<string, string> _data;
-
-            public DictionaryFileSystem(IDictionary<string, string> data) => _data = data;
-
-            public string ReadTemplateFile(Context context, string templateName)
-            {
-                var templatePath = context[templateName] as string;
-                if (templatePath != null && _data.TryGetValue(templatePath, out var rs))
-                    return rs;
-                return null;
-            }
-        }
-
         private class CountingFileSystem : IFileSystem
         {
             public int Count { get; private set; }
@@ -173,10 +158,10 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestIncludeTagWithStringVariable()
         {
-            WithFileSystem(new DictionaryFileSystem(new Dictionary<string, string>
+            Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["product"] = "Product: {{ product }}"
-            }), () =>
+                ["'product'"] = "Product: {{ product }}"
+            }, () =>
             {
                 Assert.AreEqual("Product: foo", Template.Parse("{% include 'product' with 'foo' %}").Render());
                 Assert.AreEqual("Product: foo", Template.Parse("{% include 'product' for 'foo' %}").Render());
@@ -290,7 +275,7 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestDotLiquid22bTemplateFileSystemReceiveTemplateNameInsteadOfRaw()
         {
-            WithFileSystem(new ReflectFileSystem(), () =>
+            Helper.WithFileSystem(new ReflectFileSystem(), () =>
             {
                 Assert.AreEqual("'product'", Template.Parse("{% include 'product' %}").Render());
                 Assert.AreEqual("product", Template.Parse("{% include 'product' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
@@ -304,7 +289,7 @@ namespace DotLiquid.Tests.Tags
         public void TestDotLiquid22bCacheSecondReadSamePartial()
         {
             var fileSystem = new CountingFileSystem();
-            WithFileSystem(fileSystem, () =>
+            Helper.WithFileSystem(fileSystem, () =>
             {
                 Assert.AreEqual("from CountingFileSystemfrom CountingFileSystem", Template.Parse("{% include 'pick_a_source' %}{% include 'pick_a_source' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
                 {
@@ -318,7 +303,7 @@ namespace DotLiquid.Tests.Tags
         public void TestDotLiquid22bDoesntCachePartialsAcrossRenders()
         {
             var fileSystem = new CountingFileSystem();
-            WithFileSystem(fileSystem, () =>
+            Helper.WithFileSystem(fileSystem, () =>
             {
                 Assert.AreEqual("from CountingFileSystem", Template.Parse("{% include 'pick_a_source' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
                 {
@@ -331,20 +316,6 @@ namespace DotLiquid.Tests.Tags
                 }));
                 Assert.AreEqual(2, fileSystem.Count);
             });
-        }
-
-        public void WithFileSystem(IFileSystem fs, Action action)
-        {
-            var oldFileSystem = Template.FileSystem;
-            Template.FileSystem = fs;
-            try
-            {
-                action.Invoke();
-            }
-            finally
-            {
-                Template.FileSystem = oldFileSystem;
-            }
         }
     }
 }

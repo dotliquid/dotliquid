@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using DotLiquid.FileSystems;
 using DotLiquid.NamingConventions;
 using NUnit.Framework;
 
@@ -73,6 +74,52 @@ namespace DotLiquid.Tests
             AssertTemplateResult(expected: expected, template: template, localVariables: null, syntax: syntax);
         }
 
+        public static void WithCustomTag<T>(string tagName, Action action) where T : Tag, new()
+        {
+            var oldTag = Template.Tags.TryGetValue(tagName, out var rs) ? rs : default;
+            try
+            {
+                if (oldTag != null)
+                    Template.Tags.Remove(tagName);
+                Template.RegisterTag<T>(tagName);
+                action();
+            }
+            finally
+            {
+                Template.Tags.Remove(tagName);
+                if (oldTag != null)
+                    Template.Tags[tagName] = oldTag;
+            }
+        }
+
+        public static void WithFileSystem(IFileSystem fs, Action action)
+        {
+            var oldFileSystem = Template.FileSystem;
+            Template.FileSystem = fs;
+            try
+            {
+                action.Invoke();
+            }
+            finally
+            {
+                Template.FileSystem = oldFileSystem;
+            }
+        }
+
+        public static void WithDictionaryFileSystem(IDictionary<string, string> data, Action action)
+        {
+            var oldFileSystem = Template.FileSystem;
+            Template.FileSystem = new DictionaryFileSystem(data);
+            try
+            {
+                action.Invoke();
+            }
+            finally
+            {
+                Template.FileSystem = oldFileSystem;
+            }
+        }
+
         [LiquidTypeAttribute("PropAllowed")]
         public class DataObject
         {
@@ -83,6 +130,20 @@ namespace DotLiquid.Tests
         public class DataObjectDrop : Drop
         {
             public string Prop { get; set; }
+        }
+
+        public class DictionaryFileSystem : IFileSystem
+        {
+            private readonly IDictionary<string, string> _data;
+
+            public DictionaryFileSystem(IDictionary<string, string> data) => _data = data;
+
+            public string ReadTemplateFile(Context context, string templateName)
+            {
+                if (_data.TryGetValue(templateName, out var rs))
+                    return rs;
+                return null;
+            }
         }
     }
 }

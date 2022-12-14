@@ -49,7 +49,7 @@ namespace DotLiquid
         /// </summary>
         public static bool DefaultIsThreadSafe { get; set; }
 
-        private static Dictionary<string, Tuple<ITagFactory, Type>> Tags { get; set; }
+        internal static Dictionary<string, Tuple<ITagFactory, Type>> Tags { get; set; }
 
         /// <summary>
         /// TimeOut used for all Regex in DotLiquid

@@ -65,6 +65,30 @@ namespace DotLiquid
         internal InterruptException PopInterrupt() => _interrupted.Pop();
         internal bool IsInterrupt() => _interrupted.Any();
 
+        private readonly IDictionary<string, int> _disabledTags = new Dictionary<string, int>();
+        internal bool IsTagDisabled(string tagName) => _disabledTags.TryGetValue(tagName, out var cnt) && cnt > 0;
+        public void WithDisabledTags(string[] tagNames, Action action)
+        {
+            try
+            {
+                foreach (var tagName in tagNames)
+                {
+                    if (!_disabledTags.TryGetValue(tagName, out var cnt))
+                        cnt = 0;
+                    _disabledTags[tagName] = cnt + 1;
+                }
+                action();
+            }
+            finally
+            {
+                foreach (var tagName in tagNames)
+                {
+                    if (_disabledTags.TryGetValue(tagName, out var cnt))
+                        _disabledTags[tagName] = cnt - 1;
+                }
+            }
+        }
+
         private readonly int _maxIterations;
 
         public int MaxIterations

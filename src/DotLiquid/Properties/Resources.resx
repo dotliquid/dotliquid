@@ -255,4 +255,7 @@
   <data name="IncrementSyntaxException" xml:space="preserve">
     <value>Syntax Error in 'increment' tag - Valid syntax: increment [var]</value>
   </data>
+  <data name="DisabledTagException" xml:space="preserve">
+    <value>{0} usage is not allowed in this context</value>
+  </data>
 </root>

@@ -1051,5 +1051,43 @@ namespace DotLiquid.Tests
             Context context = new Context(CultureInfo.CurrentCulture.NumberFormat);
             Assert.AreSame(CultureInfo.CurrentCulture, context.CurrentCulture);
         }
+
+        [Test]
+        public void TestDisablesTagSpecified()
+        {
+            var context = new Context(CultureInfo.InvariantCulture);
+            context.WithDisabledTags(new [] { "foo", "bar" }, () =>
+            {
+                Assert.True(context.IsTagDisabled("foo"));
+                Assert.True(context.IsTagDisabled("bar"));
+                Assert.False(context.IsTagDisabled("unknown"));
+            });
+        }
+
+        [Test]
+        public void TestDisablesNestedTags()
+        {
+            var context = new Context(CultureInfo.InvariantCulture);
+            context.WithDisabledTags(new [] { "foo" }, () =>
+            {
+                context.WithDisabledTags(new [] { "foo" }, () =>
+                {
+                    Assert.True(context.IsTagDisabled("foo"));
+                    Assert.False(context.IsTagDisabled("bar"));
+                });
+                context.WithDisabledTags(new [] { "bar" }, () =>
+                {
+                    Assert.True(context.IsTagDisabled("foo"));
+                    Assert.True(context.IsTagDisabled("bar"));
+                    context.WithDisabledTags(new [] { "foo" }, () =>
+                    {
+                        Assert.True(context.IsTagDisabled("foo"));
+                        Assert.True(context.IsTagDisabled("bar"));
+                    });
+                });
+                Assert.True(context.IsTagDisabled("foo"));
+                Assert.False(context.IsTagDisabled("bar"));
+            });
+        }
     }
 }

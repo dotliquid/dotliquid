@@ -1495,6 +1495,7 @@ PaulGeorge",
             Helper.AssertTemplateResult("foobar", "{{ '' | default: 'foobar' }}", assigns);
             Helper.AssertTemplateResult("foobar", "{{ empty_array | default: 'foobar' }}", assigns);
             Helper.AssertTemplateResult("12", "{{ array | default: 'foobar' }}", assigns);
+            Helper.AssertTemplateResult("1", "{{ 1 | default: 100 }}", assigns);
 
             // allow false parameter
             Helper.AssertTemplateResult("foobar", "{{ false | default: 'foobar', false }}", assigns);

@@ -722,6 +722,18 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
                 expected: "0 0 1 2 1",
                 template: "{%increment port %} {%increment starboard%} {%increment port %} {%increment port%} {%increment starboard %}");
             Helper.AssertTemplateResult(expected: "1 2", template: "{%increment port %} {%increment port %}", localVariables: Hash.FromAnonymousObject(new { port = 1 }));
+
+            Helper.AssertTemplateResult(expected: "0", template: "{%increment port %}");
+
+            var context = new Context(CultureInfo.InvariantCulture);
+            Assert.AreEqual("0", Template.Parse("{%increment port %}").Render(RenderParameters.FromContext(context, context.FormatProvider)));
+        }
+
+        [Test]
+        public void TestIncrementRenderWithContext()
+        {
+            var context = new Context(CultureInfo.InvariantCulture);
+            Assert.AreEqual("0", Template.Parse("{%increment port %}").Render(RenderParameters.FromContext(context, context.FormatProvider)));
         }
 
         [Test]
@@ -774,6 +786,13 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
                 expected: "1 5 2 2 5",
                 template: "{%increment port %} {%increment starboard%} {%increment port %} {%decrement port%} {%decrement starboard %}",
                 localVariables: Hash.FromAnonymousObject(new { port = 1, starboard = 5 }));
+        }
+
+        [Test]
+        public void TestDecrementRenderWithContext()
+        {
+            var context = new Context(CultureInfo.InvariantCulture);
+            Assert.AreEqual("-1", Template.Parse("{%decrement port %}").Render(RenderParameters.FromContext(context, context.FormatProvider)));
         }
 
         [Test]

@@ -1089,5 +1089,88 @@ namespace DotLiquid.Tests
                 Assert.False(context.IsTagDisabled("bar"));
             });
         }
+
+        [Test]
+        public void TestStaticEnvironmentsAreReadWithLowerPriorityThanEnvironments()
+        {
+            var context = new Context(CultureInfo.InvariantCulture);
+            context.StaticEnvironments[0]["shadowed"] = "static";
+            context.StaticEnvironments[0]["unshadowed"] = "static";
+            context.Environments[0]["shadowed"] = "dynamic";
+
+            Assert.AreEqual("dynamic", context["shadowed"]);
+            Assert.AreEqual("static", context["unshadowed"]);
+        }
+
+        [Test]
+        public void TestNewIsolatedSubcontextDoesNotInheritVariables()
+        {
+            var superContext = new Context(CultureInfo.InvariantCulture);
+            superContext["my_variable"] = "some value";
+            var subcontext = superContext.NewIsolatedContext();
+
+            Assert.Null(subcontext["my_variable"]);
+        }
+
+        [Test]
+        public void TestNewIsolatedSubcontextInheritsStaticEnvironment()
+        {
+            var superContext = new Context(CultureInfo.InvariantCulture);
+            superContext.StaticEnvironments[0]["my_env"] = "my value";
+            var subcontext = superContext.NewIsolatedContext();
+            Assert.AreEqual("my value", subcontext["my_env"]);
+        }
+
+        [Test]
+        public void TestNewIsolatedSubcontextInheritsSyntaxCompatibilityLevel()
+        {
+            var superContext = new Context(CultureInfo.InvariantCulture);
+            superContext.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22;
+            var subcontext = superContext.NewIsolatedContext();
+            Assert.AreEqual(superContext.SyntaxCompatibilityLevel, subcontext.SyntaxCompatibilityLevel);
+        }
+
+        [Test]
+        public void TestNewIsolatedSubcontextInheritsRubyDateFormat()
+        {
+            var superContext = new Context(CultureInfo.InvariantCulture);
+            superContext.UseRubyDateFormat = !superContext.UseRubyDateFormat;
+            var subcontext = superContext.NewIsolatedContext();
+            Assert.AreEqual(superContext.UseRubyDateFormat, subcontext.UseRubyDateFormat);
+        }
+
+        [Test]
+        public void TestNewIsolatedSubcontextInheritsRegisters()
+        {
+            var superContext = new Context(CultureInfo.InvariantCulture);
+            superContext.Registers["my_register"] = "my value";
+            var subcontext = superContext.NewIsolatedContext();
+            subcontext.Registers["my_register"] = "my alt value";
+            Assert.AreEqual("my value", superContext.Registers.Get<string>("my_register"));
+        }
+
+        [Test]
+        public void TestNewIsolatedSubcontextRegistersDoNotPolluteContext()
+        {
+            var superContext = new Context(CultureInfo.InvariantCulture);
+            superContext.Registers["my_register"] = "my value";
+            var subcontext = superContext.NewIsolatedContext();
+            Assert.AreEqual("my value", subcontext.Registers.Get<string>("my_register"));
+        }
+
+        [Test]
+        public void TestNewIsolatedSubcontextInheritsFilters()
+        {
+            var superContext = new Context(CultureInfo.InvariantCulture);
+            superContext.AddFilters(typeof(MyFilters));
+            var subcontext = superContext.NewIsolatedContext();
+            var template = Template.Parse("{{ 123 | my_filter }}");
+            Assert.AreEqual("my filter result", template.Render(RenderParameters.FromContext(subcontext, subcontext.FormatProvider)));
+        }
+
+        static class MyFilters
+        {
+            public static string MyFilter(object input) => "my filter result";
+        }
     }
 }

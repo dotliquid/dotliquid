@@ -704,34 +704,55 @@ namespace DotLiquid.Tests
         {
             _context = new Context(CultureInfo.InvariantCulture);
             _context["dict"] = new Dictionary<string, string> { { "abc", "xyz"} };
-            _context["emptyDict"] = new Dictionary<string, string> { };
+            _context["empty_dict"] = new Dictionary<string, string> { };
             _context["list"] = new List<string> { "abc" };
-            _context["emptyList"] = new List<string> { };
+            _context["empty_list"] = new List<string> { };
             _context["arr"] = new string[] { "foo" };
-            _context["emptyArr"] = new string[] {};
-            _context["foo"] = new DummyDrop();
+            _context["empty_arr"] = new string[] {};
+            _context["a_drop"] = new DummyDrop();
 
+            // self check
             AssertEvaluatesFalse("blank", "==", "blank");
             AssertEvaluatesTrue("blank", "!=", "blank");
             AssertEvaluatesTrue("blank", "<>", "blank");
 
+            // blank truthy
             AssertEvaluatesTrue("''", "==", "blank");
             AssertEvaluatesTrue("'  '", "==", "blank");
             AssertEvaluatesTrue("false", "==", "blank");
             AssertEvaluatesTrue("nil", "==", "blank");
-            AssertEvaluatesTrue("noexists", "==", "blank");
-            AssertEvaluatesTrue("noexists.bar", "==", "blank");
-            AssertEvaluatesTrue("emptyDict", "==", "blank");
-            AssertEvaluatesTrue("emptyList", "==", "blank");
-            AssertEvaluatesTrue("emptyArr", "==", "blank");
+            AssertEvaluatesTrue("not_assigned", "==", "blank");
+            AssertEvaluatesTrue("empty_dict", "==", "blank");
+            AssertEvaluatesTrue("empty_list", "==", "blank");
+            AssertEvaluatesTrue("empty_arr", "==", "blank");
 
+            // blank truthy - reversed
+            AssertEvaluatesTrue("blank", "==", "''");
+            AssertEvaluatesTrue("blank", "==", "'  '");
+            AssertEvaluatesTrue("blank", "==", "false");
+            AssertEvaluatesTrue("blank", "==", "nil");
+            AssertEvaluatesTrue("blank", "==", "not_assigned");
+            AssertEvaluatesTrue("blank", "==", "empty_dict");
+            AssertEvaluatesTrue("blank", "==", "empty_list");
+            AssertEvaluatesTrue("blank", "==", "empty_arr");
+
+            // blank falsy
             AssertEvaluatesTrue("1", "!=", "blank");
             AssertEvaluatesTrue("0", "!=", "blank");
             AssertEvaluatesTrue("true", "!=", "blank");
-            AssertEvaluatesTrue("foo", "!=", "blank");
+            AssertEvaluatesTrue("a_drop", "!=", "blank");
             AssertEvaluatesTrue("dict", "!=", "blank");
             AssertEvaluatesTrue("list", "!=", "blank");
             AssertEvaluatesTrue("arr", "!=", "blank");
+
+            // blank falsy - reversed
+            AssertEvaluatesTrue("blank", "!=", "1");
+            AssertEvaluatesTrue("blank", "!=", "0");
+            AssertEvaluatesTrue("blank", "!=", "true");
+            AssertEvaluatesTrue("blank", "!=", "a_drop");
+            AssertEvaluatesTrue("blank", "!=", "dict");
+            AssertEvaluatesTrue("blank", "!=", "list");
+            AssertEvaluatesTrue("blank", "!=", "arr");
         }
 
         [Test]
@@ -739,34 +760,55 @@ namespace DotLiquid.Tests
         {
             _context = new Context(CultureInfo.InvariantCulture);
             _context["dict"] = new Dictionary<string, string> { { "abc", "xyz"} };
-            _context["emptyDict"] = new Dictionary<string, string> { };
+            _context["empty_dict"] = new Dictionary<string, string> { };
             _context["list"] = new List<string> { "abc" };
-            _context["emptyList"] = new List<string> { };
+            _context["empty_list"] = new List<string> { };
             _context["arr"] = new string[] { "foo" };
-            _context["emptyArr"] = new string[] {};
-            _context["foo"] = new DummyDrop();
+            _context["empty_arr"] = new string[] {};
+            _context["a_drop"] = new DummyDrop();
 
+            // self check
             AssertEvaluatesFalse("empty", "==", "empty");
             AssertEvaluatesTrue("empty", "!=", "empty");
             AssertEvaluatesTrue("empty", "<>", "empty");
 
+            // empty truthy
             AssertEvaluatesTrue("''", "==", "empty");
-            AssertEvaluatesTrue("emptyDict", "==", "empty");
-            AssertEvaluatesTrue("emptyList", "==", "empty");
-            AssertEvaluatesTrue("emptyArr", "==", "empty");
+            AssertEvaluatesTrue("empty_dict", "==", "empty");
+            AssertEvaluatesTrue("empty_list", "==", "empty");
+            AssertEvaluatesTrue("empty_arr", "==", "empty");
 
+            // empty truthy - reversed
+            AssertEvaluatesTrue("empty", "==", "''");
+            AssertEvaluatesTrue("empty", "==", "empty_dict");
+            AssertEvaluatesTrue("empty", "==", "empty_list");
+            AssertEvaluatesTrue("empty", "==", "empty_arr");
+
+            // empty falsy
             AssertEvaluatesTrue("'  '", "!=", "empty");
             AssertEvaluatesTrue("false", "!=", "empty");
             AssertEvaluatesTrue("nil", "!=", "empty");
-            AssertEvaluatesTrue("noexists", "!=", "empty");
-            AssertEvaluatesTrue("noexists.bar", "!=", "empty");
+            AssertEvaluatesTrue("no_assigned", "!=", "empty");
             AssertEvaluatesTrue("1", "!=", "empty");
             AssertEvaluatesTrue("0", "!=", "empty");
             AssertEvaluatesTrue("true", "!=", "empty");
-            AssertEvaluatesTrue("foo", "!=", "empty");
+            AssertEvaluatesTrue("a_drop", "!=", "empty");
             AssertEvaluatesTrue("dict", "!=", "empty");
             AssertEvaluatesTrue("list", "!=", "empty");
             AssertEvaluatesTrue("arr", "!=", "empty");
+
+            // empty falsy - reversed
+            AssertEvaluatesTrue("empty", "!=", "'  '");
+            AssertEvaluatesTrue("empty", "!=", "false");
+            AssertEvaluatesTrue("empty", "!=", "nil");
+            AssertEvaluatesTrue("empty", "!=", "no_assigned");
+            AssertEvaluatesTrue("empty", "!=", "1");
+            AssertEvaluatesTrue("empty", "!=", "0");
+            AssertEvaluatesTrue("empty", "!=", "true");
+            AssertEvaluatesTrue("empty", "!=", "a_drop");
+            AssertEvaluatesTrue("empty", "!=", "dict");
+            AssertEvaluatesTrue("empty", "!=", "list");
+            AssertEvaluatesTrue("empty", "!=", "arr");
         }
 
         #region Helper methods

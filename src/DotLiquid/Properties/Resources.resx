@@ -207,6 +207,9 @@
   <data name="LocalFileSystemIllegalTemplatePathException" xml:space="preserve">
     <value>Error - Illegal template path '{0}'</value>
   </data>
+  <data name="TemplateNameArgumentException" xml:space="preserve">
+    <value>Argument error in tag '{0}' - Illegal template name</value>
+  </data>
   <data name="LocalFileSystemTemplateNotFoundException" xml:space="preserve">
     <value>Error - No such template '{0}'</value>
   </data>

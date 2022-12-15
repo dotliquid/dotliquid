@@ -246,4 +246,7 @@
   <data name="CultureNotFoundException" xml:space="preserve">
     <value>La cultura '{0}' non è supportata</value>
   </data>
+  <data name="TemplateNameArgumentException" xml:space="preserve">
+    <value>Errore di argomento nel tag '{0}' - Nome modello non valido</value>
+  </data>
 </root>

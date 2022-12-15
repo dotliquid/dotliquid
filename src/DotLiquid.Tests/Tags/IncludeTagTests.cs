@@ -111,6 +111,22 @@ namespace DotLiquid.Tests.Tags
             }
         }
 
+        private class CountingFileSystem : IFileSystem
+        {
+            public int Count { get; private set; }
+
+            public string ReadTemplateFile(Context context, string templateName)
+            {
+                Count++;
+                return "from CountingFileSystem";
+            }
+        }
+
+        private class ReflectFileSystem : IFileSystem
+        {
+            public string ReadTemplateFile(Context context, string templateName) => templateName;
+        }
+
         [SetUp]
         public void SetUp()
         {
@@ -251,6 +267,70 @@ namespace DotLiquid.Tests.Tags
                 Assert.AreEqual("Product: Draft 151cm ", Template.Parse("{% include 'product' with products[0] %}").Render(Hash.FromAnonymousObject(new { products = new[] { Hash.FromAnonymousObject(new { title = "Draft 151cm" }), Hash.FromAnonymousObject(new { title = "Element 155cm" }) } })));
             }
             Assert.AreEqual(fileSystem.CacheHitTimes, 1);
+        }
+
+        [Test]
+        public void TestDotLiquid22bUndefinedTemplateVariableShouldError()
+        {
+            Assert.AreEqual("Liquid error: Argument error in tag 'include' - Illegal template name", Template.Parse("{% include undefined_variable %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
+            {
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22b
+            }));
+        }
+
+        [Test]
+        public void TestDotLiquid22bNotStringTemplateVariableShouldError()
+        {
+            Assert.AreEqual("Liquid error: Argument error in tag 'include' - Illegal template name", Template.Parse("{% include 123 %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
+            {
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22b
+            }));
+        }
+
+        [Test]
+        public void TestDotLiquid22bTemplateFileSystemReceiveTemplateNameInsteadOfRaw()
+        {
+            WithFileSystem(new ReflectFileSystem(), () =>
+            {
+                Assert.AreEqual("'product'", Template.Parse("{% include 'product' %}").Render());
+                Assert.AreEqual("product", Template.Parse("{% include 'product' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
+                {
+                    SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22b
+                }));
+            });
+        }
+
+        [Test]
+        public void TestDotLiquid22bCacheSecondReadSamePartial()
+        {
+            var fileSystem = new CountingFileSystem();
+            WithFileSystem(fileSystem, () =>
+            {
+                Assert.AreEqual("from CountingFileSystemfrom CountingFileSystem", Template.Parse("{% include 'pick_a_source' %}{% include 'pick_a_source' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
+                {
+                    SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22b
+                }));
+                Assert.AreEqual(1, fileSystem.Count);
+            });
+        }
+
+        [Test]
+        public void TestDotLiquid22bDoesntCachePartialsAcrossRenders()
+        {
+            var fileSystem = new CountingFileSystem();
+            WithFileSystem(fileSystem, () =>
+            {
+                Assert.AreEqual("from CountingFileSystem", Template.Parse("{% include 'pick_a_source' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
+                {
+                    SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22b
+                }));
+                Assert.AreEqual(1, fileSystem.Count);
+                Assert.AreEqual("from CountingFileSystem", Template.Parse("{% include 'pick_a_source' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
+                {
+                    SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22b
+                }));
+                Assert.AreEqual(2, fileSystem.Count);
+            });
         }
 
         public void WithFileSystem(IFileSystem fs, Action action)

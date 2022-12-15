@@ -55,31 +55,31 @@ namespace DotLiquid.Tags.Html
         /// <param name="result"></param>
         public override void Render(Context context, TextWriter result)
         {
-            object coll = context[_collectionName];
+            object collectionVariable = context[_collectionName];
 
-            if (!(coll is IEnumerable))
+            if (!(collectionVariable is IEnumerable enumerable))
                 return;
-            IEnumerable<object> collection = ((IEnumerable) coll).Cast<object>();
+            IEnumerable<object> collection = enumerable.Cast<object>();
 
             if (_attributes.ContainsKey("offset"))
             {
-                int offset = Convert.ToInt32(_attributes["offset"]);
+                int offset = Convert.ToInt32(context[_attributes["offset"]]);
                 collection = collection.Skip(offset);
             }
 
             if (_attributes.ContainsKey("limit"))
             {
-                int limit = Convert.ToInt32(_attributes["limit"]);
+                int limit = Convert.ToInt32(context[_attributes["limit"]]);
                 collection = collection.Take(limit);
             }
 
             collection = collection.ToList();
             int length = collection.Count();
 
-            int cols = Convert.ToInt32(context[_attributes["cols"]]);
+            int columns = _attributes.ContainsKey("cols") ? Convert.ToInt32(context[_attributes["cols"]]) : length;
 
             int row = 1;
-            int col = 0;
+            int column = 0;
 
             result.WriteLine("<tr class=\"row1\">");
             context.Stack(() => collection.EachWithIndex((item, index) =>
@@ -90,27 +90,27 @@ namespace DotLiquid.Tags.Html
                     length = length,
                     index = index + 1,
                     index0 = index,
-                    col = col + 1,
-                    col0 = col,
+                    col = column + 1,
+                    col0 = column,
                     rindex = length - index,
                     rindex0 = length - index - 1,
                     first = (index == 0),
                     last = (index == length - 1),
-                    col_first = (col == 0),
-                    col_last = (col == cols - 1)
+                    col_first = (column == 0),
+                    col_last = (column == columns - 1)
                 });
 
-                ++col;
+                ++column;
 
                 using (TextWriter temp = new StringWriter(result.FormatProvider))
                 {
                     RenderAll(NodeList, context, temp);
-                    result.Write("<td class=\"col{0}\">{1}</td>", col, temp.ToString());
+                    result.Write("<td class=\"col{0}\">{1}</td>", column, temp.ToString());
                 }
 
-                if (col == cols && index != length - 1)
+                if (column == columns && index != length - 1)
                 {
-                    col = 0;
+                    column = 0;
                     ++row;
                     result.WriteLine("</tr>");
                     result.Write("<tr class=\"row{0}\">", row);

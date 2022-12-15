@@ -96,6 +96,21 @@ namespace DotLiquid.Tests.Tags
             }
         }
 
+        private class DictionaryFileSystem : IFileSystem
+        {
+            private readonly IDictionary<string, string> _data;
+
+            public DictionaryFileSystem(IDictionary<string, string> data) => _data = data;
+
+            public string ReadTemplateFile(Context context, string templateName)
+            {
+                var templatePath = context[templateName] as string;
+                if (templatePath != null && _data.TryGetValue(templatePath, out var rs))
+                    return rs;
+                return null;
+            }
+        }
+
         [SetUp]
         public void SetUp()
         {
@@ -137,6 +152,19 @@ namespace DotLiquid.Tests.Tags
         public void TestIncludeTagWithLocalVariables()
         {
             Assert.AreEqual("Locale: test123 ", Template.Parse("{% include 'locale_variables' echo1: 'test123' %}").Render());
+        }
+
+        [Test]
+        public void TestIncludeTagWithStringVariable()
+        {
+            WithFileSystem(new DictionaryFileSystem(new Dictionary<string, string>
+            {
+                ["product"] = "Product: {{ product }}"
+            }), () =>
+            {
+                Assert.AreEqual("Product: foo", Template.Parse("{% include 'product' with 'foo' %}").Render());
+                Assert.AreEqual("Product: foo", Template.Parse("{% include 'product' for 'foo' %}").Render());
+            });
         }
 
         [Test]
@@ -223,6 +251,20 @@ namespace DotLiquid.Tests.Tags
                 Assert.AreEqual("Product: Draft 151cm ", Template.Parse("{% include 'product' with products[0] %}").Render(Hash.FromAnonymousObject(new { products = new[] { Hash.FromAnonymousObject(new { title = "Draft 151cm" }), Hash.FromAnonymousObject(new { title = "Element 155cm" }) } })));
             }
             Assert.AreEqual(fileSystem.CacheHitTimes, 1);
+        }
+
+        public void WithFileSystem(IFileSystem fs, Action action)
+        {
+            var oldFileSystem = Template.FileSystem;
+            Template.FileSystem = fs;
+            try
+            {
+                action.Invoke();
+            }
+            finally
+            {
+                Template.FileSystem = oldFileSystem;
+            }
         }
     }
 }

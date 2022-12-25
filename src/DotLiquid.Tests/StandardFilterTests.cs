@@ -638,6 +638,28 @@ PaulGeorge",
         }
 
         [Test]
+        public void TestMapExpandoObject()
+        {
+            dynamic product1 = new ExpandoObject();
+            product1.title = "Vacuum";
+            product1.type = "cleaning";
+            dynamic product2 = new ExpandoObject();
+            product2.title = "Spatula";
+            product2.type = "kitchen";
+            dynamic product3 = new ExpandoObject();
+            product3.title = "Television";
+            product3.type = "lounge";
+            dynamic product4 = new ExpandoObject();
+            product4.title = "Garlic press";
+            product4.type = "kitchen";
+            var products = new List<ExpandoObject> { product1, product2, product3, product4 };
+
+            Assert.AreEqual(
+                expected: new List<string>{"Vacuum", "Spatula", "Television", "Garlic press"},
+                actual: StandardFilters.Map(products, "title"));
+        }
+
+        [Test]
         public void TestMapJoin()
         {
             var hash = Hash.FromAnonymousObject(new

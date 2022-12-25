@@ -416,6 +416,44 @@ PaulGeorge",
             Assert.AreEqual(hash2["content"], result[2]["content"]);
         }
 
+        [Test]
+        public void TestSort_Indexable()
+        {
+            var packages = new [] {
+                new Package(numberOfPiecesPerPackage: 2, test: "p1"),
+                new Package(numberOfPiecesPerPackage: 1, test: "p2"),
+                new Package(numberOfPiecesPerPackage: 3, test: "p3"),
+            };
+            var expectedPackages= packages.OrderBy(p => p["numberOfPiecesPerPackage"]).ToArray();
+
+            Helper.LockTemplateStaticVars(new RubyNamingConvention(), () =>
+            {
+                CollectionAssert.AreEqual(
+                    expected: expectedPackages,
+                    actual: StandardFilters.Sort(_contextV20, packages, "numberOfPiecesPerPackage"));
+            });
+        }
+
+        [Test]
+        public void TestSort_ExpandoObject()
+        {
+            dynamic package1 = new ExpandoObject();
+            package1.numberOfPiecesPerPackage = 2;
+            package1.test = "p1";
+            dynamic package2 = new ExpandoObject();
+            package2.numberOfPiecesPerPackage = 1;
+            package2.test = "p2";
+            dynamic package3 = new ExpandoObject();
+            package3.numberOfPiecesPerPackage = 3;
+            package3.test = "p3";
+            var packages = new List<ExpandoObject> { package1, package2, package3 };
+            var expectedPackages = new List<ExpandoObject> { package2, package1, package3 };
+
+            Assert.AreEqual(
+                expected: expectedPackages,
+                actual: StandardFilters.Sort(_contextV20, packages, property: "numberOfPiecesPerPackage"));
+        }
+
         private static Hash CreateHash(int sortby, string content) =>
             new Hash
             {

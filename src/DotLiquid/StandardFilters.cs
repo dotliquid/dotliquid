@@ -433,14 +433,10 @@ namespace DotLiquid
         private static IEnumerable SortInternal(StringComparer stringComparer, object input, string property = null)
         {
             List<object> ary;
-            if (input is IEnumerable<Hash> enumerableHash && !string.IsNullOrEmpty(property))
-                ary = enumerableHash.Cast<object>().ToList();
-            else if (input is IEnumerable enumerableInput)
-                ary = enumerableInput.Flatten().Cast<object>().ToList();
+            if (input is IEnumerable enumerable)
+                ary = enumerable.Cast<object>().ToList();
             else
-            {
                 ary = new List<object>(new[] { input });
-            }
 
             if (!ary.Any())
                 return ary;
@@ -455,13 +451,14 @@ namespace DotLiquid
             {
                 ary.Sort((a, b) => comparer.Compare(a, b));
             }
-            else if ((ary.All(o => o is IDictionary)) && (ary.Any(o => ((IDictionary)o).Contains(property))))
+            else
             {
-                ary.Sort((a, b) => comparer.Compare(((IDictionary)a)[property], ((IDictionary)b)[property]));
-            }
-            else if (ary.All(o => o.RespondTo(property)))
-            {
-                ary.Sort((a, b) => comparer.Compare(a.Send(property), b.Send(property)));
+                ary.Sort((a, b) =>
+                {
+                    var aPropertyValue = ResolveObjectPropertyValue(a, property);
+                    var bPropertyValue = ResolveObjectPropertyValue(b, property);
+                    return comparer.Compare(aPropertyValue, bPropertyValue);
+                });
             }
 
             return ary;

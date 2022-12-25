@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -439,7 +440,7 @@ PaulGeorge",
                         Hash.FromAnonymousObject(new { foo = Hash.FromAnonymousObject(new { bar = "c" }) })
                     }
                     }));
-            CollectionAssert.AreEqual(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 4 } },
+            CollectionAssert.AreEqual(new object[] { null, null, null, null },
                 StandardFilters.Map(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 4 } }, "b"));
 
             Assert.AreEqual(null, StandardFilters.Map(null, "a"));
@@ -1725,6 +1726,48 @@ PaulGeorge",
                 new { title = "Garlic press", type = "kitchen" }
             };
             Assert.AreEqual(expected: expectedKitchenProducts, actual: StandardFilters.Where(productsWithNullEntry, propertyName: "type", targetValue: "kitchen"));
+        }
+
+        [Test]
+        public void TestWhere_Indexable()
+        {
+            var products = new [] {
+                new ProductDrop { Title = "Vacuum", Type = "cleaning" },
+                new ProductDrop { Title = "Spatula", Type = "kitchen" },
+                new ProductDrop { Title = "Television", Type = "lounge" },
+                new ProductDrop { Title = "Garlic press", Type = "kitchen" }
+            };
+            var expectedProducts = products.Where(p => p.Type == "kitchen").ToArray();
+
+            Helper.LockTemplateStaticVars(new RubyNamingConvention(), () =>
+            {
+                CollectionAssert.AreEqual(
+                    expected: expectedProducts,
+                    actual: StandardFilters.Where(products, propertyName: "type", targetValue: "kitchen"));
+            });
+        }
+
+        [Test]
+        public void TestWhere_ExpandoObject()
+        {
+            dynamic product1 = new ExpandoObject();
+            product1.title = "Vacuum";
+            product1.type = "cleaning";
+            dynamic product2 = new ExpandoObject();
+            product2.title = "Spatula";
+            product2.type = "kitchen";
+            dynamic product3 = new ExpandoObject();
+            product3.title = "Television";
+            product3.type = "lounge";
+            dynamic product4 = new ExpandoObject();
+            product4.title = "Garlic press";
+            product4.type = "kitchen";
+            var products = new List<ExpandoObject> { product1, product2, product3, product4 };
+            var expectedProducts = new List<ExpandoObject> { product2, product4 };
+
+            Assert.AreEqual(
+                expected: expectedProducts,
+                actual: StandardFilters.Where(products, propertyName: "type", targetValue: "kitchen"));
         }
 
         // First sample from specification at https://shopify.github.io/liquid/filters/where/

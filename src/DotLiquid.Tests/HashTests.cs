@@ -93,9 +93,14 @@ namespace DotLiquid.Tests
                 TestOverridableProp = TestClassOverridablePropValue
             }, includeBaseClassProperties);
 
+            // Properties attached directly to the type of instance being converted to Hash should always be visible
             Assert.AreEqual(
                 TestClassPropValue,
                 value[nameof(TestChildClass.TestClassProp)]);
+
+            Assert.AreEqual(
+                TestClassOverridablePropValue,
+                value[nameof(TestChildClass.TestOverridableProp)]);
 
             Assert.AreEqual(
                 includeBaseClassProperties ? TestMiddleClassPropValue : null,
@@ -104,10 +109,6 @@ namespace DotLiquid.Tests
             Assert.AreEqual(
                 includeBaseClassProperties ? TestBaseClassPropValue : null,
                 value[nameof(TestChildClass.TestBaseClassProp)]);
-
-            Assert.AreEqual(
-                TestClassOverridablePropValue,
-                value[nameof(TestChildClass.TestOverridableProp)]);
         }
 
         /// <summary>

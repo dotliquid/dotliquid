@@ -478,8 +478,6 @@ PaulGeorge",
                         Hash.FromAnonymousObject(new { foo = Hash.FromAnonymousObject(new { bar = "c" }) })
                     }
                     }));
-            CollectionAssert.AreEqual(new object[] { null, null, null, null },
-                StandardFilters.Map(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 4 } }, "b"));
 
             Assert.AreEqual(null, StandardFilters.Map(null, "a"));
             CollectionAssert.AreEqual(new object[] { null }, StandardFilters.Map(new object[] { null }, "a"));
@@ -506,7 +504,32 @@ PaulGeorge",
             });
 
             Helper.AssertTemplateResult("abc", "{{ ary | map:'prop' | join:'' }}", hash);
-            Helper.AssertTemplateResult("", "{{ ary | map:'no_prop' | join:'' }}", hash);
+        }
+
+        /// <summary>
+        /// Test case for [Issue #520](https://github.com/dotliquid/dotliquid/issues/520)
+        /// </summary>
+        [Test]
+        public void TestMapInvalidProperty()
+        {
+            var nullObjectArray = new object[] { null };
+            // Anonymous Type
+            CollectionAssert.AreEqual(nullObjectArray,
+                StandardFilters.Map(new[] { new { a = 1 } }, "no_prop"));
+
+            // Drop
+            CollectionAssert.AreEqual(nullObjectArray,
+                StandardFilters.Map(new[] { new Helper.DataObjectDrop { Prop = "a" }}, "no_prop"));
+
+            // Dictionary
+            CollectionAssert.AreEqual(nullObjectArray,
+                StandardFilters.Map(Hash.FromDictionary(new Dictionary<string, object>() { { "a", 1 } }), "no_prop"));
+
+            // Expando Array
+            var expandoJson = "[{\"a\": 1}]";
+            var expandoObj = Newtonsoft.Json.JsonConvert.DeserializeObject<ExpandoObject[]>(expandoJson);
+            CollectionAssert.AreEqual(nullObjectArray,
+                StandardFilters.Map(expandoObj, "no_prop"));
         }
 
         /// <summary>

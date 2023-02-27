@@ -8,7 +8,6 @@ using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using System.Reflection;
 using System.Threading;
-using DotLiquid;
 using DotLiquid.Util;
 
 namespace DotLiquid
@@ -433,10 +432,14 @@ namespace DotLiquid
         private static IEnumerable SortInternal(StringComparer stringComparer, object input, string property = null)
         {
             List<object> ary;
-            if (input is IEnumerable enumerable)
-                ary = enumerable.Cast<object>().ToList();
+            if (input is IEnumerable<Hash> enumerableHash && !string.IsNullOrEmpty(property))
+                ary = enumerableHash.Cast<object>().ToList();
+            else if (input is IEnumerable enumerableInput)
+                ary = enumerableInput.Flatten().Cast<object>().ToList();
             else
+            {
                 ary = new List<object>(new[] { input });
+            }
 
             if (!ary.Any())
                 return ary;

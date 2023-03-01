@@ -80,6 +80,16 @@ namespace DotLiquid.Tests
             public string PropDisallowed { get; set; }
         }
 
+        public class DataObjectRegistered
+        {
+            static DataObjectRegistered()
+            {
+                Template.RegisterSafeType(typeof(DataObjectRegistered), new[] { "PropAllowed" });
+            }
+            public string PropAllowed { get; set; }
+            public string PropDisallowed { get; set; }
+        }
+
         public class DataObjectDrop : Drop
         {
             public string Prop { get; set; }

@@ -492,7 +492,7 @@ PaulGeorge",
             });
 
             Helper.AssertTemplateResult("abc", "{{ ary | map:'prop_allowed' | join:'' }}", hash);
-            Helper.AssertTemplateResult("", "{{ ary | map:'prop_disallowed' | join:'' }}", hash);
+            Helper.AssertTemplateResult("", "{{ ary | map:'no_prop' | join:'' }}", hash);
 
             hash = Hash.FromAnonymousObject(new
             {
@@ -504,6 +504,7 @@ PaulGeorge",
             });
 
             Helper.AssertTemplateResult("abc", "{{ ary | map:'prop' | join:'' }}", hash);
+            Helper.AssertTemplateResult("", "{{ ary | map:'no_prop' | join:'' }}", hash);
         }
 
         /// <summary>
@@ -530,6 +531,21 @@ PaulGeorge",
             var expandoObj = Newtonsoft.Json.JsonConvert.DeserializeObject<ExpandoObject[]>(expandoJson);
             CollectionAssert.AreEqual(nullObjectArray,
                 StandardFilters.Map(expandoObj, "no_prop"));
+        }
+
+        /// <summary>
+        /// Test case for [Issue #275](https://github.com/dotliquid/dotliquid/issues/275)
+        /// </summary>
+        [Test]
+        public void TestMapDisallowedProperty() {
+            var hash = Hash.FromAnonymousObject(new
+            {
+                safe = new[] { new Helper.DataObjectRegistered { PropAllowed = "a", PropDisallowed = "x" }},
+                attr = new[] { new Helper.DataObject { PropAllowed = "a", PropDisallowed = "x" } }
+            });
+
+            Helper.AssertTemplateResult("", "{{ safe | map:'prop_disallowed' | join:'' }}", hash);
+            Helper.AssertTemplateResult("", "{{ attr | map:'prop_disallowed' | join:'' }}", hash);
         }
 
         /// <summary>

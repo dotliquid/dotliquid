@@ -10,7 +10,7 @@ namespace DotLiquid.Util
         {
             foreach (var item in array)
             {
-                if (item is string || !(item is IEnumerable))
+                if (item is string || !(item is IEnumerable) || item is IDictionary<string, object>)
                 {
                     yield return item;
                 }

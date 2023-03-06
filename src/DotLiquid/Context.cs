@@ -389,6 +389,18 @@ namespace DotLiquid
                 case "false":
                     return false;
                 case "blank":
+                    return new Symbol(o => {
+                        switch (o)
+                        {
+                            case null:
+                            case bool b when b == false:
+                            case string s when string.IsNullOrWhiteSpace(s):
+                            case IEnumerable e when !e.GetEnumerator().MoveNext():
+                                return true;
+                            default:
+                                return false;
+                        }
+                    });
                 case "empty":
                     return new Symbol(o => (o is IEnumerable enumerableO) && !enumerableO.Cast<object>().Any());
             }

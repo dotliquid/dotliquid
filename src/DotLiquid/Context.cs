@@ -389,13 +389,13 @@ namespace DotLiquid
                 case "false":
                     return false;
                 case "blank":
-                    return new Symbol(o => {
-                        switch (o)
+                    return new Symbol(obj => {
+                        switch (obj)
                         {
                             case null:
-                            case bool b when b == false:
-                            case string s when string.IsNullOrWhiteSpace(s):
-                            case IEnumerable e when !e.GetEnumerator().MoveNext():
+                            case bool boolObj when boolObj == false:
+                            case string stringObj when string.IsNullOrWhiteSpace(stringObj):
+                            case IEnumerable enumerableObj when !enumerableObj.GetEnumerator().MoveNext():
                                 return true;
                             default:
                                 return false;

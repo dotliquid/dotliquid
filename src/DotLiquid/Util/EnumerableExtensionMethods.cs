@@ -37,8 +37,8 @@ namespace DotLiquid.Util
         /// <summary>
         /// Determines whether a sequence contains any elements.
         /// </summary>
-        /// <param name="source">The IEnumerable to check for emptiness.</param>
-        /// <returns>true if the source sequence contains any elements; otherwise, false.</returns>
+        /// <param name="source">The <see cref="IEnumerable"/> to check for emptiness.</param>
+        /// <returns><see langword="true"/> if the source sequence contains any elements; otherwise, <see langword="false"/>.</returns>
         public static bool Any(this IEnumerable source)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));

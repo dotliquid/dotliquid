@@ -1,12 +1,13 @@
-using DotLiquid.Util;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+
+using DotLiquid.Util;
+using NUnit.Framework;
 
 namespace DotLiquid.Tests.Util
 {
     [TestFixture]
-    class EnumerableExtensionMethodsTests
+    public class EnumerableExtensionMethodsTests
     {
         [Test]
         public void TestAnyNullSourceThrows()

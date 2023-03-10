@@ -395,14 +395,14 @@ namespace DotLiquid
                             case null:
                             case bool boolObj when boolObj == false:
                             case string stringObj when string.IsNullOrWhiteSpace(stringObj):
-                            case IEnumerable enumerableObj when !enumerableObj.GetEnumerator().MoveNext():
+                            case IEnumerable enumerableObj when !enumerableObj.Any():
                                 return true;
                             default:
                                 return false;
                         }
                     });
                 case "empty":
-                    return new Symbol(o => (o is IEnumerable enumerableO) && !enumerableO.Cast<object>().Any());
+                    return new Symbol(o => (o is IEnumerable enumerableObj) && !enumerableObj.Any());
             }
 
             var firstChar = key[0];

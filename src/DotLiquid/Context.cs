@@ -635,7 +635,10 @@ namespace DotLiquid
 
             else if ((obj is IList listObj) && (key is int || key is uint || key is long || key is ulong || key is short || key is ushort || key is byte || key is sbyte
                 || (key is decimal dec && Math.Truncate(dec) == dec) || (key is double dbl && Math.Truncate(dbl) == dbl) || (key is float flt && Math.Truncate(flt) == flt)))
-                value = listObj[Convert.ToInt32(key)];
+            {
+                var index = Convert.ToInt32(key);
+                value = listObj[index < 0 ? listObj.Count + index : index];
+            }
 
             else if (TypeUtility.IsAnonymousType(obj.GetType()) && obj.GetType().GetRuntimeProperty((string)key) != null)
                 value = obj.GetType().GetRuntimeProperty((string)key).GetValue(obj, null);

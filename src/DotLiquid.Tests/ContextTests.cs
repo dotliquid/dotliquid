@@ -538,6 +538,9 @@ namespace DotLiquid.Tests
 
             Assert.AreEqual(5, _context["products[\"count\"]"]);
             Assert.AreEqual("deepsnow", _context["products['tags'][0]"]);
+            Assert.AreEqual("freestyle", _context["products['tags'][1]"]);
+            Assert.AreEqual("freestyle", _context["products['tags'][-1]"]);
+            Assert.AreEqual("deepsnow", _context["products['tags'][-2]"]);
             Assert.AreEqual("deepsnow", _context["products['tags'].first"]);
             Assert.AreEqual("freestyle", _context["products['tags'].last"]);
             Assert.AreEqual(2, _context["products['tags'].size"]);

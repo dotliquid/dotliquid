@@ -35,13 +35,28 @@ namespace DotLiquid.Tests.Tags
             Assert.Throws<SyntaxException>(() => tag.Render(context, new StringWriter()));
         }
 
-        [Test]
-        public void TestSyntaxCompatibility()
+        [TestCase("param Syntax='DotLiquid21'")]
+        [TestCase(" param Syntax= 'DotLiquid21'")]
+        [TestCase("param Syntax= 'DotLiquid21'")]
+        [TestCase("param Syntax= 'DotLiquid21' ")]
+        [TestCase("param Syntax = 'DotLiquid21' ")]
+        public void TestSyntaxCompatibility(string markup)
         {
             // Initialize as DotLiquid20, then assert that the DotLiquid21 rules for Capitalize are followed.
             Helper.AssertTemplateResult(
                 expected: "My great title",
-                template: "{% param Syntax= 'DotLiquid21'%}{{ 'my great title' | capitalize }}",
+                template: "{%" + markup + "%}{{ 'my great title' | capitalize }}",
+                syntax: SyntaxCompatibility.DotLiquid20);
+        }
+
+        [TestCase("param Syntax=LiquidVersion")]
+        [TestCase("param Syntax = LiquidVersion ")]
+        public void TestSyntaxCompatibilityDynamic(string markup)
+        {
+            // Initialize as DotLiquid20, then assert that the DotLiquid21 rules for Capitalize are followed.
+            Helper.AssertTemplateResult(
+                expected: "My great title",
+                template: "{% assign LiquidVersion = 'DotLiquid21'%}{%" + markup + "%}{{ 'my great title' | capitalize }}",
                 syntax: SyntaxCompatibility.DotLiquid20);
         }
 

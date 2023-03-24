@@ -51,7 +51,7 @@ namespace DotLiquid.Tags
 
             // Save the Param and the Value (which could be a variable or literal).
             this.param = Params[paramName];
-            this.paramValue = new Variable(syntaxMatch.Groups[2].Value).Name;
+            this.paramValue = syntaxMatch.Groups[2].Value.TrimEnd();
 
             base.Initialize(tagName: tagName, markup: markup, tokens: tokens);
         }

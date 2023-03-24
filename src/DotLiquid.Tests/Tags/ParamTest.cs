@@ -26,6 +26,7 @@ namespace DotLiquid.Tests.Tags
         [TestCase("using='DotLiquid.ShopifyFilters'")] // Fully qualified class names are invalid (even if they match a safelisted Type)
         [TestCase("using='DotLiquid.Template'")] // Fully qualified class names are invalid
         [TestCase("using='Template'")] // Ensure classes in the DotLiquid namespace are not available by accident.
+        [TestCase("Syntax = 'DotLiquid21' | replace: '21', '10'")] // Filters is not valid in this tag
         public void TestInvalidOptions(string markup)
         {
             var tag = new Param();

@@ -1806,7 +1806,7 @@ PaulGeorge",
             CollectionAssert.AreEqual(expected: products,
                 actual: StandardFilters.Where(products, propertyName: "type"));
 
-            // Test filtering for non-existant property
+            // Test filtering for non-existent property
             var emptyArray = Array.Empty<object>();
             CollectionAssert.AreEqual(expected: emptyArray,
                 actual: StandardFilters.Where(products, propertyName: "non_existent_property"));

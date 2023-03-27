@@ -498,7 +498,7 @@ namespace DotLiquid
         /// </summary>
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
-        /// <param name="string">Subtring to be replaced</param>
+        /// <param name="string">Substring to be replaced</param>
         /// <param name="replacement">Replacement string to be inserted</param>
         public static string Replace(Context context, string input, string @string, string replacement = "")
         {
@@ -516,7 +516,7 @@ namespace DotLiquid
         /// </summary>
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
-        /// <param name="string">Subtring to be replaced</param>
+        /// <param name="string">Substring to be replaced</param>
         /// <param name="replacement">Replacement string to be inserted</param>
         public static string ReplaceFirst(Context context, string input, string @string, string replacement = "")
         {
@@ -606,7 +606,7 @@ namespace DotLiquid
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="format">Date format to be applied</param>
-        /// <see cref="Liquid.UseRubyDateFormat">See UseRubyFormat fo guidance on .NET vs. Ruby format support</see>
+        /// <see cref="Liquid.UseRubyDateFormat">See UseRubyFormat for guidance on .NET vs. Ruby format support</see>
         public static string Date(Context context, object input, string format)
         {
             if (input == null)

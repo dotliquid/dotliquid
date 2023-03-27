@@ -3,7 +3,7 @@
     /// <summary>
     /// Interface for tag factory.
     /// </summary>
-    /// <remarks>Can be usefull when the tag needs a parameter and can't be created with parameterless constructor.</remarks>
+    /// <remarks>Can be useful when the tag needs a parameter and can't be created with parameterless constructor.</remarks>
     public interface ITagFactory
     {
         /// <summary>

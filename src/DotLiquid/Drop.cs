@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -16,18 +16,18 @@ namespace DotLiquid
 
         public Dictionary<string, PropertyInfo> CachedProperties { get; private set; }
 
-        public TypeResolution(Type type, Func<MemberInfo, bool> filterMemberCallback)
+        public TypeResolution(Type type, Func<MemberInfo, bool> filterMemberCallback, INamingConvention namingConvention)
         {
             // Cache all methods and properties of this object, but don't include those
             // defined at or above the base Drop class.
-            CachedMethods = GetMemberDictionary(GetMethodsWithoutDuplicateNames(type, mi => mi.GetParameters().Length == 0 && filterMemberCallback(mi)));
+            CachedMethods = GetMemberDictionary(GetMethodsWithoutDuplicateNames(type, mi => mi.GetParameters().Length == 0 && filterMemberCallback(mi)), namingConvention);
 
-            CachedProperties = GetMemberDictionary(GetPropertiesWithoutDuplicateNames(type, mi => filterMemberCallback(mi)));
+            CachedProperties = GetMemberDictionary(GetPropertiesWithoutDuplicateNames(type, mi => filterMemberCallback(mi)), namingConvention);
         }
 
-        private Dictionary<string, T> GetMemberDictionary<T>(IEnumerable<T> members) where T : MemberInfo
+        private Dictionary<string, T> GetMemberDictionary<T>(IEnumerable<T> members, INamingConvention namingConvention) where T : MemberInfo
         {
-            return members.ToDictionary(mi => Template.NamingConvention.GetMemberName(mi.Name), Template.NamingConvention.StringComparer);
+            return members.ToDictionary(mi => namingConvention.GetMemberName(mi.Name), namingConvention.StringComparer);
         }
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace DotLiquid
                 Type dropType = GetObject().GetType();
                 if (!TypeResolutionCache.Instance.TryGetValue(dropType, out TypeResolution resolution))
                 { 
-                    TypeResolutionCache.Instance[dropType] = resolution = CreateTypeResolution(dropType);
+                    TypeResolutionCache.Instance[dropType] = resolution = CreateTypeResolution(dropType, Context?.NamingConvention ?? new RubyNamingConvention());
                 }
                 return resolution;
             }
@@ -172,7 +172,7 @@ namespace DotLiquid
 
         internal abstract object GetObject();
 
-        internal abstract TypeResolution CreateTypeResolution(Type type);
+        internal abstract TypeResolution CreateTypeResolution(Type type, INamingConvention namingConvention);
 
         /// <summary>
         /// Catch all for the method
@@ -185,9 +185,9 @@ namespace DotLiquid
             // without realising that the default naming convention is Ruby-style.
             // To try to help with this, we check if the given name *would* match,
             // if we were using Ruby-style names.
-            if (Template.NamingConvention is RubyNamingConvention)
+            if (Context?.NamingConvention is RubyNamingConvention)
             {
-                string rubyMethod = Template.NamingConvention.GetMemberName(method);
+                string rubyMethod = Context.NamingConvention.GetMemberName(method);
 
                 if (TypeResolution.CachedMethods.TryGetValue(rubyMethod, out MethodInfo mi) || TypeResolution.CachedProperties.TryGetValue(rubyMethod, out PropertyInfo pi))
                 {
@@ -217,7 +217,7 @@ namespace DotLiquid
     {
         internal override object GetObject() { return this; }
 
-        internal override TypeResolution CreateTypeResolution(Type type) { return new TypeResolution(type, mi => mi.DeclaringType.GetTypeInfo().BaseType != null && typeof(Drop).GetTypeInfo().IsAssignableFrom(mi.DeclaringType.GetTypeInfo().BaseType.GetTypeInfo())); }
+        internal override TypeResolution CreateTypeResolution(Type type, INamingConvention namingConvention) { return new TypeResolution(type, mi => mi.DeclaringType.GetTypeInfo().BaseType != null && typeof(Drop).GetTypeInfo().IsAssignableFrom(mi.DeclaringType.GetTypeInfo().BaseType.GetTypeInfo()), namingConvention); }
     }
 
     /// <summary>
@@ -269,6 +269,6 @@ namespace DotLiquid
 
         internal override object GetObject() { return _proxiedObject; }
 
-        internal override TypeResolution CreateTypeResolution(Type type) { return new TypeResolution(type, mi => _allowAllMembers || _allowedMembers.Contains(mi.Name)); }
+        internal override TypeResolution CreateTypeResolution(Type type, INamingConvention namingConvention) { return new TypeResolution(type, mi => _allowAllMembers || _allowedMembers.Contains(mi.Name), namingConvention); }
     }
 }

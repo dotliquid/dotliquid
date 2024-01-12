@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
+using DotLiquid.NamingConventions;
 using DotLiquid.Util;
 
 namespace DotLiquid
@@ -26,11 +27,12 @@ namespace DotLiquid
         /// <param name="tagName">Name of the parsed tag</param>
         /// <param name="markup">Markup of the parsed tag</param>
         /// <param name="tokens">Tokens of the parsed tag</param>
-        public override void Initialize(string tagName, string markup, List<string> tokens)
+        /// <param name="namingConvention">Naming convention used for template parsing</param>
+        public override void Initialize(string tagName, string markup, List<string> tokens, INamingConvention namingConvention)
         {
             if (!markup.IsNullOrWhiteSpace())
                 throw new SyntaxException(string.Format(Liquid.ResourceManager.GetString("SimpleTagSyntaxException"), tagName));
-            base.Initialize(tagName, markup, tokens);
+            base.Initialize(tagName, markup, tokens, namingConvention);
         }
 
 
@@ -38,7 +40,8 @@ namespace DotLiquid
         /// Parses the tag
         /// </summary>
         /// <param name="tokens"></param>
-        protected override void Parse(List<string> tokens)
+        /// <param name="namingConvention">Naming convention used for template parsing</param>
+        protected override void Parse(List<string> tokens, INamingConvention namingConvention)
         {
             NodeList = NodeList ?? new List<object>();
             NodeList.Clear();

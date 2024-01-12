@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
+using DotLiquid.NamingConventions;
 using DotLiquid.Util;
 
 namespace DotLiquid.Tags
@@ -20,8 +21,9 @@ namespace DotLiquid.Tags
         /// <param name="tagName">The tag name (should be <pre>increment</pre>)</param>
         /// <param name="markup">Markup of the parsed tag</param>
         /// <param name="tokens">Tokens of the parsed tag</param>
+        /// <param name="namingConvention">Naming convention used for template parsing</param>
         /// <exception cref="SyntaxException">If the increment tag is malformed</exception>
-        public override void Initialize(string tagName, string markup, List<string> tokens)
+        public override void Initialize(string tagName, string markup, List<string> tokens, INamingConvention namingConvention)
         {
             Match syntaxMatch = Liquid.VariableSegmentRegex.Match(markup);
             if (syntaxMatch.Success)
@@ -33,7 +35,7 @@ namespace DotLiquid.Tags
                 throw new SyntaxException(Liquid.ResourceManager.GetString("IncrementSyntaxException"));
             }
 
-            base.Initialize(tagName, markup, tokens);
+            base.Initialize(tagName, markup, tokens, namingConvention);
         }
 
         /// <summary>

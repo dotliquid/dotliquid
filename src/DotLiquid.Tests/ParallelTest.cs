@@ -1,16 +1,20 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotLiquid.NamingConventions;
 
 namespace DotLiquid.Tests {
     [TestFixture]
-    public class ParallelTest {
+    public class ParallelTest
+    {
+        private INamingConvention NamingConvention { get; } = new RubyNamingConvention();
+
         [Test]
         public void TestCachedTemplateRender() {
-            Template template = Template.Parse(@"{% assign foo = 'from instance assigns' %}{{foo}}");
+            Template template = Template.Parse(@"{% assign foo = 'from instance assigns' %}{{foo}}", NamingConvention);
             template.MakeThreadSafe();
 
             var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 30 };

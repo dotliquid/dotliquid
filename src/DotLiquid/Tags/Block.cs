@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
+using DotLiquid.NamingConventions;
 using DotLiquid.Util;
 
 namespace DotLiquid.Tags
@@ -67,7 +68,7 @@ namespace DotLiquid.Tags
 
         internal string BlockName { get; set; }
 
-        public override void Initialize(string tagName, string markup, List<string> tokens)
+        public override void Initialize(string tagName, string markup, List<string> tokens, INamingConvention namingConvention)
         {
             Match syntaxMatch = Syntax.Match(markup);
             if (syntaxMatch.Success)
@@ -77,7 +78,7 @@ namespace DotLiquid.Tags
 
             if (tokens != null)
             {
-                base.Initialize(tagName, markup, tokens);
+                base.Initialize(tagName, markup, tokens, namingConvention);
             }
         }
 
@@ -119,16 +120,16 @@ namespace DotLiquid.Tags
             return blockState == null ? NodeList : blockState.GetNodeList(this);
         }
 
-        public void AddParent(Dictionary<Block, Block> parents, List<object> nodeList)
+        public void AddParent(Dictionary<Block, Block> parents, List<object> nodeList, INamingConvention namingConvention)
         {
             if (parents.TryGetValue(this, out Block parent))
             {
-                parent.AddParent(parents, nodeList);
+                parent.AddParent(parents, nodeList, namingConvention);
             }
             else
             {
                 parent = new Block();
-                parent.Initialize(TagName, BlockName, null);
+                parent.Initialize(TagName, BlockName, null, namingConvention);
                 parent.NodeList = new List<object>(nodeList);
                 parents[this] = parent;
             }

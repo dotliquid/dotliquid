@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Globalization;
 using DotLiquid.Exceptions;
+using DotLiquid.NamingConventions;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -8,6 +9,8 @@ namespace DotLiquid.Tests
     [TestFixture]
     public class FilterTests
     {
+        private INamingConvention NamingConvention { get; } = new RubyNamingConvention();
+
         #region Classes used in tests
 
         private static class MoneyFilter
@@ -147,7 +150,7 @@ namespace DotLiquid.Tests
         [OneTimeSetUp]
         public void SetUp()
         {
-            _context = new Context(CultureInfo.InvariantCulture);
+            _context = new Context(CultureInfo.InvariantCulture, NamingConvention);
         }
 
         /*[Test]
@@ -242,8 +245,8 @@ namespace DotLiquid.Tests
         {
             Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignatures));
 
-            Assert.AreEqual("AB", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
-            Assert.AreEqual("ABC", Template.Parse("{{'A' | concatenate : 'B', 'C'}}").Render());
+            Assert.AreEqual("AB", Template.Parse("{{'A' | concatenate : 'B'}}", NamingConvention).Render());
+            Assert.AreEqual("ABC", Template.Parse("{{'A' | concatenate : 'B', 'C'}}", NamingConvention).Render());
         }
 
         [Test]
@@ -260,8 +263,8 @@ namespace DotLiquid.Tests
         {
             Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignaturesAndContextParam));
 
-            Assert.AreEqual("AB", Template.Parse("{{'A' | concat_with_context : 'B'}}").Render());
-            Assert.AreEqual("ABC", Template.Parse("{{'A' | concat_with_context : 'B', 'C'}}").Render());
+            Assert.AreEqual("AB", Template.Parse("{{'A' | concat_with_context : 'B'}}", NamingConvention).Render());
+            Assert.AreEqual("ABC", Template.Parse("{{'A' | concat_with_context : 'B', 'C'}}", NamingConvention).Render());
         }
 
         [Test]
@@ -279,8 +282,8 @@ namespace DotLiquid.Tests
             Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesOne));
             Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesTwo));
 
-            Assert.AreEqual("AB", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
-            Assert.AreEqual("ABC", Template.Parse("{{'A' | concatenate : 'B', 'C'}}").Render());
+            Assert.AreEqual("AB", Template.Parse("{{'A' | concatenate : 'B'}}", NamingConvention).Render());
+            Assert.AreEqual("ABC", Template.Parse("{{'A' | concatenate : 'B', 'C'}}", NamingConvention).Render());
         }
 
         [Test]
@@ -308,8 +311,8 @@ namespace DotLiquid.Tests
         {
             Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamTwo));
             Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamOne));
-            Assert.AreEqual("AB", Template.Parse("{{'A' | concat_with_context : 'B'}}").Render());
-            Assert.AreEqual("ABC", Template.Parse("{{'A' | concat_with_context : 'B', 'C'}}").Render());
+            Assert.AreEqual("AB", Template.Parse("{{'A' | concat_with_context : 'B'}}", NamingConvention).Render());
+            Assert.AreEqual("ABC", Template.Parse("{{'A' | concat_with_context : 'B', 'C'}}", NamingConvention).Render());
         }
 
         [Test]
@@ -342,8 +345,8 @@ namespace DotLiquid.Tests
             Template.RegisterFilter(typeof(FilterWithSameMethodSignatureDifferentClassTwo));
             Template.RegisterFilter(typeof(FilterWithSameMethodSignatureDifferentClassOne));
 
-            Assert.AreEqual("ABClass One", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
-            Assert.AreNotEqual("ABClass Two", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
+            Assert.AreEqual("ABClass One", Template.Parse("{{'A' | concatenate : 'B'}}", NamingConvention).Render());
+            Assert.AreNotEqual("ABClass Two", Template.Parse("{{'A' | concatenate : 'B'}}", NamingConvention).Render());
         }
 
         [Test]
@@ -453,9 +456,9 @@ namespace DotLiquid.Tests
         {
             Template.RegisterFilter(typeof(MoneyFilter));
 
-            Assert.AreEqual(" 1000$ ", Template.Parse("{{1000 | money}}").Render());
-            Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}").Render(new RenderParameters(CultureInfo.InvariantCulture) { Filters = new[] { typeof(CanadianMoneyFilter) } }));
-            Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}").Render(new RenderParameters(CultureInfo.InvariantCulture) { Filters = new[] { typeof(CanadianMoneyFilter) } }));
+            Assert.AreEqual(" 1000$ ", Template.Parse("{{1000 | money}}", NamingConvention).Render());
+            Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}", NamingConvention).Render(new RenderParameters(CultureInfo.InvariantCulture) { Filters = new[] { typeof(CanadianMoneyFilter) } }));
+            Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}", NamingConvention).Render(new RenderParameters(CultureInfo.InvariantCulture) { Filters = new[] { typeof(CanadianMoneyFilter) } }));
         }
 
         [Test]

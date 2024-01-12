@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
+using DotLiquid.NamingConventions;
 using DotLiquid.Util;
 
 namespace DotLiquid.Tags.Html
@@ -32,20 +33,21 @@ namespace DotLiquid.Tags.Html
         /// <param name="tagName">Name of the parsed tag</param>
         /// <param name="markup">Markup of the parsed tag</param>
         /// <param name="tokens">Toeksn of the parsed tag</param>
-        public override void Initialize(string tagName, string markup, List<string> tokens)
+        /// <param name="namingConvention">Naming convention used for template parsing</param>
+        public override void Initialize(string tagName, string markup, List<string> tokens, INamingConvention namingConvention)
         {
             Match syntaxMatch = Syntax.Match(markup);
             if (syntaxMatch.Success)
             {
                 _variableName = syntaxMatch.Groups[1].Value;
                 _collectionName = syntaxMatch.Groups[2].Value;
-                _attributes = new Dictionary<string, string>(Template.NamingConvention.StringComparer);
+                _attributes = new Dictionary<string, string>(namingConvention.StringComparer);
                 R.Scan(markup, Liquid.TagAttributes, (key, value) => _attributes[key] = value);
             }
             else
                 throw new SyntaxException(Liquid.ResourceManager.GetString("TableRowTagSyntaxException"));
 
-            base.Initialize(tagName, markup, tokens);
+            base.Initialize(tagName, markup, tokens, namingConvention);
         }
 
         /// <summary>
@@ -98,7 +100,7 @@ namespace DotLiquid.Tags.Html
                     last = (index == length - 1),
                     col_first = (column == 0),
                     col_last = (column == columns - 1)
-                });
+                }, context.NamingConvention);
 
                 ++column;
 

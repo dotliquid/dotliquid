@@ -1,5 +1,6 @@
 using System.Collections;
 using DotLiquid.Exceptions;
+using DotLiquid.NamingConventions;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests.Tags
@@ -7,6 +8,8 @@ namespace DotLiquid.Tests.Tags
     [TestFixture]
     public class IfElseTests
     {
+        private INamingConvention NamingConvention { get; } = new RubyNamingConvention();
+
         [Test]
         public void TestIf()
         {
@@ -78,7 +81,7 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestHashMissGeneratesFalse()
         {
-            Helper.AssertTemplateResult("", "{% if foo.bar %} NO {% endif %}", Hash.FromAnonymousObject(new { foo = new Hash() }));
+            Helper.AssertTemplateResult("", "{% if foo.bar %} NO {% endif %}", Hash.FromAnonymousObject(new { foo = new Hash(NamingConvention) }));
         }
 
         [Test]
@@ -90,24 +93,24 @@ namespace DotLiquid.Tests.Tags
             Helper.AssertTemplateResult("", "{% if var %} NO {% endif %}", Hash.FromAnonymousObject(new { var = nullValue }));
             Helper.AssertTemplateResult("", "{% if foo.bar %} NO {% endif %}",
                 Hash.FromAnonymousObject(new { foo = Hash.FromAnonymousObject(new { bar = false }) }));
-            Helper.AssertTemplateResult("", "{% if foo.bar %} NO {% endif %}", Hash.FromAnonymousObject(new { foo = new Hash() }));
+            Helper.AssertTemplateResult("", "{% if foo.bar %} NO {% endif %}", Hash.FromAnonymousObject(new { foo = new Hash(NamingConvention) }));
             Helper.AssertTemplateResult("", "{% if foo.bar %} NO {% endif %}", Hash.FromAnonymousObject(new { foo = nullValue }));
             Helper.AssertTemplateResult("", "{% if foo.bar %} NO {% endif %}", Hash.FromAnonymousObject(new { foo = true }));
 
             Helper.AssertTemplateResult(" YES ", "{% if var %} YES {% endif %}", Hash.FromAnonymousObject(new { var = "text" }));
             Helper.AssertTemplateResult(" YES ", "{% if var %} YES {% endif %}", Hash.FromAnonymousObject(new { var = true }));
             Helper.AssertTemplateResult(" YES ", "{% if var %} YES {% endif %}", Hash.FromAnonymousObject(new { var = 1 }));
-            Helper.AssertTemplateResult(" YES ", "{% if var %} YES {% endif %}", Hash.FromAnonymousObject(new { var = new Hash() }));
+            Helper.AssertTemplateResult(" YES ", "{% if var %} YES {% endif %}", Hash.FromAnonymousObject(new { var = new Hash(NamingConvention) }));
             Helper.AssertTemplateResult(" YES ", "{% if var %} YES {% endif %}", Hash.FromAnonymousObject(new { var = new object[] { } }));
             Helper.AssertTemplateResult(" YES ", "{% if 'foo' %} YES {% endif %}");
             Helper.AssertTemplateResult(" YES ", "{% if foo.bar %} YES {% endif %}",
                 Hash.FromAnonymousObject(new { foo = Hash.FromAnonymousObject(new { bar = true }) }));
-            Helper.AssertTemplateResult(" YES ", "{% if foo.bar %} YES {% endif %}",
+            Helper.AssertTemplateResult(" YES ", "{% if foo.bar %} YES {% endif %}",    
                 Hash.FromAnonymousObject(new { foo = Hash.FromAnonymousObject(new { bar = "text" }) }));
             Helper.AssertTemplateResult(" YES ", "{% if foo.bar %} YES {% endif %}",
                 Hash.FromAnonymousObject(new { foo = Hash.FromAnonymousObject(new { bar = 1 }) }));
             Helper.AssertTemplateResult(" YES ", "{% if foo.bar %} YES {% endif %}",
-                Hash.FromAnonymousObject(new { foo = Hash.FromAnonymousObject(new { bar = new Hash() }) }));
+                Hash.FromAnonymousObject(new { foo = Hash.FromAnonymousObject(new { bar = new Hash(NamingConvention) }) }));
             Helper.AssertTemplateResult(" YES ", "{% if foo.bar %} YES {% endif %}",
                 Hash.FromAnonymousObject(new { foo = Hash.FromAnonymousObject(new { bar = new object[] { } }) }));
 
@@ -125,7 +128,7 @@ namespace DotLiquid.Tests.Tags
             Helper.AssertTemplateResult(" YES ", "{% if foo.bar %} NO {% else %} YES {% endif %}",
                 Hash.FromAnonymousObject(new { foo = Hash.FromAnonymousObject(new { notbar = true }) }));
             Helper.AssertTemplateResult(" YES ", "{% if foo.bar %} NO {% else %} YES {% endif %}",
-                Hash.FromAnonymousObject(new { foo = new Hash() }));
+                Hash.FromAnonymousObject(new { foo = new Hash(NamingConvention) }));
             Helper.AssertTemplateResult(" YES ", "{% if foo.bar %} NO {% else %} YES {% endif %}",
                 Hash.FromAnonymousObject(new { notfoo = Hash.FromAnonymousObject(new { bar = true }) }));
         }

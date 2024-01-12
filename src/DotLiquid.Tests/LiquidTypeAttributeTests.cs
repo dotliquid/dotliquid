@@ -1,3 +1,4 @@
+using DotLiquid.NamingConventions;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -5,6 +6,8 @@ namespace DotLiquid.Tests
     [TestFixture]
     internal class LiquidTypeAttributeTests
     {
+        private INamingConvention NamingConvention { get; } = new RubyNamingConvention();
+
         [LiquidType]
         public class MyLiquidTypeWithNoAllowedMembers
         {
@@ -54,7 +57,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestLiquidTypeAttributeWithNoAllowedMembers()
         {
-            Template template = Template.Parse("{{context.Name}}");
+            Template template = Template.Parse("{{context.Name}}", NamingConvention);
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MyLiquidTypeWithNoAllowedMembers() { Name = "worked" } }));
             Assert.AreEqual("", output);
         }
@@ -62,7 +65,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestLiquidTypeAttributeWithAllowedMember()
         {
-            Template template = Template.Parse("{{context.Name}}");
+            Template template = Template.Parse("{{context.Name}}", NamingConvention);
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MyLiquidTypeWithAllowedMember() { Name = "worked" } }));
             Assert.AreEqual("worked", output);
         }
@@ -70,7 +73,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestLiquidTypeAttributeWithGlobalMemberAllowance()
         {
-            Template template = Template.Parse("{{context.Name}}");
+            Template template = Template.Parse("{{context.Name}}", NamingConvention);
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MyLiquidTypeWithGlobalMemberAllowance() { Name = "worked" } }));
             Assert.AreEqual("worked", output);
         }
@@ -78,7 +81,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestLiquidTypeAttributeWithGlobalMemberAllowanceDoesNotExposeHiddenChildMembers()
         {
-            Template template = Template.Parse("|{{context.Name}}|{{context.Child.Name}}|");
+            Template template = Template.Parse("|{{context.Name}}|{{context.Child.Name}}|", NamingConvention);
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MyLiquidTypeWithGlobalMemberAllowanceAndHiddenChild() { Name = "worked_parent", Child = new MyLiquidTypeWithNoAllowedMembers() { Name = "worked_child" } } }));
             Assert.AreEqual("|worked_parent||", output);
         }
@@ -86,7 +89,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestLiquidTypeAttributeWithGlobalMemberAllowanceDoesExposeValidChildMembers()
         {
-            Template template = Template.Parse("|{{context.Name}}|{{context.Child.Name}}|");
+            Template template = Template.Parse("|{{context.Name}}|{{context.Child.Name}}|", NamingConvention);
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MyLiquidTypeWithGlobalMemberAllowanceAndExposedChild() { Name = "worked_parent", Child = new MyLiquidTypeWithAllowedMember() { Name = "worked_child" } } }));
             Assert.AreEqual("|worked_parent|worked_child|", output);
         }
@@ -95,7 +98,7 @@ namespace DotLiquid.Tests
         public void TestLiquidTypeWithReservedKeyword()
         {
             var reservedType = new MyLiquidTypeWithReservedKeyword() { Type = "worked" };
-            var namingConvention = new NamingConventions.RubyNamingConvention();
+            var namingConvention = new RubyNamingConvention();
 
             Helper.AssertTemplateResult(
               expected: "worked",
@@ -114,7 +117,7 @@ namespace DotLiquid.Tests
         public void TestLiquidTypeWithConflictingGetter()
         {
             var reservedType = new MyLiquidTypeWithConflictingGetter() { Name = "worked" };
-            var namingConvention = new NamingConventions.RubyNamingConvention();
+            var namingConvention = new RubyNamingConvention();
 
             Helper.AssertTemplateResult(
               expected: "worked",
@@ -136,7 +139,7 @@ namespace DotLiquid.Tests
                 expected: "DotLiquid.Tests.LiquidTypeAttributeTests+MyLiquidTypeWithGlobalMemberAllowance",
                 template: "{{ value.to_string }}",
                 anonymousObject: new { value = new MyLiquidTypeWithGlobalMemberAllowance() },
-                namingConvention: new NamingConventions.RubyNamingConvention());
+                namingConvention: new RubyNamingConvention());
         }
     }
 }

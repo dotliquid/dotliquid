@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using DotLiquid.Exceptions;
+using DotLiquid.NamingConventions;
 
 namespace DotLiquid
 {
@@ -15,9 +16,10 @@ namespace DotLiquid
         /// <param name="tagName"></param>
         /// <param name="markup"></param>
         /// <param name="tokens"></param>
-        public override void Initialize(string tagName, string markup, List<string> tokens)
+        /// <param name="namingConvention">Naming convention used for template parsing</param>
+        public override void Initialize(string tagName, string markup, List<string> tokens, INamingConvention namingConvention)
         {
-            Parse(tokens);
+            Parse(tokens, namingConvention);
         }
 
         /// <summary>

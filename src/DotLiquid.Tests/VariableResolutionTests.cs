@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using DotLiquid.NamingConventions;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -7,10 +8,11 @@ namespace DotLiquid.Tests
     [TestFixture]
     public class VariableResolutionTests
     {
+        private INamingConvention NamingConvention { get; } = new RubyNamingConvention();
         [Test]
         public void TestSimpleVariable()
         {
-            Template template = Template.Parse("{{test}}");
+            Template template = Template.Parse("{{test}}", NamingConvention);
             Assert.AreEqual("worked", template.Render(Hash.FromAnonymousObject(new { test = "worked" })));
             Assert.AreEqual("worked wonderfully", template.Render(Hash.FromAnonymousObject(new { test = "worked wonderfully" })));
         }
@@ -18,7 +20,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestSimpleWithWhitespaces()
         {
-            Template template = Template.Parse("  {{ test }}  ");
+            Template template = Template.Parse("  {{ test }}  ", NamingConvention);
             Assert.AreEqual("  worked  ", template.Render(Hash.FromAnonymousObject(new { test = "worked" })));
             Assert.AreEqual("  worked wonderfully  ", template.Render(Hash.FromAnonymousObject(new { test = "worked wonderfully" })));
         }
@@ -26,21 +28,21 @@ namespace DotLiquid.Tests
         [Test]
         public void TestIgnoreUnknown()
         {
-            Template template = Template.Parse("{{ test }}");
+            Template template = Template.Parse("{{ test }}", NamingConvention);
             Assert.AreEqual("", template.Render());
         }
 
         [Test]
         public void TestHashScoping()
         {
-            Template template = Template.Parse("{{ test.test }}");
+            Template template = Template.Parse("{{ test.test }}", NamingConvention);
             Assert.AreEqual("worked", template.Render(Hash.FromAnonymousObject(new { test = new { test = "worked" } })));
         }
 
         [Test]
         public void TestPresetAssigns()
         {
-            Template template = Template.Parse("{{ test }}");
+            Template template = Template.Parse("{{ test }}", NamingConvention);
             template.Assigns["test"] = "worked";
             Assert.AreEqual("worked", template.Render());
         }
@@ -48,7 +50,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestReuseParsedTemplate()
         {
-            Template template = Template.Parse("{{ greeting }} {{ name }}");
+            Template template = Template.Parse("{{ greeting }} {{ name }}", NamingConvention);
             template.Assigns["greeting"] = "Goodbye";
             Assert.AreEqual("Hello Tobi", template.Render(Hash.FromAnonymousObject(new { greeting = "Hello", name = "Tobi" })));
             Assert.AreEqual("Hello ", template.Render(Hash.FromAnonymousObject(new { greeting = "Hello", unknown = "Tobi" })));
@@ -60,7 +62,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestAssignsNotPollutedFromTemplate()
         {
-            Template template = Template.Parse("{{ test }}{% assign test = 'bar' %}{{ test }}");
+            Template template = Template.Parse("{{ test }}{% assign test = 'bar' %}{{ test }}", NamingConvention);
             template.Assigns["test"] = "baz";
             Assert.AreEqual("bazbar", template.Render());
             Assert.AreEqual("bazbar", template.Render());
@@ -71,8 +73,8 @@ namespace DotLiquid.Tests
         [Test]
         public void TestHashWithDefaultProc()
         {
-            Template template = Template.Parse("Hello {{ test }}");
-            Hash assigns = new Hash((h, k) => { throw new Exception("Unknown variable '" + k + "'"); });
+            Template template = Template.Parse("Hello {{ test }}", NamingConvention);
+            Hash assigns = new Hash((h, k) => { throw new Exception("Unknown variable '" + k + "'"); }, NamingConvention);
             assigns["test"] = "Tobi";
             Assert.AreEqual("Hello Tobi", template.Render(new RenderParameters(CultureInfo.InvariantCulture)
             {

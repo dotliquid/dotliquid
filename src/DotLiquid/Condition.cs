@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using DotLiquid.NamingConventions;
 using DotLiquid.Util;
 
 namespace DotLiquid
@@ -76,7 +77,7 @@ namespace DotLiquid
 
         public virtual bool Evaluate(Context context, IFormatProvider formatProvider)
         {
-            context = context ?? new Context(formatProvider);
+            //context = context ?? new Context(formatProvider, new RubyNamingConvention());
             bool result = InterpretCondition(Left, Right, Operator, context);
 
             switch (_childRelation)
@@ -144,7 +145,7 @@ namespace DotLiquid
 
             var opKey = Operators.Keys.FirstOrDefault(opk => opk.Equals(op)
                                                                 || opk.ToLowerInvariant().Equals(op)
-                                                                || Template.NamingConvention.OperatorEquals(opk, op)
+                                                                || context.NamingConvention.OperatorEquals(opk, op)
                                                      );
             if (opKey == null)
             { 

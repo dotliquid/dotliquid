@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DotLiquid.NamingConventions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DotLiquid.Website.Controllers
@@ -36,7 +37,7 @@ namespace DotLiquid.Website.Controllers
 
         private static string LiquifyInternal(string templateCode)
         {
-            Template template = Template.Parse(templateCode);
+            Template template = Template.Parse(templateCode, new RubyNamingConvention());
             return template.Render(Hash.FromAnonymousObject(new
             {
                 user = new User

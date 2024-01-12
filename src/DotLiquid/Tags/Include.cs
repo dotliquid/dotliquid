@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
 using DotLiquid.FileSystems;
+using DotLiquid.NamingConventions;
 using DotLiquid.Util;
 
 namespace DotLiquid.Tags
@@ -16,7 +17,7 @@ namespace DotLiquid.Tags
         private string _templateName, _variableName;
         private Dictionary<string, string> _attributes;
 
-        public override void Initialize(string tagName, string markup, List<string> tokens)
+        public override void Initialize(string tagName, string markup, List<string> tokens, INamingConvention namingConvention)
         {
             Match syntaxMatch = Syntax.Match(markup);
             if (syntaxMatch.Success)
@@ -25,16 +26,16 @@ namespace DotLiquid.Tags
                 _variableName = syntaxMatch.Groups[3].Value;
                 if (_variableName == string.Empty)
                     _variableName = null;
-                _attributes = new Dictionary<string, string>(Template.NamingConvention.StringComparer);
+                _attributes = new Dictionary<string, string>(namingConvention.StringComparer);
                 R.Scan(markup, Liquid.TagAttributes, (key, value) => _attributes[key] = value);
             }
             else
                 throw new SyntaxException(Liquid.ResourceManager.GetString("IncludeTagSyntaxException"));
 
-            base.Initialize(tagName, markup, tokens);
+            base.Initialize(tagName, markup, tokens, namingConvention);
         }
 
-        protected override void Parse(List<string> tokens)
+        protected override void Parse(List<string> tokens, INamingConvention namingConvention)
         {
         }
 
@@ -50,7 +51,7 @@ namespace DotLiquid.Tags
             if (partial == null)
             {
                 string source = fileSystem.ReadTemplateFile(context, _templateName);
-                partial = Template.Parse(source);
+                partial = Template.Parse(source, context.NamingConvention);
             }
 
             string shortenedTemplateName = _templateName.Substring(1, _templateName.Length - 2);

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
 using DotLiquid.FileSystems;
+using DotLiquid.NamingConventions;
 using DotLiquid.Util;
 
 namespace DotLiquid.Tags
@@ -64,7 +65,7 @@ namespace DotLiquid.Tags
 
         private string _templateName;
 
-        public override void Initialize(string tagName, string markup, List<string> tokens)
+        public override void Initialize(string tagName, string markup, List<string> tokens, INamingConvention namingConvention)
         {
             Match syntaxMatch = Syntax.Match(markup);
 
@@ -75,7 +76,7 @@ namespace DotLiquid.Tags
             else
                 throw new SyntaxException(Liquid.ResourceManager.GetString("ExtendsTagSyntaxException"));
 
-            base.Initialize(tagName, markup, tokens);
+            base.Initialize(tagName, markup, tokens, namingConvention);
         }
 
         internal override void AssertTagRulesViolation(List<object> rootNodeList)
@@ -114,7 +115,7 @@ namespace DotLiquid.Tags
             if (template == null)
             {
                 string source = fileSystem.ReadTemplateFile(context, _templateName);
-                template = Template.Parse(source);
+                template = Template.Parse(source, context.NamingConvention);
             }
 
             List<Block> parentBlocks = FindBlocks(template.Root, null);
@@ -133,7 +134,7 @@ namespace DotLiquid.Tags
                     {
                         if (blockState.Parents.TryGetValue(block, out Block parent))
                             blockState.Parents[pb] = parent;
-                        pb.AddParent(blockState.Parents, pb.GetNodeList(blockState));
+                        pb.AddParent(blockState.Parents, pb.GetNodeList(blockState), context.NamingConvention);
                         blockState.NodeLists[pb] = block.GetNodeList(blockState);
                     }
                     else if(IsExtending(template))

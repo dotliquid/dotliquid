@@ -1,6 +1,5 @@
 using System.Globalization;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 
 namespace DotLiquid.Tests.Tags
 {

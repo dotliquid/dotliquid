@@ -9,6 +9,7 @@ using System.Runtime.ExceptionServices;
 using System.Text.RegularExpressions;
 using System.Threading;
 using DotLiquid.Exceptions;
+using DotLiquid.NamingConventions;
 using DotLiquid.Util;
 
 namespace DotLiquid
@@ -37,6 +38,11 @@ namespace DotLiquid
         /// Ruby Date Format flag, switches Date filter syntax between Ruby and CSharp formats.
         /// </summary>
         public bool UseRubyDateFormat { get; set; }
+
+        /// <summary>
+        /// Naming convention used for template parsing
+        /// </summary>
+        public INamingConvention NamingConvention { get; set; }
 
         /// <summary>
         /// Returns the CurrentCulture specified for this Context.
@@ -98,6 +104,7 @@ namespace DotLiquid
         /// <param name="maxIterations"></param>
         /// <param name="timeout"></param>
         /// <param name="formatProvider">A CultureInfo instance that will be used to parse filter input and format filter output</param>
+        /// <param name="namingConvention">Naming convention used for template parsing</param>
         [Obsolete("The method with timeout argument is deprecated. Please use the one with CancellationToken.")]
         public Context
             (List<Hash> environments
@@ -106,8 +113,9 @@ namespace DotLiquid
              , ErrorsOutputMode errorsOutputMode
              , int maxIterations
              , int timeout
-             , IFormatProvider formatProvider)
-            : this(environments, outerScope, registers, errorsOutputMode, maxIterations, formatProvider, CancellationToken.None)
+             , IFormatProvider formatProvider
+             , INamingConvention namingConvention)
+            : this(environments, outerScope, registers, errorsOutputMode, maxIterations, formatProvider, namingConvention, CancellationToken.None)
         {
             _timeout = timeout;
             RestartTimeout();
@@ -122,6 +130,7 @@ namespace DotLiquid
         /// <param name="errorsOutputMode"></param>
         /// <param name="maxIterations"></param>
         /// <param name="formatProvider">A CultureInfo instance that will be used to parse filter input and format filter output</param>
+        /// <param name="namingConvention">Naming convention used for template parsing</param>
         /// <param name="cancellationToken"></param>
         public Context
             (List<Hash> environments
@@ -130,6 +139,7 @@ namespace DotLiquid
              , ErrorsOutputMode errorsOutputMode
              , int maxIterations
              , IFormatProvider formatProvider
+             , INamingConvention namingConvention
              , CancellationToken cancellationToken)
         {
             Environments = environments;
@@ -147,6 +157,7 @@ namespace DotLiquid
             FormatProvider = formatProvider;
             SyntaxCompatibilityLevel = Template.DefaultSyntaxCompatibilityLevel;
             UseRubyDateFormat = Liquid.UseRubyDateFormat;
+            NamingConvention = namingConvention ?? new RubyNamingConvention();
 
             SquashInstanceAssignsWithEnvironments();
         }
@@ -155,8 +166,9 @@ namespace DotLiquid
         /// Creates a new rendering context
         /// </summary>
         /// <param name="formatProvider">A CultureInfo instance that will be used to parse filter input and format filter output</param>
-        public Context(IFormatProvider formatProvider)
-            : this(new List<Hash>(), new Hash(), new Hash(), ErrorsOutputMode.Display, 0, 0, formatProvider)
+        /// <param name="namingConvention">Naming convention used for template parsing</param>
+        public Context(IFormatProvider formatProvider, INamingConvention namingConvention)
+            : this(new List<Hash>(), new Hash(namingConvention), new Hash(namingConvention), ErrorsOutputMode.Display, 0, 0, formatProvider, namingConvention)
         {
         }
 
@@ -177,7 +189,7 @@ namespace DotLiquid
         /// <param name="func">Filter function</param>
         public void AddFilter<TIn, TOut>(string filterName, Func<TIn, TOut> func)
         {
-            Strainer.AddFunction(filterName, func);
+            Strainer.AddFunction(filterName, func, this.NamingConvention);
         }
 
         /// <summary>
@@ -190,7 +202,7 @@ namespace DotLiquid
         /// <param name="func">Filter function</param>
         public void AddFilter<TIn, TIn2, TOut>(string filterName, Func<TIn, TIn2, TOut> func)
         {
-            Strainer.AddFunction(filterName, func);
+            Strainer.AddFunction(filterName, func, this.NamingConvention);
         }
 
         /// <summary>
@@ -202,7 +214,7 @@ namespace DotLiquid
         public void AddFilters(IEnumerable<Type> filters)
         {
             foreach (Type f in filters)
-                Strainer.Extend(f);
+                Strainer.Extend(f, this.NamingConvention);
         }
 
         /// <summary>
@@ -329,7 +341,7 @@ namespace DotLiquid
         /// <param name="callback"></param>
         public void Stack(Action callback)
         {
-            Stack(new Hash(), callback);
+            Stack(new Hash(this.NamingConvention), callback);
         }
 
         /// <summary>
@@ -585,14 +597,14 @@ namespace DotLiquid
                 // Some special cases. If the part wasn't in square brackets and
                 // no key with the same name was found we interpret first/last/size
                 // as commands and call them on the current object
-                else if (!partResolved && (@object is IEnumerable enumerable) && (Template.NamingConvention.OperatorEquals(part as string, "size") || Template.NamingConvention.OperatorEquals(part as string, "first") || Template.NamingConvention.OperatorEquals(part as string, "last")))
+                else if (!partResolved && (@object is IEnumerable enumerable) && (this.NamingConvention.OperatorEquals(part as string, "size") || this.NamingConvention.OperatorEquals(part as string, "first") || this.NamingConvention.OperatorEquals(part as string, "last")))
                 {
                     var castCollection = enumerable.Cast<object>();
-                    if (Template.NamingConvention.OperatorEquals(part as string, "size"))
+                    if (this.NamingConvention.OperatorEquals(part as string, "size"))
                     {
                         @object = castCollection.Count();
                     }
-                    else if (Template.NamingConvention.OperatorEquals(part as string, "first"))
+                    else if (this.NamingConvention.OperatorEquals(part as string, "first"))
                     {
                         @object = Liquidize(castCollection.FirstOrDefault());
                     }
@@ -747,7 +759,7 @@ namespace DotLiquid
 
         private void SquashInstanceAssignsWithEnvironments()
         {
-            Dictionary<string, object> tempAssigns = new Dictionary<string, object>(Template.NamingConvention.StringComparer);
+            Dictionary<string, object> tempAssigns = new Dictionary<string, object>(this.NamingConvention.StringComparer);
 
             Hash lastScope = Scopes.Last();
             foreach (string k in lastScope.Keys)

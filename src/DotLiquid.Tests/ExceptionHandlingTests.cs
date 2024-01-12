@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using DotLiquid.Exceptions;
+using DotLiquid.NamingConventions;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -9,6 +10,8 @@ namespace DotLiquid.Tests
     [TestFixture]
     public class ExceptionHandlingTests
     {
+        private INamingConvention NamingConvention { get; } = new RubyNamingConvention();
+
         private class ExceptionDrop : Drop
         {
             public void ArgumentException()
@@ -31,7 +34,7 @@ namespace DotLiquid.Tests
         public void TestSyntaxException()
         {
             Template template = null;
-            Assert.DoesNotThrow(() => { template = Template.Parse(" {{ errors.syntax_exception }} "); });
+            Assert.DoesNotThrow(() => { template = Template.Parse(" {{ errors.syntax_exception }} ", NamingConvention); });
             string result = template.Render(Hash.FromAnonymousObject(new { errors = new ExceptionDrop() }));
             Assert.AreEqual(" Liquid syntax error: syntax exception ", result);
 
@@ -43,7 +46,7 @@ namespace DotLiquid.Tests
         public void TestArgumentException()
         {
             Template template = null;
-            Assert.DoesNotThrow(() => { template = Template.Parse(" {{ errors.argument_exception }} "); });
+            Assert.DoesNotThrow(() => { template = Template.Parse(" {{ errors.argument_exception }} ", NamingConvention); });
             string result = template.Render(Hash.FromAnonymousObject(new { errors = new ExceptionDrop() }));
             Assert.AreEqual(" Liquid error: argument exception ", result);
 
@@ -54,14 +57,14 @@ namespace DotLiquid.Tests
         [Test]
         public void TestMissingEndTagParseTimeError()
         {
-            Assert.Throws<SyntaxException>(() => Template.Parse(" {% for a in b %} ... "));
+            Assert.Throws<SyntaxException>(() => Template.Parse(" {% for a in b %} ... ", NamingConvention));
         }
 
         [Test]
         public void TestUnrecognizedOperator()
         {
             Template template = null;
-            Assert.DoesNotThrow(() => { template = Template.Parse(" {% if 1 =! 2 %}ok{% endif %} "); });
+            Assert.DoesNotThrow(() => { template = Template.Parse(" {% if 1 =! 2 %}ok{% endif %} ", NamingConvention); });
             Assert.AreEqual(" Liquid error: Unknown operator =! ", template.Render());
 
             Assert.AreEqual(1, template.Errors.Count);
@@ -72,7 +75,7 @@ namespace DotLiquid.Tests
         public void TestInterruptException()
         {
             Template template = null;
-            Assert.DoesNotThrow(() => { template = Template.Parse(" {{ errors.interrupt_exception }} "); });
+            Assert.DoesNotThrow(() => { template = Template.Parse(" {{ errors.interrupt_exception }} ", NamingConvention); });
             var localVariables = Hash.FromAnonymousObject(new { errors = new ExceptionDrop() });
             var exception = Assert.Throws<InterruptException>(() => template.Render(localVariables));
 
@@ -82,7 +85,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestMaximumIterationsExceededError()
         {
-            var template = Template.Parse(" {% for i in (1..100000) %} {{ i }} {% endfor %} ");
+            var template = Template.Parse(" {% for i in (1..100000) %} {{ i }} {% endfor %} ", NamingConvention);
             Assert.Throws<MaximumIterationsExceededException>(() =>
             {
                 template.Render(new RenderParameters(CultureInfo.InvariantCulture)
@@ -95,7 +98,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestTimeoutError()
         {
-            var template = Template.Parse(" {% for i in (1..1000000) %} {{ i }} {% endfor %} ");
+            var template = Template.Parse(" {% for i in (1..1000000) %} {{ i }} {% endfor %} ", NamingConvention);
             Assert.Throws<System.TimeoutException>(() =>
             {
                 template.Render(new RenderParameters(CultureInfo.InvariantCulture)
@@ -108,15 +111,16 @@ namespace DotLiquid.Tests
         [Test]
         public void TestOperationCancelledError()
         {
-            var template = Template.Parse(" {% for i in (1..1000000) %} {{ i }} {% endfor %} ");
+            var template = Template.Parse(" {% for i in (1..1000000) %} {{ i }} {% endfor %} ", NamingConvention);
             var source = new CancellationTokenSource(100);
             var context = new Context(
                 environments: new List<Hash>(),
-                outerScope: new Hash(),
-                registers: new Hash(),
+                outerScope: new Hash(NamingConvention),
+                registers: new Hash(NamingConvention),
                 errorsOutputMode: ErrorsOutputMode.Rethrow,
                 maxIterations: 0,
                 formatProvider: CultureInfo.InvariantCulture,
+                NamingConvention,
                 cancellationToken: source.Token);
 
             Assert.Throws<System.OperationCanceledException>(() =>
@@ -128,8 +132,8 @@ namespace DotLiquid.Tests
         [Test]
         public void TestErrorsOutputModeRethrow()
         {
-            var template = Template.Parse("{{test}}");
-            Hash assigns = new Hash((h, k) => { throw new SyntaxException("Unknown variable '" + k + "'"); });
+            var template = Template.Parse("{{test}}", NamingConvention);
+            Hash assigns = new Hash((h, k) => { throw new SyntaxException("Unknown variable '" + k + "'"); }, NamingConvention);
 
             Assert.Throws<SyntaxException>(() =>
             {
@@ -144,8 +148,8 @@ namespace DotLiquid.Tests
         [Test]
         public void TestErrorsOutputModeSuppress()
         {
-            var template = Template.Parse("{{test}}");
-            Hash assigns = new Hash((h, k) => { throw new SyntaxException("Unknown variable '" + k + "'"); });
+            var template = Template.Parse("{{test}}", NamingConvention);
+            Hash assigns = new Hash((h, k) => { throw new SyntaxException("Unknown variable '" + k + "'"); }, NamingConvention);
 
             var output = template.Render(new RenderParameters(CultureInfo.InvariantCulture)
             {
@@ -158,8 +162,8 @@ namespace DotLiquid.Tests
         [Test]
         public void TestErrorsOutputModeDisplay()
         {
-            var template = Template.Parse("{{test}}");
-            Hash assigns = new Hash((h, k) => { throw new SyntaxException("Unknown variable '" + k + "'"); });
+            var template = Template.Parse("{{test}}", NamingConvention);
+            Hash assigns = new Hash((h, k) => { throw new SyntaxException("Unknown variable '" + k + "'"); }, NamingConvention);
 
             var output = template.Render(new RenderParameters(CultureInfo.InvariantCulture)
             {

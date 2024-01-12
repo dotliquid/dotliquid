@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using DotLiquid.NamingConventions;
 
 namespace DotLiquid
 {
@@ -43,18 +44,20 @@ namespace DotLiquid
         /// <param name="tagName">Name of the parsed tag</param>
         /// <param name="markup">Markup of the parsed tag</param>
         /// <param name="tokens">Tokens of the parsed tag</param>
-        public virtual void Initialize(string tagName, string markup, List<string> tokens)
+        /// <param name="namingConvention">Naming convention used for template parsing</param>
+        public virtual void Initialize(string tagName, string markup, List<string> tokens, INamingConvention namingConvention)
         {
             TagName = tagName;
             Markup = markup;
-            Parse(tokens);
+            Parse(tokens, namingConvention);
         }
 
         /// <summary>
         /// Parses the tag
         /// </summary>
         /// <param name="tokens"></param>
-        protected virtual void Parse(List<string> tokens)
+        /// <param name="namingConvention">Naming convention used for template parsing</param>
+        protected virtual void Parse(List<string> tokens, INamingConvention namingConvention)
         {
         }
 

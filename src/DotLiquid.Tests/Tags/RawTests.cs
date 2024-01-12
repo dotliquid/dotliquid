@@ -1,4 +1,5 @@
 using DotLiquid.Exceptions;
+using DotLiquid.NamingConventions;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests.Tags
@@ -6,6 +7,8 @@ namespace DotLiquid.Tests.Tags
     [TestFixture]
     public class RawTests
     {
+        private INamingConvention NamingConvention { get; } = new RubyNamingConvention();
+
         [Test]
         public void TestTagInRaw()
         {
@@ -46,9 +49,9 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestInvalidRaw()
         {
-            Assert.Throws<SyntaxException>(() => Template.Parse("{% raw %} foo"));
-            Assert.Throws<SyntaxException>(() => Template.Parse("{% raw } foo {% endraw %}"));
-            Assert.Throws<SyntaxException>(() => Template.Parse("{% raw } foo %}{% endraw %}"));
+            Assert.Throws<SyntaxException>(() => Template.Parse("{% raw %} foo", NamingConvention));
+            Assert.Throws<SyntaxException>(() => Template.Parse("{% raw } foo {% endraw %}", NamingConvention));
+            Assert.Throws<SyntaxException>(() => Template.Parse("{% raw } foo %}{% endraw %}", NamingConvention));
         }
     }
 }

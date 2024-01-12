@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
+using DotLiquid.NamingConventions;
 using DotLiquid.Util;
 
 namespace DotLiquid.Tags
@@ -35,8 +36,9 @@ namespace DotLiquid.Tags
         /// <param name="tagName">Name of the parsed tag</param>
         /// <param name="markup">Markup of the parsed tag</param>
         /// <param name="tokens">Tokens of the parsed tag</param>
+        /// <param name="namingConvention">Naming convention used for template parsing</param>
         /// <exception cref="SyntaxException">If parameter format is invalid.</exception>
-        public override void Initialize(string tagName, string markup, List<string> tokens)
+        public override void Initialize(string tagName, string markup, List<string> tokens, INamingConvention namingConvention)
         {
             var syntaxMatch = Syntax.Match(markup);
             if (!syntaxMatch.Success)
@@ -53,7 +55,7 @@ namespace DotLiquid.Tags
             this.param = Params[paramName];
             this.paramValue = syntaxMatch.Groups[2].Value.TrimEnd();
 
-            base.Initialize(tagName: tagName, markup: markup, tokens: tokens);
+            base.Initialize(tagName: tagName, markup: markup, tokens: tokens, namingConvention);
         }
 
         /// <summary>

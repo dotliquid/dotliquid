@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
+using DotLiquid.NamingConventions;
 using DotLiquid.Util;
 
 namespace DotLiquid.Tags
@@ -71,7 +72,8 @@ namespace DotLiquid.Tags
         /// <param name="tagName">Name of the parsed tag</param>
         /// <param name="markup">Markup of the parsed tag</param>
         /// <param name="tokens">Tokens of the parsed tag</param>
-        public override void Initialize(string tagName, string markup, List<string> tokens)
+        /// <param name="namingConvention">Naming convention used for template parsing</param>
+        public override void Initialize(string tagName, string markup, List<string> tokens, INamingConvention namingConvention)
         {
             Match match = Syntax.Match(markup);
             if (match.Success)
@@ -81,7 +83,7 @@ namespace DotLiquid.Tags
                 _collectionName = match.Groups[2].Value;
                 _name = string.Format("{0}-{1}", _variableName, _collectionName);
                 _reversed = (!string.IsNullOrEmpty(match.Groups[3].Value));
-                _attributes = new Dictionary<string, string>(Template.NamingConvention.StringComparer);
+                _attributes = new Dictionary<string, string>(namingConvention.StringComparer);
                 R.Scan(markup, Liquid.TagAttributes,
                     (key, value) => _attributes[key] = value);
             }
@@ -90,7 +92,7 @@ namespace DotLiquid.Tags
                 throw new SyntaxException(Liquid.ResourceManager.GetString("ForTagSyntaxException"));
             }
 
-            base.Initialize(tagName, markup, tokens);
+            base.Initialize(tagName, markup, tokens, namingConvention);
         }
 
         /// <summary>

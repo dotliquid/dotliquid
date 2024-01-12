@@ -1,4 +1,5 @@
 using DotLiquid.Exceptions;
+using DotLiquid.NamingConventions;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -6,11 +7,13 @@ namespace DotLiquid.Tests
     [TestFixture]
     public class ParsingQuirksTests
     {
+        private INamingConvention NamingConvention { get; } = new RubyNamingConvention();
+
         [Test]
         public void TestErrorWithCss()
         {
             const string text = " div { font-weight: bold; } ";
-            Template template = Template.Parse(text);
+            Template template = Template.Parse(text, NamingConvention);
             Assert.AreEqual(text, template.Render());
             Assert.AreEqual(1, template.Root.NodeList.Count);
             Assert.IsInstanceOf<string>(template.Root.NodeList[0]);
@@ -19,19 +22,19 @@ namespace DotLiquid.Tests
         [Test]
         public void TestRaiseOnSingleCloseBrace()
         {
-            Assert.Throws<SyntaxException>(() => Template.Parse("text {{method} oh nos!"));
+            Assert.Throws<SyntaxException>(() => Template.Parse("text {{method} oh nos!", NamingConvention));
         }
 
         [Test]
         public void TestRaiseOnLabelAndNoCloseBrace()
         {
-            Assert.Throws<SyntaxException>(() => Template.Parse("TEST {{ "));
+            Assert.Throws<SyntaxException>(() => Template.Parse("TEST {{ ", NamingConvention));
         }
 
         [Test]
         public void TestRaiseOnLabelAndNoCloseBracePercent()
         {
-            Assert.Throws<SyntaxException>(() => Template.Parse("TEST {% "));
+            Assert.Throws<SyntaxException>(() => Template.Parse("TEST {% ", NamingConvention));
         }
 
         [Test]
@@ -39,9 +42,9 @@ namespace DotLiquid.Tests
         {
             Assert.DoesNotThrow(() =>
             {
-                Template.Parse("{{test |a|b|}}");
-                Template.Parse("{{test}}");
-                Template.Parse("{{|test|}}");
+                Template.Parse("{{test |a|b|}}", NamingConvention);
+                Template.Parse("{{test}}", NamingConvention);
+                Template.Parse("{{|test|}}", NamingConvention);
             });
         }
 
@@ -74,7 +77,7 @@ namespace DotLiquid.Tests
         [TestCase(".y")]
         public void TestVariableNotTerminatedFromInvalidVariableName(string variableName)
         {
-            var template = Template.Parse("{{ " + variableName + " }}");
+            var template = Template.Parse("{{ " + variableName + " }}", NamingConvention);
             SyntaxException ex = Assert.Throws<SyntaxException>(() => template.Render(new RenderParameters(System.Globalization.CultureInfo.InvariantCulture)
             {
                 LocalVariables = Hash.FromAnonymousObject(new { x = "" }),
@@ -85,7 +88,7 @@ namespace DotLiquid.Tests
                 expected: string.Format(Liquid.ResourceManager.GetString("VariableNotTerminatedException"), variableName),
                 actual: ex.Message);
 
-            template = Template.Parse("{{ x[" + variableName + "] }}");
+            template = Template.Parse("{{ x[" + variableName + "] }}", NamingConvention);
             ex = Assert.Throws<SyntaxException>(() => template.Render(new RenderParameters(System.Globalization.CultureInfo.InvariantCulture)
             {
                 LocalVariables = Hash.FromAnonymousObject(new { x = new { x = "" } }),
@@ -100,7 +103,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestNestedVariableNotTerminated()
         {
-            var template = Template.Parse("{{ x[[] }}");
+            var template = Template.Parse("{{ x[[] }}", NamingConvention);
             var ex = Assert.Throws<SyntaxException>(() => template.Render(new RenderParameters(System.Globalization.CultureInfo.InvariantCulture)
             {
                 LocalVariables = Hash.FromAnonymousObject(new { x = new { x = "" } }),
@@ -127,8 +130,8 @@ namespace DotLiquid.Tests
         public void TestShortHandSyntaxIsIgnored()
         {
             // These tests are based on actual handling on Ruby Liquid, not indicative of wanted behavior. Behavior for legacy dotliquid parser is in TestEmptyLiteral
-            Assert.AreEqual("}", Template.Parse("{{{}}}", SyntaxCompatibility.DotLiquid22).Render());
-            Assert.AreEqual("{##}", Template.Parse("{##}", SyntaxCompatibility.DotLiquid22).Render());
+            Assert.AreEqual("}", Template.Parse("{{{}}}", NamingConvention, SyntaxCompatibility.DotLiquid22).Render());
+            Assert.AreEqual("{##}", Template.Parse("{##}", NamingConvention, SyntaxCompatibility.DotLiquid22).Render());
         }
     }
 }

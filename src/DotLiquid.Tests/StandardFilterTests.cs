@@ -12,6 +12,8 @@ namespace DotLiquid.Tests
     [TestFixture]
     public class StandardFilterTests
     {
+        private static INamingConvention NamingConvention { get; } = new RubyNamingConvention();
+
         private Context _contextV20;
         private Context _contextV21;
         private Context _contextV22;
@@ -20,19 +22,19 @@ namespace DotLiquid.Tests
         [OneTimeSetUp]
         public void SetUp()
         {
-            _contextV20 = new Context(CultureInfo.InvariantCulture)
+            _contextV20 = new Context(CultureInfo.InvariantCulture, NamingConvention)
             {
                 SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20
             };
-            _contextV21 = new Context(CultureInfo.InvariantCulture)
+            _contextV21 = new Context(CultureInfo.InvariantCulture, NamingConvention)
             {
                 SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid21
             };
-            _contextV22 = new Context(CultureInfo.InvariantCulture)
+            _contextV22 = new Context(CultureInfo.InvariantCulture, NamingConvention)
             {
                 SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22
             };
-            _contextV22a = new Context(CultureInfo.InvariantCulture)
+            _contextV22a = new Context(CultureInfo.InvariantCulture, NamingConvention)
             {
                 SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22a
             };
@@ -403,7 +405,7 @@ PaulGeorge",
             var list = new List<Hash>();
             var hash1 = CreateHash(1, "Text1");
             var hash2 = CreateHash(2, "Text2");
-            var hashWithNoSortByProperty = new Hash();
+            var hashWithNoSortByProperty = new Hash(NamingConvention);
             hashWithNoSortByProperty.Add("content", "Text 3");
             list.Add(hash2);
             list.Add(hashWithNoSortByProperty);
@@ -426,7 +428,7 @@ PaulGeorge",
             };
             var expectedPackages= packages.OrderBy(p => p["numberOfPiecesPerPackage"]).ToArray();
 
-            Helper.LockTemplateStaticVars(new RubyNamingConvention(), () =>
+            Helper.LockTemplateStaticVars( () =>
             {
                 CollectionAssert.AreEqual(
                     expected: expectedPackages,
@@ -455,7 +457,7 @@ PaulGeorge",
         }
 
         private static Hash CreateHash(int sortby, string content) =>
-            new Hash
+            new Hash(NamingConvention)
             {
                 { "sortby", sortby },
                 { "content", content }
@@ -473,10 +475,10 @@ PaulGeorge",
                     {
                         ary =
                             new[]
-                    {
-                        Hash.FromAnonymousObject(new { foo = Hash.FromAnonymousObject(new { bar = "a" }) }), Hash.FromAnonymousObject(new { foo = Hash.FromAnonymousObject(new { bar = "b" }) }),
-                        Hash.FromAnonymousObject(new { foo = Hash.FromAnonymousObject(new { bar = "c" }) })
-                    }
+                            {
+                                Hash.FromAnonymousObject(new { foo = Hash.FromAnonymousObject(new { bar = "a" }) }), Hash.FromAnonymousObject(new { foo = Hash.FromAnonymousObject(new { bar = "b" }) }),
+                                Hash.FromAnonymousObject(new { foo = Hash.FromAnonymousObject(new { bar = "c" }) })
+                            }
                     }));
 
             Assert.AreEqual(null, StandardFilters.Map(null, "a"));
@@ -855,8 +857,8 @@ PaulGeorge",
         {
             using (CultureHelper.SetCulture("en-US"))
             {
-                Template dollarTemplate = Template.Parse(@"{{ amount | currency }}");
-                Template euroTemplate = Template.Parse(@"{{ amount | currency: ""de-DE"" }}");
+                Template dollarTemplate = Template.Parse(@"{{ amount | currency }}", NamingConvention);
+                Template euroTemplate = Template.Parse(@"{{ amount | currency: ""de-DE"" }}", NamingConvention);
 
                 Assert.AreEqual("$7,000.00", dollarTemplate.Render(Hash.FromAnonymousObject(new { amount = "7000" })));
                 Assert.AreEqual("7.000,00 €", euroTemplate.Render(Hash.FromAnonymousObject(new { amount = 7000 })));
@@ -883,7 +885,7 @@ PaulGeorge",
         [Test]
         public void TestDate()
         {
-            Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
+            Helper.LockTemplateStaticVars(() =>
             {
                 TestDate(_contextV20);
             });
@@ -922,14 +924,14 @@ PaulGeorge",
 
             Assert.AreEqual("345000", StandardFilters.Date(context: context, input: DateTime.Parse("2006-05-05 10:00:00.345"), format: "ffffff"));
 
-            Template template = Template.Parse(@"{{ hi | date:""MMMM"" }}");
+            Template template = Template.Parse(@"{{ hi | date:""MMMM"" }}", NamingConvention);
             Assert.AreEqual("hi", template.Render(Hash.FromAnonymousObject(new { hi = "hi" })));
         }
 
         [Test]
         public void TestDateV20()
         {
-            Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
+            Helper.LockTemplateStaticVars(() =>
             {
                 var context = _contextV20;
                 // Legacy parser doesn't except Unix Epoch https://github.com/dotliquid/dotliquid/issues/322
@@ -961,7 +963,7 @@ PaulGeorge",
         [Test]
         public void TestDateV21()
         {
-            Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
+            Helper.LockTemplateStaticVars(() =>
             {
                 var context = _contextV21;// _contextV21 specifies InvariantCulture
                 var unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).ToLocalTime();
@@ -1006,7 +1008,7 @@ PaulGeorge",
         [Test]
         public void TestStrFTime()
         {
-            Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
+            Helper.LockTemplateStaticVars(() =>
             {
                 var context = _contextV20;
                 context.UseRubyDateFormat = true;
@@ -1034,7 +1036,7 @@ PaulGeorge",
                 Assert.AreEqual("hi", StandardFilters.Date(context: context, input: "hi", format: "%M"));
 
                 Liquid.UseRubyDateFormat = true; // ensure all Context objects created within tests are defaulted to Ruby date format
-                Template template = Template.Parse(@"{{ hi | date:""%M"" }}");
+                Template template = Template.Parse(@"{{ hi | date:""%M"" }}", NamingConvention);
                 Assert.AreEqual("hi", template.Render(Hash.FromAnonymousObject(new { hi = "hi" })));
 
                 Helper.AssertTemplateResult(
@@ -1055,7 +1057,7 @@ PaulGeorge",
         [Test]
         public void TestFirstLastUsingRuby()
         {
-            var namingConvention = new NamingConventions.RubyNamingConvention();
+            var namingConvention = new RubyNamingConvention();
             TestFirstLast(namingConvention, (name) => namingConvention.GetMemberName(name));
         }
 
@@ -1291,7 +1293,7 @@ PaulGeorge",
             var context = _contextV20;
             Helper.AssertTemplateResult(expected: "11", template: "{{ '1' | plus: 1 }}", syntax: context.SyntaxCompatibilityLevel);
             var renderParams = new RenderParameters(CultureInfo.InvariantCulture) { ErrorsOutputMode = ErrorsOutputMode.Rethrow, SyntaxCompatibilityLevel = context.SyntaxCompatibilityLevel };
-            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ 1 | plus: '1' }}").Render(renderParams));
+            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ 1 | plus: '1' }}", NamingConvention).Render(renderParams));
         }
 
         [Test]
@@ -1326,8 +1328,8 @@ PaulGeorge",
         public void TestMinusStringV20()
         {
             var renderParams = new RenderParameters(CultureInfo.InvariantCulture) { ErrorsOutputMode = ErrorsOutputMode.Rethrow, SyntaxCompatibilityLevel = _contextV20.SyntaxCompatibilityLevel };
-            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ '2' | minus: 1 }}").Render(renderParams));
-            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ 2 | minus: '1' }}").Render(renderParams));
+            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ '2' | minus: 1 }}", NamingConvention).Render(renderParams));
+            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ 2 | minus: '1' }}", NamingConvention).Render(renderParams));
         }
 
         [Test]
@@ -1454,8 +1456,8 @@ PaulGeorge",
             Helper.AssertTemplateResult(expected: "foofoofoofoo", template: "{{ 'foo' | times:4 }}", syntax: context.SyntaxCompatibilityLevel);
             Helper.AssertTemplateResult(expected: "3333", template: "{{ '3' | times:4 }}", syntax: context.SyntaxCompatibilityLevel);
             var renderParams = new RenderParameters(CultureInfo.InvariantCulture) { ErrorsOutputMode = ErrorsOutputMode.Rethrow, SyntaxCompatibilityLevel = context.SyntaxCompatibilityLevel };
-            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ 3 | times: '4' }}").Render(renderParams));
-            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ '3' | times: '4' }}").Render(renderParams));
+            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ 3 | times: '4' }}", NamingConvention).Render(renderParams));
+            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ '3' | times: '4' }}", NamingConvention).Render(renderParams));
         }
 
         [Test]
@@ -1510,8 +1512,8 @@ PaulGeorge",
         public void TestDividedByStringV20()
         {
             var renderParams = new RenderParameters(CultureInfo.InvariantCulture) { ErrorsOutputMode = ErrorsOutputMode.Rethrow, SyntaxCompatibilityLevel = _contextV20.SyntaxCompatibilityLevel };
-            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ '12' | divided_by: 3 }}").Render(renderParams));
-            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ 12 | divided_by: '3' }}").Render(renderParams));
+            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ '12' | divided_by: 3 }}", NamingConvention).Render(renderParams));
+            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ 12 | divided_by: '3' }}", NamingConvention).Render(renderParams));
         }
 
         [Test]
@@ -1555,8 +1557,8 @@ PaulGeorge",
         public void TestModuloStringV20()
         {
             var renderParams = new RenderParameters(CultureInfo.InvariantCulture) { ErrorsOutputMode = ErrorsOutputMode.Rethrow, SyntaxCompatibilityLevel = _contextV20.SyntaxCompatibilityLevel };
-            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ '3' | modulo: 2 }}").Render(renderParams));
-            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ 3 | modulo: '2' }}").Render(renderParams));
+            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ '3' | modulo: 2 }}", NamingConvention).Render(renderParams));
+            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ 3 | modulo: '2' }}", NamingConvention).Render(renderParams));
         }
 
         [Test]
@@ -1838,7 +1840,7 @@ PaulGeorge",
             };
             var expectedProducts = products.Where(p => p.Type == "kitchen").ToArray();
 
-            Helper.LockTemplateStaticVars(new RubyNamingConvention(), () =>
+            Helper.LockTemplateStaticVars( () =>
             {
                 CollectionAssert.AreEqual(
                     expected: expectedProducts,
@@ -1901,10 +1903,10 @@ Kitchen products:
         public void TestWhere_ShopifySample2()
         {
             List<Hash> products = new List<Hash> {
-                new Hash { { "title", "Coffee mug" }, { "available", true } },
-                new Hash { { "title", "Limited edition sneakers" } }, // no 'available' property
-                new Hash { { "title", "Limited edition sneakers" }, { "available", false } }, // 'available' = false
-                new Hash { { "title", "Boring sneakers" }, { "available", true } }
+                new Hash (NamingConvention) { { "title", "Coffee mug" }, { "available", true } },
+                new Hash (NamingConvention) { { "title", "Limited edition sneakers" } }, // no 'available' property
+                new Hash (NamingConvention) { { "title", "Limited edition sneakers" }, { "available", false } }, // 'available' = false
+                new Hash (NamingConvention) { { "title", "Boring sneakers" }, { "available", true } }
             };
 
             Helper.AssertTemplateResult(
@@ -1925,10 +1927,10 @@ Available products:
         public void TestWhere_ShopifySample3()
         {
             List<Hash> products = new List<Hash> {
-                new Hash { { "title", "Little black dress" }, { "type", "dress" } },
-                new Hash { { "title", "Tartan flat cap" } }, // no 'type' property
-                new Hash { { "title", "leather driving gloves" }, { "type", null } }, // 'type' exists, value is null
-                new Hash { { "title", "Hawaiian print sweater vest" }, { "type", "shirt" }  }
+                new Hash (NamingConvention) { { "title", "Little black dress" }, { "type", "dress" } },
+                new Hash (NamingConvention) { { "title", "Tartan flat cap" } }, // no 'type' property
+                new Hash (NamingConvention) { { "title", "leather driving gloves" }, { "type", null } }, // 'type' exists, value is null
+                new Hash (NamingConvention) { { "title", "Hawaiian print sweater vest" }, { "type", "shirt" }  }
             };
 
             Helper.AssertTemplateResult(
@@ -1994,7 +1996,7 @@ Cheapest products:
             };
             var expectedKitchenProducts = products.Where(p => p.Type == "kitchen").ToArray();
 
-            Helper.LockTemplateStaticVars(new RubyNamingConvention(), () =>
+            Helper.LockTemplateStaticVars(() =>
             {
                 CollectionAssert.AreEqual(
                     expected: expectedKitchenProducts,

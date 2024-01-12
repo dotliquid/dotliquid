@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using DotLiquid.NamingConventions;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests.Ns1
@@ -24,6 +25,9 @@ namespace DotLiquid.Tests
     [TestFixture]
     public class HashTests
     {
+        
+        private INamingConvention NamingConvention { get; } = new RubyNamingConvention();
+
         public class TestBaseClass
         {
             public string TestBaseClassProp { get; set; }
@@ -91,7 +95,7 @@ namespace DotLiquid.Tests
                 TestMiddleClassProp = TestMiddleClassPropValue,
                 TestBaseClassProp = TestBaseClassPropValue,
                 TestOverridableProp = TestClassOverridablePropValue
-            }, includeBaseClassProperties);
+            }, NamingConvention, includeBaseClassProperties);
 
             // Properties attached directly to the type of instance being converted to Hash should always be visible
             Assert.AreEqual(
@@ -145,7 +149,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestDefaultValueConstructor()
         {
-            var hash = new Hash(0); // default value of zero
+            var hash = new Hash(0, NamingConvention); // default value of zero
             hash["key"] = "value";
 
             Assert.True(hash.Contains("unknown-key"));
@@ -165,7 +169,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestLambdaConstructor()
         {
-            var hash = new Hash((h, k) => { return "Lambda Value"; });
+            var hash = new Hash((h, k) => { return "Lambda Value"; }, NamingConvention);
             hash["key"] = "value";
 
             Assert.True(hash.Contains("unknown-key"));
@@ -180,7 +184,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestUnsupportedKeyType()
         {
-            IDictionary hash = new Hash();
+            IDictionary hash = new Hash(NamingConvention);
             Assert.Throws<System.NotSupportedException>(() =>
             {
                 var value = hash[0]; // Only a string key is permitted.
@@ -191,12 +195,12 @@ namespace DotLiquid.Tests
         public void TestMergeNestedDictionaries()
         {
             var hash = Hash.FromDictionary(new Dictionary<string, object> {{
-                    "People",
-                    new Dictionary<string, object> {
-                            { "ID1", new Dictionary<string, object>{ { "First", "Jane" }, { "Last", "Green" } } },
-                            { "ID2", new Dictionary<string, object>{ { "First", "Mike" }, { "Last", "Doe" } } }
-                        }
-                    }});
+                "People",
+                new Dictionary<string, object> {
+                    { "ID1", new Dictionary<string, object>{ { "First", "Jane" }, { "Last", "Green" } } },
+                    { "ID2", new Dictionary<string, object>{ { "First", "Mike" }, { "Last", "Doe" } } }
+                }
+            }});
 
             // Test using a for loop
             Helper.AssertTemplateResult(

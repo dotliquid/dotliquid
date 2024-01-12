@@ -5,6 +5,7 @@ using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 using DotLiquid.Exceptions;
+using DotLiquid.NamingConventions;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
@@ -13,6 +14,8 @@ namespace DotLiquid.Tests
     [TestFixture]
     public class ContextTests
     {
+        private INamingConvention NamingConvention { get; } = new RubyNamingConvention();
+
         #region Classes used in tests
 
         private static class TestFilters
@@ -176,8 +179,8 @@ namespace DotLiquid.Tests
         [OneTimeSetUp]
         public void SetUp()
         {
-            _context = new Context(CultureInfo.InvariantCulture);
-            _contextV22 = new Context(CultureInfo.InvariantCulture)
+            _context = new Context(CultureInfo.InvariantCulture, NamingConvention);
+            _contextV22 = new Context(CultureInfo.InvariantCulture, NamingConvention)
             {
                 SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22
             };
@@ -256,7 +259,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestVariableNotFoundErrors()
         {
-            Template template = Template.Parse("{{ does_not_exist }}");
+            Template template = Template.Parse("{{ does_not_exist }}", NamingConvention);
             string rendered = template.Render();
 
             Assert.AreEqual("", rendered);
@@ -267,7 +270,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestVariableNotFoundFromAnonymousObject()
         {
-            Template template = Template.Parse("{{ first.test }}{{ second.test }}");
+            Template template = Template.Parse("{{ first.test }}{{ second.test }}", NamingConvention);
             string rendered = template.Render(Hash.FromAnonymousObject(new { second = new { foo = "hi!" } }));
 
             Assert.AreEqual("", rendered);
@@ -279,7 +282,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestVariableNotFoundException()
         {
-            Assert.DoesNotThrow(() => Template.Parse("{{ does_not_exist }}").Render(new RenderParameters(CultureInfo.InvariantCulture)
+            Assert.DoesNotThrow(() => Template.Parse("{{ does_not_exist }}", NamingConvention).Render(new RenderParameters(CultureInfo.InvariantCulture)
             {
                 RethrowErrors = true
             }));
@@ -288,7 +291,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestVariableNotFoundExceptionIgnoredForIfStatement()
         {
-            Template template = Template.Parse("{% if does_not_exist %}abc{% endif %}");
+            Template template = Template.Parse("{% if does_not_exist %}abc{% endif %}", NamingConvention);
             string rendered = template.Render();
 
             Assert.AreEqual("", rendered);
@@ -298,7 +301,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestVariableNotFoundExceptionIgnoredForUnlessStatement()
         {
-            Template template = Template.Parse("{% unless does_not_exist %}abc{% endunless %}");
+            Template template = Template.Parse("{% unless does_not_exist %}abc{% endunless %}", NamingConvention);
             string rendered = template.Render();
 
             Assert.AreEqual("abc", rendered);
@@ -360,13 +363,13 @@ namespace DotLiquid.Tests
         [Test]
         public void TestAddFilter()
         {
-            Context context = new Context(CultureInfo.InvariantCulture);
+            Context context = new Context(CultureInfo.InvariantCulture, NamingConvention);
             context.AddFilters(new[] { typeof(TestFilters) });
             Assert.AreEqual("hi? hi!", context.Invoke("hi", new List<object> { "hi?" }));
             context.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22;
             Assert.AreEqual("hi? hi!", context.Invoke("hi", new List<object> { "hi?" }));
 
-            context = new Context(CultureInfo.InvariantCulture);
+            context = new Context(CultureInfo.InvariantCulture, NamingConvention);
             Assert.AreEqual("hi?", context.Invoke("hi", new List<object> { "hi?" }));
             context.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22;
             Assert.Throws<FilterNotFoundException>(() => context.Invoke("hi", new List<object> { "hi?" }));
@@ -376,7 +379,7 @@ namespace DotLiquid.Tests
         public void TestAddContextFilter()
         {
             // This test differs from TestAddFilter only in that the Hi method within this class has a Context parameter in addition to the input string
-            Context context = new Context(CultureInfo.InvariantCulture) { SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20 };
+            Context context = new Context(CultureInfo.InvariantCulture, NamingConvention) { SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20 };
             context["name"] = "King Kong";
 
             context.AddFilters(new[] { typeof(TestContextFilters) });
@@ -384,7 +387,7 @@ namespace DotLiquid.Tests
             context.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22;
             Assert.AreEqual("hi? hi from King Kong!", context.Invoke("hi", new List<object> { "hi?" }));
 
-            context = new Context(CultureInfo.InvariantCulture) { SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20 };
+            context = new Context(CultureInfo.InvariantCulture, NamingConvention) { SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20 };
             Assert.AreEqual("hi?", context.Invoke("hi", new List<object> { "hi?" }));
             context.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22;
             Assert.Throws<FilterNotFoundException>(() => context.Invoke("hi", new List<object> { "hi?" }));
@@ -394,14 +397,14 @@ namespace DotLiquid.Tests
         public void TestOverrideGlobalFilter()
         {
             Template.RegisterFilter(typeof(GlobalFilters));
-            Assert.AreEqual("Global test", Template.Parse("{{'test' | notice }}").Render());
-            Assert.AreEqual("Local test", Template.Parse("{{'test' | notice }}").Render(new RenderParameters(CultureInfo.InvariantCulture) { Filters = new[] { typeof(LocalFilters) } }));
+            Assert.AreEqual("Global test", Template.Parse("{{'test' | notice }}", NamingConvention).Render());
+            Assert.AreEqual("Local test", Template.Parse("{{'test' | notice }}", NamingConvention).Render(new RenderParameters(CultureInfo.InvariantCulture) { Filters = new[] { typeof(LocalFilters) } }));
         }
 
         [Test]
         public void TestOnlyIntendedFiltersMakeItThere()
         {
-            Context context = new Context(CultureInfo.InvariantCulture);
+            Context context = new Context(CultureInfo.InvariantCulture, NamingConvention);
             var methodsBefore = context.Strainer.Methods.Select(mi => mi.Name).ToList();
             context.AddFilters(new[] { typeof(TestFilters) });
             var methodsAfter = context.Strainer.Methods.Select(mi => mi.Name).ToList();
@@ -414,7 +417,7 @@ namespace DotLiquid.Tests
         public void TestAddItemInOuterScope()
         {
             _context["test"] = "test";
-            _context.Push(new Hash());
+            _context.Push(new Hash(NamingConvention));
             Assert.AreEqual("test", _context["test"]);
             _context.Pop();
             Assert.AreEqual("test", _context["test"]);
@@ -423,7 +426,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestAddItemInInnerScope()
         {
-            _context.Push(new Hash());
+            _context.Push(new Hash(NamingConvention));
             _context["test"] = "test";
             Assert.AreEqual("test", _context["test"]);
             _context.Pop();
@@ -462,9 +465,9 @@ namespace DotLiquid.Tests
         [Test]
         public void TestMerge()
         {
-            _context.Merge(new Hash { { "test", "test" } });
+            _context.Merge(new Hash(NamingConvention) { { "test", "test" } });
             Assert.AreEqual("test", _context["test"]);
-            _context.Merge(new Hash { { "test", "newvalue" }, { "foo", "bar" } });
+            _context.Merge(new Hash(NamingConvention) { { "test", "newvalue" }, { "foo", "bar" } });
             Assert.AreEqual("newvalue", _context["test"]);
             Assert.AreEqual("bar", _context["foo"]);
         }
@@ -596,7 +599,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestCents()
         {
-            _context.Merge(Hash.FromAnonymousObject(new { cents = new HundredCents() }));
+            _context.Merge(Hash.FromAnonymousObject(new { cents = new HundredCents()}));
             Assert.AreEqual(100, _context["cents"]);
         }
 
@@ -763,7 +766,7 @@ namespace DotLiquid.Tests
             Assert.AreEqual(
                 expected: "text1text2",
                 actual: Template
-                    .Parse("{{context}}")
+                    .Parse("{{context}}", NamingConvention)
                     .Render(Hash.FromAnonymousObject(new { context = new LiquidizableList() })));
         }
 
@@ -773,13 +776,13 @@ namespace DotLiquid.Tests
             Assert.AreEqual(
                 expected: string.Empty,
                 actual: Template
-                    .Parse("{{context}}")
+                    .Parse("{{context}}", NamingConvention)
                     .Render(Hash.FromAnonymousObject(new { context = new IndexableLiquidizable() })));
 
             Assert.AreEqual(
                 expected: "text1text2",
                 actual: Template
-                    .Parse("{{context.thekey}}")
+                    .Parse("{{context.thekey}}", NamingConvention)
                     .Render(Hash.FromAnonymousObject(new { context = new IndexableLiquidizable() })));
         }
 
@@ -789,7 +792,7 @@ namespace DotLiquid.Tests
             Assert.AreEqual(
                 expected: "[lambda, Hello][alpha, bet]",
                 actual: Template
-                    .Parse("{{context}}")
+                    .Parse("{{context}}", NamingConvention)
                     .Render(Hash.FromAnonymousObject(new { context = new Dictionary<string, object> { ["lambda"] = "Hello", ["alpha"] = "bet" } })));
         }
 
@@ -847,7 +850,7 @@ namespace DotLiquid.Tests
 
             Template.RegisterSafeType(typeof(ExpandoModel), new[] { "IntProperty", "StringProperty", "Properties" });
             const string templateString = @"Int: '{{IntProperty}}'; String: '{{StringProperty}}'; Expando: '{{Properties.Key1}}'";
-            var template = Template.Parse(templateString);
+            var template = Template.Parse(templateString, NamingConvention);
             Assert.AreEqual(expected: "Int: '23'; String: 'from string property'; Expando: 'ExpandoObject Key1 value'",
                             actual: template.Render(Hash.FromAnonymousObject(model)));
         }
@@ -863,7 +866,7 @@ namespace DotLiquid.Tests
 
             var model = JsonConvert.DeserializeObject<ExpandoObject>(modelString);
             var modelHash = Hash.FromDictionary(model);
-            Assert.AreEqual(expected: "State Is:Texas", actual: Template.Parse(template).Render(modelHash));
+            Assert.AreEqual(expected: "State Is:Texas", actual: Template.Parse(template, NamingConvention).Render(modelHash));
         }
 
         /// <summary>
@@ -877,7 +880,7 @@ namespace DotLiquid.Tests
 {{ arr[idx] }}";
 
             var modelHash = Hash.FromAnonymousObject(new { arr = new[] { "Zero", "One" }, fraction = 0.01 });
-            Assert.AreEqual(expected: "Zero\r\nZero", actual: Template.Parse(template).Render(modelHash));
+            Assert.AreEqual(expected: "Zero\r\nZero", actual: Template.Parse(template, NamingConvention).Render(modelHash));
         }
 
         /// <summary>
@@ -895,7 +898,7 @@ namespace DotLiquid.Tests
 {% endfor %}";
 
             var modelHash = Hash.FromAnonymousObject(new { arr = new[] { "Zero", "One" }, numerics = arrayOfZeroTypes });
-            Assert.AreEqual(expected: string.Join(String.Empty, Enumerable.Repeat("Zero\r\n", arrayOfZeroTypes.Count)), actual: Template.Parse(template).Render(modelHash));
+            Assert.AreEqual(expected: string.Join(String.Empty, Enumerable.Repeat("Zero\r\n", arrayOfZeroTypes.Count)), actual: Template.Parse(template, NamingConvention).Render(modelHash));
         }
 
         [Test]
@@ -1032,7 +1035,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestConstructor()
         {
-            var context = new Context(new CultureInfo("jp-JP"));
+            var context = new Context(new CultureInfo("jp-JP"), NamingConvention);
             Assert.AreEqual(Template.DefaultSyntaxCompatibilityLevel, context.SyntaxCompatibilityLevel);
             Assert.AreEqual(Liquid.UseRubyDateFormat, context.UseRubyDateFormat);
             Assert.AreEqual("jp-JP", context.CurrentCulture.Name);
@@ -1051,7 +1054,7 @@ namespace DotLiquid.Tests
         public void TestCurrentCulture_NotACultureInfo()
         {
             // Create context with an IFormatProvider that is not a CultureInfo
-            Context context = new Context(CultureInfo.CurrentCulture.NumberFormat);
+            Context context = new Context(CultureInfo.CurrentCulture.NumberFormat, NamingConvention);
             Assert.AreSame(CultureInfo.CurrentCulture, context.CurrentCulture);
         }
     }

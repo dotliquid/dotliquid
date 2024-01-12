@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using DotLiquid.Exceptions;
+using DotLiquid.NamingConventions;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests.Tags
@@ -9,13 +10,15 @@ namespace DotLiquid.Tests.Tags
     [TestFixture]
     public class StandardTagTests
     {
+        private INamingConvention NamingConvention { get; } = new RubyNamingConvention();
+
         [Test]
         public void TestTag()
         {
             Tag tag = new Tag();
-            tag.Initialize("tag", null, null);
+            tag.Initialize("tag", null, null, NamingConvention);
             Assert.AreEqual("tag", tag.Name);
-            Assert.AreEqual(string.Empty, tag.Render(new Context(CultureInfo.InvariantCulture)));
+            Assert.AreEqual(string.Empty, tag.Render(new Context(CultureInfo.InvariantCulture, NamingConvention)));
         }
 
         [Test]
@@ -132,7 +135,7 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestDictionaryFor()
         {
-            var template = Template.Parse("{%for item in bla.testdict %}{{ item[0] }}-{{ item[1]}} {%endfor%}");
+            var template = Template.Parse("{%for item in bla.testdict %}{{ item[0] }}-{{ item[1]}} {%endfor%}", NamingConvention);
             var result = template.Render(Hash.FromAnonymousObject(new { bla = new TestDictObject() }));
             Assert.AreEqual("aa-bb dd-ee ff-gg ", result);
         }
@@ -403,7 +406,7 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestCaptureDetectsBadSyntax()
         {
-            Assert.Throws<SyntaxException>(() => Template.Parse("{{ var2 }}{% capture %}{{ var }} foo {% endcapture %}{{ var2 }}{{ var2 }}"));
+            Assert.Throws<SyntaxException>(() => Template.Parse("{{ var2 }}{% capture %}{{ var }} foo {% endcapture %}{{ var2 }}{{ var2 }}", NamingConvention));
         }
 
         [Test]
@@ -478,13 +481,13 @@ namespace DotLiquid.Tests.Tags
         public void TestCaseOnLengthWithElse()
         {
             Helper.AssertTemplateResult("else",
-                "{% case a.empty? %}{% when true %}true{% when false %}false{% else %}else{% endcase %}", new Hash());
+                "{% case a.empty? %}{% when true %}true{% when false %}false{% else %}else{% endcase %}", new Hash(NamingConvention));
             Helper.AssertTemplateResult("false",
-                "{% case false %}{% when true %}true{% when false %}false{% else %}else{% endcase %}", new Hash());
+                "{% case false %}{% when true %}true{% when false %}false{% else %}else{% endcase %}", new Hash(NamingConvention));
             Helper.AssertTemplateResult("true",
-                "{% case true %}{% when true %}true{% when false %}false{% else %}else{% endcase %}", new Hash());
+                "{% case true %}{% when true %}true{% when false %}false{% else %}else{% endcase %}", new Hash(NamingConvention));
             Helper.AssertTemplateResult("else",
-                "{% case NULL %}{% when true %}true{% when false %}false{% else %}else{% endcase %}", new Hash());
+                "{% case NULL %}{% when true %}true{% when false %}false{% else %}else{% endcase %}", new Hash(NamingConvention));
         }
 
         [Test]
@@ -492,7 +495,7 @@ namespace DotLiquid.Tests.Tags
         {
             // Example from the shopify forums
             const string code = "{% case collection.handle %}{% when 'menswear-jackets' %}{% assign ptitle = 'menswear' %}{% when 'menswear-t-shirts' %}{% assign ptitle = 'menswear' %}{% else %}{% assign ptitle = 'womenswear' %}{% endcase %}{{ ptitle }}";
-            Template template = Template.Parse(code);
+            Template template = Template.Parse(code, NamingConvention);
             Assert.AreEqual("menswear", template.Render(Hash.FromAnonymousObject(new { collection = new { handle = "menswear-jackets" } })));
             Assert.AreEqual("menswear", template.Render(Hash.FromAnonymousObject(new { collection = new { handle = "menswear-t-shirts" } })));
             Assert.AreEqual("womenswear", template.Render(Hash.FromAnonymousObject(new { collection = new { handle = "x" } })));
@@ -539,26 +542,26 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestAssign2()
         {
-            Assert.AreEqual("variable", Template.Parse("{% assign a = 'variable' %}{{a}}").Render());
+            Assert.AreEqual("variable", Template.Parse("{% assign a = 'variable' %}{{a}}", NamingConvention).Render());
         }
 
         [Test]
         public void TestAssignAnEmptyString()
         {
-            Assert.AreEqual("", Template.Parse("{% assign a = '' %}{{a}}").Render());
+            Assert.AreEqual("", Template.Parse("{% assign a = '' %}{{a}}", NamingConvention).Render());
         }
 
         [Test]
         public void TestAssignIsGlobal()
         {
-            Assert.AreEqual("variable", Template.Parse("{%for i in (1..2) %}{% assign a = 'variable'%}{% endfor %}{{a}}").Render());
+            Assert.AreEqual("variable", Template.Parse("{%for i in (1..2) %}{% assign a = 'variable'%}{% endfor %}{{a}}", NamingConvention).Render());
         }
 
         [Test]
         public void TestCaseDetectsBadSyntax()
         {
-            Assert.Throws<SyntaxException>(() => Helper.AssertTemplateResult("", "{% case false %}{% when %}true{% endcase %}", new Hash()));
-            Assert.Throws<SyntaxException>(() => Helper.AssertTemplateResult("", "{% case false %}{% huh %}true{% endcase %}", new Hash()));
+            Assert.Throws<SyntaxException>(() => Helper.AssertTemplateResult("", "{% case false %}{% when %}true{% endcase %}", new Hash(NamingConvention)));
+            Assert.Throws<SyntaxException>(() => Helper.AssertTemplateResult("", "{% case false %}{% huh %}true{% endcase %}", new Hash(NamingConvention)));
         }
 
         [Test]
@@ -614,10 +617,10 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestIllegalSymbols()
         {
-            Helper.AssertTemplateResult("", "{% if true == empty %}?{% endif %}", new Hash());
-            Helper.AssertTemplateResult("", "{% if true == null %}?{% endif %}", new Hash());
-            Helper.AssertTemplateResult("", "{% if empty == true %}?{% endif %}", new Hash());
-            Helper.AssertTemplateResult("", "{% if null == true %}?{% endif %}", new Hash());
+            Helper.AssertTemplateResult("", "{% if true == empty %}?{% endif %}", new Hash(NamingConvention));
+            Helper.AssertTemplateResult("", "{% if true == null %}?{% endif %}", new Hash(NamingConvention));
+            Helper.AssertTemplateResult("", "{% if empty == true %}?{% endif %}", new Hash(NamingConvention));
+            Helper.AssertTemplateResult("", "{% if null == true %}?{% endif %}", new Hash(NamingConvention));
         }
 
         [Test]
@@ -685,7 +688,7 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
         [Test]
         public void TestGetRegister()
         {
-            var context = new Context(CultureInfo.InvariantCulture);
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
             Tag.GetRegister<int>(context, "cycle");
             Tag.GetRegister<object>(context, "for");
             Assert.IsInstanceOf<IDictionary<string, int>>(Tag.GetRegister<int>(context, "cycle"));
@@ -757,12 +760,12 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
         [Test]
         public void TestIncrementDetectsBadSyntax()
         {
-            Assert.Throws<SyntaxException>(() => Template.Parse("{% increment %}"));
+            Assert.Throws<SyntaxException>(() => Template.Parse("{% increment %}", NamingConvention));
             // [@microalps] The following two tests work in Ruby Liquid unexpectedly but are not allowed in DotLiquid for the time being
             // We may need to fix/change this in the future, but this test is here to ensure any change is intentional and thought through
             // See https://github.com/Shopify/liquid/issues/1570
-            Assert.Throws<SyntaxException>(() => Template.Parse("{% increment var1 var2 %}"));
-            Assert.Throws<SyntaxException>(() => Template.Parse("{% increment product.qty %}"));
+            Assert.Throws<SyntaxException>(() => Template.Parse("{% increment var1 var2 %}", NamingConvention));
+            Assert.Throws<SyntaxException>(() => Template.Parse("{% increment product.qty %}", NamingConvention));
         }
 
         [Test]
@@ -808,12 +811,12 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
         [Test]
         public void TestDecrementDetectsBadSyntax()
         {
-            Assert.Throws<SyntaxException>(() => Template.Parse("{% decrement %}"));
+            Assert.Throws<SyntaxException>(() => Template.Parse("{% decrement %}", NamingConvention));
             // [@microalps] The following two tests work in Ruby Liquid unexpectedly but are not allowed in DotLiquid for the time being
             // We may need to fix/change this in the future, but this test is here to ensure any change is intentional and thought through
             // See https://github.com/Shopify/liquid/issues/1570
-            Assert.Throws<SyntaxException>(() => Template.Parse("{% decrement var1 var2 %}"));
-            Assert.Throws<SyntaxException>(() => Template.Parse("{% decrement product.qty %}"));
+            Assert.Throws<SyntaxException>(() => Template.Parse("{% decrement var1 var2 %}", NamingConvention));
+            Assert.Throws<SyntaxException>(() => Template.Parse("{% decrement product.qty %}", NamingConvention));
         }
     }
 }

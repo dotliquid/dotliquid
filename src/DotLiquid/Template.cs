@@ -29,12 +29,6 @@ namespace DotLiquid
     public class Template
     {
         /// <summary>
-        /// Naming convention used for template parsing
-        /// </summary>
-        /// <remarks>Default is Ruby</remarks>
-        public static INamingConvention NamingConvention { get; set; }
-
-        /// <summary>
         /// Filesystem used for template reading
         /// </summary>
         public static IFileSystem FileSystem { get; set; }
@@ -64,7 +58,6 @@ namespace DotLiquid
         static Template()
         {
             RegexTimeOut = TimeSpan.FromSeconds(10);
-            NamingConvention = new RubyNamingConvention();
             FileSystem = new BlankFileSystem();
             Tags = new Dictionary<string, Tuple<ITagFactory, Type>>();
             SafeTypeTransformers = new Dictionary<Type, Func<object, object>>();
@@ -271,21 +264,26 @@ namespace DotLiquid
         /// Creates a new <tt>Template</tt> object from liquid source code
         /// </summary>
         /// <param name="source">The Liquid Template string</param>
+        /// <param name="namingConvention">Naming convention used for template parsing</param>
         /// <returns></returns>
-        public static Template Parse(string source)
+        public static Template Parse(string source, INamingConvention namingConvention)
         {
-            return Parse(source, Template.DefaultSyntaxCompatibilityLevel);
+            return Parse(source, namingConvention, Template.DefaultSyntaxCompatibilityLevel);
         }
 
         /// <summary>
         /// Creates a new <tt>Template</tt> object from liquid source code
         /// </summary>
         /// <param name="source">The Liquid Template string</param>
+        /// <param name="namingConvention">Naming convention used for template parsing</param>
         /// <param name="syntaxCompatibilityLevel">The Liquid syntax flag used for backward compatibility</param>
         /// <returns></returns>
-        public static Template Parse(string source, SyntaxCompatibility syntaxCompatibilityLevel)
+        public static Template Parse(string source, INamingConvention namingConvention, SyntaxCompatibility syntaxCompatibilityLevel)
         {
-            Template template = new Template();
+            Template template = new Template()
+            {
+                NamingConvention = namingConvention
+            };
             template.ParseInternal(source, syntaxCompatibilityLevel);
             return template;
         }
@@ -300,21 +298,26 @@ namespace DotLiquid
         public Document Root { get; set; }
 
         /// <summary>
+        /// Naming convention used for template parsing
+        /// </summary>
+        public INamingConvention NamingConvention { get; set; }
+
+        /// <summary>
         /// Hash of user-defined, internally-available variables
         /// </summary>
         public Hash Registers
         {
-            get { return (_registers = _registers ?? new Hash()); }
+            get { return (_registers = _registers ?? new Hash(this.NamingConvention)); }
         }
 
         public Hash Assigns
         {
-            get { return (_assigns = _assigns ?? new Hash()); }
+            get { return (_assigns = _assigns ?? new Hash(this.NamingConvention)); }
         }
 
         public Hash InstanceAssigns
         {
-            get { return (_instanceAssigns = _instanceAssigns ?? new Hash()); }
+            get { return (_instanceAssigns = _instanceAssigns ?? new Hash(this.NamingConvention)); }
         }
 
         /// <summary>
@@ -338,6 +341,7 @@ namespace DotLiquid
         /// </summary>
         internal Template()
         {
+            NamingConvention = new RubyNamingConvention();
         }
 
         /// <summary>
@@ -350,7 +354,7 @@ namespace DotLiquid
         internal Template ParseInternal(string source, SyntaxCompatibility syntaxCompatibilityLevel)
         {
             this.Root = new Document();
-            this.Root.Initialize(tagName: null, markup: null, tokens: Tokenizer.Tokenize(source, syntaxCompatibilityLevel));
+            this.Root.Initialize(tagName: null, markup: null, tokens: Tokenizer.Tokenize(source, syntaxCompatibilityLevel), this.NamingConvention);
             return this;
         }
 

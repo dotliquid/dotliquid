@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
+using DotLiquid.NamingConventions;
 using DotLiquid.Util;
 
 namespace DotLiquid
@@ -23,7 +24,8 @@ namespace DotLiquid
         /// Parses a list of tokens
         /// </summary>
         /// <param name="tokens"></param>
-        protected override void Parse(List<string> tokens)
+        /// <param name="namingConvention">Naming convention used for template parsing</param>
+        protected override void Parse(List<string> tokens, INamingConvention namingConvention)
         {
             NodeList = NodeList ?? new List<object>();
             NodeList.Clear();
@@ -49,7 +51,7 @@ namespace DotLiquid
                         Tag tag;
                         if ((tag = Template.CreateTag(fullTokenMatch.Groups[1].Value)) != null)
                         {
-                            tag.Initialize(fullTokenMatch.Groups[1].Value, fullTokenMatch.Groups[2].Value, tokens);
+                            tag.Initialize(fullTokenMatch.Groups[1].Value, fullTokenMatch.Groups[2].Value, tokens, namingConvention);
                             NodeList.Add(tag);
 
                             // If the tag has some rules (eg: it must occur once) then check for them

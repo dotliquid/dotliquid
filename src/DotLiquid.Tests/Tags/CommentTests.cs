@@ -1,3 +1,4 @@
+using DotLiquid.NamingConventions;
 using DotLiquid.Tags;
 using NUnit.Framework;
 
@@ -6,19 +7,21 @@ namespace DotLiquid.Tests.Tags
     [TestFixture]
     public class CommentTests
     {
+        private INamingConvention NamingConvention { get; } = new RubyNamingConvention();
+
         [Test]
         public void TestEmptyComment()
         {
-            Assert.AreEqual(string.Empty, Template.Parse("{% comment %}{% endcomment %}").Render());
+            Assert.AreEqual(string.Empty, Template.Parse("{% comment %}{% endcomment %}", NamingConvention).Render());
 
             // Next test is specific to legacy parser and was removed from Ruby Liquid. Test that it is ignored is in TestShortHandSyntaxIsIgnored
-            Assert.AreEqual(string.Empty, Template.Parse("{##}", SyntaxCompatibility.DotLiquid20).Render());
+            Assert.AreEqual(string.Empty, Template.Parse("{##}",NamingConvention, SyntaxCompatibility.DotLiquid20).Render());
         }
 
         [Test]
         public void TestSimpleCommentValue()
         {
-            Assert.AreEqual("", Template.Parse("{% comment %}howdy{% endcomment %}").Render());
+            Assert.AreEqual("", Template.Parse("{% comment %}howdy{% endcomment %}", NamingConvention).Render());
         }
 
         [Test]
@@ -26,7 +29,7 @@ namespace DotLiquid.Tests.Tags
         {
             Assert.AreEqual(
                 expected: "",
-                actual: Template.Parse("{% comment %}{% if 'gnomeslab' contains 'liquid' %}yes{% else %}no{ % endif %}{% endcomment %}").Render());
+                actual: Template.Parse("{% comment %}{% if 'gnomeslab' contains 'liquid' %}yes{% else %}no{ % endif %}{% endcomment %}", NamingConvention).Render());
         }
 
         [Test]
@@ -37,7 +40,7 @@ namespace DotLiquid.Tests.Tags
 
             Assert.AreEqual(
                 expected: "",
-                actual: Template.Parse("{#{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}#}", SyntaxCompatibility.DotLiquid20).Render());
+                actual: Template.Parse("{#{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}#}", NamingConvention, SyntaxCompatibility.DotLiquid20).Render());
         }
     }
 }

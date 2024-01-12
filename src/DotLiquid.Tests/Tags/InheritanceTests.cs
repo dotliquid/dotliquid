@@ -1,4 +1,5 @@
 using DotLiquid.FileSystems;
+using DotLiquid.NamingConventions;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests.Tags
@@ -6,6 +7,8 @@ namespace DotLiquid.Tests.Tags
     [TestFixture]
     public class InheritanceTests
     {
+        private INamingConvention NamingConvention { get; } = new RubyNamingConvention();
+
         private class TestFileSystem : IFileSystem
         {
             public string ReadTemplateFile (Context context, string templateName)
@@ -68,7 +71,7 @@ namespace DotLiquid.Tests.Tags
                                     @"{% extends 'simple' %}
                     {% block thing %}
                         yeah
-                    {% endblock %}");
+                    {% endblock %}", NamingConvention);
 
             StringAssert.Contains ("test", template.Render ());
         }
@@ -76,7 +79,7 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void CanInherit ()
         {
-            Template template = Template.Parse (@"{% extends 'complex' %}");
+            Template template = Template.Parse (@"{% extends 'complex' %}", NamingConvention);
 
             StringAssert.Contains ("thing block", template.Render ());
         }
@@ -88,7 +91,7 @@ namespace DotLiquid.Tests.Tags
                                     @"{% extends 'complex' %}
                     {% block another %}
                       new content for another
-                    {% endblock %}");
+                    {% endblock %}", NamingConvention);
 
             StringAssert.Contains ("new content for another", template.Render ());
         }
@@ -100,7 +103,7 @@ namespace DotLiquid.Tests.Tags
                                     @"{% extends 'nested' %}
                   {% block thing %}
                   replacing block thing
-                  {% endblock %}");
+                  {% endblock %}", NamingConvention);
 
             StringAssert.Contains ("replacing block thing", template.Render ());
             StringAssert.DoesNotContain ("thing block", template.Render ());
@@ -113,7 +116,7 @@ namespace DotLiquid.Tests.Tags
                                     @"{% extends 'complex' %}
                     {% block another %}
                         {{ block.super }} + some other content
-                    {% endblock %}");
+                    {% endblock %}", NamingConvention);
 
             StringAssert.Contains ("another block", template.Render ());
             StringAssert.Contains ("some other content", template.Render ());
@@ -124,7 +127,7 @@ namespace DotLiquid.Tests.Tags
         {
             Template template = Template.Parse (
                                     @"{% extends 'middle' %}
-                  {% block middle %}C{% endblock %}");
+                  {% block middle %}C{% endblock %}", NamingConvention);
             Assert.AreEqual ("ABCYZ", template.Render ());
         }
 
@@ -132,7 +135,7 @@ namespace DotLiquid.Tests.Tags
         public void CanDefineContentInInheritedBlockFromAboveParent ()
         {
             Template template = Template.Parse (@"{% extends 'middle' %}
-                  {% block start %}!{% endblock %}");
+                  {% block start %}!{% endblock %}", NamingConvention);
             Assert.AreEqual ("!ABYZ", template.Render ());
         }
 
@@ -141,13 +144,13 @@ namespace DotLiquid.Tests.Tags
         {
             Template template = Template.Parse (
                                     @"{% extends 'middleunless' %}
-                  {% block middle %}C{% endblock %}");
+                  {% block middle %}C{% endblock %}", NamingConvention);
             Assert.AreEqual ("ABCYZ", template.Render ());
 
             template = Template.Parse (
                 @"{% extends 'middleunless' %}
                   {% block start %}{% assign nomiddle = true %}{% endblock %}
-                  {% block middle %}C{% endblock %}");
+                  {% block middle %}C{% endblock %}", NamingConvention);
             Assert.AreEqual ("ABYZ", template.Render ());
         }
 
@@ -157,7 +160,7 @@ namespace DotLiquid.Tests.Tags
             Template template = Template.Parse (
                                     @"{% extends 'middle' %}
                   {% block start %}!{% endblock %}
-                  {% block middle %}C{% endblock %}");
+                  {% block middle %}C{% endblock %}", NamingConvention);
             Assert.AreEqual ("!ABCYZ", template.Render ());
             Assert.AreEqual ("!ABCYZ", template.Render ());
         }
@@ -173,7 +176,7 @@ namespace DotLiquid.Tests.Tags
                                     @"{% extends 'simple' %}
                     {% block thing %}
                         yeah
-                    {% endblock %}");
+                    {% endblock %}", NamingConvention);
                 StringAssert.Contains("test", template.Render());
             }
             Assert.AreEqual(fileSystem.CacheHitTimes, 1);

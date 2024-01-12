@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
+using DotLiquid.NamingConventions;
 using DotLiquid.Util;
 
 namespace DotLiquid.Tags
@@ -35,7 +36,8 @@ namespace DotLiquid.Tags
         /// <param name="tagName"></param>
         /// <param name="markup"></param>
         /// <param name="tokens"></param>
-        public override void Initialize(string tagName, string markup, List<string> tokens)
+        /// <param name="namingConvention"></param>
+        public override void Initialize(string tagName, string markup, List<string> tokens, INamingConvention namingConvention)
         {
             Match match = NamedSyntax.Match(markup);
             if (match.Success)
@@ -57,7 +59,7 @@ namespace DotLiquid.Tags
                 }
             }
 
-            base.Initialize(tagName, markup, tokens);
+            base.Initialize(tagName, markup, tokens, namingConvention);
         }
 
         private static string[] VariablesFromString(string markup)

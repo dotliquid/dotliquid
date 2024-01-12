@@ -33,20 +33,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestTagsStudlyCapsAreNotAllowed()
         {
-            lock (Template.NamingConvention)
-            {
-                var currentNamingConvention = Template.NamingConvention;
-                Template.NamingConvention = new RubyNamingConvention();
-
-                try
-                {
-                    Assert.Throws<SyntaxException>(() => Template.Parse("{% IF user = 'tobi' %}Hello Tobi{% EndIf %}"));
-                }
-                finally
-                {
-                    Template.NamingConvention = currentNamingConvention;
-                }
-            }
+            Assert.Throws<SyntaxException>(() => Template.Parse("{% IF user = 'tobi' %}Hello Tobi{% EndIf %}", new RubyNamingConvention()));
         }
 
         [Test]

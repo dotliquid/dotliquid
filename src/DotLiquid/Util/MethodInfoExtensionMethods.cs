@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using DotLiquid.NamingConventions;
 
 namespace DotLiquid.Util
 {
@@ -24,10 +25,11 @@ namespace DotLiquid.Util
         /// </summary>
         /// <param name="method"></param>
         /// <param name="compareMethod"></param>
+        /// <param name="namingConvention">Naming convention used for template parsing</param>
         /// <returns></returns>
-        public static bool MatchesMethod(this MethodInfo method, KeyValuePair<string, IList<Tuple<object, MethodInfo>>> compareMethod)
+        public static bool MatchesMethod(this MethodInfo method, KeyValuePair<string, IList<Tuple<object, MethodInfo>>> compareMethod, INamingConvention namingConvention)
         {
-            if (compareMethod.Key != Template.NamingConvention.GetMemberName(method.Name))
+            if (compareMethod.Key != namingConvention.GetMemberName(method.Name))
             {
                 return false;
             }

@@ -11,6 +11,8 @@ namespace DotLiquid.Tests
     [TestFixture]
     public class ConditionTests
     {
+        private INamingConvention NamingConvention { get; } = new RubyNamingConvention();
+
         #region Classes used in tests
         public class Car : Drop, System.IEquatable<Car>, System.IEquatable<string>
         {
@@ -49,15 +51,14 @@ namespace DotLiquid.Tests
         }
         #endregion
 
-        // NOTE(David Burg): This forces sequential execution of tests, risk side effect resulting in non deterministic behavior.
-        // Context should be passed as a parameter instead.
-        private Context _context;
 
         [Test]
         public void TestBasicCondition()
         {
-            Assert.AreEqual(expected: false, actual: new Condition(left: "1", @operator: "==", right: "2").Evaluate(context: null, formatProvider: CultureInfo.InvariantCulture));
-            Assert.AreEqual(expected: true, actual: new Condition(left: "1", @operator: "==", right: "1").Evaluate(context: null, formatProvider: CultureInfo.InvariantCulture));
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
+
+            Assert.AreEqual(expected: false, actual: new Condition(left: "1", @operator: "==", right: "2").Evaluate(context: context, formatProvider: CultureInfo.InvariantCulture));
+            Assert.AreEqual(expected: true, actual: new Condition(left: "1", @operator: "==", right: "1").Evaluate(context: context, formatProvider: CultureInfo.InvariantCulture));
 
             // NOTE(David Burg): Validate that type conversion order preserves legacy behavior
             // Even if it's out of Shopify spec compliance (all type but null and false should evaluate to true).
@@ -89,43 +90,47 @@ namespace DotLiquid.Tests
         [Test]
         public void TestDefaultOperatorsEvaluateTrue()
         {
-            this.AssertEvaluatesTrue(left: "1", op: "==", right: "1");
-            this.AssertEvaluatesTrue(left: "1", op: "!=", right: "2");
-            this.AssertEvaluatesTrue(left: "1", op: "<>", right: "2");
-            this.AssertEvaluatesTrue(left: "1", op: "<", right: "2");
-            this.AssertEvaluatesTrue(left: "2", op: ">", right: "1");
-            this.AssertEvaluatesTrue(left: "1", op: ">=", right: "1");
-            this.AssertEvaluatesTrue(left: "2", op: ">=", right: "1");
-            this.AssertEvaluatesTrue(left: "1", op: "<=", right: "2");
-            this.AssertEvaluatesTrue(left: "1", op: "<=", right: "1");
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
+            this.AssertEvaluatesTrue(context, left: "1", op: "==", right: "1");
+            this.AssertEvaluatesTrue(context, left: "1", op: "!=", right: "2");
+            this.AssertEvaluatesTrue(context, left: "1", op: "<>", right: "2");
+            this.AssertEvaluatesTrue(context, left: "1", op: "<", right: "2");
+            this.AssertEvaluatesTrue(context, left: "2", op: ">", right: "1");
+            this.AssertEvaluatesTrue(context, left: "1", op: ">=", right: "1");
+            this.AssertEvaluatesTrue(context, left: "2", op: ">=", right: "1");
+            this.AssertEvaluatesTrue(context, left: "1", op: "<=", right: "2");
+            this.AssertEvaluatesTrue(context, left: "1", op: "<=", right: "1");
         }
 
         [Test]
         public void TestDefaultOperatorsEvaluateFalse()
         {
-            AssertEvaluatesFalse("1", "==", "2");
-            AssertEvaluatesFalse("1", "!=", "1");
-            AssertEvaluatesFalse("1", "<>", "1");
-            AssertEvaluatesFalse("1", "<", "0");
-            AssertEvaluatesFalse("2", ">", "4");
-            AssertEvaluatesFalse("1", ">=", "3");
-            AssertEvaluatesFalse("2", ">=", "4");
-            AssertEvaluatesFalse("1", "<=", "0");
-            AssertEvaluatesFalse("1", "<=", "0");
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
+            AssertEvaluatesFalse(context, "1", "==", "2");
+            AssertEvaluatesFalse(context, "1", "!=", "1");
+            AssertEvaluatesFalse(context, "1", "<>", "1");
+            AssertEvaluatesFalse(context, "1", "<", "0");
+            AssertEvaluatesFalse(context, "2", ">", "4");
+            AssertEvaluatesFalse(context, "1", ">=", "3");
+            AssertEvaluatesFalse(context, "2", ">=", "4");
+            AssertEvaluatesFalse(context, "1", "<=", "0");
+            AssertEvaluatesFalse(context, "1", "<=", "0");
         }
 
         [Test]
         public void TestContainsWorksOnStrings()
         {
-            AssertEvaluatesTrue("'bob'", "contains", "'o'");
-            AssertEvaluatesTrue("'bob'", "contains", "'b'");
-            AssertEvaluatesTrue("'bob'", "contains", "'bo'");
-            AssertEvaluatesTrue("'bob'", "contains", "'ob'");
-            AssertEvaluatesTrue("'bob'", "contains", "'bob'");
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
 
-            AssertEvaluatesFalse("'bob'", "contains", "'bob2'");
-            AssertEvaluatesFalse("'bob'", "contains", "'a'");
-            AssertEvaluatesFalse("'bob'", "contains", "'---'");
+            AssertEvaluatesTrue(context, "'bob'", "contains", "'o'");
+            AssertEvaluatesTrue(context, "'bob'", "contains", "'b'");
+            AssertEvaluatesTrue(context, "'bob'", "contains", "'bo'");
+            AssertEvaluatesTrue(context, "'bob'", "contains", "'ob'");
+            AssertEvaluatesTrue(context, "'bob'", "contains", "'bob'");
+
+            AssertEvaluatesFalse(context, "'bob'", "contains", "'bob2'");
+            AssertEvaluatesFalse(context, "'bob'", "contains", "'a'");
+            AssertEvaluatesFalse(context, "'bob'", "contains", "'---'");
         }
 
         [Test]
@@ -136,273 +141,283 @@ namespace DotLiquid.Tests
             // https://shopify.github.io/liquid/basics/operators/
             // This is a rather harmless violation as all it does in generate useful output for a request which would fail
             // in the canonical Shopify implementation.
-            _context = new Context(CultureInfo.InvariantCulture);
-            _context["array"] = new[] { 1, 2, 3, 4, 5 };
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
+            context["array"] = new[] { 1, 2, 3, 4, 5 };
 
-            AssertEvaluatesTrue(left: "array", op: "contains", right: "1");
-            AssertEvaluatesFalse(left: "array", op: "contains", right: "0");
-            AssertEvaluatesTrue(left: "array", op: "contains", right: "2");
-            AssertEvaluatesTrue(left: "array", op: "contains", right: "3");
-            AssertEvaluatesTrue(left: "array", op: "contains", right: "4");
-            AssertEvaluatesTrue(left: "array", op: "contains", right: "5");
-            AssertEvaluatesFalse(left: "array", op: "contains", right: "6");
+            AssertEvaluatesTrue(context, left: "array", op: "contains", right: "1");
+            AssertEvaluatesFalse(context, left: "array", op: "contains", right: "0");
+            AssertEvaluatesTrue(context, left: "array", op: "contains", right: "2");
+            AssertEvaluatesTrue(context, left: "array", op: "contains", right: "3");
+            AssertEvaluatesTrue(context, left: "array", op: "contains", right: "4");
+            AssertEvaluatesTrue(context, left: "array", op: "contains", right: "5");
+            AssertEvaluatesFalse(context, left: "array", op: "contains", right: "6");
 
             // NOTE(daviburg): Historically testing for equality cross integer and string boundaries resulted in not equal.
-            AssertEvaluatesFalse(left: "array", op: "contains", right: "'1'");
+            AssertEvaluatesFalse(context, left: "array", op: "contains", right: "'1'");
         }
 
         [Test]
         public void TestContainsWorksOnLongArrays()
         {
-            _context = new Context(CultureInfo.InvariantCulture);
-            _context["array"] = new long[] { 1, 2, 3, 4, 5 };
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
+            context["array"] = new long[] { 1, 2, 3, 4, 5 };
 
-            AssertEvaluatesTrue("array", "contains", "1");
-            AssertEvaluatesFalse("array", "contains", "0");
-            AssertEvaluatesTrue("array", "contains", "1.0");
-            AssertEvaluatesTrue("array", "contains", "2");
-            AssertEvaluatesTrue("array", "contains", "3");
-            AssertEvaluatesTrue("array", "contains", "4");
-            AssertEvaluatesTrue("array", "contains", "5");
-            AssertEvaluatesFalse("array", "contains", "6");
+            AssertEvaluatesTrue(context, "array", "contains", "1");
+            AssertEvaluatesFalse(context, "array", "contains", "0");
+            AssertEvaluatesTrue(context, "array", "contains", "1.0");
+            AssertEvaluatesTrue(context, "array", "contains", "2");
+            AssertEvaluatesTrue(context, "array", "contains", "3");
+            AssertEvaluatesTrue(context, "array", "contains", "4");
+            AssertEvaluatesTrue(context, "array", "contains", "5");
+            AssertEvaluatesFalse(context, "array", "contains", "6");
 
-            AssertEvaluatesFalse("array", "contains", "'1'");
+            AssertEvaluatesFalse(context, "array", "contains", "'1'");
         }
 
         [Test]
         public void TestStringArrays()
         {
-            _context = new Context(CultureInfo.InvariantCulture);
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
             var _array = new List<string>() { "Apple", "Orange", null, "Banana" };
-            _context["array"] = _array.ToArray();
-            _context["first"] = _array.First();
-            _context["last"] = _array.Last();
+            context["array"] = _array.ToArray();
+            context["first"] = _array.First();
+            context["last"] = _array.Last();
 
-            AssertEvaluatesTrue(left: "array", op: "contains", right: "'Apple'");
-            AssertEvaluatesTrue(left: "array", op: "startsWith", right: "first");
-            AssertEvaluatesTrue(left: "array.first", op: "==", right: "first");
-            AssertEvaluatesFalse(left: "array", op: "contains", right: "'apple'");
-            AssertEvaluatesFalse(left: "array", op: "startsWith", right: "'apple'");
-            AssertEvaluatesFalse(left: "array.first", op: "==", right: "'apple'");
-            AssertEvaluatesFalse(left: "array", op: "contains", right: "'Mango'");
-            AssertEvaluatesTrue(left: "array", op: "contains", right: "'Orange'");
-            AssertEvaluatesTrue(left: "array", op: "contains", right: "'Banana'");
-            AssertEvaluatesTrue(left: "array", op: "endsWith", right: "last");
-            AssertEvaluatesFalse(left: "array", op: "contains", right: "'Orang'");
+            AssertEvaluatesTrue(context, left: "array", op: "contains", right: "'Apple'");
+            AssertEvaluatesTrue(context, left: "array", op: "startsWith", right: "first");
+            AssertEvaluatesTrue(context, left: "array.first", op: "==", right: "first");
+            AssertEvaluatesFalse(context, left: "array", op: "contains", right: "'apple'");
+            AssertEvaluatesFalse(context, left: "array", op: "startsWith", right: "'apple'");
+            AssertEvaluatesFalse(context, left: "array.first", op: "==", right: "'apple'");
+            AssertEvaluatesFalse(context, left: "array", op: "contains", right: "'Mango'");
+            AssertEvaluatesTrue(context, left: "array", op: "contains", right: "'Orange'");
+            AssertEvaluatesTrue(context, left: "array", op: "contains", right: "'Banana'");
+            AssertEvaluatesTrue(context, left: "array", op: "endsWith", right: "last");
+            AssertEvaluatesFalse(context, left: "array", op: "contains", right: "'Orang'");
         }
 
         [Test]
         public void TestClassArrays()
         {
-            _context = new Context(CultureInfo.InvariantCulture);
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
             var _array = new List<Car>() { new Car() { Make = "Honda", Model = "Accord" }, new Car() { Make = "Ford", Model = "Explorer" } };
-            _context["array"] = _array.ToArray();
-            _context["first"] = _array.First();
-            _context["last"] = _array.Last();
-            _context["clone"] = new Car() { Make = "Honda", Model = "Accord" };
-            _context["camry"] = new Car() { Make = "Toyota", Model = "Camry" };
+            context["array"] = _array.ToArray();
+            context["first"] = _array.First();
+            context["last"] = _array.Last();
+            context["clone"] = new Car() { Make = "Honda", Model = "Accord" };
+            context["camry"] = new Car() { Make = "Toyota", Model = "Camry" };
 
-            AssertEvaluatesTrue(left: "array", op: "contains", right: "first");
-            AssertEvaluatesTrue(left: "array", op: "startsWith", right: "first");
-            AssertEvaluatesTrue(left: "array.first", op: "==", right: "first");
-            AssertEvaluatesTrue(left: "array", op: "contains", right: "clone");
-            AssertEvaluatesTrue(left: "array", op: "startsWith", right: "clone");
-            AssertEvaluatesTrue(left: "array", op: "endsWith", right: "last");
-            AssertEvaluatesFalse(left: "array", op: "contains", right: "camry");
+            AssertEvaluatesTrue(context, left: "array", op: "contains", right: "first");
+            AssertEvaluatesTrue(context,left: "array", op: "startsWith", right: "first");
+            AssertEvaluatesTrue(context,left: "array.first", op: "==", right: "first");
+            AssertEvaluatesTrue(context,left: "array", op: "contains", right: "clone");
+            AssertEvaluatesTrue(context,left: "array", op: "startsWith", right: "clone");
+            AssertEvaluatesTrue(context,left: "array", op: "endsWith", right: "last");
+            AssertEvaluatesFalse(context,left: "array", op: "contains", right: "camry");
         }
 
         [Test]
         public void TestTruthyArray()
         {
-            _context = new Context(CultureInfo.InvariantCulture);
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
             var _array = new List<bool>() { true };
-            _context["array"] = _array.ToArray();
-            _context["first"] = _array.First();
+            context["array"] = _array.ToArray();
+            context["first"] = _array.First();
 
-            AssertEvaluatesTrue(left: "array", op: "contains", right: "first");
-            AssertEvaluatesTrue(left: "array", op: "startsWith", right: "first");
-            AssertEvaluatesTrue(left: "array.first", op: "==", right: "'true'");
-            AssertEvaluatesTrue(left: "array", op: "startsWith", right: "'true'");
+            AssertEvaluatesTrue(context, left: "array", op: "contains", right: "first");
+            AssertEvaluatesTrue(context, left: "array", op: "startsWith", right: "first");
+            AssertEvaluatesTrue(context, left: "array.first", op: "==", right: "'true'");
+            AssertEvaluatesTrue(context, left: "array", op: "startsWith", right: "'true'");
 
-            AssertEvaluatesFalse(left: "array", op: "contains", right: "'true'"); // to be re-evaluated in #362
+            AssertEvaluatesFalse(context, left: "array", op: "contains", right: "'true'"); // to be re-evaluated in #362
         }
 
         [Test]
         public void TestCharArrays()
         {
-            _context = new Context(CultureInfo.InvariantCulture);
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
             var _array = new List<char> { 'A', 'B', 'C' };
-            _context["array"] = _array.ToArray();
-            _context["first"] = _array.First();
-            _context["last"] = _array.Last();
+            context["array"] = _array.ToArray();
+            context["first"] = _array.First();
+            context["last"] = _array.Last();
 
-            AssertEvaluatesTrue(left: "array", op: "contains", right: "'A'");
-            AssertEvaluatesTrue(left: "array", op: "contains", right: "first");
-            AssertEvaluatesTrue(left: "array", op: "startsWith", right: "first");
-            AssertEvaluatesTrue(left: "array.first", op: "==", right: "first");
-            AssertEvaluatesFalse(left: "array", op: "contains", right: "'a'");
-            AssertEvaluatesFalse(left: "array", op: "contains", right: "'X'");
-            AssertEvaluatesTrue(left: "array", op: "contains", right: "'B'");
-            AssertEvaluatesTrue(left: "array", op: "contains", right: "'C'");
-            AssertEvaluatesTrue(left: "array", op: "endsWith", right: "last");
+            AssertEvaluatesTrue(context, left: "array", op: "contains", right: "'A'");
+            AssertEvaluatesTrue(context, left: "array", op: "contains", right: "first");
+            AssertEvaluatesTrue(context, left: "array", op: "startsWith", right: "first");
+            AssertEvaluatesTrue(context, left: "array.first", op: "==", right: "first");
+            AssertEvaluatesFalse(context, left: "array", op: "contains", right: "'a'");
+            AssertEvaluatesFalse(context, left: "array", op: "contains", right: "'X'");
+            AssertEvaluatesTrue(context, left: "array", op: "contains", right: "'B'");
+            AssertEvaluatesTrue(context, left: "array", op: "contains", right: "'C'");
+            AssertEvaluatesTrue(context, left: "array", op: "endsWith", right: "last");
         }
 
         [Test]
         public void TestByteArrays()
         {
-            _context = new Context(CultureInfo.InvariantCulture);
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
             var _array = new List<byte> { 0x01, 0x02, 0x03, 0x30 };
-            _context["array"] = _array.ToArray();
-            _context["first"] = _array.First();
-            _context["last"] = _array.Last();
+            context["array"] = _array.ToArray();
+            context["first"] = _array.First();
+            context["last"] = _array.Last();
 
-            AssertEvaluatesFalse(left: "array", op: "contains", right: "0");
-            AssertEvaluatesFalse(left: "array", op: "contains", right: "'0'");
-            AssertEvaluatesTrue(left: "array", op: "startsWith", right: "first");
-            AssertEvaluatesTrue(left: "array.first", op: "==", right: "first");
-            AssertEvaluatesTrue(left: "array", op: "contains", right: "first");
-            AssertEvaluatesFalse(left: "array", op: "contains", right: "1");
-            AssertEvaluatesTrue(left: "array", op: "endsWith", right: "last");
+            AssertEvaluatesFalse(context, left: "array", op: "contains", right: "0");
+            AssertEvaluatesFalse(context, left: "array", op: "contains", right: "'0'");
+            AssertEvaluatesTrue(context, left: "array", op: "startsWith", right: "first");
+            AssertEvaluatesTrue(context, left: "array.first", op: "==", right: "first");
+            AssertEvaluatesTrue(context, left: "array", op: "contains", right: "first");
+            AssertEvaluatesFalse(context, left: "array", op: "contains", right: "1");
+            AssertEvaluatesTrue(context, left: "array", op: "endsWith", right: "last");
         }
 
         [Test]
         public void TestContainsWorksOnDoubleArrays()
         {
-            _context = new Context(CultureInfo.InvariantCulture);
-            _context["array"] = new double[] { 1.0, 2.1, 3.25, 4.333, 5.0 };
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
+            context["array"] = new double[] { 1.0, 2.1, 3.25, 4.333, 5.0 };
 
-            AssertEvaluatesTrue("array", "contains", "1.0");
-            AssertEvaluatesFalse("array", "contains", "0");
-            AssertEvaluatesTrue("array", "contains", "2.1");
-            AssertEvaluatesFalse("array", "contains", "3");
-            AssertEvaluatesFalse("array", "contains", "4.33");
-            AssertEvaluatesTrue("array", "contains", "5.00");
-            AssertEvaluatesFalse("array", "contains", "6");
+            AssertEvaluatesTrue(context, "array", "contains", "1.0");
+            AssertEvaluatesFalse(context, "array", "contains", "0");
+            AssertEvaluatesTrue(context, "array", "contains", "2.1");
+            AssertEvaluatesFalse(context, "array", "contains", "3");
+            AssertEvaluatesFalse(context, "array", "contains", "4.33");
+            AssertEvaluatesTrue(context, "array", "contains", "5.00");
+            AssertEvaluatesFalse(context, "array", "contains", "6");
 
-            AssertEvaluatesFalse("array", "contains", "'1'");
+            AssertEvaluatesFalse(context, "array", "contains", "'1'");
         }
 
         [Test]
         public void TestContainsReturnsFalseForNilCommands()
         {
-            AssertEvaluatesFalse("not_assigned", "contains", "0");
-            AssertEvaluatesFalse("0", "contains", "not_assigned");
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
+            AssertEvaluatesFalse(context, "not_assigned", "contains", "0");
+            AssertEvaluatesFalse(context, "0", "contains", "not_assigned");
         }
 
         [Test]
         public void TestStartsWithWorksOnStrings()
         {
-            AssertEvaluatesTrue("'dave'", "startswith", "'d'");
-            AssertEvaluatesTrue("'dave'", "startswith", "'da'");
-            AssertEvaluatesTrue("'dave'", "startswith", "'dav'");
-            AssertEvaluatesTrue("'dave'", "startswith", "'dave'");
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
 
-            AssertEvaluatesFalse("'dave'", "startswith", "'ave'");
-            AssertEvaluatesFalse("'dave'", "startswith", "'e'");
-            AssertEvaluatesFalse("'dave'", "startswith", "'---'");
+            AssertEvaluatesTrue(context, "'dave'", "startswith", "'d'");
+            AssertEvaluatesTrue(context, "'dave'", "startswith", "'da'");
+            AssertEvaluatesTrue(context, "'dave'", "startswith", "'dav'");
+            AssertEvaluatesTrue(context, "'dave'", "startswith", "'dave'");
+
+            AssertEvaluatesFalse(context, "'dave'", "startswith", "'ave'");
+            AssertEvaluatesFalse(context, "'dave'", "startswith", "'e'");
+            AssertEvaluatesFalse(context, "'dave'", "startswith", "'---'");
         }
 
         [Test]
         public void TestStartsWithWorksOnArrays()
         {
-            _context = new Context(CultureInfo.InvariantCulture);
-            _context["array"] = new[] { 1, 2, 3, 4, 5 };
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
+            context["array"] = new[] { 1, 2, 3, 4, 5 };
 
-            AssertEvaluatesFalse("array", "startswith", "0");
-            AssertEvaluatesTrue("array", "startswith", "1");
+            AssertEvaluatesFalse(context, "array", "startswith", "0");
+            AssertEvaluatesTrue(context, "array", "startswith", "1");
         }
 
         [Test]
         public void TestStartsWithReturnsFalseForNilCommands()
         {
-            AssertEvaluatesFalse("not_assigned", "startswith", "0");
-            AssertEvaluatesFalse("0", "startswith", "not_assigned");
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
+            AssertEvaluatesFalse(context, "not_assigned", "startswith", "0");
+            AssertEvaluatesFalse(context, "0", "startswith", "not_assigned");
         }
 
         [Test]
         public void TestEndsWithWorksOnStrings()
         {
-            AssertEvaluatesTrue("'dave'", "endswith", "'e'");
-            AssertEvaluatesTrue("'dave'", "endswith", "'ve'");
-            AssertEvaluatesTrue("'dave'", "endswith", "'ave'");
-            AssertEvaluatesTrue("'dave'", "endswith", "'dave'");
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
+            AssertEvaluatesTrue(context,"'dave'", "endswith", "'e'");
+            AssertEvaluatesTrue(context,"'dave'", "endswith", "'ve'");
+            AssertEvaluatesTrue(context,"'dave'", "endswith", "'ave'");
+            AssertEvaluatesTrue(context,"'dave'", "endswith", "'dave'");
 
-            AssertEvaluatesFalse("'dave'", "endswith", "'dav'");
-            AssertEvaluatesFalse("'dave'", "endswith", "'d'");
-            AssertEvaluatesFalse("'dave'", "endswith", "'---'");
+            AssertEvaluatesFalse(context,"'dave'", "endswith", "'dav'");
+            AssertEvaluatesFalse(context,"'dave'", "endswith", "'d'");
+            AssertEvaluatesFalse(context,"'dave'", "endswith", "'---'");
         }
 
         [Test]
         public void TestEndsWithWorksOnArrays()
         {
-            _context = new Context(CultureInfo.InvariantCulture);
-            _context["array"] = new[] { 1, 2, 3, 4, 5 };
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
+            context["array"] = new[] { 1, 2, 3, 4, 5 };
 
-            AssertEvaluatesFalse("array", "endswith", "0");
-            AssertEvaluatesTrue("array", "endswith", "5");
+            AssertEvaluatesFalse(context,"array", "endswith", "0");
+            AssertEvaluatesTrue(context,"array", "endswith", "5");
         }
 
         [Test]
         public void TestEndsWithReturnsFalseForNilCommands()
         {
-            AssertEvaluatesFalse("not_assigned", "endswith", "0");
-            AssertEvaluatesFalse("0", "endswith", "not_assigned");
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
+            AssertEvaluatesFalse(context,"not_assigned", "endswith", "0");
+            AssertEvaluatesFalse(context,"0", "endswith", "not_assigned");
         }
 
         [Test]
         public void TestDictionaryHasKey()
         {
-            _context = new Context(CultureInfo.InvariantCulture);
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
             System.Collections.Generic.Dictionary<string, string> testDictionary = new System.Collections.Generic.Dictionary<string, string>
             {
                 { "dave", "0" },
                 { "bob", "4" }
             };
-            _context["dictionary"] = testDictionary;
+            context["dictionary"] = testDictionary;
 
-            AssertEvaluatesTrue("dictionary", "haskey", "'bob'");
-            AssertEvaluatesFalse("dictionary", "haskey", "'0'");
+            AssertEvaluatesTrue(context,"dictionary", "haskey", "'bob'");
+            AssertEvaluatesFalse(context,"dictionary", "haskey", "'0'");
         }
 
         [Test]
         public void TestDictionaryHasValue()
         {
-            _context = new Context(CultureInfo.InvariantCulture);
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
             System.Collections.Generic.Dictionary<string, string> testDictionary = new System.Collections.Generic.Dictionary<string, string>
             {
                 { "dave", "0" },
                 { "bob", "4" }
             };
-            _context["dictionary"] = testDictionary;
+            context["dictionary"] = testDictionary;
 
-            AssertEvaluatesTrue("dictionary", "hasvalue", "'0'");
-            AssertEvaluatesFalse("dictionary", "hasvalue", "'bob'");
+            AssertEvaluatesTrue(context,"dictionary", "hasvalue", "'0'");
+            AssertEvaluatesFalse(context,"dictionary", "hasvalue", "'bob'");
         }
 
         [Test]
         public void TestOrCondition()
         {
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
+
             Condition condition = new Condition("1", "==", "2");
-            Assert.IsFalse(condition.Evaluate(null, CultureInfo.InvariantCulture));
+            Assert.IsFalse(condition.Evaluate(context, CultureInfo.InvariantCulture));
 
             condition.Or(new Condition("2", "==", "1"));
-            Assert.IsFalse(condition.Evaluate(null, CultureInfo.InvariantCulture));
+            Assert.IsFalse(condition.Evaluate(context, CultureInfo.InvariantCulture));
 
             condition.Or(new Condition("1", "==", "1"));
-            Assert.IsTrue(condition.Evaluate(null, CultureInfo.InvariantCulture));
+            Assert.IsTrue(condition.Evaluate(context, CultureInfo.InvariantCulture));
         }
 
         [Test]
         public void TestAndCondition()
         {
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
+
             Condition condition = new Condition("1", "==", "1");
-            Assert.IsTrue(condition.Evaluate(null, CultureInfo.InvariantCulture));
+            Assert.IsTrue(condition.Evaluate(context, CultureInfo.InvariantCulture));
 
             condition.And(new Condition("2", "==", "2"));
-            Assert.IsTrue(condition.Evaluate(null, CultureInfo.InvariantCulture));
+            Assert.IsTrue(condition.Evaluate(context, CultureInfo.InvariantCulture));
 
             condition.And(new Condition("2", "==", "1"));
-            Assert.IsFalse(condition.Evaluate(null, CultureInfo.InvariantCulture));
+            Assert.IsFalse(condition.Evaluate(context, CultureInfo.InvariantCulture));
         }
 
         [Test]
@@ -410,11 +425,13 @@ namespace DotLiquid.Tests
         {
             try
             {
+                var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
+
                 Condition.Operators["starts_with"] =
                     (left, right) => Regex.IsMatch(left.ToString(), string.Format("^{0}", right.ToString()));
 
-                AssertEvaluatesTrue("'bob'", "starts_with", "'b'");
-                AssertEvaluatesFalse("'bob'", "starts_with", "'o'");
+                AssertEvaluatesTrue(context,"'bob'", "starts_with", "'b'");
+                AssertEvaluatesFalse(context,"'bob'", "starts_with", "'o'");
             }
             finally
             {
@@ -427,24 +444,26 @@ namespace DotLiquid.Tests
         {
             try
             {
+                var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
+
                 Condition.Operators["IsMultipleOf"] =
                     (left, right) => (int)left % (int)right == 0;
 
                 // exact match
-                AssertEvaluatesTrue("16", "IsMultipleOf", "4");
-                AssertEvaluatesTrue("2147483646", "IsMultipleOf", "2");
-                AssertError("2147483648", "IsMultipleOf", "2", typeof(System.InvalidCastException));
-                AssertEvaluatesFalse("16", "IsMultipleOf", "5");
+                AssertEvaluatesTrue(context,"16", "IsMultipleOf", "4");
+                AssertEvaluatesTrue(context,"2147483646", "IsMultipleOf", "2");
+                AssertError(context,"2147483648", "IsMultipleOf", "2", typeof(System.InvalidCastException));
+                AssertEvaluatesFalse(context,"16", "IsMultipleOf", "5");
 
                 // lower case: compatibility
-                AssertEvaluatesTrue("16", "ismultipleof", "4");
-                AssertEvaluatesFalse("16", "ismultipleof", "5");
+                AssertEvaluatesTrue(context,"16", "ismultipleof", "4");
+                AssertEvaluatesFalse(context,"16", "ismultipleof", "5");
 
-                AssertEvaluatesTrue("16", "is_multiple_of", "4");
-                AssertEvaluatesFalse("16", "is_multiple_of", "5");
+                AssertEvaluatesTrue(context,"16", "is_multiple_of", "4");
+                AssertEvaluatesFalse(context,"16", "is_multiple_of", "5");
 
                 // camel case : incompatible
-                AssertError("16", "isMultipleOf", "4", typeof(ArgumentException));
+                AssertError(context,"16", "isMultipleOf", "4", typeof(ArgumentException));
 
                 //Run tests through the template to verify that capitalization rules are followed through template parsing
                 Helper.AssertTemplateResult(" TRUE ", "{% if 16 IsMultipleOf 4 %} TRUE {% endif %}");
@@ -466,132 +485,121 @@ namespace DotLiquid.Tests
         {
             try
             {
-                Condition.Operators["IsMultipleOf"] =
+                var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
+                Condition.Operators["IsMultipleOff"] =
                     (left, right) => System.Convert.ToInt64(left) % System.Convert.ToInt64(right) == 0;
 
                 // exact match
-                AssertEvaluatesTrue("16", "IsMultipleOf", "4");
-                AssertEvaluatesTrue("2147483646", "IsMultipleOf", "2");
-                AssertEvaluatesTrue("2147483648", "IsMultipleOf", "2");
-                AssertEvaluatesFalse("16", "IsMultipleOf", "5");
+                AssertEvaluatesTrue(context,"16", "IsMultipleOff", "4");
+                AssertEvaluatesTrue(context,"2147483646", "IsMultipleOff", "2");
+                AssertEvaluatesTrue(context,"2147483648", "IsMultipleOff", "2");
+                AssertEvaluatesFalse(context,"16", "IsMultipleOff", "5");
 
                 // lower case: compatibility
-                AssertEvaluatesTrue("16", "ismultipleof", "4");
-                AssertEvaluatesFalse("16", "ismultipleof", "5");
+                AssertEvaluatesTrue(context,"16", "ismultipleoff", "4");
+                AssertEvaluatesFalse(context,"16", "ismultipleoff", "5");
 
-                AssertEvaluatesTrue("16", "is_multiple_of", "4");
-                AssertEvaluatesFalse("16", "is_multiple_of", "5");
+                AssertEvaluatesTrue(context,"16", "is_multiple_off", "4");
+                AssertEvaluatesFalse(context,"16", "is_multiple_off", "5");
 
                 // camel case : incompatible
-                AssertError("16", "isMultipleOf", "4", typeof(ArgumentException));
+                AssertError(context,"16", "isMultipleOff", "4", typeof(ArgumentException));
 
                 //Run tests through the template to verify that capitalization rules are followed through template parsing
-                Helper.AssertTemplateResult(" TRUE ", "{% if 16 IsMultipleOf 4 %} TRUE {% endif %}");
-                Helper.AssertTemplateResult("", "{% if 14 IsMultipleOf 4 %} TRUE {% endif %}");
-                Helper.AssertTemplateResult(" TRUE ", "{% if 16 ismultipleof 4 %} TRUE {% endif %}");
-                Helper.AssertTemplateResult("", "{% if 14 ismultipleof 4 %} TRUE {% endif %}");
-                Helper.AssertTemplateResult(" TRUE ", "{% if 16 is_multiple_of 4 %} TRUE {% endif %}");
-                Helper.AssertTemplateResult("", "{% if 14 is_multiple_of 4 %} TRUE {% endif %}");
-                Helper.AssertTemplateResult("Liquid error: Unknown operator isMultipleOf", "{% if 16 isMultipleOf 4 %} TRUE {% endif %}");
+                Helper.AssertTemplateResult(" TRUE ", "{% if 16 IsMultipleOff 4 %} TRUE {% endif %}");
+                Helper.AssertTemplateResult("", "{% if 14 IsMultipleOff 4 %} TRUE {% endif %}");
+                Helper.AssertTemplateResult(" TRUE ", "{% if 16 ismultipleoff 4 %} TRUE {% endif %}");
+                Helper.AssertTemplateResult("", "{% if 14 ismultipleoff 4 %} TRUE {% endif %}");
+                Helper.AssertTemplateResult(" TRUE ", "{% if 16 is_multiple_off 4 %} TRUE {% endif %}");
+                Helper.AssertTemplateResult("", "{% if 14 is_multiple_off 4 %} TRUE {% endif %}");
+                Helper.AssertTemplateResult("Liquid error: Unknown operator isMultipleOff", "{% if 16 isMultipleOff 4 %} TRUE {% endif %}");
             }
             finally
             {
-                Condition.Operators.Remove("IsMultipleOf");
+                Condition.Operators.Remove("IsMultipleOff");
             }
         }
 
         [Test]
         public void TestCapitalInCustomCSharpOperatorInt()
         {
-            //have to run this test in a lock because it requires
-            //changing the globally static NamingConvention
-            lock (Template.NamingConvention)
+            var namingConvention = new CSharpNamingConvention();
+            try
             {
-                var oldconvention = Template.NamingConvention;
-                Template.NamingConvention = new CSharpNamingConvention();
+                var context = new Context(CultureInfo.InvariantCulture, namingConvention);
+                Condition.Operators["DivisibleBy"] =
+                    (left, right) => (int)left % (int)right == 0;
 
-                try
-                {
-                    Condition.Operators["DivisibleBy"] =
-                        (left, right) => (int)left % (int)right == 0;
+                // exact match
+                AssertEvaluatesTrue(context, "16", "DivisibleBy", "4");
+                AssertEvaluatesTrue(context, "2147483646", "DivisibleBy", "2");
+                AssertError(context, "2147483648", "DivisibleBy", "2", typeof(System.InvalidCastException));
+                AssertEvaluatesFalse(context, "16", "DivisibleBy", "5");
 
-                    // exact match
-                    AssertEvaluatesTrue("16", "DivisibleBy", "4");
-                    AssertEvaluatesTrue("2147483646", "DivisibleBy", "2");
-                    AssertError("2147483648", "DivisibleBy", "2", typeof(System.InvalidCastException));
-                    AssertEvaluatesFalse("16", "DivisibleBy", "5");
+                // lower case: compatibility
+                AssertEvaluatesTrue(context, "16", "divisibleby", "4");
+                AssertEvaluatesFalse(context, "16", "divisibleby", "5");
 
-                    // lower case: compatibility
-                    AssertEvaluatesTrue("16", "divisibleby", "4");
-                    AssertEvaluatesFalse("16", "divisibleby", "5");
+                // camel case : compatibility
+                AssertEvaluatesTrue(context, "16", "divisibleBy", "4");
+                AssertEvaluatesFalse(context, "16", "divisibleBy", "5");
 
-                    // camel case : compatibility
-                    AssertEvaluatesTrue("16", "divisibleBy", "4");
-                    AssertEvaluatesFalse("16", "divisibleBy", "5");
+                // snake case : incompatible
+                AssertError(context, "16", "divisible_by", "4", typeof(ArgumentException));
 
-                    // snake case : incompatible
-                    AssertError("16", "divisible_by", "4", typeof(ArgumentException));
-
-                    //Run tests through the template to verify that capitalization rules are followed through template parsing
-                    Helper.AssertTemplateResult(" TRUE ", "{% if 16 DivisibleBy 4 %} TRUE {% endif %}");
-                    Helper.AssertTemplateResult("", "{% if 16 DivisibleBy 5 %} TRUE {% endif %}");
-                    Helper.AssertTemplateResult(" TRUE ", "{% if 16 divisibleby 4 %} TRUE {% endif %}");
-                    Helper.AssertTemplateResult("", "{% if 16 divisibleby 5 %} TRUE {% endif %}");
-                    Helper.AssertTemplateResult("Liquid error: Unknown operator divisible_by", "{% if 16 divisible_by 4 %} TRUE {% endif %}");
-                }
-                finally
-                {
-                    Condition.Operators.Remove("DivisibleBy");
-                    Template.NamingConvention = oldconvention;
-                }
+                //Run tests through the template to verify that capitalization rules are followed through template parsing
+                Helper.AssertTemplateResult(" TRUE ", "{% if 16 DivisibleBy 4 %} TRUE {% endif %}", namingConvention);
+                Helper.AssertTemplateResult("", "{% if 16 DivisibleBy 5 %} TRUE {% endif %}", namingConvention);
+                Helper.AssertTemplateResult(" TRUE ", "{% if 16 divisibleby 4 %} TRUE {% endif %}", namingConvention);
+                Helper.AssertTemplateResult("", "{% if 16 divisibleby 5 %} TRUE {% endif %}", namingConvention);
+                Helper.AssertTemplateResult("Liquid error: Unknown operator divisible_by", "{% if 16 divisible_by 4 %} TRUE {% endif %}", namingConvention);
+            }
+            finally
+            {
+                Condition.Operators.Remove("DivisibleBy");
             }
         }
 
         [Test]
         public void TestCapitalInCustomCSharpOperatorLong()
         {
-            //have to run this test in a lock because it requires
-            //changing the globally static NamingConvention
-            lock (Template.NamingConvention)
+            var namingConvention = new CSharpNamingConvention();
+
+            try
             {
-                var oldconvention = Template.NamingConvention;
-                Template.NamingConvention = new CSharpNamingConvention();
+                var context = new Context(CultureInfo.InvariantCulture, namingConvention);
+                Condition.Operators["DivisibleByy"] =
+                    (left, right) => System.Convert.ToInt64(left) % System.Convert.ToInt64(right) == 0;
 
-                try
-                {
-                    Condition.Operators["DivisibleBy"] =
-                        (left, right) => System.Convert.ToInt64(left) % System.Convert.ToInt64(right) == 0;
+                // exact match
+                AssertEvaluatesTrue(context, "16", "DivisibleByy", "4");
+                AssertEvaluatesTrue(context, "2147483646", "DivisibleByy", "2");
+                AssertEvaluatesTrue(context, "2147483648", "DivisibleByy", "2");
+                AssertEvaluatesFalse(context,"16", "DivisibleByy", "5");
 
-                    // exact match
-                    AssertEvaluatesTrue("16", "DivisibleBy", "4");
-                    AssertEvaluatesTrue("2147483646", "DivisibleBy", "2");
-                    AssertEvaluatesTrue("2147483648", "DivisibleBy", "2");
-                    AssertEvaluatesFalse("16", "DivisibleBy", "5");
+                // lower case: compatibility
+                AssertEvaluatesTrue(context,"16", "divisiblebyy", "4");
+                AssertEvaluatesFalse(context,"16", "divisiblebyy", "5");
 
-                    // lower case: compatibility
-                    AssertEvaluatesTrue("16", "divisibleby", "4");
-                    AssertEvaluatesFalse("16", "divisibleby", "5");
+                // camel case: compatibility
+                AssertEvaluatesTrue(context,"16", "divisibleByy", "4");
+                AssertEvaluatesFalse(context,"16", "divisibleByy", "5");
 
-                    // camel case: compatibility
-                    AssertEvaluatesTrue("16", "divisibleBy", "4");
-                    AssertEvaluatesFalse("16", "divisibleBy", "5");
+                // snake case: incompatible
+                AssertError(context,"16", "divisible_byy", "4", typeof(ArgumentException));
 
-                    // snake case: incompatible
-                    AssertError("16", "divisible_by", "4", typeof(ArgumentException));
-
-                    //Run tests through the template to verify that capitalization rules are followed through template parsing
-                    Helper.AssertTemplateResult(" TRUE ", "{% if 16 DivisibleBy 4 %} TRUE {% endif %}");
-                    Helper.AssertTemplateResult("", "{% if 16 DivisibleBy 5 %} TRUE {% endif %}");
-                    Helper.AssertTemplateResult(" TRUE ", "{% if 16 divisibleby 4 %} TRUE {% endif %}");
-                    Helper.AssertTemplateResult("", "{% if 16 divisibleby 5 %} TRUE {% endif %}");
-                    Helper.AssertTemplateResult("Liquid error: Unknown operator divisible_by", "{% if 16 divisible_by 4 %} TRUE {% endif %}");
-                }
-                finally
-                {
-                    Condition.Operators.Remove("DivisibleBy");
-                    Template.NamingConvention = oldconvention;
-                }
+                //Run tests through the template to verify that capitalization rules are followed through template parsing
+                Helper.AssertTemplateResult(" TRUE ", "{% if 16 DivisibleByy 4 %} TRUE {% endif %}", namingConvention);
+                Helper.AssertTemplateResult("", "{% if 16 DivisibleByy 5 %} TRUE {% endif %}", namingConvention);
+                Helper.AssertTemplateResult(" TRUE ", "{% if 16 divisiblebyy 4 %} TRUE {% endif %}", namingConvention);
+                Helper.AssertTemplateResult("", "{% if 16 divisiblebyy 5 %} TRUE {% endif %}", namingConvention);
+                Helper.AssertTemplateResult("Liquid error: Unknown operator divisible_byy", "{% if 16 divisible_byy 4 %} TRUE {% endif %}", namingConvention);
             }
+            finally
+            {
+                Condition.Operators.Remove("DivisibleByy");
+            }
+
         }
 
         [Test]
@@ -599,7 +607,7 @@ namespace DotLiquid.Tests
         {
             var model = new { value = new decimal(-10.5) };
 
-            string output = Template.Parse("{% if model.value < 0 %}passed{% endif %}")
+            string output = Template.Parse("{% if model.value < 0 %}passed{% endif %}", NamingConvention)
                 .Render(Hash.FromAnonymousObject(new { model }));
 
             Assert.AreEqual("passed", output);
@@ -614,7 +622,7 @@ namespace DotLiquid.Tests
             row.Add("MyID", id);
 
             var current = "MyID is {% if MyID == 1 %}1{%endif%}";
-            var parse = DotLiquid.Template.Parse(current);
+            var parse = DotLiquid.Template.Parse(current, NamingConvention);
             var parsedOutput = parse.Render(new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = Hash.FromDictionary(row) });
             Assert.AreEqual("MyID is 1", parsedOutput);
         }
@@ -624,12 +632,13 @@ namespace DotLiquid.Tests
         {
             try
             {
+                var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
                 Condition.Operators["StartsWith"] =
                     (left, right) => Regex.IsMatch(left.ToString(), string.Format("^{0}", right.ToString()));
 
                 Helper.AssertTemplateResult("", "{% if 'bob' StartsWith 'B' %} YES {% endif %}", null, new CSharpNamingConvention());
-                AssertEvaluatesTrue("'bob'", "StartsWith", "'b'");
-                AssertEvaluatesFalse("'bob'", "StartsWith", "'o'");
+                AssertEvaluatesTrue(context, "'bob'", "StartsWith", "'b'");
+                AssertEvaluatesFalse(context, "'bob'", "StartsWith", "'o'");
             }
             finally
             {
@@ -689,107 +698,107 @@ namespace DotLiquid.Tests
         [Test]
         public void TestEqualOperatorsWorksOnEnum()
         {
-            _context = new Context(CultureInfo.InvariantCulture);
-            _context["enum"] = TestEnum.Yes;
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
+            context["enum"] = TestEnum.Yes;
 
-            AssertEvaluatesTrue("enum", "==", "'Yes'");
-            AssertEvaluatesTrue("enum", "!=", "'No'");
+            AssertEvaluatesTrue(context, "enum", "==", "'Yes'");
+            AssertEvaluatesTrue(context, "enum", "!=", "'No'");
 
-            AssertEvaluatesFalse("enum", "==", "'No'");
-            AssertEvaluatesFalse("enum", "!=", "'Yes'");
+            AssertEvaluatesFalse(context, "enum", "==", "'No'");
+            AssertEvaluatesFalse(context, "enum", "!=", "'Yes'");
         }
 
         [Test]
         public void TestBlankObject()
         {
-            _context = new Context(CultureInfo.InvariantCulture);
-            _context["dictionary"] = new Dictionary<string, string> { { "abc", "xyz" } };
-            _context["empty_dictionary"] = new Dictionary<string, string> { };
-            _context["list"] = new List<string> { "abc" };
-            _context["empty_list"] = new List<string> { };
-            _context["array"] = new string[] { "foo" };
-            _context["empty_array"] = new string[] { };
-            _context["a_drop"] = new DummyDrop();
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
+            context["dictionary"] = new Dictionary<string, string> { { "abc", "xyz" } };
+            context["empty_dictionary"] = new Dictionary<string, string> { };
+            context["list"] = new List<string> { "abc" };
+            context["empty_list"] = new List<string> { };
+            context["array"] = new string[] { "foo" };
+            context["empty_array"] = new string[] { };
+            context["a_drop"] = new DummyDrop();
 
             // self check
-            AssertEvaluatesFalse(left: "blank", op: "==", right: "blank");
-            AssertEvaluatesTrue(left: "blank", op: "!=", right: "blank");
-            AssertEvaluatesTrue(left: "blank", op: "<>", right: "blank");
+            AssertEvaluatesFalse(context, left: "blank", op: "==", right: "blank");
+            AssertEvaluatesTrue(context, left: "blank", op: "!=", right: "blank");
+            AssertEvaluatesTrue(context, left: "blank", op: "<>", right: "blank");
 
             // blank truthy
-            AssertEvaluatesTrue(left: "''", op: "==", right: "blank");
-            AssertEvaluatesTrue(left: "'  '", op: "==", right: "blank");
-            AssertEvaluatesTrue(left: "false", op: "==", right: "blank");
-            AssertEvaluatesTrue(left: "nil", op: "==", right: "blank");
-            AssertEvaluatesTrue(left: "not_assigned", op: "==", right: "blank");
-            AssertEvaluatesTrue(left: "empty_dictionary", op: "==", right: "blank");
-            AssertEvaluatesTrue(left: "empty_list", op: "==", right: "blank");
-            AssertEvaluatesTrue(left: "empty_array", op: "==", right: "blank");
+            AssertEvaluatesTrue(context, left: "''", op: "==", right: "blank");
+            AssertEvaluatesTrue(context, left: "'  '", op: "==", right: "blank");
+            AssertEvaluatesTrue(context, left: "false", op: "==", right: "blank");
+            AssertEvaluatesTrue(context, left: "nil", op: "==", right: "blank");
+            AssertEvaluatesTrue(context, left: "not_assigned", op: "==", right: "blank");
+            AssertEvaluatesTrue(context, left: "empty_dictionary", op: "==", right: "blank");
+            AssertEvaluatesTrue(context, left: "empty_list", op: "==", right: "blank");
+            AssertEvaluatesTrue(context, left: "empty_array", op: "==", right: "blank");
 
             // blank falsy
-            AssertEvaluatesTrue(left: "1", op: "!=", right: "blank");
-            AssertEvaluatesTrue(left: "0", op: "!=", right: "blank");
-            AssertEvaluatesTrue(left: "true", op: "!=", right: "blank");
-            AssertEvaluatesTrue(left: "a_drop", op: "!=", right: "blank");
-            AssertEvaluatesTrue(left: "dictionary", op: "!=", right: "blank");
-            AssertEvaluatesTrue(left: "list", op: "!=", right: "blank");
-            AssertEvaluatesTrue(left: "array", op: "!=", right: "blank");
+            AssertEvaluatesTrue(context, left: "1", op: "!=", right: "blank");
+            AssertEvaluatesTrue(context, left: "0", op: "!=", right: "blank");
+            AssertEvaluatesTrue(context, left: "true", op: "!=", right: "blank");
+            AssertEvaluatesTrue(context, left: "a_drop", op: "!=", right: "blank");
+            AssertEvaluatesTrue(context, left: "dictionary", op: "!=", right: "blank");
+            AssertEvaluatesTrue(context, left: "list", op: "!=", right: "blank");
+            AssertEvaluatesTrue(context, left: "array", op: "!=", right: "blank");
         }
 
         [Test]
         public void TestEmptyObject()
         {
-            _context = new Context(CultureInfo.InvariantCulture);
-            _context["dictionary"] = new Dictionary<string, string> { { "abc", "xyz" } };
-            _context["empty_dictionary"] = new Dictionary<string, string> { };
-            _context["list"] = new List<string> { "abc" };
-            _context["empty_list"] = new List<string> { };
-            _context["array"] = new string[] { "foo" };
-            _context["empty_array"] = new string[] { };
-            _context["a_drop"] = new DummyDrop();
+            var context = new Context(CultureInfo.InvariantCulture, NamingConvention);
+            context["dictionary"] = new Dictionary<string, string> { { "abc", "xyz" } };
+            context["empty_dictionary"] = new Dictionary<string, string> { };
+            context["list"] = new List<string> { "abc" };
+            context["empty_list"] = new List<string> { };
+            context["array"] = new string[] { "foo" };
+            context["empty_array"] = new string[] { };
+            context["a_drop"] = new DummyDrop();
 
             // self check
-            AssertEvaluatesFalse(left: "empty", op: "==", right: "empty");
-            AssertEvaluatesTrue(left: "empty", op: "!=", right: "empty");
-            AssertEvaluatesTrue(left: "empty", op: "<>", right: "empty");
+            AssertEvaluatesFalse(context, left: "empty", op: "==", right: "empty");
+            AssertEvaluatesTrue(context, left: "empty", op: "!=", right: "empty");
+            AssertEvaluatesTrue(context, left: "empty", op: "<>", right: "empty");
 
             // empty truthy
-            AssertEvaluatesTrue(left: "''", op: "==", right: "empty");
-            AssertEvaluatesTrue(left: "empty_dictionary", op: "==", right: "empty");
-            AssertEvaluatesTrue(left: "empty_list", op: "==", right: "empty");
-            AssertEvaluatesTrue(left: "empty_array", op: "==", right: "empty");
+            AssertEvaluatesTrue(context, left: "''", op: "==", right: "empty");
+            AssertEvaluatesTrue(context, left: "empty_dictionary", op: "==", right: "empty");
+            AssertEvaluatesTrue(context, left: "empty_list", op: "==", right: "empty");
+            AssertEvaluatesTrue(context, left: "empty_array", op: "==", right: "empty");
 
             // empty falsy
-            AssertEvaluatesTrue(left: "'  '", op: "!=", right: "empty");
-            AssertEvaluatesTrue(left: "false", op: "!=", right: "empty");
-            AssertEvaluatesTrue(left: "nil", op: "!=", right: "empty");
-            AssertEvaluatesTrue(left: "no_assigned", op: "!=", right: "empty");
-            AssertEvaluatesTrue(left: "1", op: "!=", right: "empty");
-            AssertEvaluatesTrue(left: "0", op: "!=", right: "empty");
-            AssertEvaluatesTrue(left: "true", op: "!=", right: "empty");
-            AssertEvaluatesTrue(left: "a_drop", op: "!=", right: "empty");
-            AssertEvaluatesTrue(left: "dictionary", op: "!=", right: "empty");
-            AssertEvaluatesTrue(left: "list", op: "!=", right: "empty");
-            AssertEvaluatesTrue(left: "array", op: "!=", right: "empty");
+            AssertEvaluatesTrue(context, left: "'  '", op: "!=", right: "empty");
+            AssertEvaluatesTrue(context, left: "false", op: "!=", right: "empty");
+            AssertEvaluatesTrue(context, left: "nil", op: "!=", right: "empty");
+            AssertEvaluatesTrue(context, left: "no_assigned", op: "!=", right: "empty");
+            AssertEvaluatesTrue(context, left: "1", op: "!=", right: "empty");
+            AssertEvaluatesTrue(context, left: "0", op: "!=", right: "empty");
+            AssertEvaluatesTrue(context, left: "true", op: "!=", right: "empty");
+            AssertEvaluatesTrue(context, left: "a_drop", op: "!=", right: "empty");
+            AssertEvaluatesTrue(context, left: "dictionary", op: "!=", right: "empty");
+            AssertEvaluatesTrue(context, left: "list", op: "!=", right: "empty");
+            AssertEvaluatesTrue(context, left: "array", op: "!=", right: "empty");
         }
 
         #region Helper methods
 
-        private void AssertEvaluatesTrue(string left, string op, string right)
+        private void AssertEvaluatesTrue(Context context, string left, string op, string right)
         {
-            Assert.IsTrue(new Condition(left, op, right).Evaluate(_context ?? new Context(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture),
+            Assert.IsTrue(new Condition(left, op, right).Evaluate(context, CultureInfo.InvariantCulture),
                 "Evaluated false: {0} {1} {2}", left, op, right);
         }
 
-        private void AssertEvaluatesFalse(string left, string op, string right)
+        private void AssertEvaluatesFalse(Context context, string left, string op, string right)
         {
-            Assert.IsFalse(new Condition(left, op, right).Evaluate(_context ?? new Context(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture),
+            Assert.IsFalse(new Condition(left, op, right).Evaluate(context, CultureInfo.InvariantCulture),
                 "Evaluated true: {0} {1} {2}", left, op, right);
         }
 
-        private void AssertError(string left, string op, string right, System.Type errorType)
+        private void AssertError(Context context, string left, string op, string right, System.Type errorType)
         {
-            Assert.Throws(errorType, () => new Condition(left, op, right).Evaluate(_context ?? new Context(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture));
+            Assert.Throws(errorType, () => new Condition(left, op, right).Evaluate(context, CultureInfo.InvariantCulture));
         }
 
         #endregion

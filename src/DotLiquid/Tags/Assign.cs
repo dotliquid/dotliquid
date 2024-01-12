@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
+using DotLiquid.NamingConventions;
 using DotLiquid.Util;
 
 namespace DotLiquid.Tags
@@ -23,7 +24,7 @@ namespace DotLiquid.Tags
         private string _to;
         private Variable _from;
 
-        public override void Initialize(string tagName, string markup, List<string> tokens)
+        public override void Initialize(string tagName, string markup, List<string> tokens, INamingConvention namingConvention)
         {
             Match syntaxMatch = Syntax.Match(markup);
             if (syntaxMatch.Success)
@@ -36,7 +37,7 @@ namespace DotLiquid.Tags
                 throw new SyntaxException(Liquid.ResourceManager.GetString("AssignTagSyntaxException"));
             }
 
-            base.Initialize(tagName, markup, tokens);
+            base.Initialize(tagName, markup, tokens, namingConvention);
         }
 
         public override void Render(Context context, TextWriter result)

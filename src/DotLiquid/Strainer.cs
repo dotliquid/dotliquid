@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using DotLiquid.Exceptions;
+using DotLiquid.NamingConventions;
 using DotLiquid.Util;
 
 namespace DotLiquid
@@ -24,9 +25,9 @@ namespace DotLiquid
             Filters[filter.AssemblyQualifiedName] = filter;
         }
 
-        public static void GlobalFilter(string rawName, object target, MethodInfo methodInfo)
+        public static void GlobalFilter(string rawName, object target, MethodInfo methodInfo, INamingConvention namingConvention)
         {
-            var name = Template.NamingConvention.GetMemberName(rawName);
+            var name = namingConvention.GetMemberName(rawName);
 
             FilterFuncs[name] = Tuple.Create(target, methodInfo);
         }
@@ -36,10 +37,10 @@ namespace DotLiquid
             Strainer strainer = new Strainer(context);
 
             foreach (var keyValue in Filters)
-                strainer.Extend(keyValue.Value);
+                strainer.Extend(keyValue.Value, context.NamingConvention);
 
             foreach (var keyValue in FilterFuncs)
-                strainer.AddMethodInfo(keyValue.Key, keyValue.Value.Item1, keyValue.Value.Item2);
+                strainer.AddMethodInfo(keyValue.Key, keyValue.Value.Item1, keyValue.Value.Item2, context.NamingConvention);
             
             return strainer;
         }
@@ -62,14 +63,15 @@ namespace DotLiquid
         /// methods from the specified type and use them instead.
         /// </summary>
         /// <param name="type"></param>
-        public void Extend(Type type)
+        /// <param name="namingConvention">Naming convention used for template parsing</param>
+        public void Extend(Type type, INamingConvention namingConvention)
         {
             // Calls to Extend replace existing filters with the same number of params.
             var methods = type.GetRuntimeMethods().Where(m => m.IsPublic && m.IsStatic);
             foreach (var method in methods)
             {
-                string methodName = Template.NamingConvention.GetMemberName(method.Name);
-                if  (_methods.Any(m => method.MatchesMethod(m)))
+                string methodName = namingConvention.GetMemberName(method.Name);
+                if  (_methods.Any(m => method.MatchesMethod(m, namingConvention)))
                 {
                     _methods.Remove(methodName);
                 }
@@ -77,23 +79,23 @@ namespace DotLiquid
 
             foreach (MethodInfo methodInfo in methods)
             {
-                AddMethodInfo(methodInfo.Name, null, methodInfo);
+                AddMethodInfo(methodInfo.Name, null, methodInfo, namingConvention);
             } // foreach
         }
 
-        public void AddFunction<TIn, TOut>(string rawName, Func<TIn, TOut> func)
+        public void AddFunction<TIn, TOut>(string rawName, Func<TIn, TOut> func, INamingConvention namingConvention)
         {
-            AddMethodInfo(rawName, func.Target, func.GetMethodInfo());
+            AddMethodInfo(rawName, func.Target, func.GetMethodInfo(), namingConvention);
         }
 
-        public void AddFunction<TIn, TIn2, TOut>(string rawName, Func<TIn, TIn2, TOut> func)
+        public void AddFunction<TIn, TIn2, TOut>(string rawName, Func<TIn, TIn2, TOut> func, INamingConvention namingConvention)
         {
-            AddMethodInfo(rawName, func.Target, func.GetMethodInfo());
+            AddMethodInfo(rawName, func.Target, func.GetMethodInfo(), namingConvention);
         }
 
-        public void AddMethodInfo(string rawName, object target, MethodInfo method)
+        public void AddMethodInfo(string rawName, object target, MethodInfo method, INamingConvention namingConvention)
         {
-            var name = Template.NamingConvention.GetMemberName(rawName);
+            var name = namingConvention.GetMemberName(rawName);
             _methods.TryAdd(name, () => new List<Tuple<object, MethodInfo>>()).Add(Tuple.Create(target, method));
         }
 

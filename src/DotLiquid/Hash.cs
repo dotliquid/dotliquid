@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using DotLiquid.NamingConventions;
 
 namespace DotLiquid
 {
@@ -31,10 +32,12 @@ namespace DotLiquid
         /// Initializes a new instance of the <see cref="DotLiquid.Hash">Hash</see> class and populates it with the contents of an anonymous object
         /// </summary>
         /// <param name="anonymousObject">The anonymous object</param>
+        /// <param name="namingConvention">Naming convention used for template parsing</param>
         /// <param name="includeBaseClassProperties">If this is set to true, method will map base class' properties too. </param>
-        public static Hash FromAnonymousObject(object anonymousObject, bool includeBaseClassProperties = false)
+        public static Hash FromAnonymousObject(object anonymousObject, INamingConvention namingConvention = null, bool includeBaseClassProperties = false)
         {
-            Hash result = new Hash();
+            namingConvention = namingConvention ?? new RubyNamingConvention();
+            Hash result = new Hash(namingConvention);
             if (anonymousObject != null)
             {
                 FromAnonymousObject(anonymousObject, result, includeBaseClassProperties);
@@ -122,9 +125,11 @@ namespace DotLiquid
         /// Initializes a new instance of the <see cref="DotLiquid.Hash">Hash</see> class and populates it with the contents of a dictionary
         /// </summary>
         /// <param name="dictionary">The Dictionary object</param>
-        public static Hash FromDictionary(IDictionary<string, object> dictionary)
+        /// <param name="namingConvention">Naming convention used for template parsing</param>
+        public static Hash FromDictionary(IDictionary<string, object> dictionary, INamingConvention namingConvention = null)
         {
-            var hash = new Hash();
+            namingConvention = namingConvention ?? new RubyNamingConvention();
+            var hash = new Hash(namingConvention);
             hash.Merge(dictionary);
             return hash;
         }
@@ -137,8 +142,9 @@ namespace DotLiquid
         /// Initializes a new instance of the <see cref="DotLiquid.Hash">Hash</see> class that is empty and sets the default value
         /// </summary>
         /// <param name="defaultValue">The default value to return if the key lookup fails</param>
-        public Hash(object defaultValue)
-            : this()
+        /// <param name="namingConvention">Naming convention used for template parsing</param>
+        public Hash(object defaultValue, INamingConvention namingConvention)
+            : this(namingConvention)
         {
             _defaultValue = defaultValue;
         }
@@ -147,8 +153,9 @@ namespace DotLiquid
         /// Initializes a new instance of the <see cref="DotLiquid.Hash">Hash</see> class that is empty and sets a method to return a default value
         /// </summary>
         /// <param name="lambda">The method to execute if the key lookup fails</param>
-        public Hash(Func<Hash, string, object> lambda)
-            : this()
+        /// <param name="namingConvention">Naming convention used for template parsing</param>
+        public Hash(Func<Hash, string, object> lambda, INamingConvention namingConvention)
+            : this(namingConvention)
         {
             _lambda = lambda;
         }
@@ -156,9 +163,9 @@ namespace DotLiquid
         /// <summary>
         /// Initializes a new instance of the <see cref="DotLiquid.Hash">Hash</see> class that is empty
         /// </summary>
-        public Hash()
+        public Hash(INamingConvention namingConvention)
         {
-            _nestedDictionary = new Dictionary<string, object>(Template.NamingConvention.StringComparer);
+            _nestedDictionary = new Dictionary<string, object>(namingConvention.StringComparer);
         }
 
         #endregion

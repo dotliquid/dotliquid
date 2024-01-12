@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.IO;
 using System.Net;
+using DotLiquid.NamingConventions;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -8,6 +9,8 @@ namespace DotLiquid.Tests
     [TestFixture]
     public class TemplateTests
     {
+        private INamingConvention NamingConvention { get; } = new RubyNamingConvention();
+
         private System.Collections.Generic.List<string> TokenizeValidateBackwardCompatibility(string input)
         {
             var v20 = Tokenizer.Tokenize(input, SyntaxCompatibility.DotLiquid20);
@@ -62,7 +65,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestInstanceAssignsPersistOnSameTemplateParsingBetweenRenders()
         {
-            Template t = Template.Parse("{{ foo }}{% assign foo = 'foo' %}{{ foo }}");
+            Template t = Template.Parse("{{ foo }}{% assign foo = 'foo' %}{{ foo }}", NamingConvention);
             Assert.AreEqual("foo", t.Render());
             Assert.AreEqual("foofoo", t.Render());
         }
@@ -70,7 +73,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestThreadSafeInstanceAssignsNotPersistOnSameTemplateParsingBetweenRenders()
         {
-            Template t = Template.Parse("{{ foo }}{% assign foo = 'foo' %}{{ foo }}");
+            Template t = Template.Parse("{{ foo }}{% assign foo = 'foo' %}{{ foo }}", NamingConvention);
             t.MakeThreadSafe();
             Assert.AreEqual("foo", t.Render());
             Assert.AreEqual("foo", t.Render());
@@ -128,16 +131,16 @@ namespace DotLiquid.Tests
         public void TestErbLikeTrimmingLeadingWhitespace()
         {
             string template = "foo\n\t  {%- if true %}hi tobi{% endif %}";
-            Assert.AreEqual("foo\nhi tobi", Template.Parse(template, SyntaxCompatibility.DotLiquid20).Render());
-            Assert.AreEqual("foohi tobi", Template.Parse(template, SyntaxCompatibility.DotLiquid22).Render());
+            Assert.AreEqual("foo\nhi tobi", Template.Parse(template, NamingConvention, SyntaxCompatibility.DotLiquid20).Render());
+            Assert.AreEqual("foohi tobi", Template.Parse(template, NamingConvention, SyntaxCompatibility.DotLiquid22).Render());
         }
 
         [Test]
         public void TestErbLikeTrimmingTrailingWhitespace()
         {
             string template = "{% if true -%}\n hi tobi\n{% endif %}";
-            Assert.AreEqual(" hi tobi\n", Template.Parse(template, SyntaxCompatibility.DotLiquid20).Render());
-            Assert.AreEqual("hi tobi\n", Template.Parse(template, SyntaxCompatibility.DotLiquid22).Render());
+            Assert.AreEqual(" hi tobi\n", Template.Parse(template, NamingConvention, SyntaxCompatibility.DotLiquid20).Render());
+            Assert.AreEqual("hi tobi\n", Template.Parse(template, NamingConvention, SyntaxCompatibility.DotLiquid22).Render());
         }
 
         [Test]
@@ -152,16 +155,16 @@ namespace DotLiquid.Tests
 </ul>";
             Assert.AreEqual(
                 "<ul>\r\n    <li>foo</li>\r\n    <li>bar</li>\r\n    <li>baz</li>\r\n</ul>",
-                Template.Parse(template, SyntaxCompatibility.DotLiquid20).Render(Hash.FromAnonymousObject(new { tasks = new[] { "foo", "bar", "baz" } })));
+                Template.Parse(template, NamingConvention, SyntaxCompatibility.DotLiquid20).Render(Hash.FromAnonymousObject(new { tasks = new[] { "foo", "bar", "baz" } })));
             Assert.AreEqual(
                 "<ul>\r\n<li>foo</li><li>bar</li><li>baz</li></ul>",
-                Template.Parse(template, SyntaxCompatibility.DotLiquid22).Render(Hash.FromAnonymousObject(new { tasks = new[] { "foo", "bar", "baz" } })));
+                Template.Parse(template, NamingConvention, SyntaxCompatibility.DotLiquid22).Render(Hash.FromAnonymousObject(new { tasks = new[] { "foo", "bar", "baz" } })));
         }
 
         [Test]
         public void TestRenderToStreamWriter()
         {
-            Template template = Template.Parse("{{test}}");
+            Template template = Template.Parse("{{test}}", NamingConvention);
 
             using (TextWriter writer = new StringWriter(CultureInfo.InvariantCulture))
             {
@@ -174,7 +177,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestRenderToStream()
         {
-            Template template = Template.Parse("{{test}}");
+            Template template = Template.Parse("{{test}}", NamingConvention);
 
             var output = new MemoryStream();
             template.Render(output, new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = Hash.FromAnonymousObject(new { test = "worked" }) });
@@ -201,7 +204,7 @@ namespace DotLiquid.Tests
         public void TestRegisterSimpleType()
         {
             Template.RegisterSafeType(typeof(MySimpleType), new[] { "Name" });
-            Template template = Template.Parse("{{context.Name}}");
+            Template template = Template.Parse("{{context.Name}}", NamingConvention);
 
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType() { Name = "worked" } }));
 
@@ -212,7 +215,7 @@ namespace DotLiquid.Tests
         public void TestRegisterSimpleTypeToString()
         {
             Template.RegisterSafeType(typeof(MySimpleType), new[] { "ToString" });
-            Template template = Template.Parse("{{context}}");
+            Template template = Template.Parse("{{context}}", NamingConvention);
 
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType() }));
 
@@ -228,7 +231,7 @@ namespace DotLiquid.Tests
                     return o;
                 });
 
-            Template template = Template.Parse("{{context}}");
+            Template template = Template.Parse("{{context}}", NamingConvention);
 
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType() }));
 
@@ -240,7 +243,7 @@ namespace DotLiquid.Tests
         public void TestRegisterSimpleTypeTransformer()
         {
             Template.RegisterSafeType(typeof(MySimpleType), o => o.ToString());
-            Template template = Template.Parse("{{context}}");
+            Template template = Template.Parse("{{context}}", NamingConvention);
 
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType() }));
 
@@ -253,7 +256,7 @@ namespace DotLiquid.Tests
         {
             Template.RegisterSafeType(typeof(MySimpleType), new[] { "Name" }, m => m.ToString());
 
-            Template template = Template.Parse("{{context}}{{context.Name}}"); //
+            Template template = Template.Parse("{{context}}{{context.Name}}", NamingConvention); //
 
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType() { Name = "Bar" } }));
 
@@ -278,7 +281,7 @@ namespace DotLiquid.Tests
         {
             Template.RegisterSafeType(typeof(NestedMySimpleType), new[] { "Name", "Nested" }, m => m.ToString());
 
-            Template template = Template.Parse("{{context}}{{context.Name}} {{context.Nested}}{{context.Nested.Name}}"); //
+            Template template = Template.Parse("{{context}}{{context.Name}} {{context.Nested}}{{context.Nested.Name}}", NamingConvention); //
 
             var inner = new NestedMySimpleType() { Name = "Bar2" };
 
@@ -293,7 +296,7 @@ namespace DotLiquid.Tests
         {
             Template.RegisterValueTypeTransformer(typeof(bool), m => (bool)m ? "Win" : "Fail");
 
-            Template template = Template.Parse("{{var1}} {{var2}}");
+            Template template = Template.Parse("{{var1}} {{var2}}", NamingConvention);
 
             var output = template.Render(Hash.FromAnonymousObject(new { var1 = true, var2 = false }));
 
@@ -305,7 +308,7 @@ namespace DotLiquid.Tests
         {
             Template.RegisterValueTypeTransformer(typeof(string), m => WebUtility.HtmlEncode((string)m));
 
-            Template template = Template.Parse("{{var1}} {{var2}}");
+            Template template = Template.Parse("{{var1}} {{var2}}", NamingConvention);
 
             var output = template.Render(Hash.FromAnonymousObject(new { var1 = "<html>", var2 = "Some <b>bold</b> text." }));
 
@@ -327,7 +330,7 @@ namespace DotLiquid.Tests
         {
             // specify a transform function
             Template.RegisterSafeType(typeof(MySimpleType2), x => new { Name = ((MySimpleType2)x).Name });
-            Template template = Template.Parse("{{context.Name}}");
+            Template template = Template.Parse("{{context.Name}}", NamingConvention);
 
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType2 { Name = "worked" } }));
 
@@ -339,7 +342,7 @@ namespace DotLiquid.Tests
         {
             // specify a transform function
             Template.RegisterSafeType(typeof(IMySimpleInterface2), x => new { Name = ((IMySimpleInterface2)x).Name });
-            Template template = Template.Parse("{{context.Name}}");
+            Template template = Template.Parse("{{context.Name}}", NamingConvention);
 
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType2 { Name = "worked" } }));
 
@@ -356,7 +359,7 @@ namespace DotLiquid.Tests
         {
             // specify a transform function
             Template.RegisterSafeType(typeof(MySimpleType2), x => new MyUnsafeType2 { Name = ((MySimpleType2)x).Name });
-            Template template = Template.Parse("{{context.Name}}");
+            Template template = Template.Parse("{{context.Name}}", NamingConvention);
 
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType2 { Name = "worked" } }));
 
@@ -377,7 +380,7 @@ namespace DotLiquid.Tests
         public void TestRegisterGenericInterface()
         {
             Template.RegisterSafeType(typeof(MyGenericInterface<>), new[] { "Value" });
-            Template template = Template.Parse("{{context.Value}}");
+            Template template = Template.Parse("{{context.Value}}", NamingConvention);
 
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MyGenericImpl<string> { Value = "worked" } }));
 
@@ -411,9 +414,9 @@ namespace DotLiquid.Tests
         [Test]
         public void TestSyntaxCompatibilityLevel()
         {
-            Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
+            Helper.LockTemplateStaticVars(() =>
             {
-                var template = Template.Parse("{{ foo }}");
+                var template = Template.Parse("{{ foo }}", NamingConvention);
                 template.MakeThreadSafe();
 
                 // Template defaults to legacy DotLiquid 2.0 Handling
@@ -425,7 +428,7 @@ namespace DotLiquid.Tests
                 Assert.AreEqual(Template.DefaultSyntaxCompatibilityLevel, renderParamsDefault.SyntaxCompatibilityLevel);
 
                 // Context Applies Template Defaults
-                var context = new Context(CultureInfo.CurrentCulture);
+                var context = new Context(CultureInfo.CurrentCulture, NamingConvention);
                 Assert.AreEqual(Template.DefaultSyntaxCompatibilityLevel, context.SyntaxCompatibilityLevel);
 
                 Template.DefaultSyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20;

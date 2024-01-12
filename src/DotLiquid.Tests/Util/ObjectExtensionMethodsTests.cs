@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DotLiquid.NamingConventions;
 using DotLiquid.Util;
 using NUnit.Framework;
 

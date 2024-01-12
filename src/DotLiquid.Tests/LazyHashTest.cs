@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,15 +6,18 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using DotLiquid.NamingConventions;
 
 namespace DotLiquid.Tests
 {
     [TestFixture]
     public class LazyHashTest
     {
+        private INamingConvention NamingConvention { get; } = new RubyNamingConvention();
 
         public class LazyHash : Hash
         {
+
             #region Fields
 
             private Lazy<Dictionary<string, PropertyInfo>> lazyProperties = null;
@@ -27,7 +30,7 @@ namespace DotLiquid.Tests
 
             #region Constructors
             
-            public LazyHash(object bo)
+            public LazyHash(object bo, INamingConvention namingConvention) : base(namingConvention)
             {
                 ObjectWithLazyProperty = bo;
                 Initialize(bo);
@@ -92,8 +95,8 @@ namespace DotLiquid.Tests
         public void TestLazyHashProperty1WithoutAccessingProperty2()
         {
             var lazyObject = new TestLazyObject();
-            Template template = Template.Parse("{{LazyProperty1}}");
-            var output = template.Render(new LazyHash(lazyObject));
+            Template template = Template.Parse("{{LazyProperty1}}", NamingConvention);
+            var output = template.Render(new LazyHash(lazyObject, NamingConvention));
             Assert.AreEqual("LAZY_PROPERTY_1", output);
             Assert.IsFalse(lazyObject._lazyProperty2.IsValueCreated, "LazyObject LAZY_PROPERTY_2 has been created");
         }
@@ -102,8 +105,8 @@ namespace DotLiquid.Tests
         public void TestLazyHashProperty2WithoutAccessingProperty1()
         {
             var lazyObject = new TestLazyObject();
-            Template template = Template.Parse("{{LazyProperty2}}");
-            var output = template.Render(new LazyHash(lazyObject));
+            Template template = Template.Parse("{{LazyProperty2}}", NamingConvention);
+            var output = template.Render(new LazyHash(lazyObject, NamingConvention));
             Assert.AreEqual("LAZY_PROPERTY_2", output);
             Assert.IsFalse(lazyObject._lazyProperty1.IsValueCreated, "LazyObject LAZY_PROPERTY_1 has been created");
         }
@@ -112,8 +115,8 @@ namespace DotLiquid.Tests
         public void TestLazyHashWithoutAccessingAny()
         {
             var lazyObject = new TestLazyObject();
-            Template template = Template.Parse("{{StaticProperty}}");
-            var output = template.Render(new LazyHash(lazyObject));
+            Template template = Template.Parse("{{StaticProperty}}", NamingConvention);
+            var output = template.Render(new LazyHash(lazyObject, NamingConvention));
             Assert.AreEqual("STATIC_PROPERTY", output);
             Assert.IsFalse(lazyObject._lazyProperty1.IsValueCreated, "LazyObject LAZY_PROPERTY_1 has been created");
             Assert.IsFalse(lazyObject._lazyProperty2.IsValueCreated, "LazyObject LAZY_PROPERTY_2 has been created");
@@ -123,8 +126,8 @@ namespace DotLiquid.Tests
         public void TestLazyHashWithAccessingAllProperties()
         {
             var lazyObject = new TestLazyObject();
-            Template template = Template.Parse("{{LazyProperty1}}-{{LazyProperty2}}-{{StaticProperty}}");
-            var output = template.Render(new LazyHash(lazyObject));
+            Template template = Template.Parse("{{LazyProperty1}}-{{LazyProperty2}}-{{StaticProperty}}", NamingConvention);
+            var output = template.Render(new LazyHash(lazyObject, NamingConvention));
             Assert.AreEqual($"LAZY_PROPERTY_1-LAZY_PROPERTY_2-STATIC_PROPERTY", output);
         }
     }

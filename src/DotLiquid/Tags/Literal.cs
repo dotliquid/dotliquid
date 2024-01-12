@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using DotLiquid.NamingConventions;
 using DotLiquid.Util;
 
 namespace DotLiquid.Tags
@@ -36,7 +37,8 @@ namespace DotLiquid.Tags
         /// Parses the tag
         /// </summary>
         /// <param name="tokens"></param>
-        protected override void Parse(List<string> tokens)
+        /// <param name="namingConvention">Naming convention used for template parsing</param>
+        protected override void Parse(List<string> tokens, INamingConvention namingConvention)
         {
             NodeList = NodeList ?? new List<object>();
             NodeList.Clear();

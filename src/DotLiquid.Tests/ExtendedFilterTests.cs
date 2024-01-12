@@ -5,18 +5,21 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotLiquid.NamingConventions;
 
 namespace DotLiquid.Tests
 {
     [TestFixture]
     public class ExtendedFilterTests
     {
+        private INamingConvention NamingConvention { get; } = new RubyNamingConvention();
+
         private Context _context;
 
         [OneTimeSetUp]
         public void SetUp()
         {
-            _context = new Context(CultureInfo.InvariantCulture);
+            _context = new Context(CultureInfo.InvariantCulture, NamingConvention);
             Template.RegisterFilter(typeof(ExtendedFilters));
         }
 

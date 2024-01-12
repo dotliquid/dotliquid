@@ -7,25 +7,21 @@ namespace DotLiquid.Tests
 {
     public class Helper
     {
-        public static void LockTemplateStaticVars(INamingConvention namingConvention, Action test)
+        public static void LockTemplateStaticVars(Action test)
         {
-            //Have to lock Template.NamingConvention for this test to
+            //Have to lock Template.FileSystem for this test to
             //prevent other tests from being run simultaneously that
             //require the default naming convention.
-            var currentNamingConvention = Template.NamingConvention;
             var currentSyntax = Template.DefaultSyntaxCompatibilityLevel;
             var currentIsRubyDateFormat = Liquid.UseRubyDateFormat;
-            lock (Template.NamingConvention)
+            lock (Template.FileSystem)
             {
-                Template.NamingConvention = namingConvention;
-
                 try
                 {
                     test();
                 }
                 finally
                 {
-                    Template.NamingConvention = currentNamingConvention;
                     Template.DefaultSyntaxCompatibilityLevel = currentSyntax;
                     Liquid.UseRubyDateFormat = currentIsRubyDateFormat;
                 }
@@ -35,15 +31,16 @@ namespace DotLiquid.Tests
 
         public static void AssertTemplateResult(string expected, string template, object anonymousObject, INamingConvention namingConvention, SyntaxCompatibility syntax = SyntaxCompatibility.DotLiquid20)
         {
-            LockTemplateStaticVars(namingConvention, () =>
+            namingConvention = namingConvention ?? new RubyNamingConvention();
+            LockTemplateStaticVars(() =>
             {
-                var localVariables = anonymousObject == null ? null : Hash.FromAnonymousObject(anonymousObject);
+                var localVariables = anonymousObject == null ? null : Hash.FromAnonymousObject(anonymousObject, namingConvention);
                 var parameters = new RenderParameters(System.Globalization.CultureInfo.CurrentCulture)
                 {
                     LocalVariables = localVariables,
                     SyntaxCompatibilityLevel = syntax
                 };
-                Assert.AreEqual(expected, Template.Parse(template).Render(parameters));
+                Assert.AreEqual(expected, Template.Parse(template, namingConvention).Render(parameters));
             });
         }
 
@@ -52,25 +49,26 @@ namespace DotLiquid.Tests
             AssertTemplateResult(expected: expected, template: template, anonymousObject: null, namingConvention: namingConvention);
         }
 
-        public static void AssertTemplateResult(string expected, string template, Hash localVariables, IEnumerable<Type> localFilters, SyntaxCompatibility syntax = SyntaxCompatibility.DotLiquid20)
+        public static void AssertTemplateResult(string expected, string template, Hash localVariables, IEnumerable<Type> localFilters, SyntaxCompatibility syntax = SyntaxCompatibility.DotLiquid20, INamingConvention namingConvention = null)
         {
+            namingConvention = namingConvention ?? new RubyNamingConvention();
             var parameters = new RenderParameters(System.Globalization.CultureInfo.CurrentCulture)
             {
                 LocalVariables = localVariables,
                 SyntaxCompatibilityLevel = syntax,
                 Filters = localFilters
             };
-            Assert.AreEqual(expected, Template.Parse(template).Render(parameters));
+            Assert.AreEqual(expected, Template.Parse(template, namingConvention).Render(parameters));
         }
 
-        public static void AssertTemplateResult(string expected, string template, Hash localVariables, SyntaxCompatibility syntax = SyntaxCompatibility.DotLiquid20)
+        public static void AssertTemplateResult(string expected, string template, Hash localVariables, SyntaxCompatibility syntax = SyntaxCompatibility.DotLiquid20, INamingConvention namingConvention = null)
         {
-            AssertTemplateResult(expected: expected, template: template, localVariables: localVariables, localFilters: null, syntax: syntax);
+            AssertTemplateResult(expected: expected, template: template, localVariables: localVariables, localFilters: null, syntax: syntax, namingConvention);
         }
 
-        public static void AssertTemplateResult(string expected, string template, SyntaxCompatibility syntax = SyntaxCompatibility.DotLiquid20)
+        public static void AssertTemplateResult(string expected, string template, SyntaxCompatibility syntax = SyntaxCompatibility.DotLiquid20, INamingConvention namingConvention = null)
         {
-            AssertTemplateResult(expected: expected, template: template, localVariables: null, syntax: syntax);
+            AssertTemplateResult(expected: expected, template: template, localVariables: null, syntax: syntax, namingConvention);
         }
 
         [LiquidTypeAttribute("PropAllowed")]

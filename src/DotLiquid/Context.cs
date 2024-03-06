@@ -59,11 +59,48 @@ namespace DotLiquid
             }
         }
 
+        private readonly Stack<InterruptException> _interrupted = new Stack<InterruptException>();
+
+        internal void PushInterrupt(InterruptException e) => _interrupted.Push(e);
+        internal InterruptException PopInterrupt() => _interrupted.Pop();
+        internal bool IsInterrupt() => _interrupted.Any();
+
+        private IDictionary<string, int> _disabledTags = new Dictionary<string, int>();
+        internal bool IsTagDisabled(string tagName) => _disabledTags.TryGetValue(tagName, out var cnt) && cnt > 0;
+        public void WithDisabledTags(string[] tagNames, Action action)
+        {
+            try
+            {
+                foreach (var tagName in tagNames)
+                {
+                    if (!_disabledTags.TryGetValue(tagName, out var cnt))
+                        cnt = 0;
+                    _disabledTags[tagName] = cnt + 1;
+                }
+                action();
+            }
+            finally
+            {
+                foreach (var tagName in tagNames)
+                {
+                    if (_disabledTags.TryGetValue(tagName, out var cnt))
+                        _disabledTags[tagName] = cnt - 1;
+                }
+            }
+        }
+
         private readonly int _maxIterations;
 
         public int MaxIterations
         {
             get { return _maxIterations; }
+        }
+
+        private int _baseScopePath;
+        private void CheckOverflow()
+        {
+            if (_baseScopePath + Scopes.Count > 80)
+                throw new StackLevelException(Liquid.ResourceManager.GetString("ContextStackException"));
         }
 
         private Strainer _strainer;
@@ -72,6 +109,11 @@ namespace DotLiquid
         /// Environments
         /// </summary>
         public List<Hash> Environments { get; private set; }
+
+        /// <summary>
+        /// Static Environments
+        /// </summary>
+        public List<Hash> StaticEnvironments { get; private set; }
 
         /// <summary>
         /// Scopes
@@ -131,8 +173,37 @@ namespace DotLiquid
              , int maxIterations
              , IFormatProvider formatProvider
              , CancellationToken cancellationToken)
+            : this(environments, outerScope, registers, errorsOutputMode, maxIterations, formatProvider, cancellationToken, new List<Hash>())
         {
-            Environments = environments;
+        }
+
+        /// <summary>
+        /// Creates a new rendering context
+        /// </summary>
+        /// <param name="environments"></param>
+        /// <param name="outerScope"></param>
+        /// <param name="registers"></param>
+        /// <param name="errorsOutputMode"></param>
+        /// <param name="maxIterations"></param>
+        /// <param name="formatProvider">A CultureInfo instance that will be used to parse filter input and format filter output</param>
+        /// <param name="cancellationToken"></param>
+        /// <param name="staticEnvironments"></param>
+        public Context
+        (List<Hash> environments
+            , Hash outerScope
+            , Hash registers
+            , ErrorsOutputMode errorsOutputMode
+            , int maxIterations
+            , IFormatProvider formatProvider
+            , CancellationToken cancellationToken
+            , List<Hash> staticEnvironments)
+        {
+            Environments = environments ?? new List<Hash>();
+            if (Environments.Count == 0)
+                Environments.Add(new Hash());
+            StaticEnvironments = staticEnvironments ?? new List<Hash>();
+            if (StaticEnvironments.Count == 0)
+                StaticEnvironments.Add(new Hash());
 
             Scopes = new List<Hash>();
             if (outerScope != null)
@@ -158,6 +229,27 @@ namespace DotLiquid
         public Context(IFormatProvider formatProvider)
             : this(new List<Hash>(), new Hash(), new Hash(), ErrorsOutputMode.Display, 0, 0, formatProvider)
         {
+        }
+
+        internal Context NewIsolatedContext()
+        {
+            CheckOverflow();
+            var subContext = new Context(
+                environments: new List<Hash>(),
+                outerScope: new Hash(),
+                registers: Hash.FromDictionary(Registers),
+                errorsOutputMode: _errorsOutputMode,
+                maxIterations: _maxIterations,
+                formatProvider: FormatProvider,
+                cancellationToken: _cancellationToken,
+                staticEnvironments: StaticEnvironments);
+            subContext._disabledTags = _disabledTags;
+            subContext._strainer = _strainer;
+            subContext.Errors = Errors;
+            subContext.SyntaxCompatibilityLevel = SyntaxCompatibilityLevel;
+            subContext.UseRubyDateFormat = UseRubyDateFormat;
+            subContext._baseScopePath = _baseScopePath + 1;
+            return subContext;
         }
 
         /// <summary>
@@ -270,9 +362,7 @@ namespace DotLiquid
         /// <param name="newScope"></param>
         public void Push(Hash newScope)
         {
-            if (Scopes.Count > 80)
-                throw new StackLevelException(Liquid.ResourceManager.GetString("ContextStackException"));
-
+            CheckOverflow();
             Scopes.Insert(0, newScope);
         }
 
@@ -490,15 +580,20 @@ namespace DotLiquid
                     foundVariable = TryEvaluateHashOrArrayLikeObject(environment, key, out foundValue);
                     if (foundVariable)
                     {
-                        scope = environment;
                         break;
                     }
                 }
 
-                if (scope == null)
+                if (!foundVariable)
                 {
-                    scope = Environments.LastOrDefault() ?? Scopes.Last();
-                    foundVariable = TryEvaluateHashOrArrayLikeObject(scope, key, out foundValue);
+                    foreach (Hash environment in StaticEnvironments)
+                    {
+                        foundVariable = TryEvaluateHashOrArrayLikeObject(environment, key, out foundValue);
+                        if (foundVariable)
+                        {
+                            break;
+                        }
+                    }
                 }
             }
             else

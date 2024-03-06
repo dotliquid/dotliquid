@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using DotLiquid.Exceptions;
 
 namespace DotLiquid
 {
@@ -73,6 +74,25 @@ namespace DotLiquid
         /// <param name="result"></param>
         public virtual void Render(Context context, TextWriter result)
         {
+        }
+
+        /// <summary>
+        /// Renders the tag
+        /// </summary>
+        /// <param name="context"></param>
+        /// <param name="result"></param>
+        void IRenderable.Render(Context context, TextWriter result)
+        {
+            DoRender(context, result);
+        }
+
+        private void DoRender(Context context, TextWriter result)
+        {
+            if (TagName != null && context.IsTagDisabled(TagName))
+            {
+                throw new DisabledException(Liquid.ResourceManager.GetString("DisabledTagException"), TagName);
+            }
+            Render(context, result);
         }
 
         /// <summary>

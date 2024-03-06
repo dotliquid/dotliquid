@@ -1,4 +1,6 @@
 using System.Collections;
+using System.Globalization;
+using DotLiquid.Exceptions;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -6,6 +8,17 @@ namespace DotLiquid.Tests
     [TestFixture]
     public class ShopifyFiltersTests
     {
+        private Context _context;
+
+        [OneTimeSetUp]
+        public void SetUp()
+        {
+            _context = new Context(CultureInfo.InvariantCulture)
+            {
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22a
+            };
+        }
+
         [Test]
         public void TestMd5()
         {
@@ -101,6 +114,115 @@ My encoded string is: {{ my_secret_string }}",
 My encoded string is: c21f97cf997fac667c9bac39462a5813b1a41ce1b811743b0e9157393efbcc3c",
                 template: @"{% assign my_secret_string = ""ShopifyIsAwesome!"" | hmac_sha256: ""secret_key"" %}
 My encoded string is: {{ my_secret_string }}",
+                localVariables: null,
+                localFilters: new[] { typeof(ShopifyFilters) });
+        }
+
+        [Test]
+        public void TestCamelize()
+        {
+            Assert.AreEqual(null, ShopifyFilters.Camelize(_context, null));
+            Assert.AreEqual("VariableName", ShopifyFilters.Camelize(_context, "variable-name"));
+            Assert.AreEqual("VariableName", ShopifyFilters.Camelize(_context, "Variable Name"));
+            Assert.AreEqual("Foobar", ShopifyFilters.Camelize(_context, "FooBar"));
+            Assert.AreEqual("", ShopifyFilters.Camelize(_context, ""));
+
+            Helper.AssertTemplateResult(
+                expected: "VariableName",
+                template: "{{ 'variable-name' | camelize }}",
+                localVariables: null,
+                localFilters: new[] { typeof(ShopifyFilters) });
+        }
+
+        [Test]
+        public void TestPluralize()
+        {
+            Assert.AreEqual("item", ShopifyFilters.Pluralize(1, "item", "items"));
+            Assert.AreEqual("items", ShopifyFilters.Pluralize(2, "item", "items"));
+            Assert.AreEqual("item", ShopifyFilters.Pluralize("1", "item", "items"));
+            Assert.AreEqual("items", ShopifyFilters.Pluralize("2", "item", "items"));
+            Assert.AreEqual(null, ShopifyFilters.Pluralize(null, null, null));
+            Assert.AreEqual(null, ShopifyFilters.Pluralize(1, null, "items"));
+            Assert.AreEqual(null, ShopifyFilters.Pluralize(2, "item", null));
+            Assert.AreEqual(null, ShopifyFilters.Pluralize("invalid_number_string", "item", "items"));
+
+            Helper.AssertTemplateResult(
+                expected: "Cart item count: 2 items",
+                template: "Cart item count: {{ cart.item_count }} {{ cart.item_count | pluralize: 'item', 'items' }}",
+                localVariables: Hash.FromAnonymousObject(new { cart = new { item_count = 2 }}),
+                localFilters: new[] { typeof(ShopifyFilters) });
+        }
+
+        [Test]
+        public void TestUrlEscape()
+        {
+            Assert.AreEqual(null, ShopifyFilters.UrlEscape(null));
+            Assert.AreEqual("foo", ShopifyFilters.UrlEscape("foo"));
+            Assert.AreEqual("%3Cp%3EHealth%20&%20Love%20potions%3C/p%3E", ShopifyFilters.UrlEscape("<p>Health & Love potions</p>"));
+
+            Helper.AssertTemplateResult(
+                expected: "%3Cp%3EHealth%20&%20Love%20potions%3C/p%3E",
+                template: "{{ '<p>Health & Love potions</p>' | url_escape }}",
+                localVariables: null,
+                localFilters: new[] { typeof(ShopifyFilters) });
+        }
+
+        [Test]
+        public void TestBase64Encode()
+        {
+            Assert.AreEqual(null, ShopifyFilters.Base64Encode(null));
+            Assert.AreEqual("", ShopifyFilters.Base64Encode(""));
+            Assert.AreEqual("b25lIHR3byB0aHJlZQ==", ShopifyFilters.Base64Encode("one two three"));
+
+            Helper.AssertTemplateResult(
+                expected: "b25lIHR3byB0aHJlZQ==",
+                template: "{{ 'one two three' | base64_encode }}",
+                localVariables: null,
+                localFilters: new[] { typeof(ShopifyFilters) });
+        }
+
+        [Test]
+        public void TestBase64Decode()
+        {
+            Assert.AreEqual(null, ShopifyFilters.Base64Decode(null));
+            Assert.AreEqual("", ShopifyFilters.Base64Decode(""));
+            Assert.Throws<ArgumentException>(() => ShopifyFilters.Base64Decode("invalid base64 string"));
+            Assert.AreEqual("one two three", ShopifyFilters.Base64Decode("b25lIHR3byB0aHJlZQ=="));
+
+            Helper.AssertTemplateResult(
+                expected: "one two three",
+                template: "{{ 'b25lIHR3byB0aHJlZQ==' | base64_decode }}",
+                localVariables: null,
+                localFilters: new[] { typeof(ShopifyFilters) });
+        }
+
+        [Test]
+        public void TestBase64UrlSafeEncode()
+        {
+            Assert.AreEqual(null, ShopifyFilters.Base64UrlSafeEncode(null));
+            Assert.AreEqual("", ShopifyFilters.Base64UrlSafeEncode(""));
+            Assert.AreEqual("b25lIHR3byB0aHJlZQ==", ShopifyFilters.Base64UrlSafeEncode("one two three"));
+            Assert.AreEqual("V2hhdCBkb2VzIDIgKyAyLjEgZXF1YWw_PyB-IDQ=", ShopifyFilters.Base64UrlSafeEncode("What does 2 + 2.1 equal?? ~ 4"));
+
+            Helper.AssertTemplateResult(
+                expected: "b25lIHR3byB0aHJlZQ==",
+                template: "{{ 'one two three' | base64_url_safe_encode }}",
+                localVariables: null,
+                localFilters: new[] { typeof(ShopifyFilters) });
+        }
+
+        [Test]
+        public void TestBase64UrlSafeDecode()
+        {
+            Assert.AreEqual(null, ShopifyFilters.Base64UrlSafeDecode(null));
+            Assert.AreEqual("", ShopifyFilters.Base64UrlSafeDecode(""));
+            Assert.AreEqual("one two three", ShopifyFilters.Base64UrlSafeDecode("b25lIHR3byB0aHJlZQ=="));
+            Assert.AreEqual("What does 2 + 2.1 equal?? ~ 4", ShopifyFilters.Base64UrlSafeDecode("V2hhdCBkb2VzIDIgKyAyLjEgZXF1YWw_PyB-IDQ="));
+            Assert.Throws<ArgumentException>(() => ShopifyFilters.Base64UrlSafeDecode("invalid base64 string"));
+
+            Helper.AssertTemplateResult(
+                expected: "one two three",
+                template: "{{ 'b25lIHR3byB0aHJlZQ==' | base64_url_safe_decode }}",
                 localVariables: null,
                 localFilters: new[] { typeof(ShopifyFilters) });
         }

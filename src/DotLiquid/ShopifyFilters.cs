@@ -1,6 +1,10 @@
+using System;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
+using DotLiquid.Exceptions;
+using ArgumentException = DotLiquid.Exceptions.ArgumentException;
 
 namespace DotLiquid
 {
@@ -26,7 +30,7 @@ namespace DotLiquid
             }
         }
 
-        /// <summary> 
+        /// <summary>
         /// Converts a string into a SHA-1 hash.
         /// </summary>
         /// <see href="https://shopify.dev/docs/themes/liquid/reference/filters/string-filters#sha1" />
@@ -114,6 +118,133 @@ namespace DotLiquid
                 stringBuilder.Append(hash[i].ToString(format: "x2", provider: CultureInfo.InvariantCulture));
 
             return stringBuilder.ToString(); // Return the hexadecimal string.
+        }
+
+        /// <summary>
+        /// Converts a string to CamelCase.
+        /// </summary>
+        /// <see href="https://shopify.dev/api/liquid/filters#camelize"/>
+        public static string Camelize(Context context, string input)
+        {
+            if (input == null)
+                return input;
+
+            input = Regex.Replace(input, @"\s+|\+|\-|_|\/|\\", " ");
+
+#if CORE
+            input = input.ToLower();
+            input = Regex.Replace(input, @"\b(\w)", m => m.Value.ToUpper(), RegexOptions.None, Template.RegexTimeOut);
+#else
+            input = context.CurrentCulture.TextInfo.ToTitleCase(input);
+#endif
+            input = Regex.Replace(input, @"\s+", string.Empty);
+            return input;
+        }
+
+        /// <summary>
+        /// Outputs the singular or plural version of a string based on a given number.
+        /// </summary>
+        /// <see href="https://shopify.dev/api/liquid/filters#pluralize"/>
+        public static string Pluralize(object input, string singular, string plural)
+        {
+            try
+            {
+                var i = input == null ? 0 : Convert.ToInt32(input);
+                if (i > 1)
+                {
+                    return plural;
+                }
+                return singular;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Escapes any URL-unsafe characters in a string.
+        /// </summary>
+        /// <see href="https://shopify.dev/api/liquid/filters#url_escape"/>
+        public static string UrlEscape(string input)
+        {
+            if (input == null)
+                return null;
+
+            return Uri.EscapeUriString(input);
+        }
+
+        /// <summary>
+        /// Encodes a string to Base64 format.
+        /// </summary>
+        /// <see href="https://shopify.dev/api/liquid/filters#base64_encode"/>
+        public static string Base64Encode(string input)
+        {
+            if (input == null)
+            {
+                return null;
+            }
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(input));
+        }
+
+        /// <summary>
+        /// Decodes a string in Base64 format
+        /// </summary>
+        /// <see href="https://shopify.dev/api/liquid/filters#base64_decode"/>
+        public static string Base64Decode(string input)
+        {
+            if (input == null)
+            {
+                return null;
+            }
+            try
+            {
+                return Encoding.UTF8.GetString(Convert.FromBase64String(input));
+            }
+            catch (FormatException)
+            {
+                throw new ArgumentException("invalid base64 provided to {0}", Template.NamingConvention.GetMemberName(nameof(Base64Decode)));
+            }
+        }
+
+        /// <summary>
+        /// Encodes a string to URL-safe Base64 format
+        /// </summary>
+        /// <see href="https://shopify.dev/api/liquid/filters#base64_url_safe_encode"/>
+        public static string Base64UrlSafeEncode(string input)
+        {
+            if (input == null)
+            {
+                return null;
+            }
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(input))
+                .Replace('+', '-').Replace('/', '_');
+        }
+
+        /// <summary>
+        /// Decodes a string in URL-safe Base64 format.
+        /// </summary>
+        /// <see href="https://shopify.dev/api/liquid/filters#base64_url_safe_decode"/>
+        public static string Base64UrlSafeDecode(string input)
+        {
+            if (input == null)
+            {
+                return null;
+            }
+            string incoming = input.Replace('_', '/').Replace('-', '+');
+            switch (input.Length % 4)
+            {
+                case 2: incoming += "=="; break;
+                case 3: incoming += "="; break;
+            }
+            try
+            {
+                return Encoding.ASCII.GetString(Convert.FromBase64String(incoming));
+            }
+            catch (FormatException)
+            {
+                throw new ArgumentException("invalid base64 provided to {0}", Template.NamingConvention.GetMemberName(nameof(Base64UrlSafeDecode)));
+            }
         }
     }
 }

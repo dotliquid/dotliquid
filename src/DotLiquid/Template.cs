@@ -56,8 +56,8 @@ namespace DotLiquid
         /// </summary>
         public static TimeSpan RegexTimeOut { get; set; }
 
-        private static readonly Dictionary<Type, Func<object, object>> SafeTypeTransformers;
-        private static readonly Dictionary<Type, Func<object, object>> ValueTypeTransformers;
+        private static readonly ConcurrentDictionary<Type, Func<object, object>> SafeTypeTransformers;
+        private static readonly ConcurrentDictionary<Type, Func<object, object>> ValueTypeTransformers;
         private static readonly ConcurrentDictionary<Type, Func<object, object>> ValueTypeTransformerCache;
         private static readonly IDictionary<string, Type> SafelistedFilters = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
 
@@ -67,8 +67,8 @@ namespace DotLiquid
             NamingConvention = new RubyNamingConvention();
             FileSystem = new BlankFileSystem();
             Tags = new Dictionary<string, Tuple<ITagFactory, Type>>();
-            SafeTypeTransformers = new Dictionary<Type, Func<object, object>>();
-            ValueTypeTransformers = new Dictionary<Type, Func<object, object>>();
+            SafeTypeTransformers = new ConcurrentDictionary<Type, Func<object, object>>();
+            ValueTypeTransformers = new ConcurrentDictionary<Type, Func<object, object>>();
             ValueTypeTransformerCache = new ConcurrentDictionary<Type, Func<object, object>>();
         }
 

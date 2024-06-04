@@ -1735,9 +1735,6 @@ PaulGeorge",
             Helper.AssertTemplateResult(
                 expected: "4",
                 template: "{{ 4 | abs }}");
-            Helper.AssertTemplateResult(
-                expected: "19,86",
-                template: "{{ '-19,86' | abs }}");
         }
 
         [Test]

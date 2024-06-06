@@ -1407,7 +1407,7 @@ PaulGeorge",
 
                 Assert.Null(StandardFilters.Ceil(_contextV20, ""));
                 Assert.Null(StandardFilters.Ceil(_contextV20, "two"));
-                Assert.AreEqual(4, StandardFilters.Ceil(_contextGreekCultureV20, 3.5));
+                Assert.AreEqual(4, StandardFilters.Ceil(_contextGreekCultureV20, "3,5"));
             }
         }
 
@@ -1438,7 +1438,7 @@ PaulGeorge",
 
                 Assert.Null(StandardFilters.Floor(_contextV20, ""));
                 Assert.Null(StandardFilters.Floor(_contextV20, "two"));
-                Assert.AreEqual(3, StandardFilters.Floor(_contextGreekCultureV20, 3.5));
+                Assert.AreEqual(3, StandardFilters.Floor(_contextGreekCultureV20, "3,5"));
             }
         }
 
@@ -1726,15 +1726,19 @@ PaulGeorge",
             Assert.AreEqual(30.60, StandardFilters.Abs(_contextGreekCultureV20, "30,60"));
             Assert.AreEqual(0, StandardFilters.Abs(_contextGreekCultureV20, "30,60a"));
 
-            Helper.AssertTemplateResult(
-                expected: "17",
-                template: "{{ -17 | abs }}");
-            Helper.AssertTemplateResult(
-                expected: "17",
-                template: "{{ 17 | abs }}");
-            Helper.AssertTemplateResult(
-                expected: "4",
-                template: "{{ 4 | abs }}");
+            using (CultureHelper.SetCulture("el-GR"))
+            {
+                Helper.AssertTemplateResult(
+                    expected: "17,5",
+                    template: "{{ -17,5 | abs }}");
+                Helper.AssertTemplateResult(
+                    expected: "17,5",
+                    template: "{{ 17,5 | abs }}");
+                Helper.AssertTemplateResult(
+                    expected: "4,5",
+                    template: "{{ 4,5 | abs }}");
+            }
+            
         }
 
         [Test]
@@ -1775,12 +1779,38 @@ PaulGeorge",
             Assert.AreEqual("10a", StandardFilters.AtLeast(_contextGreekCultureV20, "10a", 5));
             Assert.AreEqual("4b", StandardFilters.AtLeast(_contextGreekCultureV20, "4b", 5));
 
-            Helper.AssertTemplateResult(
+            using (CultureHelper.SetCulture("el-GR"))
+            {
+                Helper.AssertTemplateResult(
                 expected: "5",
-                template: "{{ 4 | at_least: 5 }}");
+                template: "{{ 4,5 | at_least: 5 }}");
+                Helper.AssertTemplateResult(
+                    expected: "4,5",
+                    template: "{{ 4,5 | at_least: 3 }}");
+            }
+        }
+
+        [Test]
+        public void TestAtMost()
+        {
+            Assert.AreEqual("notNumber", StandardFilters.AtMost(_contextV20, "notNumber", 5));
+            Assert.AreEqual(5, StandardFilters.AtMost(_contextV20, 5, 5));
+            Assert.AreEqual(3, StandardFilters.AtMost(_contextV20, 3, 5));
+            Assert.AreEqual(5, StandardFilters.AtMost(_contextV20, 6, 5));
+            Assert.AreEqual(5, StandardFilters.AtMost(_contextV20, 10, 5));
+            Assert.AreEqual(5, StandardFilters.AtMost(_contextV20, 9.85, 5));
+            Assert.AreEqual(3.56, StandardFilters.AtMost(_contextV20, 3.56, 5));
+            Assert.AreEqual(5, StandardFilters.AtMost(_contextV20, "10", 5));
+            Assert.AreEqual(4, StandardFilters.AtMost(_contextV20, "4", 5));
+            Assert.AreEqual("4a", StandardFilters.AtMost(_contextV20, "4a", 5));
+            Assert.AreEqual("10b", StandardFilters.AtMost(_contextV20, "10b", 5));
+
             Helper.AssertTemplateResult(
                 expected: "4",
-                template: "{{ 4 | at_least: 3 }}");
+                template: "{{ 4 | at_most: 5 }}");
+            Helper.AssertTemplateResult(
+                expected: "3",
+                template: "{{ 4 | at_most: 3 }}");
         }
 
         [Test]
@@ -1798,12 +1828,15 @@ PaulGeorge",
             Assert.AreEqual("4a", StandardFilters.AtMost(_contextGreekCultureV20, "4a", 5));
             Assert.AreEqual("10b", StandardFilters.AtMost(_contextGreekCultureV20, "10b", 5));
 
-            Helper.AssertTemplateResult(
-                expected: "4",
-                template: "{{ 4 | at_most: 5 }}");
-            Helper.AssertTemplateResult(
-                expected: "3",
-                template: "{{ 4 | at_most: 3 }}");
+            using (CultureHelper.SetCulture("el-GR"))
+            {
+                Helper.AssertTemplateResult(
+                expected: "4,5",
+                template: "{{ 4,5 | at_most: 5 }}");
+                Helper.AssertTemplateResult(
+                    expected: "3",
+                    template: "{{ 4,5 | at_most: 3 }}");
+            }
         }
 
         [Test]

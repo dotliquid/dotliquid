@@ -174,7 +174,7 @@ namespace DotLiquid
         /// <param name="func">Function that converts the specified type into a Liquid Drop-compatible object (eg, implements ILiquidizable)</param>
         public static void RegisterSafeType(Type type, Func<object, object> func)
         {
-            SafeTypeTransformers.GetOrAdd(type, func);
+            SafeTypeTransformers.AddOrUpdate(type, func, (k, oldFunction) => func);
         }
 
         /// <summary>
@@ -184,7 +184,7 @@ namespace DotLiquid
         /// <param name="func">Function that converts the specified type into a Liquid Drop-compatible object (eg, implements ILiquidizable)</param>
         public static void RegisterValueTypeTransformer(Type type, Func<object, object> func)
         {
-            ValueTypeTransformers.GetOrAdd(type, func);
+            ValueTypeTransformers.AddOrUpdate(type, func, (k, oldFunction) => func);
             ValueTypeTransformerCache.Clear();
         }
 

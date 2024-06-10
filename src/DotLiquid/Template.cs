@@ -56,8 +56,8 @@ namespace DotLiquid
         /// </summary>
         public static TimeSpan RegexTimeOut { get; set; }
 
-        private static readonly Dictionary<Type, Func<object, object>> SafeTypeTransformers;
-        private static readonly Dictionary<Type, Func<object, object>> ValueTypeTransformers;
+        private static readonly ConcurrentDictionary<Type, Func<object, object>> SafeTypeTransformers;
+        private static readonly ConcurrentDictionary<Type, Func<object, object>> ValueTypeTransformers;
         private static readonly ConcurrentDictionary<Type, Func<object, object>> ValueTypeTransformerCache;
         private static readonly IDictionary<string, Type> SafelistedFilters = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
 
@@ -67,8 +67,8 @@ namespace DotLiquid
             NamingConvention = new RubyNamingConvention();
             FileSystem = new BlankFileSystem();
             Tags = new Dictionary<string, Tuple<ITagFactory, Type>>();
-            SafeTypeTransformers = new Dictionary<Type, Func<object, object>>();
-            ValueTypeTransformers = new Dictionary<Type, Func<object, object>>();
+            SafeTypeTransformers = new ConcurrentDictionary<Type, Func<object, object>>();
+            ValueTypeTransformers = new ConcurrentDictionary<Type, Func<object, object>>();
             ValueTypeTransformerCache = new ConcurrentDictionary<Type, Func<object, object>>();
         }
 
@@ -174,7 +174,7 @@ namespace DotLiquid
         /// <param name="func">Function that converts the specified type into a Liquid Drop-compatible object (eg, implements ILiquidizable)</param>
         public static void RegisterSafeType(Type type, Func<object, object> func)
         {
-            SafeTypeTransformers[type] = func;
+            SafeTypeTransformers.AddOrUpdate(type, func, (k, oldFunction) => func);
         }
 
         /// <summary>
@@ -184,7 +184,7 @@ namespace DotLiquid
         /// <param name="func">Function that converts the specified type into a Liquid Drop-compatible object (eg, implements ILiquidizable)</param>
         public static void RegisterValueTypeTransformer(Type type, Func<object, object> func)
         {
-            ValueTypeTransformers[type] = func;
+            ValueTypeTransformers.AddOrUpdate(type, func, (k, oldFunction) => func);
             ValueTypeTransformerCache.Clear();
         }
 

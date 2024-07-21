@@ -1,6 +1,6 @@
 # Build script for dotliquid, see https://www.appveyor.com/docs/appveyor-yml for reference
 version: 2.2.{build}
-image: Visual Studio 2017
+image: Visual Studio 2022
 
 cache:
   - C:\ProgramData\chocolatey\bin -> appveyor.yml

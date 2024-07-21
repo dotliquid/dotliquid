@@ -1,10 +1,6 @@
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
+using NUnit.Framework.Legacy;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DotLiquid.Tests
 {
@@ -24,10 +20,10 @@ namespace DotLiquid.Tests
         public void TestTitleize()
         {
             var context = _context;
-            Assert.AreEqual(null, ExtendedFilters.Titleize(context: context, input: null));
-            Assert.AreEqual("", ExtendedFilters.Titleize(context: context, input: ""));
-            Assert.AreEqual(" ", ExtendedFilters.Titleize(context: context, input: " "));
-            Assert.AreEqual("That Is One Sentence.", ExtendedFilters.Titleize(context: context, input: "That is one sentence."));
+            ClassicAssert.AreEqual(null, ExtendedFilters.Titleize(context: context, input: null));
+            ClassicAssert.AreEqual("", ExtendedFilters.Titleize(context: context, input: ""));
+            ClassicAssert.AreEqual(" ", ExtendedFilters.Titleize(context: context, input: " "));
+            ClassicAssert.AreEqual("That Is One Sentence.", ExtendedFilters.Titleize(context: context, input: "That is one sentence."));
 
             Helper.AssertTemplateResult(
                 expected: "Title",
@@ -38,10 +34,10 @@ namespace DotLiquid.Tests
         public void TestUpcaseFirst()
         {
             var context = _context;
-            Assert.AreEqual(null, ExtendedFilters.UpcaseFirst(context: context, input: null));
-            Assert.AreEqual("", ExtendedFilters.UpcaseFirst(context: context, input: ""));
-            Assert.AreEqual(" ", ExtendedFilters.UpcaseFirst(context: context, input: " "));
-            Assert.AreEqual(" My boss is Mr. Doe.", ExtendedFilters.UpcaseFirst(context: context, input: " my boss is Mr. Doe."));
+            ClassicAssert.AreEqual(null, ExtendedFilters.UpcaseFirst(context: context, input: null));
+            ClassicAssert.AreEqual("", ExtendedFilters.UpcaseFirst(context: context, input: ""));
+            ClassicAssert.AreEqual(" ", ExtendedFilters.UpcaseFirst(context: context, input: " "));
+            ClassicAssert.AreEqual(" My boss is Mr. Doe.", ExtendedFilters.UpcaseFirst(context: context, input: " my boss is Mr. Doe."));
 
             Helper.AssertTemplateResult(
                 expected: "My great title",
@@ -51,7 +47,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestRegexReplace()
         {
-            Assert.AreEqual(expected: "b b b b", actual: ExtendedFilters.RegexReplace(input: "a A A a", pattern: "[Aa]", replacement: "b"));
+            ClassicAssert.AreEqual(expected: "b b b b", actual: ExtendedFilters.RegexReplace(input: "a A A a", pattern: "[Aa]", replacement: "b"));
         }
     }
 }

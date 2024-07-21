@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using DotLiquid.NamingConventions;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace DotLiquid.Tests
 {
@@ -43,7 +44,7 @@ namespace DotLiquid.Tests
                     LocalVariables = localVariables,
                     SyntaxCompatibilityLevel = syntax
                 };
-                Assert.AreEqual(expected, Template.Parse(template).Render(parameters));
+                ClassicAssert.AreEqual(expected, Template.Parse(template).Render(parameters));
             });
         }
 
@@ -60,7 +61,7 @@ namespace DotLiquid.Tests
                 SyntaxCompatibilityLevel = syntax,
                 Filters = localFilters
             };
-            Assert.AreEqual(expected, Template.Parse(template).Render(parameters));
+            ClassicAssert.AreEqual(expected, Template.Parse(template).Render(parameters));
         }
 
         public static void AssertTemplateResult(string expected, string template, Hash localVariables, SyntaxCompatibility syntax = SyntaxCompatibility.DotLiquid20)

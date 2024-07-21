@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Globalization;
-using DotLiquid.Exceptions;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace DotLiquid.Tests
 {
@@ -154,7 +154,7 @@ namespace DotLiquid.Tests
         public void TestNonExistentFilter()
         {
             _context["var"] = 1000;
-            Assert.Throws<FilterNotFoundException>(() => new Variable("var | syzzy").Render(_context));
+            ClassicAssert.Throws<FilterNotFoundException>(() => new Variable("var | syzzy").Render(_context));
         }*/
 
         [Test]
@@ -162,7 +162,7 @@ namespace DotLiquid.Tests
         {
             _context["var"] = 1000;
             _context.AddFilters(typeof(MoneyFilter));
-            Assert.AreEqual(" 1000$ ", new Variable("var | money").Render(_context));
+            ClassicAssert.AreEqual(" 1000$ ", new Variable("var | money").Render(_context));
         }
 
         [Test]
@@ -170,7 +170,7 @@ namespace DotLiquid.Tests
         {
             _context["var"] = 1000;
             _context.AddFilters(typeof(MoneyFilter));
-            Assert.AreEqual(" 1000$ ", new Variable("var | money_with_underscore").Render(_context));
+            ClassicAssert.AreEqual(" 1000$ ", new Variable("var | money_with_underscore").Render(_context));
         }
 
         [Test]
@@ -178,7 +178,7 @@ namespace DotLiquid.Tests
         {
             _context["var"] = 1000L;
             _context.AddFilters(typeof(FiltersWithArgumentsInt));
-            Assert.AreEqual("[1005]", new Variable("var | adjust: 5").Render(_context));
+            ClassicAssert.AreEqual("[1005]", new Variable("var | adjust: 5").Render(_context));
         }
 
         [Test]
@@ -186,7 +186,7 @@ namespace DotLiquid.Tests
         {
             _context["var"] = 1000L;
             _context.AddFilters(typeof(FiltersWithArgumentsInt));
-            Assert.AreEqual("[995]", new Variable("var | adjust: -5").Render(_context));
+            ClassicAssert.AreEqual("[995]", new Variable("var | adjust: -5").Render(_context));
         }
 
         [Test]
@@ -194,7 +194,7 @@ namespace DotLiquid.Tests
         {
             _context["var"] = 1000;
             _context.AddFilters(typeof(FiltersWithArgumentsInt));
-            Assert.AreEqual("[1010]", new Variable("var | adjust").Render(_context));
+            ClassicAssert.AreEqual("[1010]", new Variable("var | adjust").Render(_context));
         }
 
         [Test]
@@ -202,7 +202,7 @@ namespace DotLiquid.Tests
         {
             _context["var"] = 1000L;
             _context.AddFilters(typeof(FiltersWithArgumentsInt));
-            Assert.AreEqual("[1150]", new Variable("var | add_sub: 200, 50").Render(_context));
+            ClassicAssert.AreEqual("[1150]", new Variable("var | add_sub: 200, 50").Render(_context));
         }
 
         [Test]
@@ -210,7 +210,7 @@ namespace DotLiquid.Tests
         {
             _context["var"] = 1000;
             _context.AddFilters(typeof(FiltersWithArgumentsLong));
-            Assert.AreEqual("[1005]", new Variable("var | adjust: 5").Render(_context));
+            ClassicAssert.AreEqual("[1005]", new Variable("var | adjust: 5").Render(_context));
         }
 
         [Test]
@@ -218,7 +218,7 @@ namespace DotLiquid.Tests
         {
             _context["var"] = 1000;
             _context.AddFilters(typeof(FiltersWithArgumentsLong));
-            Assert.AreEqual("[995]", new Variable("var | adjust: -5").Render(_context));
+            ClassicAssert.AreEqual("[995]", new Variable("var | adjust: -5").Render(_context));
         }
 
         [Test]
@@ -226,7 +226,7 @@ namespace DotLiquid.Tests
         {
             _context["var"] = 1000;
             _context.AddFilters(typeof(FiltersWithArgumentsLong));
-            Assert.AreEqual("[1010]", new Variable("var | adjust").Render(_context));
+            ClassicAssert.AreEqual("[1010]", new Variable("var | adjust").Render(_context));
         }
 
         [Test]
@@ -234,7 +234,7 @@ namespace DotLiquid.Tests
         {
             _context["var"] = 1000;
             _context.AddFilters(typeof(FiltersWithArgumentsLong));
-            Assert.AreEqual("[1150]", new Variable("var | add_sub: 200, 50").Render(_context));
+            ClassicAssert.AreEqual("[1150]", new Variable("var | add_sub: 200, 50").Render(_context));
         }
 
         [Test]
@@ -242,8 +242,8 @@ namespace DotLiquid.Tests
         {
             Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignatures));
 
-            Assert.AreEqual("AB", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
-            Assert.AreEqual("ABC", Template.Parse("{{'A' | concatenate : 'B', 'C'}}").Render());
+            ClassicAssert.AreEqual("AB", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
+            ClassicAssert.AreEqual("ABC", Template.Parse("{{'A' | concatenate : 'B', 'C'}}").Render());
         }
 
         [Test]
@@ -251,8 +251,8 @@ namespace DotLiquid.Tests
         {
             _context.AddFilters(typeof(FiltersWithMultipleMethodSignatures));
 
-            Assert.AreEqual("AB", new Variable("'A' | concatenate : 'B'").Render(_context));
-            Assert.AreEqual("ABC", new Variable("'A' | concatenate : 'B', 'C'").Render(_context));
+            ClassicAssert.AreEqual("AB", new Variable("'A' | concatenate : 'B'").Render(_context));
+            ClassicAssert.AreEqual("ABC", new Variable("'A' | concatenate : 'B', 'C'").Render(_context));
         }
 
         [Test]
@@ -260,8 +260,8 @@ namespace DotLiquid.Tests
         {
             Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignaturesAndContextParam));
 
-            Assert.AreEqual("AB", Template.Parse("{{'A' | concat_with_context : 'B'}}").Render());
-            Assert.AreEqual("ABC", Template.Parse("{{'A' | concat_with_context : 'B', 'C'}}").Render());
+            ClassicAssert.AreEqual("AB", Template.Parse("{{'A' | concat_with_context : 'B'}}").Render());
+            ClassicAssert.AreEqual("ABC", Template.Parse("{{'A' | concat_with_context : 'B', 'C'}}").Render());
         }
 
         [Test]
@@ -269,8 +269,8 @@ namespace DotLiquid.Tests
         {
             _context.AddFilters(typeof(FiltersWithMultipleMethodSignaturesAndContextParam));
 
-            Assert.AreEqual("AB", new Variable("'A' | concat_with_context : 'B'").Render(_context));
-            Assert.AreEqual("ABC", new Variable("'A' | concat_with_context : 'B', 'C'").Render(_context));
+            ClassicAssert.AreEqual("AB", new Variable("'A' | concat_with_context : 'B'").Render(_context));
+            ClassicAssert.AreEqual("ABC", new Variable("'A' | concat_with_context : 'B', 'C'").Render(_context));
         }
 
         [Test]
@@ -279,8 +279,8 @@ namespace DotLiquid.Tests
             Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesOne));
             Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesTwo));
 
-            Assert.AreEqual("AB", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
-            Assert.AreEqual("ABC", Template.Parse("{{'A' | concatenate : 'B', 'C'}}").Render());
+            ClassicAssert.AreEqual("AB", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
+            ClassicAssert.AreEqual("ABC", Template.Parse("{{'A' | concatenate : 'B', 'C'}}").Render());
         }
 
         [Test]
@@ -289,8 +289,8 @@ namespace DotLiquid.Tests
             _context.AddFilters(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesOne));
             _context.AddFilters(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesTwo));
 
-            Assert.AreEqual("AB", new Variable("'A' | concatenate : 'B'").Render(_context));
-            Assert.AreEqual("ABC", new Variable("'A' | concatenate : 'B', 'C'").Render(_context));
+            ClassicAssert.AreEqual("AB", new Variable("'A' | concatenate : 'B'").Render(_context));
+            ClassicAssert.AreEqual("ABC", new Variable("'A' | concatenate : 'B', 'C'").Render(_context));
         }
 
         [Test]
@@ -308,8 +308,8 @@ namespace DotLiquid.Tests
         {
             Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamTwo));
             Template.RegisterFilter(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamOne));
-            Assert.AreEqual("AB", Template.Parse("{{'A' | concat_with_context : 'B'}}").Render());
-            Assert.AreEqual("ABC", Template.Parse("{{'A' | concat_with_context : 'B', 'C'}}").Render());
+            ClassicAssert.AreEqual("AB", Template.Parse("{{'A' | concat_with_context : 'B'}}").Render());
+            ClassicAssert.AreEqual("ABC", Template.Parse("{{'A' | concat_with_context : 'B', 'C'}}").Render());
         }
 
         [Test]
@@ -329,8 +329,8 @@ namespace DotLiquid.Tests
             _context.AddFilters(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamOne));
             _context.AddFilters(typeof(FiltersWithMultipleMethodSignaturesDifferentClassesWithContextParamTwo));
 
-            Assert.AreEqual("AB", new Variable("'A' | concat_with_context : 'B'").Render(_context));
-            Assert.AreEqual("ABC", new Variable("'A' | concat_with_context : 'B', 'C'").Render(_context));
+            ClassicAssert.AreEqual("AB", new Variable("'A' | concat_with_context : 'B'").Render(_context));
+            ClassicAssert.AreEqual("ABC", new Variable("'A' | concat_with_context : 'B', 'C'").Render(_context));
         }
 
         [Test]
@@ -342,8 +342,8 @@ namespace DotLiquid.Tests
             Template.RegisterFilter(typeof(FilterWithSameMethodSignatureDifferentClassTwo));
             Template.RegisterFilter(typeof(FilterWithSameMethodSignatureDifferentClassOne));
 
-            Assert.AreEqual("ABClass One", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
-            Assert.AreNotEqual("ABClass Two", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
+            ClassicAssert.AreEqual("ABClass One", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
+            ClassicAssert.AreNotEqual("ABClass Two", Template.Parse("{{'A' | concatenate : 'B'}}").Render());
         }
 
         [Test]
@@ -352,8 +352,8 @@ namespace DotLiquid.Tests
             _context.AddFilters(typeof(FilterWithSameMethodSignatureDifferentClassOne));
             _context.AddFilters(typeof(FilterWithSameMethodSignatureDifferentClassTwo));
 
-            Assert.AreEqual("ABClass Two", new Variable("'A' | concatenate : 'B'").Render(_context));
-            Assert.AreNotEqual("ABClass One", new Variable("'A' | concatenate : 'B'").Render(_context));
+            ClassicAssert.AreEqual("ABClass Two", new Variable("'A' | concatenate : 'B'").Render(_context));
+            ClassicAssert.AreNotEqual("ABClass One", new Variable("'A' | concatenate : 'B'").Render(_context));
         }
 
         [Test]
@@ -374,7 +374,7 @@ namespace DotLiquid.Tests
         {
             _context["var"] = 1000;
             _context.AddFilters(typeof(FiltersWithArguments));
-            Assert.AreEqual("[1150]", string.Join(string.Empty, new Variable("var | add_sub: 200 50").Render(_context));
+            ClassicAssert.AreEqual("[1150]", string.Join(string.Empty, new Variable("var | add_sub: 200 50").Render(_context));
         }*/
 
         [Test]
@@ -383,7 +383,7 @@ namespace DotLiquid.Tests
             _context["var"] = 1000;
             _context.AddFilters(typeof(MoneyFilter));
             _context.AddFilters(typeof(CanadianMoneyFilter));
-            Assert.AreEqual(" 1000$ CAD ", new Variable("var | money").Render(_context));
+            ClassicAssert.AreEqual(" 1000$ CAD ", new Variable("var | money").Render(_context));
         }
 
         [Test]
@@ -391,14 +391,14 @@ namespace DotLiquid.Tests
         {
             _context["var"] = "abcd";
             _context.AddFilters(typeof(MoneyFilter));
-            Assert.AreEqual(4, new Variable("var | size").Render(_context));
+            ClassicAssert.AreEqual(4, new Variable("var | size").Render(_context));
         }
 
         [Test]
         public void TestJoin()
         {
             _context["var"] = new[] { 1, 2, 3, 4 };
-            Assert.AreEqual("1 2 3 4", new Variable("var | join").Render(_context));
+            ClassicAssert.AreEqual("1 2 3 4", new Variable("var | join").Render(_context));
         }
 
         [Test]
@@ -409,43 +409,43 @@ namespace DotLiquid.Tests
             _context["words"] = new[] { "expected", "as", "alphabetic" };
             _context["arrays"] = new[] { new[] { "flattened" }, new[] { "are" } };
 
-            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 }, new Variable("numbers | sort").Render(_context) as IEnumerable);
-            CollectionAssert.AreEqual(new[] { "alphabetic", "as", "expected" }, new Variable("words | sort").Render(_context) as IEnumerable);
-            CollectionAssert.AreEqual(new[] { 3 }, new Variable("value | sort").Render(_context) as IEnumerable);
-            CollectionAssert.AreEqual(new[] { "are", "flattened" }, new Variable("arrays | sort").Render(_context) as IEnumerable);
+            ClassicAssert.AreEqual(new[] { 1, 2, 3, 4 }, new Variable("numbers | sort").Render(_context) as IEnumerable);
+            ClassicAssert.AreEqual(new[] { "alphabetic", "as", "expected" }, new Variable("words | sort").Render(_context) as IEnumerable);
+            ClassicAssert.AreEqual(new[] { 3 }, new Variable("value | sort").Render(_context) as IEnumerable);
+            ClassicAssert.AreEqual(new[] { "are", "flattened" }, new Variable("arrays | sort").Render(_context) as IEnumerable);
         }
 
         [Test]
         public void TestSplit()
         {
             _context["var"] = "a~b";
-            Assert.AreEqual(new[] { "a", "b" }, new Variable("var | split:'~'").Render(_context));
+            ClassicAssert.AreEqual(new[] { "a", "b" }, new Variable("var | split:'~'").Render(_context));
         }
 
         [Test]
         public void TestStripHtml()
         {
             _context["var"] = "<b>bla blub</a>";
-            Assert.AreEqual("bla blub", new Variable("var | strip_html").Render(_context));
+            ClassicAssert.AreEqual("bla blub", new Variable("var | strip_html").Render(_context));
         }
 
         [Test]
         public void Capitalize()
         {
             _context["var"] = "blub";
-            Assert.AreEqual("Blub", new Variable("var | capitalize").Render(_context));
+            ClassicAssert.AreEqual("Blub", new Variable("var | capitalize").Render(_context));
         }
 
         [Test]
         public void Slice()
         {
             _context["var"] = "blub";
-            Assert.AreEqual("b", new Variable("var | slice: 0, 1").Render(_context));
-            Assert.AreEqual("bl", new Variable("var | slice: 0, 2").Render(_context));
-            Assert.AreEqual("l", new Variable("var | slice: 1").Render(_context));
-            Assert.AreEqual("", new Variable("var | slice: 4, 1").Render(_context));
-            Assert.AreEqual("ub", new Variable("var | slice: -2, 2").Render(_context));
-            Assert.AreEqual(null, new Variable("var | slice: 5, 1").Render(_context));
+            ClassicAssert.AreEqual("b", new Variable("var | slice: 0, 1").Render(_context));
+            ClassicAssert.AreEqual("bl", new Variable("var | slice: 0, 2").Render(_context));
+            ClassicAssert.AreEqual("l", new Variable("var | slice: 1").Render(_context));
+            ClassicAssert.AreEqual("", new Variable("var | slice: 4, 1").Render(_context));
+            ClassicAssert.AreEqual("ub", new Variable("var | slice: -2, 2").Render(_context));
+            ClassicAssert.AreEqual(null, new Variable("var | slice: 5, 1").Render(_context));
         }
 
         [Test]
@@ -453,9 +453,9 @@ namespace DotLiquid.Tests
         {
             Template.RegisterFilter(typeof(MoneyFilter));
 
-            Assert.AreEqual(" 1000$ ", Template.Parse("{{1000 | money}}").Render());
-            Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}").Render(new RenderParameters(CultureInfo.InvariantCulture) { Filters = new[] { typeof(CanadianMoneyFilter) } }));
-            Assert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}").Render(new RenderParameters(CultureInfo.InvariantCulture) { Filters = new[] { typeof(CanadianMoneyFilter) } }));
+            ClassicAssert.AreEqual(" 1000$ ", Template.Parse("{{1000 | money}}").Render());
+            ClassicAssert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}").Render(new RenderParameters(CultureInfo.InvariantCulture) { Filters = new[] { typeof(CanadianMoneyFilter) } }));
+            ClassicAssert.AreEqual(" 1000$ CAD ", Template.Parse("{{1000 | money}}").Render(new RenderParameters(CultureInfo.InvariantCulture) { Filters = new[] { typeof(CanadianMoneyFilter) } }));
         }
 
         [Test]
@@ -464,7 +464,7 @@ namespace DotLiquid.Tests
             _context["var"] = 1000;
             _context["name"] = "King Kong";
             _context.AddFilters(typeof(ContextFilters));
-            Assert.AreEqual(" King Kong has 1000$ ", new Variable("var | bank_statement").Render(_context));
+            ClassicAssert.AreEqual(" King Kong has 1000$ ", new Variable("var | bank_statement").Render(_context));
         }
     }
 }

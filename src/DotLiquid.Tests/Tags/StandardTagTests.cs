@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using DotLiquid.Exceptions;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace DotLiquid.Tests.Tags
 {
@@ -14,8 +15,8 @@ namespace DotLiquid.Tests.Tags
         {
             Tag tag = new Tag();
             tag.Initialize("tag", null, null);
-            Assert.AreEqual("tag", tag.Name);
-            Assert.AreEqual(string.Empty, tag.Render(new Context(CultureInfo.InvariantCulture)));
+            ClassicAssert.AreEqual("tag", tag.Name);
+            ClassicAssert.AreEqual(string.Empty, tag.Render(new Context(CultureInfo.InvariantCulture)));
         }
 
         [Test]
@@ -134,7 +135,7 @@ namespace DotLiquid.Tests.Tags
         {
             var template = Template.Parse("{%for item in bla.testdict %}{{ item[0] }}-{{ item[1]}} {%endfor%}");
             var result = template.Render(Hash.FromAnonymousObject(new { bla = new TestDictObject() }));
-            Assert.AreEqual("aa-bb dd-ee ff-gg ", result);
+            ClassicAssert.AreEqual("aa-bb dd-ee ff-gg ", result);
         }
 
         [Test]
@@ -493,11 +494,11 @@ namespace DotLiquid.Tests.Tags
             // Example from the shopify forums
             const string code = "{% case collection.handle %}{% when 'menswear-jackets' %}{% assign ptitle = 'menswear' %}{% when 'menswear-t-shirts' %}{% assign ptitle = 'menswear' %}{% else %}{% assign ptitle = 'womenswear' %}{% endcase %}{{ ptitle }}";
             Template template = Template.Parse(code);
-            Assert.AreEqual("menswear", template.Render(Hash.FromAnonymousObject(new { collection = new { handle = "menswear-jackets" } })));
-            Assert.AreEqual("menswear", template.Render(Hash.FromAnonymousObject(new { collection = new { handle = "menswear-t-shirts" } })));
-            Assert.AreEqual("womenswear", template.Render(Hash.FromAnonymousObject(new { collection = new { handle = "x" } })));
-            Assert.AreEqual("womenswear", template.Render(Hash.FromAnonymousObject(new { collection = new { handle = "y" } })));
-            Assert.AreEqual("womenswear", template.Render(Hash.FromAnonymousObject(new { collection = new { handle = "z" } })));
+            ClassicAssert.AreEqual("menswear", template.Render(Hash.FromAnonymousObject(new { collection = new { handle = "menswear-jackets" } })));
+            ClassicAssert.AreEqual("menswear", template.Render(Hash.FromAnonymousObject(new { collection = new { handle = "menswear-t-shirts" } })));
+            ClassicAssert.AreEqual("womenswear", template.Render(Hash.FromAnonymousObject(new { collection = new { handle = "x" } })));
+            ClassicAssert.AreEqual("womenswear", template.Render(Hash.FromAnonymousObject(new { collection = new { handle = "y" } })));
+            ClassicAssert.AreEqual("womenswear", template.Render(Hash.FromAnonymousObject(new { collection = new { handle = "z" } })));
         }
 
         [Test]
@@ -539,19 +540,19 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestAssign2()
         {
-            Assert.AreEqual("variable", Template.Parse("{% assign a = 'variable' %}{{a}}").Render());
+            ClassicAssert.AreEqual("variable", Template.Parse("{% assign a = 'variable' %}{{a}}").Render());
         }
 
         [Test]
         public void TestAssignAnEmptyString()
         {
-            Assert.AreEqual("", Template.Parse("{% assign a = '' %}{{a}}").Render());
+            ClassicAssert.AreEqual("", Template.Parse("{% assign a = '' %}{{a}}").Render());
         }
 
         [Test]
         public void TestAssignIsGlobal()
         {
-            Assert.AreEqual("variable", Template.Parse("{%for i in (1..2) %}{% assign a = 'variable'%}{% endfor %}{{a}}").Render());
+            ClassicAssert.AreEqual("variable", Template.Parse("{%for i in (1..2) %}{% assign a = 'variable'%}{% endfor %}{{a}}").Render());
         }
 
         [Test]
@@ -688,7 +689,7 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
             var context = new Context(CultureInfo.InvariantCulture);
             Tag.GetRegister<int>(context, "cycle");
             Tag.GetRegister<object>(context, "for");
-            Assert.IsInstanceOf<IDictionary<string, int>>(Tag.GetRegister<int>(context, "cycle"));
+            ClassicAssert.IsInstanceOf<IDictionary<string, int>>(Tag.GetRegister<int>(context, "cycle"));
         }
 
         [Test]
@@ -698,18 +699,18 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
             var drop = new DotLiquid.Tags.LegacyKeyValueDrop("key", valueDictionary);
 
             // Confirm Key access
-            Assert.AreEqual("key", drop.BeforeMethod("0")); // Ruby syntax equivalent for Key
-            Assert.AreEqual("key", drop.BeforeMethod("Key")); // C# equivalent syntax
-            Assert.AreEqual("key", drop.BeforeMethod("itemName")); // non-standard alias for KeyValuePair.Key
+            ClassicAssert.AreEqual("key", drop.BeforeMethod("0")); // Ruby syntax equivalent for Key
+            ClassicAssert.AreEqual("key", drop.BeforeMethod("Key")); // C# equivalent syntax
+            ClassicAssert.AreEqual("key", drop.BeforeMethod("itemName")); // non-standard alias for KeyValuePair.Key
 
             // Confirm Value access
-            Assert.AreSame(valueDictionary, drop.BeforeMethod("1")); //Ruby syntax equivalent for KeyValuePair.Value
-            Assert.AreSame(valueDictionary, drop.BeforeMethod("Value")); // C# equivalent syntax
+            ClassicAssert.AreSame(valueDictionary, drop.BeforeMethod("1")); //Ruby syntax equivalent for KeyValuePair.Value
+            ClassicAssert.AreSame(valueDictionary, drop.BeforeMethod("Value")); // C# equivalent syntax
 
             // Confirm Value.Property access
-            Assert.AreEqual("Jane", drop.BeforeMethod("First"));
-            Assert.AreEqual("Green", drop.BeforeMethod("Last"));
-            Assert.IsNull(drop.BeforeMethod("UnknownProperty"));
+            ClassicAssert.AreEqual("Jane", drop.BeforeMethod("First"));
+            ClassicAssert.AreEqual("Green", drop.BeforeMethod("Last"));
+            ClassicAssert.IsNull(drop.BeforeMethod("UnknownProperty"));
         }
 
 

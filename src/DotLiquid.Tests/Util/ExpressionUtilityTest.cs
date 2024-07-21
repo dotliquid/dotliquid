@@ -1,7 +1,8 @@
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace DotLiquid.Tests.Util
 {
@@ -49,12 +50,12 @@ namespace DotLiquid.Tests.Util
             var t1 = types.Item1;
             var t2 = types.Item2;
             var result = DotLiquid.Util.ExpressionUtility.BinaryNumericResultType(t1, t2);
-            Assert.IsNotNull(result);
-            Assert.AreEqual(result, DotLiquid.Util.ExpressionUtility.BinaryNumericResultType(t2, t1));
-            Assert.IsTrue(typeLimits[result].Item1 >= typeLimits[t1].Item1);
-            Assert.IsTrue(typeLimits[result].Item1 >= typeLimits[t2].Item1);
-            Assert.IsTrue(typeLimits[result].Item2 <= typeLimits[t1].Item2);
-            Assert.IsTrue(typeLimits[result].Item2 <= typeLimits[t1].Item2);
+            ClassicAssert.IsNotNull(result);
+            ClassicAssert.AreEqual(result, DotLiquid.Util.ExpressionUtility.BinaryNumericResultType(t2, t1));
+            ClassicAssert.IsTrue(typeLimits[result].Item1 >= typeLimits[t1].Item1);
+            ClassicAssert.IsTrue(typeLimits[result].Item1 >= typeLimits[t2].Item1);
+            ClassicAssert.IsTrue(typeLimits[result].Item2 <= typeLimits[t1].Item2);
+            ClassicAssert.IsTrue(typeLimits[result].Item2 <= typeLimits[t1].Item2);
         }
     }
 }

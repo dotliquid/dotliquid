@@ -1,5 +1,6 @@
 using DotLiquid.FileSystems;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace DotLiquid.Tests.Tags
 {
@@ -125,7 +126,7 @@ namespace DotLiquid.Tests.Tags
             Template template = Template.Parse (
                                     @"{% extends 'middle' %}
                   {% block middle %}C{% endblock %}");
-            Assert.AreEqual ("ABCYZ", template.Render ());
+            ClassicAssert.AreEqual("ABCYZ", template.Render ());
         }
 
         [Test]
@@ -133,7 +134,7 @@ namespace DotLiquid.Tests.Tags
         {
             Template template = Template.Parse (@"{% extends 'middle' %}
                   {% block start %}!{% endblock %}");
-            Assert.AreEqual ("!ABYZ", template.Render ());
+            ClassicAssert.AreEqual ("!ABYZ", template.Render ());
         }
 
         [Test]
@@ -142,13 +143,13 @@ namespace DotLiquid.Tests.Tags
             Template template = Template.Parse (
                                     @"{% extends 'middleunless' %}
                   {% block middle %}C{% endblock %}");
-            Assert.AreEqual ("ABCYZ", template.Render ());
+            ClassicAssert.AreEqual("ABCYZ", template.Render ());
 
             template = Template.Parse (
                 @"{% extends 'middleunless' %}
                   {% block start %}{% assign nomiddle = true %}{% endblock %}
                   {% block middle %}C{% endblock %}");
-            Assert.AreEqual ("ABYZ", template.Render ());
+            ClassicAssert.AreEqual("ABYZ", template.Render ());
         }
 
         [Test]
@@ -158,8 +159,8 @@ namespace DotLiquid.Tests.Tags
                                     @"{% extends 'middle' %}
                   {% block start %}!{% endblock %}
                   {% block middle %}C{% endblock %}");
-            Assert.AreEqual ("!ABCYZ", template.Render ());
-            Assert.AreEqual ("!ABCYZ", template.Render ());
+            ClassicAssert.AreEqual("!ABCYZ", template.Render ());
+            ClassicAssert.AreEqual("!ABCYZ", template.Render ());
         }
 
         [Test]
@@ -176,7 +177,7 @@ namespace DotLiquid.Tests.Tags
                     {% endblock %}");
                 StringAssert.Contains("test", template.Render());
             }
-            Assert.AreEqual(fileSystem.CacheHitTimes, 1);
+            ClassicAssert.AreEqual(fileSystem.CacheHitTimes, 1);
         }
     }
 }

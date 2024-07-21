@@ -7,6 +7,7 @@ using System.Linq;
 using DotLiquid.Exceptions;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace DotLiquid.Tests
 {
@@ -187,50 +188,50 @@ namespace DotLiquid.Tests
         public void TestVariables()
         {
             _context["string"] = "string";
-            Assert.AreEqual("string", _context["string"]);
+            ClassicAssert.AreEqual("string", _context["string"]);
 
             _context["EscapedCharacter"] = "EscapedCharacter\"";
-            Assert.AreEqual("EscapedCharacter\"", _context["EscapedCharacter"]);
+            ClassicAssert.AreEqual("EscapedCharacter\"", _context["EscapedCharacter"]);
 
             _context["num"] = 5;
-            Assert.AreEqual(5, _context["num"]);
+            ClassicAssert.AreEqual(5, _context["num"]);
 
             _context["decimal"] = 5m;
-            Assert.AreEqual(5m, _context["decimal"]);
+            ClassicAssert.AreEqual(5m, _context["decimal"]);
 
             _context["float"] = 5.0f;
-            Assert.AreEqual(5.0f, _context["float"]);
+            ClassicAssert.AreEqual(5.0f, _context["float"]);
 
             _context["double"] = 5.0;
-            Assert.AreEqual(5.0, _context["double"]);
+            ClassicAssert.AreEqual(5.0, _context["double"]);
 
             _context["time"] = TimeSpan.FromDays(1);
-            Assert.AreEqual(TimeSpan.FromDays(1), _context["time"]);
+            ClassicAssert.AreEqual(TimeSpan.FromDays(1), _context["time"]);
 
             _context["date"] = DateTime.Today;
-            Assert.AreEqual(DateTime.Today, _context["date"]);
+            ClassicAssert.AreEqual(DateTime.Today, _context["date"]);
 
             DateTime now = DateTime.Now;
             _context["datetime"] = now;
-            Assert.AreEqual(now, _context["datetime"]);
+            ClassicAssert.AreEqual(now, _context["datetime"]);
 
             DateTimeOffset offset = new DateTimeOffset(2013, 9, 10, 0, 10, 32, new TimeSpan(1, 0, 0));
             _context["datetimeoffset"] = offset;
-            Assert.AreEqual(offset, _context["datetimeoffset"]);
+            ClassicAssert.AreEqual(offset, _context["datetimeoffset"]);
 
             Guid guid = Guid.NewGuid();
             _context["guid"] = guid;
-            Assert.AreEqual(guid, _context["guid"]);
+            ClassicAssert.AreEqual(guid, _context["guid"]);
 
             _context["bool"] = true;
-            Assert.AreEqual(true, _context["bool"]);
+            ClassicAssert.AreEqual(true, _context["bool"]);
 
             _context["bool"] = false;
-            Assert.AreEqual(false, _context["bool"]);
+            ClassicAssert.AreEqual(false, _context["bool"]);
 
             _context["nil"] = null;
-            Assert.AreEqual(null, _context["nil"]);
-            Assert.AreEqual(null, _context["nil"]);
+            ClassicAssert.AreEqual(null, _context["nil"]);
+            ClassicAssert.AreEqual(null, _context["nil"]);
         }
 
         private enum TestEnum { Yes, No }
@@ -242,15 +243,15 @@ namespace DotLiquid.Tests
             _context["no"] = TestEnum.No;
             _context["not_enum"] = TestEnum.Yes.ToString();
 
-            Assert.AreEqual(TestEnum.Yes, _context["yes"]);
-            Assert.AreEqual(TestEnum.No, _context["no"]);
-            Assert.AreNotEqual(TestEnum.Yes, _context["not_enum"]);
+            ClassicAssert.AreEqual(TestEnum.Yes, _context["yes"]);
+            ClassicAssert.AreEqual(TestEnum.No, _context["no"]);
+            ClassicAssert.AreNotEqual(TestEnum.Yes, _context["not_enum"]);
         }
 
         [Test]
         public void TestVariablesNotExisting()
         {
-            Assert.AreEqual(null, _context["does_not_exist"]);
+            ClassicAssert.AreEqual(null, _context["does_not_exist"]);
         }
 
         [Test]
@@ -259,9 +260,9 @@ namespace DotLiquid.Tests
             Template template = Template.Parse("{{ does_not_exist }}");
             string rendered = template.Render();
 
-            Assert.AreEqual("", rendered);
-            Assert.AreEqual(1, template.Errors.Count);
-            Assert.AreEqual(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), "does_not_exist"), template.Errors[0].Message);
+            ClassicAssert.AreEqual("", rendered);
+            ClassicAssert.AreEqual(1, template.Errors.Count);
+            ClassicAssert.AreEqual(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), "does_not_exist"), template.Errors[0].Message);
         }
 
         [Test]
@@ -270,16 +271,16 @@ namespace DotLiquid.Tests
             Template template = Template.Parse("{{ first.test }}{{ second.test }}");
             string rendered = template.Render(Hash.FromAnonymousObject(new { second = new { foo = "hi!" } }));
 
-            Assert.AreEqual("", rendered);
-            Assert.AreEqual(2, template.Errors.Count);
-            Assert.AreEqual(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), "first.test"), template.Errors[0].Message);
-            Assert.AreEqual(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), "second.test"), template.Errors[1].Message);
+            ClassicAssert.AreEqual("", rendered);
+            ClassicAssert.AreEqual(2, template.Errors.Count);
+            ClassicAssert.AreEqual(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), "first.test"), template.Errors[0].Message);
+            ClassicAssert.AreEqual(string.Format(Liquid.ResourceManager.GetString("VariableNotFoundException"), "second.test"), template.Errors[1].Message);
         }
 
         [Test]
         public void TestVariableNotFoundException()
         {
-            Assert.DoesNotThrow(() => Template.Parse("{{ does_not_exist }}").Render(new RenderParameters(CultureInfo.InvariantCulture)
+            ClassicAssert.DoesNotThrow(() => Template.Parse("{{ does_not_exist }}").Render(new RenderParameters(CultureInfo.InvariantCulture)
             {
                 RethrowErrors = true
             }));
@@ -291,8 +292,8 @@ namespace DotLiquid.Tests
             Template template = Template.Parse("{% if does_not_exist %}abc{% endif %}");
             string rendered = template.Render();
 
-            Assert.AreEqual("", rendered);
-            Assert.AreEqual(0, template.Errors.Count);
+            ClassicAssert.AreEqual("", rendered);
+            ClassicAssert.AreEqual(0, template.Errors.Count);
         }
 
         [Test]
@@ -301,22 +302,22 @@ namespace DotLiquid.Tests
             Template template = Template.Parse("{% unless does_not_exist %}abc{% endunless %}");
             string rendered = template.Render();
 
-            Assert.AreEqual("abc", rendered);
-            Assert.AreEqual(0, template.Errors.Count);
+            ClassicAssert.AreEqual("abc", rendered);
+            ClassicAssert.AreEqual(0, template.Errors.Count);
         }
 
         [Test]
         public void TestScoping()
         {
-            Assert.DoesNotThrow(() =>
+            ClassicAssert.DoesNotThrow(() =>
             {
                 _context.Push(null);
                 _context.Pop();
             });
 
-            Assert.Throws<ContextException>(() => _context.Pop());
+            ClassicAssert.Throws<ContextException>(() => _context.Pop());
 
-            Assert.Throws<ContextException>(() =>
+            ClassicAssert.Throws<ContextException>(() =>
             {
                 _context.Push(null);
                 _context.Pop();
@@ -328,7 +329,7 @@ namespace DotLiquid.Tests
         public void TestLengthQuery()
         {
             _context["numbers"] = new[] { 1, 2, 3, 4 };
-            Assert.AreEqual(4, _context["numbers.size"]);
+            ClassicAssert.AreEqual(4, _context["numbers.size"]);
 
             _context["numbers"] = new Dictionary<int, int>
             {
@@ -337,7 +338,7 @@ namespace DotLiquid.Tests
                 { 3, 3 },
                 { 4, 4 }
             };
-            Assert.AreEqual(4, _context["numbers.size"]);
+            ClassicAssert.AreEqual(4, _context["numbers.size"]);
 
             _context["numbers"] = new Dictionary<object, int>
             {
@@ -347,14 +348,14 @@ namespace DotLiquid.Tests
                 { 4, 4 },
                 { "size", 1000 }
             };
-            Assert.AreEqual(1000, _context["numbers.size"]);
+            ClassicAssert.AreEqual(1000, _context["numbers.size"]);
         }
 
         [Test]
         public void TestHyphenatedVariable()
         {
             _context["oh-my"] = "godz";
-            Assert.AreEqual("godz", _context["oh-my"]);
+            ClassicAssert.AreEqual("godz", _context["oh-my"]);
         }
 
         [Test]
@@ -362,14 +363,14 @@ namespace DotLiquid.Tests
         {
             Context context = new Context(CultureInfo.InvariantCulture);
             context.AddFilters(new[] { typeof(TestFilters) });
-            Assert.AreEqual("hi? hi!", context.Invoke("hi", new List<object> { "hi?" }));
+            ClassicAssert.AreEqual("hi? hi!", context.Invoke("hi", new List<object> { "hi?" }));
             context.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22;
-            Assert.AreEqual("hi? hi!", context.Invoke("hi", new List<object> { "hi?" }));
+            ClassicAssert.AreEqual("hi? hi!", context.Invoke("hi", new List<object> { "hi?" }));
 
             context = new Context(CultureInfo.InvariantCulture);
-            Assert.AreEqual("hi?", context.Invoke("hi", new List<object> { "hi?" }));
+            ClassicAssert.AreEqual("hi?", context.Invoke("hi", new List<object> { "hi?" }));
             context.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22;
-            Assert.Throws<FilterNotFoundException>(() => context.Invoke("hi", new List<object> { "hi?" }));
+            ClassicAssert.Throws<FilterNotFoundException>(() => context.Invoke("hi", new List<object> { "hi?" }));
         }
 
         [Test]
@@ -380,22 +381,22 @@ namespace DotLiquid.Tests
             context["name"] = "King Kong";
 
             context.AddFilters(new[] { typeof(TestContextFilters) });
-            Assert.AreEqual("hi? hi from King Kong!", context.Invoke("hi", new List<object> { "hi?" }));
+            ClassicAssert.AreEqual("hi? hi from King Kong!", context.Invoke("hi", new List<object> { "hi?" }));
             context.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22;
-            Assert.AreEqual("hi? hi from King Kong!", context.Invoke("hi", new List<object> { "hi?" }));
+            ClassicAssert.AreEqual("hi? hi from King Kong!", context.Invoke("hi", new List<object> { "hi?" }));
 
             context = new Context(CultureInfo.InvariantCulture) { SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20 };
-            Assert.AreEqual("hi?", context.Invoke("hi", new List<object> { "hi?" }));
+            ClassicAssert.AreEqual("hi?", context.Invoke("hi", new List<object> { "hi?" }));
             context.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22;
-            Assert.Throws<FilterNotFoundException>(() => context.Invoke("hi", new List<object> { "hi?" }));
+            ClassicAssert.Throws<FilterNotFoundException>(() => context.Invoke("hi", new List<object> { "hi?" }));
         }
 
         [Test]
         public void TestOverrideGlobalFilter()
         {
             Template.RegisterFilter(typeof(GlobalFilters));
-            Assert.AreEqual("Global test", Template.Parse("{{'test' | notice }}").Render());
-            Assert.AreEqual("Local test", Template.Parse("{{'test' | notice }}").Render(new RenderParameters(CultureInfo.InvariantCulture) { Filters = new[] { typeof(LocalFilters) } }));
+            ClassicAssert.AreEqual("Global test", Template.Parse("{{'test' | notice }}").Render());
+            ClassicAssert.AreEqual("Local test", Template.Parse("{{'test' | notice }}").Render(new RenderParameters(CultureInfo.InvariantCulture) { Filters = new[] { typeof(LocalFilters) } }));
         }
 
         [Test]
@@ -405,7 +406,7 @@ namespace DotLiquid.Tests
             var methodsBefore = context.Strainer.Methods.Select(mi => mi.Name).ToList();
             context.AddFilters(new[] { typeof(TestFilters) });
             var methodsAfter = context.Strainer.Methods.Select(mi => mi.Name).ToList();
-            CollectionAssert.AreEqual(
+            ClassicAssert.AreEqual(
                 methodsBefore.Concat(new[] { "Hi" }).OrderBy(s => s).ToList(),
                 methodsAfter.OrderBy(s => s).ToList());
         }
@@ -415,9 +416,9 @@ namespace DotLiquid.Tests
         {
             _context["test"] = "test";
             _context.Push(new Hash());
-            Assert.AreEqual("test", _context["test"]);
+            ClassicAssert.AreEqual("test", _context["test"]);
             _context.Pop();
-            Assert.AreEqual("test", _context["test"]);
+            ClassicAssert.AreEqual("test", _context["test"]);
         }
 
         [Test]
@@ -425,48 +426,48 @@ namespace DotLiquid.Tests
         {
             _context.Push(new Hash());
             _context["test"] = "test";
-            Assert.AreEqual("test", _context["test"]);
+            ClassicAssert.AreEqual("test", _context["test"]);
             _context.Pop();
-            Assert.AreEqual(null, _context["test"]);
+            ClassicAssert.AreEqual(null, _context["test"]);
         }
 
         [Test]
         public void TestHierarchicalData()
         {
             _context["hash"] = new { name = "tobi" };
-            Assert.AreEqual("tobi", _context["hash.name"]);
-            Assert.AreEqual("tobi", _context["hash['name']"]);
+            ClassicAssert.AreEqual("tobi", _context["hash.name"]);
+            ClassicAssert.AreEqual("tobi", _context["hash['name']"]);
         }
 
         [Test]
         public void TestKeywords()
         {
-            Assert.AreEqual(true, _context["true"]);
-            Assert.AreEqual(false, _context["false"]);
+            ClassicAssert.AreEqual(true, _context["true"]);
+            ClassicAssert.AreEqual(false, _context["false"]);
         }
 
         [Test]
         public void TestDigits()
         {
-            Assert.AreEqual(100, _context["100"]);
-            Assert.AreEqual(100.00, _context[string.Format("100{0}00", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)]);
+            ClassicAssert.AreEqual(100, _context["100"]);
+            ClassicAssert.AreEqual(100.00, _context[string.Format("100{0}00", System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator)]);
         }
 
         [Test]
         public void TestStrings()
         {
-            Assert.AreEqual("hello!", _context["'hello!'"]);
-            Assert.AreEqual("hello!", _context["'hello!'"]);
+            ClassicAssert.AreEqual("hello!", _context["'hello!'"]);
+            ClassicAssert.AreEqual("hello!", _context["'hello!'"]);
         }
 
         [Test]
         public void TestMerge()
         {
             _context.Merge(new Hash { { "test", "test" } });
-            Assert.AreEqual("test", _context["test"]);
+            ClassicAssert.AreEqual("test", _context["test"]);
             _context.Merge(new Hash { { "test", "newvalue" }, { "foo", "bar" } });
-            Assert.AreEqual("newvalue", _context["test"]);
-            Assert.AreEqual("bar", _context["foo"]);
+            ClassicAssert.AreEqual("newvalue", _context["test"]);
+            ClassicAssert.AreEqual("bar", _context["foo"]);
         }
 
         [Test]
@@ -474,11 +475,11 @@ namespace DotLiquid.Tests
         {
             _context["test"] = new[] { 1, 2, 3, 4, 5 };
 
-            Assert.AreEqual(1, _context["test[0]"]);
-            Assert.AreEqual(2, _context["test[1]"]);
-            Assert.AreEqual(3, _context["test[2]"]);
-            Assert.AreEqual(4, _context["test[3]"]);
-            Assert.AreEqual(5, _context["test[4]"]);
+            ClassicAssert.AreEqual(1, _context["test[0]"]);
+            ClassicAssert.AreEqual(2, _context["test[1]"]);
+            ClassicAssert.AreEqual(3, _context["test[2]"]);
+            ClassicAssert.AreEqual(4, _context["test[3]"]);
+            ClassicAssert.AreEqual(5, _context["test[4]"]);
         }
 
         [Test]
@@ -486,11 +487,11 @@ namespace DotLiquid.Tests
         {
             _context["test"] = new { test = new[] { 1, 2, 3, 4, 5 } };
 
-            Assert.AreEqual(1, _context["test.test[0]"]);
+            ClassicAssert.AreEqual(1, _context["test.test[0]"]);
 
             _context["test"] = new[] { new { test = "worked" } };
 
-            Assert.AreEqual("worked", _context["test[0].test"]);
+            ClassicAssert.AreEqual("worked", _context["test[0].test"]);
         }
 
         [Test]
@@ -504,8 +505,8 @@ namespace DotLiquid.Tests
                 Red = new[] { "660000", "993333", "CC6666", "FF9999" }
             };
 
-            Assert.AreEqual("003366", _context["colors.Blue[0]"]);
-            Assert.AreEqual("FF9999", _context["colors.Red[3]"]);
+            ClassicAssert.AreEqual("003366", _context["colors.Blue[0]"]);
+            ClassicAssert.AreEqual("FF9999", _context["colors.Red[3]"]);
         }
 
         [Test]
@@ -513,21 +514,21 @@ namespace DotLiquid.Tests
         {
             _context["test"] = new[] { 1, 2, 3, 4, 5 };
 
-            Assert.AreEqual(1, _context["test.first"]);
-            Assert.AreEqual(5, _context["test.last"]);
-            Assert.AreEqual(5, _context["test.size"]);
+            ClassicAssert.AreEqual(1, _context["test.first"]);
+            ClassicAssert.AreEqual(5, _context["test.last"]);
+            ClassicAssert.AreEqual(5, _context["test.size"]);
 
             _context["test"] = new { test = new[] { 1, 2, 3, 4, 5 } };
 
-            Assert.AreEqual(1, _context["test.test.first"]);
-            Assert.AreEqual(5, _context["test.test.last"]);
-            Assert.AreEqual(5, _context["test.test.size"]);
+            ClassicAssert.AreEqual(1, _context["test.test.first"]);
+            ClassicAssert.AreEqual(5, _context["test.test.last"]);
+            ClassicAssert.AreEqual(5, _context["test.test.size"]);
 
             _context["test"] = new[] { 1 };
 
-            Assert.AreEqual(1, _context["test.first"]);
-            Assert.AreEqual(1, _context["test.last"]);
-            Assert.AreEqual(1, _context["test.size"]);
+            ClassicAssert.AreEqual(1, _context["test.first"]);
+            ClassicAssert.AreEqual(1, _context["test.last"]);
+            ClassicAssert.AreEqual(1, _context["test.size"]);
         }
 
         [Test]
@@ -536,18 +537,18 @@ namespace DotLiquid.Tests
             _context["products"] = new { count = 5, tags = new[] { "deepsnow", "freestyle" } };
             _context["product"] = new { variants = new[] { new { title = "draft151cm" }, new { title = "element151cm" } } };
 
-            Assert.AreEqual(5, _context["products[\"count\"]"]);
-            Assert.AreEqual("deepsnow", _context["products['tags'][0]"]);
-            Assert.AreEqual("freestyle", _context["products['tags'][1]"]);
-            Assert.AreEqual("freestyle", _context["products['tags'][-1]"]);
-            Assert.AreEqual("deepsnow", _context["products['tags'][-2]"]);
-            Assert.AreEqual("deepsnow", _context["products['tags'].first"]);
-            Assert.AreEqual("freestyle", _context["products['tags'].last"]);
-            Assert.AreEqual(2, _context["products['tags'].size"]);
-            Assert.AreEqual("draft151cm", _context["product['variants'][0][\"title\"]"]);
-            Assert.AreEqual("element151cm", _context["product['variants'][1]['title']"]);
-            Assert.AreEqual("draft151cm", _context["product['variants'][0]['title']"]);
-            Assert.AreEqual("element151cm", _context["product['variants'].last['title']"]);
+            ClassicAssert.AreEqual(5, _context["products[\"count\"]"]);
+            ClassicAssert.AreEqual("deepsnow", _context["products['tags'][0]"]);
+            ClassicAssert.AreEqual("freestyle", _context["products['tags'][1]"]);
+            ClassicAssert.AreEqual("freestyle", _context["products['tags'][-1]"]);
+            ClassicAssert.AreEqual("deepsnow", _context["products['tags'][-2]"]);
+            ClassicAssert.AreEqual("deepsnow", _context["products['tags'].first"]);
+            ClassicAssert.AreEqual("freestyle", _context["products['tags'].last"]);
+            ClassicAssert.AreEqual(2, _context["products['tags'].size"]);
+            ClassicAssert.AreEqual("draft151cm", _context["product['variants'][0][\"title\"]"]);
+            ClassicAssert.AreEqual("element151cm", _context["product['variants'][1]['title']"]);
+            ClassicAssert.AreEqual("draft151cm", _context["product['variants'][0]['title']"]);
+            ClassicAssert.AreEqual("element151cm", _context["product['variants'].last['title']"]);
         }
 
         [Test]
@@ -556,8 +557,8 @@ namespace DotLiquid.Tests
             _context["foo"] = "baz";
             _context["bar"] = "foo";
 
-            Assert.AreEqual("baz", _context["[\"foo\"]"]);
-            Assert.AreEqual("baz", _context["[bar]"]);
+            ClassicAssert.AreEqual("baz", _context["[\"foo\"]"]);
+            ClassicAssert.AreEqual("baz", _context["[bar]"]);
         }
 
         [Test]
@@ -567,8 +568,8 @@ namespace DotLiquid.Tests
             _context["nested"] = new { var = "tags" };
             _context["products"] = new { count = 5, tags = new[] { "deepsnow", "freestyle" } };
 
-            Assert.AreEqual("deepsnow", _context["products[var].first"]);
-            Assert.AreEqual("freestyle", _context["products[nested.var].last"]);
+            ClassicAssert.AreEqual("deepsnow", _context["products[var].first"]);
+            ClassicAssert.AreEqual("freestyle", _context["products[nested.var].last"]);
         }
 
         [Test]
@@ -577,9 +578,9 @@ namespace DotLiquid.Tests
             _context["array"] = new[] { 1, 2, 3, 4, 5 };
             _context["hash"] = new { first = "Hello" };
 
-            Assert.AreEqual(1, _context["array.first"]);
-            Assert.AreEqual(null, _context["array['first']"]);
-            Assert.AreEqual("Hello", _context["hash['first']"]);
+            ClassicAssert.AreEqual(1, _context["array.first"]);
+            ClassicAssert.AreEqual(null, _context["array['first']"]);
+            ClassicAssert.AreEqual("Hello", _context["hash['first']"]);
         }
 
         [Test]
@@ -587,81 +588,81 @@ namespace DotLiquid.Tests
         {
             _context["product"] = new { variants = new[] { new { title = "draft151cm" }, new { title = "element151cm" } } };
 
-            Assert.AreEqual("draft151cm", _context["product.variants[0].title"]);
-            Assert.AreEqual("element151cm", _context["product.variants[1].title"]);
-            Assert.AreEqual("draft151cm", _context["product.variants.first.title"]);
-            Assert.AreEqual("element151cm", _context["product.variants.last.title"]);
+            ClassicAssert.AreEqual("draft151cm", _context["product.variants[0].title"]);
+            ClassicAssert.AreEqual("element151cm", _context["product.variants[1].title"]);
+            ClassicAssert.AreEqual("draft151cm", _context["product.variants.first.title"]);
+            ClassicAssert.AreEqual("element151cm", _context["product.variants.last.title"]);
         }
 
         [Test]
         public void TestCents()
         {
             _context.Merge(Hash.FromAnonymousObject(new { cents = new HundredCents() }));
-            Assert.AreEqual(100, _context["cents"]);
+            ClassicAssert.AreEqual(100, _context["cents"]);
         }
 
         [Test]
         public void TestNestedCents()
         {
             _context.Merge(Hash.FromAnonymousObject(new { cents = new { amount = new HundredCents() } }));
-            Assert.AreEqual(100, _context["cents.amount"]);
+            ClassicAssert.AreEqual(100, _context["cents.amount"]);
 
             _context.Merge(Hash.FromAnonymousObject(new { cents = new { cents = new { amount = new HundredCents() } } }));
-            Assert.AreEqual(100, _context["cents.cents.amount"]);
+            ClassicAssert.AreEqual(100, _context["cents.cents.amount"]);
         }
 
         [Test]
         public void TestCentsThroughDrop()
         {
             _context.Merge(Hash.FromAnonymousObject(new { cents = new CentsDrop() }));
-            Assert.AreEqual(100, _context["cents.amount"]);
+            ClassicAssert.AreEqual(100, _context["cents.amount"]);
         }
 
         [Test]
         public void TestNestedCentsThroughDrop()
         {
             _context.Merge(Hash.FromAnonymousObject(new { vars = new { cents = new CentsDrop() } }));
-            Assert.AreEqual(100, _context["vars.cents.amount"]);
+            ClassicAssert.AreEqual(100, _context["vars.cents.amount"]);
         }
 
         [Test]
         public void TestDropMethodsWithQuestionMarks()
         {
             _context.Merge(Hash.FromAnonymousObject(new { cents = new CentsDrop() }));
-            Assert.AreEqual(true, _context["cents.non_zero"]);
+            ClassicAssert.AreEqual(true, _context["cents.non_zero"]);
         }
 
         [Test]
         public void TestContextFromWithinDrop()
         {
             _context.Merge(Hash.FromAnonymousObject(new { test = "123", vars = new ContextSensitiveDrop() }));
-            Assert.AreEqual("123", _context["vars.test"]);
+            ClassicAssert.AreEqual("123", _context["vars.test"]);
         }
 
         [Test]
         public void TestNestedContextFromWithinDrop()
         {
             _context.Merge(Hash.FromAnonymousObject(new { test = "123", vars = new { local = new ContextSensitiveDrop() } }));
-            Assert.AreEqual("123", _context["vars.local.test"]);
+            ClassicAssert.AreEqual("123", _context["vars.local.test"]);
         }
 
         [Test]
         public void TestRanges()
         {
             _context.Merge(Hash.FromAnonymousObject(new { test = 5 }));
-            CollectionAssert.AreEqual(Enumerable.Range(1, 5), _context["(1..5)"] as IEnumerable);
-            CollectionAssert.AreEqual(Enumerable.Range(1, 5), _context["(1..test)"] as IEnumerable);
-            CollectionAssert.AreEqual(Enumerable.Range(5, 1), _context["(test..test)"] as IEnumerable);
+            ClassicAssert.AreEqual(Enumerable.Range(1, 5), _context["(1..5)"] as IEnumerable);
+            ClassicAssert.AreEqual(Enumerable.Range(1, 5), _context["(1..test)"] as IEnumerable);
+            ClassicAssert.AreEqual(Enumerable.Range(5, 1), _context["(test..test)"] as IEnumerable);
         }
 
         [Test]
         public void TestCentsThroughDropNestedly()
         {
             _context.Merge(Hash.FromAnonymousObject(new { cents = new { cents = new CentsDrop() } }));
-            Assert.AreEqual(100, _context["cents.cents.amount"]);
+            ClassicAssert.AreEqual(100, _context["cents.cents.amount"]);
 
             _context.Merge(Hash.FromAnonymousObject(new { cents = new { cents = new { cents = new CentsDrop() } } }));
-            Assert.AreEqual(100, _context["cents.cents.cents.amount"]);
+            ClassicAssert.AreEqual(100, _context["cents.cents.cents.amount"]);
         }
 
         [Test]
@@ -669,9 +670,9 @@ namespace DotLiquid.Tests
         {
             _context["counter"] = new CounterDrop();
 
-            Assert.AreEqual(1, _context["counter.count"]);
-            Assert.AreEqual(2, _context["counter.count"]);
-            Assert.AreEqual(3, _context["counter.count"]);
+            ClassicAssert.AreEqual(1, _context["counter.count"]);
+            ClassicAssert.AreEqual(2, _context["counter.count"]);
+            ClassicAssert.AreEqual(3, _context["counter.count"]);
         }
 
         [Test]
@@ -679,9 +680,9 @@ namespace DotLiquid.Tests
         {
             _context["counter"] = new CounterDrop();
 
-            Assert.AreEqual(1, _context["counter['count']"]);
-            Assert.AreEqual(2, _context["counter['count']"]);
-            Assert.AreEqual(3, _context["counter['count']"]);
+            ClassicAssert.AreEqual(1, _context["counter['count']"]);
+            ClassicAssert.AreEqual(2, _context["counter['count']"]);
+            ClassicAssert.AreEqual(3, _context["counter['count']"]);
         }
 
         [Test]
@@ -760,7 +761,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestListRendering()
         {
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 expected: "text1text2",
                 actual: Template
                     .Parse("{{context}}")
@@ -770,13 +771,13 @@ namespace DotLiquid.Tests
         [Test]
         public void TestWrappedListRendering()
         {
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 expected: string.Empty,
                 actual: Template
                     .Parse("{{context}}")
                     .Render(Hash.FromAnonymousObject(new { context = new IndexableLiquidizable() })));
 
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 expected: "text1text2",
                 actual: Template
                     .Parse("{{context.thekey}}")
@@ -786,7 +787,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestDictionaryRendering()
         {
-            Assert.AreEqual(
+            ClassicAssert.AreEqual(
                 expected: "[lambda, Hello][alpha, bet]",
                 actual: Template
                     .Parse("{{context}}")
@@ -798,7 +799,7 @@ namespace DotLiquid.Tests
         {
             _context["dynamic"] = Hash.FromDictionary(new Dictionary<string, object> { ["lambda"] = "Hello" });
 
-            Assert.AreEqual("Hello", _context["dynamic.lambda"]);
+            ClassicAssert.AreEqual("Hello", _context["dynamic.lambda"]);
         }
 
         [Test]
@@ -806,7 +807,7 @@ namespace DotLiquid.Tests
         {
             _context["dynamic"] = Hash.FromDictionary(new Dictionary<string, object> { ["lambda"] = new Dictionary<string, object> { ["name"] = "Hello" } });
 
-            Assert.AreEqual("Hello", _context["dynamic.lambda.name"]);
+            ClassicAssert.AreEqual("Hello", _context["dynamic.lambda.name"]);
         }
 
         [Test]
@@ -816,7 +817,7 @@ namespace DotLiquid.Tests
             expandoObject.lambda = "Hello";
             _context["dynamic"] = Hash.FromDictionary(expandoObject);
 
-            Assert.AreEqual("Hello", _context["dynamic.lambda"]);
+            ClassicAssert.AreEqual("Hello", _context["dynamic.lambda"]);
         }
 
         [Test]
@@ -827,7 +828,7 @@ namespace DotLiquid.Tests
             root.lambda.name = "Hello";
             _context["dynamic"] = Hash.FromDictionary(root);
 
-            Assert.AreEqual("Hello", _context["dynamic.lambda.name"]);
+            ClassicAssert.AreEqual("Hello", _context["dynamic.lambda.name"]);
         }
 
         /// <summary>
@@ -848,7 +849,7 @@ namespace DotLiquid.Tests
             Template.RegisterSafeType(typeof(ExpandoModel), new[] { "IntProperty", "StringProperty", "Properties" });
             const string templateString = @"Int: '{{IntProperty}}'; String: '{{StringProperty}}'; Expando: '{{Properties.Key1}}'";
             var template = Template.Parse(templateString);
-            Assert.AreEqual(expected: "Int: '23'; String: 'from string property'; Expando: 'ExpandoObject Key1 value'",
+            ClassicAssert.AreEqual(expected: "Int: '23'; String: 'from string property'; Expando: 'ExpandoObject Key1 value'",
                             actual: template.Render(Hash.FromAnonymousObject(model)));
         }
 
@@ -863,7 +864,7 @@ namespace DotLiquid.Tests
 
             var model = JsonConvert.DeserializeObject<ExpandoObject>(modelString);
             var modelHash = Hash.FromDictionary(model);
-            Assert.AreEqual(expected: "State Is:Texas", actual: Template.Parse(template).Render(modelHash));
+            ClassicAssert.AreEqual(expected: "State Is:Texas", actual: Template.Parse(template).Render(modelHash));
         }
 
         /// <summary>
@@ -877,7 +878,7 @@ namespace DotLiquid.Tests
 {{ arr[idx] }}";
 
             var modelHash = Hash.FromAnonymousObject(new { arr = new[] { "Zero", "One" }, fraction = 0.01 });
-            Assert.AreEqual(expected: "Zero\r\nZero", actual: Template.Parse(template).Render(modelHash));
+            ClassicAssert.AreEqual(expected: "Zero\r\nZero", actual: Template.Parse(template).Render(modelHash));
         }
 
         /// <summary>
@@ -895,7 +896,7 @@ namespace DotLiquid.Tests
 {% endfor %}";
 
             var modelHash = Hash.FromAnonymousObject(new { arr = new[] { "Zero", "One" }, numerics = arrayOfZeroTypes });
-            Assert.AreEqual(expected: string.Join(String.Empty, Enumerable.Repeat("Zero\r\n", arrayOfZeroTypes.Count)), actual: Template.Parse(template).Render(modelHash));
+            ClassicAssert.AreEqual(expected: string.Join(String.Empty, Enumerable.Repeat("Zero\r\n", arrayOfZeroTypes.Count)), actual: Template.Parse(template).Render(modelHash));
         }
 
         [Test]
@@ -903,7 +904,7 @@ namespace DotLiquid.Tests
         {
             _context["dynamic"] = (Proc)delegate { return "Hello"; };
 
-            Assert.AreEqual("Hello", _context["dynamic"]);
+            ClassicAssert.AreEqual("Hello", _context["dynamic"]);
         }
 
         [Test]
@@ -911,7 +912,7 @@ namespace DotLiquid.Tests
         {
             _context["dynamic"] = (Proc)(c => "Hello");
 
-            Assert.AreEqual("Hello", _context["dynamic"]);
+            ClassicAssert.AreEqual("Hello", _context["dynamic"]);
         }
 
         [Test]
@@ -919,7 +920,7 @@ namespace DotLiquid.Tests
         {
             _context["dynamic"] = Hash.FromAnonymousObject(new { lambda = (Proc)(c => "Hello") });
 
-            Assert.AreEqual("Hello", _context["dynamic.lambda"]);
+            ClassicAssert.AreEqual("Hello", _context["dynamic.lambda"]);
         }
 
         [Test]
@@ -927,7 +928,7 @@ namespace DotLiquid.Tests
         {
             _context["dynamic"] = new object[] { 1, 2, (Proc)(c => "Hello"), 4, 5 };
 
-            Assert.AreEqual("Hello", _context["dynamic[2]"]);
+            ClassicAssert.AreEqual("Hello", _context["dynamic[2]"]);
         }
 
         [Test]
@@ -940,9 +941,9 @@ namespace DotLiquid.Tests
                 return global.ToString();
             });
 
-            Assert.AreEqual("1", _context["callcount"]);
-            Assert.AreEqual("1", _context["callcount"]);
-            Assert.AreEqual("1", _context["callcount"]);
+            ClassicAssert.AreEqual("1", _context["callcount"]);
+            ClassicAssert.AreEqual("1", _context["callcount"]);
+            ClassicAssert.AreEqual("1", _context["callcount"]);
         }
 
         [Test]
@@ -958,9 +959,9 @@ namespace DotLiquid.Tests
                 })
             });
 
-            Assert.AreEqual("1", _context["callcount.lambda"]);
-            Assert.AreEqual("1", _context["callcount.lambda"]);
-            Assert.AreEqual("1", _context["callcount.lambda"]);
+            ClassicAssert.AreEqual("1", _context["callcount.lambda"]);
+            ClassicAssert.AreEqual("1", _context["callcount.lambda"]);
+            ClassicAssert.AreEqual("1", _context["callcount.lambda"]);
         }
 
         [Test]
@@ -975,9 +976,9 @@ namespace DotLiquid.Tests
             }), 4, 5
             };
 
-            Assert.AreEqual("1", _context["callcount[2]"]);
-            Assert.AreEqual("1", _context["callcount[2]"]);
-            Assert.AreEqual("1", _context["callcount[2]"]);
+            ClassicAssert.AreEqual("1", _context["callcount[2]"]);
+            ClassicAssert.AreEqual("1", _context["callcount[2]"]);
+            ClassicAssert.AreEqual("1", _context["callcount[2]"]);
         }
 
         [Test]
@@ -987,15 +988,15 @@ namespace DotLiquid.Tests
 
             _context["magic"] = (Proc)(c => _context.Registers["magic"]);
 
-            Assert.AreEqual(345392, _context["magic"]);
+            ClassicAssert.AreEqual(345392, _context["magic"]);
         }
 
         [Test]
         public void TestToLiquidAndContextAtFirstLevel()
         {
             _context["category"] = new Category("foobar");
-            Assert.IsInstanceOf<CategoryDrop>(_context["category"]);
-            Assert.AreEqual(_context, ((CategoryDrop)_context["category"]).Context);
+            ClassicAssert.IsInstanceOf<CategoryDrop>(_context["category"]);
+            ClassicAssert.AreEqual(_context, ((CategoryDrop)_context["category"]).Context);
         }
 
         [Test]
@@ -1013,13 +1014,13 @@ namespace DotLiquid.Tests
 
         private void TestVariableParser(Func<string, IEnumerable<string>> variableSplitterFunc)
         {
-            CollectionAssert.IsEmpty(variableSplitterFunc(""));
-            CollectionAssert.AreEqual(new[] { "var" }, variableSplitterFunc("var"));
-            CollectionAssert.AreEqual(new[] { "var", "method" }, variableSplitterFunc("var.method"));
-            CollectionAssert.AreEqual(new[] { "var", "[method]" }, variableSplitterFunc("var[method]"));
-            CollectionAssert.AreEqual(new[] { "var", "[method]", "[0]" }, variableSplitterFunc("var[method][0]"));
-            CollectionAssert.AreEqual(new[] { "var", "[\"method\"]", "[0]" }, variableSplitterFunc("var[\"method\"][0]"));
-            CollectionAssert.AreEqual(new[] { "var", "[method]", "[0]", "method" }, variableSplitterFunc("var[method][0].method"));
+            ClassicAssert.IsEmpty(variableSplitterFunc(""));
+            ClassicAssert.AreEqual(new[] { "var" }, variableSplitterFunc("var"));
+            ClassicAssert.AreEqual(new[] { "var", "method" }, variableSplitterFunc("var.method"));
+            ClassicAssert.AreEqual(new[] { "var", "[method]" }, variableSplitterFunc("var[method]"));
+            ClassicAssert.AreEqual(new[] { "var", "[method]", "[0]" }, variableSplitterFunc("var[method][0]"));
+            ClassicAssert.AreEqual(new[] { "var", "[\"method\"]", "[0]" }, variableSplitterFunc("var[\"method\"][0]"));
+            ClassicAssert.AreEqual(new[] { "var", "[method]", "[0]", "method" }, variableSplitterFunc("var[method][0].method"));
         }
 
         private static IEnumerable<string> GetVariableParts(string input)
@@ -1033,9 +1034,9 @@ namespace DotLiquid.Tests
         public void TestConstructor()
         {
             var context = new Context(new CultureInfo("jp-JP"));
-            Assert.AreEqual(Template.DefaultSyntaxCompatibilityLevel, context.SyntaxCompatibilityLevel);
-            Assert.AreEqual(Liquid.UseRubyDateFormat, context.UseRubyDateFormat);
-            Assert.AreEqual("jp-JP", context.CurrentCulture.Name);
+            ClassicAssert.AreEqual(Template.DefaultSyntaxCompatibilityLevel, context.SyntaxCompatibilityLevel);
+            ClassicAssert.AreEqual(Liquid.UseRubyDateFormat, context.UseRubyDateFormat);
+            ClassicAssert.AreEqual("jp-JP", context.CurrentCulture.Name);
         }
 
         /// <summary>
@@ -1052,7 +1053,7 @@ namespace DotLiquid.Tests
         {
             // Create context with an IFormatProvider that is not a CultureInfo
             Context context = new Context(CultureInfo.CurrentCulture.NumberFormat);
-            Assert.AreSame(CultureInfo.CurrentCulture, context.CurrentCulture);
+            ClassicAssert.AreSame(CultureInfo.CurrentCulture, context.CurrentCulture);
         }
     }
 }

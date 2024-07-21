@@ -1,6 +1,7 @@
 using System.Collections;
 using DotLiquid.Exceptions;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace DotLiquid.Tests.Tags
 {

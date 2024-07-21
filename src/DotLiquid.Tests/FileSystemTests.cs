@@ -2,6 +2,7 @@ using System.Globalization;
 using DotLiquid.Exceptions;
 using DotLiquid.FileSystems;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace DotLiquid.Tests
 {
@@ -44,7 +45,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestDefault()
         {
-            Assert.Throws<FileSystemException>(() => new BlankFileSystem().ReadTemplateFile(new Context(CultureInfo.InvariantCulture), "dummy"));
+            ClassicAssert.Throws<FileSystemException>(() => new BlankFileSystem().ReadTemplateFile(new Context(CultureInfo.InvariantCulture), "dummy"));
         }
         
 
@@ -54,12 +55,12 @@ namespace DotLiquid.Tests
         {
             LocalFileSystem fileSystem = new LocalFileSystem(@"D:\Some\Path");
             foreach (var validPath in validPaths)
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(
                     expected: Path.Combine(@"D:\Some\Path", validPath.Value.Replace('\\', Path.DirectorySeparatorChar)),
                     actual: fileSystem.FullPath(validPath.Key));
 
             foreach (var invalidPath in invalidPaths)
-                Assert.Throws<FileSystemException>(() => fileSystem.FullPath(invalidPath));
+                ClassicAssert.Throws<FileSystemException>(() => fileSystem.FullPath(invalidPath));
         }
 
         [Test]
@@ -67,8 +68,8 @@ namespace DotLiquid.Tests
         public void TestLocalWithBracketsInPath()
         {
             LocalFileSystem fileSystem = new LocalFileSystem(@"D:\Some (thing)\Path");
-            Assert.AreEqual(@"D:\Some (thing)\Path\_mypartial.liquid".Replace('\\', Path.DirectorySeparatorChar), fileSystem.FullPath("mypartial"));
-            Assert.AreEqual(@"D:\Some (thing)\Path\dir\_mypartial.liquid".Replace('\\', Path.DirectorySeparatorChar), fileSystem.FullPath("dir/mypartial"));
+            ClassicAssert.AreEqual(@"D:\Some (thing)\Path\_mypartial.liquid".Replace('\\', Path.DirectorySeparatorChar), fileSystem.FullPath("mypartial"));
+            ClassicAssert.AreEqual(@"D:\Some (thing)\Path\dir\_mypartial.liquid".Replace('\\', Path.DirectorySeparatorChar), fileSystem.FullPath("dir/mypartial"));
         }
         
 
@@ -78,12 +79,12 @@ namespace DotLiquid.Tests
             var assembly = typeof(FileSystemTests).GetTypeInfo().Assembly;
             EmbeddedFileSystem fileSystem = new EmbeddedFileSystem(assembly, "DotLiquid.Tests.Embedded");
             foreach (var validPath in validPaths)
-                Assert.AreEqual(
+                ClassicAssert.AreEqual(
                     expected: "DotLiquid.Tests.Embedded." + Liquid.DirectorySeparatorsRegex.Replace(validPath.Value, "."),
                     actual: fileSystem.FullPath(validPath.Key));
 
             foreach (var invalidPath in invalidPaths)
-                Assert.Throws<FileSystemException>(() => fileSystem.FullPath(invalidPath));
+                ClassicAssert.Throws<FileSystemException>(() => fileSystem.FullPath(invalidPath));
         }
     }
 }

@@ -1,6 +1,6 @@
-using System;
 using System.Globalization;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace DotLiquid.Tests
 {
@@ -19,7 +19,7 @@ namespace DotLiquid.Tests
         {
             _context["var"] = 2;
             _context.AddFilter<int, string>("AddTwo", i => (i + 2).ToString(CultureInfo.InvariantCulture));
-            Assert.That(new Variable("var | add_two").Render(_context), Is.EqualTo("4"));
+           ClassicAssert.That(new Variable("var | add_two").Render(_context), Is.EqualTo("4"));
         }
 
         [Test]
@@ -31,10 +31,10 @@ namespace DotLiquid.Tests
             // (x=(i + x)) is to forbid JITC to inline x and force it to create non-static closure
 
             _context.AddFilter<int, string>("AddTwo", i => (x=(i + x)).ToString(CultureInfo.InvariantCulture));
-            Assert.That(new Variable("var | add_two").Render(_context), Is.EqualTo("4"));
+           ClassicAssert.That(new Variable("var | add_two").Render(_context), Is.EqualTo("4"));
 
             //this is done, to forbid JITC to inline x 
-            Assert.That(x, Is.EqualTo(4));
+           ClassicAssert.That(x, Is.EqualTo(4));
         }
 
         [Test]
@@ -42,7 +42,7 @@ namespace DotLiquid.Tests
         {
             _context["var"] = 2;
             _context.AddFilter<int, string>("AddTwo", i => (i + 2).ToString(CultureInfo.InvariantCulture));
-            Assert.That(new Variable("var | add_two").Render(_context), Is.EqualTo("4"));
+           ClassicAssert.That(new Variable("var | add_two").Render(_context), Is.EqualTo("4"));
         }
     }
 }

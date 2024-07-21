@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace DotLiquid.Tests
 {
@@ -56,7 +57,7 @@ namespace DotLiquid.Tests
         {
             Template template = Template.Parse("{{context.Name}}");
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MyLiquidTypeWithNoAllowedMembers() { Name = "worked" } }));
-            Assert.AreEqual("", output);
+           ClassicAssert.AreEqual("", output);
         }
 
         [Test]
@@ -64,7 +65,7 @@ namespace DotLiquid.Tests
         {
             Template template = Template.Parse("{{context.Name}}");
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MyLiquidTypeWithAllowedMember() { Name = "worked" } }));
-            Assert.AreEqual("worked", output);
+           ClassicAssert.AreEqual("worked", output);
         }
 
         [Test]
@@ -72,7 +73,7 @@ namespace DotLiquid.Tests
         {
             Template template = Template.Parse("{{context.Name}}");
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MyLiquidTypeWithGlobalMemberAllowance() { Name = "worked" } }));
-            Assert.AreEqual("worked", output);
+           ClassicAssert.AreEqual("worked", output);
         }
 
         [Test]
@@ -80,7 +81,7 @@ namespace DotLiquid.Tests
         {
             Template template = Template.Parse("|{{context.Name}}|{{context.Child.Name}}|");
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MyLiquidTypeWithGlobalMemberAllowanceAndHiddenChild() { Name = "worked_parent", Child = new MyLiquidTypeWithNoAllowedMembers() { Name = "worked_child" } } }));
-            Assert.AreEqual("|worked_parent||", output);
+           ClassicAssert.AreEqual("|worked_parent||", output);
         }
 
         [Test]
@@ -88,7 +89,7 @@ namespace DotLiquid.Tests
         {
             Template template = Template.Parse("|{{context.Name}}|{{context.Child.Name}}|");
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MyLiquidTypeWithGlobalMemberAllowanceAndExposedChild() { Name = "worked_parent", Child = new MyLiquidTypeWithAllowedMember() { Name = "worked_child" } } }));
-            Assert.AreEqual("|worked_parent|worked_child|", output);
+           ClassicAssert.AreEqual("|worked_parent|worked_child|", output);
         }
 
         [Test]

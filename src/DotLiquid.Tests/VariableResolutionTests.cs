@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace DotLiquid.Tests
 {
@@ -11,30 +12,30 @@ namespace DotLiquid.Tests
         public void TestSimpleVariable()
         {
             Template template = Template.Parse("{{test}}");
-            Assert.AreEqual("worked", template.Render(Hash.FromAnonymousObject(new { test = "worked" })));
-            Assert.AreEqual("worked wonderfully", template.Render(Hash.FromAnonymousObject(new { test = "worked wonderfully" })));
+            ClassicAssert.AreEqual("worked", template.Render(Hash.FromAnonymousObject(new { test = "worked" })));
+            ClassicAssert.AreEqual("worked wonderfully", template.Render(Hash.FromAnonymousObject(new { test = "worked wonderfully" })));
         }
 
         [Test]
         public void TestSimpleWithWhitespaces()
         {
             Template template = Template.Parse("  {{ test }}  ");
-            Assert.AreEqual("  worked  ", template.Render(Hash.FromAnonymousObject(new { test = "worked" })));
-            Assert.AreEqual("  worked wonderfully  ", template.Render(Hash.FromAnonymousObject(new { test = "worked wonderfully" })));
+            ClassicAssert.AreEqual("  worked  ", template.Render(Hash.FromAnonymousObject(new { test = "worked" })));
+            ClassicAssert.AreEqual("  worked wonderfully  ", template.Render(Hash.FromAnonymousObject(new { test = "worked wonderfully" })));
         }
 
         [Test]
         public void TestIgnoreUnknown()
         {
             Template template = Template.Parse("{{ test }}");
-            Assert.AreEqual("", template.Render());
+            ClassicAssert.AreEqual("", template.Render());
         }
 
         [Test]
         public void TestHashScoping()
         {
             Template template = Template.Parse("{{ test.test }}");
-            Assert.AreEqual("worked", template.Render(Hash.FromAnonymousObject(new { test = new { test = "worked" } })));
+            ClassicAssert.AreEqual("worked", template.Render(Hash.FromAnonymousObject(new { test = new { test = "worked" } })));
         }
 
         [Test]
@@ -42,7 +43,7 @@ namespace DotLiquid.Tests
         {
             Template template = Template.Parse("{{ test }}");
             template.Assigns["test"] = "worked";
-            Assert.AreEqual("worked", template.Render());
+            ClassicAssert.AreEqual("worked", template.Render());
         }
 
         [Test]
@@ -50,10 +51,10 @@ namespace DotLiquid.Tests
         {
             Template template = Template.Parse("{{ greeting }} {{ name }}");
             template.Assigns["greeting"] = "Goodbye";
-            Assert.AreEqual("Hello Tobi", template.Render(Hash.FromAnonymousObject(new { greeting = "Hello", name = "Tobi" })));
-            Assert.AreEqual("Hello ", template.Render(Hash.FromAnonymousObject(new { greeting = "Hello", unknown = "Tobi" })));
-            Assert.AreEqual("Hello Brian", template.Render(Hash.FromAnonymousObject(new { greeting = "Hello", name = "Brian" })));
-            Assert.AreEqual("Goodbye Brian", template.Render(Hash.FromAnonymousObject(new { name = "Brian" })));
+            ClassicAssert.AreEqual("Hello Tobi", template.Render(Hash.FromAnonymousObject(new { greeting = "Hello", name = "Tobi" })));
+            ClassicAssert.AreEqual("Hello ", template.Render(Hash.FromAnonymousObject(new { greeting = "Hello", unknown = "Tobi" })));
+            ClassicAssert.AreEqual("Hello Brian", template.Render(Hash.FromAnonymousObject(new { greeting = "Hello", name = "Brian" })));
+            ClassicAssert.AreEqual("Goodbye Brian", template.Render(Hash.FromAnonymousObject(new { name = "Brian" })));
             CollectionAssert.AreEqual(Hash.FromAnonymousObject(new { greeting = "Goodbye" }), template.Assigns);
         }
 
@@ -62,10 +63,10 @@ namespace DotLiquid.Tests
         {
             Template template = Template.Parse("{{ test }}{% assign test = 'bar' %}{{ test }}");
             template.Assigns["test"] = "baz";
-            Assert.AreEqual("bazbar", template.Render());
-            Assert.AreEqual("bazbar", template.Render());
-            Assert.AreEqual("foobar", template.Render(Hash.FromAnonymousObject(new { test = "foo" })));
-            Assert.AreEqual("bazbar", template.Render());
+            ClassicAssert.AreEqual("bazbar", template.Render());
+            ClassicAssert.AreEqual("bazbar", template.Render());
+            ClassicAssert.AreEqual("foobar", template.Render(Hash.FromAnonymousObject(new { test = "foo" })));
+            ClassicAssert.AreEqual("bazbar", template.Render());
         }
 
         [Test]
@@ -74,18 +75,18 @@ namespace DotLiquid.Tests
             Template template = Template.Parse("Hello {{ test }}");
             Hash assigns = new Hash((h, k) => { throw new Exception("Unknown variable '" + k + "'"); });
             assigns["test"] = "Tobi";
-            Assert.AreEqual("Hello Tobi", template.Render(new RenderParameters(CultureInfo.InvariantCulture)
+            ClassicAssert.AreEqual("Hello Tobi", template.Render(new RenderParameters(CultureInfo.InvariantCulture)
             {
                 LocalVariables = assigns,
                 RethrowErrors = true
             }));
             assigns.Remove("test");
-            Exception ex = Assert.Throws<Exception>(() => template.Render(new RenderParameters(CultureInfo.InvariantCulture)
+            Exception ex = ClassicAssert.Throws<Exception>(() => template.Render(new RenderParameters(CultureInfo.InvariantCulture)
             {
                 LocalVariables = assigns,
                 RethrowErrors = true
             }));
-            Assert.AreEqual("Unknown variable 'test'", ex.Message);
+            ClassicAssert.AreEqual("Unknown variable 'test'", ex.Message);
         }
     }
 }

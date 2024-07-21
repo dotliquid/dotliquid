@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using DotLiquid.Util;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace DotLiquid.Tests.Util
 {
@@ -82,9 +83,9 @@ namespace DotLiquid.Tests.Util
             var date = new DateTime(2012, 1, 8, 14, 32, 14, 123);
             var localResult = date.ToStrFTime(format, EN_GB);
             var utcResult = new DateTimeOffset(date, TimeSpan.FromHours(0)).ToStrFTime(format, EN_GB);
-            Assert.AreEqual(localResult, utcResult);
+            ClassicAssert.AreEqual(localResult, utcResult);
             var estResult = new DateTimeOffset(date, TimeSpan.FromHours(-5)).ToStrFTime(format, EN_GB);
-            Assert.AreEqual(utcResult, estResult);
+            ClassicAssert.AreEqual(utcResult, estResult);
             return localResult;
         }
 
@@ -94,11 +95,11 @@ namespace DotLiquid.Tests.Util
         {
             var date = new DateTime(2012, 1, 8, 14, 32, 14, 123);
             var localResult = date.ToStrFTime("%s", EN_GB);
-            Assert.AreEqual("1326033134", localResult);
+            ClassicAssert.AreEqual("1326033134", localResult);
             var utcResult = new DateTimeOffset(date, TimeSpan.FromHours(0)).ToStrFTime("%s", EN_GB);
-            Assert.AreEqual("1326033134", utcResult);
+            ClassicAssert.AreEqual("1326033134", utcResult);
             var estResult = new DateTimeOffset(date, TimeSpan.FromHours(-5)).ToStrFTime("%s", EN_GB);
-            Assert.AreEqual("1326051134", estResult);
+            ClassicAssert.AreEqual("1326051134", estResult);
         }
 
         [Test]
@@ -106,7 +107,7 @@ namespace DotLiquid.Tests.Util
         {
             var now = DateTimeOffset.Now;
             string timeZoneOffset = now.ToString("zzz");
-            Assert.That(now.DateTime.ToStrFTime("%Z", EN_GB), Is.EqualTo(timeZoneOffset));
+            ClassicAssert.AreEqual(now.DateTime.ToStrFTime("%Z", EN_GB), Is.EqualTo(timeZoneOffset));
         }
 
         [TestCase("%z", ExpectedResult = "+0000")] // hour and minute offset from UTC without a colon

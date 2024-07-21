@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace DotLiquid.Tests.Ns1
 {
@@ -58,7 +59,7 @@ namespace DotLiquid.Tests
 
             var value1 = Hash.FromAnonymousObject(testClass1);
 
-            Assert.AreEqual(
+           ClassicAssert.AreEqual(
                 testClass1.TestClassProp1,
                 value1[nameof(DotLiquid.Tests.Ns1.TestClass.TestClassProp1)]);
 
@@ -69,7 +70,7 @@ namespace DotLiquid.Tests
             };
             var value2 = Hash.FromAnonymousObject(testClass2);
 
-            Assert.AreEqual(
+           ClassicAssert.AreEqual(
                 testClass2.TestClassProp2,
                 value2[nameof(DotLiquid.Tests.Ns2.TestClass.TestClassProp2)]);
         }
@@ -94,19 +95,19 @@ namespace DotLiquid.Tests
             }, includeBaseClassProperties);
 
             // Properties attached directly to the type of instance being converted to Hash should always be visible
-            Assert.AreEqual(
+           ClassicAssert.AreEqual(
                 TestClassPropValue,
                 value[nameof(TestChildClass.TestClassProp)]);
 
-            Assert.AreEqual(
+           ClassicAssert.AreEqual(
                 TestClassOverridablePropValue,
                 value[nameof(TestChildClass.TestOverridableProp)]);
 
-            Assert.AreEqual(
+           ClassicAssert.AreEqual(
                 includeBaseClassProperties ? TestMiddleClassPropValue : null,
                 value[nameof(TestMiddleClass.TestMiddleClassProp)]);
 
-            Assert.AreEqual(
+           ClassicAssert.AreEqual(
                 includeBaseClassProperties ? TestBaseClassPropValue : null,
                 value[nameof(TestChildClass.TestBaseClassProp)]);
         }
@@ -148,18 +149,18 @@ namespace DotLiquid.Tests
             var hash = new Hash(0); // default value of zero
             hash["key"] = "value";
 
-            Assert.True(hash.Contains("unknown-key"));
-            Assert.True(hash.ContainsKey("unknown-key"));
-            Assert.AreEqual(0, hash["unknown-key"]); // ensure the default value is returned
+           ClassicAssert.True(hash.Contains("unknown-key"));
+           ClassicAssert.True(hash.ContainsKey("unknown-key"));
+           ClassicAssert.AreEqual(0, hash["unknown-key"]); // ensure the default value is returned
 
-            Assert.True(hash.Contains("key"));
-            Assert.True(hash.ContainsKey("key"));
-            Assert.AreEqual("value", hash["key"]);
+           ClassicAssert.True(hash.Contains("key"));
+           ClassicAssert.True(hash.ContainsKey("key"));
+           ClassicAssert.AreEqual("value", hash["key"]);
 
             hash.Remove("key");
-            Assert.True(hash.Contains("key"));
-            Assert.True(hash.ContainsKey("key"));
-            Assert.AreEqual(0, hash["key"]); // ensure the default value is returned after key removed
+           ClassicAssert.True(hash.Contains("key"));
+           ClassicAssert.True(hash.ContainsKey("key"));
+           ClassicAssert.AreEqual(0, hash["key"]); // ensure the default value is returned after key removed
         }
 
         [Test]
@@ -168,20 +169,20 @@ namespace DotLiquid.Tests
             var hash = new Hash((h, k) => { return "Lambda Value"; });
             hash["key"] = "value";
 
-            Assert.True(hash.Contains("unknown-key"));
-            Assert.True(hash.ContainsKey("unknown-key"));
-            Assert.AreEqual("Lambda Value", hash["unknown-key"]);
+           ClassicAssert.True(hash.Contains("unknown-key"));
+           ClassicAssert.True(hash.ContainsKey("unknown-key"));
+           ClassicAssert.AreEqual("Lambda Value", hash["unknown-key"]);
 
-            Assert.True(hash.Contains("key"));
-            Assert.True(hash.ContainsKey("key"));
-            Assert.AreEqual("value", hash["key"]);
+           ClassicAssert.True(hash.Contains("key"));
+           ClassicAssert.True(hash.ContainsKey("key"));
+           ClassicAssert.AreEqual("value", hash["key"]);
         }
 
         [Test]
         public void TestUnsupportedKeyType()
         {
             IDictionary hash = new Hash();
-            Assert.Throws<System.NotSupportedException>(() =>
+           ClassicAssert.Throws<System.NotSupportedException>(() =>
             {
                 var value = hash[0]; // Only a string key is permitted.
             });

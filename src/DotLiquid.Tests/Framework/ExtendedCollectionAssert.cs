@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace DotLiquid.Tests.Framework
 {
@@ -18,7 +18,7 @@ namespace DotLiquid.Tests.Framework
             IEnumerator<Type> typesEnumerator = expectedTypes.GetEnumerator();
 
             while (collectionEnumerator.MoveNext() && typesEnumerator.MoveNext())
-                Assert.IsInstanceOf(typesEnumerator.Current, collectionEnumerator.Current);
+                ClassicAssert.IsInstanceOf(typesEnumerator.Current, collectionEnumerator.Current);
         }
     }
 }

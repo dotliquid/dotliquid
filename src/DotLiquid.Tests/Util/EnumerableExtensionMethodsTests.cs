@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using DotLiquid.Util;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace DotLiquid.Tests.Util
 {
@@ -19,17 +20,17 @@ namespace DotLiquid.Tests.Util
         [Test]
         public void TestAnyHandlesIEnumerable()
         {
-            Assert.IsFalse(EnumerableExtensionMethods.Any(Array.Empty<string>()));
-            Assert.IsTrue(EnumerableExtensionMethods.Any(new string[] { string.Empty }));
+            ClassicAssert.IsFalse(EnumerableExtensionMethods.Any(Array.Empty<string>()));
+            ClassicAssert.IsTrue(EnumerableExtensionMethods.Any(new string[] { string.Empty }));
         }
 
         [Test]
         public void TestAnyHandlesIEnumerableGenerics()
         {
             var list = new List<string>();
-            Assert.IsFalse(EnumerableExtensionMethods.Any(list));
+            ClassicAssert.IsFalse(EnumerableExtensionMethods.Any(list));
             list.Add(string.Empty);
-            Assert.IsTrue(EnumerableExtensionMethods.Any(list));
+            ClassicAssert.IsTrue(EnumerableExtensionMethods.Any(list));
         }
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using DotLiquid.Tags;
-using DotLiquid.Tests.Framework;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -12,64 +11,66 @@ namespace DotLiquid.Tests
         public void TestBlankspace()
         {
             Template template = Template.Parse("  ");
-            CollectionAssert.AreEqual(new[] { "  " }, template.Root.NodeList);
+            Assert.That(template.Root.NodeList, Is.EquivalentTo(new[] { "  " }));
         }
 
         [Test]
         public void TestVariableBeginning()
         {
             Template template = Template.Parse("{{funk}}  ");
-            Assert.AreEqual(2, template.Root.NodeList.Count);
-            ExtendedCollectionAssert.AllItemsAreInstancesOfTypes(template.Root.NodeList,
-                new[] { typeof(Variable), typeof(string) });
+            Assert.That(template.Root.NodeList.Count, Is.EqualTo(2));
+            Assert.That(template.Root.NodeList[0], Is.InstanceOf<Variable>());
+            Assert.That(template.Root.NodeList[1], Is.InstanceOf<string>());
         }
 
         [Test]
         public void TestVariableEnd()
         {
             Template template = Template.Parse("  {{funk}}");
-            Assert.AreEqual(2, template.Root.NodeList.Count);
-            ExtendedCollectionAssert.AllItemsAreInstancesOfTypes(template.Root.NodeList,
-                new[] { typeof(string), typeof(Variable) });
+            Assert.That(template.Root.NodeList.Count, Is.EqualTo(2));
+            Assert.That(template.Root.NodeList[0], Is.InstanceOf<string>());
+            Assert.That(template.Root.NodeList[1], Is.InstanceOf<Variable>());
         }
 
         [Test]
         public void TestVariableMiddle()
         {
             Template template = Template.Parse("  {{funk}}  ");
-            Assert.AreEqual(3, template.Root.NodeList.Count);
-            ExtendedCollectionAssert.AllItemsAreInstancesOfTypes(template.Root.NodeList,
-                new[] { typeof(string), typeof(Variable), typeof(string) });
+            Assert.That(template.Root.NodeList.Count, Is.EqualTo(3));
+            Assert.That(template.Root.NodeList[0], Is.InstanceOf<string>());
+            Assert.That(template.Root.NodeList[1], Is.InstanceOf<Variable>());
+            Assert.That(template.Root.NodeList[2], Is.InstanceOf<string>());
         }
 
         [Test]
         public void TestVariableManyEmbeddedFragments()
         {
             Template template = Template.Parse("  {{funk}} {{so}} {{brother}} ");
-            Assert.AreEqual(7, template.Root.NodeList.Count);
-            ExtendedCollectionAssert.AllItemsAreInstancesOfTypes(template.Root.NodeList,
-                new[]
-                {
-                    typeof(string), typeof(Variable), typeof(string),
-                    typeof(Variable), typeof(string), typeof(Variable),
-                    typeof(string)
-                });
+            Assert.That(template.Root.NodeList.Count, Is.EqualTo(7));
+            Assert.That(template.Root.NodeList[0], Is.InstanceOf<string>());
+            Assert.That(template.Root.NodeList[1], Is.InstanceOf<Variable>());
+            Assert.That(template.Root.NodeList[2], Is.InstanceOf<string>());
+            Assert.That(template.Root.NodeList[3], Is.InstanceOf<Variable>());
+            Assert.That(template.Root.NodeList[4], Is.InstanceOf<string>());
+            Assert.That(template.Root.NodeList[5], Is.InstanceOf<Variable>());
+            Assert.That(template.Root.NodeList[6], Is.InstanceOf<string>());
         }
 
         [Test]
         public void TestWithBlock()
         {
             Template template = Template.Parse("  {% comment %} {% endcomment %} ");
-            Assert.AreEqual(3, template.Root.NodeList.Count);
-            ExtendedCollectionAssert.AllItemsAreInstancesOfTypes(template.Root.NodeList,
-                new[] { typeof(string), typeof(Comment), typeof(string) });
+            Assert.That(template.Root.NodeList.Count, Is.EqualTo(3));
+            Assert.That(template.Root.NodeList[0], Is.InstanceOf<string>());
+            Assert.That(template.Root.NodeList[1], Is.InstanceOf<Comment>());
+            Assert.That(template.Root.NodeList[2], Is.InstanceOf<string>());
         }
 
         [Test]
         public void TestWithCustomTag()
         {
             Template.RegisterTag<Block>("testtag");
-            Assert.DoesNotThrow(() => Template.Parse("{% testtag %} {% endtesttag %}"));
+            Assert.That(() => Template.Parse("{% testtag %} {% endtesttag %}"), Throws.Nothing);
         }
 
         [Test]
@@ -77,8 +78,8 @@ namespace DotLiquid.Tests
         {
             Template.RegisterTagFactory(new CustomTagFactory());
             Template result = null;
-            Assert.DoesNotThrow(() => result = Template.Parse("{% custom %}"));
-            Assert.AreEqual("I am a custom tag"+Environment.NewLine, result.Render());
+            Assert.That(() => result = Template.Parse("{% custom %}"), Throws.Nothing);
+            Assert.That(result.Render(), Is.EqualTo("I am a custom tag" + Environment.NewLine));
         }
 
         public class CustomTagFactory : ITagFactory

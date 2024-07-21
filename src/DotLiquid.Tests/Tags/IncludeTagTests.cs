@@ -1,9 +1,9 @@
-using System;
 using DotLiquid.Exceptions;
 using DotLiquid.FileSystems;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Globalization;
+using NUnit.Framework.Legacy;
 
 namespace DotLiquid.Tests.Tags
 {
@@ -105,68 +105,68 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestIncludeTagMustNotBeConsideredError()
         {
-            Assert.AreEqual(0, Template.Parse("{% include 'product_template' %}").Errors.Count);
+            ClassicAssert.IsTrue(0 == Template.Parse("{% include 'product_template' %}").Errors.Count);
             Assert.DoesNotThrow(() => Template.Parse("{% include 'product_template' %}").Render(new RenderParameters(CultureInfo.InvariantCulture) { RethrowErrors = true }));
         }
 
         [Test]
         public void TestIncludeTagLooksForFileSystemInRegistersFirst()
         {
-            Assert.AreEqual("from OtherFileSystem", Template.Parse("{% include 'pick_a_source' %}").Render(new RenderParameters(CultureInfo.InvariantCulture) { Registers = Hash.FromAnonymousObject(new { file_system = new OtherFileSystem() }) }));
+            ClassicAssert.IsTrue("from OtherFileSystem" == Template.Parse("{% include 'pick_a_source' %}").Render(new RenderParameters(CultureInfo.InvariantCulture) { Registers = Hash.FromAnonymousObject(new { file_system = new OtherFileSystem() }) }));
         }
 
         [Test]
         public void TestIncludeTagWith()
         {
-            Assert.AreEqual("Product: Draft 151cm ", Template.Parse("{% include 'product' with products[0] %}").Render(Hash.FromAnonymousObject(new { products = new[] { Hash.FromAnonymousObject(new { title = "Draft 151cm" }), Hash.FromAnonymousObject(new { title = "Element 155cm" }) } })));
+            ClassicAssert.IsTrue("Product: Draft 151cm " == Template.Parse("{% include 'product' with products[0] %}").Render(Hash.FromAnonymousObject(new { products = new[] { Hash.FromAnonymousObject(new { title = "Draft 151cm" }), Hash.FromAnonymousObject(new { title = "Element 155cm" }) } })));
         }
 
         [Test]
         public void TestIncludeTagWithDefaultName()
         {
-            Assert.AreEqual("Product: Draft 151cm ", Template.Parse("{% include 'product' %}").Render(Hash.FromAnonymousObject(new { product = Hash.FromAnonymousObject(new { title = "Draft 151cm" }) })));
+            ClassicAssert.IsTrue("Product: Draft 151cm " == Template.Parse("{% include 'product' %}").Render(Hash.FromAnonymousObject(new { product = Hash.FromAnonymousObject(new { title = "Draft 151cm" }) })));
         }
 
         [Test]
         public void TestIncludeTagFor()
         {
-            Assert.AreEqual("Product: Draft 151cm Product: Element 155cm ", Template.Parse("{% include 'product' for products %}").Render(Hash.FromAnonymousObject(new { products = new[] { Hash.FromAnonymousObject(new { title = "Draft 151cm" }), Hash.FromAnonymousObject(new { title = "Element 155cm" }) } })));
+            ClassicAssert.IsTrue("Product: Draft 151cm Product: Element 155cm " == Template.Parse("{% include 'product' for products %}").Render(Hash.FromAnonymousObject(new { products = new[] { Hash.FromAnonymousObject(new { title = "Draft 151cm" }), Hash.FromAnonymousObject(new { title = "Element 155cm" }) } })));
         }
 
         [Test]
         public void TestIncludeTagWithLocalVariables()
         {
-            Assert.AreEqual("Locale: test123 ", Template.Parse("{% include 'locale_variables' echo1: 'test123' %}").Render());
+            ClassicAssert.IsTrue("Locale: test123 " == Template.Parse("{% include 'locale_variables' echo1: 'test123' %}").Render());
         }
 
         [Test]
         public void TestIncludeTagWithMultipleLocalVariables()
         {
-            Assert.AreEqual("Locale: test123 test321", Template.Parse("{% include 'locale_variables' echo1: 'test123', echo2: 'test321' %}").Render());
+            ClassicAssert.IsTrue("Locale: test123 test321" == Template.Parse("{% include 'locale_variables' echo1: 'test123', echo2: 'test321' %}").Render());
         }
 
         [Test]
         public void TestIncludeTagWithMultipleLocalVariablesFromContext()
         {
-            Assert.AreEqual("Locale: test123 test321",
+            ClassicAssert.IsTrue("Locale: test123 test321" ==
                 Template.Parse("{% include 'locale_variables' echo1: echo1, echo2: more_echos.echo2 %}").Render(Hash.FromAnonymousObject(new { echo1 = "test123", more_echos = Hash.FromAnonymousObject(new { echo2 = "test321" }) })));
         }
 
         [Test]
         public void TestNestedIncludeTag()
         {
-            Assert.AreEqual("body body_detail", Template.Parse("{% include 'body' %}").Render());
+            ClassicAssert.IsTrue("body body_detail" == Template.Parse("{% include 'body' %}").Render());
 
-            Assert.AreEqual("header body body_detail footer", Template.Parse("{% include 'nested_template' %}").Render());
+            ClassicAssert.IsTrue("header body body_detail footer" == Template.Parse("{% include 'nested_template' %}").Render());
         }
 
         [Test]
         public void TestNestedIncludeTagWithVariable()
         {
-            Assert.AreEqual("Product: Draft 151cm details ",
+            ClassicAssert.IsTrue("Product: Draft 151cm details " ==
                 Template.Parse("{% include 'nested_product_template' with product %}").Render(Hash.FromAnonymousObject(new { product = Hash.FromAnonymousObject(new { title = "Draft 151cm" }) })));
 
-            Assert.AreEqual("Product: Draft 151cm details Product: Element 155cm details ",
+            ClassicAssert.IsTrue("Product: Draft 151cm details Product: Element 155cm details " ==
                 Template.Parse("{% include 'nested_product_template' for products %}").Render(Hash.FromAnonymousObject(new { products = new[] { Hash.FromAnonymousObject(new { title = "Draft 151cm" }), Hash.FromAnonymousObject(new { title = "Element 155cm" }) } })));
         }
 
@@ -181,16 +181,16 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestDynamicallyChosenTemplate()
         {
-            Assert.AreEqual("Test123", Template.Parse("{% include template %}").Render(Hash.FromAnonymousObject(new { template = "Test123" })));
-            Assert.AreEqual("Test321", Template.Parse("{% include template %}").Render(Hash.FromAnonymousObject(new { template = "Test321" })));
+            ClassicAssert.IsTrue("Test123" == Template.Parse("{% include template %}").Render(Hash.FromAnonymousObject(new { template = "Test123" })));
+            ClassicAssert.IsTrue("Test321" == Template.Parse("{% include template %}").Render(Hash.FromAnonymousObject(new { template = "Test321" })));
 
-            Assert.AreEqual("Product: Draft 151cm ", Template.Parse("{% include template for product %}").Render(Hash.FromAnonymousObject(new { template = "product", product = Hash.FromAnonymousObject(new { title = "Draft 151cm" }) })));
+            ClassicAssert.IsTrue("Product: Draft 151cm " == Template.Parse("{% include template for product %}").Render(Hash.FromAnonymousObject(new { template = "product", product = Hash.FromAnonymousObject(new { title = "Draft 151cm" }) })));
         }
 
         [Test]
         public void TestUndefinedTemplateVariableWithTestFileSystem()
         {
-            Assert.AreEqual(" hello  world ", Template.Parse(" hello {% include notthere %} world ").Render());
+            ClassicAssert.IsTrue(" hello  world " == Template.Parse(" hello {% include notthere %} world ").Render());
         }
 
         [Test]
@@ -220,9 +220,9 @@ namespace DotLiquid.Tests.Tags
             Template.FileSystem = fileSystem;
             for (int i = 0; i < 2; ++i)
             {
-                Assert.AreEqual("Product: Draft 151cm ", Template.Parse("{% include 'product' with products[0] %}").Render(Hash.FromAnonymousObject(new { products = new[] { Hash.FromAnonymousObject(new { title = "Draft 151cm" }), Hash.FromAnonymousObject(new { title = "Element 155cm" }) } })));
+                ClassicAssert.IsTrue("Product: Draft 151cm " == Template.Parse("{% include 'product' with products[0] %}").Render(Hash.FromAnonymousObject(new { products = new[] { Hash.FromAnonymousObject(new { title = "Draft 151cm" }), Hash.FromAnonymousObject(new { title = "Element 155cm" }) } })));
             }
-            Assert.AreEqual(fileSystem.CacheHitTimes, 1);
+            ClassicAssert.IsTrue(fileSystem.CacheHitTimes == 1);
         }
     }
 }

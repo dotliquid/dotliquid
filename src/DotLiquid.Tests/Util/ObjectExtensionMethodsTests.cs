@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using DotLiquid.Util;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace DotLiquid.Tests.Util
 {
@@ -14,61 +15,61 @@ namespace DotLiquid.Tests.Util
         public void TestSafeTypeInsensitiveEqual()
         {
             // Not equal
-            Assert.False(NIL.SafeTypeInsensitiveEqual("nil"));
-            Assert.False("nil".SafeTypeInsensitiveEqual(null));
-            Assert.False("a string".SafeTypeInsensitiveEqual("A STRING")); // different case string equality
+            ClassicAssert.False(NIL.SafeTypeInsensitiveEqual("nil"));
+            ClassicAssert.False("nil".SafeTypeInsensitiveEqual(null));
+            ClassicAssert.False("a string".SafeTypeInsensitiveEqual("A STRING")); // different case string equality
 
             // Equals
-            Assert.True(NIL.SafeTypeInsensitiveEqual(null)); // null equalilty
-            Assert.True("a string".SafeTypeInsensitiveEqual("a string")); // same type equality
-            Assert.True(1.SafeTypeInsensitiveEqual("1")); // int to string equality
-            Assert.True(Int64.Parse("99").SafeTypeInsensitiveEqual(Int32.Parse("99"))); // long to int equality
-            Assert.True(2.0f.SafeTypeInsensitiveEqual("2.0"));  // float to string equality
-            Assert.True(2.0d.SafeTypeInsensitiveEqual("2.0"));  // double to string equality
+            ClassicAssert.True(NIL.SafeTypeInsensitiveEqual(null)); // null equalilty
+            ClassicAssert.True("a string".SafeTypeInsensitiveEqual("a string")); // same type equality
+            ClassicAssert.True(1.SafeTypeInsensitiveEqual("1")); // int to string equality
+            ClassicAssert.True(Int64.Parse("99").SafeTypeInsensitiveEqual(Int32.Parse("99"))); // long to int equality
+            ClassicAssert.True(2.0f.SafeTypeInsensitiveEqual("2.0"));  // float to string equality
+            ClassicAssert.True(2.0d.SafeTypeInsensitiveEqual("2.0"));  // double to string equality
         }
 
         [Test]
         public void TestIsTruthy()
         {
-            Assert.False(ObjectExtensionMethods.IsTruthy(null));
-            Assert.False(NIL.IsTruthy());
-            Assert.False(false.IsTruthy());
-            Assert.False("false".IsTruthy());
-            Assert.False("FALSE".IsTruthy());
-            Assert.False("FaLSe".IsTruthy());
+            ClassicAssert.False(ObjectExtensionMethods.IsTruthy(null));
+            ClassicAssert.False(NIL.IsTruthy());
+            ClassicAssert.False(false.IsTruthy());
+            ClassicAssert.False("false".IsTruthy());
+            ClassicAssert.False("FALSE".IsTruthy());
+            ClassicAssert.False("FaLSe".IsTruthy());
 
-            Assert.True(true.IsTruthy());
-            Assert.True("testing".IsTruthy());
-            Assert.True("true".IsTruthy());
-            Assert.True("TRUE".IsTruthy());
-            Assert.True("TrUe".IsTruthy());
-            Assert.True(0.IsTruthy());
-            Assert.True(1.IsTruthy());
-            Assert.True(9.9f.IsTruthy());
-            Assert.True(new[] { "cat", "dog" }.IsTruthy());
-            Assert.True(Array.Empty<object>().IsTruthy());
+            ClassicAssert.True(true.IsTruthy());
+            ClassicAssert.True("testing".IsTruthy());
+            ClassicAssert.True("true".IsTruthy());
+            ClassicAssert.True("TRUE".IsTruthy());
+            ClassicAssert.True("TrUe".IsTruthy());
+            ClassicAssert.True(0.IsTruthy());
+            ClassicAssert.True(1.IsTruthy());
+            ClassicAssert.True(9.9f.IsTruthy());
+            ClassicAssert.True(new[] { "cat", "dog" }.IsTruthy());
+            ClassicAssert.True(Array.Empty<object>().IsTruthy());
         }
 
         [Test]
         public void TestIsFalsy()
         {
-            Assert.True(ObjectExtensionMethods.IsFalsy(null));
-            Assert.True(NIL.IsFalsy());
-            Assert.True(false.IsFalsy());
-            Assert.True("false".IsFalsy());
-            Assert.True("FALSE".IsFalsy());
-            Assert.True("FaLSe".IsFalsy());
+            ClassicAssert.True(ObjectExtensionMethods.IsFalsy(null));
+            ClassicAssert.True(NIL.IsFalsy());
+            ClassicAssert.True(false.IsFalsy());
+            ClassicAssert.True("false".IsFalsy());
+            ClassicAssert.True("FALSE".IsFalsy());
+            ClassicAssert.True("FaLSe".IsFalsy());
 
-            Assert.False(true.IsFalsy());
-            Assert.False("testing".IsFalsy());
-            Assert.False("true".IsFalsy());
-            Assert.False("TRUE".IsFalsy());
-            Assert.False("TrUe".IsFalsy());
-            Assert.False(0.IsFalsy());
-            Assert.False(1.IsFalsy());
-            Assert.False(9.9f.IsFalsy());
-            Assert.False(new[] { "cat", "dog" }.IsFalsy());
-            Assert.False(Array.Empty<object>().IsFalsy());
+            ClassicAssert.False(true.IsFalsy());
+            ClassicAssert.False("testing".IsFalsy());
+            ClassicAssert.False("true".IsFalsy());
+            ClassicAssert.False("TRUE".IsFalsy());
+            ClassicAssert.False("TrUe".IsFalsy());
+            ClassicAssert.False(0.IsFalsy());
+            ClassicAssert.False(1.IsFalsy());
+            ClassicAssert.False(9.9f.IsFalsy());
+            ClassicAssert.False(new[] { "cat", "dog" }.IsFalsy());
+            ClassicAssert.False(Array.Empty<object>().IsFalsy());
         }
 
         [Test]
@@ -111,12 +112,12 @@ namespace DotLiquid.Tests.Util
         {
             var keyValuePair = new KeyValuePair<string, object>("*key*", "*value*");
 
-            Assert.IsNull(ObjectExtensionMethods.GetPropertyValue(null, "any"));
-            Assert.IsNull(keyValuePair.GetPropertyValue("NonExistant"));
-            Assert.IsNull(new KeyValuePair<string, object>("*key*", null).GetPropertyValue("Value"));
+            ClassicAssert.IsNull(ObjectExtensionMethods.GetPropertyValue(null, "any"));
+            ClassicAssert.IsNull(keyValuePair.GetPropertyValue("NonExistant"));
+            ClassicAssert.IsNull(new KeyValuePair<string, object>("*key*", null).GetPropertyValue("Value"));
 
-            Assert.AreEqual("*key*", keyValuePair.GetPropertyValue("Key"));
-            Assert.AreEqual("*value*", keyValuePair.GetPropertyValue("Value"));
+            ClassicAssert.AreEqual("*key*", keyValuePair.GetPropertyValue("Key"));
+            ClassicAssert.AreEqual("*value*", keyValuePair.GetPropertyValue("Value"));
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Threading;
 using DotLiquid.Exceptions;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 
 namespace DotLiquid.Tests
 {
@@ -31,59 +32,59 @@ namespace DotLiquid.Tests
         public void TestSyntaxException()
         {
             Template template = null;
-            Assert.DoesNotThrow(() => { template = Template.Parse(" {{ errors.syntax_exception }} "); });
+            ClassicAssert.DoesNotThrow(() => { template = Template.Parse(" {{ errors.syntax_exception }} "); });
             string result = template.Render(Hash.FromAnonymousObject(new { errors = new ExceptionDrop() }));
-            Assert.AreEqual(" Liquid syntax error: syntax exception ", result);
+            ClassicAssert.AreEqual(" Liquid syntax error: syntax exception ", result);
 
-            Assert.AreEqual(1, template.Errors.Count);
-            Assert.IsInstanceOf<SyntaxException>(template.Errors[0]);
+            ClassicAssert.AreEqual(1, template.Errors.Count);
+            ClassicAssert.IsInstanceOf<SyntaxException>(template.Errors[0]);
         }
 
         [Test]
         public void TestArgumentException()
         {
             Template template = null;
-            Assert.DoesNotThrow(() => { template = Template.Parse(" {{ errors.argument_exception }} "); });
+            ClassicAssert.DoesNotThrow(() => { template = Template.Parse(" {{ errors.argument_exception }} "); });
             string result = template.Render(Hash.FromAnonymousObject(new { errors = new ExceptionDrop() }));
-            Assert.AreEqual(" Liquid error: argument exception ", result);
+            ClassicAssert.AreEqual(" Liquid error: argument exception ", result);
 
-            Assert.AreEqual(1, template.Errors.Count);
-            Assert.IsInstanceOf<ArgumentException>(template.Errors[0]);
+            ClassicAssert.AreEqual(1, template.Errors.Count);
+            ClassicAssert.IsInstanceOf<ArgumentException>(template.Errors[0]);
         }
 
         [Test]
         public void TestMissingEndTagParseTimeError()
         {
-            Assert.Throws<SyntaxException>(() => Template.Parse(" {% for a in b %} ... "));
+            ClassicAssert.Throws<SyntaxException>(() => Template.Parse(" {% for a in b %} ... "));
         }
 
         [Test]
         public void TestUnrecognizedOperator()
         {
             Template template = null;
-            Assert.DoesNotThrow(() => { template = Template.Parse(" {% if 1 =! 2 %}ok{% endif %} "); });
-            Assert.AreEqual(" Liquid error: Unknown operator =! ", template.Render());
+            ClassicAssert.DoesNotThrow(() => { template = Template.Parse(" {% if 1 =! 2 %}ok{% endif %} "); });
+            ClassicAssert.AreEqual(" Liquid error: Unknown operator =! ", template.Render());
 
-            Assert.AreEqual(1, template.Errors.Count);
-            Assert.IsInstanceOf<ArgumentException>(template.Errors[0]);
+            ClassicAssert.AreEqual(1, template.Errors.Count);
+            ClassicAssert.IsInstanceOf<ArgumentException>(template.Errors[0]);
         }
 
         [Test]
         public void TestInterruptException()
         {
             Template template = null;
-            Assert.DoesNotThrow(() => { template = Template.Parse(" {{ errors.interrupt_exception }} "); });
+            ClassicAssert.DoesNotThrow(() => { template = Template.Parse(" {{ errors.interrupt_exception }} "); });
             var localVariables = Hash.FromAnonymousObject(new { errors = new ExceptionDrop() });
-            var exception = Assert.Throws<InterruptException>(() => template.Render(localVariables));
+            var exception = ClassicAssert.Throws<InterruptException>(() => template.Render(localVariables));
 
-            Assert.AreEqual("interrupted", exception.Message);
+            ClassicAssert.AreEqual("interrupted", exception.Message);
         }
 
         [Test]
         public void TestMaximumIterationsExceededError()
         {
             var template = Template.Parse(" {% for i in (1..100000) %} {{ i }} {% endfor %} ");
-            Assert.Throws<MaximumIterationsExceededException>(() =>
+            ClassicAssert.Throws<MaximumIterationsExceededException>(() =>
             {
                 template.Render(new RenderParameters(CultureInfo.InvariantCulture)
                 {
@@ -96,7 +97,7 @@ namespace DotLiquid.Tests
         public void TestTimeoutError()
         {
             var template = Template.Parse(" {% for i in (1..1000000) %} {{ i }} {% endfor %} ");
-            Assert.Throws<System.TimeoutException>(() =>
+            ClassicAssert.Throws<System.TimeoutException>(() =>
             {
                 template.Render(new RenderParameters(CultureInfo.InvariantCulture)
                 {
@@ -119,7 +120,7 @@ namespace DotLiquid.Tests
                 formatProvider: CultureInfo.InvariantCulture,
                 cancellationToken: source.Token);
 
-            Assert.Throws<System.OperationCanceledException>(() =>
+            ClassicAssert.Throws<System.OperationCanceledException>(() =>
             {
                 template.Render(RenderParameters.FromContext(context, CultureInfo.InvariantCulture));
             });
@@ -131,7 +132,7 @@ namespace DotLiquid.Tests
             var template = Template.Parse("{{test}}");
             Hash assigns = new Hash((h, k) => { throw new SyntaxException("Unknown variable '" + k + "'"); });
 
-            Assert.Throws<SyntaxException>(() =>
+            ClassicAssert.Throws<SyntaxException>(() =>
             {
                 var output = template.Render(new RenderParameters(CultureInfo.InvariantCulture)
                 {
@@ -152,7 +153,7 @@ namespace DotLiquid.Tests
                 LocalVariables = assigns,
                 ErrorsOutputMode = ErrorsOutputMode.Suppress
             });
-            Assert.AreEqual("", output);
+            ClassicAssert.AreEqual("", output);
         }
 
         [Test]
@@ -166,7 +167,7 @@ namespace DotLiquid.Tests
                 LocalVariables = assigns,
                 ErrorsOutputMode = ErrorsOutputMode.Display
             });
-            Assert.IsNotEmpty(output);
+            ClassicAssert.IsNotEmpty(output);
         }
     }
 }

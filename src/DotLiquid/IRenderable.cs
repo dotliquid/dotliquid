@@ -3,7 +3,7 @@
 namespace DotLiquid
 {
     /// <summary>
-    /// Object that can render itslef
+    /// Object that can render itself
     /// </summary>
     internal interface IRenderable
     {

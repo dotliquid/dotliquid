@@ -37,7 +37,7 @@ namespace DotLiquid
                     Match fullTokenMatch = FullToken.Match(token);
                     if (fullTokenMatch.Success)
                     {
-                        // If we found the proper block delimitor just end parsing here and let the outer block
+                        // If we found the proper block delimiter just end parsing here and let the outer block
                         // proceed
                         if (BlockDelimiter == fullTokenMatch.Groups[1].Value)
                         {

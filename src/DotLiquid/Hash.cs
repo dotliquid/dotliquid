@@ -57,8 +57,22 @@ namespace DotLiquid
 
         private static void AddBaseClassProperties(Type type, List<PropertyInfo> propertyList)
         {
-            propertyList.AddRange(type.GetTypeInfo().BaseType.GetTypeInfo().DeclaredProperties
-                .Where(p => p.CanRead && p.GetMethod.IsPublic && !p.GetMethod.IsStatic).ToList());
+            if (type == null || type == typeof(object))
+            {
+                return;
+            }
+
+            propertyList
+                .AddRange(type.GetTypeInfo().DeclaredProperties
+                    .Where(
+                        p =>
+                            p.CanRead &&
+                            p.GetMethod.IsPublic &&
+                            !p.GetMethod.IsStatic &&
+                            propertyList.All(p1 => p1.Name != p.Name))
+                    .ToList());
+
+            AddBaseClassProperties(type.GetTypeInfo().BaseType, propertyList);
         }
 
         private static Action<object, Hash> GenerateMapper(Type type, bool includeBaseClassProperties)
@@ -77,7 +91,7 @@ namespace DotLiquid
             var propertyList = type.GetTypeInfo().DeclaredProperties
                 .Where(p => p.CanRead && p.GetMethod.IsPublic && !p.GetMethod.IsStatic).ToList();
 
-            //Add properties from base class 
+            //Add properties from base class
             if (includeBaseClassProperties) AddBaseClassProperties(type, propertyList);
 
             foreach (PropertyInfo property in propertyList)

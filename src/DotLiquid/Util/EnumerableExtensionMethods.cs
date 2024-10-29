@@ -10,7 +10,7 @@ namespace DotLiquid.Util
         {
             foreach (var item in array)
             {
-                if (item is string || !(item is IEnumerable))
+                if (item is string || !(item is IEnumerable) || item is IDictionary<string, object>)
                 {
                     yield return item;
                 }
@@ -32,6 +32,27 @@ namespace DotLiquid.Util
                 callback(item, index);
                 ++index;
             }
+        }
+
+        /// <summary>
+        /// Determines whether a sequence contains any elements.
+        /// </summary>
+        /// <param name="source">The <see cref="IEnumerable"/> to check for emptiness.</param>
+        /// <returns><see langword="true"/> if the source sequence contains any elements; otherwise, <see langword="false"/>.</returns>
+        public static bool Any(this IEnumerable source)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+
+            IEnumerator enumerator = source.GetEnumerator();
+            // Unfortunately unlike IEnumerator<T>, IEnumerator does not implement IDisposable. (A design flaw fixed when IEnumerator<T> was added).
+            // We need to test whether disposal is required or not.
+            if (enumerator is IDisposable disposableEnumerator)
+            {
+                using (disposableEnumerator)
+                    return enumerator.MoveNext();
+            }
+
+            return enumerator.MoveNext();
         }
     }
 }

@@ -6,7 +6,7 @@ namespace DotLiquid.Tags
 {
     /// <summary>
     /// Literal
-    /// Literal outputs text as is, usefull if your template contains Liquid syntax.
+    /// Literal outputs text as is, useful if your template contains Liquid syntax.
     ///
     /// {% literal %}{% if user = 'tobi' %}hi{% endif %}{% endliteral %}
     ///

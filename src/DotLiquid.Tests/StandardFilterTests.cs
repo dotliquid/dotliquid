@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using DotLiquid.NamingConventions;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -414,6 +416,44 @@ PaulGeorge",
             Assert.AreEqual(hash2["content"], result[2]["content"]);
         }
 
+        [Test]
+        public void TestSort_Indexable()
+        {
+            var packages = new [] {
+                new Package(numberOfPiecesPerPackage: 2, test: "p1"),
+                new Package(numberOfPiecesPerPackage: 1, test: "p2"),
+                new Package(numberOfPiecesPerPackage: 3, test: "p3"),
+            };
+            var expectedPackages= packages.OrderBy(p => p["numberOfPiecesPerPackage"]).ToArray();
+
+            Helper.LockTemplateStaticVars(new RubyNamingConvention(), () =>
+            {
+                CollectionAssert.AreEqual(
+                    expected: expectedPackages,
+                    actual: StandardFilters.Sort(_contextV20, packages, "numberOfPiecesPerPackage"));
+            });
+        }
+
+        [Test]
+        public void TestSort_ExpandoObject()
+        {
+            dynamic package1 = new ExpandoObject();
+            package1.numberOfPiecesPerPackage = 2;
+            package1.test = "p1";
+            dynamic package2 = new ExpandoObject();
+            package2.numberOfPiecesPerPackage = 1;
+            package2.test = "p2";
+            dynamic package3 = new ExpandoObject();
+            package3.numberOfPiecesPerPackage = 3;
+            package3.test = "p3";
+            var packages = new List<ExpandoObject> { package1, package2, package3 };
+            var expectedPackages = new List<ExpandoObject> { package2, package1, package3 };
+
+            Assert.AreEqual(
+                expected: expectedPackages,
+                actual: StandardFilters.Sort(_contextV20, packages, property: "numberOfPiecesPerPackage"));
+        }
+
         private static Hash CreateHash(int sortby, string content) =>
             new Hash
             {
@@ -438,8 +478,6 @@ PaulGeorge",
                         Hash.FromAnonymousObject(new { foo = Hash.FromAnonymousObject(new { bar = "c" }) })
                     }
                     }));
-            CollectionAssert.AreEqual(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 4 } },
-                StandardFilters.Map(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 4 } }, "b"));
 
             Assert.AreEqual(null, StandardFilters.Map(null, "a"));
             CollectionAssert.AreEqual(new object[] { null }, StandardFilters.Map(new object[] { null }, "a"));
@@ -454,7 +492,7 @@ PaulGeorge",
             });
 
             Helper.AssertTemplateResult("abc", "{{ ary | map:'prop_allowed' | join:'' }}", hash);
-            Helper.AssertTemplateResult("", "{{ ary | map:'prop_disallowed' | join:'' }}", hash);
+            Helper.AssertTemplateResult("", "{{ ary | map:'no_prop' | join:'' }}", hash);
 
             hash = Hash.FromAnonymousObject(new
             {
@@ -467,6 +505,47 @@ PaulGeorge",
 
             Helper.AssertTemplateResult("abc", "{{ ary | map:'prop' | join:'' }}", hash);
             Helper.AssertTemplateResult("", "{{ ary | map:'no_prop' | join:'' }}", hash);
+        }
+
+        /// <summary>
+        /// Test case for [Issue #520](https://github.com/dotliquid/dotliquid/issues/520)
+        /// </summary>
+        [Test]
+        public void TestMapInvalidProperty()
+        {
+            var nullObjectArray = new object[] { null };
+            // Anonymous Type
+            CollectionAssert.AreEqual(nullObjectArray,
+                StandardFilters.Map(new[] { new { a = 1 } }, "no_prop"));
+
+            // Drop
+            CollectionAssert.AreEqual(nullObjectArray,
+                StandardFilters.Map(new[] { new Helper.DataObjectDrop { Prop = "a" }}, "no_prop"));
+
+            // Dictionary
+            CollectionAssert.AreEqual(nullObjectArray,
+                StandardFilters.Map(Hash.FromDictionary(new Dictionary<string, object>() { { "a", 1 } }), "no_prop"));
+
+            // Expando Array
+            var expandoJson = "[{\"a\": 1}]";
+            var expandoObj = Newtonsoft.Json.JsonConvert.DeserializeObject<ExpandoObject[]>(expandoJson);
+            CollectionAssert.AreEqual(nullObjectArray,
+                StandardFilters.Map(expandoObj, "no_prop"));
+        }
+
+        /// <summary>
+        /// Test case for [Issue #275](https://github.com/dotliquid/dotliquid/issues/275)
+        /// </summary>
+        [Test]
+        public void TestMapDisallowedProperty() {
+            var hash = Hash.FromAnonymousObject(new
+            {
+                safe = new[] { new Helper.DataObjectRegistered { PropAllowed = "a", PropDisallowed = "x" }},
+                attr = new[] { new Helper.DataObject { PropAllowed = "a", PropDisallowed = "x" } }
+            });
+
+            Helper.AssertTemplateResult("", "{{ safe | map:'prop_disallowed' | join:'' }}", hash);
+            Helper.AssertTemplateResult("", "{{ attr | map:'prop_disallowed' | join:'' }}", hash);
         }
 
         /// <summary>
@@ -633,6 +712,28 @@ PaulGeorge",
 ""tests"" : {{test1}}
 }",
                 localVariables: hash);
+        }
+
+        [Test]
+        public void TestMapExpandoObject()
+        {
+            dynamic product1 = new ExpandoObject();
+            product1.title = "Vacuum";
+            product1.type = "cleaning";
+            dynamic product2 = new ExpandoObject();
+            product2.title = "Spatula";
+            product2.type = "kitchen";
+            dynamic product3 = new ExpandoObject();
+            product3.title = "Television";
+            product3.type = "lounge";
+            dynamic product4 = new ExpandoObject();
+            product4.title = "Garlic press";
+            product4.type = "kitchen";
+            var products = new List<ExpandoObject> { product1, product2, product3, product4 };
+
+            Assert.AreEqual(
+                expected: new List<string>{"Vacuum", "Spatula", "Television", "Garlic press"},
+                actual: StandardFilters.Map(products, "title"));
         }
 
         [Test]
@@ -1705,7 +1806,7 @@ PaulGeorge",
             CollectionAssert.AreEqual(expected: products,
                 actual: StandardFilters.Where(products, propertyName: "type"));
 
-            // Test filtering for non-existant property
+            // Test filtering for non-existent property
             var emptyArray = Array.Empty<object>();
             CollectionAssert.AreEqual(expected: emptyArray,
                 actual: StandardFilters.Where(products, propertyName: "non_existent_property"));
@@ -1724,6 +1825,48 @@ PaulGeorge",
                 new { title = "Garlic press", type = "kitchen" }
             };
             Assert.AreEqual(expected: expectedKitchenProducts, actual: StandardFilters.Where(productsWithNullEntry, propertyName: "type", targetValue: "kitchen"));
+        }
+
+        [Test]
+        public void TestWhere_Indexable()
+        {
+            var products = new [] {
+                new ProductDrop { Title = "Vacuum", Type = "cleaning" },
+                new ProductDrop { Title = "Spatula", Type = "kitchen" },
+                new ProductDrop { Title = "Television", Type = "lounge" },
+                new ProductDrop { Title = "Garlic press", Type = "kitchen" }
+            };
+            var expectedProducts = products.Where(p => p.Type == "kitchen").ToArray();
+
+            Helper.LockTemplateStaticVars(new RubyNamingConvention(), () =>
+            {
+                CollectionAssert.AreEqual(
+                    expected: expectedProducts,
+                    actual: StandardFilters.Where(products, propertyName: "type", targetValue: "kitchen"));
+            });
+        }
+
+        [Test]
+        public void TestWhere_ExpandoObject()
+        {
+            dynamic product1 = new ExpandoObject();
+            product1.title = "Vacuum";
+            product1.type = "cleaning";
+            dynamic product2 = new ExpandoObject();
+            product2.title = "Spatula";
+            product2.type = "kitchen";
+            dynamic product3 = new ExpandoObject();
+            product3.title = "Television";
+            product3.type = "lounge";
+            dynamic product4 = new ExpandoObject();
+            product4.title = "Garlic press";
+            product4.type = "kitchen";
+            var products = new List<ExpandoObject> { product1, product2, product3, product4 };
+            var expectedProducts = new List<ExpandoObject> { product2, product4 };
+
+            Assert.AreEqual(
+                expected: expectedProducts,
+                actual: StandardFilters.Where(products, propertyName: "type", targetValue: "kitchen"));
         }
 
         // First sample from specification at https://shopify.github.io/liquid/filters/where/
@@ -1841,6 +1984,25 @@ Cheapest products:
         }
 
         [Test]
+        public void TestWhere_RespectIndexable()
+        {
+            var products = new [] {
+                new ProductDrop { Title = "Vacuum", Type = "cleaning" },
+                new ProductDrop { Title = "Spatula", Type = "kitchen" },
+                new ProductDrop { Title = "Television", Type = "lounge" },
+                new ProductDrop { Title = "Garlic press", Type = "kitchen" }
+            };
+            var expectedKitchenProducts = products.Where(p => p.Type == "kitchen").ToArray();
+
+            Helper.LockTemplateStaticVars(new RubyNamingConvention(), () =>
+            {
+                CollectionAssert.AreEqual(
+                    expected: expectedKitchenProducts,
+                    actual: StandardFilters.Where(products, propertyName: "type", targetValue: "kitchen"));
+            });
+        }
+
+        [Test]
         public void TestConcat()
         {
             var array1 = new String[] { "one", "two" };
@@ -1915,6 +2077,12 @@ Cheapest products:
             Helper.AssertTemplateResult(
                 expected: ".moT rojaM ot lortnoc dnuorG",
                 template: "{{ 'Ground control to Major Tom.' | split: '' | reverse | join: '' }}");
+        }
+
+        private class ProductDrop : Drop
+        {
+            public string Title { get; set; }
+            public string Type { get; set; }
         }
     }
 }

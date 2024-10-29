@@ -388,9 +388,21 @@ namespace DotLiquid
                     return true;
                 case "false":
                     return false;
-                case "blank":
-                case "empty":
-                    return new Symbol(o => (o is IEnumerable enumerableO) && !enumerableO.Cast<object>().Any());
+                case "blank": // Liquid doesn't define this behavior but calls a Ruby on Rails defined extension method identically named
+                    return new Symbol(obj => {
+                        switch (obj)
+                        {
+                            case null:
+                            case bool boolObj when boolObj == false:
+                            case string stringObj when string.IsNullOrWhiteSpace(stringObj):
+                            case IEnumerable enumerableObj when !enumerableObj.Any():
+                                return true;
+                            default:
+                                return false;
+                        }
+                    });
+                case "empty": // Also defined by Ruby on Rails
+                    return new Symbol(o => (o is IEnumerable enumerableObj) && !enumerableObj.Any());
             }
 
             var firstChar = key[0];
@@ -623,7 +635,10 @@ namespace DotLiquid
 
             else if ((obj is IList listObj) && (key is int || key is uint || key is long || key is ulong || key is short || key is ushort || key is byte || key is sbyte
                 || (key is decimal dec && Math.Truncate(dec) == dec) || (key is double dbl && Math.Truncate(dbl) == dbl) || (key is float flt && Math.Truncate(flt) == flt)))
-                value = listObj[Convert.ToInt32(key)];
+            {
+                var index = Convert.ToInt32(key);
+                value = listObj[index < 0 ? listObj.Count + index : index];
+            }
 
             else if (TypeUtility.IsAnonymousType(obj.GetType()) && obj.GetType().GetRuntimeProperty((string)key) != null)
                 value = obj.GetType().GetRuntimeProperty((string)key).GetValue(obj, null);

@@ -27,11 +27,20 @@ namespace DotLiquid.Tests
         public class TestBaseClass
         {
             public string TestBaseClassProp { get; set; }
+
+            public virtual string TestOverridableProp { get; set; }
         }
 
-        public class TestClass : TestBaseClass
+        public class TestMiddleClass : TestBaseClass
+        {
+            public string TestMiddleClassProp { get; set; }
+        }
+
+        public class TestChildClass : TestMiddleClass
         {
             public string TestClassProp { get; set; }
+
+            public override string TestOverridableProp { get; set; }
         }
 
         #region Mapper Cache Tests
@@ -71,26 +80,39 @@ namespace DotLiquid.Tests
 
         private void IncludeBaseClassPropertiesOrNot(bool includeBaseClassProperties)
         {
+            var TestClassOverridablePropValue = "TestClassOverridablePropValue";
             var TestClassPropValue = "TestClassPropValueValue";
+            var TestMiddleClassPropValue = "TestMiddleClassPropValue";
             var TestBaseClassPropValue = "TestBaseClassPropValue";
 
-            var value = Hash.FromAnonymousObject(new TestClass()
+            var value = Hash.FromAnonymousObject(new TestChildClass()
             {
                 TestClassProp = TestClassPropValue,
-                TestBaseClassProp = TestBaseClassPropValue
+                TestMiddleClassProp = TestMiddleClassPropValue,
+                TestBaseClassProp = TestBaseClassPropValue,
+                TestOverridableProp = TestClassOverridablePropValue
             }, includeBaseClassProperties);
 
+            // Properties attached directly to the type of instance being converted to Hash should always be visible
             Assert.AreEqual(
                 TestClassPropValue,
-                value[nameof(TestClass.TestClassProp)]);
+                value[nameof(TestChildClass.TestClassProp)]);
+
+            Assert.AreEqual(
+                TestClassOverridablePropValue,
+                value[nameof(TestChildClass.TestOverridableProp)]);
+
+            Assert.AreEqual(
+                includeBaseClassProperties ? TestMiddleClassPropValue : null,
+                value[nameof(TestMiddleClass.TestMiddleClassProp)]);
 
             Assert.AreEqual(
                 includeBaseClassProperties ? TestBaseClassPropValue : null,
-                value[nameof(TestClass.TestBaseClassProp)]);
+                value[nameof(TestChildClass.TestBaseClassProp)]);
         }
 
         /// <summary>
-        /// Mapping without properties from base class 
+        /// Mapping without properties from base class
         /// </summary>
         [Test]
         public void TestShouldNotMapPropertiesFromBaseClass()
@@ -99,7 +121,7 @@ namespace DotLiquid.Tests
         }
 
         /// <summary>
-        /// Mapping with properties from base class 
+        /// Mapping with properties from base class
         /// </summary>
         [Test]
         public void TestShouldMapPropertiesFromBaseClass()
@@ -108,13 +130,13 @@ namespace DotLiquid.Tests
         }
 
         /// <summary>
-        /// Mapping/Not mapping properties from base class should work for same class. 
+        /// Mapping/Not mapping properties from base class should work for same class.
         /// "mapperCache" should consider base class property mapping option ("includeBaseClassProperties").
         /// </summary>
         [Test]
         public void TestUpperTwoScenarioWithSameClass()
         {
-            //These two need to be called together to be sure same cache is being used for two  
+            //These two need to be called together to be sure same cache is being used for two
             IncludeBaseClassPropertiesOrNot(false);
             IncludeBaseClassPropertiesOrNot(true);
         }

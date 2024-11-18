@@ -1,2 +1,1 @@
 # Build script for dotliquid is presently stored securely on AppVeyor.
-version: 2.2.{build}

@@ -41,34 +41,34 @@ namespace DotLiquid.Tests
         [Test]
         public void TestSize()
         {
-            Assert.AreEqual(3, StandardFilters.Size(new[] { 1, 2, 3 }));
-            Assert.AreEqual(0, StandardFilters.Size(new object[] { }));
-            Assert.AreEqual(0, StandardFilters.Size(null));
+            Assert.That(StandardFilters.Size(new[] { 1, 2, 3 }), Is.EqualTo(3));
+            Assert.That(StandardFilters.Size(new object[] { }), Is.EqualTo(0));
+            Assert.That(StandardFilters.Size(null), Is.EqualTo(0));
         }
 
         [Test]
         public void TestDowncase()
         {
-            Assert.AreEqual("testing", StandardFilters.Downcase("Testing"));
-            Assert.AreEqual(null, StandardFilters.Downcase(null));
+            Assert.That(StandardFilters.Downcase("Testing"), Is.EqualTo("testing"));
+            Assert.That(StandardFilters.Downcase(null), Is.EqualTo(null));
         }
 
         [Test]
         public void TestUpcase()
         {
-            Assert.AreEqual("TESTING", StandardFilters.Upcase("Testing"));
-            Assert.AreEqual(null, StandardFilters.Upcase(null));
+            Assert.That(StandardFilters.Upcase("Testing"), Is.EqualTo("TESTING"));
+            Assert.That(StandardFilters.Upcase(null), Is.EqualTo(null));
         }
 
         [Test]
         public void TestTruncate()
         {
-            Assert.AreEqual(expected: null, actual: StandardFilters.Truncate(null));
-            Assert.AreEqual(expected: "", actual: StandardFilters.Truncate(""));
-            Assert.AreEqual(expected: "1234...", actual: StandardFilters.Truncate("1234567890", 7));
-            Assert.AreEqual(expected: "1234567890", actual: StandardFilters.Truncate("1234567890", 20));
-            Assert.AreEqual(expected: "...", actual: StandardFilters.Truncate("1234567890", 0));
-            Assert.AreEqual(expected: "1234567890", actual: StandardFilters.Truncate("1234567890"));
+            Assert.That(actual: StandardFilters.Truncate(null), Is.EqualTo(expected: null));
+            Assert.That(actual: StandardFilters.Truncate(""), Is.EqualTo(expected: ""));
+            Assert.That(actual: StandardFilters.Truncate("1234567890", 7), Is.EqualTo(expected: "1234..."));
+            Assert.That(actual: StandardFilters.Truncate("1234567890", 20), Is.EqualTo(expected: "1234567890"));
+            Assert.That(actual: StandardFilters.Truncate("1234567890", 0), Is.EqualTo(expected: "..."));
+            Assert.That(actual: StandardFilters.Truncate("1234567890"), Is.EqualTo(expected: "1234567890"));
             Helper.AssertTemplateResult(expected: "H...", template: "{{ 'Hello' | truncate:4 }}");
 
             Helper.AssertTemplateResult(expected: "Ground control to...", template: "{{ \"Ground control to Major Tom.\" | truncate: 20}}");
@@ -82,10 +82,10 @@ namespace DotLiquid.Tests
         [Test]
         public void TestEscape()
         {
-            Assert.AreEqual(null, StandardFilters.Escape(null));
-            Assert.AreEqual("", StandardFilters.Escape(""));
-            Assert.AreEqual("&lt;strong&gt;", StandardFilters.Escape("<strong>"));
-            Assert.AreEqual("&lt;strong&gt;", StandardFilters.H("<strong>"));
+            Assert.That(StandardFilters.Escape(null), Is.EqualTo(null));
+            Assert.That(StandardFilters.Escape(""), Is.EqualTo(""));
+            Assert.That(StandardFilters.Escape("<strong>"), Is.EqualTo("&lt;strong&gt;"));
+            Assert.That(StandardFilters.H("<strong>"), Is.EqualTo("&lt;strong&gt;"));
 
             Helper.AssertTemplateResult(
                  expected: "Have you read &#39;James &amp; the Giant Peach&#39;?",
@@ -99,11 +99,11 @@ namespace DotLiquid.Tests
         [Test]
         public void TestEscapeOnce()
         {
-            Assert.AreEqual(null, StandardFilters.EscapeOnce(null));
-            Assert.AreEqual("", StandardFilters.EscapeOnce(""));
-            Assert.AreEqual("&amp;xxx; looks like an escaped character, but isn&#39;t", StandardFilters.EscapeOnce("&xxx; looks like an escaped character, but isn't"));
-            Assert.AreEqual("1 &lt; 2 &amp; 3", StandardFilters.EscapeOnce("1 &lt; 2 &amp; 3"));
-            Assert.AreEqual("&lt;element&gt;1 &lt; 2 &amp; 3&lt;/element&gt;", StandardFilters.EscapeOnce("<element>1 &lt; 2 &amp; 3</element>"));
+            Assert.That(StandardFilters.EscapeOnce(null), Is.EqualTo(null));
+            Assert.That(StandardFilters.EscapeOnce(""), Is.EqualTo(""));
+            Assert.That(StandardFilters.EscapeOnce("&xxx; looks like an escaped character, but isn't"), Is.EqualTo("&amp;xxx; looks like an escaped character, but isn&#39;t"));
+            Assert.That(StandardFilters.EscapeOnce("1 &lt; 2 &amp; 3"), Is.EqualTo("1 &lt; 2 &amp; 3"));
+            Assert.That(StandardFilters.EscapeOnce("<element>1 &lt; 2 &amp; 3</element>"), Is.EqualTo("&lt;element&gt;1 &lt; 2 &amp; 3&lt;/element&gt;"));
 
             Helper.AssertTemplateResult(
                  expected: "1 &lt; 2 &amp; 3",
@@ -117,12 +117,12 @@ namespace DotLiquid.Tests
         [Test]
         public void TestTruncateWords()
         {
-            Assert.AreEqual(null, StandardFilters.TruncateWords(null));
-            Assert.AreEqual("", StandardFilters.TruncateWords(""));
-            Assert.AreEqual("one two three", StandardFilters.TruncateWords("one two three", 4));
-            Assert.AreEqual("one two...", StandardFilters.TruncateWords("one two three", 2));
-            Assert.AreEqual("one two three", StandardFilters.TruncateWords("one two three"));
-            Assert.AreEqual("Two small (13&#8221; x 5.5&#8221; x 10&#8221; high) baskets fit inside one large basket (13&#8221;...", StandardFilters.TruncateWords("Two small (13&#8221; x 5.5&#8221; x 10&#8221; high) baskets fit inside one large basket (13&#8221; x 16&#8221; x 10.5&#8221; high) with cover.", 15));
+            Assert.That(StandardFilters.TruncateWords(null), Is.EqualTo(null));
+            Assert.That(StandardFilters.TruncateWords(""), Is.EqualTo(""));
+            Assert.That(StandardFilters.TruncateWords("one two three", 4), Is.EqualTo("one two three"));
+            Assert.That(StandardFilters.TruncateWords("one two three", 2), Is.EqualTo("one two..."));
+            Assert.That(StandardFilters.TruncateWords("one two three"), Is.EqualTo("one two three"));
+            Assert.That(StandardFilters.TruncateWords("Two small (13&#8221; x 5.5&#8221; x 10&#8221; high) baskets fit inside one large basket (13&#8221; x 16&#8221; x 10.5&#8221; high) with cover.", 15), Is.EqualTo("Two small (13&#8221; x 5.5&#8221; x 10&#8221; high) baskets fit inside one large basket (13&#8221;..."));
 
             Helper.AssertTemplateResult(expected: "Ground control to...", template: "{{ \"Ground control to Major Tom.\" | truncate_words: 3}}");
             Helper.AssertTemplateResult(expected: "Ground control to--", template: "{{ \"Ground control to Major Tom.\" | truncate_words: 3, \"--\"}}");
@@ -135,59 +135,59 @@ namespace DotLiquid.Tests
         [Test]
         public void TestSplit()
         {
-            CollectionAssert.AreEqual(new[] { "This", "is", "a", "sentence" }, StandardFilters.Split("This is a sentence", " "));
-            CollectionAssert.AreEqual(new string[] { null }, StandardFilters.Split(null, null));
+            Assert.That(StandardFilters.Split("This is a sentence", " "), Is.EqualTo(new[] { "This", "is", "a", "sentence" }).AsCollection);
+            Assert.That(StandardFilters.Split(null, null), Is.EqualTo(new string[] { null }).AsCollection);
 
             // A string with no pattern should be split into a string[], as required for the Liquid Reverse filter
-            CollectionAssert.AreEqual(new[] { "Y", "M", "C", "A" }, StandardFilters.Split("YMCA", null));
-            CollectionAssert.AreEqual(new[] { "Y", "M", "C", "A" }, StandardFilters.Split("YMCA", ""));
-            CollectionAssert.AreEqual(new[] { " " }, StandardFilters.Split(" ", ""));
+            Assert.That(StandardFilters.Split("YMCA", null), Is.EqualTo(new[] { "Y", "M", "C", "A" }).AsCollection);
+            Assert.That(StandardFilters.Split("YMCA", ""), Is.EqualTo(new[] { "Y", "M", "C", "A" }).AsCollection);
+            Assert.That(StandardFilters.Split(" ", ""), Is.EqualTo(new[] { " " }).AsCollection);
         }
 
         [Test]
         public void TestStripHtml()
         {
-            Assert.AreEqual("test", StandardFilters.StripHtml("<div>test</div>"));
-            Assert.AreEqual("test", StandardFilters.StripHtml("<div id='test'>test</div>"));
-            Assert.AreEqual("", StandardFilters.StripHtml("<script type='text/javascript'>document.write('some stuff');</script>"));
-            Assert.AreEqual("", StandardFilters.StripHtml("<style type='text/css'>foo bar</style>"));
-            Assert.AreEqual("", StandardFilters.StripHtml("<STYLE type='text/css'>foo bar</style>"));
-            Assert.AreEqual("test", StandardFilters.StripHtml("<div\nclass='multiline'>test</div>"));
-            Assert.AreEqual("test", StandardFilters.StripHtml("<!-- foo bar \n test -->test"));
-            Assert.AreEqual(null, StandardFilters.StripHtml(null));
+            Assert.That(StandardFilters.StripHtml("<div>test</div>"), Is.EqualTo("test"));
+            Assert.That(StandardFilters.StripHtml("<div id='test'>test</div>"), Is.EqualTo("test"));
+            Assert.That(StandardFilters.StripHtml("<script type='text/javascript'>document.write('some stuff');</script>"), Is.EqualTo(""));
+            Assert.That(StandardFilters.StripHtml("<style type='text/css'>foo bar</style>"), Is.EqualTo(""));
+            Assert.That(StandardFilters.StripHtml("<STYLE type='text/css'>foo bar</style>"), Is.EqualTo(""));
+            Assert.That(StandardFilters.StripHtml("<div\nclass='multiline'>test</div>"), Is.EqualTo("test"));
+            Assert.That(StandardFilters.StripHtml("<!-- foo bar \n test -->test"), Is.EqualTo("test"));
+            Assert.That(StandardFilters.StripHtml(null), Is.EqualTo(null));
 
             // Quirk of the existing implementation
-            Assert.AreEqual("foo;", StandardFilters.StripHtml("<<<script </script>script>foo;</script>"));
+            Assert.That(StandardFilters.StripHtml("<<<script </script>script>foo;</script>"), Is.EqualTo("foo;"));
         }
 
         [Test]
         public void TestStrip()
         {
-            Assert.AreEqual("test", StandardFilters.Strip("  test  "));
-            Assert.AreEqual("test", StandardFilters.Strip("   test"));
-            Assert.AreEqual("test", StandardFilters.Strip("test   "));
-            Assert.AreEqual("test", StandardFilters.Strip("test"));
-            Assert.AreEqual(null, StandardFilters.Strip(null));
+            Assert.That(StandardFilters.Strip("  test  "), Is.EqualTo("test"));
+            Assert.That(StandardFilters.Strip("   test"), Is.EqualTo("test"));
+            Assert.That(StandardFilters.Strip("test   "), Is.EqualTo("test"));
+            Assert.That(StandardFilters.Strip("test"), Is.EqualTo("test"));
+            Assert.That(StandardFilters.Strip(null), Is.EqualTo(null));
         }
 
         [Test]
         public void TestLStrip()
         {
-            Assert.AreEqual("test  ", StandardFilters.Lstrip("  test  "));
-            Assert.AreEqual("test", StandardFilters.Lstrip("   test"));
-            Assert.AreEqual("test   ", StandardFilters.Lstrip("test   "));
-            Assert.AreEqual("test", StandardFilters.Lstrip("test"));
-            Assert.AreEqual(null, StandardFilters.Lstrip(null));
+            Assert.That(StandardFilters.Lstrip("  test  "), Is.EqualTo("test  "));
+            Assert.That(StandardFilters.Lstrip("   test"), Is.EqualTo("test"));
+            Assert.That(StandardFilters.Lstrip("test   "), Is.EqualTo("test   "));
+            Assert.That(StandardFilters.Lstrip("test"), Is.EqualTo("test"));
+            Assert.That(StandardFilters.Lstrip(null), Is.EqualTo(null));
         }
 
         [Test]
         public void TestRStrip()
         {
-            Assert.AreEqual("  test", StandardFilters.Rstrip("  test  "));
-            Assert.AreEqual("   test", StandardFilters.Rstrip("   test"));
-            Assert.AreEqual("test", StandardFilters.Rstrip("test   "));
-            Assert.AreEqual("test", StandardFilters.Rstrip("test"));
-            Assert.AreEqual(null, StandardFilters.Rstrip(null));
+            Assert.That(StandardFilters.Rstrip("  test  "), Is.EqualTo("  test"));
+            Assert.That(StandardFilters.Rstrip("   test"), Is.EqualTo("   test"));
+            Assert.That(StandardFilters.Rstrip("test   "), Is.EqualTo("test"));
+            Assert.That(StandardFilters.Rstrip("test"), Is.EqualTo("test"));
+            Assert.That(StandardFilters.Rstrip(null), Is.EqualTo(null));
         }
 
         [Test]
@@ -196,11 +196,11 @@ namespace DotLiquid.Tests
             Context context = _contextV22;
 
             // Verify backwards compatibility for pre-22a syntax (DotLiquid returns null for null input or empty slice)
-            Assert.AreEqual(null, StandardFilters.Slice(context, null, 1)); // DotLiquid test case
-            Assert.AreEqual(null, StandardFilters.Slice(context, "", 10)); // DotLiquid test case
+            Assert.That(StandardFilters.Slice(context, null, 1), Is.EqualTo(null)); // DotLiquid test case
+            Assert.That(StandardFilters.Slice(context, "", 10), Is.EqualTo(null)); // DotLiquid test case
 
-            Assert.AreEqual(null, StandardFilters.Slice(context, null, 0)); // Liquid test case
-            Assert.AreEqual(null, StandardFilters.Slice(context, "foobar", 100, 10)); // Liquid test case
+            Assert.That(StandardFilters.Slice(context, null, 0), Is.EqualTo(null)); // Liquid test case
+            Assert.That(StandardFilters.Slice(context, "foobar", 100, 10), Is.EqualTo(null)); // Liquid test case
 
             // Verify DotLiquid is consistent with Liquid for everything else
             TestSliceString(context);
@@ -213,11 +213,11 @@ namespace DotLiquid.Tests
             Context context = _contextV22a;
 
             // Verify Liquid compliance from V22a syntax:
-            Assert.AreEqual("", StandardFilters.Slice(context, null, 1)); // DotLiquid test case
-            Assert.AreEqual("", StandardFilters.Slice(context, "", 10)); // DotLiquid test case
+            Assert.That(StandardFilters.Slice(context, null, 1), Is.EqualTo("")); // DotLiquid test case
+            Assert.That(StandardFilters.Slice(context, "", 10), Is.EqualTo("")); // DotLiquid test case
 
-            Assert.AreEqual("", StandardFilters.Slice(context, null, 0)); // Liquid test case
-            Assert.AreEqual("", StandardFilters.Slice(context, "foobar", 100, 10)); // Liquid test case
+            Assert.That(StandardFilters.Slice(context, null, 0), Is.EqualTo("")); // Liquid test case
+            Assert.That(StandardFilters.Slice(context, "foobar", 100, 10), Is.EqualTo("")); // Liquid test case
 
             // Verify DotLiquid is consistent with Liquid for everything else
             TestSliceString(context);
@@ -226,49 +226,49 @@ namespace DotLiquid.Tests
 
         private void TestSliceString(Context context)
         {
-            Assert.AreEqual("abc", StandardFilters.Slice(context, "abcdefg", 0, 3));
-            Assert.AreEqual("bcd", StandardFilters.Slice(context, "abcdefg", 1, 3));
-            Assert.AreEqual("efg", StandardFilters.Slice(context, "abcdefg", -3, 3));
-            Assert.AreEqual("efg", StandardFilters.Slice(context, "abcdefg", -3, 30));
-            Assert.AreEqual("efg", StandardFilters.Slice(context, "abcdefg", 4, 30));
-            Assert.AreEqual("a", StandardFilters.Slice(context, "abc", -4, 2));
-            Assert.AreEqual("", StandardFilters.Slice(context, "abcdefg", -10, 1));
+            Assert.That(StandardFilters.Slice(context, "abcdefg", 0, 3), Is.EqualTo("abc"));
+            Assert.That(StandardFilters.Slice(context, "abcdefg", 1, 3), Is.EqualTo("bcd"));
+            Assert.That(StandardFilters.Slice(context, "abcdefg", -3, 3), Is.EqualTo("efg"));
+            Assert.That(StandardFilters.Slice(context, "abcdefg", -3, 30), Is.EqualTo("efg"));
+            Assert.That(StandardFilters.Slice(context, "abcdefg", 4, 30), Is.EqualTo("efg"));
+            Assert.That(StandardFilters.Slice(context, "abc", -4, 2), Is.EqualTo("a"));
+            Assert.That(StandardFilters.Slice(context, "abcdefg", -10, 1), Is.EqualTo(""));
 
             // Test replicated from the Ruby library (https://github.com/Shopify/liquid/blob/master/test/integration/standard_filter_test.rb)
-            Assert.AreEqual("oob", StandardFilters.Slice(context, "foobar", 1, 3));
-            Assert.AreEqual("oobar", StandardFilters.Slice(context, "foobar", 1, 1000));
-            Assert.AreEqual("", StandardFilters.Slice(context, "foobar", 1, 0));
-            Assert.AreEqual("o", StandardFilters.Slice(context, "foobar", 1, 1));
-            Assert.AreEqual("bar", StandardFilters.Slice(context, "foobar", 3, 3));
-            Assert.AreEqual("ar", StandardFilters.Slice(context, "foobar", -2, 2));
-            Assert.AreEqual("ar", StandardFilters.Slice(context, "foobar", -2, 1000));
-            Assert.AreEqual("r", StandardFilters.Slice(context, "foobar", -1));
-            Assert.AreEqual("", StandardFilters.Slice(context, "foobar", -100, 10));
-            Assert.AreEqual("oob", StandardFilters.Slice(context, "foobar", 1, 3));
+            Assert.That(StandardFilters.Slice(context, "foobar", 1, 3), Is.EqualTo("oob"));
+            Assert.That(StandardFilters.Slice(context, "foobar", 1, 1000), Is.EqualTo("oobar"));
+            Assert.That(StandardFilters.Slice(context, "foobar", 1, 0), Is.EqualTo(""));
+            Assert.That(StandardFilters.Slice(context, "foobar", 1, 1), Is.EqualTo("o"));
+            Assert.That(StandardFilters.Slice(context, "foobar", 3, 3), Is.EqualTo("bar"));
+            Assert.That(StandardFilters.Slice(context, "foobar", -2, 2), Is.EqualTo("ar"));
+            Assert.That(StandardFilters.Slice(context, "foobar", -2, 1000), Is.EqualTo("ar"));
+            Assert.That(StandardFilters.Slice(context, "foobar", -1), Is.EqualTo("r"));
+            Assert.That(StandardFilters.Slice(context, "foobar", -100, 10), Is.EqualTo(""));
+            Assert.That(StandardFilters.Slice(context, "foobar", 1, 3), Is.EqualTo("oob"));
         }
 
         private void TestSliceArrays(Context context)
         {
             // Test replicated from the Ruby library
             var testArray = new[] { "f", "o", "o", "b", "a", "r" };
-            CollectionAssert.AreEqual(ToStringArray("oob"), (IEnumerable<object>)StandardFilters.Slice(context, testArray, 1, 3));
-            CollectionAssert.AreEqual(ToStringArray("oobar"), (IEnumerable<object>)StandardFilters.Slice(context, testArray, 1, 1000));
-            CollectionAssert.AreEqual(ToStringArray(""), (IEnumerable<object>)StandardFilters.Slice(context, testArray, 1, 0));
-            CollectionAssert.AreEqual(ToStringArray("o"), (IEnumerable<object>)StandardFilters.Slice(context, testArray, 1, 1));
-            CollectionAssert.AreEqual(ToStringArray("bar"), (IEnumerable<object>)StandardFilters.Slice(context, testArray, 3, 3));
-            CollectionAssert.AreEqual(ToStringArray("ar"), (IEnumerable<object>)StandardFilters.Slice(context, testArray, -2, 2));
-            CollectionAssert.AreEqual(ToStringArray("ar"), (IEnumerable<object>)StandardFilters.Slice(context, testArray, -2, 1000));
-            CollectionAssert.AreEqual(ToStringArray("r"), (IEnumerable<object>)StandardFilters.Slice(context, testArray, -1));
-            CollectionAssert.AreEqual(ToStringArray(""), (IEnumerable<object>)StandardFilters.Slice(context, testArray, 100, 10));
-            CollectionAssert.AreEqual(ToStringArray(""), (IEnumerable<object>)StandardFilters.Slice(context, testArray, -100, 10));
+            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, testArray, 1, 3), Is.EqualTo(ToStringArray("oob")).AsCollection);
+            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, testArray, 1, 1000), Is.EqualTo(ToStringArray("oobar")).AsCollection);
+            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, testArray, 1, 0), Is.EqualTo(ToStringArray("")).AsCollection);
+            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, testArray, 1, 1), Is.EqualTo(ToStringArray("o")).AsCollection);
+            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, testArray, 3, 3), Is.EqualTo(ToStringArray("bar")).AsCollection);
+            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, testArray, -2, 2), Is.EqualTo(ToStringArray("ar")).AsCollection);
+            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, testArray, -2, 1000), Is.EqualTo(ToStringArray("ar")).AsCollection);
+            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, testArray, -1), Is.EqualTo(ToStringArray("r")).AsCollection);
+            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, testArray, 100, 10), Is.EqualTo(ToStringArray("")).AsCollection);
+            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, testArray, -100, 10), Is.EqualTo(ToStringArray("")).AsCollection);
 
             // additional tests
-            CollectionAssert.AreEqual(ToStringArray("fo"), (IEnumerable<object>)StandardFilters.Slice(context, testArray, -6, 2));
-            CollectionAssert.AreEqual(ToStringArray("fo"), (IEnumerable<object>)StandardFilters.Slice(context, testArray, -8, 4));
+            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, testArray, -6, 2), Is.EqualTo(ToStringArray("fo")).AsCollection);
+            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, testArray, -8, 4), Is.EqualTo(ToStringArray("fo")).AsCollection);
 
             // Non-string arrays tests
-            CollectionAssert.AreEqual(new[] { 2, 3, 4 }, (IEnumerable<object>)StandardFilters.Slice(context, new[] { 1, 2, 3, 4, 5 }, 1, 3));
-            CollectionAssert.AreEqual(new[] { 'b', 'c', 'd' }, (IEnumerable<object>)StandardFilters.Slice(context, new[] { 'a', 'b', 'c', 'd', 'e' }, -4, 3));
+            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, new[] { 1, 2, 3, 4, 5 }, 1, 3), Is.EqualTo(new[] { 2, 3, 4 }).AsCollection);
+            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, new[] { 'a', 'b', 'c', 'd', 'e' }, -4, 3), Is.EqualTo(new[] { 'b', 'c', 'd' }).AsCollection);
         }
 
         /// <summary>
@@ -297,10 +297,10 @@ PaulGeorge",
         [Test]
         public void TestJoin()
         {
-            Assert.AreEqual(null, StandardFilters.Join(null));
-            Assert.AreEqual("", StandardFilters.Join(""));
-            Assert.AreEqual("1 2 3 4", StandardFilters.Join(new[] { 1, 2, 3, 4 }));
-            Assert.AreEqual("1 - 2 - 3 - 4", StandardFilters.Join(new[] { 1, 2, 3, 4 }, " - "));
+            Assert.That(StandardFilters.Join(null), Is.EqualTo(null));
+            Assert.That(StandardFilters.Join(""), Is.EqualTo(""));
+            Assert.That(StandardFilters.Join(new[] { 1, 2, 3, 4 }), Is.EqualTo("1 2 3 4"));
+            Assert.That(StandardFilters.Join(new[] { 1, 2, 3, 4 }, " - "), Is.EqualTo("1 - 2 - 3 - 4"));
 
             // Sample from specification at https://shopify.github.io/liquid/filters/join/
             Helper.AssertTemplateResult(
@@ -313,70 +313,58 @@ PaulGeorge",
         public void TestSortV20()
         {
             var ints = new[] { 10, 3, 2, 1 };
-            Assert.AreEqual(null, StandardFilters.Sort(_contextV20, null));
-            CollectionAssert.AreEqual(new string[] { }, StandardFilters.Sort(_contextV20, new string[] { }));
-            CollectionAssert.AreEqual(new[] { 1, 2, 3, 10 }, StandardFilters.Sort(_contextV20, ints));
-            CollectionAssert.AreEqual(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 10 } },
-                StandardFilters.Sort(_contextV20, new[] { new { a = 10 }, new { a = 3 }, new { a = 1 }, new { a = 2 } }, "a"));
+            Assert.That(StandardFilters.Sort(_contextV20, null), Is.EqualTo(null));
+            Assert.That(StandardFilters.Sort(_contextV20, new string[] { }), Is.EqualTo(new string[] { }).AsCollection);
+            Assert.That(StandardFilters.Sort(_contextV20, ints), Is.EqualTo(new[] { 1, 2, 3, 10 }).AsCollection);
+            Assert.That(StandardFilters.Sort(_contextV20, new[] { new { a = 10 }, new { a = 3 }, new { a = 1 }, new { a = 2 } }, "a"), Is.EqualTo(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 10 } }).AsCollection);
 
             // Issue #393 - Incorrect (Case-Insensitve) Alphabetic Sort
             var strings = new[] { "zebra", "octopus", "giraffe", "Sally Snake" };
-            CollectionAssert.AreEqual(new[] { "giraffe", "octopus", "Sally Snake", "zebra" },
-                StandardFilters.Sort(_contextV20, strings));
+            Assert.That(StandardFilters.Sort(_contextV20, strings), Is.EqualTo(new[] { "giraffe", "octopus", "Sally Snake", "zebra" }).AsCollection);
 
             var hashes = new List<Hash>();
             for (var i = 0; i < strings.Length; i++)
                 hashes.Add(CreateHash(ints[i], strings[i]));
-            CollectionAssert.AreEqual(new[] { hashes[2], hashes[1], hashes[3], hashes[0] },
-                StandardFilters.Sort(_contextV20, hashes, "content"));
-            CollectionAssert.AreEqual(new[] { hashes[3], hashes[2], hashes[1], hashes[0] },
-                StandardFilters.Sort(_contextV20, hashes, "sortby"));
+            Assert.That(StandardFilters.Sort(_contextV20, hashes, "content"), Is.EqualTo(new[] { hashes[2], hashes[1], hashes[3], hashes[0] }).AsCollection);
+            Assert.That(StandardFilters.Sort(_contextV20, hashes, "sortby"), Is.EqualTo(new[] { hashes[3], hashes[2], hashes[1], hashes[0] }).AsCollection);
         }
 
         [Test]
         public void TestSortV22()
         {
             var ints = new[] { 10, 3, 2, 1 };
-            Assert.AreEqual(null, StandardFilters.Sort(_contextV22, null));
-            CollectionAssert.AreEqual(new string[] { }, StandardFilters.Sort(_contextV22, new string[] { }));
-            CollectionAssert.AreEqual(new[] { 1, 2, 3, 10 }, StandardFilters.Sort(_contextV22, ints));
-            CollectionAssert.AreEqual(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 10 } },
-                StandardFilters.Sort(_contextV22, new[] { new { a = 10 }, new { a = 3 }, new { a = 1 }, new { a = 2 } }, "a"));
+            Assert.That(StandardFilters.Sort(_contextV22, null), Is.EqualTo(null));
+            Assert.That(StandardFilters.Sort(_contextV22, new string[] { }), Is.EqualTo(new string[] { }).AsCollection);
+            Assert.That(StandardFilters.Sort(_contextV22, ints), Is.EqualTo(new[] { 1, 2, 3, 10 }).AsCollection);
+            Assert.That(StandardFilters.Sort(_contextV22, new[] { new { a = 10 }, new { a = 3 }, new { a = 1 }, new { a = 2 } }, "a"), Is.EqualTo(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 10 } }).AsCollection);
 
             var strings = new[] { "zebra", "octopus", "giraffe", "Sally Snake" };
-            CollectionAssert.AreEqual(new[] { "Sally Snake", "giraffe", "octopus", "zebra" },
-                StandardFilters.Sort(_contextV22, strings));
+            Assert.That(StandardFilters.Sort(_contextV22, strings), Is.EqualTo(new[] { "Sally Snake", "giraffe", "octopus", "zebra" }).AsCollection);
 
             var hashes = new List<Hash>();
             for (var i = 0; i < strings.Length; i++)
                 hashes.Add(CreateHash(ints[i], strings[i]));
-            CollectionAssert.AreEqual(new[] { hashes[3], hashes[2], hashes[1], hashes[0] },
-                StandardFilters.Sort(_contextV22, hashes, "content"));
-            CollectionAssert.AreEqual(new[] { hashes[3], hashes[2], hashes[1], hashes[0] },
-                StandardFilters.Sort(_contextV22, hashes, "sortby"));
+            Assert.That(StandardFilters.Sort(_contextV22, hashes, "content"), Is.EqualTo(new[] { hashes[3], hashes[2], hashes[1], hashes[0] }).AsCollection);
+            Assert.That(StandardFilters.Sort(_contextV22, hashes, "sortby"), Is.EqualTo(new[] { hashes[3], hashes[2], hashes[1], hashes[0] }).AsCollection);
         }
 
         [Test]
         public void TestSortNatural()
         {
             var ints = new[] { 10, 3, 2, 1 };
-            Assert.AreEqual(null, StandardFilters.SortNatural(null));
-            CollectionAssert.AreEqual(new string[] { }, StandardFilters.SortNatural(new string[] { }));
-            CollectionAssert.AreEqual(new[] { 1, 2, 3, 10 }, StandardFilters.SortNatural(ints));
-            CollectionAssert.AreEqual(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 10 } },
-                StandardFilters.SortNatural(new[] { new { a = 10 }, new { a = 3 }, new { a = 1 }, new { a = 2 } }, "a"));
+            Assert.That(StandardFilters.SortNatural(null), Is.EqualTo(null));
+            Assert.That(StandardFilters.SortNatural(new string[] { }), Is.EqualTo(new string[] { }).AsCollection);
+            Assert.That(StandardFilters.SortNatural(ints), Is.EqualTo(new[] { 1, 2, 3, 10 }).AsCollection);
+            Assert.That(StandardFilters.SortNatural(new[] { new { a = 10 }, new { a = 3 }, new { a = 1 }, new { a = 2 } }, "a"), Is.EqualTo(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 10 } }).AsCollection);
 
             var strings = new[] { "zebra", "octopus", "giraffe", "Sally Snake" };
-            CollectionAssert.AreEqual(new[] { "giraffe", "octopus", "Sally Snake", "zebra" },
-                StandardFilters.SortNatural(strings));
+            Assert.That(StandardFilters.SortNatural(strings), Is.EqualTo(new[] { "giraffe", "octopus", "Sally Snake", "zebra" }).AsCollection);
 
             var hashes = new List<Hash>();
             for (var i = 0; i < strings.Length; i++)
                 hashes.Add(CreateHash(ints[i], strings[i]));
-            CollectionAssert.AreEqual(new[] { hashes[2], hashes[1], hashes[3], hashes[0] },
-                StandardFilters.SortNatural(hashes, "content"));
-            CollectionAssert.AreEqual(new[] { hashes[3], hashes[2], hashes[1], hashes[0] },
-                StandardFilters.SortNatural(hashes, "sortby"));
+            Assert.That(StandardFilters.SortNatural(hashes, "content"), Is.EqualTo(new[] { hashes[2], hashes[1], hashes[3], hashes[0] }).AsCollection);
+            Assert.That(StandardFilters.SortNatural(hashes, "sortby"), Is.EqualTo(new[] { hashes[3], hashes[2], hashes[1], hashes[0] }).AsCollection);
         }
 
         [Test]
@@ -391,10 +379,10 @@ PaulGeorge",
             list.Add(hash2);
 
             var result = StandardFilters.Sort(_contextV20, list, "sortby").Cast<Hash>().ToArray();
-            Assert.AreEqual(3, result.Count());
-            Assert.AreEqual(hash1["content"], result[0]["content"]);
-            Assert.AreEqual(hash2["content"], result[1]["content"]);
-            Assert.AreEqual(hash3["content"], result[2]["content"]);
+            Assert.That(result.Count(), Is.EqualTo(3));
+            Assert.That(result[0]["content"], Is.EqualTo(hash1["content"]));
+            Assert.That(result[1]["content"], Is.EqualTo(hash2["content"]));
+            Assert.That(result[2]["content"], Is.EqualTo(hash3["content"]));
         }
 
         [Test]
@@ -410,10 +398,10 @@ PaulGeorge",
             list.Add(hash1);
 
             var result = StandardFilters.Sort(_contextV20, list, "sortby").Cast<Hash>().ToArray();
-            Assert.AreEqual(3, result.Count());
-            Assert.AreEqual(hashWithNoSortByProperty["content"], result[0]["content"]);
-            Assert.AreEqual(hash1["content"], result[1]["content"]);
-            Assert.AreEqual(hash2["content"], result[2]["content"]);
+            Assert.That(result.Count(), Is.EqualTo(3));
+            Assert.That(result[0]["content"], Is.EqualTo(hashWithNoSortByProperty["content"]));
+            Assert.That(result[1]["content"], Is.EqualTo(hash1["content"]));
+            Assert.That(result[2]["content"], Is.EqualTo(hash2["content"]));
         }
 
         [Test]
@@ -428,9 +416,8 @@ PaulGeorge",
 
             Helper.LockTemplateStaticVars(new RubyNamingConvention(), () =>
             {
-                CollectionAssert.AreEqual(
-                    expected: expectedPackages,
-                    actual: StandardFilters.Sort(_contextV20, packages, "numberOfPiecesPerPackage"));
+                Assert.That(
+                    actual: StandardFilters.Sort(_contextV20, packages, "numberOfPiecesPerPackage"), Is.EqualTo(expected: expectedPackages).AsCollection);
             });
         }
 
@@ -449,9 +436,8 @@ PaulGeorge",
             var packages = new List<ExpandoObject> { package1, package2, package3 };
             var expectedPackages = new List<ExpandoObject> { package2, package1, package3 };
 
-            Assert.AreEqual(
-                expected: expectedPackages,
-                actual: StandardFilters.Sort(_contextV20, packages, property: "numberOfPiecesPerPackage"));
+            Assert.That(
+                actual: StandardFilters.Sort(_contextV20, packages, property: "numberOfPiecesPerPackage"), Is.EqualTo(expected: expectedPackages));
         }
 
         private static Hash CreateHash(int sortby, string content) =>
@@ -464,9 +450,8 @@ PaulGeorge",
         [Test]
         public void TestMap()
         {
-            CollectionAssert.AreEqual(new string[] { }, StandardFilters.Map(new string[] { }, "a"));
-            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 },
-                StandardFilters.Map(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 4 } }, "a"));
+            Assert.That(StandardFilters.Map(new string[] { }, "a"), Is.EqualTo(new string[] { }).AsCollection);
+            Assert.That(StandardFilters.Map(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 4 } }, "a"), Is.EqualTo(new[] { 1, 2, 3, 4 }).AsCollection);
             Helper.AssertTemplateResult("abc", "{{ ary | map:'foo' | map:'bar' }}",
                 Hash.FromAnonymousObject(
                     new
@@ -479,8 +464,8 @@ PaulGeorge",
                     }
                     }));
 
-            Assert.AreEqual(null, StandardFilters.Map(null, "a"));
-            CollectionAssert.AreEqual(new object[] { null }, StandardFilters.Map(new object[] { null }, "a"));
+            Assert.That(StandardFilters.Map(null, "a"), Is.EqualTo(null));
+            Assert.That(StandardFilters.Map(new object[] { null }, "a"), Is.EqualTo(new object[] { null }).AsCollection);
 
             var hash = Hash.FromAnonymousObject(new
             {
@@ -515,22 +500,18 @@ PaulGeorge",
         {
             var nullObjectArray = new object[] { null };
             // Anonymous Type
-            CollectionAssert.AreEqual(nullObjectArray,
-                StandardFilters.Map(new[] { new { a = 1 } }, "no_prop"));
+            Assert.That(StandardFilters.Map(new[] { new { a = 1 } }, "no_prop"), Is.EqualTo(nullObjectArray).AsCollection);
 
             // Drop
-            CollectionAssert.AreEqual(nullObjectArray,
-                StandardFilters.Map(new[] { new Helper.DataObjectDrop { Prop = "a" }}, "no_prop"));
+            Assert.That(StandardFilters.Map(new[] { new Helper.DataObjectDrop { Prop = "a" }}, "no_prop"), Is.EqualTo(nullObjectArray).AsCollection);
 
             // Dictionary
-            CollectionAssert.AreEqual(nullObjectArray,
-                StandardFilters.Map(Hash.FromDictionary(new Dictionary<string, object>() { { "a", 1 } }), "no_prop"));
+            Assert.That(StandardFilters.Map(Hash.FromDictionary(new Dictionary<string, object>() { { "a", 1 } }), "no_prop"), Is.EqualTo(nullObjectArray).AsCollection);
 
             // Expando Array
             var expandoJson = "[{\"a\": 1}]";
             var expandoObj = Newtonsoft.Json.JsonConvert.DeserializeObject<ExpandoObject[]>(expandoJson);
-            CollectionAssert.AreEqual(nullObjectArray,
-                StandardFilters.Map(expandoObj, "no_prop"));
+            Assert.That(StandardFilters.Map(expandoObj, "no_prop"), Is.EqualTo(nullObjectArray).AsCollection);
         }
 
         /// <summary>
@@ -731,9 +712,8 @@ PaulGeorge",
             product4.type = "kitchen";
             var products = new List<ExpandoObject> { product1, product2, product3, product4 };
 
-            Assert.AreEqual(
-                expected: new List<string>{"Vacuum", "Spatula", "Television", "Garlic press"},
-                actual: StandardFilters.Map(products, "title"));
+            Assert.That(
+                actual: StandardFilters.Map(products, "title"), Is.EqualTo(expected: new List<string>{"Vacuum", "Spatula", "Television", "Garlic press"}));
         }
 
         [Test]
@@ -783,7 +763,7 @@ PaulGeorge",
             }
 
             _contextV20.CurrentCulture = new CultureInfo("en-US"); // _contextV20 is initialized with InvariantCulture, these tests require en-US
-            Assert.AreEqual(expected, StandardFilters.Currency(context: _contextV20, input: input));
+            Assert.That(StandardFilters.Currency(context: _contextV20, input: input), Is.EqualTo(expected));
         }
 
         [TestCase("6.72", "6,72 €", "de-DE")]
@@ -812,7 +792,7 @@ PaulGeorge",
             }
 
             _contextV20.CurrentCulture = new CultureInfo("en-US"); // _contextV20 is initialized with InvariantCulture, these tests require en-US
-            Assert.AreEqual(expected, StandardFilters.Currency(context: _contextV20, input: input, languageTag: languageTag));
+            Assert.That(StandardFilters.Currency(context: _contextV20, input: input, languageTag: languageTag), Is.EqualTo(expected));
         }
 
         [Test]
@@ -830,9 +810,8 @@ PaulGeorge",
             }
 
             // _contextV20 is initialized with InvariantCulture
-            Assert.AreEqual(
-                expected: input,
-                actual: StandardFilters.Currency(context: _contextV20, input: input, languageTag: "de-DE"));
+            Assert.That(
+                actual: StandardFilters.Currency(context: _contextV20, input: input, languageTag: "de-DE"), Is.EqualTo(expected: input));
         }        
 
         [Test]
@@ -847,7 +826,7 @@ PaulGeorge",
             }
 
             // _contextV20 is initialized with InvariantCulture
-            Assert.AreEqual("teststring", StandardFilters.Currency(context: _contextV20, input: "teststring", languageTag: "de-DE"));
+            Assert.That(StandardFilters.Currency(context: _contextV20, input: "teststring", languageTag: "de-DE"), Is.EqualTo("teststring"));
         }
 
         [Test]
@@ -858,25 +837,25 @@ PaulGeorge",
                 Template dollarTemplate = Template.Parse(@"{{ amount | currency }}");
                 Template euroTemplate = Template.Parse(@"{{ amount | currency: ""de-DE"" }}");
 
-                Assert.AreEqual("$7,000.00", dollarTemplate.Render(Hash.FromAnonymousObject(new { amount = "7000" })));
-                Assert.AreEqual("7.000,00 €", euroTemplate.Render(Hash.FromAnonymousObject(new { amount = 7000 })));
+                Assert.That(dollarTemplate.Render(Hash.FromAnonymousObject(new { amount = "7000" })), Is.EqualTo("$7,000.00"));
+                Assert.That(euroTemplate.Render(Hash.FromAnonymousObject(new { amount = 7000 })), Is.EqualTo("7.000,00 €"));
             }
         }
 
         [Test]
         public void TestCurrencyFromDoubleInput()
         {
-            Assert.AreEqual("$6.85", StandardFilters.Currency(context: _contextV20, input: 6.8458, languageTag: "en-US"));
-            Assert.AreEqual("$6.72", StandardFilters.Currency(context: _contextV20, input: 6.72, languageTag: "en-CA"));
-            Assert.AreEqual("6.000.000,00 €", StandardFilters.Currency(context: _contextV20, input: 6000000, languageTag: "de-DE"));
-            Assert.AreEqual("6.000.000,78 €", StandardFilters.Currency(context: _contextV20, input: 6000000.78, languageTag: "de-DE"));
+            Assert.That(StandardFilters.Currency(context: _contextV20, input: 6.8458, languageTag: "en-US"), Is.EqualTo("$6.85"));
+            Assert.That(StandardFilters.Currency(context: _contextV20, input: 6.72, languageTag: "en-CA"), Is.EqualTo("$6.72"));
+            Assert.That(StandardFilters.Currency(context: _contextV20, input: 6000000, languageTag: "de-DE"), Is.EqualTo("6.000.000,00 €"));
+            Assert.That(StandardFilters.Currency(context: _contextV20, input: 6000000.78, languageTag: "de-DE"), Is.EqualTo("6.000.000,78 €"));
         }
 
         [Test]
         public void TestCurrencyLanguageTag()
         {
-            Assert.AreEqual("6.000.000,00 €", StandardFilters.Currency(context: _contextV20, input: 6000000, languageTag: "de-DE")); // language+country
-            Assert.AreEqual("6.000.000,00 €", StandardFilters.Currency(context: _contextV20, input: 6000000, languageTag: "de")); // language only
+            Assert.That(StandardFilters.Currency(context: _contextV20, input: 6000000, languageTag: "de-DE"), Is.EqualTo("6.000.000,00 €")); // language+country
+            Assert.That(StandardFilters.Currency(context: _contextV20, input: 6000000, languageTag: "de"), Is.EqualTo("6.000.000,00 €")); // language only
             Assert.Throws<CultureNotFoundException>(() => StandardFilters.Currency(context: _contextV20, input: "teststring", languageTag: "german")); // invalid language
         }
 
@@ -894,36 +873,36 @@ PaulGeorge",
             context.UseRubyDateFormat = false;
             DateTimeFormatInfo dateTimeFormat = context.CurrentCulture.DateTimeFormat;
 
-            Assert.AreEqual(dateTimeFormat.GetMonthName(5), StandardFilters.Date(context: context, input: DateTime.Parse("2006-05-05 10:00:00"), format: "MMMM"));
-            Assert.AreEqual(dateTimeFormat.GetMonthName(6), StandardFilters.Date(context: context, input: DateTime.Parse("2006-06-05 10:00:00"), format: "MMMM"));
-            Assert.AreEqual(dateTimeFormat.GetMonthName(7), StandardFilters.Date(context: context, input: DateTime.Parse("2006-07-05 10:00:00"), format: "MMMM"));
+            Assert.That(StandardFilters.Date(context: context, input: DateTime.Parse("2006-05-05 10:00:00"), format: "MMMM"), Is.EqualTo(dateTimeFormat.GetMonthName(5)));
+            Assert.That(StandardFilters.Date(context: context, input: DateTime.Parse("2006-06-05 10:00:00"), format: "MMMM"), Is.EqualTo(dateTimeFormat.GetMonthName(6)));
+            Assert.That(StandardFilters.Date(context: context, input: DateTime.Parse("2006-07-05 10:00:00"), format: "MMMM"), Is.EqualTo(dateTimeFormat.GetMonthName(7)));
 
-            Assert.AreEqual(dateTimeFormat.GetMonthName(5), StandardFilters.Date(context: context, input: "2006-05-05 10:00:00", format: "MMMM"));
-            Assert.AreEqual(dateTimeFormat.GetMonthName(6), StandardFilters.Date(context: context, input: "2006-06-05 10:00:00", format: "MMMM"));
-            Assert.AreEqual(dateTimeFormat.GetMonthName(7), StandardFilters.Date(context: context, input: "2006-07-05 10:00:00", format: "MMMM"));
+            Assert.That(StandardFilters.Date(context: context, input: "2006-05-05 10:00:00", format: "MMMM"), Is.EqualTo(dateTimeFormat.GetMonthName(5)));
+            Assert.That(StandardFilters.Date(context: context, input: "2006-06-05 10:00:00", format: "MMMM"), Is.EqualTo(dateTimeFormat.GetMonthName(6)));
+            Assert.That(StandardFilters.Date(context: context, input: "2006-07-05 10:00:00", format: "MMMM"), Is.EqualTo(dateTimeFormat.GetMonthName(7)));
 
-            Assert.AreEqual("08/01/2006 10:00:00", StandardFilters.Date(context: context, input: "08/01/2006 10:00:00", format: string.Empty));
-            Assert.AreEqual("08/02/2006 10:00:00", StandardFilters.Date(context: context, input: "08/02/2006 10:00:00", format: null));
-            Assert.AreEqual(new DateTime(2006, 8, 3, 10, 0, 0).ToString(context.CurrentCulture), StandardFilters.Date(context: context, input: new DateTime(2006, 8, 3, 10, 0, 0), format: string.Empty));
-            Assert.AreEqual(new DateTime(2006, 8, 4, 10, 0, 0).ToString(context.CurrentCulture), StandardFilters.Date(context: context, input: new DateTime(2006, 8, 4, 10, 0, 0), format: null));
+            Assert.That(StandardFilters.Date(context: context, input: "08/01/2006 10:00:00", format: string.Empty), Is.EqualTo("08/01/2006 10:00:00"));
+            Assert.That(StandardFilters.Date(context: context, input: "08/02/2006 10:00:00", format: null), Is.EqualTo("08/02/2006 10:00:00"));
+            Assert.That(StandardFilters.Date(context: context, input: new DateTime(2006, 8, 3, 10, 0, 0), format: string.Empty), Is.EqualTo(new DateTime(2006, 8, 3, 10, 0, 0).ToString(context.CurrentCulture)));
+            Assert.That(StandardFilters.Date(context: context, input: new DateTime(2006, 8, 4, 10, 0, 0), format: null), Is.EqualTo(new DateTime(2006, 8, 4, 10, 0, 0).ToString(context.CurrentCulture)));
 
-            Assert.AreEqual(new DateTime(2006, 7, 5).ToString("MM/dd/yyyy"), StandardFilters.Date(context: context, input: "2006-07-05 10:00:00", format: "MM/dd/yyyy"));
+            Assert.That(StandardFilters.Date(context: context, input: "2006-07-05 10:00:00", format: "MM/dd/yyyy"), Is.EqualTo(new DateTime(2006, 7, 5).ToString("MM/dd/yyyy")));
 
-            Assert.AreEqual(new DateTime(2004, 7, 16).ToString("MM/dd/yyyy"), StandardFilters.Date(context: context, input: "Fri Jul 16 2004 01:00:00", format: "MM/dd/yyyy"));
+            Assert.That(StandardFilters.Date(context: context, input: "Fri Jul 16 2004 01:00:00", format: "MM/dd/yyyy"), Is.EqualTo(new DateTime(2004, 7, 16).ToString("MM/dd/yyyy")));
 
-            Assert.AreEqual(null, StandardFilters.Date(context: context, input: null, format: "MMMM"));
+            Assert.That(StandardFilters.Date(context: context, input: null, format: "MMMM"), Is.EqualTo(null));
 
-            Assert.AreEqual("hi", StandardFilters.Date(context: context, input: "hi", format: "MMMM"));
+            Assert.That(StandardFilters.Date(context: context, input: "hi", format: "MMMM"), Is.EqualTo("hi"));
 
-            Assert.AreEqual(DateTime.Now.ToString("MM/dd/yyyy"), StandardFilters.Date(context: context, input: "now", format: "MM/dd/yyyy"));
-            Assert.AreEqual(DateTime.Now.ToString("MM/dd/yyyy"), StandardFilters.Date(context: context, input: "today", format: "MM/dd/yyyy"));
-            Assert.AreEqual(DateTime.Now.ToString("MM/dd/yyyy"), StandardFilters.Date(context: context, input: "Now", format: "MM/dd/yyyy"));
-            Assert.AreEqual(DateTime.Now.ToString("MM/dd/yyyy"), StandardFilters.Date(context: context, input: "Today", format: "MM/dd/yyyy"));
+            Assert.That(StandardFilters.Date(context: context, input: "now", format: "MM/dd/yyyy"), Is.EqualTo(DateTime.Now.ToString("MM/dd/yyyy")));
+            Assert.That(StandardFilters.Date(context: context, input: "today", format: "MM/dd/yyyy"), Is.EqualTo(DateTime.Now.ToString("MM/dd/yyyy")));
+            Assert.That(StandardFilters.Date(context: context, input: "Now", format: "MM/dd/yyyy"), Is.EqualTo(DateTime.Now.ToString("MM/dd/yyyy")));
+            Assert.That(StandardFilters.Date(context: context, input: "Today", format: "MM/dd/yyyy"), Is.EqualTo(DateTime.Now.ToString("MM/dd/yyyy")));
 
-            Assert.AreEqual("345000", StandardFilters.Date(context: context, input: DateTime.Parse("2006-05-05 10:00:00.345"), format: "ffffff"));
+            Assert.That(StandardFilters.Date(context: context, input: DateTime.Parse("2006-05-05 10:00:00.345"), format: "ffffff"), Is.EqualTo("345000"));
 
             Template template = Template.Parse(@"{{ hi | date:""MMMM"" }}");
-            Assert.AreEqual("hi", template.Render(Hash.FromAnonymousObject(new { hi = "hi" })));
+            Assert.That(template.Render(Hash.FromAnonymousObject(new { hi = "hi" })), Is.EqualTo("hi"));
         }
 
         [Test]
@@ -933,12 +912,12 @@ PaulGeorge",
             {
                 var context = _contextV20;
                 // Legacy parser doesn't except Unix Epoch https://github.com/dotliquid/dotliquid/issues/322
-                Assert.AreEqual("0", StandardFilters.Date(context: context, input: 0, format: null));
-                Assert.AreEqual("2147483648", StandardFilters.Date(context: context, input: 2147483648, format: null)); // Beyond Int32 boundary
+                Assert.That(StandardFilters.Date(context: context, input: 0, format: null), Is.EqualTo("0"));
+                Assert.That(StandardFilters.Date(context: context, input: 2147483648, format: null), Is.EqualTo("2147483648")); // Beyond Int32 boundary
 
                 // Legacy parser loses specified offset https://github.com/dotliquid/dotliquid/issues/149
                 var testDate = new DateTime(2006, 8, 4, 10, 0, 0);
-                Assert.AreEqual(new DateTimeOffset(testDate).ToString("zzz"), StandardFilters.Date(context: context, input: new DateTimeOffset(testDate, TimeSpan.FromHours(-14)), format: "zzz"));
+                Assert.That(StandardFilters.Date(context: context, input: new DateTimeOffset(testDate, TimeSpan.FromHours(-14)), format: "zzz"), Is.EqualTo(new DateTimeOffset(testDate).ToString("zzz")));
 
                 // Legacy parser doesn't handle local offset & explicit offset in calculating epoch
                 Liquid.UseRubyDateFormat = true; // ensure all Contexts created within tests are defaulted to Ruby date format
@@ -951,10 +930,10 @@ PaulGeorge",
                 Helper.AssertTemplateResult(expected: unixEpochOffset.ToString(), template: "{{ epoch | date: '%s' }}", localVariables: Hash.FromAnonymousObject(new { epoch = new DateTimeOffset(unixEpoch).ToOffset(TimeSpan.FromHours(-14)) }));
 
                 // Legacy parser defaults to the .NET default format
-                Assert.AreEqual(DateTime.Now.ToString(context.CurrentCulture), StandardFilters.Date(context: context, input: "now", format: null));
-                Assert.AreEqual(DateTime.Now.ToString(context.CurrentCulture), StandardFilters.Date(context: context, input: "today", format: null));
-                Assert.AreEqual(DateTime.Now.ToString(context.CurrentCulture), StandardFilters.Date(context: context, input: "now", format: string.Empty));
-                Assert.AreEqual(DateTime.Now.ToString(context.CurrentCulture), StandardFilters.Date(context: context, input: "today", format: string.Empty));
+                Assert.That(StandardFilters.Date(context: context, input: "now", format: null), Is.EqualTo(DateTime.Now.ToString(context.CurrentCulture)));
+                Assert.That(StandardFilters.Date(context: context, input: "today", format: null), Is.EqualTo(DateTime.Now.ToString(context.CurrentCulture)));
+                Assert.That(StandardFilters.Date(context: context, input: "now", format: string.Empty), Is.EqualTo(DateTime.Now.ToString(context.CurrentCulture)));
+                Assert.That(StandardFilters.Date(context: context, input: "today", format: string.Empty), Is.EqualTo(DateTime.Now.ToString(context.CurrentCulture)));
             });
         }
 
@@ -965,15 +944,15 @@ PaulGeorge",
             {
                 var context = _contextV21;// _contextV21 specifies InvariantCulture
                 var unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).ToLocalTime();
-                Assert.AreEqual(unixEpoch.ToString("g", context.FormatProvider), StandardFilters.Date(context: context, input: 0, format: "g"));
-                Assert.AreEqual(unixEpoch.AddSeconds(Int32.MaxValue).AddSeconds(1).ToString("g", context.FormatProvider), StandardFilters.Date(context: context, input: 2147483648, format: "g")); // Beyond Int32 boundary
-                Assert.AreEqual(unixEpoch.AddSeconds(UInt32.MaxValue).AddSeconds(1).ToString("g", context.FormatProvider), StandardFilters.Date(context: context, input: 4294967296, format: "g")); // Beyond UInt32 boundary
+                Assert.That(StandardFilters.Date(context: context, input: 0, format: "g"), Is.EqualTo(unixEpoch.ToString("g", context.FormatProvider)));
+                Assert.That(StandardFilters.Date(context: context, input: 2147483648, format: "g"), Is.EqualTo(unixEpoch.AddSeconds(Int32.MaxValue).AddSeconds(1).ToString("g", context.FormatProvider))); // Beyond Int32 boundary
+                Assert.That(StandardFilters.Date(context: context, input: 4294967296, format: "g"), Is.EqualTo(unixEpoch.AddSeconds(UInt32.MaxValue).AddSeconds(1).ToString("g", context.FormatProvider))); // Beyond UInt32 boundary
                 Helper.AssertTemplateResult(expected: unixEpoch.ToString("g"), template: "{{ 0 | date: 'g' }}", syntax: context.SyntaxCompatibilityLevel);
                 Helper.AssertTemplateResult(expected: unixEpoch.AddSeconds(Int32.MaxValue).AddSeconds(1).ToString("g"), template: "{{ 2147483648 | date: 'g' }}", syntax: context.SyntaxCompatibilityLevel);
                 Helper.AssertTemplateResult(expected: unixEpoch.AddSeconds(UInt32.MaxValue).AddSeconds(1).ToString("g"), template: "{{ 4294967296 | date: 'g' }}", syntax: context.SyntaxCompatibilityLevel);
 
                 var testDate = new DateTime(2006, 8, 4, 10, 0, 0, DateTimeKind.Unspecified);
-                Assert.AreEqual("-14:00", StandardFilters.Date(context: context, input: new DateTimeOffset(testDate, TimeSpan.FromHours(-14)), format: "zzz"));
+                Assert.That(StandardFilters.Date(context: context, input: new DateTimeOffset(testDate, TimeSpan.FromHours(-14)), format: "zzz"), Is.EqualTo("-14:00"));
                 Helper.AssertTemplateResult(expected: "+00:00", template: "{{ '" + testDate.ToString("u") + "' | date: 'zzz' }}", syntax: context.SyntaxCompatibilityLevel);
                 Helper.AssertTemplateResult(expected: "-14:00", template: "{{ '" + testDate.ToString("u").Replace("Z", "-14:00") + "' | date: 'zzz' }}", syntax: context.SyntaxCompatibilityLevel);
 
@@ -994,10 +973,10 @@ PaulGeorge",
                 Helper.AssertTemplateResult(expected: "0", template: "{{ epoch | date: '%s' }}", localVariables: Hash.FromAnonymousObject(new { epoch = new DateTimeOffset(unixEpoch) }), syntax: context.SyntaxCompatibilityLevel);
                 Helper.AssertTemplateResult(expected: "0", template: "{{ epoch | date: '%s' }}", localVariables: Hash.FromAnonymousObject(new { epoch = new DateTimeOffset(unixEpoch).ToOffset(TimeSpan.FromHours(-14)) }), syntax: context.SyntaxCompatibilityLevel);
 
-                Assert.AreEqual("now", StandardFilters.Date(context: context, input: "now", format: null));
-                Assert.AreEqual("today", StandardFilters.Date(context: context, input: "today", format: null));
-                Assert.AreEqual("now", StandardFilters.Date(context: context, input: "now", format: string.Empty));
-                Assert.AreEqual("today", StandardFilters.Date(context: context, input: "today", format: string.Empty));
+                Assert.That(StandardFilters.Date(context: context, input: "now", format: null), Is.EqualTo("now"));
+                Assert.That(StandardFilters.Date(context: context, input: "today", format: null), Is.EqualTo("today"));
+                Assert.That(StandardFilters.Date(context: context, input: "now", format: string.Empty), Is.EqualTo("now"));
+                Assert.That(StandardFilters.Date(context: context, input: "today", format: string.Empty), Is.EqualTo("today"));
 
                 TestDate(context);
             });
@@ -1012,30 +991,30 @@ PaulGeorge",
                 context.UseRubyDateFormat = true;
                 context.CurrentCulture = new CultureInfo("en-US"); // _contextV20 is initialized with InvariantCulture, these tests require en-US
 
-                Assert.AreEqual("May", StandardFilters.Date(context: context, input: DateTime.Parse("2006-05-05 10:00:00"), format: "%B"));
-                Assert.AreEqual("June", StandardFilters.Date(context: context, input: DateTime.Parse("2006-06-05 10:00:00"), format: "%B"));
-                Assert.AreEqual("July", StandardFilters.Date(context: context, input: DateTime.Parse("2006-07-05 10:00:00"), format: "%B"));
+                Assert.That(StandardFilters.Date(context: context, input: DateTime.Parse("2006-05-05 10:00:00"), format: "%B"), Is.EqualTo("May"));
+                Assert.That(StandardFilters.Date(context: context, input: DateTime.Parse("2006-06-05 10:00:00"), format: "%B"), Is.EqualTo("June"));
+                Assert.That(StandardFilters.Date(context: context, input: DateTime.Parse("2006-07-05 10:00:00"), format: "%B"), Is.EqualTo("July"));
 
-                Assert.AreEqual("May", StandardFilters.Date(context: context, input: "2006-05-05 10:00:00", format: "%B"));
-                Assert.AreEqual("June", StandardFilters.Date(context: context, input: "2006-06-05 10:00:00", format: "%B"));
-                Assert.AreEqual("July", StandardFilters.Date(context: context, input: "2006-07-05 10:00:00", format: "%B"));
+                Assert.That(StandardFilters.Date(context: context, input: "2006-05-05 10:00:00", format: "%B"), Is.EqualTo("May"));
+                Assert.That(StandardFilters.Date(context: context, input: "2006-06-05 10:00:00", format: "%B"), Is.EqualTo("June"));
+                Assert.That(StandardFilters.Date(context: context, input: "2006-07-05 10:00:00", format: "%B"), Is.EqualTo("July"));
 
-                Assert.AreEqual("05/07/2006 10:00:00", StandardFilters.Date(context: context, input: "05/07/2006 10:00:00", format: string.Empty));
-                Assert.AreEqual("05/07/2006 10:00:00", StandardFilters.Date(context: context, input: "05/07/2006 10:00:00", format: null));
-                Assert.AreEqual(new DateTime(2006, 8, 3, 10, 0, 0).ToString(context.FormatProvider), StandardFilters.Date(context: context, input: new DateTime(2006, 8, 3, 10, 0, 0), format: string.Empty));
-                Assert.AreEqual(new DateTime(2006, 8, 4, 10, 0, 0).ToString(context.FormatProvider), StandardFilters.Date(context: context, input: new DateTime(2006, 8, 4, 10, 0, 0), format: null));
+                Assert.That(StandardFilters.Date(context: context, input: "05/07/2006 10:00:00", format: string.Empty), Is.EqualTo("05/07/2006 10:00:00"));
+                Assert.That(StandardFilters.Date(context: context, input: "05/07/2006 10:00:00", format: null), Is.EqualTo("05/07/2006 10:00:00"));
+                Assert.That(StandardFilters.Date(context: context, input: new DateTime(2006, 8, 3, 10, 0, 0), format: string.Empty), Is.EqualTo(new DateTime(2006, 8, 3, 10, 0, 0).ToString(context.FormatProvider)));
+                Assert.That(StandardFilters.Date(context: context, input: new DateTime(2006, 8, 4, 10, 0, 0), format: null), Is.EqualTo(new DateTime(2006, 8, 4, 10, 0, 0).ToString(context.FormatProvider)));
 
-                Assert.AreEqual("07/05/2006", StandardFilters.Date(context: context, input: "2006-07-05 10:00:00", format: "%m/%d/%Y"));
+                Assert.That(StandardFilters.Date(context: context, input: "2006-07-05 10:00:00", format: "%m/%d/%Y"), Is.EqualTo("07/05/2006"));
 
-                Assert.AreEqual("07/16/2004", StandardFilters.Date(context: context, input: "Fri Jul 16 2004 01:00:00", format: "%m/%d/%Y"));
+                Assert.That(StandardFilters.Date(context: context, input: "Fri Jul 16 2004 01:00:00", format: "%m/%d/%Y"), Is.EqualTo("07/16/2004"));
 
-                Assert.AreEqual(null, StandardFilters.Date(context: context, input: null, format: "%M"));
+                Assert.That(StandardFilters.Date(context: context, input: null, format: "%M"), Is.EqualTo(null));
 
-                Assert.AreEqual("hi", StandardFilters.Date(context: context, input: "hi", format: "%M"));
+                Assert.That(StandardFilters.Date(context: context, input: "hi", format: "%M"), Is.EqualTo("hi"));
 
                 Liquid.UseRubyDateFormat = true; // ensure all Context objects created within tests are defaulted to Ruby date format
                 Template template = Template.Parse(@"{{ hi | date:""%M"" }}");
-                Assert.AreEqual("hi", template.Render(Hash.FromAnonymousObject(new { hi = "hi" })));
+                Assert.That(template.Render(Hash.FromAnonymousObject(new { hi = "hi" })), Is.EqualTo("hi"));
 
                 Helper.AssertTemplateResult(
                     expected: "14, 16",
@@ -1072,12 +1051,12 @@ PaulGeorge",
             var firstFilter = filterNameFunc("first");
             var lastFilter = filterNameFunc("last");
 
-            Assert.Null(StandardFilters.First(null));
-            Assert.Null(StandardFilters.Last(null));
-            Assert.AreEqual(1, StandardFilters.First(new[] { 1, 2, 3 }));
-            Assert.AreEqual(3, StandardFilters.Last(new[] { 1, 2, 3 }));
-            Assert.Null(StandardFilters.First(new object[] { }));
-            Assert.Null(StandardFilters.Last(new object[] { }));
+            Assert.That(StandardFilters.First(null), Is.Null);
+            Assert.That(StandardFilters.Last(null), Is.Null);
+            Assert.That(StandardFilters.First(new[] { 1, 2, 3 }), Is.EqualTo(1));
+            Assert.That(StandardFilters.Last(new[] { 1, 2, 3 }), Is.EqualTo(3));
+            Assert.That(StandardFilters.First(new object[] { }), Is.Null);
+            Assert.That(StandardFilters.Last(new object[] { }), Is.Null);
 
             Helper.AssertTemplateResult(
                 expected: ".",
@@ -1122,13 +1101,13 @@ PaulGeorge",
 
         public void TestReplace(Context context)
         {
-            Assert.Null(StandardFilters.Replace(context: context, input: null, @string: "a", replacement: "b"));
-            Assert.AreEqual(expected: "", actual: StandardFilters.Replace(context: context, input: "", @string: "a", replacement: "b"));
-            Assert.AreEqual(expected: "a a a a", actual: StandardFilters.Replace(context: context, input: "a a a a", @string: null, replacement: "b"));
-            Assert.AreEqual(expected: "a a a a", actual: StandardFilters.Replace(context: context, input: "a a a a", @string: "", replacement: "b"));
-            Assert.AreEqual(expected: "b b b b", actual: StandardFilters.Replace(context: context, input: "a a a a", @string: "a", replacement: "b"));
+            Assert.That(StandardFilters.Replace(context: context, input: null, @string: "a", replacement: "b"), Is.Null);
+            Assert.That(actual: StandardFilters.Replace(context: context, input: "", @string: "a", replacement: "b"), Is.EqualTo(expected: ""));
+            Assert.That(actual: StandardFilters.Replace(context: context, input: "a a a a", @string: null, replacement: "b"), Is.EqualTo(expected: "a a a a"));
+            Assert.That(actual: StandardFilters.Replace(context: context, input: "a a a a", @string: "", replacement: "b"), Is.EqualTo(expected: "a a a a"));
+            Assert.That(actual: StandardFilters.Replace(context: context, input: "a a a a", @string: "a", replacement: "b"), Is.EqualTo(expected: "b b b b"));
 
-            Assert.AreEqual(expected: "Tesvalue\\\"", actual: StandardFilters.Replace(context: context, input: "Tesvalue\"", @string: "\"", replacement: "\\\""));
+            Assert.That(actual: StandardFilters.Replace(context: context, input: "Tesvalue\"", @string: "\"", replacement: "\\\""), Is.EqualTo(expected: "Tesvalue\\\""));
             Helper.AssertTemplateResult(expected: "Tesvalue\\\"", template: "{{ 'Tesvalue\"' | replace: '\"', '\\\"' }}", syntax: context.SyntaxCompatibilityLevel);
             Helper.AssertTemplateResult(
                 expected: "Tesvalue\\\"",
@@ -1141,14 +1120,14 @@ PaulGeorge",
         public void TestReplaceRegexV20()
         {
             var context = _contextV20;
-            Assert.AreEqual(expected: "b b b b", actual: StandardFilters.Replace(context: context, input: "a A A a", @string: "[Aa]", replacement: "b"));
+            Assert.That(actual: StandardFilters.Replace(context: context, input: "a A A a", @string: "[Aa]", replacement: "b"), Is.EqualTo(expected: "b b b b"));
         }
 
         [Test]
         public void TestReplaceRegexV21()
         {
             var context = _contextV21;
-            Assert.AreEqual(expected: "a A A a", actual: StandardFilters.Replace(context: context, input: "a A A a", @string: "[Aa]", replacement: "b"));
+            Assert.That(actual: StandardFilters.Replace(context: context, input: "a A A a", @string: "[Aa]", replacement: "b"), Is.EqualTo(expected: "a A A a"));
             TestReplace(context);
         }
 
@@ -1172,11 +1151,11 @@ PaulGeorge",
 
         public void TestReplaceFirst(Context context)
         {
-            Assert.Null(StandardFilters.ReplaceFirst(context: context, input: null, @string: "a", replacement: "b"));
-            Assert.AreEqual("", StandardFilters.ReplaceFirst(context: context, input: "", @string: "a", replacement: "b"));
-            Assert.AreEqual("a a a a", StandardFilters.ReplaceFirst(context: context, input: "a a a a", @string: null, replacement: "b"));
-            Assert.AreEqual("a a a a", StandardFilters.ReplaceFirst(context: context, input: "a a a a", @string: "", replacement: "b"));
-            Assert.AreEqual("b a a a", StandardFilters.ReplaceFirst(context: context, input: "a a a a", @string: "a", replacement: "b"));
+            Assert.That(StandardFilters.ReplaceFirst(context: context, input: null, @string: "a", replacement: "b"), Is.Null);
+            Assert.That(StandardFilters.ReplaceFirst(context: context, input: "", @string: "a", replacement: "b"), Is.EqualTo(""));
+            Assert.That(StandardFilters.ReplaceFirst(context: context, input: "a a a a", @string: null, replacement: "b"), Is.EqualTo("a a a a"));
+            Assert.That(StandardFilters.ReplaceFirst(context: context, input: "a a a a", @string: "", replacement: "b"), Is.EqualTo("a a a a"));
+            Assert.That(StandardFilters.ReplaceFirst(context: context, input: "a a a a", @string: "a", replacement: "b"), Is.EqualTo("b a a a"));
             Helper.AssertTemplateResult(expected: "b a a a", template: "{{ 'a a a a' | replace_first: 'a', 'b' }}", syntax: context.SyntaxCompatibilityLevel);
         }
 
@@ -1184,14 +1163,14 @@ PaulGeorge",
         public void TestReplaceFirstRegexV20()
         {
             var context = _contextV20;
-            Assert.AreEqual(expected: "b A A a", actual: StandardFilters.ReplaceFirst(context: context, input: "a A A a", @string: "[Aa]", replacement: "b"));
+            Assert.That(actual: StandardFilters.ReplaceFirst(context: context, input: "a A A a", @string: "[Aa]", replacement: "b"), Is.EqualTo(expected: "b A A a"));
         }
 
         [Test]
         public void TestReplaceFirstRegexV21()
         {
             var context = _contextV21;
-            Assert.AreEqual(expected: "a A A a", actual: StandardFilters.ReplaceFirst(context: context, input: "a A A a", @string: "[Aa]", replacement: "b"));
+            Assert.That(actual: StandardFilters.ReplaceFirst(context: context, input: "a A A a", @string: "[Aa]", replacement: "b"), Is.EqualTo(expected: "a A A a"));
             TestReplaceFirst(context);
         }
 
@@ -1204,8 +1183,8 @@ PaulGeorge",
         public void TestRemove(Context context)
         {
 
-            Assert.AreEqual("   ", StandardFilters.Remove("a a a a", "a"));
-            Assert.AreEqual("a a a", StandardFilters.RemoveFirst(context: context, input: "a a a a", @string: "a "));
+            Assert.That(StandardFilters.Remove("a a a a", "a"), Is.EqualTo("   "));
+            Assert.That(StandardFilters.RemoveFirst(context: context, input: "a a a a", @string: "a "), Is.EqualTo("a a a"));
             Helper.AssertTemplateResult(expected: "a a a", template: "{{ 'a a a a' | remove_first: 'a ' }}", syntax: context.SyntaxCompatibilityLevel);
         }
 
@@ -1213,14 +1192,14 @@ PaulGeorge",
         public void TestRemoveFirstRegexV20()
         {
             var context = _contextV20;
-            Assert.AreEqual(expected: "r. Jones", actual: StandardFilters.RemoveFirst(context: context, input: "Mr. Jones", @string: "."));
+            Assert.That(actual: StandardFilters.RemoveFirst(context: context, input: "Mr. Jones", @string: "."), Is.EqualTo(expected: "r. Jones"));
         }
 
         [Test]
         public void TestRemoveFirstRegexV21()
         {
             var context = _contextV21;
-            Assert.AreEqual(expected: "Mr Jones", actual: StandardFilters.RemoveFirst(context: context, input: "Mr. Jones", @string: "."));
+            Assert.That(actual: StandardFilters.RemoveFirst(context: context, input: "Mr. Jones", @string: "."), Is.EqualTo(expected: "Mr Jones"));
             TestRemove(context);
         }
 
@@ -1370,7 +1349,7 @@ PaulGeorge",
                 Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round:3 }}");
                 Helper.AssertTemplateResult("1", "{{ 1 | round }}");
 
-                Assert.Null(StandardFilters.Round("1.2345678", "two"));
+                Assert.That(StandardFilters.Round("1.2345678", "two"), Is.Null);
             }
         }
 
@@ -1384,8 +1363,8 @@ PaulGeorge",
                 Helper.AssertTemplateResult("184", "{{ 183.357 | ceil }}");
                 Helper.AssertTemplateResult("4", "{{ \"3.5\" | ceil }}");
 
-                Assert.Null(StandardFilters.Ceil(_contextV20, ""));
-                Assert.Null(StandardFilters.Ceil(_contextV20, "two"));
+                Assert.That(StandardFilters.Ceil(_contextV20, ""), Is.Null);
+                Assert.That(StandardFilters.Ceil(_contextV20, "two"), Is.Null);
             }
         }
 
@@ -1399,8 +1378,8 @@ PaulGeorge",
                 Helper.AssertTemplateResult("183", "{{ 183.357 | floor }}");
                 Helper.AssertTemplateResult("3", "{{ \"3.5\" | floor }}");
 
-                Assert.Null(StandardFilters.Floor(_contextV20, ""));
-                Assert.Null(StandardFilters.Floor(_contextV20, "two"));
+                Assert.That(StandardFilters.Floor(_contextV20, ""), Is.Null);
+                Assert.That(StandardFilters.Floor(_contextV20, "two"), Is.Null);
             }
         }
 
@@ -1442,9 +1421,9 @@ PaulGeorge",
                     syntax: context.SyntaxCompatibilityLevel);
             }
 
-            Assert.AreEqual(8.43, StandardFilters.Times(context: context, input: 0.843m, operand: 10));
-            Assert.AreEqual(412, StandardFilters.Times(context: context, input: 4.12m, operand: 100));
-            Assert.AreEqual(7556.3, StandardFilters.Times(context: context, input: 7.5563m, operand: 1000));
+            Assert.That(StandardFilters.Times(context: context, input: 0.843m, operand: 10), Is.EqualTo(8.43));
+            Assert.That(StandardFilters.Times(context: context, input: 4.12m, operand: 100), Is.EqualTo(412));
+            Assert.That(StandardFilters.Times(context: context, input: 7.5563m, operand: 1000), Is.EqualTo(7556.3));
         }
 
         [Test]
@@ -1497,8 +1476,8 @@ PaulGeorge",
             Helper.AssertTemplateResult(expected: "4", template: "{{ 12 | divided_by:3 }}", syntax: context.SyntaxCompatibilityLevel);
             Helper.AssertTemplateResult(expected: "4", template: "{{ 14 | divided_by:3 }}", syntax: context.SyntaxCompatibilityLevel);
             Helper.AssertTemplateResult(expected: "5", template: "{{ 15 | divided_by:3 }}", syntax: context.SyntaxCompatibilityLevel);
-            Assert.Null(StandardFilters.DividedBy(context: context, input: null, operand: 3));
-            Assert.Null(StandardFilters.DividedBy(context: context, input: 4, operand: null));
+            Assert.That(StandardFilters.DividedBy(context: context, input: null, operand: 3), Is.Null);
+            Assert.That(StandardFilters.DividedBy(context: context, input: 4, operand: null), Is.Null);
 
             // Ensure we preserve floating point behavior for division by zero, and don't start throwing exceptions.
             Helper.AssertTemplateResult(expected: double.PositiveInfinity.ToString(), template: "{{ 1.0 | divided_by:0.0 }}", syntax: context.SyntaxCompatibilityLevel);
@@ -1529,7 +1508,7 @@ PaulGeorge",
             int a = 20;
             long b = 5;
             var c = a / b;
-            Assert.AreEqual(c, (long)4);
+            Assert.That(c, Is.EqualTo(4L));
 
 
             Hash assigns = Hash.FromAnonymousObject(new { a = a, b = b });
@@ -1548,8 +1527,8 @@ PaulGeorge",
             Helper.AssertTemplateResult(expected: "7.77", template: "{{ 148387.77 | modulo:10 }}", syntax: context.SyntaxCompatibilityLevel);
             Helper.AssertTemplateResult(expected: "5.32", template: "{{ 3455.32 | modulo:10 }}", syntax: context.SyntaxCompatibilityLevel);
             Helper.AssertTemplateResult(expected: "3.12", template: "{{ 23423.12 | modulo:10 }}", syntax: context.SyntaxCompatibilityLevel);
-            Assert.Null(StandardFilters.Modulo(context: context, input: null, operand: 3));
-            Assert.Null(StandardFilters.Modulo(context: context, input: 4, operand: null));
+            Assert.That(StandardFilters.Modulo(context: context, input: null, operand: 3), Is.Null);
+            Assert.That(StandardFilters.Modulo(context: context, input: 4, operand: null), Is.Null);
         }
 
         public void TestModuloStringV20()
@@ -1571,17 +1550,17 @@ PaulGeorge",
         [Test]
         public void TestUrlencode()
         {
-            Assert.AreEqual("http%3A%2F%2Fdotliquidmarkup.org%2F", StandardFilters.UrlEncode("http://dotliquidmarkup.org/"));
-            Assert.AreEqual("Tetsuro+Takara", StandardFilters.UrlEncode("Tetsuro Takara"));
-            Assert.AreEqual("john%40liquid.com", StandardFilters.UrlEncode("john@liquid.com"));
-            Assert.AreEqual(null, StandardFilters.UrlEncode(null));
+            Assert.That(StandardFilters.UrlEncode("http://dotliquidmarkup.org/"), Is.EqualTo("http%3A%2F%2Fdotliquidmarkup.org%2F"));
+            Assert.That(StandardFilters.UrlEncode("Tetsuro Takara"), Is.EqualTo("Tetsuro+Takara"));
+            Assert.That(StandardFilters.UrlEncode("john@liquid.com"), Is.EqualTo("john%40liquid.com"));
+            Assert.That(StandardFilters.UrlEncode(null), Is.EqualTo(null));
         }
 
         [Test]
         public void TestUrldecode()
         {
-            Assert.AreEqual("'Stop!' said Fred", StandardFilters.UrlDecode("%27Stop%21%27+said+Fred"));
-            Assert.AreEqual(null, StandardFilters.UrlDecode(null));
+            Assert.That(StandardFilters.UrlDecode("%27Stop%21%27+said+Fred"), Is.EqualTo("'Stop!' said Fred"));
+            Assert.That(StandardFilters.UrlDecode(null), Is.EqualTo(null));
         }
 
 
@@ -1598,10 +1577,10 @@ PaulGeorge",
         public void TestCapitalizeV20()
         {
             var context = _contextV20;
-            Assert.AreEqual(null, StandardFilters.Capitalize(context: context, input: null));
-            Assert.AreEqual("", StandardFilters.Capitalize(context: context, input: ""));
-            Assert.AreEqual(" ", StandardFilters.Capitalize(context: context, input: " "));
-            Assert.AreEqual("That Is One Sentence.", StandardFilters.Capitalize(context: context, input: "That is one sentence."));
+            Assert.That(StandardFilters.Capitalize(context: context, input: null), Is.EqualTo(null));
+            Assert.That(StandardFilters.Capitalize(context: context, input: ""), Is.EqualTo(""));
+            Assert.That(StandardFilters.Capitalize(context: context, input: " "), Is.EqualTo(" "));
+            Assert.That(StandardFilters.Capitalize(context: context, input: "That is one sentence."), Is.EqualTo("That Is One Sentence."));
 
             Helper.AssertTemplateResult(
                 expected: "Title",
@@ -1613,10 +1592,10 @@ PaulGeorge",
         public void TestCapitalizeV21()
         {
             var context = _contextV21;
-            Assert.AreEqual(null, StandardFilters.Capitalize(context: context, input: null));
-            Assert.AreEqual("", StandardFilters.Capitalize(context: context, input: ""));
-            Assert.AreEqual(" ", StandardFilters.Capitalize(context: context, input: " "));
-            Assert.AreEqual(" My boss is Mr. Doe.", StandardFilters.Capitalize(context: context, input: " my boss is Mr. Doe."));
+            Assert.That(StandardFilters.Capitalize(context: context, input: null), Is.EqualTo(null));
+            Assert.That(StandardFilters.Capitalize(context: context, input: ""), Is.EqualTo(""));
+            Assert.That(StandardFilters.Capitalize(context: context, input: " "), Is.EqualTo(" "));
+            Assert.That(StandardFilters.Capitalize(context: context, input: " my boss is Mr. Doe."), Is.EqualTo(" My boss is Mr. Doe."));
 
             Helper.AssertTemplateResult(
                 expected: "My great title",
@@ -1628,10 +1607,10 @@ PaulGeorge",
         public void TestCapitalizeV22()
         {
             var context = _contextV22;
-            Assert.AreEqual(null, StandardFilters.Capitalize(context: context, input: null));
-            Assert.AreEqual("", StandardFilters.Capitalize(context: context, input: ""));
-            Assert.AreEqual(" ", StandardFilters.Capitalize(context: context, input: " "));
-            Assert.AreEqual("My boss is mr. doe.", StandardFilters.Capitalize(context: context, input: "my boss is Mr. Doe."));
+            Assert.That(StandardFilters.Capitalize(context: context, input: null), Is.EqualTo(null));
+            Assert.That(StandardFilters.Capitalize(context: context, input: ""), Is.EqualTo(""));
+            Assert.That(StandardFilters.Capitalize(context: context, input: " "), Is.EqualTo(" "));
+            Assert.That(StandardFilters.Capitalize(context: context, input: "my boss is Mr. Doe."), Is.EqualTo("My boss is mr. doe."));
 
             Helper.AssertTemplateResult(
                 expected: "My great title",
@@ -1642,24 +1621,24 @@ PaulGeorge",
         [Test]
         public void TestUniq()
         {
-            CollectionAssert.AreEqual(new[] { "ants", "bugs", "bees" }, StandardFilters.Uniq(new string[] { "ants", "bugs", "bees", "bugs", "ants" }));
-            CollectionAssert.AreEqual(new string[] { }, StandardFilters.Uniq(new string[] { }));
-            Assert.AreEqual(null, StandardFilters.Uniq(null));
-            Assert.AreEqual(new List<object> { 5 }, StandardFilters.Uniq(5));
+            Assert.That(StandardFilters.Uniq(new string[] { "ants", "bugs", "bees", "bugs", "ants" }), Is.EqualTo(new[] { "ants", "bugs", "bees" }).AsCollection);
+            Assert.That(StandardFilters.Uniq(new string[] { }), Is.EqualTo(new string[] { }).AsCollection);
+            Assert.That(StandardFilters.Uniq(null), Is.EqualTo(null));
+            Assert.That(StandardFilters.Uniq(5), Is.EqualTo(new List<object> { 5 }));
         }
 
         [Test]
         public void TestAbs()
         {
-            Assert.AreEqual(0, StandardFilters.Abs(_contextV20, "notNumber"));
-            Assert.AreEqual(10, StandardFilters.Abs(_contextV20, 10));
-            Assert.AreEqual(5, StandardFilters.Abs(_contextV20, -5));
-            Assert.AreEqual(19.86, StandardFilters.Abs(_contextV20, 19.86));
-            Assert.AreEqual(19.86, StandardFilters.Abs(_contextV20, -19.86));
-            Assert.AreEqual(10, StandardFilters.Abs(_contextV20, "10"));
-            Assert.AreEqual(5, StandardFilters.Abs(_contextV20, "-5"));
-            Assert.AreEqual(30.60, StandardFilters.Abs(_contextV20, "30.60"));
-            Assert.AreEqual(0, StandardFilters.Abs(_contextV20, "30.60a"));
+            Assert.That(StandardFilters.Abs(_contextV20, "notNumber"), Is.EqualTo(0));
+            Assert.That(StandardFilters.Abs(_contextV20, 10), Is.EqualTo(10));
+            Assert.That(StandardFilters.Abs(_contextV20, -5), Is.EqualTo(5));
+            Assert.That(StandardFilters.Abs(_contextV20, 19.86), Is.EqualTo(19.86));
+            Assert.That(StandardFilters.Abs(_contextV20, -19.86), Is.EqualTo(19.86));
+            Assert.That(StandardFilters.Abs(_contextV20, "10"), Is.EqualTo(10));
+            Assert.That(StandardFilters.Abs(_contextV20, "-5"), Is.EqualTo(5));
+            Assert.That(StandardFilters.Abs(_contextV20, "30.60"), Is.EqualTo(30.60));
+            Assert.That(StandardFilters.Abs(_contextV20, "30.60a"), Is.EqualTo(0));
 
             Helper.AssertTemplateResult(
                 expected: "17",
@@ -1678,17 +1657,17 @@ PaulGeorge",
         [Test]
         public void TestAtLeast()
         {
-            Assert.AreEqual("notNumber", StandardFilters.AtLeast(_contextV20, "notNumber", 5));
-            Assert.AreEqual(5, StandardFilters.AtLeast(_contextV20, 5, 5));
-            Assert.AreEqual(5, StandardFilters.AtLeast(_contextV20, 3, 5));
-            Assert.AreEqual(6, StandardFilters.AtLeast(_contextV20, 6, 5));
-            Assert.AreEqual(10, StandardFilters.AtLeast(_contextV20, 10, 5));
-            Assert.AreEqual(9.85, StandardFilters.AtLeast(_contextV20, 9.85, 5));
-            Assert.AreEqual(5, StandardFilters.AtLeast(_contextV20, 3.56, 5));
-            Assert.AreEqual(10, StandardFilters.AtLeast(_contextV20, "10", 5));
-            Assert.AreEqual(5, StandardFilters.AtLeast(_contextV20, "4", 5));
-            Assert.AreEqual("10a", StandardFilters.AtLeast(_contextV20, "10a", 5));
-            Assert.AreEqual("4b", StandardFilters.AtLeast(_contextV20, "4b", 5));
+            Assert.That(StandardFilters.AtLeast(_contextV20, "notNumber", 5), Is.EqualTo("notNumber"));
+            Assert.That(StandardFilters.AtLeast(_contextV20, 5, 5), Is.EqualTo(5));
+            Assert.That(StandardFilters.AtLeast(_contextV20, 3, 5), Is.EqualTo(5));
+            Assert.That(StandardFilters.AtLeast(_contextV20, 6, 5), Is.EqualTo(6));
+            Assert.That(StandardFilters.AtLeast(_contextV20, 10, 5), Is.EqualTo(10));
+            Assert.That(StandardFilters.AtLeast(_contextV20, 9.85, 5), Is.EqualTo(9.85));
+            Assert.That(StandardFilters.AtLeast(_contextV20, 3.56, 5), Is.EqualTo(5));
+            Assert.That(StandardFilters.AtLeast(_contextV20, "10", 5), Is.EqualTo(10));
+            Assert.That(StandardFilters.AtLeast(_contextV20, "4", 5), Is.EqualTo(5));
+            Assert.That(StandardFilters.AtLeast(_contextV20, "10a", 5), Is.EqualTo("10a"));
+            Assert.That(StandardFilters.AtLeast(_contextV20, "4b", 5), Is.EqualTo("4b"));
 
             Helper.AssertTemplateResult(
                 expected: "5",
@@ -1701,17 +1680,17 @@ PaulGeorge",
         [Test]
         public void TestAtMost()
         {
-            Assert.AreEqual("notNumber", StandardFilters.AtMost(_contextV20, "notNumber", 5));
-            Assert.AreEqual(5, StandardFilters.AtMost(_contextV20, 5, 5));
-            Assert.AreEqual(3, StandardFilters.AtMost(_contextV20, 3, 5));
-            Assert.AreEqual(5, StandardFilters.AtMost(_contextV20, 6, 5));
-            Assert.AreEqual(5, StandardFilters.AtMost(_contextV20, 10, 5));
-            Assert.AreEqual(5, StandardFilters.AtMost(_contextV20, 9.85, 5));
-            Assert.AreEqual(3.56, StandardFilters.AtMost(_contextV20, 3.56, 5));
-            Assert.AreEqual(5, StandardFilters.AtMost(_contextV20, "10", 5));
-            Assert.AreEqual(4, StandardFilters.AtMost(_contextV20, "4", 5));
-            Assert.AreEqual("4a", StandardFilters.AtMost(_contextV20, "4a", 5));
-            Assert.AreEqual("10b", StandardFilters.AtMost(_contextV20, "10b", 5));
+            Assert.That(StandardFilters.AtMost(_contextV20, "notNumber", 5), Is.EqualTo("notNumber"));
+            Assert.That(StandardFilters.AtMost(_contextV20, 5, 5), Is.EqualTo(5));
+            Assert.That(StandardFilters.AtMost(_contextV20, 3, 5), Is.EqualTo(3));
+            Assert.That(StandardFilters.AtMost(_contextV20, 6, 5), Is.EqualTo(5));
+            Assert.That(StandardFilters.AtMost(_contextV20, 10, 5), Is.EqualTo(5));
+            Assert.That(StandardFilters.AtMost(_contextV20, 9.85, 5), Is.EqualTo(5));
+            Assert.That(StandardFilters.AtMost(_contextV20, 3.56, 5), Is.EqualTo(3.56));
+            Assert.That(StandardFilters.AtMost(_contextV20, "10", 5), Is.EqualTo(5));
+            Assert.That(StandardFilters.AtMost(_contextV20, "4", 5), Is.EqualTo(4));
+            Assert.That(StandardFilters.AtMost(_contextV20, "4a", 5), Is.EqualTo("4a"));
+            Assert.That(StandardFilters.AtMost(_contextV20, "10b", 5), Is.EqualTo("10b"));
 
             Helper.AssertTemplateResult(
                 expected: "4",
@@ -1724,11 +1703,11 @@ PaulGeorge",
         [Test]
         public void TestCompact()
         {
-            CollectionAssert.AreEqual(new[] { "business", "celebrities", "lifestyle", "sports", "technology" }, StandardFilters.Compact(new string[] { "business", null, "celebrities", null, null, "lifestyle", "sports", null, "technology", null }));
-            CollectionAssert.AreEqual(new[] { "business", "celebrities" }, StandardFilters.Compact(new string[] { "business", "celebrities" }));
-            Assert.AreEqual(new List<object> { 5 }, StandardFilters.Compact(5));
-            CollectionAssert.AreEqual(new string[] { }, StandardFilters.Compact(new string[] { }));
-            Assert.AreEqual(null, StandardFilters.Compact(null));
+            Assert.That(StandardFilters.Compact(new string[] { "business", null, "celebrities", null, null, "lifestyle", "sports", null, "technology", null }), Is.EqualTo(new[] { "business", "celebrities", "lifestyle", "sports", "technology" }).AsCollection);
+            Assert.That(StandardFilters.Compact(new string[] { "business", "celebrities" }), Is.EqualTo(new[] { "business", "celebrities" }).AsCollection);
+            Assert.That(StandardFilters.Compact(5), Is.EqualTo(new List<object> { 5 }));
+            Assert.That(StandardFilters.Compact(new string[] { }), Is.EqualTo(new string[] { }).AsCollection);
+            Assert.That(StandardFilters.Compact(null), Is.EqualTo(null));
 
             var siteAnonymousObject = new
             {
@@ -1787,9 +1766,9 @@ PaulGeorge",
             };
 
             // Check graceful handling of null and empty lists
-            Assert.AreEqual(expected: null, actual: StandardFilters.Where(null, propertyName: "property"));
-            CollectionAssert.AreEqual(expected: new string[] { }, actual: StandardFilters.Where("a string object", propertyName: "property"));
-            CollectionAssert.AreEqual(expected: new string[] { }, actual: StandardFilters.Where(new string[] { }, propertyName: "property"));
+            Assert.That(actual: StandardFilters.Where(null, propertyName: "property"), Is.EqualTo(expected: null));
+            Assert.That(actual: StandardFilters.Where("a string object", propertyName: "property"), Is.EqualTo(expected: new string[] { }).AsCollection);
+            Assert.That(actual: StandardFilters.Where(new string[] { }, propertyName: "property"), Is.EqualTo(expected: new string[] { }).AsCollection);
 
             // Ensure error reported if the property name is not provided.
             Assert.Throws<ArgumentNullException>(() => StandardFilters.Where(input: products, propertyName: " "));
@@ -1799,21 +1778,18 @@ PaulGeorge",
                 new { title = "Spatula", type = "kitchen" },
                 new { title = "Garlic press", type = "kitchen" }
             };
-            CollectionAssert.AreEqual(expected: expectedKitchenProducts,
-                actual: StandardFilters.Where(products, propertyName: "type", targetValue: "kitchen"));
+            Assert.That(actual: StandardFilters.Where(products, propertyName: "type", targetValue: "kitchen"), Is.EqualTo(expected: expectedKitchenProducts).AsCollection);
 
             // Test filtering for existence of a property
-            CollectionAssert.AreEqual(expected: products,
-                actual: StandardFilters.Where(products, propertyName: "type"));
+            Assert.That(actual: StandardFilters.Where(products, propertyName: "type"), Is.EqualTo(expected: products).AsCollection);
 
             // Test filtering for non-existent property
             var emptyArray = Array.Empty<object>();
-            CollectionAssert.AreEqual(expected: emptyArray,
-                actual: StandardFilters.Where(products, propertyName: "non_existent_property"));
+            Assert.That(actual: StandardFilters.Where(products, propertyName: "non_existent_property"), Is.EqualTo(expected: emptyArray).AsCollection);
 
             // Confirm what happens to enumerable content that is a value type
             var values = new[] { 1, 2, 3, 4, 5 };
-            Assert.AreEqual(expected: new string[] { }, actual: StandardFilters.Where(values, propertyName: "value", targetValue: "xxx"));
+            Assert.That(actual: StandardFilters.Where(values, propertyName: "value", targetValue: "xxx"), Is.EqualTo(expected: new string[] { }));
 
             // Ensure null elements are handled gracefully
             var productsWithNullEntry = new[] {
@@ -1824,7 +1800,7 @@ PaulGeorge",
                 new { title = "Television", type = "lounge" },
                 new { title = "Garlic press", type = "kitchen" }
             };
-            Assert.AreEqual(expected: expectedKitchenProducts, actual: StandardFilters.Where(productsWithNullEntry, propertyName: "type", targetValue: "kitchen"));
+            Assert.That(actual: StandardFilters.Where(productsWithNullEntry, propertyName: "type", targetValue: "kitchen"), Is.EqualTo(expected: expectedKitchenProducts));
         }
 
         [Test]
@@ -1840,9 +1816,8 @@ PaulGeorge",
 
             Helper.LockTemplateStaticVars(new RubyNamingConvention(), () =>
             {
-                CollectionAssert.AreEqual(
-                    expected: expectedProducts,
-                    actual: StandardFilters.Where(products, propertyName: "type", targetValue: "kitchen"));
+                Assert.That(
+                    actual: StandardFilters.Where(products, propertyName: "type", targetValue: "kitchen"), Is.EqualTo(expected: expectedProducts).AsCollection);
             });
         }
 
@@ -1864,9 +1839,8 @@ PaulGeorge",
             var products = new List<ExpandoObject> { product1, product2, product3, product4 };
             var expectedProducts = new List<ExpandoObject> { product2, product4 };
 
-            Assert.AreEqual(
-                expected: expectedProducts,
-                actual: StandardFilters.Where(products, propertyName: "type", targetValue: "kitchen"));
+            Assert.That(
+                actual: StandardFilters.Where(products, propertyName: "type", targetValue: "kitchen"), Is.EqualTo(expected: expectedProducts));
         }
 
         // First sample from specification at https://shopify.github.io/liquid/filters/where/
@@ -1996,9 +1970,8 @@ Cheapest products:
 
             Helper.LockTemplateStaticVars(new RubyNamingConvention(), () =>
             {
-                CollectionAssert.AreEqual(
-                    expected: expectedKitchenProducts,
-                    actual: StandardFilters.Where(products, propertyName: "type", targetValue: "kitchen"));
+                Assert.That(
+                    actual: StandardFilters.Where(products, propertyName: "type", targetValue: "kitchen"), Is.EqualTo(expected: expectedKitchenProducts).AsCollection);
             });
         }
 
@@ -2008,11 +1981,11 @@ Cheapest products:
             var array1 = new String[] { "one", "two" };
             var array2 = new String[] { "alpha", "bravo" };
 
-            CollectionAssert.AreEqual(null, StandardFilters.Concat(null, null));
-            CollectionAssert.AreEqual(array1, StandardFilters.Concat(array1, null));
-            CollectionAssert.AreEqual(array1, StandardFilters.Concat(null, array1));
-            CollectionAssert.AreEqual(new[] { "one", "two", "alpha", "bravo" }, StandardFilters.Concat(array1, array2));
-            CollectionAssert.AreEqual(new[] { 1, 2, 3, 4 }, StandardFilters.Concat(new[] { 1, 2 }, new[] { 3, 4 }));
+            Assert.That(StandardFilters.Concat(null, null), Is.EqualTo(null).AsCollection);
+            Assert.That(StandardFilters.Concat(array1, null), Is.EqualTo(array1).AsCollection);
+            Assert.That(StandardFilters.Concat(null, array1), Is.EqualTo(array1).AsCollection);
+            Assert.That(StandardFilters.Concat(array1, array2), Is.EqualTo(new[] { "one", "two", "alpha", "bravo" }).AsCollection);
+            Assert.That(StandardFilters.Concat(new[] { 1, 2 }, new[] { 3, 4 }), Is.EqualTo(new[] { 1, 2, 3, 4 }).AsCollection);
         }
 
         [Test]
@@ -2048,11 +2021,11 @@ Cheapest products:
             var array = new String[] { "one", "two", "three" };
             var arrayReversed = new String[] { "three", "two", "one" };
 
-            CollectionAssert.AreEqual(null, StandardFilters.Reverse(null));
-            CollectionAssert.AreEqual(arrayReversed, StandardFilters.Reverse(array));
-            CollectionAssert.AreEqual(array, StandardFilters.Reverse(arrayReversed));
-            CollectionAssert.AreEqual(new[] { 3, 2, 2, 1 }, StandardFilters.Reverse(new[] { 1, 2, 2, 3 }));
-            Assert.AreEqual("Ground control to Major Tom.", StandardFilters.Reverse("Ground control to Major Tom."));
+            Assert.That(StandardFilters.Reverse(null), Is.EqualTo(null).AsCollection);
+            Assert.That(StandardFilters.Reverse(array), Is.EqualTo(arrayReversed).AsCollection);
+            Assert.That(StandardFilters.Reverse(arrayReversed), Is.EqualTo(array).AsCollection);
+            Assert.That(StandardFilters.Reverse(new[] { 1, 2, 2, 3 }), Is.EqualTo(new[] { 3, 2, 2, 1 }).AsCollection);
+            Assert.That(StandardFilters.Reverse("Ground control to Major Tom."), Is.EqualTo("Ground control to Major Tom."));
         }
 
         /// <summary>

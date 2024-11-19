@@ -12,42 +12,42 @@ namespace DotLiquid.Tests
         {
             var v20 = Tokenizer.Tokenize(input, SyntaxCompatibility.DotLiquid20);
             var v22 = Tokenizer.Tokenize(input, SyntaxCompatibility.DotLiquid22);
-            CollectionAssert.AreEqual(v20, v22);
+            Assert.That(v22, Is.EqualTo(v20).AsCollection);
             return v22;
         }
 
         [Test]
         public void TestTokenizeStrings()
         {
-            CollectionAssert.AreEqual(new[] { " " }, TokenizeValidateBackwardCompatibility(" "));
-            CollectionAssert.AreEqual(new[] { "hello world" }, TokenizeValidateBackwardCompatibility("hello world"));
+            Assert.That(TokenizeValidateBackwardCompatibility(" "), Is.EqualTo(new[] { " " }).AsCollection);
+            Assert.That(TokenizeValidateBackwardCompatibility("hello world"), Is.EqualTo(new[] { "hello world" }).AsCollection);
         }
 
         [Test]
         public void TestTokenizeVariables()
         {
-            CollectionAssert.AreEqual(new[] { "{{funk}}" }, TokenizeValidateBackwardCompatibility("{{funk}}"));
-            CollectionAssert.AreEqual(new[] { " ", "{{funk}}", " " }, TokenizeValidateBackwardCompatibility(" {{funk}} "));
-            CollectionAssert.AreEqual(new[] { " ", "{{funk}}", " ", "{{so}}", " ", "{{brother}}", " " }, TokenizeValidateBackwardCompatibility(" {{funk}} {{so}} {{brother}} "));
-            CollectionAssert.AreEqual(new[] { " ", "{{  funk  }}", " " }, TokenizeValidateBackwardCompatibility(" {{  funk  }} "));
+            Assert.That(TokenizeValidateBackwardCompatibility("{{funk}}"), Is.EqualTo(new[] { "{{funk}}" }).AsCollection);
+            Assert.That(TokenizeValidateBackwardCompatibility(" {{funk}} "), Is.EqualTo(new[] { " ", "{{funk}}", " " }).AsCollection);
+            Assert.That(TokenizeValidateBackwardCompatibility(" {{funk}} {{so}} {{brother}} "), Is.EqualTo(new[] { " ", "{{funk}}", " ", "{{so}}", " ", "{{brother}}", " " }).AsCollection);
+            Assert.That(TokenizeValidateBackwardCompatibility(" {{  funk  }} "), Is.EqualTo(new[] { " ", "{{  funk  }}", " " }).AsCollection);
         }
 
         [Test]
         public void TestTokenizeBlocks()
         {
-            CollectionAssert.AreEqual(new[] { "{%assign%}" }, TokenizeValidateBackwardCompatibility("{%assign%}"));
-            CollectionAssert.AreEqual(new[] { " ", "{%assign%}", " " }, TokenizeValidateBackwardCompatibility(" {%assign%} "));
+            Assert.That(TokenizeValidateBackwardCompatibility("{%assign%}"), Is.EqualTo(new[] { "{%assign%}" }).AsCollection);
+            Assert.That(TokenizeValidateBackwardCompatibility(" {%assign%} "), Is.EqualTo(new[] { " ", "{%assign%}", " " }).AsCollection);
 
-            CollectionAssert.AreEqual(new[] { " ", "{%comment%}", " ", "{%endcomment%}", " " }, TokenizeValidateBackwardCompatibility(" {%comment%} {%endcomment%} "));
-            CollectionAssert.AreEqual(new[] { "  ", "{% comment %}", " ", "{% endcomment %}", " " }, TokenizeValidateBackwardCompatibility("  {% comment %} {% endcomment %} "));
+            Assert.That(TokenizeValidateBackwardCompatibility(" {%comment%} {%endcomment%} "), Is.EqualTo(new[] { " ", "{%comment%}", " ", "{%endcomment%}", " " }).AsCollection);
+            Assert.That(TokenizeValidateBackwardCompatibility("  {% comment %} {% endcomment %} "), Is.EqualTo(new[] { "  ", "{% comment %}", " ", "{% endcomment %}", " " }).AsCollection);
         }
 
         [Test]
         public void TestInstanceAssignsPersistOnSameTemplateObjectBetweenParses()
         {
             Template t = new Template();
-            Assert.AreEqual("from instance assigns", t.ParseInternal("{% assign foo = 'from instance assigns' %}{{ foo }}", SyntaxCompatibility.DotLiquid22).Render());
-            Assert.AreEqual("from instance assigns", t.ParseInternal("{{ foo }}", SyntaxCompatibility.DotLiquid22).Render());
+            Assert.That(t.ParseInternal("{% assign foo = 'from instance assigns' %}{{ foo }}", SyntaxCompatibility.DotLiquid22).Render(), Is.EqualTo("from instance assigns"));
+            Assert.That(t.ParseInternal("{{ foo }}", SyntaxCompatibility.DotLiquid22).Render(), Is.EqualTo("from instance assigns"));
         }
 
         [Test]
@@ -55,16 +55,16 @@ namespace DotLiquid.Tests
         {
             Template t = new Template();
             t.MakeThreadSafe();
-            Assert.AreEqual("from instance assigns", t.ParseInternal("{% assign foo = 'from instance assigns' %}{{ foo }}", SyntaxCompatibility.DotLiquid22).Render());
-            Assert.AreEqual("", t.ParseInternal("{{ foo }}", SyntaxCompatibility.DotLiquid22).Render());
+            Assert.That(t.ParseInternal("{% assign foo = 'from instance assigns' %}{{ foo }}", SyntaxCompatibility.DotLiquid22).Render(), Is.EqualTo("from instance assigns"));
+            Assert.That(t.ParseInternal("{{ foo }}", SyntaxCompatibility.DotLiquid22).Render(), Is.EqualTo(""));
         }
 
         [Test]
         public void TestInstanceAssignsPersistOnSameTemplateParsingBetweenRenders()
         {
             Template t = Template.Parse("{{ foo }}{% assign foo = 'foo' %}{{ foo }}");
-            Assert.AreEqual("foo", t.Render());
-            Assert.AreEqual("foofoo", t.Render());
+            Assert.That(t.Render(), Is.EqualTo("foo"));
+            Assert.That(t.Render(), Is.EqualTo("foofoo"));
         }
 
         [Test]
@@ -72,34 +72,33 @@ namespace DotLiquid.Tests
         {
             Template t = Template.Parse("{{ foo }}{% assign foo = 'foo' %}{{ foo }}");
             t.MakeThreadSafe();
-            Assert.AreEqual("foo", t.Render());
-            Assert.AreEqual("foo", t.Render());
+            Assert.That(t.Render(), Is.EqualTo("foo"));
+            Assert.That(t.Render(), Is.EqualTo("foo"));
         }
 
         [Test]
         public void TestCustomAssignsDoNotPersistOnSameTemplate()
         {
             Template t = new Template();
-            Assert.AreEqual("from custom assigns", t.ParseInternal("{{ foo }}", SyntaxCompatibility.DotLiquid22).Render(Hash.FromAnonymousObject(new { foo = "from custom assigns" })));
-            Assert.AreEqual("", t.ParseInternal("{{ foo }}", SyntaxCompatibility.DotLiquid22).Render());
+            Assert.That(t.ParseInternal("{{ foo }}", SyntaxCompatibility.DotLiquid22).Render(Hash.FromAnonymousObject(new { foo = "from custom assigns" })), Is.EqualTo("from custom assigns"));
+            Assert.That(t.ParseInternal("{{ foo }}", SyntaxCompatibility.DotLiquid22).Render(), Is.EqualTo(""));
         }
 
         [Test]
         public void TestCustomAssignsSquashInstanceAssigns()
         {
             Template t = new Template();
-            Assert.AreEqual("from instance assigns", t.ParseInternal("{% assign foo = 'from instance assigns' %}{{ foo }}", SyntaxCompatibility.DotLiquid22).Render());
-            Assert.AreEqual("from custom assigns", t.ParseInternal("{{ foo }}", SyntaxCompatibility.DotLiquid22).Render(Hash.FromAnonymousObject(new { foo = "from custom assigns" })));
+            Assert.That(t.ParseInternal("{% assign foo = 'from instance assigns' %}{{ foo }}", SyntaxCompatibility.DotLiquid22).Render(), Is.EqualTo("from instance assigns"));
+            Assert.That(t.ParseInternal("{{ foo }}", SyntaxCompatibility.DotLiquid22).Render(Hash.FromAnonymousObject(new { foo = "from custom assigns" })), Is.EqualTo("from custom assigns"));
         }
 
         [Test]
         public void TestPersistentAssignsSquashInstanceAssigns()
         {
             Template t = new Template();
-            Assert.AreEqual("from instance assigns",
-                t.ParseInternal("{% assign foo = 'from instance assigns' %}{{ foo }}", SyntaxCompatibility.DotLiquid22).Render());
+            Assert.That(t.ParseInternal("{% assign foo = 'from instance assigns' %}{{ foo }}", SyntaxCompatibility.DotLiquid22).Render(), Is.EqualTo("from instance assigns"));
             t.Assigns["foo"] = "from persistent assigns";
-            Assert.AreEqual("from persistent assigns", t.ParseInternal("{{ foo }}", SyntaxCompatibility.DotLiquid22).Render());
+            Assert.That(t.ParseInternal("{{ foo }}", SyntaxCompatibility.DotLiquid22).Render(), Is.EqualTo("from persistent assigns"));
         }
 
         [Test]
@@ -108,9 +107,9 @@ namespace DotLiquid.Tests
             Template t = new Template();
             int global = 0;
             t.Assigns["number"] = (Proc)(c => ++global);
-            Assert.AreEqual("1", t.ParseInternal("{{number}}", SyntaxCompatibility.DotLiquid22).Render());
-            Assert.AreEqual("1", t.ParseInternal("{{number}}", SyntaxCompatibility.DotLiquid22).Render());
-            Assert.AreEqual("1", t.Render());
+            Assert.That(t.ParseInternal("{{number}}", SyntaxCompatibility.DotLiquid22).Render(), Is.EqualTo("1"));
+            Assert.That(t.ParseInternal("{{number}}", SyntaxCompatibility.DotLiquid22).Render(), Is.EqualTo("1"));
+            Assert.That(t.Render(), Is.EqualTo("1"));
         }
 
         [Test]
@@ -119,25 +118,25 @@ namespace DotLiquid.Tests
             Template t = new Template();
             int global = 0;
             Hash assigns = Hash.FromAnonymousObject(new { number = (Proc)(c => ++global) });
-            Assert.AreEqual("1", t.ParseInternal("{{number}}", SyntaxCompatibility.DotLiquid22).Render(assigns));
-            Assert.AreEqual("1", t.ParseInternal("{{number}}", SyntaxCompatibility.DotLiquid22).Render(assigns));
-            Assert.AreEqual("1", t.Render(assigns));
+            Assert.That(t.ParseInternal("{{number}}", SyntaxCompatibility.DotLiquid22).Render(assigns), Is.EqualTo("1"));
+            Assert.That(t.ParseInternal("{{number}}", SyntaxCompatibility.DotLiquid22).Render(assigns), Is.EqualTo("1"));
+            Assert.That(t.Render(assigns), Is.EqualTo("1"));
         }
 
         [Test]
         public void TestErbLikeTrimmingLeadingWhitespace()
         {
             string template = "foo\n\t  {%- if true %}hi tobi{% endif %}";
-            Assert.AreEqual("foo\nhi tobi", Template.Parse(template, SyntaxCompatibility.DotLiquid20).Render());
-            Assert.AreEqual("foohi tobi", Template.Parse(template, SyntaxCompatibility.DotLiquid22).Render());
+            Assert.That(Template.Parse(template, SyntaxCompatibility.DotLiquid20).Render(), Is.EqualTo("foo\nhi tobi"));
+            Assert.That(Template.Parse(template, SyntaxCompatibility.DotLiquid22).Render(), Is.EqualTo("foohi tobi"));
         }
 
         [Test]
         public void TestErbLikeTrimmingTrailingWhitespace()
         {
             string template = "{% if true -%}\n hi tobi\n{% endif %}";
-            Assert.AreEqual(" hi tobi\n", Template.Parse(template, SyntaxCompatibility.DotLiquid20).Render());
-            Assert.AreEqual("hi tobi\n", Template.Parse(template, SyntaxCompatibility.DotLiquid22).Render());
+            Assert.That(Template.Parse(template, SyntaxCompatibility.DotLiquid20).Render(), Is.EqualTo(" hi tobi\n"));
+            Assert.That(Template.Parse(template, SyntaxCompatibility.DotLiquid22).Render(), Is.EqualTo("hi tobi\n"));
         }
 
         [Test]
@@ -150,12 +149,10 @@ namespace DotLiquid.Tests
     {%- endif -%}
 {% endfor -%}
 </ul>";
-            Assert.AreEqual(
-                "<ul>\r\n    <li>foo</li>\r\n    <li>bar</li>\r\n    <li>baz</li>\r\n</ul>",
-                Template.Parse(template, SyntaxCompatibility.DotLiquid20).Render(Hash.FromAnonymousObject(new { tasks = new[] { "foo", "bar", "baz" } })));
-            Assert.AreEqual(
-                "<ul>\r\n<li>foo</li><li>bar</li><li>baz</li></ul>",
-                Template.Parse(template, SyntaxCompatibility.DotLiquid22).Render(Hash.FromAnonymousObject(new { tasks = new[] { "foo", "bar", "baz" } })));
+            Assert.That(
+                Template.Parse(template, SyntaxCompatibility.DotLiquid20).Render(Hash.FromAnonymousObject(new { tasks = new[] { "foo", "bar", "baz" } })), Is.EqualTo("<ul>\r\n    <li>foo</li>\r\n    <li>bar</li>\r\n    <li>baz</li>\r\n</ul>"));
+            Assert.That(
+                Template.Parse(template, SyntaxCompatibility.DotLiquid22).Render(Hash.FromAnonymousObject(new { tasks = new[] { "foo", "bar", "baz" } })), Is.EqualTo("<ul>\r\n<li>foo</li><li>bar</li><li>baz</li></ul>"));
         }
 
         [Test]
@@ -167,7 +164,7 @@ namespace DotLiquid.Tests
             {
                 template.Render(writer, new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = Hash.FromAnonymousObject(new { test = "worked" }) });
 
-                Assert.AreEqual("worked", writer.ToString());
+                Assert.That(writer.ToString(), Is.EqualTo("worked"));
             }
         }
 
@@ -183,7 +180,7 @@ namespace DotLiquid.Tests
 
             using (TextReader reader = new StreamReader(output))
             {
-                Assert.AreEqual("worked", reader.ReadToEnd());
+                Assert.That(reader.ReadToEnd(), Is.EqualTo("worked"));
             }
         }
 
@@ -205,7 +202,7 @@ namespace DotLiquid.Tests
 
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType() { Name = "worked" } }));
 
-            Assert.AreEqual("worked", output);
+            Assert.That(output, Is.EqualTo("worked"));
         }
 
         [Test]
@@ -217,7 +214,7 @@ namespace DotLiquid.Tests
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType() }));
 
             // Doesn't automatically call ToString().
-            Assert.AreEqual(string.Empty, output);
+            Assert.That(output, Is.EqualTo(string.Empty));
         }
 
         [Test]
@@ -233,7 +230,7 @@ namespace DotLiquid.Tests
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType() }));
 
             // Does automatically call ToString because Variable.Render calls ToString on objects during rendering.
-            Assert.AreEqual("Foo", output);
+            Assert.That(output, Is.EqualTo("Foo"));
         }
 
         [Test]
@@ -245,7 +242,7 @@ namespace DotLiquid.Tests
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType() }));
 
             // Uses safe type transformer.
-            Assert.AreEqual("Foo", output);
+            Assert.That(output, Is.EqualTo("Foo"));
         }
 
         [Test]
@@ -258,7 +255,7 @@ namespace DotLiquid.Tests
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType() { Name = "Bar" } }));
 
             // Uses safe type transformer.
-            Assert.AreEqual("FooBar", output);
+            Assert.That(output, Is.EqualTo("FooBar"));
         }
 
         public class NestedMySimpleType
@@ -285,7 +282,7 @@ namespace DotLiquid.Tests
             var output = template.Render(Hash.FromAnonymousObject(new { context = new NestedMySimpleType() { Nested = inner, Name = "Bar" } }));
 
             // Uses safe type transformer.
-            Assert.AreEqual("FooBar FooBar2", output);
+            Assert.That(output, Is.EqualTo("FooBar FooBar2"));
         }
 
         [Test]
@@ -297,7 +294,7 @@ namespace DotLiquid.Tests
 
             var output = template.Render(Hash.FromAnonymousObject(new { var1 = true, var2 = false }));
 
-            Assert.AreEqual("Win Fail", output);
+            Assert.That(output, Is.EqualTo("Win Fail"));
         }
 
         [Test]
@@ -309,7 +306,7 @@ namespace DotLiquid.Tests
 
             var output = template.Render(Hash.FromAnonymousObject(new { var1 = "<html>", var2 = "Some <b>bold</b> text." }));
 
-            Assert.AreEqual("&lt;html&gt; Some &lt;b&gt;bold&lt;/b&gt; text.", output);
+            Assert.That(output, Is.EqualTo("&lt;html&gt; Some &lt;b&gt;bold&lt;/b&gt; text."));
         }
 
         public interface IMySimpleInterface2
@@ -331,7 +328,7 @@ namespace DotLiquid.Tests
 
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType2 { Name = "worked" } }));
 
-            Assert.AreEqual("worked", output);
+            Assert.That(output, Is.EqualTo("worked"));
         }
 
         [Test]
@@ -343,7 +340,7 @@ namespace DotLiquid.Tests
 
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType2 { Name = "worked" } }));
 
-            Assert.AreEqual("worked", output);
+            Assert.That(output, Is.EqualTo("worked"));
         }
 
         public class MyUnsafeType2
@@ -360,7 +357,7 @@ namespace DotLiquid.Tests
 
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType2 { Name = "worked" } }));
 
-            Assert.AreEqual("", output);
+            Assert.That(output, Is.EqualTo(""));
         }
 
         public interface MyGenericInterface<T>
@@ -381,7 +378,7 @@ namespace DotLiquid.Tests
 
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MyGenericImpl<string> { Value = "worked" } }));
 
-            Assert.AreEqual("worked", output);
+            Assert.That(output, Is.EqualTo("worked"));
         }
 
         [Test]
@@ -417,52 +414,52 @@ namespace DotLiquid.Tests
                 template.MakeThreadSafe();
 
                 // Template defaults to legacy DotLiquid 2.0 Handling
-                Assert.AreEqual(SyntaxCompatibility.DotLiquid20, Template.DefaultSyntaxCompatibilityLevel);
+                Assert.That(Template.DefaultSyntaxCompatibilityLevel, Is.EqualTo(SyntaxCompatibility.DotLiquid20));
 
                 // RenderParameters Applies Template Defaults 
                 Template.DefaultSyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid21;
                 var renderParamsDefault = new RenderParameters(CultureInfo.CurrentCulture);
-                Assert.AreEqual(Template.DefaultSyntaxCompatibilityLevel, renderParamsDefault.SyntaxCompatibilityLevel);
+                Assert.That(renderParamsDefault.SyntaxCompatibilityLevel, Is.EqualTo(Template.DefaultSyntaxCompatibilityLevel));
 
                 // Context Applies Template Defaults
                 var context = new Context(CultureInfo.CurrentCulture);
-                Assert.AreEqual(Template.DefaultSyntaxCompatibilityLevel, context.SyntaxCompatibilityLevel);
+                Assert.That(context.SyntaxCompatibilityLevel, Is.EqualTo(Template.DefaultSyntaxCompatibilityLevel));
 
                 Template.DefaultSyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20;
                 renderParamsDefault.Evaluate(template, out Context defaultContext, out Hash defaultRegisters, out System.Collections.Generic.IEnumerable<System.Type> defaultFilters);
                 // Context applies RenderParameters
-                Assert.AreEqual(renderParamsDefault.SyntaxCompatibilityLevel, defaultContext.SyntaxCompatibilityLevel);
+                Assert.That(defaultContext.SyntaxCompatibilityLevel, Is.EqualTo(renderParamsDefault.SyntaxCompatibilityLevel));
                 // RenderParameters not affected by later changes to Template defaults
-                Assert.AreNotEqual(Template.DefaultSyntaxCompatibilityLevel, renderParamsDefault.SyntaxCompatibilityLevel);
+                Assert.That(renderParamsDefault.SyntaxCompatibilityLevel, Is.Not.EqualTo(Template.DefaultSyntaxCompatibilityLevel));
                 // But newly constructed RenderParameters is
-                Assert.AreEqual(Template.DefaultSyntaxCompatibilityLevel, new RenderParameters(CultureInfo.CurrentCulture).SyntaxCompatibilityLevel);
+                Assert.That(new RenderParameters(CultureInfo.CurrentCulture).SyntaxCompatibilityLevel, Is.EqualTo(Template.DefaultSyntaxCompatibilityLevel));
 
                 // RenderParameters overrides template defaults when specified
                 var renderParamsExplicit = new RenderParameters(CultureInfo.CurrentCulture) { SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid21 };
-                Assert.AreEqual(SyntaxCompatibility.DotLiquid21, renderParamsExplicit.SyntaxCompatibilityLevel);
+                Assert.That(renderParamsExplicit.SyntaxCompatibilityLevel, Is.EqualTo(SyntaxCompatibility.DotLiquid21));
                 renderParamsExplicit.Evaluate(template, out Context explicitContext, out Hash explicitRegisters, out System.Collections.Generic.IEnumerable<System.Type> explicitFilters);
-                Assert.AreEqual(renderParamsExplicit.SyntaxCompatibilityLevel, explicitContext.SyntaxCompatibilityLevel);
+                Assert.That(explicitContext.SyntaxCompatibilityLevel, Is.EqualTo(renderParamsExplicit.SyntaxCompatibilityLevel));
             });
         }
 
         [Test]
         public void TestFilterSafelist()
         {
-            Assert.IsFalse(Template.TryGetSafelistedFilter("test_alias", out var testAliasType));
-            Assert.IsNull(testAliasType);
+            Assert.That(Template.TryGetSafelistedFilter("test_alias", out var testAliasType), Is.False);
+            Assert.That(testAliasType, Is.Null);
 
             // Safelist using default alias
             Template.SafelistFilter(typeof(ShopifyFilters));
-            Assert.IsTrue(Template.TryGetSafelistedFilter("ShopifyFilters", out var shopifyFiltersType));
-            Assert.AreEqual(typeof(ShopifyFilters), shopifyFiltersType);
+            Assert.That(Template.TryGetSafelistedFilter("ShopifyFilters", out var shopifyFiltersType), Is.True);
+            Assert.That(shopifyFiltersType, Is.EqualTo(typeof(ShopifyFilters)));
 
             // Safelist using explicit alias
             Template.SafelistFilter(typeof(ShopifyFilters), "test_alias");
-            Assert.IsTrue(Template.TryGetSafelistedFilter("test_alias", out testAliasType));
-            Assert.AreEqual(typeof(ShopifyFilters), testAliasType);
+            Assert.That(Template.TryGetSafelistedFilter("test_alias", out testAliasType), Is.True);
+            Assert.That(testAliasType, Is.EqualTo(typeof(ShopifyFilters)));
 
-            CollectionAssert.Contains(Template.GetSafelistedFilterAliases(), "ShopifyFilters");
-            CollectionAssert.Contains(Template.GetSafelistedFilterAliases(), "test_alias");
+            Assert.That(Template.GetSafelistedFilterAliases(), Has.Member("ShopifyFilters"));
+            Assert.That(Template.GetSafelistedFilterAliases(), Has.Member("test_alias"));
         }
     }
 }

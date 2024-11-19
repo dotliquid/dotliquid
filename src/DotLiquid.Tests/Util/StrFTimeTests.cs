@@ -82,9 +82,9 @@ namespace DotLiquid.Tests.Util
             var date = new DateTime(2012, 1, 8, 14, 32, 14, 123);
             var localResult = date.ToStrFTime(format, EN_GB);
             var utcResult = new DateTimeOffset(date, TimeSpan.FromHours(0)).ToStrFTime(format, EN_GB);
-            Assert.AreEqual(localResult, utcResult);
+            Assert.That(utcResult, Is.EqualTo(localResult));
             var estResult = new DateTimeOffset(date, TimeSpan.FromHours(-5)).ToStrFTime(format, EN_GB);
-            Assert.AreEqual(utcResult, estResult);
+            Assert.That(estResult, Is.EqualTo(utcResult));
             return localResult;
         }
 
@@ -94,11 +94,11 @@ namespace DotLiquid.Tests.Util
         {
             var date = new DateTime(2012, 1, 8, 14, 32, 14, 123);
             var localResult = date.ToStrFTime("%s", EN_GB);
-            Assert.AreEqual("1326033134", localResult);
+            Assert.That(localResult, Is.EqualTo("1326033134"));
             var utcResult = new DateTimeOffset(date, TimeSpan.FromHours(0)).ToStrFTime("%s", EN_GB);
-            Assert.AreEqual("1326033134", utcResult);
+            Assert.That(utcResult, Is.EqualTo("1326033134"));
             var estResult = new DateTimeOffset(date, TimeSpan.FromHours(-5)).ToStrFTime("%s", EN_GB);
-            Assert.AreEqual("1326051134", estResult);
+            Assert.That(estResult, Is.EqualTo("1326051134"));
         }
 
         [Test]

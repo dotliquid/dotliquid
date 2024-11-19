@@ -49,12 +49,12 @@ namespace DotLiquid.Tests.Util
             var t1 = types.Item1;
             var t2 = types.Item2;
             var result = DotLiquid.Util.ExpressionUtility.BinaryNumericResultType(t1, t2);
-            Assert.IsNotNull(result);
-            Assert.AreEqual(result, DotLiquid.Util.ExpressionUtility.BinaryNumericResultType(t2, t1));
-            Assert.IsTrue(typeLimits[result].Item1 >= typeLimits[t1].Item1);
-            Assert.IsTrue(typeLimits[result].Item1 >= typeLimits[t2].Item1);
-            Assert.IsTrue(typeLimits[result].Item2 <= typeLimits[t1].Item2);
-            Assert.IsTrue(typeLimits[result].Item2 <= typeLimits[t1].Item2);
+            Assert.That(result, Is.Not.Null);
+            Assert.That(DotLiquid.Util.ExpressionUtility.BinaryNumericResultType(t2, t1), Is.EqualTo(result));
+            Assert.That(typeLimits[result].Item1 >= typeLimits[t1].Item1, Is.True);
+            Assert.That(typeLimits[result].Item1 >= typeLimits[t2].Item1, Is.True);
+            Assert.That(typeLimits[result].Item2 <= typeLimits[t1].Item2, Is.True);
+            Assert.That(typeLimits[result].Item2 <= typeLimits[t1].Item2, Is.True);
         }
     }
 }

@@ -130,5 +130,36 @@ namespace DotLiquid.Tests
             Assert.AreEqual("}", Template.Parse("{{{}}}", SyntaxCompatibility.DotLiquid22).Render());
             Assert.AreEqual("{##}", Template.Parse("{##}", SyntaxCompatibility.DotLiquid22).Render());
         }
+
+        [TestCase("\r")]
+        [TestCase("\n")]
+        [TestCase("\r\n")]
+        public void TestBlockWithNewlines(string newLineChars)
+        {
+            var testString = "foo,bar".Replace(",", newLineChars);
+            Helper.AssertTemplateResult(testString, "{% assign test = \"" + testString + "\" %}{{ test }}");
+            Helper.AssertTemplateResult(testString, "{% assign test = '" + testString + "' %}{{ test }}");
+        }
+
+        [TestCase("\r")]
+        [TestCase("\n")]
+        [TestCase("\r\n")]
+        public void TestVariableWithNewlines(string newLineChars)
+        {
+            var testString = "foo,bar".Replace(",", newLineChars);
+            Helper.AssertTemplateResult(testString, "{{ \"" + testString + "\" }}");
+            Helper.AssertTemplateResult(testString, "{{ '" + testString + "' }}");
+        }
+
+        [TestCase("\r")]
+        [TestCase("\n")]
+        [TestCase("\r\n")]
+        public void TestFilterWithNewlines(string newLineChars)
+        {
+            var original = "foo,bar";
+            var testString = original.Replace(",", newLineChars);
+            Helper.AssertTemplateResult(original, "{{ \"" + testString + "\" | replace: \"" + newLineChars + "\", \",\" }}", SyntaxCompatibility.DotLiquid22a);
+            Helper.AssertTemplateResult(original, "{{ '" + testString + "' | replace: '" + newLineChars + "', ',' }}", SyntaxCompatibility.DotLiquid22a);
+        }
     }
 }

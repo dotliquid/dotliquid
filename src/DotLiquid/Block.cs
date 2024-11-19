@@ -15,9 +15,9 @@ namespace DotLiquid
     {
         private static readonly Regex IsTag = R.B(@"^{0}", Liquid.TagStart);
         private static readonly Regex IsVariable = R.B(@"^{0}", Liquid.VariableStart);
-        private static readonly Regex ContentOfVariable = R.B(@"^{0}(.*){1}$", Liquid.VariableStart, Liquid.VariableEnd);
+        private static readonly Regex ContentOfVariable = R.B(@"^{0}((?s:.*)){1}$", Liquid.VariableStart, Liquid.VariableEnd);
 
-        internal static readonly Regex FullToken = R.B(@"^{0}\s*(\w+)\s*(.*)?{1}$", Liquid.TagStart, Liquid.TagEnd);
+        internal static readonly Regex FullToken = R.B(@"^{0}\s*(\w+)\s*((?s:.*)?){1}$", Liquid.TagStart, Liquid.TagEnd);
 
         /// <summary>
         /// Parses a list of tokens

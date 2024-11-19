@@ -7,7 +7,7 @@ namespace DotLiquid.Tags
     {
         public override void Render(Context context, TextWriter result)
         {
-            throw new BreakInterrupt();
+            context.PushInterrupt(BreakInterrupt.Instance);
         }
     }
 }

@@ -783,7 +783,7 @@ namespace DotLiquid
         /// <returns>The rounded value; null if an exception have occurred</returns>
         public static object Ceil(Context context, object input)
         {
-            if (decimal.TryParse(input.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
+            if (decimal.TryParse(Convert.ToString(input, context.CurrentCulture), NumberStyles.Any, context.CurrentCulture, out decimal d))
                 return Math.Ceiling(d);
             else
                 return null;
@@ -797,7 +797,7 @@ namespace DotLiquid
         /// <returns>The rounded value; null if an exception have occurred</returns>
         public static object Floor(Context context, object input)
         {
-            if (decimal.TryParse(input.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
+            if (decimal.TryParse(Convert.ToString(input, context.CurrentCulture), NumberStyles.Any, context.CurrentCulture, out decimal d))
                 return Math.Floor(d);
             else
                 return null;
@@ -915,7 +915,7 @@ namespace DotLiquid
         public static double Abs(Context context, object input)
         {
             Double n;
-            return Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n) ? Math.Abs(n) : 0;
+            return Double.TryParse(Convert.ToString(input, context.CurrentCulture), NumberStyles.Number, context.CurrentCulture, out n) ? Math.Abs(n) : 0;
         }
 
         /// <summary>
@@ -927,10 +927,10 @@ namespace DotLiquid
         public static object AtLeast(Context context, object input, object atLeast)
         {
             double n;
-            var inputNumber = Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
+            var inputNumber = Double.TryParse(Convert.ToString(input, context.CurrentCulture), NumberStyles.Number, context.CurrentCulture, out n);
 
             double min;
-            var atLeastNumber = Double.TryParse(atLeast.ToString(), NumberStyles.Number, context.CurrentCulture, out min);
+            var atLeastNumber = Double.TryParse(Convert.ToString(atLeast, context.CurrentCulture), NumberStyles.Number, context.CurrentCulture, out min);
 
             if (inputNumber && atLeastNumber)
             {
@@ -951,10 +951,10 @@ namespace DotLiquid
         public static object AtMost(Context context, object input, object atMost)
         {
             double n;
-            var inputNumber = Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
+            var inputNumber = Double.TryParse(Convert.ToString(input,context.CurrentCulture), NumberStyles.Number, context.CurrentCulture, out n);
 
             double max;
-            var atMostNumber = Double.TryParse(atMost.ToString(), NumberStyles.Number, context.CurrentCulture, out max);
+            var atMostNumber = Double.TryParse(Convert.ToString(atMost, context.CurrentCulture), NumberStyles.Number, context.CurrentCulture, out max);
 
             if (inputNumber && atMostNumber)
             {

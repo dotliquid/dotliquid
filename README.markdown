@@ -79,3 +79,4 @@ Are you using DotLiquid in an open source project? Tell us with a PR!
  - [DotLiquid View Engine for ASP.NET MVC](https://www.nuget.org/packages/DotLiquid.ViewEngine)
  - [DotLiquid View Engine for Nancy](https://www.nuget.org/packages/Nancy.Viewengines.DotLiquid)
  - [GrandNode 2.0](https://github.com/grandnode/grandnode2)
+ - [BasitNet - .NET6 Minimal Api Web Site Example](https://github.com/EntegrasyonBilisim/BasitNet) 

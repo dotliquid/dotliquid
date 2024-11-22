@@ -19,17 +19,17 @@ namespace DotLiquid.Tests.Util
         [Test]
         public void TestAnyHandlesIEnumerable()
         {
-            Assert.IsFalse(EnumerableExtensionMethods.Any(Array.Empty<string>()));
-            Assert.IsTrue(EnumerableExtensionMethods.Any(new string[] { string.Empty }));
+            Assert.That(EnumerableExtensionMethods.Any(Array.Empty<string>()), Is.False);
+            Assert.That(EnumerableExtensionMethods.Any(new string[] { string.Empty }), Is.True);
         }
 
         [Test]
         public void TestAnyHandlesIEnumerableGenerics()
         {
             var list = new List<string>();
-            Assert.IsFalse(EnumerableExtensionMethods.Any(list));
+            Assert.That(EnumerableExtensionMethods.Any(list), Is.False);
             list.Add(string.Empty);
-            Assert.IsTrue(EnumerableExtensionMethods.Any(list));
+            Assert.That(EnumerableExtensionMethods.Any(list), Is.True);
         }
     }
 }

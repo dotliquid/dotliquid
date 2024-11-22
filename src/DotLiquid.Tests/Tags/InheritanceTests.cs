@@ -70,7 +70,7 @@ namespace DotLiquid.Tests.Tags
                         yeah
                     {% endblock %}");
 
-            StringAssert.Contains ("test", template.Render ());
+            Assert.That(template.Render (), Does.Contain("test"));
         }
 
         [Test]
@@ -78,7 +78,7 @@ namespace DotLiquid.Tests.Tags
         {
             Template template = Template.Parse (@"{% extends 'complex' %}");
 
-            StringAssert.Contains ("thing block", template.Render ());
+            Assert.That(template.Render (), Does.Contain("thing block"));
         }
 
         [Test]
@@ -90,7 +90,7 @@ namespace DotLiquid.Tests.Tags
                       new content for another
                     {% endblock %}");
 
-            StringAssert.Contains ("new content for another", template.Render ());
+            Assert.That(template.Render (), Does.Contain("new content for another"));
         }
 
         [Test]
@@ -102,8 +102,8 @@ namespace DotLiquid.Tests.Tags
                   replacing block thing
                   {% endblock %}");
 
-            StringAssert.Contains ("replacing block thing", template.Render ());
-            StringAssert.DoesNotContain ("thing block", template.Render ());
+            Assert.That(template.Render (), Does.Contain("replacing block thing"));
+            Assert.That(template.Render (), Does.Not.Contain("thing block"));
         }
 
         [Test]
@@ -115,8 +115,8 @@ namespace DotLiquid.Tests.Tags
                         {{ block.super }} + some other content
                     {% endblock %}");
 
-            StringAssert.Contains ("another block", template.Render ());
-            StringAssert.Contains ("some other content", template.Render ());
+            Assert.That(template.Render (), Does.Contain("another block"));
+            Assert.That(template.Render (), Does.Contain("some other content"));
         }
 
         [Test]
@@ -125,7 +125,7 @@ namespace DotLiquid.Tests.Tags
             Template template = Template.Parse (
                                     @"{% extends 'middle' %}
                   {% block middle %}C{% endblock %}");
-            Assert.AreEqual ("ABCYZ", template.Render ());
+            Assert.That(template.Render (), Is.EqualTo("ABCYZ"));
         }
 
         [Test]
@@ -133,7 +133,7 @@ namespace DotLiquid.Tests.Tags
         {
             Template template = Template.Parse (@"{% extends 'middle' %}
                   {% block start %}!{% endblock %}");
-            Assert.AreEqual ("!ABYZ", template.Render ());
+            Assert.That(template.Render (), Is.EqualTo("!ABYZ"));
         }
 
         [Test]
@@ -142,13 +142,13 @@ namespace DotLiquid.Tests.Tags
             Template template = Template.Parse (
                                     @"{% extends 'middleunless' %}
                   {% block middle %}C{% endblock %}");
-            Assert.AreEqual ("ABCYZ", template.Render ());
+            Assert.That(template.Render (), Is.EqualTo("ABCYZ"));
 
             template = Template.Parse (
                 @"{% extends 'middleunless' %}
                   {% block start %}{% assign nomiddle = true %}{% endblock %}
                   {% block middle %}C{% endblock %}");
-            Assert.AreEqual ("ABYZ", template.Render ());
+            Assert.That(template.Render (), Is.EqualTo("ABYZ"));
         }
 
         [Test]
@@ -158,8 +158,8 @@ namespace DotLiquid.Tests.Tags
                                     @"{% extends 'middle' %}
                   {% block start %}!{% endblock %}
                   {% block middle %}C{% endblock %}");
-            Assert.AreEqual ("!ABCYZ", template.Render ());
-            Assert.AreEqual ("!ABCYZ", template.Render ());
+            Assert.That(template.Render (), Is.EqualTo("!ABCYZ"));
+            Assert.That(template.Render (), Is.EqualTo("!ABCYZ"));
         }
 
         [Test]
@@ -174,9 +174,9 @@ namespace DotLiquid.Tests.Tags
                     {% block thing %}
                         yeah
                     {% endblock %}");
-                StringAssert.Contains("test", template.Render());
+                Assert.That(template.Render(), Does.Contain("test"));
             }
-            Assert.AreEqual(fileSystem.CacheHitTimes, 1);
+            Assert.That(1, Is.EqualTo(fileSystem.CacheHitTimes));
         }
     }
 }

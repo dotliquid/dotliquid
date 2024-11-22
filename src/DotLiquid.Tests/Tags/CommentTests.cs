@@ -9,35 +9,33 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestEmptyComment()
         {
-            Assert.AreEqual(string.Empty, Template.Parse("{% comment %}{% endcomment %}").Render());
+            Assert.That(Template.Parse("{% comment %}{% endcomment %}").Render(), Is.EqualTo(string.Empty));
 
             // Next test is specific to legacy parser and was removed from Ruby Liquid. Test that it is ignored is in TestShortHandSyntaxIsIgnored
-            Assert.AreEqual(string.Empty, Template.Parse("{##}", SyntaxCompatibility.DotLiquid20).Render());
+            Assert.That(Template.Parse("{##}", SyntaxCompatibility.DotLiquid20).Render(), Is.EqualTo(string.Empty));
         }
 
         [Test]
         public void TestSimpleCommentValue()
         {
-            Assert.AreEqual("", Template.Parse("{% comment %}howdy{% endcomment %}").Render());
+            Assert.That(Template.Parse("{% comment %}howdy{% endcomment %}").Render(), Is.EqualTo(""));
         }
 
         [Test]
         public void TestCommentsIgnoreLiquidMarkup()
         {
-            Assert.AreEqual(
-                expected: "",
-                actual: Template.Parse("{% comment %}{% if 'gnomeslab' contains 'liquid' %}yes{% else %}no{ % endif %}{% endcomment %}").Render());
+            Assert.That(
+                actual: Template.Parse("{% comment %}{% if 'gnomeslab' contains 'liquid' %}yes{% else %}no{ % endif %}{% endcomment %}").Render(), Is.EqualTo(expected: ""));
         }
 
         [Test]
         public void TestCommentShorthand()
         {
-            Assert.AreEqual("{% comment %}gnomeslab{% endcomment %}", Comment.FromShortHand("{# gnomeslab #}"));
-            Assert.AreEqual(null, Comment.FromShortHand(null));
+            Assert.That(Comment.FromShortHand("{# gnomeslab #}"), Is.EqualTo("{% comment %}gnomeslab{% endcomment %}"));
+            Assert.That(Comment.FromShortHand(null), Is.EqualTo(null));
 
-            Assert.AreEqual(
-                expected: "",
-                actual: Template.Parse("{#{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}#}", SyntaxCompatibility.DotLiquid20).Render());
+            Assert.That(
+                actual: Template.Parse("{#{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}#}", SyntaxCompatibility.DotLiquid20).Render(), Is.EqualTo(expected: ""));
         }
     }
 }

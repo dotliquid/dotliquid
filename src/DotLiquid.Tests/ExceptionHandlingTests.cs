@@ -33,10 +33,10 @@ namespace DotLiquid.Tests
             Template template = null;
             Assert.DoesNotThrow(() => { template = Template.Parse(" {{ errors.syntax_exception }} "); });
             string result = template.Render(Hash.FromAnonymousObject(new { errors = new ExceptionDrop() }));
-            Assert.AreEqual(" Liquid syntax error: syntax exception ", result);
+            Assert.That(result, Is.EqualTo(" Liquid syntax error: syntax exception "));
 
-            Assert.AreEqual(1, template.Errors.Count);
-            Assert.IsInstanceOf<SyntaxException>(template.Errors[0]);
+            Assert.That(template.Errors.Count, Is.EqualTo(1));
+            Assert.That(template.Errors[0], Is.InstanceOf<SyntaxException>());
         }
 
         [Test]
@@ -45,10 +45,10 @@ namespace DotLiquid.Tests
             Template template = null;
             Assert.DoesNotThrow(() => { template = Template.Parse(" {{ errors.argument_exception }} "); });
             string result = template.Render(Hash.FromAnonymousObject(new { errors = new ExceptionDrop() }));
-            Assert.AreEqual(" Liquid error: argument exception ", result);
+            Assert.That(result, Is.EqualTo(" Liquid error: argument exception "));
 
-            Assert.AreEqual(1, template.Errors.Count);
-            Assert.IsInstanceOf<ArgumentException>(template.Errors[0]);
+            Assert.That(template.Errors.Count, Is.EqualTo(1));
+            Assert.That(template.Errors[0], Is.InstanceOf<ArgumentException>());
         }
 
         [Test]
@@ -62,10 +62,10 @@ namespace DotLiquid.Tests
         {
             Template template = null;
             Assert.DoesNotThrow(() => { template = Template.Parse(" {% if 1 =! 2 %}ok{% endif %} "); });
-            Assert.AreEqual(" Liquid error: Unknown operator =! ", template.Render());
+            Assert.That(template.Render(), Is.EqualTo(" Liquid error: Unknown operator =! "));
 
-            Assert.AreEqual(1, template.Errors.Count);
-            Assert.IsInstanceOf<ArgumentException>(template.Errors[0]);
+            Assert.That(template.Errors.Count, Is.EqualTo(1));
+            Assert.That(template.Errors[0], Is.InstanceOf<ArgumentException>());
         }
 
         [Test]
@@ -76,7 +76,7 @@ namespace DotLiquid.Tests
             var localVariables = Hash.FromAnonymousObject(new { errors = new ExceptionDrop() });
             var exception = Assert.Throws<InterruptException>(() => template.Render(localVariables));
 
-            Assert.AreEqual("interrupted", exception.Message);
+            Assert.That(exception.Message, Is.EqualTo("interrupted"));
         }
 
         [Test]
@@ -152,7 +152,7 @@ namespace DotLiquid.Tests
                 LocalVariables = assigns,
                 ErrorsOutputMode = ErrorsOutputMode.Suppress
             });
-            Assert.AreEqual("", output);
+            Assert.That(output, Is.EqualTo(""));
         }
 
         [Test]
@@ -166,7 +166,7 @@ namespace DotLiquid.Tests
                 LocalVariables = assigns,
                 ErrorsOutputMode = ErrorsOutputMode.Display
             });
-            Assert.IsNotEmpty(output);
+            Assert.That(output, Is.Not.Empty);
         }
     }
 }

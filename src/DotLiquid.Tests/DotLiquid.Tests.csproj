@@ -59,4 +59,9 @@
   <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">
     <PackageReference Include="System.ValueTuple" Version="4.3.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <!-- This is simply to ensure formatting differences of .NET 5+ don't cause tests to fail -->
+    <RuntimeHostConfigurationOption Include="System.Globalization.UseNls" Value="true" />
+  </ItemGroup>
 </Project>

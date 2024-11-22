@@ -783,16 +783,17 @@ PaulGeorge",
         public void TestEuroCurrencyFromString(object input, string expected, string languageTag)
         {
             // Set the thread culture and test for backward compatibility
+            // Ignoring the space used, whether narrow non-breaking space or non-breaking space
             using (CultureHelper.SetCulture("en-US"))
             {
                 Helper.AssertTemplateResult(
                     expected: expected,
-                    template: "{{ input | currency: languageTag }}",
+                    template: "{{ input | currency: languageTag | replace: ' ',' ' }}",
                     localVariables: Hash.FromAnonymousObject(new { input = input, languageTag = languageTag }));
             }
 
             _contextV20.CurrentCulture = new CultureInfo("en-US"); // _contextV20 is initialized with InvariantCulture, these tests require en-US
-            Assert.That(StandardFilters.Currency(context: _contextV20, input: input, languageTag: languageTag), Is.EqualTo(expected));
+            Assert.That(StandardFilters.Currency(context: _contextV20, input: input, languageTag: languageTag).Replace("\u202f", "\u00A0"), Is.EqualTo(expected));
         }
 
         [Test]

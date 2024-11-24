@@ -16,78 +16,120 @@ namespace DotLiquid.Util
                                              + "(?<" + GROUP_WIDTH + ">[1-9][0-9]*)?"
                                              + "(?<" + GROUP_DIRECTIVE + @">[a-zA-Z%])";
 
+        private delegate string DateObjectDelegate(object dateTime, CultureInfo culture);
         private delegate string DateTimeDelegate(DateTime dateTime, CultureInfo culture);
         private delegate string DateTimeOffsetDelegate(DateTimeOffset dateTimeOffset, CultureInfo culture);
 
-        private static readonly Dictionary<string, DateTimeDelegate> Formats = new Dictionary<string, DateTimeDelegate>
+        private static readonly Dictionary<string, DateObjectDelegate> Formats = new Dictionary<string, DateObjectDelegate>
         {
-            { "a", (dateTime, culture) => dateTime.ToString("ddd", culture) },
-            { "A", (dateTime, culture) => dateTime.ToString("dddd", culture) },
-            { "b", (dateTime, culture) => dateTime.ToString("MMM", culture) },
-            { "B", (dateTime, culture) => dateTime.ToString("MMMM", culture) },
-            { "c", (dateTime, culture) => dateTime.ToString("ddd MMM dd HH:mm:ss yyyy", culture) },
-            { "C", (dateTime, culture) => ((int)Math.Floor(Convert.ToDouble(dateTime.ToString("yyyy", culture))/100)).ToString(culture) },
-            { "d", (dateTime, culture) => dateTime.ToString("dd", culture) },
-            { "D", (dateTime, culture) => dateTime.ToString("MM/dd/yy", culture) },
-            { "e", (dateTime, culture) => dateTime.ToString("%d", culture).PadLeft(2, ' ') },
+            { "a", (dateTime, culture) => string.Format(culture, "{0:ddd}", dateTime) },
+            { "A", (dateTime, culture) => string.Format(culture, "{0:dddd}", dateTime) },
+            { "b", (dateTime, culture) => string.Format(culture, "{0:MMM}", dateTime) },
+            { "B", (dateTime, culture) => string.Format(culture, "{0:MMMM}", dateTime) },
+            { "c", (dateTime, culture) => string.Format(culture, "{0:ddd MMM dd HH:mm:ss yyyy}", dateTime) },
+            { "C", (dateTime, culture) => ((int)Math.Floor(Convert.ToDouble(string.Format(culture, "{0:yyyy}", dateTime))/100)).ToString(culture) },
+            { "d", (dateTime, culture) => string.Format(culture, "{0:dd}", dateTime) },
+            { "D", (dateTime, culture) => string.Format(culture, "{0:MM/dd/yy}", dateTime) },
+            { "e", (dateTime, culture) => string.Format(culture, "{0:%d}", dateTime).PadLeft(2, ' ') },
             // E - not specified
             // f - not specified
-            { "F", (dateTime, culture) => dateTime.ToString("yyyy-MM-dd", culture) },
-            { "g", (dateTime, culture) => dateTime.GetIso8601WeekOfYear("g", culture) },
-            { "G", (dateTime, culture) => dateTime.GetIso8601WeekOfYear("G", culture) },
-            { "h", (dateTime, culture) => dateTime.ToString("MMM", culture) },
-            { "H", (dateTime, culture) => dateTime.ToString("HH", culture) },
+            { "F", (dateTime, culture) => string.Format(culture, "{0:yyyy-MM-dd}", dateTime) },
+            { "h", (dateTime, culture) => string.Format(culture, "{0:MMM}", dateTime) },
+            { "H", (dateTime, culture) => string.Format(culture, "{0:HH}", dateTime) },
             // i - not specified
-            { "I", (dateTime, culture) => dateTime.ToString("hh", culture) },
-            { "j", (dateTime, culture) => dateTime.DayOfYear.ToString(culture).PadLeft(3, '0') },
+            { "I", (dateTime, culture) => string.Format(culture, "{0:hh}", dateTime) },
             // J - not specified
-            { "k", (dateTime, culture) => dateTime.ToString("%H", culture) },
+            { "k", (dateTime, culture) => string.Format(culture, "{0:%H}", dateTime) },
             // K - not specified
-            { "l", (dateTime, culture) => dateTime.ToString("%h", culture).PadLeft(2, ' ') },
-            { "L", (dateTime, culture) => dateTime.ToString("fff", culture) },
-            { "m", (dateTime, culture) => dateTime.ToString("MM", culture) },
-            { "M", (dateTime, culture) => dateTime.Minute.ToString(culture).PadLeft(2, '0') },
+            { "l", (dateTime, culture) => string.Format(culture, "{0:%h}", dateTime).PadLeft(2, ' ') },
+            { "L", (dateTime, culture) => string.Format(culture, "{0:fff}", dateTime) },
+            { "m", (dateTime, culture) => string.Format(culture, "{0:MM}", dateTime) },
+            { "M", (dateTime, culture) => string.Format(culture, "{0:mm}", dateTime) },
             { "n", (dateTime, culture) => "\n" },
-            { "N", (dateTime, culture) => dateTime.ToString("ffffff", culture) }, //The Ruby spec states default=nanoseconds, but nanosecond precision is not supported by a C# DateTime
-            { "3N", (dateTime, culture) => dateTime.ToString("fff", culture) },
-            { "6N", (dateTime, culture) => dateTime.ToString("ffffff", culture) },
+            { "N", (dateTime, culture) => string.Format(culture, "{0:ffffff}", dateTime) }, //The Ruby spec states default=nanoseconds, but nanosecond precision is not supported by a C# DateTime
+            { "3N", (dateTime, culture) => string.Format(culture, "{0:fff}", dateTime) },
+            { "6N", (dateTime, culture) => string.Format(culture, "{0:ffffff}", dateTime) },
             // 9N - not implemented
             // o - not specified
             // O - not specified
-            { "p", (dateTime, culture) => dateTime.ToString("tt", culture).ToUpper() },
-            { "P", (dateTime, culture) => dateTime.ToString("tt", culture).ToLower() },
+            { "p", (dateTime, culture) => string.Format(culture, "{0:tt}", dateTime).ToUpper() },
+            { "P", (dateTime, culture) => string.Format(culture, "{0:tt}", dateTime).ToLower() },
             // q - not specified
             // Q - not specified
-            { "r", (dateTime, culture) => dateTime.ToString("hh:mm:ss tt", culture).ToUpper() },
-            { "R", (dateTime, culture) => dateTime.ToString("HH:mm", culture) },
-            { "s", (dateTime, culture) => ((int)(dateTime - new DateTime(1970, 1, 1)).TotalSeconds).ToString(culture) },
-            { "S", (dateTime, culture) => dateTime.ToString("ss", culture) },
+            { "r", (dateTime, culture) => string.Format(culture, "{0:hh:mm:ss tt}", dateTime).ToUpper() },
+            { "R", (dateTime, culture) => string.Format(culture, "{0:HH:mm}", dateTime) },
+            { "s", (dateTime, culture) =>
+            {
+                if (dateTime is DateTimeOffset dto)
+                    return ((long)(dto - new DateTimeOffset(1970, 1, 1, 0,0,0, TimeSpan.Zero)).TotalSeconds).ToString(culture);
+                if (dateTime is DateTime dt)
+                    return ((int)(dt - new DateTime(1970, 1, 1)).TotalSeconds).ToString(culture);
+                throw new FormatException("Only");
+            }},
+            { "S", (dateTime, culture) => string.Format(culture, "{0:ss}", dateTime) },
             { "t", (dateTime, culture) => "\t" },
-            { "T", (dateTime, culture) => dateTime.ToString("HH:mm:ss", culture) },
-            { "u", (dateTime, culture) => ((int)(dateTime.DayOfWeek) == 0 ? ((int)(dateTime).DayOfWeek) + 7 : ((int)(dateTime).DayOfWeek)).ToString(culture) },
-            { "U", (dateTime, culture) => culture.Calendar.GetWeekOfYear(dateTime, culture.DateTimeFormat.CalendarWeekRule, DayOfWeek.Sunday).ToString(culture).PadLeft(2, '0') },
-            { "v", (dateTime, culture) => dateTime.ToString("%d-MMM-yyyy", culture).ToUpper().PadLeft(11, ' ') },
-            { "V", (dateTime, culture) => dateTime.GetIso8601WeekOfYear("V", culture) },
-            { "w", (dateTime, culture) => ((int) dateTime.DayOfWeek).ToString(culture) },
-            { "W", (dateTime, culture) => culture.Calendar.GetWeekOfYear(dateTime, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday).ToString(culture).PadLeft(2, '0') },
-            { "x", (dateTime, culture) => dateTime.ToString("MM/dd/yy", culture) },
-            { "X", (dateTime, culture) => dateTime.ToString("HH:mm:ss", culture) },
-            { "y", (dateTime, culture) => dateTime.ToString("yy", culture) },
-            { "Y", (dateTime, culture) => dateTime.ToString("yyyy", culture) },
-            { "z", (dateTime, culture) => dateTime.ToString("%K", culture).Replace(":", string.Empty) },
-            { ":z", (dateTime, culture) => dateTime.ToString("%K", culture) },
+            { "T", (dateTime, culture) => string.Format(culture, "{0:HH:mm:ss}", dateTime) },
+            { "v", (dateTime, culture) => string.Format(culture, "{0:%d-MMM-yyyy}", dateTime).ToUpper().PadLeft(11, ' ') },
+            { "x", (dateTime, culture) => string.Format(culture, "{0:MM/dd/yy}", dateTime) },
+            { "X", (dateTime, culture) => string.Format(culture, "{0:HH:mm:ss}", dateTime) },
+            { "y", (dateTime, culture) => string.Format(culture, "{0:yy}", dateTime) },
+            { "Y", (dateTime, culture) => string.Format(culture, "{0:yyyy}", dateTime) },
+            { "z", (dateTime, culture) => string.Format(culture, "{0:%K}", dateTime).Replace(":", string.Empty) },
+            { ":z", (dateTime, culture) => string.Format(culture, "{0:%K}", dateTime) },
             // ::z - not implemented
-            { "Z", (dateTime, culture) => dateTime.ToString("zzz", culture) },
+            { "Z", (dateTime, culture) => string.Format(culture, "{0:zzz}", dateTime) },
             { "%", (dateTime, culture) => "%" } // A % sign
         };
 
-        private static readonly Dictionary<string, DateTimeOffsetDelegate> OffsetFormats = new Dictionary<string, DateTimeOffsetDelegate>
+        private static readonly Dictionary<string, DateTimeDelegate> DateFormats = new Dictionary<string, DateTimeDelegate>
         {
-            { "s", (dateTimeOffset, culture) => ((long)(dateTimeOffset - new DateTimeOffset(1970, 1, 1, 0,0,0, TimeSpan.Zero)).TotalSeconds).ToString(culture) },
-            { "z", (dateTimeOffset, culture) => dateTimeOffset.ToString("%K", culture).Replace(":", string.Empty) },
-            { ":z", (dateTimeOffset, culture) => dateTimeOffset.ToString("%K", culture) },
-            { "Z", (dateTimeOffset, culture) => dateTimeOffset.ToString("zzz", culture) }
+            { "g", (dateTime, culture) => dateTime.GetIso8601WeekOfYear("g", culture) },
+            { "G", (dateTime, culture) => dateTime.GetIso8601WeekOfYear("G", culture) },
+            { "j", (dateTime, culture) => dateTime.DayOfYear.ToString(culture).PadLeft(3, '0') },
+            { "u", (dateTime, culture) => ((int)(dateTime.DayOfWeek) == 0 ? ((int)(dateTime).DayOfWeek) + 7 : ((int)(dateTime).DayOfWeek)).ToString(culture) },
+            { "U", (dateTime, culture) => culture.Calendar.GetWeekOfYear(dateTime, culture.DateTimeFormat.CalendarWeekRule, DayOfWeek.Sunday).ToString(culture).PadLeft(2, '0') },
+            { "V", (dateTime, culture) => dateTime.GetIso8601WeekOfYear("V", culture) },
+            { "w", (dateTime, culture) => ((int) dateTime.DayOfWeek).ToString(culture) },
+            { "W", (dateTime, culture) => culture.Calendar.GetWeekOfYear(dateTime, CalendarWeekRule.FirstFullWeek, DayOfWeek.Monday).ToString(culture).PadLeft(2, '0') }
         };
+
+#if NET6_0_OR_GREATER
+        /// <summary>
+        /// Applies formatting consistent to the rules specified by the Ruby Time.strftime function.
+        /// The following exceptions apply;
+        /// - `%N` (Not standard) - DateTime does not support nanoseconds precision, so the default is microsecond (6dp).
+        /// - `%9N` (Not implemented) - DateTime does not support nanoseconds precision.
+        /// - `%Z` (Not standard) - DotLiquid returns an offset (+00:00), Ruby states this should return a timezone description (e.g. 'GMT')
+        /// <see href="https://help.shopify.com/themes/liquid/filters/additional-filters#date"/>
+        /// <see href="https://ruby-doc.org/core-3.0.0/Time.html#method-i-strftime"/>
+        /// </summary>
+        /// <param name="dateOnly">date-only object to be formatted</param>
+        /// <param name="format">the required format</param>
+        /// <param name="culture">the CurrentCulture to be used when formatting</param>
+        /// <returns>a string version of date-time matching pattern.</returns>
+        public static string ToStrFTime(this DateOnly dateOnly, string format, CultureInfo culture)
+        {
+            return ObjectToStrFTime(dateOnly, format, culture);
+        }
+
+        /// <summary>
+        /// Applies formatting consistent to the rules specified by the Ruby Time.strftime function.
+        /// The following exceptions apply;
+        /// - `%N` (Not standard) - DateTime does not support nanoseconds precision, so the default is microsecond (6dp).
+        /// - `%9N` (Not implemented) - DateTime does not support nanoseconds precision.
+        /// - `%Z` (Not standard) - DotLiquid returns an offset (+00:00), Ruby states this should return a timezone description (e.g. 'GMT')
+        /// <see href="https://help.shopify.com/themes/liquid/filters/additional-filters#date"/>
+        /// <see href="https://ruby-doc.org/core-3.0.0/Time.html#method-i-strftime"/>
+        /// </summary>
+        /// <param name="timeOnly">time-only object to be formatted</param>
+        /// <param name="format">the required format</param>
+        /// <param name="culture">the CurrentCulture to be used when formatting</param>
+        /// <returns>a string version of date-time matching pattern.</returns>
+        public static string ToStrFTime(this TimeOnly timeOnly, string format, CultureInfo culture)
+        {
+            return ObjectToStrFTime(timeOnly, format, culture);
+        }
+#endif
 
         /// <summary>
         /// Applies formatting consistent to the rules specified by the Ruby Time.strftime function.
@@ -104,16 +146,7 @@ namespace DotLiquid.Util
         /// <returns>a string version of date-time matching pattern.</returns>
         public static string ToStrFTime(this DateTime dateTime, string format, CultureInfo culture)
         {
-            culture = culture ?? throw new ArgumentException(message: "CultureInfo is mandatory", paramName: "culture");
-            return Regex.Replace(input: format, pattern: SPECIFIER_REGEX,
-                evaluator: specifier => SpecifierEvaluator(
-                    specifier: specifier.Groups[0].Value,
-                    flags: specifier.Groups[GROUP_FLAGS].Captures.Cast<Capture>().Select(capture => capture.Value).ToList(),
-                    width: specifier.Groups[GROUP_WIDTH].Captures.Cast<Capture>().Select(capture => (int?)Convert.ToInt32(capture.Value)).FirstOrDefault(),
-                    directive: specifier.Groups[GROUP_DIRECTIVE].Captures.Cast<Capture>().Select(capture => capture.Value).FirstOrDefault(),
-                    source: dateTime,
-                    culture: culture
-                    ));
+            return ObjectToStrFTime(dateTime, format, culture);
         }
 
         /// <summary>
@@ -125,16 +158,29 @@ namespace DotLiquid.Util
         /// <returns>a string version of date-time matching pattern.</returns>
         public static string ToStrFTime(this DateTimeOffset dateTimeOffset, string format, CultureInfo culture)
         {
+            return ObjectToStrFTime(dateTimeOffset, format, culture);
+        }
+
+        private static string ObjectToStrFTime(object source, string format, CultureInfo culture)
+        {
             culture = culture ?? throw new ArgumentException(message: "CultureInfo is mandatory", paramName: "culture");
-            return Regex.Replace(input: format, pattern: SPECIFIER_REGEX,
-                evaluator: specifier => SpecifierEvaluator(
-                    specifier: specifier.Groups[0].Value,
-                    flags: specifier.Groups[GROUP_FLAGS].Captures.Cast<Capture>().Select(capture => capture.Value).ToList(),
-                    width: specifier.Groups[GROUP_WIDTH].Captures.Cast<Capture>().Select(capture => (int?)Convert.ToInt32(capture.Value)).FirstOrDefault(),
-                    directive: specifier.Groups[GROUP_DIRECTIVE].Captures.Cast<Capture>().Select(capture => capture.Value).FirstOrDefault(),
-                    source: dateTimeOffset,
-                    culture: culture
-                    ));
+
+            try
+            {
+                return Regex.Replace(input: format, pattern: SPECIFIER_REGEX,
+                    evaluator: specifier => SpecifierEvaluator(
+                        specifier: specifier.Groups[0].Value,
+                        flags: specifier.Groups[GROUP_FLAGS].Captures.Cast<Capture>().Select(capture => capture.Value).ToList(),
+                        width: specifier.Groups[GROUP_WIDTH].Captures.Cast<Capture>().Select(capture => (int?)Convert.ToInt32(capture.Value)).FirstOrDefault(),
+                        directive: specifier.Groups[GROUP_DIRECTIVE].Captures.Cast<Capture>().Select(capture => capture.Value).FirstOrDefault(),
+                        source: source,
+                        culture: culture
+                        ));
+            }
+            catch (FormatException ex) when (ex.Message == "Only")
+            {
+                throw new FormatException($"String '{format}' contains parts which are not specific to the {source.GetType().Name}.");
+            }
         }
 
         /// <summary>
@@ -154,14 +200,22 @@ namespace DotLiquid.Util
             var result = specifier;
             directive = PreProcessDirective(directive, flags, width);
 
-            if (OffsetFormats.ContainsKey(directive) && source is DateTimeOffset dateTimeOffset1)
-                result = OffsetFormats[directive].Invoke(dateTimeOffset1, culture);
-            else if (Formats.ContainsKey(directive))
-                result = Formats[directive].Invoke(source is DateTimeOffset dateTimeOffset2 ? dateTimeOffset2.DateTime : (DateTime)source, culture);
+            if (Formats.ContainsKey(directive))
+                result = Formats[directive].Invoke(source, culture);
+            else if (DateFormats.ContainsKey(directive) && source is DateTimeOffset dateTimeOffset)
+                result = DateFormats[directive].Invoke(dateTimeOffset.DateTime, culture);
+            else if (DateFormats.ContainsKey(directive) && source is DateTime dateTime)
+                result = DateFormats[directive].Invoke(dateTime, culture);
+#if NET6_0_OR_GREATER
+            else if (DateFormats.ContainsKey(directive) && source is DateOnly dateOnly)
+                result = DateFormats[directive].Invoke(dateOnly.ToDateTime(TimeOnly.MinValue), culture);
+            else if (DateFormats.ContainsKey(directive) && source is TimeOnly timeOnly)
+                throw new FormatException("Only");
+#endif
             else
                 return specifier; // This is an unconfigured specifier
 
-            return flags.ToList().Aggregate(result, (current, flag) => ApplyFlag(flag, (width ?? 2), current));
+            return flags.Aggregate(result, (current, flag) => ApplyFlag(flag, (width ?? 2), current));
         }
 
         // Pre-process the directive for some of the quirkier cases, such as '%:z' and '%3N'.
@@ -218,9 +272,9 @@ namespace DotLiquid.Util
             switch (directive)
             {
                 case "G":
-                    return dateTime.ToString("yyyy", culture);
+                    return string.Format(culture, "{0:yyyy}", dateTime);
                 case "g":
-                    return dateTime.ToString("yy", culture);
+                    return string.Format(culture, "{0:yy}", dateTime);
                 case "V":
                     // Return the week number of our adjusted day
                     return culture.Calendar.GetWeekOfYear(dateTime, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday).ToString().PadLeft(2, '0');

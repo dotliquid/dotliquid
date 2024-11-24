@@ -233,6 +233,19 @@ namespace DotLiquid.Tests
             Assert.That(_context["nil"], Is.EqualTo(null));
         }
 
+#if NET6_0_OR_GREATER
+        [Test]
+        public void TestVariables_NET60()
+        {
+            var dateOnly = new DateOnly(2013, 9, 10);
+            _context["dateonly"] = dateOnly;
+            Assert.That(_context["dateOnly"], Is.EqualTo(dateOnly));
+            var timeOnly = new TimeOnly(0, 10, 32);
+            _context["timeonly"] = timeOnly;
+            Assert.That(_context["timeonly"], Is.EqualTo(timeOnly));
+        }
+#endif
+
         private enum TestEnum { Yes, No }
 
         [Test]

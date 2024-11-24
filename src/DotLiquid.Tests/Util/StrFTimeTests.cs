@@ -64,8 +64,8 @@ namespace DotLiquid.Tests.Util
             var estResult = new DateTimeOffset(date, TimeSpan.FromHours(-5)).ToStrFTime(format, EN_GB);
             Assert.That(estResult, Is.EqualTo(utcResult));
 #if NET6_0_OR_GREATER
-            Assert.That(new DateOnly(2012, 1, 8).ToStrFTime(format, EN_GB), Is.EqualTo(localResult));
-            Assert.Throws<FormatException>(() => new TimeOnly(14, 32, 14, 123).ToStrFTime(format, EN_GB));
+            Assert.That(DateOnly.FromDateTime(date).ToStrFTime(format, EN_GB), Is.EqualTo(localResult));
+            Assert.Throws<FormatException>(() => TimeOnly.FromDateTime(date).ToStrFTime(format, EN_GB));
 #endif
             return localResult;
         }
@@ -96,8 +96,8 @@ namespace DotLiquid.Tests.Util
             var estResult = new DateTimeOffset(date, TimeSpan.FromHours(-5)).ToStrFTime(format, EN_GB);
             Assert.That(estResult, Is.EqualTo(utcResult));
 #if NET6_0_OR_GREATER
-            Assert.Throws<FormatException>(() => new DateOnly(2012, 1, 8).ToStrFTime(format, EN_GB));
-            Assert.That(new TimeOnly(14, 32, 14, 123).ToStrFTime(format, EN_GB), Is.EqualTo(localResult));
+            Assert.Throws<FormatException>(() => DateOnly.FromDateTime(date).ToStrFTime(format, EN_GB));
+            Assert.That(TimeOnly.FromDateTime(date).ToStrFTime(format, EN_GB), Is.EqualTo(localResult));
 #endif
             return localResult;
         }
@@ -113,8 +113,8 @@ namespace DotLiquid.Tests.Util
             var estResult = new DateTimeOffset(date, TimeSpan.FromHours(-5)).ToStrFTime(format, EN_GB);
             Assert.That(estResult, Is.EqualTo(utcResult));
 #if NET6_0_OR_GREATER
-            Assert.Throws<FormatException>(() => new DateOnly(2012, 1, 8).ToStrFTime(format, EN_GB));
-            Assert.Throws<FormatException>(() => new TimeOnly(14, 32, 14, 123).ToStrFTime(format, EN_GB));
+            Assert.Throws<FormatException>(() => DateOnly.FromDateTime(date).ToStrFTime(format, EN_GB));
+            Assert.Throws<FormatException>(() => TimeOnly.FromDateTime(date).ToStrFTime(format, EN_GB));
 #endif
             return localResult;
         }
@@ -132,8 +132,8 @@ namespace DotLiquid.Tests.Util
             var estResult = new DateTimeOffset(date, TimeSpan.FromHours(-5)).ToStrFTime(format, EN_GB);
             Assert.That(estResult, Is.EqualTo(utcResult));
 #if NET6_0_OR_GREATER
-            Assert.That(new DateOnly(2012, 1, 8).ToStrFTime(format, EN_GB), Is.EqualTo(localResult));
-            Assert.That(new TimeOnly(14, 32, 14, 123).ToStrFTime(format, EN_GB), Is.EqualTo(localResult));
+            Assert.That(DateOnly.FromDateTime(date).ToStrFTime(format, EN_GB), Is.EqualTo(localResult));
+            Assert.That(TimeOnly.FromDateTime(date).ToStrFTime(format, EN_GB), Is.EqualTo(localResult));
 #endif
             return localResult;
         }

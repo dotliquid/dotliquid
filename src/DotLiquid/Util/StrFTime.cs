@@ -18,8 +18,7 @@ namespace DotLiquid.Util
 
         private delegate string DateObjectDelegate(object dateTime, CultureInfo culture);
         private delegate string DateTimeDelegate(DateTime dateTime, CultureInfo culture);
-        private delegate string DateTimeOffsetDelegate(DateTimeOffset dateTimeOffset, CultureInfo culture);
-
+        
         private static readonly Dictionary<string, DateObjectDelegate> Formats = new Dictionary<string, DateObjectDelegate>
         {
             { "a", (dateTime, culture) => string.Format(culture, "{0:ddd}", dateTime) },
@@ -163,7 +162,7 @@ namespace DotLiquid.Util
 
         private static string ObjectToStrFTime(object source, string format, CultureInfo culture)
         {
-            culture = culture ?? throw new ArgumentException(message: "CultureInfo is mandatory", paramName: "culture");
+            culture = culture ?? throw new ArgumentException(message: "CultureInfo is mandatory", paramName: nameof(culture));
 
             try
             {
@@ -246,7 +245,7 @@ namespace DotLiquid.Util
                 case "#": // not implemented
                     return str;
                 default: // unexpected flag, the regex must be wrong.
-                    throw new ArgumentException(message: "Invalid flag passed to ApplyFlag", paramName: "flag");
+                    throw new ArgumentException(message: "Invalid flag passed to ApplyFlag", paramName: nameof(flag));
             }
         }
 
@@ -279,7 +278,7 @@ namespace DotLiquid.Util
                     // Return the week number of our adjusted day
                     return culture.Calendar.GetWeekOfYear(dateTime, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday).ToString().PadLeft(2, '0');
                 default:
-                    throw new ArgumentException(message: "Invalid directive passed to GetIso8601WeekOfYear", paramName: "directive");
+                    throw new ArgumentException(message: "Invalid directive passed to GetIso8601WeekOfYear", paramName: nameof(directive));
             }
         }
     }

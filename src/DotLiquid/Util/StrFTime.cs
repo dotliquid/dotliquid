@@ -107,9 +107,7 @@ namespace DotLiquid.Util
         /// <param name="culture">the CurrentCulture to be used when formatting</param>
         /// <returns>a string version of date-time matching pattern.</returns>
         public static string ToStrFTime(this DateOnly dateOnly, string format, CultureInfo culture)
-        {
-            return ObjectToStrFTime(dateOnly, format, culture);
-        }
+            => ObjectToStrFTime(dateOnly, format, culture);
 
         /// <summary>
         /// Applies formatting consistent to the rules specified by the Ruby Time.strftime function.
@@ -125,9 +123,7 @@ namespace DotLiquid.Util
         /// <param name="culture">the CurrentCulture to be used when formatting</param>
         /// <returns>a string version of date-time matching pattern.</returns>
         public static string ToStrFTime(this TimeOnly timeOnly, string format, CultureInfo culture)
-        {
-            return ObjectToStrFTime(timeOnly, format, culture);
-        }
+            => ObjectToStrFTime(timeOnly, format, culture);
 #endif
 
         /// <summary>
@@ -144,9 +140,7 @@ namespace DotLiquid.Util
         /// <param name="culture">the CurrentCulture to be used when formatting</param>
         /// <returns>a string version of date-time matching pattern.</returns>
         public static string ToStrFTime(this DateTime dateTime, string format, CultureInfo culture)
-        {
-            return ObjectToStrFTime(dateTime, format, culture);
-        }
+            => ObjectToStrFTime(dateTime, format, culture);
 
         /// <summary>
         /// Formats a date using a ruby date format string
@@ -156,9 +150,7 @@ namespace DotLiquid.Util
         /// <param name="culture">the CurrentCulture to be used when formatting</param>
         /// <returns>a string version of date-time matching pattern.</returns>
         public static string ToStrFTime(this DateTimeOffset dateTimeOffset, string format, CultureInfo culture)
-        {
-            return ObjectToStrFTime(dateTimeOffset, format, culture);
-        }
+            => ObjectToStrFTime(dateTimeOffset, format, culture);
 
         private static string ObjectToStrFTime(object source, string format, CultureInfo culture)
         {

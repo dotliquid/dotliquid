@@ -151,6 +151,15 @@ namespace DotLiquid.Tests.Util
             Assert.That(estResult, Is.EqualTo("1326051134"));
         }
 
+#if NET6_0_OR_GREATER
+        [Test]
+        public void TestEpoch_NET60()
+        {
+            Assert.Throws<FormatException>(() => DateOnly.FromDateTime(DateTime.Now).ToStrFTime("%s", EN_GB));
+            Assert.Throws<FormatException>(() => TimeOnly.FromDateTime(DateTime.Now).ToStrFTime("%s", EN_GB));
+        }
+#endif
+
         [Test]
         public void TestTimeZone()
         {

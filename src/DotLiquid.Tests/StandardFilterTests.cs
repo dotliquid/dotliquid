@@ -1370,7 +1370,7 @@ PaulGeorge",
                 Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round:3 }}");
                 Helper.AssertTemplateResult("1", "{{ 1 | round }}");
 
-                Assert.Null(StandardFilters.Round("1.2345678", "two"));
+                Assert.Null(StandardFilters.Round(_contextV20, "1.2345678", "two"));
             }
         }
 

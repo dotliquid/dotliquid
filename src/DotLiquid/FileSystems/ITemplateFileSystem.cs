@@ -10,7 +10,8 @@
         /// <summary>
         /// Called by Liquid to retrieve a template instance
         /// </summary>
-        /// <param name="templatePath"></param>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="templateName">The name, or path, of the template to retrieve</param>
         /// <returns></returns>
         Template GetTemplate(Context context, string templateName);
     }

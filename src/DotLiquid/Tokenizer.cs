@@ -183,6 +183,7 @@ namespace DotLiquid
         /// <param name="sb">The StringBuilder to write to</param>
         /// <param name="markupEnumerator">The string enumerator</param>
         /// <param name="searchChars">The character set to search for</param>
+        /// <param name="syntaxCompatibilityLevel">The Liquid syntax flag used for backward compatibility</param>
         /// <returns>True if reaches end sequence, otherwise false</returns>
         private static bool ReadToEndOfTag(StringBuilder sb, CharEnumerator markupEnumerator, HashSet<char> searchChars, SyntaxCompatibility syntaxCompatibilityLevel)
         {

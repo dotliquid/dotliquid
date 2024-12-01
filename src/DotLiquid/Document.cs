@@ -32,7 +32,9 @@ namespace DotLiquid
         /// Document blocks don't need to be terminated since they are not actually opened
         /// </summary>
         protected override void AssertMissingDelimitation()
-        { }
+        {
+            // Method intentionally left empty. Document blocks don't need to be terminated since they are not actually opened
+        }
 
         /// <summary>
         /// Renders the Document

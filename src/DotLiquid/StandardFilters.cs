@@ -1141,15 +1141,18 @@ namespace DotLiquid
         /// <see href="https://shopify.dev/api/liquid/filters#base64_url_safe_decode"/>
         public static string Base64UrlSafeDecode(string input)
         {
-            if (input == null)
+            if (string.IsNullOrEmpty(input))
             {
                 return string.Empty;
             }
             string incoming = input.Replace('_', '/').Replace('-', '+');
-            switch (input.Length % 4)
+            if (input[input.Length - 1] != '=')
             {
-                case 2: incoming += "=="; break;
-                case 3: incoming += "="; break;
+                switch (input.Length % 4)
+                {
+                    case 2: incoming += "=="; break;
+                    case 3: incoming += "="; break;
+                }
             }
             try
             {

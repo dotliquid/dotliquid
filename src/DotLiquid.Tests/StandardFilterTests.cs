@@ -2104,6 +2104,16 @@ Cheapest products:
         }
 
         [Test]
+        public void TestBase64Decode_MandatoryPadding()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.Throws<ArgumentException>(() => StandardFilters.Base64Decode("QQ"));
+                Assert.Throws<ArgumentException>(() => StandardFilters.Base64Decode("QUI"));
+            });
+        }
+
+        [Test]
         public void TestBase64Decode_NullStrings()
         {
             Assert.Multiple(() =>
@@ -2142,7 +2152,20 @@ Cheapest products:
         }
 
         [Test]
-        public void TestBase64DecodeTestBase64UrlSafeDecode_NullStrings()
+        public void TestBase64UrlSafeDecode_OptionalPadding()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(StandardFilters.Base64UrlSafeDecode("QQ"), Is.EqualTo("A"));
+                Assert.That(StandardFilters.Base64UrlSafeDecode("QUI"), Is.EqualTo("AB"));
+                Assert.That(StandardFilters.Base64UrlSafeDecode("QQ=="), Is.EqualTo("A"));
+
+                Assert.Throws<ArgumentException>(() => StandardFilters.Base64UrlSafeDecode("QQ="));
+            });
+        }
+
+        [Test]
+        public void TestBase64UrlSafeDecode_NullStrings()
         {
             Assert.Multiple(() =>
             {

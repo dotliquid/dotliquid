@@ -54,9 +54,8 @@ namespace DotLiquid.Tests
         {
             LocalFileSystem fileSystem = new LocalFileSystem(@"D:\Some\Path");
             foreach (var validPath in validPaths)
-                Assert.AreEqual(
-                    expected: Path.Combine(@"D:\Some\Path", validPath.Value.Replace('\\', Path.DirectorySeparatorChar)),
-                    actual: fileSystem.FullPath(validPath.Key));
+                Assert.That(
+                    actual: fileSystem.FullPath(validPath.Key), Is.EqualTo(expected: Path.Combine(@"D:\Some\Path", validPath.Value.Replace('\\', Path.DirectorySeparatorChar))));
 
             foreach (var invalidPath in invalidPaths)
                 Assert.Throws<FileSystemException>(() => fileSystem.FullPath(invalidPath));
@@ -67,8 +66,8 @@ namespace DotLiquid.Tests
         public void TestLocalWithBracketsInPath()
         {
             LocalFileSystem fileSystem = new LocalFileSystem(@"D:\Some (thing)\Path");
-            Assert.AreEqual(@"D:\Some (thing)\Path\_mypartial.liquid".Replace('\\', Path.DirectorySeparatorChar), fileSystem.FullPath("mypartial"));
-            Assert.AreEqual(@"D:\Some (thing)\Path\dir\_mypartial.liquid".Replace('\\', Path.DirectorySeparatorChar), fileSystem.FullPath("dir/mypartial"));
+            Assert.That(fileSystem.FullPath("mypartial"), Is.EqualTo(@"D:\Some (thing)\Path\_mypartial.liquid".Replace('\\', Path.DirectorySeparatorChar)));
+            Assert.That(fileSystem.FullPath("dir/mypartial"), Is.EqualTo(@"D:\Some (thing)\Path\dir\_mypartial.liquid".Replace('\\', Path.DirectorySeparatorChar)));
         }
         
 
@@ -78,9 +77,8 @@ namespace DotLiquid.Tests
             var assembly = typeof(FileSystemTests).GetTypeInfo().Assembly;
             EmbeddedFileSystem fileSystem = new EmbeddedFileSystem(assembly, "DotLiquid.Tests.Embedded");
             foreach (var validPath in validPaths)
-                Assert.AreEqual(
-                    expected: "DotLiquid.Tests.Embedded." + Liquid.DirectorySeparatorsRegex.Replace(validPath.Value, "."),
-                    actual: fileSystem.FullPath(validPath.Key));
+                Assert.That(
+                    actual: fileSystem.FullPath(validPath.Key), Is.EqualTo(expected: "DotLiquid.Tests.Embedded." + Liquid.DirectorySeparatorsRegex.Replace(validPath.Value, ".")));
 
             foreach (var invalidPath in invalidPaths)
                 Assert.Throws<FileSystemException>(() => fileSystem.FullPath(invalidPath));

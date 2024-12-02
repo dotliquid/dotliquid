@@ -56,7 +56,7 @@ namespace DotLiquid.Tests
         {
             Template template = Template.Parse("{{context.Name}}");
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MyLiquidTypeWithNoAllowedMembers() { Name = "worked" } }));
-            Assert.AreEqual("", output);
+            Assert.That(output, Is.EqualTo(""));
         }
 
         [Test]
@@ -64,7 +64,7 @@ namespace DotLiquid.Tests
         {
             Template template = Template.Parse("{{context.Name}}");
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MyLiquidTypeWithAllowedMember() { Name = "worked" } }));
-            Assert.AreEqual("worked", output);
+            Assert.That(output, Is.EqualTo("worked"));
         }
 
         [Test]
@@ -72,7 +72,7 @@ namespace DotLiquid.Tests
         {
             Template template = Template.Parse("{{context.Name}}");
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MyLiquidTypeWithGlobalMemberAllowance() { Name = "worked" } }));
-            Assert.AreEqual("worked", output);
+            Assert.That(output, Is.EqualTo("worked"));
         }
 
         [Test]
@@ -80,7 +80,7 @@ namespace DotLiquid.Tests
         {
             Template template = Template.Parse("|{{context.Name}}|{{context.Child.Name}}|");
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MyLiquidTypeWithGlobalMemberAllowanceAndHiddenChild() { Name = "worked_parent", Child = new MyLiquidTypeWithNoAllowedMembers() { Name = "worked_child" } } }));
-            Assert.AreEqual("|worked_parent||", output);
+            Assert.That(output, Is.EqualTo("|worked_parent||"));
         }
 
         [Test]
@@ -88,7 +88,7 @@ namespace DotLiquid.Tests
         {
             Template template = Template.Parse("|{{context.Name}}|{{context.Child.Name}}|");
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MyLiquidTypeWithGlobalMemberAllowanceAndExposedChild() { Name = "worked_parent", Child = new MyLiquidTypeWithAllowedMember() { Name = "worked_child" } } }));
-            Assert.AreEqual("|worked_parent|worked_child|", output);
+            Assert.That(output, Is.EqualTo("|worked_parent|worked_child|"));
         }
 
         [Test]

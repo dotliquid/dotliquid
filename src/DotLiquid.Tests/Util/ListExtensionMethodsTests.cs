@@ -13,9 +13,9 @@ namespace DotLiquid.Tests.Util
         {
             var list = (List<string>)null;
 
-            Assert.IsNull(list.TryGetAtIndex(0));
-            Assert.IsNull(list.TryGetAtIndex(-1));
-            Assert.IsNull(list.TryGetAtIndex(1));
+            Assert.That(list.TryGetAtIndex(0), Is.Null);
+            Assert.That(list.TryGetAtIndex(-1), Is.Null);
+            Assert.That(list.TryGetAtIndex(1), Is.Null);
         }
 
         [Test]
@@ -23,9 +23,9 @@ namespace DotLiquid.Tests.Util
         {
             var list = new List<string>();
 
-            Assert.IsNull(list.TryGetAtIndex(1));
-            Assert.IsNull(list.TryGetAtIndex(-1));
-            Assert.IsNull(list.TryGetAtIndex(1));
+            Assert.That(list.TryGetAtIndex(1), Is.Null);
+            Assert.That(list.TryGetAtIndex(-1), Is.Null);
+            Assert.That(list.TryGetAtIndex(1), Is.Null);
         }
 
         [Test]
@@ -35,10 +35,10 @@ namespace DotLiquid.Tests.Util
             const string item1 = "bar";
             var list = new List<string> { item0, item1 };
 
-            Assert.AreEqual(item0, list.TryGetAtIndex(0));
-            Assert.AreEqual(item1, list.TryGetAtIndex(1));
-            Assert.IsNull(list.TryGetAtIndex(2));
-            Assert.IsNull(list.TryGetAtIndex(-1));
+            Assert.That(list.TryGetAtIndex(0), Is.EqualTo(item0));
+            Assert.That(list.TryGetAtIndex(1), Is.EqualTo(item1));
+            Assert.That(list.TryGetAtIndex(2), Is.Null);
+            Assert.That(list.TryGetAtIndex(-1), Is.Null);
         }
 
         [Test]
@@ -46,9 +46,9 @@ namespace DotLiquid.Tests.Util
         {
             var list = (List<string>)null;
 
-            Assert.IsNull(list.TryGetAtIndexReverse(0));
-            Assert.IsNull(list.TryGetAtIndexReverse(-1));
-            Assert.IsNull(list.TryGetAtIndexReverse(1));
+            Assert.That(list.TryGetAtIndexReverse(0), Is.Null);
+            Assert.That(list.TryGetAtIndexReverse(-1), Is.Null);
+            Assert.That(list.TryGetAtIndexReverse(1), Is.Null);
         }
 
         [Test]
@@ -56,9 +56,9 @@ namespace DotLiquid.Tests.Util
         {
             var list = new List<string>();
 
-            Assert.IsNull(list.TryGetAtIndexReverse(1));
-            Assert.IsNull(list.TryGetAtIndexReverse(-1));
-            Assert.IsNull(list.TryGetAtIndexReverse(1));
+            Assert.That(list.TryGetAtIndexReverse(1), Is.Null);
+            Assert.That(list.TryGetAtIndexReverse(-1), Is.Null);
+            Assert.That(list.TryGetAtIndexReverse(1), Is.Null);
         }
 
         [Test]
@@ -68,10 +68,10 @@ namespace DotLiquid.Tests.Util
             const string item1 = "bar";
             var list = new List<string> { item0, item1 };
 
-            Assert.AreEqual(item1, list.TryGetAtIndexReverse(0));
-            Assert.AreEqual(item0, list.TryGetAtIndexReverse(1));
-            Assert.IsNull(list.TryGetAtIndexReverse(2));
-            Assert.IsNull(list.TryGetAtIndexReverse(-1));
+            Assert.That(list.TryGetAtIndexReverse(0), Is.EqualTo(item1));
+            Assert.That(list.TryGetAtIndexReverse(1), Is.EqualTo(item0));
+            Assert.That(list.TryGetAtIndexReverse(2), Is.Null);
+            Assert.That(list.TryGetAtIndexReverse(-1), Is.Null);
         }
     }
 }

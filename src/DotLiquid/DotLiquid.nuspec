@@ -9,15 +9,17 @@
     <description>DotLiquid is a templating system ported to the .NET framework from Ruby’s Liquid Markup.</description>
     <summary>DotLiquid is a templating system ported to the .NET framework from Ruby’s Liquid Markup.</summary>
     <language>en-US</language>
-    <projectUrl>http://dotliquidmarkup.org</projectUrl>
+    <projectUrl>https://www.dotliquid.org</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/dotliquid/dotliquid/master/src/DotLiquid/logo_nuget.png</iconUrl>
-    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <license type="expression">Apache-2.0 OR MS-PL</license>
+    <repository type="git" url="https://github.com/dotliquid/dotliquid.git" />
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <tags>template templating language liquid markup</tags>
     <dependencies>
-      <group targetFramework=".NETFramework4.5" />
-      <group targetFramework=".NETStandard1.3" />
-      <group targetFramework=".NETStandard2.0" />
+      <group targetFramework="net45" />
+      <group targetFramework="netstandard1.3" />
+      <group targetFramework="netstandard2.0" />
+      <group targetFramework="net6.0" />        
     </dependencies>
   </metadata>
   <files>
@@ -35,6 +37,10 @@
     <file src="bin\Release\net45\it\DotLiquid.resources.dll" target="lib\net45\it" />
     <file src="bin\Release\net45\DotLiquid.pdb" target="lib\net45" />
     <file src="bin\Release\net45\DotLiquid.xml" target="lib\net45" />
+    <file src="bin\Release\net6.0\DotLiquid.dll" target="lib\net6.0" />
+    <file src="bin\Release\net6.0\it\DotLiquid.resources.dll" target="lib\net6.0\it" />
+    <file src="bin\Release\net6.0\DotLiquid.pdb" target="lib\net6.0" />
+    <file src="bin\Release\net6.0\DotLiquid.xml" target="lib\net6.0" />
     <file src="**\*.cs" target="src" />
   </files>
 </package>

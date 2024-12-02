@@ -18,7 +18,7 @@ namespace DotLiquid.Tests.Framework
             IEnumerator<Type> typesEnumerator = expectedTypes.GetEnumerator();
 
             while (collectionEnumerator.MoveNext() && typesEnumerator.MoveNext())
-                Assert.IsInstanceOf(typesEnumerator.Current, collectionEnumerator.Current);
+                Assert.That(collectionEnumerator.Current, Is.InstanceOf(typesEnumerator.Current));
         }
     }
 }

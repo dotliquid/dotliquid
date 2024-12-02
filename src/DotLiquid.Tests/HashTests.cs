@@ -58,9 +58,8 @@ namespace DotLiquid.Tests
 
             var value1 = Hash.FromAnonymousObject(testClass1);
 
-            Assert.AreEqual(
-                testClass1.TestClassProp1,
-                value1[nameof(DotLiquid.Tests.Ns1.TestClass.TestClassProp1)]);
+            Assert.That(
+                value1[nameof(DotLiquid.Tests.Ns1.TestClass.TestClassProp1)], Is.EqualTo(testClass1.TestClassProp1));
 
             //Same type name but different namespace
             var testClass2 = new DotLiquid.Tests.Ns2.TestClass()
@@ -69,9 +68,8 @@ namespace DotLiquid.Tests
             };
             var value2 = Hash.FromAnonymousObject(testClass2);
 
-            Assert.AreEqual(
-                testClass2.TestClassProp2,
-                value2[nameof(DotLiquid.Tests.Ns2.TestClass.TestClassProp2)]);
+            Assert.That(
+                value2[nameof(DotLiquid.Tests.Ns2.TestClass.TestClassProp2)], Is.EqualTo(testClass2.TestClassProp2));
         }
 
         #endregion
@@ -94,21 +92,17 @@ namespace DotLiquid.Tests
             }, includeBaseClassProperties);
 
             // Properties attached directly to the type of instance being converted to Hash should always be visible
-            Assert.AreEqual(
-                TestClassPropValue,
-                value[nameof(TestChildClass.TestClassProp)]);
+            Assert.That(
+                value[nameof(TestChildClass.TestClassProp)], Is.EqualTo(TestClassPropValue));
 
-            Assert.AreEqual(
-                TestClassOverridablePropValue,
-                value[nameof(TestChildClass.TestOverridableProp)]);
+            Assert.That(
+                value[nameof(TestChildClass.TestOverridableProp)], Is.EqualTo(TestClassOverridablePropValue));
 
-            Assert.AreEqual(
-                includeBaseClassProperties ? TestMiddleClassPropValue : null,
-                value[nameof(TestMiddleClass.TestMiddleClassProp)]);
+            Assert.That(
+                value[nameof(TestMiddleClass.TestMiddleClassProp)], Is.EqualTo(includeBaseClassProperties ? TestMiddleClassPropValue : null));
 
-            Assert.AreEqual(
-                includeBaseClassProperties ? TestBaseClassPropValue : null,
-                value[nameof(TestChildClass.TestBaseClassProp)]);
+            Assert.That(
+                value[nameof(TestChildClass.TestBaseClassProp)], Is.EqualTo(includeBaseClassProperties ? TestBaseClassPropValue : null));
         }
 
         /// <summary>
@@ -148,18 +142,18 @@ namespace DotLiquid.Tests
             var hash = new Hash(0); // default value of zero
             hash["key"] = "value";
 
-            Assert.True(hash.Contains("unknown-key"));
-            Assert.True(hash.ContainsKey("unknown-key"));
-            Assert.AreEqual(0, hash["unknown-key"]); // ensure the default value is returned
+            Assert.That(hash.Contains("unknown-key"), Is.True);
+            Assert.That(hash.ContainsKey("unknown-key"), Is.True);
+            Assert.That(hash["unknown-key"], Is.EqualTo(0)); // ensure the default value is returned
 
-            Assert.True(hash.Contains("key"));
-            Assert.True(hash.ContainsKey("key"));
-            Assert.AreEqual("value", hash["key"]);
+            Assert.That(hash.Contains("key"), Is.True);
+            Assert.That(hash.ContainsKey("key"), Is.True);
+            Assert.That(hash["key"], Is.EqualTo("value"));
 
             hash.Remove("key");
-            Assert.True(hash.Contains("key"));
-            Assert.True(hash.ContainsKey("key"));
-            Assert.AreEqual(0, hash["key"]); // ensure the default value is returned after key removed
+            Assert.That(hash.Contains("key"), Is.True);
+            Assert.That(hash.ContainsKey("key"), Is.True);
+            Assert.That(hash["key"], Is.EqualTo(0)); // ensure the default value is returned after key removed
         }
 
         [Test]
@@ -168,13 +162,13 @@ namespace DotLiquid.Tests
             var hash = new Hash((h, k) => { return "Lambda Value"; });
             hash["key"] = "value";
 
-            Assert.True(hash.Contains("unknown-key"));
-            Assert.True(hash.ContainsKey("unknown-key"));
-            Assert.AreEqual("Lambda Value", hash["unknown-key"]);
+            Assert.That(hash.Contains("unknown-key"), Is.True);
+            Assert.That(hash.ContainsKey("unknown-key"), Is.True);
+            Assert.That(hash["unknown-key"], Is.EqualTo("Lambda Value"));
 
-            Assert.True(hash.Contains("key"));
-            Assert.True(hash.ContainsKey("key"));
-            Assert.AreEqual("value", hash["key"]);
+            Assert.That(hash.Contains("key"), Is.True);
+            Assert.That(hash.ContainsKey("key"), Is.True);
+            Assert.That(hash["key"], Is.EqualTo("value"));
         }
 
         [Test]

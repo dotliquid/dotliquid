@@ -11,29 +11,29 @@ namespace DotLiquid.Tests
         public void TestRubySimpleName()
         {
             RubyNamingConvention namingConvention = new RubyNamingConvention();
-            Assert.AreEqual("test", namingConvention.GetMemberName("Test"));
+            Assert.That(namingConvention.GetMemberName("Test"), Is.EqualTo("test"));
         }
 
         [Test]
         public void TestRubyComplexName()
         {
             RubyNamingConvention namingConvention = new RubyNamingConvention();
-            Assert.AreEqual("hello_world", namingConvention.GetMemberName("HelloWorld"));
+            Assert.That(namingConvention.GetMemberName("HelloWorld"), Is.EqualTo("hello_world"));
         }
 
         [Test]
         public void TestRubyMoreComplexName()
         {
             RubyNamingConvention namingConvention = new RubyNamingConvention();
-            Assert.AreEqual("hello_cruel_world", namingConvention.GetMemberName("HelloCruelWorld"));
+            Assert.That(namingConvention.GetMemberName("HelloCruelWorld"), Is.EqualTo("hello_cruel_world"));
         }
 
         [Test]
         public void TestRubyFullUpperCase()
         {
             RubyNamingConvention namingConvention = new RubyNamingConvention();
-            Assert.AreEqual("id", namingConvention.GetMemberName("ID"));
-            Assert.AreEqual("hellocruelworld", namingConvention.GetMemberName("HELLOCRUELWORLD"));
+            Assert.That(namingConvention.GetMemberName("ID"), Is.EqualTo("id"));
+            Assert.That(namingConvention.GetMemberName("HELLOCRUELWORLD"), Is.EqualTo("hellocruelworld"));
         }
 
         [Test]
@@ -44,7 +44,7 @@ namespace DotLiquid.Tests
                 RubyNamingConvention namingConvention = new RubyNamingConvention();
 
                 // in Turkish ID.ToLower() returns a localized i, and this fails
-                Assert.AreEqual("id", namingConvention.GetMemberName("ID"));
+                Assert.That(namingConvention.GetMemberName("ID"), Is.EqualTo("id"));
             }
         }
 
@@ -52,7 +52,7 @@ namespace DotLiquid.Tests
         public void TestCSharpConventionDoesNothing()
         {
             CSharpNamingConvention namingConvention = new CSharpNamingConvention();
-            Assert.AreEqual("Test", namingConvention.GetMemberName("Test"));
+            Assert.That(namingConvention.GetMemberName("Test"), Is.EqualTo("Test"));
         }
     }
 }

@@ -14,61 +14,61 @@ namespace DotLiquid.Tests.Util
         public void TestSafeTypeInsensitiveEqual()
         {
             // Not equal
-            Assert.False(NIL.SafeTypeInsensitiveEqual("nil"));
-            Assert.False("nil".SafeTypeInsensitiveEqual(null));
-            Assert.False("a string".SafeTypeInsensitiveEqual("A STRING")); // different case string equality
+            Assert.That(NIL.SafeTypeInsensitiveEqual("nil"), Is.False);
+            Assert.That("nil".SafeTypeInsensitiveEqual(null), Is.False);
+            Assert.That("a string".SafeTypeInsensitiveEqual("A STRING"), Is.False); // different case string equality
 
             // Equals
-            Assert.True(NIL.SafeTypeInsensitiveEqual(null)); // null equalilty
-            Assert.True("a string".SafeTypeInsensitiveEqual("a string")); // same type equality
-            Assert.True(1.SafeTypeInsensitiveEqual("1")); // int to string equality
-            Assert.True(Int64.Parse("99").SafeTypeInsensitiveEqual(Int32.Parse("99"))); // long to int equality
-            Assert.True(2.0f.SafeTypeInsensitiveEqual("2.0"));  // float to string equality
-            Assert.True(2.0d.SafeTypeInsensitiveEqual("2.0"));  // double to string equality
+            Assert.That(NIL.SafeTypeInsensitiveEqual(null), Is.True); // null equalilty
+            Assert.That("a string".SafeTypeInsensitiveEqual("a string"), Is.True); // same type equality
+            Assert.That(1.SafeTypeInsensitiveEqual("1"), Is.True); // int to string equality
+            Assert.That(Int64.Parse("99").SafeTypeInsensitiveEqual(Int32.Parse("99")), Is.True); // long to int equality
+            Assert.That(2.0f.SafeTypeInsensitiveEqual("2.0"), Is.True);  // float to string equality
+            Assert.That(2.0d.SafeTypeInsensitiveEqual("2.0"), Is.True);  // double to string equality
         }
 
         [Test]
         public void TestIsTruthy()
         {
-            Assert.False(ObjectExtensionMethods.IsTruthy(null));
-            Assert.False(NIL.IsTruthy());
-            Assert.False(false.IsTruthy());
-            Assert.False("false".IsTruthy());
-            Assert.False("FALSE".IsTruthy());
-            Assert.False("FaLSe".IsTruthy());
+            Assert.That(ObjectExtensionMethods.IsTruthy(null), Is.False);
+            Assert.That(NIL.IsTruthy(), Is.False);
+            Assert.That(false.IsTruthy(), Is.False);
+            Assert.That("false".IsTruthy(), Is.False);
+            Assert.That("FALSE".IsTruthy(), Is.False);
+            Assert.That("FaLSe".IsTruthy(), Is.False);
 
-            Assert.True(true.IsTruthy());
-            Assert.True("testing".IsTruthy());
-            Assert.True("true".IsTruthy());
-            Assert.True("TRUE".IsTruthy());
-            Assert.True("TrUe".IsTruthy());
-            Assert.True(0.IsTruthy());
-            Assert.True(1.IsTruthy());
-            Assert.True(9.9f.IsTruthy());
-            Assert.True(new[] { "cat", "dog" }.IsTruthy());
-            Assert.True(Array.Empty<object>().IsTruthy());
+            Assert.That(true.IsTruthy(), Is.True);
+            Assert.That("testing".IsTruthy(), Is.True);
+            Assert.That("true".IsTruthy(), Is.True);
+            Assert.That("TRUE".IsTruthy(), Is.True);
+            Assert.That("TrUe".IsTruthy(), Is.True);
+            Assert.That(0.IsTruthy(), Is.True);
+            Assert.That(1.IsTruthy(), Is.True);
+            Assert.That(9.9f.IsTruthy(), Is.True);
+            Assert.That(new[] { "cat", "dog" }.IsTruthy(), Is.True);
+            Assert.That(Array.Empty<object>().IsTruthy(), Is.True);
         }
 
         [Test]
         public void TestIsFalsy()
         {
-            Assert.True(ObjectExtensionMethods.IsFalsy(null));
-            Assert.True(NIL.IsFalsy());
-            Assert.True(false.IsFalsy());
-            Assert.True("false".IsFalsy());
-            Assert.True("FALSE".IsFalsy());
-            Assert.True("FaLSe".IsFalsy());
+            Assert.That(ObjectExtensionMethods.IsFalsy(null), Is.True);
+            Assert.That(NIL.IsFalsy(), Is.True);
+            Assert.That(false.IsFalsy(), Is.True);
+            Assert.That("false".IsFalsy(), Is.True);
+            Assert.That("FALSE".IsFalsy(), Is.True);
+            Assert.That("FaLSe".IsFalsy(), Is.True);
 
-            Assert.False(true.IsFalsy());
-            Assert.False("testing".IsFalsy());
-            Assert.False("true".IsFalsy());
-            Assert.False("TRUE".IsFalsy());
-            Assert.False("TrUe".IsFalsy());
-            Assert.False(0.IsFalsy());
-            Assert.False(1.IsFalsy());
-            Assert.False(9.9f.IsFalsy());
-            Assert.False(new[] { "cat", "dog" }.IsFalsy());
-            Assert.False(Array.Empty<object>().IsFalsy());
+            Assert.That(true.IsFalsy(), Is.False);
+            Assert.That("testing".IsFalsy(), Is.False);
+            Assert.That("true".IsFalsy(), Is.False);
+            Assert.That("TRUE".IsFalsy(), Is.False);
+            Assert.That("TrUe".IsFalsy(), Is.False);
+            Assert.That(0.IsFalsy(), Is.False);
+            Assert.That(1.IsFalsy(), Is.False);
+            Assert.That(9.9f.IsFalsy(), Is.False);
+            Assert.That(new[] { "cat", "dog" }.IsFalsy(), Is.False);
+            Assert.That(Array.Empty<object>().IsFalsy(), Is.False);
         }
 
         [Test]
@@ -111,12 +111,12 @@ namespace DotLiquid.Tests.Util
         {
             var keyValuePair = new KeyValuePair<string, object>("*key*", "*value*");
 
-            Assert.IsNull(ObjectExtensionMethods.GetPropertyValue(null, "any"));
-            Assert.IsNull(keyValuePair.GetPropertyValue("NonExistant"));
-            Assert.IsNull(new KeyValuePair<string, object>("*key*", null).GetPropertyValue("Value"));
+            Assert.That(ObjectExtensionMethods.GetPropertyValue(null, "any"), Is.Null);
+            Assert.That(keyValuePair.GetPropertyValue("NonExistant"), Is.Null);
+            Assert.That(new KeyValuePair<string, object>("*key*", null).GetPropertyValue("Value"), Is.Null);
 
-            Assert.AreEqual("*key*", keyValuePair.GetPropertyValue("Key"));
-            Assert.AreEqual("*value*", keyValuePair.GetPropertyValue("Value"));
+            Assert.That(keyValuePair.GetPropertyValue("Key"), Is.EqualTo("*key*"));
+            Assert.That(keyValuePair.GetPropertyValue("Value"), Is.EqualTo("*value*"));
         }
     }
 }

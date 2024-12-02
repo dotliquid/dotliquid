@@ -12,6 +12,7 @@ namespace DotLiquid.Tests
     [TestFixture]
     public class RegexpTests
     {
+#if !NETCOREAPP1_0
         [Test]
         public void TestAllRegexesAreCompiled()
         {
@@ -22,54 +23,55 @@ namespace DotLiquid.Tests
                 {
                     if (t.FieldType == typeof(Regex))
                     {
-                        Assert.AreNotEqual(0, RegexOptions.Compiled & ((Regex) t.GetValue(null)).Options);
+                        Assert.That(RegexOptions.Compiled & ((Regex) t.GetValue(null)).Options, Is.Not.EqualTo(RegexOptions.None));
                     }
                 }
             }
         }
+#endif
 
         [Test]
         public void TestEmpty()
         {
-            CollectionAssert.IsEmpty(Run(string.Empty, Liquid.QuotedFragment));
+            Assert.That(Run(string.Empty, Liquid.QuotedFragment), Is.Empty);
         }
 
         [Test]
         public void TestQuote()
         {
-            CollectionAssert.AreEqual(new[] { "\"arg 1\"" }, Run("\"arg 1\"", Liquid.QuotedFragment));
+            Assert.That(Run("\"arg 1\"", Liquid.QuotedFragment), Is.EqualTo(new[] { "\"arg 1\"" }).AsCollection);
         }
 
         [Test]
         public void TestWords()
         {
-            CollectionAssert.AreEqual(new[] { "arg1", "arg2" }, Run("arg1 arg2", Liquid.QuotedFragment));
+            Assert.That(Run("arg1 arg2", Liquid.QuotedFragment), Is.EqualTo(new[] { "arg1", "arg2" }).AsCollection);
         }
 
         [Test]
         public void TestTags()
         {
-            CollectionAssert.AreEqual(new[] { "<tr>", "</tr>" }, Run("<tr> </tr>", Liquid.QuotedFragment));
-            CollectionAssert.AreEqual(new[] { "<tr></tr>" }, Run("<tr></tr>", Liquid.QuotedFragment));
-            CollectionAssert.AreEqual(new[] { "<style", "class=\"hello\">", "</style>" }, Run("<style class=\"hello\">' </style>", Liquid.QuotedFragment));
+            Assert.That(Run("<tr> </tr>", Liquid.QuotedFragment), Is.EqualTo(new[] { "<tr>", "</tr>" }).AsCollection);
+            Assert.That(Run("<tr></tr>", Liquid.QuotedFragment), Is.EqualTo(new[] { "<tr></tr>" }).AsCollection);
+            Assert.That(Run("<style class=\"hello\">' </style>", Liquid.QuotedFragment), Is.EqualTo(new[] { "<style", "class=\"hello\">", "</style>" }).AsCollection);
         }
 
         [Test]
         public void TestQuotedWords()
         {
-            CollectionAssert.AreEqual(new[] { "arg1", "arg2", "\"arg 3\"" }, Run("arg1 arg2 \"arg 3\"", Liquid.QuotedFragment));
+            Assert.That(Run("arg1 arg2 \"arg 3\"", Liquid.QuotedFragment), Is.EqualTo(new[] { "arg1", "arg2", "\"arg 3\"" }).AsCollection);
         }
 
         [Test]
         public void TestQuotedWords2()
         {
-            CollectionAssert.AreEqual(new[] { "arg1", "arg2", "'arg 3'" }, Run("arg1 arg2 'arg 3'", Liquid.QuotedFragment));
+            Assert.That(Run("arg1 arg2 'arg 3'", Liquid.QuotedFragment), Is.EqualTo(new[] { "arg1", "arg2", "'arg 3'" }).AsCollection);
         }
 
         [Test]
         public void TestQuotedWordsInTheMiddle()
         {
-            CollectionAssert.AreEqual(new[] { "arg1", "arg2", "\"arg 3\"", "arg4" }, Run("arg1 arg2 \"arg 3\" arg4", Liquid.QuotedFragment));
+            Assert.That(Run("arg1 arg2 \"arg 3\" arg4", Liquid.QuotedFragment), Is.EqualTo(new[] { "arg1", "arg2", "\"arg 3\"", "arg4" }).AsCollection);
         }
 
         private static List<string> Run(string input, string pattern)

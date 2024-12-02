@@ -9,11 +9,10 @@ namespace DotLiquid.Tests
         [Test]
         public void TestMd5()
         {
-            Assert.AreEqual(null, ShopifyFilters.Md5(null));
-            Assert.AreEqual("d41d8cd98f00b204e9800998ecf8427e", ShopifyFilters.Md5(""));
-            Assert.AreEqual(
-                expected: "11de0bf2a16fdb9d4f3780a0d2fd95c7",
-                actual: ShopifyFilters.Md5("ShopifyIsAwesome!"));
+            Assert.That(ShopifyFilters.Md5(null), Is.EqualTo(null));
+            Assert.That(ShopifyFilters.Md5(""), Is.EqualTo("d41d8cd98f00b204e9800998ecf8427e"));
+            Assert.That(
+                actual: ShopifyFilters.Md5("ShopifyIsAwesome!"), Is.EqualTo(expected: "11de0bf2a16fdb9d4f3780a0d2fd95c7"));
 
             Helper.AssertTemplateResult(
                 expected: @"<img src=""https://www.gravatar.com/avatar/80846a33ae3e3603c1c5d6ce72834924"" />",
@@ -25,11 +24,10 @@ namespace DotLiquid.Tests
         [Test]
         public void TestSha1()
         {
-            Assert.AreEqual(null, ShopifyFilters.Sha1(null));
-            Assert.AreEqual("da39a3ee5e6b4b0d3255bfef95601890afd80709", ShopifyFilters.Sha1(""));
-            Assert.AreEqual(
-                expected: "c7322e3812d3da7bc621300ca1797517c34f63b6",
-                actual: ShopifyFilters.Sha1("ShopifyIsAwesome!"));
+            Assert.That(ShopifyFilters.Sha1(null), Is.EqualTo(null));
+            Assert.That(ShopifyFilters.Sha1(""), Is.EqualTo("da39a3ee5e6b4b0d3255bfef95601890afd80709"));
+            Assert.That(
+                actual: ShopifyFilters.Sha1("ShopifyIsAwesome!"), Is.EqualTo(expected: "c7322e3812d3da7bc621300ca1797517c34f63b6"));
 
             Helper.AssertTemplateResult(
                 expected: @"
@@ -43,11 +41,10 @@ My encoded string is: {{ my_secret_string }}",
         [Test]
         public void TestSha256()
         {
-            Assert.AreEqual(null, ShopifyFilters.Sha256(null));
-            Assert.AreEqual("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", ShopifyFilters.Sha256(""));
-            Assert.AreEqual(
-                expected: "c29cce758876791f34b8a1543f0ec3f8e886b5271004d473cfe75ac3148463cb",
-                actual: ShopifyFilters.Sha256("ShopifyIsAwesome!"));
+            Assert.That(ShopifyFilters.Sha256(null), Is.EqualTo(null));
+            Assert.That(ShopifyFilters.Sha256(""), Is.EqualTo("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"));
+            Assert.That(
+                actual: ShopifyFilters.Sha256("ShopifyIsAwesome!"), Is.EqualTo(expected: "c29cce758876791f34b8a1543f0ec3f8e886b5271004d473cfe75ac3148463cb"));
 
             Helper.AssertTemplateResult(
                 expected: @"
@@ -61,17 +58,16 @@ My encoded string is: {{ my_secret_string }}",
         [Test]
         public void TestHmacSha1()
         {
-            Assert.AreEqual(null, ShopifyFilters.HmacSha1(null, null));
-            Assert.AreEqual("", ShopifyFilters.HmacSha1("", null));
-            Assert.AreEqual(null, ShopifyFilters.HmacSha1(null, ""));
-            Assert.AreEqual("fbdb1d1b18aa6c08324b7d64b71fb76370690e1d", ShopifyFilters.HmacSha1("", ""));
-            Assert.AreEqual(
-                expected: "30ab3459e46e7b209b45dba8378fcbba67297304",
-                actual: ShopifyFilters.HmacSha1("ShopifyIsAwesome!", "secret_key"));
+            Assert.That(ShopifyFilters.HmacSha1(null, null), Is.EqualTo(null));
+            Assert.That(ShopifyFilters.HmacSha1("", null), Is.EqualTo(""));
+            Assert.That(ShopifyFilters.HmacSha1(null, ""), Is.EqualTo(null));
+            Assert.That(ShopifyFilters.HmacSha1("", ""), Is.EqualTo("fbdb1d1b18aa6c08324b7d64b71fb76370690e1d"));
+            Assert.That(
+                actual: ShopifyFilters.HmacSha1("ShopifyIsAwesome!", "secret_key"), Is.EqualTo(expected: "30ab3459e46e7b209b45dba8378fcbba67297304"));
 
             // Test for the ranges of UTF-8 characters for the secret-key
-            Assert.AreEqual("e45659e65fef13dfa71554d14718718a080acb11", ShopifyFilters.HmacSha1("ShopifyIsAwesome!", "\u0000")); //NULL
-            Assert.AreEqual("17434e86f6ed25cfcc31ab7901cdedee29c988da", ShopifyFilters.HmacSha1("ShopifyIsAwesome!", "\uDB40\uDDEF")); //VARIATION SELECTOR-256
+            Assert.That(ShopifyFilters.HmacSha1("ShopifyIsAwesome!", "\u0000"), Is.EqualTo("e45659e65fef13dfa71554d14718718a080acb11")); //NULL
+            Assert.That(ShopifyFilters.HmacSha1("ShopifyIsAwesome!", "\uDB40\uDDEF"), Is.EqualTo("17434e86f6ed25cfcc31ab7901cdedee29c988da")); //VARIATION SELECTOR-256
 
             Helper.AssertTemplateResult(
                 expected: @"
@@ -85,16 +81,15 @@ My encoded string is: {{ my_secret_string }}",
         [Test]
         public void TestHmacSha256()
         {
-            Assert.AreEqual(null, ShopifyFilters.HmacSha256(null, null));
-            Assert.AreEqual("", ShopifyFilters.HmacSha256("", null));
-            Assert.AreEqual(null, ShopifyFilters.HmacSha256(null, ""));
-            Assert.AreEqual("b613679a0814d9ec772f95d778c35fc5ff1697c493715653c6c712144292c5ad", ShopifyFilters.HmacSha256("", ""));
+            Assert.That(ShopifyFilters.HmacSha256(null, null), Is.EqualTo(null));
+            Assert.That(ShopifyFilters.HmacSha256("", null), Is.EqualTo(""));
+            Assert.That(ShopifyFilters.HmacSha256(null, ""), Is.EqualTo(null));
+            Assert.That(ShopifyFilters.HmacSha256("", ""), Is.EqualTo("b613679a0814d9ec772f95d778c35fc5ff1697c493715653c6c712144292c5ad"));
 
             // NOTE: the Shopify sample incorrectly shows the hmac_sha1 response,
             // as reported in https://community.shopify.com/c/Technical-Q-A/Using-Liquid-hmac-sha256-filter/m-p/559613#M1019
-            Assert.AreEqual(
-                expected: "c21f97cf997fac667c9bac39462a5813b1a41ce1b811743b0e9157393efbcc3c",
-                actual: ShopifyFilters.HmacSha256("ShopifyIsAwesome!", "secret_key"));
+            Assert.That(
+                actual: ShopifyFilters.HmacSha256("ShopifyIsAwesome!", "secret_key"), Is.EqualTo(expected: "c21f97cf997fac667c9bac39462a5813b1a41ce1b811743b0e9157393efbcc3c"));
 
             Helper.AssertTemplateResult(
                 expected: @"

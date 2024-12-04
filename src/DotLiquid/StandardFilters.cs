@@ -1,15 +1,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Net;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text.RegularExpressions;
+using System.Net;
 using System.Reflection;
-using System.Threading;
-using DotLiquid.Util;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
+
+using DotLiquid.Util;
 
 namespace DotLiquid
 {
@@ -1115,6 +1116,7 @@ namespace DotLiquid
             {
                 return string.Empty;
             }
+
             try
             {
                 return Encoding.UTF8.GetString(Convert.FromBase64String(input));
@@ -1131,7 +1133,7 @@ namespace DotLiquid
         /// <see href="https://shopify.dev/api/liquid/filters#base64_url_safe_encode"/>
         public static string Base64UrlSafeEncode(string input)
         {
-            return (input == null) ? ""
+            return (input == null) ? string.Empty
                 : Convert.ToBase64String(Encoding.UTF8.GetBytes(input)).Replace('+', '-').Replace('/', '_');
         }
 
@@ -1145,7 +1147,8 @@ namespace DotLiquid
             {
                 return string.Empty;
             }
-            string incoming = input.Replace('_', '/').Replace('-', '+');
+
+            var incoming = input.Replace('_', '/').Replace('-', '+');
             if (input[input.Length - 1] != '=')
             {
                 switch (input.Length % 4)
@@ -1154,6 +1157,7 @@ namespace DotLiquid
                     case 3: incoming += "="; break;
                 }
             }
+
             try
             {
                 return Encoding.UTF8.GetString(Convert.FromBase64String(incoming));

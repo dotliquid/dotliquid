@@ -2079,6 +2079,103 @@ Cheapest products:
                 template: "{{ 'Ground control to Major Tom.' | split: '' | reverse | join: '' }}");
         }
 
+        [Test]
+        public void TestBase64Encode_LiquidSample()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(StandardFilters.Base64Encode("one two three"), Is.EqualTo("b25lIHR3byB0aHJlZQ=="));
+                Assert.That(StandardFilters.Base64Encode(null), Is.EqualTo(string.Empty));
+                Assert.That(StandardFilters.Base64Encode(string.Empty), Is.EqualTo(string.Empty)); // Similar test proven to be true
+            });
+        }
+
+        [Test]
+        public void TestBase64Decode_LiquidSample()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(StandardFilters.Base64Decode("b25lIHR3byB0aHJlZQ=="), Is.EqualTo("one two three"));
+                Assert.That(StandardFilters.Base64Decode("4pyF"), Is.EqualTo("✅"));
+
+                // Intentionally skipped test for "/w==" as .NET always uses UTF-16 for strings
+                Assert.Throws<ArgumentException>(() => StandardFilters.Base64Decode("invalidbase64"));
+                Helper.AssertTemplateResult(expected: "Liquid error: Invalid base64 provided to base64_decode", template: "{{ \"invalidbase64\" | base64_decode }}");
+            });
+        }
+
+        [Test]
+        public void TestBase64Decode_MandatoryPadding()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.Throws<ArgumentException>(() => StandardFilters.Base64Decode("QQ"));
+                Assert.Throws<ArgumentException>(() => StandardFilters.Base64Decode("QUI"));
+            });
+        }
+
+        [Test]
+        public void TestBase64Decode_NullStrings()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(StandardFilters.Base64Decode(null), Is.EqualTo(string.Empty));
+                Assert.That(StandardFilters.Base64Decode(string.Empty), Is.EqualTo(string.Empty));
+            });
+        }
+
+        [Test]
+        public void TestBase64UrlSafeEncode_LiquidSample()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(
+                    StandardFilters.Base64UrlSafeEncode("abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890 !@#$%^&*()-=_+/?.:;[]{}\\|"),
+                    Is.EqualTo("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXogQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVogMTIzNDU2Nzg5MCAhQCMkJV4mKigpLT1fKy8_Ljo7W117fVx8"));
+                Assert.That(StandardFilters.Base64UrlSafeEncode(null), Is.EqualTo(string.Empty));
+                Assert.That(StandardFilters.Base64UrlSafeEncode(string.Empty), Is.EqualTo(string.Empty)); // Similar test proven to be true
+            });
+        }
+
+        [Test]
+        public void TestBase64UrlSafeDecode_LiquidSample()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(
+                    StandardFilters.Base64UrlSafeDecode("YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXogQUJDREVGR0hJSktMTU5PUFFSU1RVVldYWVogMTIzNDU2Nzg5MCAhQCMkJV4mKigpLT1fKy8_Ljo7W117fVx8"),
+                    Is.EqualTo("abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ 1234567890 !@#$%^&*()-=_+/?.:;[]{}\\|"));
+                Assert.That(StandardFilters.Base64UrlSafeDecode("4pyF"), Is.EqualTo("✅"));
+
+                // Intentionally skipped test for "_w==" as .NET always uses UTF-16 for strings
+                Assert.Throws<ArgumentException>(() => StandardFilters.Base64UrlSafeDecode("invalidbase64"));
+                Helper.AssertTemplateResult(expected: "Liquid error: Invalid base64 provided to base64_url_safe_decode", template: "{{ \"invalidbase64\" | base64_url_safe_decode }}");
+            });
+        }
+
+        [Test]
+        public void TestBase64UrlSafeDecode_OptionalPadding()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(StandardFilters.Base64UrlSafeDecode("QQ"), Is.EqualTo("A"));
+                Assert.That(StandardFilters.Base64UrlSafeDecode("QUI"), Is.EqualTo("AB"));
+                Assert.That(StandardFilters.Base64UrlSafeDecode("QQ=="), Is.EqualTo("A"));
+
+                Assert.Throws<ArgumentException>(() => StandardFilters.Base64UrlSafeDecode("QQ="));
+            });
+        }
+
+        [Test]
+        public void TestBase64UrlSafeDecode_NullStrings()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(StandardFilters.Base64UrlSafeDecode(null), Is.EqualTo(string.Empty));
+                Assert.That(StandardFilters.Base64UrlSafeDecode(string.Empty), Is.EqualTo(string.Empty));
+            });
+        }
+
         private class ProductDrop : Drop
         {
             public string Title { get; set; }

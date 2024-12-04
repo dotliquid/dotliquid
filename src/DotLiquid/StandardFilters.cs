@@ -1,13 +1,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Net;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text.RegularExpressions;
+using System.Net;
 using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
+
 using DotLiquid.Util;
 
 namespace DotLiquid
@@ -1093,6 +1095,77 @@ namespace DotLiquid
             var inputList = input.Cast<object>().ToList();
             inputList.Reverse();
             return inputList;
+        }
+
+        /// <summary>
+        /// Encodes a string to Base64 format.
+        /// </summary>
+        /// <see href="https://shopify.dev/api/liquid/filters#base64_encode"/>
+        public static string Base64Encode(string input)
+        {
+            return (input == null) ? string.Empty : Convert.ToBase64String(Encoding.UTF8.GetBytes(input));
+        }
+
+        /// <summary>
+        /// Decodes a string in Base64 format
+        /// </summary>
+        /// <see href="https://shopify.dev/api/liquid/filters#base64_decode"/>
+        public static string Base64Decode(string input)
+        {
+            if (input == null)
+            {
+                return string.Empty;
+            }
+
+            try
+            {
+                return Encoding.UTF8.GetString(Convert.FromBase64String(input));
+            }
+            catch (FormatException)
+            {
+                throw new ArgumentException($"Invalid base64 provided to {Template.NamingConvention.GetMemberName(nameof(Base64Decode))}");
+            }
+        }
+
+        /// <summary>
+        /// Encodes a string to URL-safe Base64 format
+        /// </summary>
+        /// <see href="https://shopify.dev/api/liquid/filters#base64_url_safe_encode"/>
+        public static string Base64UrlSafeEncode(string input)
+        {
+            return (input == null) ? string.Empty
+                : Convert.ToBase64String(Encoding.UTF8.GetBytes(input)).Replace('+', '-').Replace('/', '_');
+        }
+
+        /// <summary>
+        /// Decodes a string in URL-safe Base64 format.
+        /// </summary>
+        /// <see href="https://shopify.dev/api/liquid/filters#base64_url_safe_decode"/>
+        public static string Base64UrlSafeDecode(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return string.Empty;
+            }
+
+            var incoming = input.Replace('_', '/').Replace('-', '+');
+            if (input[input.Length - 1] != '=')
+            {
+                switch (input.Length % 4)
+                {
+                    case 2: incoming += "=="; break;
+                    case 3: incoming += "="; break;
+                }
+            }
+
+            try
+            {
+                return Encoding.UTF8.GetString(Convert.FromBase64String(incoming));
+            }
+            catch (FormatException)
+            {
+                throw new ArgumentException($"Invalid base64 provided to {Template.NamingConvention.GetMemberName(nameof(Base64UrlSafeDecode))}");
+            }
         }
     }
 

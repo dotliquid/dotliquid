@@ -86,6 +86,12 @@ namespace DotLiquid.Tests.Tags
                     template: "Before={{ amount | currency }}{% param culture=cultureValue%}, After={{ amount | currency }}",
                     localVariables: Hash.FromAnonymousObject(new { amount = 1000.4999d, cultureValue = "" }) // ""=InvariantCulture
                 );
+
+                Helper.AssertTemplateResult(
+                    expected: "Before=3.5, After=3,5",
+                    template: "Before={{ amount | abs }}{% param culture=cultureValue%}, After={{ amount | abs }}",
+                    localVariables: Hash.FromAnonymousObject(new { amount = -3.5, cultureValue = "el-GR" }) // ""=InvariantCulture
+                );
             }
         }
 

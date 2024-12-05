@@ -348,6 +348,34 @@ namespace DotLiquid
             return input?.TrimEnd();
         }
 
+        private static bool TryParseDecimal(CultureInfo culture, object input, out decimal output)
+        {
+            if (IsReal(input))
+            {
+                try
+                {
+                    output = input is decimal dcmInput ? dcmInput : Convert.ToDecimal(input);
+                    return true;
+                }
+                catch (OverflowException)
+                {
+                    output = decimal.Zero;
+                    return false;
+                }
+            }
+            return decimal.TryParse(Convert.ToString(input, culture), NumberStyles.Number, culture, out output);
+        }
+
+        private static bool TryParseDouble(CultureInfo culture, object input, out double output)
+        {
+            if (IsReal(input))
+            {
+                output = input is double dblInput ? dblInput : Convert.ToDouble(input);
+                return true;
+            }
+            return double.TryParse(Convert.ToString(input, culture), NumberStyles.Number, culture, out output);
+        }
+
         /// <summary>
         /// Converts the input object into a formatted currency as specified by the context cuture, or languageTag parameter (if provided).
         /// </summary>
@@ -367,12 +395,7 @@ namespace DotLiquid
             var culture = languageTag == null ? context.CurrentCulture : new CultureInfo(languageTag.Trim());
 
             // Attempt to convert to a currency using the context current culture.
-            if (IsReal(input))
-                return Convert.ToDecimal(input).ToString("C", culture);
-            if (decimal.TryParse(input.ToString(), NumberStyles.Currency, context.CurrentCulture, out decimal amount))
-                return amount.ToString("C", culture);
-
-            return input.ToString();
+            return TryParseDecimal(context.CurrentCulture, input, out var d) ? d.ToString("C", culture) : input.ToString();
         }
 
         /// <summary>
@@ -760,16 +783,16 @@ namespace DotLiquid
         /// <summary>
         /// Rounds a decimal value to the specified places
         /// </summary>
+        /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="places">Number of decimal places for rounding</param>
         /// <returns>The rounded value; null if an exception have occurred</returns>
-        public static object Round(object input, object places = null)
+        public static object Round(Context context, object input, object places = null)
         {
             try
             {
                 var p = places == null ? 0 : Convert.ToInt32(places);
-                var i = Convert.ToDecimal(input);
-                return Math.Round(i, p);
+                return TryParseDecimal(context.CurrentCulture, input, out var i) ? (object)Math.Round(i, p) : null;
             }
             catch (Exception)
             {
@@ -785,10 +808,7 @@ namespace DotLiquid
         /// <returns>The rounded value; null if an exception have occurred</returns>
         public static object Ceil(Context context, object input)
         {
-            if (decimal.TryParse(input.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
-                return Math.Ceiling(d);
-            else
-                return null;
+            return TryParseDecimal(context.CurrentCulture, input, out var n) ? (object)Math.Ceiling(n) : null;
         }
 
         /// <summary>
@@ -799,10 +819,7 @@ namespace DotLiquid
         /// <returns>The rounded value; null if an exception have occurred</returns>
         public static object Floor(Context context, object input)
         {
-            if (decimal.TryParse(input.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
-                return Math.Floor(d);
-            else
-                return null;
+            return TryParseDecimal(context.CurrentCulture, input, out var n) ? (object)Math.Floor(n) : null;
         }
 
         /// <summary>
@@ -853,20 +870,18 @@ namespace DotLiquid
             {
                 try
                 {
-                    input = Convert.ToDecimal(input);
-                    operand = Convert.ToDecimal(operand);
-
-                    return ExpressionUtility
-                        .CreateExpression(
-                            body: operation,
-                            leftType: input.GetType(),
-                            rightType: operand.GetType())
-                        .DynamicInvoke(input, operand);
+                    if (TryParseDecimal(context.CurrentCulture, input, out var dcmInput) && TryParseDecimal(context.CurrentCulture, operand, out var dcmOperand))
+                        return ExpressionUtility
+                            .CreateExpression(
+                                body: operation,
+                                leftType: dcmInput.GetType(),
+                                rightType: dcmOperand.GetType())
+                            .DynamicInvoke(dcmInput, dcmOperand);
                 }
                 catch (Exception ex) when (ex is OverflowException || ex is DivideByZeroException || (ex is TargetInvocationException && (ex?.InnerException is OverflowException || ex?.InnerException is DivideByZeroException)))
                 {
-                    input = Convert.ToDouble(input);
-                    operand = Convert.ToDouble(operand);
+                    input = TryParseDouble(context.CurrentCulture, input, out var dblInput) ? dblInput : input;
+                    operand = TryParseDouble(context.CurrentCulture, operand, out var dblOutput) ? dblOutput : operand;
                 }
             }
 
@@ -916,8 +931,7 @@ namespace DotLiquid
         /// <param name="input">Input to be transformed by this filter</param>
         public static double Abs(Context context, object input)
         {
-            Double n;
-            return Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n) ? Math.Abs(n) : 0;
+            return TryParseDouble(context.CurrentCulture, input, out var n) ? Math.Abs(n) : 0;
         }
 
         /// <summary>
@@ -928,11 +942,8 @@ namespace DotLiquid
         /// <param name="atLeast">Value to apply if more than input</param>
         public static object AtLeast(Context context, object input, object atLeast)
         {
-            double n;
-            var inputNumber = Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
-
-            double min;
-            var atLeastNumber = Double.TryParse(atLeast.ToString(), NumberStyles.Number, context.CurrentCulture, out min);
+            var inputNumber = TryParseDouble(context.CurrentCulture, input, out var n);
+            var atLeastNumber = TryParseDouble(context.CurrentCulture, atLeast, out var min);
 
             if (inputNumber && atLeastNumber)
             {
@@ -952,11 +963,8 @@ namespace DotLiquid
         /// <param name="atMost">Value to apply if less than input</param>
         public static object AtMost(Context context, object input, object atMost)
         {
-            double n;
-            var inputNumber = Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
-
-            double max;
-            var atMostNumber = Double.TryParse(atMost.ToString(), NumberStyles.Number, context.CurrentCulture, out max);
+            var inputNumber = TryParseDouble(context.CurrentCulture, input, out var n);
+            var atMostNumber = TryParseDouble(context.CurrentCulture, atMost, out var max);
 
             if (inputNumber && atMostNumber)
             {

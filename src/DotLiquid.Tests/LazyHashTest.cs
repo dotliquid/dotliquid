@@ -72,7 +72,8 @@ namespace DotLiquid.Tests
 
 
 
-        public class TestLazyObject {
+        public class TestLazyObject
+        {
             public Lazy<string> _lazyProperty1 => new Lazy<string>(() =>
             {
                 return "LAZY_PROPERTY_1";

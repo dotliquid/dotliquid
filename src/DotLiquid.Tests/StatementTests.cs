@@ -93,8 +93,8 @@ namespace DotLiquid.Tests
         [Test]
         public void TestNil()
         {
-            Assert.That(Template.Parse(" {% if var == nil %} true {% else %} false {% endif %} ").Render(Hash.FromAnonymousObject(new { var = (object) null })), Is.EqualTo("  true  "));
-            Assert.That(Template.Parse(" {% if var == null %} true {% else %} false {% endif %} ").Render(Hash.FromAnonymousObject(new { var = (object) null })), Is.EqualTo("  true  "));
+            Assert.That(Template.Parse(" {% if var == nil %} true {% else %} false {% endif %} ").Render(Hash.FromAnonymousObject(new { var = (object)null })), Is.EqualTo("  true  "));
+            Assert.That(Template.Parse(" {% if var == null %} true {% else %} false {% endif %} ").Render(Hash.FromAnonymousObject(new { var = (object)null })), Is.EqualTo("  true  "));
         }
 
         [Test]

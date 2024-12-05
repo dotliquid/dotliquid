@@ -221,9 +221,9 @@ namespace DotLiquid.Tests
         public void TestRegisterSimpleTypeToStringWhenTransformReturnsComplexType()
         {
             Template.RegisterSafeType(typeof(MySimpleType), o =>
-                {
-                    return o;
-                });
+            {
+                return o;
+            });
 
             Template template = Template.Parse("{{context}}");
 

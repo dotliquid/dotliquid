@@ -186,7 +186,7 @@ namespace DotLiquid.Tests.Tags
         public void TestIfWithCustomCondition()
         {
             DotLiquid.ConditionOperatorDelegate oldCondition = Condition.Operators["contains"];
-            Condition.Operators["contains"] = (left, right) => (left is IList) ? ((IList) left).Contains(right) : ((left is string) ? ((string) left).Contains((string) right) : false);
+            Condition.Operators["contains"] = (left, right) => (left is IList leftList) ? leftList.Contains(right) : ((left is string leftString) ? leftString.Contains((string)right) : false);
 
             try
             {

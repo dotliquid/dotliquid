@@ -407,12 +407,12 @@ PaulGeorge",
         [Test]
         public void TestSort_Indexable()
         {
-            var packages = new [] {
+            var packages = new[] {
                 new Package(numberOfPiecesPerPackage: 2, test: "p1"),
                 new Package(numberOfPiecesPerPackage: 1, test: "p2"),
                 new Package(numberOfPiecesPerPackage: 3, test: "p3"),
             };
-            var expectedPackages= packages.OrderBy(p => p["numberOfPiecesPerPackage"]).ToArray();
+            var expectedPackages = packages.OrderBy(p => p["numberOfPiecesPerPackage"]).ToArray();
 
             Helper.LockTemplateStaticVars(new RubyNamingConvention(), () =>
             {
@@ -503,7 +503,7 @@ PaulGeorge",
             Assert.That(StandardFilters.Map(new[] { new { a = 1 } }, "no_prop"), Is.EqualTo(nullObjectArray).AsCollection);
 
             // Drop
-            Assert.That(StandardFilters.Map(new[] { new Helper.DataObjectDrop { Prop = "a" }}, "no_prop"), Is.EqualTo(nullObjectArray).AsCollection);
+            Assert.That(StandardFilters.Map(new[] { new Helper.DataObjectDrop { Prop = "a" } }, "no_prop"), Is.EqualTo(nullObjectArray).AsCollection);
 
             // Dictionary
             Assert.That(StandardFilters.Map(Hash.FromDictionary(new Dictionary<string, object>() { { "a", 1 } }), "no_prop"), Is.EqualTo(nullObjectArray).AsCollection);
@@ -518,10 +518,11 @@ PaulGeorge",
         /// Test case for [Issue #275](https://github.com/dotliquid/dotliquid/issues/275)
         /// </summary>
         [Test]
-        public void TestMapDisallowedProperty() {
+        public void TestMapDisallowedProperty()
+        {
             var hash = Hash.FromAnonymousObject(new
             {
-                safe = new[] { new Helper.DataObjectRegistered { PropAllowed = "a", PropDisallowed = "x" }},
+                safe = new[] { new Helper.DataObjectRegistered { PropAllowed = "a", PropDisallowed = "x" } },
                 attr = new[] { new Helper.DataObject { PropAllowed = "a", PropDisallowed = "x" } }
             });
 
@@ -713,7 +714,7 @@ PaulGeorge",
             var products = new List<ExpandoObject> { product1, product2, product3, product4 };
 
             Assert.That(
-                actual: StandardFilters.Map(products, "title"), Is.EqualTo(expected: new List<string>{"Vacuum", "Spatula", "Television", "Garlic press"}));
+                actual: StandardFilters.Map(products, "title"), Is.EqualTo(expected: new List<string> { "Vacuum", "Spatula", "Television", "Garlic press" }));
         }
 
         [Test]
@@ -813,7 +814,7 @@ PaulGeorge",
             // _contextV20 is initialized with InvariantCulture
             Assert.That(
                 actual: StandardFilters.Currency(context: _contextV20, input: input, languageTag: "de-DE"), Is.EqualTo(expected: input));
-        }        
+        }
 
         [Test]
         public void TestMalformedCurrency()
@@ -1807,7 +1808,7 @@ PaulGeorge",
         [Test]
         public void TestWhere_Indexable()
         {
-            var products = new [] {
+            var products = new[] {
                 new ProductDrop { Title = "Vacuum", Type = "cleaning" },
                 new ProductDrop { Title = "Spatula", Type = "kitchen" },
                 new ProductDrop { Title = "Television", Type = "lounge" },
@@ -1961,7 +1962,7 @@ Cheapest products:
         [Test]
         public void TestWhere_RespectIndexable()
         {
-            var products = new [] {
+            var products = new[] {
                 new ProductDrop { Title = "Vacuum", Type = "cleaning" },
                 new ProductDrop { Title = "Spatula", Type = "kitchen" },
                 new ProductDrop { Title = "Television", Type = "lounge" },

@@ -787,7 +787,7 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
             Helper.AssertTemplateResult(
                 expected: "2147483647",
                 template: "{%decrement port %}",
-                localVariables: Hash.FromAnonymousObject(new { port = Convert.ToInt64(int.MaxValue) + 1}));
+                localVariables: Hash.FromAnonymousObject(new { port = Convert.ToInt64(int.MaxValue) + 1 }));
         }
 
         [Test]

@@ -46,7 +46,7 @@ namespace DotLiquid.Tests
         {
             Assert.Throws<FileSystemException>(() => new BlankFileSystem().ReadTemplateFile(new Context(CultureInfo.InvariantCulture), "dummy"));
         }
-        
+
 
         [Test]
         [Category("windows")]
@@ -69,7 +69,7 @@ namespace DotLiquid.Tests
             Assert.That(fileSystem.FullPath("mypartial"), Is.EqualTo(@"D:\Some (thing)\Path\_mypartial.liquid".Replace('\\', Path.DirectorySeparatorChar)));
             Assert.That(fileSystem.FullPath("dir/mypartial"), Is.EqualTo(@"D:\Some (thing)\Path\dir\_mypartial.liquid".Replace('\\', Path.DirectorySeparatorChar)));
         }
-        
+
 
         [Test]
         public void TestEmbeddedResource()

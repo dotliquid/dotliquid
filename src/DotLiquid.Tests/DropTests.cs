@@ -55,7 +55,7 @@ namespace DotLiquid.Tests
             {
                 public TextDrop[] ArrayOfDrops
                 {
-                    get { return new[] { new TextDrop(), new TextDrop()}; }
+                    get { return new[] { new TextDrop(), new TextDrop() }; }
                 }
 
                 public TextDrop SingleDrop
@@ -396,7 +396,7 @@ namespace DotLiquid.Tests
         public void TestRubyNamingConventionPrintsHelpfulErrorIfMissingPropertyWouldMatchCSharpNamingConvention()
         {
             Helper.AssertTemplateResult(
-                expected:"Missing property. Did you mean 'product_id'?",
+                expected: "Missing property. Did you mean 'product_id'?",
                 template: "{{ value.ProductID }}",
                 anonymousObject: new { value = new CamelCaseDrop() },
                 namingConvention: new RubyNamingConvention());

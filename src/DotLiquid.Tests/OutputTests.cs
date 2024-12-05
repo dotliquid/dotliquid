@@ -65,14 +65,14 @@ namespace DotLiquid.Tests
         {
 
             var renderParams = new RenderParameters(culture)
-                               {
-                                   LocalVariables = _assigns 
-                               };
+            {
+                LocalVariables = _assigns
+            };
             return Template.Parse("{{number}}").Render(renderParams);
         }
 
         [Test]
-         public void TestSeperator_Comma()
+        public void TestSeperator_Comma()
         {
 
             NumberFormatInfo nfi = new NumberFormatInfo();
@@ -82,10 +82,10 @@ namespace DotLiquid.Tests
                 NumberFormat = nfi
             };
             Assert.That(Render(c), Is.EqualTo("3,145"));
-
         }
-         [Test]
-         public void TestSeperator_Decimal()
+
+        [Test]
+        public void TestSeperator_Decimal()
         {
             NumberFormatInfo nfi = new NumberFormatInfo();
             nfi.NumberDecimalSeparator = ".";
@@ -94,7 +94,6 @@ namespace DotLiquid.Tests
                 NumberFormat = nfi
             };
             Assert.That(Render(c), Is.EqualTo("3.145"));
-
         }
 
         private class ActionDisposable : IDisposable
@@ -105,13 +104,13 @@ namespace DotLiquid.Tests
 
             public void Dispose() => _Action();
         }
+
         IDisposable SetCulture(CultureInfo ci)
         {
             var old = CultureInfo.CurrentCulture;
             CultureInfo.CurrentCulture = ci;
-            return new ActionDisposable( ()=>CultureInfo.CurrentCulture = old );
+            return new ActionDisposable(() => CultureInfo.CurrentCulture = old);
         }
-
 
         [Test]
         public void ParsingWithCommaDecimalSeparatorShouldWorkWhenPassedCultureIsDifferentToCurrentCulture()
@@ -124,10 +123,10 @@ namespace DotLiquid.Tests
                           , NumberGroupSeparator = "."
                       }
             };
-            using (SetCulture( ci ))
+            using (SetCulture(ci))
             {
-                var t = Template.Parse( "{{2.5}}" );
-                var result = t.Render( new Hash(), CultureInfo.InvariantCulture );
+                var t = Template.Parse("{{2.5}}");
+                var result = t.Render(new Hash(), CultureInfo.InvariantCulture);
 
                 Assert.That(result, Is.EqualTo("2.5"));
             }
@@ -137,14 +136,14 @@ namespace DotLiquid.Tests
         public void ParsingWithInvariantCultureShouldWork()
         {
             var ci = new CultureInfo(CultureInfo.CurrentCulture.Name)
-                              {
-                                  NumberFormat =
+            {
+                NumberFormat =
                                   {
                                       NumberDecimalSeparator = ","
                                       , NumberGroupSeparator = "."
                                   }
-                              };
-            using (SetCulture( ci ))
+            };
+            using (SetCulture(ci))
             {
                 float.TryParse("2.5", NumberStyles.Number, CultureInfo.InvariantCulture, out var result);
 
@@ -155,15 +154,15 @@ namespace DotLiquid.Tests
         [Test]
         public void ParsingWithExplicitCultureShouldWork()
         {
-            var ci = new CultureInfo( CultureInfo.CurrentCulture.Name )
-                                 {
-                                     NumberFormat =
+            var ci = new CultureInfo(CultureInfo.CurrentCulture.Name)
+            {
+                NumberFormat =
                                      {
                                          NumberDecimalSeparator = ","
                                          , NumberGroupSeparator = "."
                                      }
-                                 };
-            using (SetCulture( ci ))
+            };
+            using (SetCulture(ci))
             {
                 CultureInfo.CurrentCulture = ci;
                 float.TryParse("2.5", NumberStyles.Number, ci, out var result);
@@ -177,16 +176,16 @@ namespace DotLiquid.Tests
         public void ParsingWithDefaultCultureShouldWork()
         {
             var ci = new CultureInfo(CultureInfo.CurrentCulture.Name)
-                              {
-                                  NumberFormat =
+            {
+                NumberFormat =
                                   {
                                       NumberDecimalSeparator = ","
                                       , NumberGroupSeparator = "."
                                   }
-                              };
-            using(SetCulture( ci))
+            };
+            using (SetCulture(ci))
             {
-                float.TryParse( "2.5", out var result);
+                float.TryParse("2.5", out var result);
                 Assert.That(result, Is.EqualTo(25));
             }
         }

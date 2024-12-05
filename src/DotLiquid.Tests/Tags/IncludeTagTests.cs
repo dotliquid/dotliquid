@@ -14,7 +14,7 @@ namespace DotLiquid.Tests.Tags
         {
             public string ReadTemplateFile(Context context, string templateName)
             {
-                string templatePath = (string) context[templateName];
+                string templatePath = (string)context[templateName];
 
                 switch (templatePath)
                 {

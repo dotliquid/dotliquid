@@ -984,6 +984,48 @@ PaulGeorge",
             });
         }
 
+#if NET6_0_OR_GREATER
+        [Test]
+        public void TestDateOnly()
+        {
+            var currentIsRubyDateFormat = _contextV20.UseRubyDateFormat;
+            try
+            {
+                var dateOnly = new DateOnly(2006, 8, 3);
+                _contextV20.UseRubyDateFormat = false;
+                Assert.That(StandardFilters.Date(context: _contextV20, input: dateOnly, format: "MM/dd/yyyy"), Is.EqualTo("08/03/2006"));
+                Assert.Throws<FormatException>(() => StandardFilters.Date(context: _contextV20, input: dateOnly, format: "HH:mm:ss"));
+                _contextV20.UseRubyDateFormat = true;
+                Assert.That(StandardFilters.Date(context: _contextV20, input: dateOnly, format: "%D"), Is.EqualTo("08/03/06"));
+                Assert.Throws<FormatException>(() => StandardFilters.Date(context: _contextV20, input: dateOnly, format: "%T"));
+            }
+            finally
+            {
+                _contextV20.UseRubyDateFormat = currentIsRubyDateFormat;
+            }
+        }
+
+        [Test]
+        public void TestTimeOnly()
+        {
+            var currentIsRubyDateFormat = _contextV20.UseRubyDateFormat;
+            try
+            {
+                var timeOnly = new TimeOnly(12, 14, 15);
+                _contextV20.UseRubyDateFormat = false;
+                Assert.That(StandardFilters.Date(context: _contextV20, input: timeOnly, format: "HH:mm:ss"), Is.EqualTo("12:14:15"));
+                Assert.Throws<FormatException>(() => StandardFilters.Date(context: _contextV20, input: timeOnly, format: "MM/dd/yyyy"));
+                _contextV20.UseRubyDateFormat = true;
+                Assert.That(StandardFilters.Date(context: _contextV20, input: timeOnly, format: "%T"), Is.EqualTo("12:14:15"));
+                Assert.Throws<FormatException>(() => StandardFilters.Date(context: _contextV20, input: timeOnly, format: "%D"));
+            }
+            finally
+            {
+                _contextV20.UseRubyDateFormat = currentIsRubyDateFormat;
+            }
+        }
+#endif
+
         [Test]
         public void TestStrFTime()
         {

@@ -22,7 +22,8 @@ namespace DotLiquid.Tests
                 get
                 {
                     int? index = key as int?;
-                    if (!index.HasValue || index.Value < 0 || index.Value >= items.Length) {
+                    if (!index.HasValue || index.Value < 0 || index.Value >= items.Length)
+                    {
                         throw new KeyNotFoundException();
                     }
                     return items[index.Value];
@@ -81,7 +82,8 @@ namespace DotLiquid.Tests
             {
                 get
                 {
-                    if (key == null) {
+                    if (key == null)
+                    {
                         return "null";
                     }
                     return key.GetType() + " " + key.ToString();
@@ -125,16 +127,16 @@ namespace DotLiquid.Tests
         public void TestVirtualListLoop()
         {
             string output = Template.Parse("{%for item in list%}{{ item }} {%endfor%}")
-                .Render(Hash.FromAnonymousObject(new {list = new VirtualList(1, "Second", 3)}));
-            Assert.AreEqual("1 Second 3 ", output);
+                .Render(Hash.FromAnonymousObject(new { list = new VirtualList(1, "Second", 3) }));
+            Assert.That(output, Is.EqualTo("1 Second 3 "));
         }
 
         [Test]
         public void TestVirtualListIntIndex()
         {
             string output = Template.Parse("1: {{ list[0] }}, 2: {{ list[1] }}, 3: {{ list[2] }}")
-                .Render(Hash.FromAnonymousObject(new {list = new VirtualList(1, "Second", 3)}));
-            Assert.AreEqual("1: 1, 2: Second, 3: 3", output);
+                .Render(Hash.FromAnonymousObject(new { list = new VirtualList(1, "Second", 3) }));
+            Assert.That(output, Is.EqualTo("1: 1, 2: Second, 3: 3"));
         }
 
         [Test]
@@ -142,35 +144,33 @@ namespace DotLiquid.Tests
         {
             string output = Template.Parse("1: {{ list[0] }}, 2: {{ list[1] }}, 3: {{ list[2] }}")
                 .Render(Hash.FromAnonymousObject(new { list = new VirtualLongList(1L, "Second", 3L) }));
-            Assert.AreEqual("1: 1, 2: Second, 3: 3", output);
+            Assert.That(output, Is.EqualTo("1: 1, 2: Second, 3: 3"));
         }
 
         [Test]
         public void TestCustomIndexableRender()
         {
-            Assert.AreEqual(
-                expected: string.Empty,
+            Assert.That(
                 actual: Template
                     .Parse("{{container}}")
-                    .Render(Hash.FromAnonymousObject(new { container = new CustomIndexable() })));
+                    .Render(Hash.FromAnonymousObject(new { container = new CustomIndexable() })), Is.EqualTo(expected: string.Empty));
         }
 
         [Test]
         public void TestOnlyIndexableRender()
         {
-            Assert.AreEqual(
-                expected: "Liquid syntax error: Object 'DotLiquid.Tests.CustomIndexableTests+OnlyIndexable' is invalid because it is neither a built-in type nor implements ILiquidizable",
+            Assert.That(
                 actual: Template
                     .Parse("{{container}}")
-                    .Render(Hash.FromAnonymousObject(new { container = new OnlyIndexable() })));
+                    .Render(Hash.FromAnonymousObject(new { container = new OnlyIndexable() })), Is.EqualTo(expected: "Liquid syntax error: Object 'DotLiquid.Tests.CustomIndexableTests+OnlyIndexable' is invalid because it is neither a built-in type nor implements ILiquidizable"));
         }
 
         [Test]
         public void TestCustomIndexableIntKeys()
         {
             string output = Template.Parse("1: {{container[0]}}, 2: {{container[1]}}")
-                .Render(Hash.FromAnonymousObject(new {container = new CustomIndexable()}));
-            Assert.AreEqual("1: System.Int32 0, 2: System.Int32 1", output);
+                .Render(Hash.FromAnonymousObject(new { container = new CustomIndexable() }));
+            Assert.That(output, Is.EqualTo("1: System.Int32 0, 2: System.Int32 1"));
         }
 
         [Test]
@@ -178,14 +178,15 @@ namespace DotLiquid.Tests
         {
             string output = Template.Parse("1: {{container[2147483648]}}, 2: {{container[2999999999]}}")
                 .Render(Hash.FromAnonymousObject(new { container = new CustomIndexable() }));
-            Assert.AreEqual("1: System.Int64 2147483648, 2: System.Int64 2999999999", output);
+            Assert.That(output, Is.EqualTo("1: System.Int64 2147483648, 2: System.Int64 2999999999"));
         }
 
         [Test]
-        public void TestCustomIndexableStringKeys() {
+        public void TestCustomIndexableStringKeys()
+        {
             string output = Template.Parse("abc: {{container.abc}}")
-                .Render(Hash.FromAnonymousObject(new {container = new CustomIndexable()}));
-            Assert.AreEqual("abc: System.String abc", output);
+                .Render(Hash.FromAnonymousObject(new { container = new CustomIndexable() }));
+            Assert.That(output, Is.EqualTo("abc: System.String abc"));
         }
     }
 }

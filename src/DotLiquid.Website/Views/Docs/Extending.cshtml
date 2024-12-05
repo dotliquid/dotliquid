@@ -15,7 +15,10 @@ Creating filters is very easy. Filters are just methods which take one parameter
 You can use your own filters by passing an array of filter types to the `Render` call like this:
 
 ``` csharp
-template.Render(filters: new[] { typeof(MyTextFilters), typeof(MyDateFilters) });
+template.Render(new RenderParameters(CultureInfo.CurrentCulture)
+{
+	Filters = new[] { typeof(MyTextFilters), typeof(MyDateFilters) }
+});
 ```
 
 Example:
@@ -30,7 +33,10 @@ public static class TextFilter
 }
 
 Template template = Template.Parse(" {{ '*hi*' | textilize }} ");
-template.Render(filters: new[] { typeof(TextFilter) }); // => "<b>*hi*</b>"
+template.Render(new RenderParameters(CultureInfo.CurrentCulture)
+{
+	Filters = new[] { typeof(TextFilter) }
+});
 ```
 
 Alternatively, you can register your filters globally:
@@ -57,7 +63,7 @@ template.Render(); // => "<b>*hi*</b>"
 A filter can access the current context if you add a Context object as the first argument to your filter method.  DotLiquid will automatically pass the current context to your filter:
 
 ``` csharp
-public static String MyFilter(Context context, String input)
+public static String MyFilter(Context context, string input)
 {
     //...
 }

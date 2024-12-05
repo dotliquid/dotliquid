@@ -12,14 +12,14 @@ namespace DotLiquid.Tests
         public void TestBlankspace()
         {
             Template template = Template.Parse("  ");
-            CollectionAssert.AreEqual(new[] { "  " }, template.Root.NodeList);
+            Assert.That(template.Root.NodeList, Is.EqualTo(new[] { "  " }).AsCollection);
         }
 
         [Test]
         public void TestVariableBeginning()
         {
             Template template = Template.Parse("{{funk}}  ");
-            Assert.AreEqual(2, template.Root.NodeList.Count);
+            Assert.That(template.Root.NodeList.Count, Is.EqualTo(2));
             ExtendedCollectionAssert.AllItemsAreInstancesOfTypes(template.Root.NodeList,
                 new[] { typeof(Variable), typeof(string) });
         }
@@ -28,7 +28,7 @@ namespace DotLiquid.Tests
         public void TestVariableEnd()
         {
             Template template = Template.Parse("  {{funk}}");
-            Assert.AreEqual(2, template.Root.NodeList.Count);
+            Assert.That(template.Root.NodeList.Count, Is.EqualTo(2));
             ExtendedCollectionAssert.AllItemsAreInstancesOfTypes(template.Root.NodeList,
                 new[] { typeof(string), typeof(Variable) });
         }
@@ -37,7 +37,7 @@ namespace DotLiquid.Tests
         public void TestVariableMiddle()
         {
             Template template = Template.Parse("  {{funk}}  ");
-            Assert.AreEqual(3, template.Root.NodeList.Count);
+            Assert.That(template.Root.NodeList.Count, Is.EqualTo(3));
             ExtendedCollectionAssert.AllItemsAreInstancesOfTypes(template.Root.NodeList,
                 new[] { typeof(string), typeof(Variable), typeof(string) });
         }
@@ -46,7 +46,7 @@ namespace DotLiquid.Tests
         public void TestVariableManyEmbeddedFragments()
         {
             Template template = Template.Parse("  {{funk}} {{so}} {{brother}} ");
-            Assert.AreEqual(7, template.Root.NodeList.Count);
+            Assert.That(template.Root.NodeList.Count, Is.EqualTo(7));
             ExtendedCollectionAssert.AllItemsAreInstancesOfTypes(template.Root.NodeList,
                 new[]
                 {
@@ -60,7 +60,7 @@ namespace DotLiquid.Tests
         public void TestWithBlock()
         {
             Template template = Template.Parse("  {% comment %} {% endcomment %} ");
-            Assert.AreEqual(3, template.Root.NodeList.Count);
+            Assert.That(template.Root.NodeList.Count, Is.EqualTo(3));
             ExtendedCollectionAssert.AllItemsAreInstancesOfTypes(template.Root.NodeList,
                 new[] { typeof(string), typeof(Comment), typeof(string) });
         }
@@ -78,7 +78,7 @@ namespace DotLiquid.Tests
             Template.RegisterTagFactory(new CustomTagFactory());
             Template result = null;
             Assert.DoesNotThrow(() => result = Template.Parse("{% custom %}"));
-            Assert.AreEqual("I am a custom tag"+Environment.NewLine, result.Render());
+            Assert.That(result.Render(), Is.EqualTo("I am a custom tag" + Environment.NewLine));
         }
 
         public class CustomTagFactory : ITagFactory

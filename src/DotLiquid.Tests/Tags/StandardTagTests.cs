@@ -14,8 +14,8 @@ namespace DotLiquid.Tests.Tags
         {
             Tag tag = new Tag();
             tag.Initialize("tag", null, null);
-            Assert.AreEqual("tag", tag.Name);
-            Assert.AreEqual(string.Empty, tag.Render(new Context(CultureInfo.InvariantCulture)));
+            Assert.That(tag.Name, Is.EqualTo("tag"));
+            Assert.That(tag.Render(new Context(CultureInfo.InvariantCulture)), Is.EqualTo(string.Empty));
         }
 
         [Test]
@@ -134,7 +134,7 @@ namespace DotLiquid.Tests.Tags
         {
             var template = Template.Parse("{%for item in bla.testdict %}{{ item[0] }}-{{ item[1]}} {%endfor%}");
             var result = template.Render(Hash.FromAnonymousObject(new { bla = new TestDictObject() }));
-            Assert.AreEqual("aa-bb dd-ee ff-gg ", result);
+            Assert.That(result, Is.EqualTo("aa-bb dd-ee ff-gg "));
         }
 
         [Test]
@@ -493,11 +493,11 @@ namespace DotLiquid.Tests.Tags
             // Example from the shopify forums
             const string code = "{% case collection.handle %}{% when 'menswear-jackets' %}{% assign ptitle = 'menswear' %}{% when 'menswear-t-shirts' %}{% assign ptitle = 'menswear' %}{% else %}{% assign ptitle = 'womenswear' %}{% endcase %}{{ ptitle }}";
             Template template = Template.Parse(code);
-            Assert.AreEqual("menswear", template.Render(Hash.FromAnonymousObject(new { collection = new { handle = "menswear-jackets" } })));
-            Assert.AreEqual("menswear", template.Render(Hash.FromAnonymousObject(new { collection = new { handle = "menswear-t-shirts" } })));
-            Assert.AreEqual("womenswear", template.Render(Hash.FromAnonymousObject(new { collection = new { handle = "x" } })));
-            Assert.AreEqual("womenswear", template.Render(Hash.FromAnonymousObject(new { collection = new { handle = "y" } })));
-            Assert.AreEqual("womenswear", template.Render(Hash.FromAnonymousObject(new { collection = new { handle = "z" } })));
+            Assert.That(template.Render(Hash.FromAnonymousObject(new { collection = new { handle = "menswear-jackets" } })), Is.EqualTo("menswear"));
+            Assert.That(template.Render(Hash.FromAnonymousObject(new { collection = new { handle = "menswear-t-shirts" } })), Is.EqualTo("menswear"));
+            Assert.That(template.Render(Hash.FromAnonymousObject(new { collection = new { handle = "x" } })), Is.EqualTo("womenswear"));
+            Assert.That(template.Render(Hash.FromAnonymousObject(new { collection = new { handle = "y" } })), Is.EqualTo("womenswear"));
+            Assert.That(template.Render(Hash.FromAnonymousObject(new { collection = new { handle = "z" } })), Is.EqualTo("womenswear"));
         }
 
         [Test]
@@ -539,19 +539,19 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestAssign2()
         {
-            Assert.AreEqual("variable", Template.Parse("{% assign a = 'variable' %}{{a}}").Render());
+            Assert.That(Template.Parse("{% assign a = 'variable' %}{{a}}").Render(), Is.EqualTo("variable"));
         }
 
         [Test]
         public void TestAssignAnEmptyString()
         {
-            Assert.AreEqual("", Template.Parse("{% assign a = '' %}{{a}}").Render());
+            Assert.That(Template.Parse("{% assign a = '' %}{{a}}").Render(), Is.EqualTo(""));
         }
 
         [Test]
         public void TestAssignIsGlobal()
         {
-            Assert.AreEqual("variable", Template.Parse("{%for i in (1..2) %}{% assign a = 'variable'%}{% endfor %}{{a}}").Render());
+            Assert.That(Template.Parse("{%for i in (1..2) %}{% assign a = 'variable'%}{% endfor %}{{a}}").Render(), Is.EqualTo("variable"));
         }
 
         [Test]
@@ -688,7 +688,7 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
             var context = new Context(CultureInfo.InvariantCulture);
             Tag.GetRegister<int>(context, "cycle");
             Tag.GetRegister<object>(context, "for");
-            Assert.IsInstanceOf<IDictionary<string, int>>(Tag.GetRegister<int>(context, "cycle"));
+            Assert.That(Tag.GetRegister<int>(context, "cycle"), Is.InstanceOf<IDictionary<string, int>>());
         }
 
         [Test]
@@ -698,18 +698,18 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
             var drop = new DotLiquid.Tags.LegacyKeyValueDrop("key", valueDictionary);
 
             // Confirm Key access
-            Assert.AreEqual("key", drop.BeforeMethod("0")); // Ruby syntax equivalent for Key
-            Assert.AreEqual("key", drop.BeforeMethod("Key")); // C# equivalent syntax
-            Assert.AreEqual("key", drop.BeforeMethod("itemName")); // non-standard alias for KeyValuePair.Key
+            Assert.That(drop.BeforeMethod("0"), Is.EqualTo("key")); // Ruby syntax equivalent for Key
+            Assert.That(drop.BeforeMethod("Key"), Is.EqualTo("key")); // C# equivalent syntax
+            Assert.That(drop.BeforeMethod("itemName"), Is.EqualTo("key")); // non-standard alias for KeyValuePair.Key
 
             // Confirm Value access
-            Assert.AreSame(valueDictionary, drop.BeforeMethod("1")); //Ruby syntax equivalent for KeyValuePair.Value
-            Assert.AreSame(valueDictionary, drop.BeforeMethod("Value")); // C# equivalent syntax
+            Assert.That(drop.BeforeMethod("1"), Is.SameAs(valueDictionary)); //Ruby syntax equivalent for KeyValuePair.Value
+            Assert.That(drop.BeforeMethod("Value"), Is.SameAs(valueDictionary)); // C# equivalent syntax
 
             // Confirm Value.Property access
-            Assert.AreEqual("Jane", drop.BeforeMethod("First"));
-            Assert.AreEqual("Green", drop.BeforeMethod("Last"));
-            Assert.IsNull(drop.BeforeMethod("UnknownProperty"));
+            Assert.That(drop.BeforeMethod("First"), Is.EqualTo("Jane"));
+            Assert.That(drop.BeforeMethod("Last"), Is.EqualTo("Green"));
+            Assert.That(drop.BeforeMethod("UnknownProperty"), Is.Null);
         }
 
 
@@ -787,7 +787,7 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
             Helper.AssertTemplateResult(
                 expected: "2147483647",
                 template: "{%decrement port %}",
-                localVariables: Hash.FromAnonymousObject(new { port = Convert.ToInt64(int.MaxValue) + 1}));
+                localVariables: Hash.FromAnonymousObject(new { port = Convert.ToInt64(int.MaxValue) + 1 }));
         }
 
         [Test]

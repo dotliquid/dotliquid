@@ -24,10 +24,10 @@ namespace DotLiquid.Tests
         public void TestTitleize()
         {
             var context = _context;
-            Assert.AreEqual(null, ExtendedFilters.Titleize(context: context, input: null));
-            Assert.AreEqual("", ExtendedFilters.Titleize(context: context, input: ""));
-            Assert.AreEqual(" ", ExtendedFilters.Titleize(context: context, input: " "));
-            Assert.AreEqual("That Is One Sentence.", ExtendedFilters.Titleize(context: context, input: "That is one sentence."));
+            Assert.That(ExtendedFilters.Titleize(context: context, input: null), Is.EqualTo(null));
+            Assert.That(ExtendedFilters.Titleize(context: context, input: ""), Is.EqualTo(""));
+            Assert.That(ExtendedFilters.Titleize(context: context, input: " "), Is.EqualTo(" "));
+            Assert.That(ExtendedFilters.Titleize(context: context, input: "That is one sentence."), Is.EqualTo("That Is One Sentence."));
 
             Helper.AssertTemplateResult(
                 expected: "Title",
@@ -38,10 +38,10 @@ namespace DotLiquid.Tests
         public void TestUpcaseFirst()
         {
             var context = _context;
-            Assert.AreEqual(null, ExtendedFilters.UpcaseFirst(context: context, input: null));
-            Assert.AreEqual("", ExtendedFilters.UpcaseFirst(context: context, input: ""));
-            Assert.AreEqual(" ", ExtendedFilters.UpcaseFirst(context: context, input: " "));
-            Assert.AreEqual(" My boss is Mr. Doe.", ExtendedFilters.UpcaseFirst(context: context, input: " my boss is Mr. Doe."));
+            Assert.That(ExtendedFilters.UpcaseFirst(context: context, input: null), Is.EqualTo(null));
+            Assert.That(ExtendedFilters.UpcaseFirst(context: context, input: ""), Is.EqualTo(""));
+            Assert.That(ExtendedFilters.UpcaseFirst(context: context, input: " "), Is.EqualTo(" "));
+            Assert.That(ExtendedFilters.UpcaseFirst(context: context, input: " my boss is Mr. Doe."), Is.EqualTo(" My boss is Mr. Doe."));
 
             Helper.AssertTemplateResult(
                 expected: "My great title",
@@ -51,7 +51,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestRegexReplace()
         {
-            Assert.AreEqual(expected: "b b b b", actual: ExtendedFilters.RegexReplace(input: "a A A a", pattern: "[Aa]", replacement: "b"));
+            Assert.That(actual: ExtendedFilters.RegexReplace(input: "a A A a", pattern: "[Aa]", replacement: "b"), Is.EqualTo(expected: "b b b b"));
         }
     }
 }

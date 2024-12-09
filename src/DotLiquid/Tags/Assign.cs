@@ -18,18 +18,17 @@ namespace DotLiquid.Tags
     /// </summary>
     public class Assign : Tag
     {
-        private static readonly Regex Syntax = R.B(R.Q(@"({0}+)\s*=\s*(.*)\s*"), Liquid.VariableSignature);
-
         private string _to;
         private Variable _from;
 
         public override void Initialize(string tagName, string markup, List<string> tokens)
         {
-            Match syntaxMatch = Syntax.Match(markup);
-            if (syntaxMatch.Success)
+            var partsEnumerator = new DotLiquid.Util.CharEnumerator(markup);
+            _to = Tokenizer.ReadToChar(partsEnumerator, Tokenizer.CharEquals).Trim();
+            if (!string.IsNullOrEmpty(_to) && partsEnumerator.HasNext())
             {
-                _to = syntaxMatch.Groups[1].Value;
-                _from = new Variable(syntaxMatch.Groups[2].Value);
+                partsEnumerator.MoveNext();
+                _from = new Variable(Tokenizer.ReadChars(partsEnumerator, partsEnumerator.Remaining));
             }
             else
             {

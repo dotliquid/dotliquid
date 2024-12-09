@@ -12,14 +12,28 @@ namespace DotLiquid
     /// </summary>
     internal static class Tokenizer
     {
+        internal const string TagStart = "{%";
+        internal const string VariableStart = "{{";
+        internal const string VariableEnd = "}}";
+        internal const char CharPipe = '|';
+        internal const char CharColon = ':';
+        internal const char CharComma = ',';
+        internal const char CharEquals = '=';
+        internal const char CharSingleQuote = '\'';
+        internal const char CharDoubleQuote = '"';
+        private const char BracketEnd = ']';
+
         private static readonly HashSet<char> SearchVariableEnd = new HashSet<char> { '[', '.' };
-        private static readonly char BracketEnd = ']';
-        private static readonly HashSet<char> SearchQuoteOrVariableEnd = new HashSet<char> { '}', '\'', '"' };
-        private static readonly HashSet<char> SearchQuoteOrTagEnd = new HashSet<char> { '%', '\'', '"' };
+        private static readonly HashSet<char> SearchQuoteOrVariableEnd = new HashSet<char> { '}', CharSingleQuote, CharDoubleQuote };
+        private static readonly HashSet<char> SearchQuoteOrTagEnd = new HashSet<char> { '%', CharSingleQuote, CharDoubleQuote };
+        private static readonly HashSet<char> SearchQuote = new HashSet<char> { CharSingleQuote, CharDoubleQuote };
+        internal static readonly HashSet<char> SearchPipeOrQuoted = new HashSet<char> { CharPipe, CharSingleQuote, CharDoubleQuote };
+        internal static readonly HashSet<char> SearchPipeColonOrQuoted = new HashSet<char> { CharPipe, CharColon, CharSingleQuote, CharDoubleQuote };
+        internal static readonly HashSet<char> SearchPipeCommaOrQuoted = new HashSet<char> { CharPipe, CharComma, CharSingleQuote, '"' };
         private static readonly char[] WhitespaceCharsV20 = new char[] { '\t', ' ' };
         private static readonly char[] WhitespaceCharsV22 = new char[] { '\t', '\n', '\v', '\f', '\r', ' ' };
         private static readonly Regex LiquidAnyStartingTagRegex = R.B(R.Q(@"({0})([-])?"), Liquid.AnyStartingTag);
-        private static readonly Regex TagNameRegex = R.B(R.Q(@"{0}\s*(\w+)"), Liquid.AnyStartingTag);
+        private static readonly Regex TagNameRegex = R.B(R.Q(@"{0}\s*(\w+)"), Liquid.TagStart);
         private static readonly Regex VariableSegmentRegex = R.C(Liquid.VariableSegment);
         private static readonly ConcurrentDictionary<string, Regex> EndTagRegexes = new ConcurrentDictionary<string, Regex>();
 
@@ -42,7 +56,7 @@ namespace DotLiquid
             {
                 source = DotLiquid.Tags.Literal.FromShortHand(source);
                 source = DotLiquid.Tags.Comment.FromShortHand(source);
-                source = Regex.Replace(source, string.Format(@"-({0}|{1})(\n|\r\n|[ \t]+)?", Liquid.VariableEnd, Liquid.TagEnd), "$1", RegexOptions.None, Template.RegexTimeOut);
+                source = Regex.Replace(source, "-([%}]\\})(\n|\r\n|[ \t]+)?", "$1", RegexOptions.None, Template.RegexTimeOut);
             }
 
             var tokens = new List<string>();
@@ -62,7 +76,7 @@ namespace DotLiquid
                             tokens.Add(tokenBeforeMatch);
                     }
 
-                    var isTag = match.Groups[1].Value == "{%";
+                    var isTag = match.Groups[1].Value == TagStart;
                     // Ignore hyphen in tag name, add the tag/variable itself
                     var nextToken = new StringBuilder(markupEnumerator.Remaining);
                     nextToken.Append(match.Groups[1].Value);
@@ -136,8 +150,8 @@ namespace DotLiquid
 
                             switch (markupEnumerator.Next)
                             {
-                                case '"':
-                                case '\'':
+                                case CharSingleQuote:
+                                case CharDoubleQuote:
                                     markupEnumerator.AppendNext(nextVariable);
                                     isComplete = ReadToChar(nextVariable, markupEnumerator, markupEnumerator.Next) && ReadToChar(nextVariable, markupEnumerator, BracketEnd);
                                     break;
@@ -169,7 +183,7 @@ namespace DotLiquid
         /// </summary>
         /// <param name="markupEnumerator">The string enumerator</param>
         /// <param name="markupLength">The number of characters to read</param>
-        private static string ReadChars(CharEnumerator markupEnumerator, int markupLength)
+        internal static string ReadChars(CharEnumerator markupEnumerator, int markupLength)
         {
             var sb = new StringBuilder(markupLength);
             for (var i = 0; i < markupLength; i++)
@@ -185,7 +199,7 @@ namespace DotLiquid
         /// <param name="searchChars">The character set to search for</param>
         /// <param name="syntaxCompatibilityLevel">The Liquid syntax flag used for backward compatibility</param>
         /// <returns>True if reaches end sequence, otherwise false</returns>
-        private static bool ReadToEndOfTag(StringBuilder sb, CharEnumerator markupEnumerator, HashSet<char> searchChars, SyntaxCompatibility syntaxCompatibilityLevel)
+        public static bool ReadToEndOfTag(StringBuilder sb, CharEnumerator markupEnumerator, HashSet<char> searchChars, SyntaxCompatibility syntaxCompatibilityLevel)
         {
             while (markupEnumerator.AppendNext(sb))
             {
@@ -194,8 +208,8 @@ namespace DotLiquid
                 {
                     switch (nextChar)
                     {
-                        case '\'':
-                        case '"':
+                        case CharSingleQuote:
+                        case CharDoubleQuote:
                             ReadToChar(sb, markupEnumerator, nextChar);
                             break;
                         case '}':
@@ -221,12 +235,32 @@ namespace DotLiquid
                                 return true;
                             }
                             break;
+                        default:
+                            return true;
                     }
                 }
             };
 
             // Somehow we reached the end without finding the end character(s)
             return false;
+        }
+
+        /// <summary>
+        /// Reads a token until, and inclusive of, the end character and advances the enumerator position
+        /// </summary>
+        /// <param name="markupEnumerator">The string enumerator</param>
+        /// <param name="endChar">The character that indicates end of token</param>
+        internal static string ReadToChar(CharEnumerator markupEnumerator, char endChar)
+        {
+            var sb = new StringBuilder(markupEnumerator.Remaining);
+            while (markupEnumerator.HasNext())
+            {
+                if (markupEnumerator.Next == endChar)
+                    break;
+                else
+                    markupEnumerator.AppendNext(sb);
+            };
+            return sb.ToString();
         }
 
         /// <summary>
@@ -265,6 +299,35 @@ namespace DotLiquid
                     return false;
             };
             return true;
+        }
+
+        /// <summary>
+        /// Reads a token until the end of a segment and advances the enumerator position
+        /// </summary>
+        /// <param name="markupEnumerator">The string enumerator</param>
+        /// <param name="searchChars">The search characters to read to, not including these characters</param>
+        internal static string ReadToSearchChars(CharEnumerator markupEnumerator, HashSet<char> searchChars)
+        {
+            var sb = new StringBuilder(markupEnumerator.Remaining);
+            while (markupEnumerator.HasNext())
+            {
+                var nextChar = markupEnumerator.Next;
+                if (searchChars.Contains(nextChar))
+                {
+                    switch (nextChar)
+                    {
+                        case CharSingleQuote:
+                        case CharDoubleQuote:
+                            markupEnumerator.AppendNext(sb);
+                            ReadToChar(sb, markupEnumerator, nextChar);
+                            break;
+                        default:
+                            return sb.ToString();
+                    }
+                } else
+                    markupEnumerator.AppendNext(sb);
+            };
+            return sb.ToString();
         }
 
         /// <summary>

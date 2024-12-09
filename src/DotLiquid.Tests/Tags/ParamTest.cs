@@ -29,11 +29,12 @@ namespace DotLiquid.Tests.Tags
         [TestCase("Syntax = 'DotLiquid21' | replace: '21', '10'")] // Filters is not valid in this tag
         public void TestInvalidOptions(string markup)
         {
-            var tag = new Param();
-            tag.Initialize(tagName: "param", markup: markup, tokens: null);
-
-            var context = new Context(new CultureInfo("en-US"));
-            Assert.Throws<SyntaxException>(() => tag.Render(context, new StringWriter()));
+            Assert.Throws<SyntaxException>(() => {
+                var tag = new Param();
+                tag.Initialize(tagName: "param", markup: markup, tokens: null);
+                var context = new Context(new CultureInfo("en-US"));
+                tag.Render(context, new StringWriter());
+            });
         }
 
         [TestCase("param Syntax='DotLiquid21'")]

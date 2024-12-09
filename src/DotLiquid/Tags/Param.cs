@@ -13,8 +13,6 @@ namespace DotLiquid.Tags
     /// </summary>
     public class Param : DotLiquid.Tag
     {
-        private static readonly Regex Syntax = R.B(R.Q(@"([\w\-]+)\s*=\s*(.+)\s*"));
-
         private delegate void ParamDelegate(Context context, string value);
 
         private static readonly Dictionary<string, ParamDelegate> Params = new Dictionary<string, ParamDelegate>()
@@ -38,20 +36,28 @@ namespace DotLiquid.Tags
         /// <exception cref="SyntaxException">If parameter format is invalid.</exception>
         public override void Initialize(string tagName, string markup, List<string> tokens)
         {
-            var syntaxMatch = Syntax.Match(markup);
-            if (!syntaxMatch.Success)
+            var partsEnumerator = new DotLiquid.Util.CharEnumerator(markup);
+            var paramInput = Tokenizer.ReadToChar(partsEnumerator, Tokenizer.CharEquals).Trim();
+            if (!string.IsNullOrEmpty(paramInput) && partsEnumerator.HasNext())
+            {
+                partsEnumerator.MoveNext();
+                var paramName = paramInput.Replace("_", "").ToLower();
+                if (!Params.ContainsKey(paramName))
+                    throw new SyntaxException(
+                        message: "ParamTagSyntaxException",
+                        args: new string[] { paramInput, Params.Keys.ToString() });
+
+                // Save the Param and the Value (which could be a variable or literal).
+                this.param = Params[paramName];
+                this.paramValue = Tokenizer.ReadToSearchChars(partsEnumerator, Tokenizer.SearchPipeOrQuoted).Trim();
+
+                if (string.IsNullOrEmpty(this.paramValue) || partsEnumerator.HasNext()) // either nothing followed the assignment operator or a pipe (filter) was detected
+                    throw new SyntaxException("Invalid markup format for tag Param: " + markup);
+            }
+            else
+            {
                 throw new SyntaxException("Invalid markup format for tag Param: " + markup);
-
-            // Ensure the markup refers to a valid param (discard underscore to support both Ruby and C# naming)
-            var paramName = syntaxMatch.Groups[1].Value.Replace("_", "").ToLower();
-            if (!Params.ContainsKey(paramName))
-                throw new SyntaxException(
-                    message: "ParamTagSyntaxException",
-                    args: new string[] { syntaxMatch.Groups[1].Value, Params.Keys.ToString() });
-
-            // Save the Param and the Value (which could be a variable or literal).
-            this.param = Params[paramName];
-            this.paramValue = syntaxMatch.Groups[2].Value.TrimEnd();
+            }
 
             base.Initialize(tagName: tagName, markup: markup, tokens: tokens);
         }

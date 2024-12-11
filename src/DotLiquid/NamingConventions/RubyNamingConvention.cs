@@ -1,6 +1,5 @@
-﻿using System;
-using System.Text.RegularExpressions;
-using DotLiquid.Util;
+using System;
+using System.Text;
 
 namespace DotLiquid.NamingConventions
 {
@@ -16,20 +15,33 @@ namespace DotLiquid.NamingConventions
     /// </example>
     public class RubyNamingConvention : INamingConvention
     {
-        private static readonly Regex _regex1 = R.C(@"([A-Z]+)([A-Z][a-z])");
-        private static readonly Regex _regex2 = R.C(@"([a-z\d])([A-Z])");
-
+        /// <inheritdoc />
         public StringComparer StringComparer
         {
             get { return StringComparer.OrdinalIgnoreCase; }
         }
 
+        /// <inheritdoc />
         public string GetMemberName(string name)
         {
-            // Replace any capital letters, apart from the first character, with _x, the same way Ruby does
-            return _regex2.Replace(_regex1.Replace(name, "$1_$2"), "$1_$2").ToLowerInvariant();
+            var nameEnumerator = new DotLiquid.Util.CharEnumerator(name);
+            var nameBuilder = new StringBuilder(name.Length + 2);
+            while (nameEnumerator.MoveNext())
+            {
+                var letter = nameEnumerator.Current;
+                var letterLower = char.IsUpper(letter) ? char.ToLowerInvariant(letter) : letter;
+
+                if (nameEnumerator.Position == 1 || letter == letterLower)
+                    nameBuilder.Append(letterLower);
+                else if (char.IsLower(nameEnumerator.Previous) || (nameEnumerator.HasNext() && char.IsLower(nameEnumerator.Next)))
+                    nameBuilder.Append("_" + letterLower);
+                else
+                    nameBuilder.Append(letterLower);
+            }
+            return nameBuilder.ToString();
         }
 
+        /// <inheritdoc />
         public bool OperatorEquals(string testedOperator, string referenceOperator)
         {
             return GetMemberName(testedOperator).Equals(referenceOperator);

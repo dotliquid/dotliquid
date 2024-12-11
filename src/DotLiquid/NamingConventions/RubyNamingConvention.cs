@@ -29,7 +29,7 @@ namespace DotLiquid.NamingConventions
             while (nameEnumerator.MoveNext())
             {
                 var letter = nameEnumerator.Current;
-                var letterLower = char.IsUpper(letter) ? Char.ToLowerInvariant(letter) : letter;
+                var letterLower = char.IsUpper(letter) ? char.ToLowerInvariant(letter) : letter;
 
                 if (nameEnumerator.Position == 1 || letter == letterLower)
                     nameBuilder.Append(letterLower);

@@ -235,8 +235,6 @@ namespace DotLiquid
                                 return true;
                             }
                             break;
-                        default:
-                            return true;
                     }
                 }
             };

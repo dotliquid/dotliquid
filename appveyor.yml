@@ -15,7 +15,7 @@ install:
 
     choco install codecov -y
 
-    choco install dotnetcore-runtime.install --version=1.1.13 -y
+    choco install dotnetcore-runtime.install --version=1.1.13 --allow-downgrade -y
 
     choco install dotnetcore-runtime.install --version=2.1.30 -y
 
@@ -35,10 +35,8 @@ after_build:
     nuget pack src/DotLiquid/DotLiquid.nuspec -Symbols -SymbolPackageFormat snupkg -Version "$($env:APPVEYOR_BUILD_VERSION)" -OutputDirectory build\pkg
 test_script:
 - cmd: >-
-    dotnet test src\DotLiquid.Tests\DotLiquid.Tests.csproj
-
-    opencover.console -target:"C:\Tools\NUnit3\bin\nunit3-console.exe" -targetargs:"src\DotLiquid.Tests\bin\Release\net461\DotLiquid.Tests.dll --where=cat!=windows --result=TestsResults.xml;format=AppVeyor" -output:TestsCoverage.xml -filter:"+[DotLiquid]*" -register:Path64 -returntargetcode
-
+    opencover.console -target:"C:\Program Files\dotnet\dotnet.exe" -targetargs:"test src\DotLiquid.Tests\DotLiquid.Tests.csproj /clp:ErrorsOnly" -output:TestsCoverage.xml -filter:"+[DotLiquid]*" -register:user -returntargetcode -oldstyle
+    
     codecov -f TestsCoverage.xml
 artifacts:
 - path: build\pkg\*.*nupkg

@@ -624,6 +624,22 @@ namespace DotLiquid
                     : date.ToString(format, context.CurrentCulture);
             }
 
+#if NET6_0_OR_GREATER
+            if (input is DateOnly dateOnly)
+            {
+                if (format.IsNullOrWhiteSpace())
+                    return dateOnly.ToString(context.CurrentCulture);
+                return context.UseRubyDateFormat ? dateOnly.ToStrFTime(format, context.CurrentCulture) : dateOnly.ToString(format, context.CurrentCulture);
+            }
+
+            if (input is TimeOnly timeOnly)
+            {
+                if (format.IsNullOrWhiteSpace())
+                    return timeOnly.ToString(context.CurrentCulture);
+                return context.UseRubyDateFormat ? timeOnly.ToStrFTime(format, context.CurrentCulture) : timeOnly.ToString(format, context.CurrentCulture);
+            }
+#endif
+
             if (context.SyntaxCompatibilityLevel == SyntaxCompatibility.DotLiquid20)
                 return DateLegacyParsing(context, input.ToString(), format);
 
@@ -1123,7 +1139,7 @@ namespace DotLiquid
             }
             catch (FormatException)
             {
-                throw new ArgumentException($"Invalid base64 provided to {Template.NamingConvention.GetMemberName(nameof(Base64Decode))}");
+                throw new ArgumentException(string.Format(Liquid.ResourceManager.GetString("Base64FilterInvalidInput"), Template.NamingConvention.GetMemberName(nameof(Base64Decode))));
             }
         }
 
@@ -1164,7 +1180,7 @@ namespace DotLiquid
             }
             catch (FormatException)
             {
-                throw new ArgumentException($"Invalid base64 provided to {Template.NamingConvention.GetMemberName(nameof(Base64UrlSafeDecode))}");
+                throw new ArgumentException(string.Format(Liquid.ResourceManager.GetString("Base64FilterInvalidInput"), Template.NamingConvention.GetMemberName(nameof(Base64UrlSafeDecode))));
             }
         }
     }

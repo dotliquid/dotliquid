@@ -200,7 +200,7 @@ namespace DotLiquid.Util
 #if NET6_0_OR_GREATER
             else if (DateFormats.ContainsKey(directive) && source is DateOnly dateOnly)
                 result = DateFormats[directive].Invoke(dateOnly.ToDateTime(TimeOnly.MinValue), culture);
-            else if (DateFormats.ContainsKey(directive) && source is TimeOnly timeOnly)
+            else if (DateFormats.ContainsKey(directive) && source is TimeOnly)
                 throw new DotLiquid.Exceptions.DateFormatInvalidException();
 #endif
             else

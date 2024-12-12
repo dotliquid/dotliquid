@@ -28,7 +28,7 @@ namespace DotLiquid
             string token;
             while ((token = tokens.Shift()) != null)
             {
-                if (token.Length > 4 && token.Substring(0, 2) == Tokenizer.TagStart)
+                if (token.Length > 4 && token[0] == Tokenizer.CharCurlyBraceStart && token[1] == Tokenizer.CharPercent)
                 {
                     Match fullTokenMatch = FullToken.Match(token);
                     if (fullTokenMatch.Success)
@@ -63,7 +63,7 @@ namespace DotLiquid
                         throw new SyntaxException(Liquid.ResourceManager.GetString("BlockTagNotTerminatedException"), token, Liquid.TagEnd);
                     }
                 }
-                else if (token.Length > 4 && token.Substring(0, 2) == Tokenizer.VariableStart)
+                else if (token.Length > 4 && token[0] == Tokenizer.CharCurlyBraceStart && token[1] == Tokenizer.CharCurlyBraceStart)
                 {
                     NodeList.Add(CreateVariable(token));
                 }
@@ -132,7 +132,7 @@ namespace DotLiquid
         /// <returns></returns>
         public Variable CreateVariable(string token)
         {
-            if (token.Substring(token.Length - 2, 2) == Tokenizer.VariableEnd)
+            if (token[token.Length - 1] == Tokenizer.CharCurlyBraceEnd && token[token.Length - 2] == Tokenizer.CharCurlyBraceEnd)
                 return new Variable(token.Substring(2, token.Length - 4));
             throw new SyntaxException(Liquid.ResourceManager.GetString("BlockVariableNotTerminatedException"), token, Liquid.VariableEnd);
         }

@@ -13,14 +13,15 @@ namespace DotLiquid
     internal static class Tokenizer
     {
         internal const string TagStart = "{%";
-        internal const string VariableStart = "{{";
-        internal const string VariableEnd = "}}";
         internal const char CharPipe = '|';
         internal const char CharColon = ':';
         internal const char CharComma = ',';
         internal const char CharEquals = '=';
         internal const char CharSingleQuote = '\'';
         internal const char CharDoubleQuote = '"';
+        internal const char CharCurlyBraceStart = '{';
+		internal const char CharCurlyBraceEnd = '}';
+		internal const char CharPercent = '%';
         private const char BracketEnd = ']';
 
         private static readonly HashSet<char> SearchVariableEnd = new HashSet<char> { '[', '.' };
@@ -174,7 +175,7 @@ namespace DotLiquid
 
                     if (nextVariable.Length > 0)
                         yield return nextVariable.ToString();
-                };
+                }
             }
         }
 
@@ -237,7 +238,7 @@ namespace DotLiquid
                             break;
                     }
                 }
-            };
+            }
 
             // Somehow we reached the end without finding the end character(s)
             return false;
@@ -257,7 +258,7 @@ namespace DotLiquid
                     break;
                 else
                     markupEnumerator.AppendNext(sb);
-            };
+            }
             return sb.ToString();
         }
 
@@ -274,7 +275,7 @@ namespace DotLiquid
             {
                 if (markupEnumerator.Current == endChar)
                     return true;
-            };
+            }
 
             return false;
         }
@@ -295,7 +296,7 @@ namespace DotLiquid
 
                 if (!ReadWordChar(sb, markupEnumerator))
                     return false;
-            };
+            }
             return true;
         }
 
@@ -324,7 +325,7 @@ namespace DotLiquid
                     }
                 } else
                     markupEnumerator.AppendNext(sb);
-            };
+            }
             return sb.ToString();
         }
 

@@ -114,7 +114,7 @@ namespace DotLiquid
                 {
                     throw new FilterNotFoundException(string.Format(Liquid.ResourceManager.GetString("VariableFilterNotFoundException"), filter.Name, _markup.Trim()), ex);
                 }
-            };
+            }
 
             if (output is IValueTypeConvertible valueTypeConvertibleOutput)
             { 

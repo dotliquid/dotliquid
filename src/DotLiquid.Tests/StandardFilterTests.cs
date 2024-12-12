@@ -991,7 +991,7 @@ PaulGeorge",
             var currentIsRubyDateFormat = _contextV20.UseRubyDateFormat;
             try
             {
-                var dateOnly = new DateOnly(2006, 8, 3);
+                var dateOnly = new DateOnly(year: 2006, month: 8, day: 3);
                 _contextV20.UseRubyDateFormat = false;
                 Assert.That(StandardFilters.Date(context: _contextV20, input: dateOnly, format: "MM/dd/yyyy"), Is.EqualTo("08/03/2006"));
                 Assert.Throws<FormatException>(() => StandardFilters.Date(context: _contextV20, input: dateOnly, format: "HH:mm:ss"));
@@ -1011,7 +1011,7 @@ PaulGeorge",
             var currentIsRubyDateFormat = _contextV20.UseRubyDateFormat;
             try
             {
-                var timeOnly = new TimeOnly(12, 14, 15);
+                var timeOnly = new TimeOnly(hour: 12, minute: 14, second: 15);
                 _contextV20.UseRubyDateFormat = false;
                 Assert.That(StandardFilters.Date(context: _contextV20, input: timeOnly, format: "HH:mm:ss"), Is.EqualTo("12:14:15"));
                 Assert.Throws<FormatException>(() => StandardFilters.Date(context: _contextV20, input: timeOnly, format: "MM/dd/yyyy"));

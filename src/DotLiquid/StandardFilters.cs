@@ -1139,7 +1139,7 @@ namespace DotLiquid
             }
             catch (FormatException)
             {
-                throw new ArgumentException($"Invalid base64 provided to {Template.NamingConvention.GetMemberName(nameof(Base64Decode))}");
+                throw new ArgumentException(string.Format(Liquid.ResourceManager.GetString("Base64FilterInvalidInput"), Template.NamingConvention.GetMemberName(nameof(Base64Decode))));
             }
         }
 
@@ -1180,7 +1180,7 @@ namespace DotLiquid
             }
             catch (FormatException)
             {
-                throw new ArgumentException($"Invalid base64 provided to {Template.NamingConvention.GetMemberName(nameof(Base64UrlSafeDecode))}");
+                throw new ArgumentException(string.Format(Liquid.ResourceManager.GetString("Base64FilterInvalidInput"), Template.NamingConvention.GetMemberName(nameof(Base64UrlSafeDecode))));
             }
         }
     }

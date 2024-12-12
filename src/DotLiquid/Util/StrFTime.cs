@@ -154,7 +154,7 @@ namespace DotLiquid.Util
 
         private static string ObjectToStrFTime(object source, string format, CultureInfo culture)
         {
-            culture = culture ?? throw new ArgumentException(message: "CultureInfo is mandatory", paramName: nameof(culture));
+            culture = culture ?? throw new ArgumentException(message: Liquid.ResourceManager.GetString("DateFilterCultureRequired"), paramName: nameof(culture));
 
             try
             {
@@ -170,7 +170,7 @@ namespace DotLiquid.Util
             }
             catch (FormatException ex) when (ex.Message == "Only")
             {
-                throw new FormatException($"String '{format}' contains parts which are not specific to the {source.GetType().Name}.");
+                throw new FormatException(string.Format(Liquid.ResourceManager.GetString("DateFilterFormatNotSupported"), format, source.GetType().Name));
             }
         }
 
@@ -221,7 +221,7 @@ namespace DotLiquid.Util
             return directive;
         }
 
-        private static String ApplyFlag(String flag, int padwidth, String str)
+        internal static string ApplyFlag(string flag, int padwidth, string str)
         {
             switch (flag)
             {
@@ -237,7 +237,7 @@ namespace DotLiquid.Util
                 case "#": // not implemented
                     return str;
                 default: // unexpected flag, the regex must be wrong.
-                    throw new ArgumentException(message: "Invalid flag passed to ApplyFlag", paramName: nameof(flag));
+                    throw new ArgumentException(message: string.Format(Liquid.ResourceManager.GetString("DateFilterRubyDirectiveInvalid"), "ApplyFlag"), paramName: nameof(flag));
             }
         }
 
@@ -250,7 +250,7 @@ namespace DotLiquid.Util
         /// <param name="directive">The required data value, such as Y for a 4-digit year</param>
         /// <param name="culture">the CurrentCulture to be used when formatting</param>
         /// </summary>
-        private static string GetIso8601WeekOfYear(this DateTime dateTime, string directive, CultureInfo culture)
+        internal static string GetIso8601WeekOfYear(this DateTime dateTime, string directive, CultureInfo culture)
         {
             // If its Monday, Tuesday or Wednesday, then it'll be the same week
             // as whatever Thursday, Friday or Saturday are.
@@ -270,7 +270,7 @@ namespace DotLiquid.Util
                     // Return the week number of our adjusted day
                     return culture.Calendar.GetWeekOfYear(dateTime, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday).ToString().PadLeft(2, '0');
                 default:
-                    throw new ArgumentException(message: "Invalid directive passed to GetIso8601WeekOfYear", paramName: nameof(directive));
+                    throw new ArgumentException(message: string.Format(Liquid.ResourceManager.GetString("DateFilterRubyDirectiveInvalid"), "GetIso8601WeekOfYear"), paramName: nameof(directive));
             }
         }
     }

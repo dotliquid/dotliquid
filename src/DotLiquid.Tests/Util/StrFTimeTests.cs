@@ -57,7 +57,7 @@ namespace DotLiquid.Tests.Util
         // %z, %:z, %::z --> See TestTimeZoneUTC/TestTimeZoneLocal
         public string TestToStrFTime_DateFormat(string format)
         {
-            var date = new DateTime(2012, 1, 8, 14, 32, 14, 123);
+            var date = new DateTime(year: 2012, month: 1, day: 8, hour: 14, minute: 32, second: 14, millisecond: 123);
             var localResult = date.ToStrFTime(format, EN_GB);
             var utcResult = new DateTimeOffset(date, TimeSpan.FromHours(0)).ToStrFTime(format, EN_GB);
             Assert.That(utcResult, Is.EqualTo(localResult));
@@ -89,7 +89,7 @@ namespace DotLiquid.Tests.Util
         [TestCase("%X", ExpectedResult = "14:32:14")] // Locale Time representation (14:55:02)
         public string TestToStrFTime_TimeFormat(string format)
         {
-            var date = new DateTime(2012, 1, 8, 14, 32, 14, 123);
+            var date = new DateTime(year: 2012, month: 1, day: 8, hour: 14, minute: 32, second: 14, millisecond: 123);
             var localResult = date.ToStrFTime(format, EN_GB);
             var utcResult = new DateTimeOffset(date, TimeSpan.FromHours(0)).ToStrFTime(format, EN_GB);
             Assert.That(utcResult, Is.EqualTo(localResult));
@@ -106,7 +106,7 @@ namespace DotLiquid.Tests.Util
         [TestCase("%c", ExpectedResult = "Sun Jan 08 14:32:14 2012")] // Date and time representation (Thu Aug 23 14:55:02 2001)
         public string TestToStrFTime_DateTimeFormat(string format)
         {
-            var date = new DateTime(2012, 1, 8, 14, 32, 14, 123);
+            var date = new DateTime(year: 2012, month: 1, day: 8, hour: 14, minute: 32, second: 14, millisecond: 123);
             var localResult = date.ToStrFTime(format, EN_GB);
             var utcResult = new DateTimeOffset(date, TimeSpan.FromHours(0)).ToStrFTime(format, EN_GB);
             Assert.That(utcResult, Is.EqualTo(localResult));
@@ -125,7 +125,7 @@ namespace DotLiquid.Tests.Util
         [TestCase("%%", ExpectedResult = "%")]
         public string TestToStrFTime_LiteralFormat(string format)
         {
-            var date = new DateTime(2012, 1, 8, 14, 32, 14, 123);
+            var date = new DateTime(year: 2012, month: 1, day: 8, hour: 14, minute: 32, second: 14, millisecond: 123);
             var localResult = date.ToStrFTime(format, EN_GB);
             var utcResult = new DateTimeOffset(date, TimeSpan.FromHours(0)).ToStrFTime(format, EN_GB);
             Assert.That(utcResult, Is.EqualTo(localResult));
@@ -142,7 +142,7 @@ namespace DotLiquid.Tests.Util
         // %s - Gives number of seconds since 1970-01-01 00:00:00 UTC
         public void TestEpoch()
         {
-            var date = new DateTime(2012, 1, 8, 14, 32, 14, 123);
+            var date = new DateTime(year: 2012, month: 1, day: 8, hour: 14, minute: 32, second: 14, millisecond: 123);
             var localResult = date.ToStrFTime("%s", EN_GB);
             Assert.That(localResult, Is.EqualTo("1326033134"));
             var utcResult = new DateTimeOffset(date, TimeSpan.FromHours(0)).ToStrFTime("%s", EN_GB);
@@ -188,19 +188,29 @@ namespace DotLiquid.Tests.Util
         [TestCase("%V", ExpectedResult = "01")]
         public string TestIso8601WeekBasedDates(string format)
         {
+            var dateTimeOffset = new DateTimeOffset(year: 2012, month: 12, day: 31, hour: 0, minute: 0, second: 0, offset: TimeSpan.Zero);
+            var localResult = dateTimeOffset.DateTime.ToStrFTime(format, EN_GB);
+            Assert.That(dateTimeOffset.ToStrFTime(format, EN_GB), Is.EqualTo(localResult));
+#if NET6_0_OR_GREATER
+            Assert.That(DateOnly.FromDateTime(dateTimeOffset.DateTime).ToStrFTime(format, EN_GB), Is.EqualTo(localResult));
+            Assert.Throws<FormatException>(() => TimeOnly.FromDateTime(dateTimeOffset.DateTime).ToStrFTime(format, EN_GB));
+#endif
             return DateTime.Parse("2012-12-31").ToStrFTime(format, EN_GB);
         }
 
         [Test]
         public void TestToStrFTime_ArgumentException()
         {
-            var dateTime = new DateTime(2012, 1, 8, 14, 32, 14, 123);
+            var dateTimeOffset = new DateTimeOffset(year: 2012, month: 1, day: 8, hour: 14, minute: 32, second: 14, millisecond: 123, offset: TimeSpan.Zero);
             var format = "%g";
             CultureInfo cultureInfo = null;
-            Assert.Throws<ArgumentException>(() => StrFTime.ToStrFTime(dateTime, format, cultureInfo));
-
-            DateTimeOffset dateTimeOffset = new DateTimeOffset(dateTime, TimeSpan.FromHours(0));
-            Assert.Throws<ArgumentException>(() => StrFTime.ToStrFTime(dateTimeOffset, format, cultureInfo));
+            Assert.Multiple(() =>
+            {
+                Assert.Throws<ArgumentException>(() => StrFTime.ToStrFTime(dateTimeOffset.DateTime, format, cultureInfo));
+                Assert.Throws<ArgumentException>(() => StrFTime.ToStrFTime(dateTimeOffset, format, cultureInfo));
+                Assert.Throws<ArgumentException>(() => StrFTime.ApplyFlag(flag: "!", padwidth: 4, str: "0"));
+                Assert.Throws<ArgumentException>(() => StrFTime.GetIso8601WeekOfYear(dateTimeOffset.DateTime, "!", EN_GB));
+            });
         }
     }
 }

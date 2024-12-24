@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
@@ -44,7 +43,7 @@ namespace DotLiquid.Tags
         /// <param name="result">The output buffer containing the currently rendered template</param>
         public override void Render(Context context, TextWriter result)
         {
-            var environment = context.Environments.First();
+            var environment = context.Environments[0];
             var currentValue = environment.ContainsKey(_variable) ? environment[_variable] : 0;
             if (environment is IDictionary<string, object> dict)
                 Increment32(dict, result, currentValue);

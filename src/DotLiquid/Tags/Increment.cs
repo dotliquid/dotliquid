@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
@@ -43,31 +44,40 @@ namespace DotLiquid.Tags
         /// <param name="result">The output buffer containing the currently rendered template</param>
         public override void Render(Context context, TextWriter result)
         {
-            Increment32(context, result, context.Environments[0].TryGetValue(_variable, out var counterObj) ? counterObj : 0);
+            var environment = context.Environments.First();
+            var currentValue = environment.ContainsKey(_variable) ? environment[_variable] : 0;
+            if (environment is IDictionary<string, object> dict)
+                Increment32(dict, result, currentValue);
+            else
+            {
+                var stackedEnvironment = new Hash();
+                context.Environments.Insert(0, stackedEnvironment);
+                Increment32(stackedEnvironment, result, currentValue);
+            }
             base.Render(context, result);
         }
 
-        private void Increment32(Context context, TextWriter result, object current)
+        private void Increment32(IDictionary<string, object> environment, TextWriter result, object current)
         {
             try
             {
                 checked
                 { //needed to force OverflowException at runtime
                     var counter = Convert.ToInt32(current);
-                    context.Environments[0][_variable] = counter + 1;
+                    environment[_variable] = counter + 1;
                     result.Write(counter);
                 }
             }
             catch (OverflowException)
             {
-                Increment64(context, result, current);
+                Increment64(environment, result, current);
             }
         }
 
-        private void Increment64(Context context, TextWriter result, object current)
+        private void Increment64(IDictionary<string, object> environment, TextWriter result, object current)
         {
             var counter = Convert.ToInt64(current);
-            context.Environments[0][_variable] = counter + 1;
+            environment[_variable] = counter + 1;
             result.Write(counter);
         }
     }

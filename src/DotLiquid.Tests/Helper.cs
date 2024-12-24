@@ -47,12 +47,25 @@ namespace DotLiquid.Tests
             });
         }
 
-        public static void AssertTemplateResult(string expected, string template, INamingConvention namingConvention)
+        public static void AssertTemplateResult(string expected, string template, IIndexable localVariables, INamingConvention namingConvention, SyntaxCompatibility syntax = SyntaxCompatibility.DotLiquid20)
         {
-            AssertTemplateResult(expected: expected, template: template, anonymousObject: null, namingConvention: namingConvention);
+            LockTemplateStaticVars(namingConvention, () =>
+            {
+                var parameters = new RenderParameters(System.Globalization.CultureInfo.CurrentCulture)
+                {
+                    LocalVariables = localVariables,
+                    SyntaxCompatibilityLevel = syntax
+                };
+                Assert.That(Template.Parse(template).Render(parameters), Is.EqualTo(expected));
+            });
         }
 
-        public static void AssertTemplateResult(string expected, string template, Hash localVariables, IEnumerable<Type> localFilters, SyntaxCompatibility syntax = SyntaxCompatibility.DotLiquid20)
+        public static void AssertTemplateResult(string expected, string template, INamingConvention namingConvention)
+        {
+            AssertTemplateResult(expected: expected, template: template, localVariables: null, namingConvention: namingConvention);
+        }
+
+        public static void AssertTemplateResult(string expected, string template, IIndexable localVariables, IEnumerable<Type> localFilters, SyntaxCompatibility syntax = SyntaxCompatibility.DotLiquid20)
         {
             var parameters = new RenderParameters(System.Globalization.CultureInfo.CurrentCulture)
             {
@@ -63,7 +76,7 @@ namespace DotLiquid.Tests
             Assert.That(Template.Parse(template).Render(parameters), Is.EqualTo(expected));
         }
 
-        public static void AssertTemplateResult(string expected, string template, Hash localVariables, SyntaxCompatibility syntax = SyntaxCompatibility.DotLiquid20)
+        public static void AssertTemplateResult(string expected, string template, IIndexable localVariables, SyntaxCompatibility syntax = SyntaxCompatibility.DotLiquid20)
         {
             AssertTemplateResult(expected: expected, template: template, localVariables: localVariables, localFilters: null, syntax: syntax);
         }

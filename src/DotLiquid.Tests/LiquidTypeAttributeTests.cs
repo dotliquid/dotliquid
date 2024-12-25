@@ -157,9 +157,12 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestLiquidTypeAttributeMissing()
+        public void TestNonSafeTypeException()
         {
             Assert.Throws<Exceptions.ArgumentException>(() => DropBase.FromSafeType(string.Empty));
+
+            Template.RegisterSafeType(typeof(TemplateTests.MySimpleType), o => o.ToString());
+            Assert.Throws<Exceptions.ArgumentException>(() => DropBase.FromSafeType(new TemplateTests.MySimpleType()));
         }
 
     }

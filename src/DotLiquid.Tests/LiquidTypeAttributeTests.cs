@@ -138,5 +138,29 @@ namespace DotLiquid.Tests
                 anonymousObject: new { value = new MyLiquidTypeWithGlobalMemberAllowance() },
                 namingConvention: new NamingConventions.RubyNamingConvention());
         }
+
+
+        [Test]
+        public void TestLiquidTypeRootKeys()
+        {
+            Helper.AssertTemplateResult(
+                expected: "worked",
+                template: "{{ name }}",
+                localVariables: DropBase.FromSafeType(new MyLiquidTypeWithAllowedMember() { Name = "worked" }),
+                namingConvention: new NamingConventions.RubyNamingConvention());
+
+            Helper.AssertTemplateResult(
+                expected: "worked",
+                template: "{{ prop_allowed }}",
+                localVariables: DropBase.FromSafeType(new Helper.DataObjectRegistered() { PropAllowed = "worked" }),
+                namingConvention: new NamingConventions.RubyNamingConvention());
+        }
+
+        [Test]
+        public void TestLiquidTypeAttributeMissing()
+        {
+            Assert.Throws<Exceptions.ArgumentException>(() => DropBase.FromSafeType(string.Empty));
+        }
+
     }
 }

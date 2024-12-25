@@ -710,10 +710,9 @@ namespace DotLiquid
                 return safeTypeTransformer(obj);
             }
 
-            var attr = (LiquidTypeAttribute)valueType.GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).FirstOrDefault();
-            if (attr != null)
+            if (DropProxy.TryFromLiquidType(obj, valueType, out var drop))
             {
-                return new DropProxy(obj, attr.AllowedMembers);
+                return drop;
             }
 
             if (IsKeyValuePair(obj))

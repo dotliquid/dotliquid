@@ -383,7 +383,9 @@ namespace DotLiquid
         #endregion
 
         #region IIndexable
+        /// <inheritdoc />
         object IIndexable.this[object key] => ((IDictionary)this)[key];
+
         /// <inheritdoc />
         public bool ContainsKey(object key) => Contains(key);
         #endregion

@@ -1042,13 +1042,9 @@ namespace DotLiquid
                     indexable = safeTypeTransformer(obj) as DropBase;
                 else
                 {
-                    var liquidTypeAttribute = type
-                        .GetTypeInfo()
-                        .GetCustomAttributes(attributeType: typeof(LiquidTypeAttribute), inherit: false)
-                        .FirstOrDefault() as LiquidTypeAttribute;
-                    if (liquidTypeAttribute != null)
+                    if (DropProxy.TryFromLiquidType(obj, type, out var drop))
                     {
-                        indexable = new DropProxy(obj, liquidTypeAttribute.AllowedMembers);
+                        indexable = drop;
                     }
                     else if (TypeUtility.IsAnonymousType(type) && obj.GetType().GetRuntimeProperty(propertyName) != null)
                     {

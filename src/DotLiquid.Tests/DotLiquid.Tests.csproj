@@ -22,6 +22,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Embedded\golden_liquid.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Embedded\golden_liquid.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DotLiquid\DotLiquid.csproj" />
   </ItemGroup>
   

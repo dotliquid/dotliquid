@@ -130,7 +130,7 @@ _:exclamation: Changes are no longer maintained in this file. See (https://githu
 
 ## 1.5.0 - 2011-03-01
 
-* Fix for `RubyNamingConvention` incorrectly handling full uppercase memebers.
+* Fix for `RubyNamingConvention` incorrectly handling full uppercase members.
   Let's do it the same way Ruby does!
 
 * Dispose `MemoryStreamWriter` correctly

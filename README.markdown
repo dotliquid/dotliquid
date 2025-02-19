@@ -1,7 +1,7 @@
 ﻿# DotLiquid
 
 [![DotLiquid tag on Stack Overflow](https://img.shields.io/badge/stackoverflow-dotliquid-orange.svg)](https://stackoverflow.com/questions/tagged/dotliquid)
-[![AppVeyor build](https://ci.appveyor.com/api/projects/status/github/dotliquid/dotliquid?branch=master&svg=true)](https://ci.appveyor.com/project/tgjones/dotliquid)
+[![AppVeyor Build](https://ci.appveyor.com/api/projects/status/xlev396hlh37s3to/branch/master?svg=true)](https://ci.appveyor.com/project/microalps/dotliquid/branch/master)
 [![codecov](https://codecov.io/gh/dotliquid/dotliquid/branch/master/graph/badge.svg)](https://codecov.io/gh/dotliquid/dotliquid)
 [![NuGet](https://img.shields.io/nuget/v/dotliquid.svg)](https://www.nuget.org/packages/dotliquid)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/dotliquid/dotliquid?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)

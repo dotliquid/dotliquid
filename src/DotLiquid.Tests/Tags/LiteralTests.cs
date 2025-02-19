@@ -12,51 +12,49 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestEmptyLiteral()
         {
-            Assert.AreEqual(string.Empty, Template.Parse("{% literal %}{% endliteral %}").Render());
+            Assert.That(Template.Parse("{% literal %}{% endliteral %}").Render(), Is.EqualTo(string.Empty));
 
             // Next test is specific to legacy parser and was removed from Ruby Liquid. Test that it is ignored is in TestShortHandSyntaxIsIgnored
-            Assert.AreEqual(string.Empty, Template.Parse("{{{}}}", SyntaxCompatibility.DotLiquid20).Render());
+            Assert.That(Template.Parse("{{{}}}", SyntaxCompatibility.DotLiquid20).Render(), Is.EqualTo(string.Empty));
         }
 
         [Test]
         public void TestSimpleLiteralValue()
         {
-            Assert.AreEqual("howdy", Template.Parse("{% literal %}howdy{% endliteral %}").Render());
+            Assert.That(Template.Parse("{% literal %}howdy{% endliteral %}").Render(), Is.EqualTo("howdy"));
         }
 
         [Test]
         public void TestLiteralsIgnoreLiquidMarkup()
         {
-            Assert.AreEqual(
-                expected: "{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}",
-                actual: Template.Parse("{% literal %}{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}{% endliteral %}").Render());
+            Assert.That(
+                actual: Template.Parse("{% literal %}{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}{% endliteral %}").Render(), Is.EqualTo(expected: "{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}"));
         }
 
         [Test]
         public void TestShorthandSyntax()
         {
-            Assert.AreEqual(
-                expected: "{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}",
-                actual: Template.Parse("{{{{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}}}}", SyntaxCompatibility.DotLiquid20).Render());
+            Assert.That(
+                actual: Template.Parse("{{{{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}}}}", SyntaxCompatibility.DotLiquid20).Render(), Is.EqualTo(expected: "{% if 'gnomeslab' contains 'liquid' %}yes{ % endif %}"));
         }
 
         [Test]
         public void TestLiteralsDontRemoveComments()
         {
-            Assert.AreEqual("{# comment #}", Template.Parse("{{{ {# comment #} }}}", SyntaxCompatibility.DotLiquid20).Render());
+            Assert.That(Template.Parse("{{{ {# comment #} }}}", SyntaxCompatibility.DotLiquid20).Render(), Is.EqualTo("{# comment #}"));
         }
 
         [Test]
         public void TestFromShorthand()
         {
-            Assert.AreEqual("{% literal %}gnomeslab{% endliteral %}", Literal.FromShortHand("{{{gnomeslab}}}"));
-            Assert.AreEqual(null, Literal.FromShortHand(null));
+            Assert.That(Literal.FromShortHand("{{{gnomeslab}}}"), Is.EqualTo("{% literal %}gnomeslab{% endliteral %}"));
+            Assert.That(Literal.FromShortHand(null), Is.EqualTo(null));
         }
 
         [Test]
         public void TestFromShorthandIgnoresImproperSyntax()
         {
-            Assert.AreEqual("{% if 'hi' == 'hi' %}hi{% endif %}", Literal.FromShortHand("{% if 'hi' == 'hi' %}hi{% endif %}"));
+            Assert.That(Literal.FromShortHand("{% if 'hi' == 'hi' %}hi{% endif %}"), Is.EqualTo("{% if 'hi' == 'hi' %}hi{% endif %}"));
         }
     }
 }

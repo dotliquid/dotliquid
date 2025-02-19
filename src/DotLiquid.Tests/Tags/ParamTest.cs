@@ -26,6 +26,7 @@ namespace DotLiquid.Tests.Tags
         [TestCase("using='DotLiquid.ShopifyFilters'")] // Fully qualified class names are invalid (even if they match a safelisted Type)
         [TestCase("using='DotLiquid.Template'")] // Fully qualified class names are invalid
         [TestCase("using='Template'")] // Ensure classes in the DotLiquid namespace are not available by accident.
+        [TestCase("Syntax = 'DotLiquid21' | replace: '21', '10'")] // Filters is not valid in this tag
         public void TestInvalidOptions(string markup)
         {
             var tag = new Param();
@@ -35,13 +36,28 @@ namespace DotLiquid.Tests.Tags
             Assert.Throws<SyntaxException>(() => tag.Render(context, new StringWriter()));
         }
 
-        [Test]
-        public void TestSyntaxCompatibility()
+        [TestCase("param Syntax='DotLiquid21'")]
+        [TestCase(" param Syntax= 'DotLiquid21'")]
+        [TestCase("param Syntax= 'DotLiquid21'")]
+        [TestCase("param Syntax= 'DotLiquid21' ")]
+        [TestCase("param Syntax = 'DotLiquid21' ")]
+        public void TestSyntaxCompatibility(string markup)
         {
             // Initialize as DotLiquid20, then assert that the DotLiquid21 rules for Capitalize are followed.
             Helper.AssertTemplateResult(
                 expected: "My great title",
-                template: "{% param Syntax= 'DotLiquid21'%}{{ 'my great title' | capitalize }}",
+                template: "{%" + markup + "%}{{ 'my great title' | capitalize }}",
+                syntax: SyntaxCompatibility.DotLiquid20);
+        }
+
+        [TestCase("param Syntax=LiquidVersion")]
+        [TestCase("param Syntax = LiquidVersion ")]
+        public void TestSyntaxCompatibilityDynamic(string markup)
+        {
+            // Initialize as DotLiquid20, then assert that the DotLiquid21 rules for Capitalize are followed.
+            Helper.AssertTemplateResult(
+                expected: "My great title",
+                template: "{% assign LiquidVersion = 'DotLiquid21'%}{%" + markup + "%}{{ 'my great title' | capitalize }}",
                 syntax: SyntaxCompatibility.DotLiquid20);
         }
 

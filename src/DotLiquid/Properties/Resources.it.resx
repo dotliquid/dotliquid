@@ -175,7 +175,7 @@
     <value>Annidamento eccessivo</value>
   </data>
   <data name="CycleTagSyntaxException" xml:space="preserve">
-    <value>Syntax Error in 'cycle' tag - Valid syntax: cycle [name :] var [, var2, var3 ...]</value>
+    <value>Errore di sintassi nel tag 'cycle' - Sintassi valida: cycle [nome :] var [, var2, var3 ...]</value>
   </data>
   <data name="DropWrongNamingConventionMessage" xml:space="preserve">
     <value>Proprietà non riconosciuta. Forse intendevi '{0}'?</value>
@@ -210,6 +210,9 @@
   <data name="LocalFileSystemIllegalTemplatePathException" xml:space="preserve">
     <value>Errore - Percorso del template non valido '{0}'</value>
   </data>
+  <data name="TemplateNameArgumentException" xml:space="preserve">
+    <value>Errore di argomento nel tag '{0}' - Nome modello non valido</value>
+  </data>
   <data name="LocalFileSystemTemplateNotFoundException" xml:space="preserve">
     <value>Errore - Template non trovato '{0}'</value>
   </data>
@@ -234,8 +237,8 @@
   <data name="IfTagTooMuchConditionsException" xml:space="preserve">
     <value>Errore di sintassi nel tag 'if' - sono consentite fino 500 condizioni</value>
   </data>
-  <data name="ForTagMaxIterationsExceededException" xml:space="preserve">
-    <value>Render Error - Maximum number of iterations {0} exceeded</value>
+  <data name="ForTagMaximumIterationsExceededException" xml:space="preserve">
+    <value>Errore di rendering: superato il numero massimo di iterazioni {0}</value>
   </data>
   <data name="SimpleTagSyntaxException" xml:space="preserve">
     <value>Errore di sintassi nel tag '{0}' - La sintassi corretta è: {0}</value>
@@ -249,7 +252,25 @@
   <data name="CultureNotFoundException" xml:space="preserve">
     <value>La cultura '{0}' non è supportata</value>
   </data>
-  <data name="TemplateNameArgumentException" xml:space="preserve">
-    <value>Errore di argomento nel tag '{0}' - Nome modello non valido</value>
+  <data name="DecrementSyntaxException" xml:space="preserve">
+    <value>Errore di sintassi nel tag 'decrement' - Sintassi valida: decrement [var]</value>
+  </data>
+  <data name="IncrementSyntaxException" xml:space="preserve">
+    <value>Errore di sintassi nel tag 'increment' - Sintassi valida: increment [var]</value>
+  </data>
+  <data name="Base64FilterInvalidInput" xml:space="preserve">
+    <value>Base64 non valido fornito a {0}</value>
+  </data>
+  <data name="DateFilterFormatNotSupported" xml:space="preserve">
+    <value>La stringa '{0}' contiene parti che non sono specifiche di {1}.</value>
+  </data>
+  <data name="DateFilterCultureRequired" xml:space="preserve">
+    <value>CultureInfo è obbligatorio</value>
+  </data>
+  <data name="DateFilterRubyDirectiveInvalid" xml:space="preserve">
+    <value>Direttiva non valida passata a {0}</value>
+  </data>
+  <data name="DisabledTagException" xml:space="preserve">
+    <value>L'utilizzo del '{0}' non è consentito in questo contesto</value>
   </data>
 </root>

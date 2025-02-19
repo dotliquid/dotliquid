@@ -43,6 +43,10 @@ namespace DotLiquid.Tests
                 return other == this.ToString();
             }
         }
+
+        public class DummyDrop : Drop
+        {
+        }
         #endregion
 
         // NOTE(David Burg): This forces sequential execution of tests, risk side effect resulting in non deterministic behavior.
@@ -52,8 +56,8 @@ namespace DotLiquid.Tests
         [Test]
         public void TestBasicCondition()
         {
-            Assert.AreEqual(expected: false, actual: new Condition(left: "1", @operator: "==", right: "2").Evaluate(context: null, formatProvider: CultureInfo.InvariantCulture));
-            Assert.AreEqual(expected: true, actual: new Condition(left: "1", @operator: "==", right: "1").Evaluate(context: null, formatProvider: CultureInfo.InvariantCulture));
+            Assert.That(actual: new Condition(left: "1", @operator: "==", right: "2").Evaluate(context: null, formatProvider: CultureInfo.InvariantCulture), Is.EqualTo(expected: false));
+            Assert.That(actual: new Condition(left: "1", @operator: "==", right: "1").Evaluate(context: null, formatProvider: CultureInfo.InvariantCulture), Is.EqualTo(expected: true));
 
             // NOTE(David Burg): Validate that type conversion order preserves legacy behavior
             // Even if it's out of Shopify spec compliance (all type but null and false should evaluate to true).
@@ -379,26 +383,26 @@ namespace DotLiquid.Tests
         public void TestOrCondition()
         {
             Condition condition = new Condition("1", "==", "2");
-            Assert.IsFalse(condition.Evaluate(null, CultureInfo.InvariantCulture));
+            Assert.That(condition.Evaluate(null, CultureInfo.InvariantCulture), Is.False);
 
             condition.Or(new Condition("2", "==", "1"));
-            Assert.IsFalse(condition.Evaluate(null, CultureInfo.InvariantCulture));
+            Assert.That(condition.Evaluate(null, CultureInfo.InvariantCulture), Is.False);
 
             condition.Or(new Condition("1", "==", "1"));
-            Assert.IsTrue(condition.Evaluate(null, CultureInfo.InvariantCulture));
+            Assert.That(condition.Evaluate(null, CultureInfo.InvariantCulture), Is.True);
         }
 
         [Test]
         public void TestAndCondition()
         {
             Condition condition = new Condition("1", "==", "1");
-            Assert.IsTrue(condition.Evaluate(null, CultureInfo.InvariantCulture));
+            Assert.That(condition.Evaluate(null, CultureInfo.InvariantCulture), Is.True);
 
             condition.And(new Condition("2", "==", "2"));
-            Assert.IsTrue(condition.Evaluate(null, CultureInfo.InvariantCulture));
+            Assert.That(condition.Evaluate(null, CultureInfo.InvariantCulture), Is.True);
 
             condition.And(new Condition("2", "==", "1"));
-            Assert.IsFalse(condition.Evaluate(null, CultureInfo.InvariantCulture));
+            Assert.That(condition.Evaluate(null, CultureInfo.InvariantCulture), Is.False);
         }
 
         [Test]
@@ -598,7 +602,7 @@ namespace DotLiquid.Tests
             string output = Template.Parse("{% if model.value < 0 %}passed{% endif %}")
                 .Render(Hash.FromAnonymousObject(new { model }));
 
-            Assert.AreEqual("passed", output);
+            Assert.That(output, Is.EqualTo("passed"));
         }
 
         [Test]
@@ -612,7 +616,7 @@ namespace DotLiquid.Tests
             var current = "MyID is {% if MyID == 1 %}1{%endif%}";
             var parse = DotLiquid.Template.Parse(current);
             var parsedOutput = parse.Render(new RenderParameters(CultureInfo.InvariantCulture) { LocalVariables = Hash.FromDictionary(row) });
-            Assert.AreEqual("MyID is 1", parsedOutput);
+            Assert.That(parsedOutput, Is.EqualTo("MyID is 1"));
         }
 
         [Test]
@@ -695,18 +699,90 @@ namespace DotLiquid.Tests
             AssertEvaluatesFalse("enum", "!=", "'Yes'");
         }
 
+        [Test]
+        public void TestBlankObject()
+        {
+            _context = new Context(CultureInfo.InvariantCulture);
+            _context["dictionary"] = new Dictionary<string, string> { { "abc", "xyz" } };
+            _context["empty_dictionary"] = new Dictionary<string, string> { };
+            _context["list"] = new List<string> { "abc" };
+            _context["empty_list"] = new List<string> { };
+            _context["array"] = new string[] { "foo" };
+            _context["empty_array"] = new string[] { };
+            _context["a_drop"] = new DummyDrop();
+
+            // self check
+            AssertEvaluatesFalse(left: "blank", op: "==", right: "blank");
+            AssertEvaluatesTrue(left: "blank", op: "!=", right: "blank");
+            AssertEvaluatesTrue(left: "blank", op: "<>", right: "blank");
+
+            // blank truthy
+            AssertEvaluatesTrue(left: "''", op: "==", right: "blank");
+            AssertEvaluatesTrue(left: "'  '", op: "==", right: "blank");
+            AssertEvaluatesTrue(left: "false", op: "==", right: "blank");
+            AssertEvaluatesTrue(left: "nil", op: "==", right: "blank");
+            AssertEvaluatesTrue(left: "not_assigned", op: "==", right: "blank");
+            AssertEvaluatesTrue(left: "empty_dictionary", op: "==", right: "blank");
+            AssertEvaluatesTrue(left: "empty_list", op: "==", right: "blank");
+            AssertEvaluatesTrue(left: "empty_array", op: "==", right: "blank");
+
+            // blank falsy
+            AssertEvaluatesTrue(left: "1", op: "!=", right: "blank");
+            AssertEvaluatesTrue(left: "0", op: "!=", right: "blank");
+            AssertEvaluatesTrue(left: "true", op: "!=", right: "blank");
+            AssertEvaluatesTrue(left: "a_drop", op: "!=", right: "blank");
+            AssertEvaluatesTrue(left: "dictionary", op: "!=", right: "blank");
+            AssertEvaluatesTrue(left: "list", op: "!=", right: "blank");
+            AssertEvaluatesTrue(left: "array", op: "!=", right: "blank");
+        }
+
+        [Test]
+        public void TestEmptyObject()
+        {
+            _context = new Context(CultureInfo.InvariantCulture);
+            _context["dictionary"] = new Dictionary<string, string> { { "abc", "xyz" } };
+            _context["empty_dictionary"] = new Dictionary<string, string> { };
+            _context["list"] = new List<string> { "abc" };
+            _context["empty_list"] = new List<string> { };
+            _context["array"] = new string[] { "foo" };
+            _context["empty_array"] = new string[] { };
+            _context["a_drop"] = new DummyDrop();
+
+            // self check
+            AssertEvaluatesFalse(left: "empty", op: "==", right: "empty");
+            AssertEvaluatesTrue(left: "empty", op: "!=", right: "empty");
+            AssertEvaluatesTrue(left: "empty", op: "<>", right: "empty");
+
+            // empty truthy
+            AssertEvaluatesTrue(left: "''", op: "==", right: "empty");
+            AssertEvaluatesTrue(left: "empty_dictionary", op: "==", right: "empty");
+            AssertEvaluatesTrue(left: "empty_list", op: "==", right: "empty");
+            AssertEvaluatesTrue(left: "empty_array", op: "==", right: "empty");
+
+            // empty falsy
+            AssertEvaluatesTrue(left: "'  '", op: "!=", right: "empty");
+            AssertEvaluatesTrue(left: "false", op: "!=", right: "empty");
+            AssertEvaluatesTrue(left: "nil", op: "!=", right: "empty");
+            AssertEvaluatesTrue(left: "no_assigned", op: "!=", right: "empty");
+            AssertEvaluatesTrue(left: "1", op: "!=", right: "empty");
+            AssertEvaluatesTrue(left: "0", op: "!=", right: "empty");
+            AssertEvaluatesTrue(left: "true", op: "!=", right: "empty");
+            AssertEvaluatesTrue(left: "a_drop", op: "!=", right: "empty");
+            AssertEvaluatesTrue(left: "dictionary", op: "!=", right: "empty");
+            AssertEvaluatesTrue(left: "list", op: "!=", right: "empty");
+            AssertEvaluatesTrue(left: "array", op: "!=", right: "empty");
+        }
+
         #region Helper methods
 
         private void AssertEvaluatesTrue(string left, string op, string right)
         {
-            Assert.IsTrue(new Condition(left, op, right).Evaluate(_context ?? new Context(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture),
-                "Evaluated false: {0} {1} {2}", left, op, right);
+            Assert.That(new Condition(left, op, right).Evaluate(_context ?? new Context(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture), Is.True, $"Evaluated false: {left} {op} {right}");
         }
 
         private void AssertEvaluatesFalse(string left, string op, string right)
         {
-            Assert.IsFalse(new Condition(left, op, right).Evaluate(_context ?? new Context(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture),
-                "Evaluated true: {0} {1} {2}", left, op, right);
+            Assert.That(new Condition(left, op, right).Evaluate(_context ?? new Context(CultureInfo.InvariantCulture), CultureInfo.InvariantCulture), Is.False, $"Evaluated true: {left} {op} {right}");
         }
 
         private void AssertError(string left, string op, string right, System.Type errorType)

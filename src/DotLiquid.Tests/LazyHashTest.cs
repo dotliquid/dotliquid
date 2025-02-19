@@ -72,7 +72,8 @@ namespace DotLiquid.Tests
 
 
 
-        public class TestLazyObject {
+        public class TestLazyObject
+        {
             public Lazy<string> _lazyProperty1 => new Lazy<string>(() =>
             {
                 return "LAZY_PROPERTY_1";
@@ -94,8 +95,8 @@ namespace DotLiquid.Tests
             var lazyObject = new TestLazyObject();
             Template template = Template.Parse("{{LazyProperty1}}");
             var output = template.Render(new LazyHash(lazyObject));
-            Assert.AreEqual("LAZY_PROPERTY_1", output);
-            Assert.IsFalse(lazyObject._lazyProperty2.IsValueCreated, "LazyObject LAZY_PROPERTY_2 has been created");
+            Assert.That(output, Is.EqualTo("LAZY_PROPERTY_1"));
+            Assert.That(lazyObject._lazyProperty2.IsValueCreated, Is.False, "LazyObject LAZY_PROPERTY_2 has been created");
         }
 
         [Test]
@@ -104,8 +105,8 @@ namespace DotLiquid.Tests
             var lazyObject = new TestLazyObject();
             Template template = Template.Parse("{{LazyProperty2}}");
             var output = template.Render(new LazyHash(lazyObject));
-            Assert.AreEqual("LAZY_PROPERTY_2", output);
-            Assert.IsFalse(lazyObject._lazyProperty1.IsValueCreated, "LazyObject LAZY_PROPERTY_1 has been created");
+            Assert.That(output, Is.EqualTo("LAZY_PROPERTY_2"));
+            Assert.That(lazyObject._lazyProperty1.IsValueCreated, Is.False, "LazyObject LAZY_PROPERTY_1 has been created");
         }
 
         [Test]
@@ -114,9 +115,9 @@ namespace DotLiquid.Tests
             var lazyObject = new TestLazyObject();
             Template template = Template.Parse("{{StaticProperty}}");
             var output = template.Render(new LazyHash(lazyObject));
-            Assert.AreEqual("STATIC_PROPERTY", output);
-            Assert.IsFalse(lazyObject._lazyProperty1.IsValueCreated, "LazyObject LAZY_PROPERTY_1 has been created");
-            Assert.IsFalse(lazyObject._lazyProperty2.IsValueCreated, "LazyObject LAZY_PROPERTY_2 has been created");
+            Assert.That(output, Is.EqualTo("STATIC_PROPERTY"));
+            Assert.That(lazyObject._lazyProperty1.IsValueCreated, Is.False, "LazyObject LAZY_PROPERTY_1 has been created");
+            Assert.That(lazyObject._lazyProperty2.IsValueCreated, Is.False, "LazyObject LAZY_PROPERTY_2 has been created");
         }
 
         [Test]
@@ -125,7 +126,7 @@ namespace DotLiquid.Tests
             var lazyObject = new TestLazyObject();
             Template template = Template.Parse("{{LazyProperty1}}-{{LazyProperty2}}-{{StaticProperty}}");
             var output = template.Render(new LazyHash(lazyObject));
-            Assert.AreEqual($"LAZY_PROPERTY_1-LAZY_PROPERTY_2-STATIC_PROPERTY", output);
+            Assert.That(output, Is.EqualTo($"LAZY_PROPERTY_1-LAZY_PROPERTY_2-STATIC_PROPERTY"));
         }
     }
 }

@@ -67,7 +67,7 @@ namespace DotLiquid.Util
         }
 
         /// <summary>
-        /// Test values for equality accross type boundaries except string to non-char, null-safe
+        /// Test values for equality across type boundaries except string to non-char, null-safe
         /// </summary>
         /// <param name="value">The first value.</param>
         /// <param name="otherValue">The second value.</param>
@@ -89,7 +89,7 @@ namespace DotLiquid.Util
         }
 
         /// <summary>
-        /// Test values for equality accross type boundaries, null-safe
+        /// Test values for equality across type boundaries, null-safe
         /// </summary>
         /// <param name="value">The first value.</param>
         /// <param name="otherValue">The second value.</param>

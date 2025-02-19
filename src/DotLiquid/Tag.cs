@@ -111,10 +111,10 @@ namespace DotLiquid
 
         /// <summary>
         /// Return a named register as a dictionary keyed by a string with values of specified type T.
-        /// <summary>
+        /// </summary>
         /// <param name="context"></param>
         /// <param name="registerName">Name of the register, for example 'cycle' for the Cycle tag</param>
-        /// <param name="T">Type of object stored in the register, for example cycle stores an int</param>
+        /// <typeparam name="T">Type of object stored in the register, for example cycle stores an int</typeparam>
         internal static IDictionary<string, T> GetRegister<T>(Context context, string registerName)
         {
             if (!context.Registers.ContainsKey(registerName))

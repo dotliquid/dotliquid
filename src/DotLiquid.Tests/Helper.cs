@@ -44,7 +44,7 @@ namespace DotLiquid.Tests
                     LocalVariables = localVariables,
                     SyntaxCompatibilityLevel = syntax
                 };
-                Assert.AreEqual(expected, Template.Parse(template).Render(parameters));
+                Assert.That(Template.Parse(template).Render(parameters), Is.EqualTo(expected));
             });
         }
 
@@ -61,7 +61,7 @@ namespace DotLiquid.Tests
                 SyntaxCompatibilityLevel = syntax,
                 Filters = localFilters
             };
-            Assert.AreEqual(expected, Template.Parse(template).Render(parameters));
+            Assert.That(Template.Parse(template).Render(parameters), Is.EqualTo(expected));
         }
 
         public static void AssertTemplateResult(string expected, string template, Hash localVariables, SyntaxCompatibility syntax = SyntaxCompatibility.DotLiquid20)
@@ -123,6 +123,16 @@ namespace DotLiquid.Tests
         [LiquidTypeAttribute("PropAllowed")]
         public class DataObject
         {
+            public string PropAllowed { get; set; }
+            public string PropDisallowed { get; set; }
+        }
+
+        public class DataObjectRegistered
+        {
+            static DataObjectRegistered()
+            {
+                Template.RegisterSafeType(typeof(DataObjectRegistered), new[] { "PropAllowed" });
+            }
             public string PropAllowed { get; set; }
             public string PropDisallowed { get; set; }
         }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
@@ -35,6 +36,14 @@ namespace DotLiquid.Tests.Tags
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
             public string Name => nameof(TestEnumerable);
+        }
+
+        private class ErrorDrop : Drop
+        {   
+            public void StandardException()
+            {
+                throw new DotLiquid.Exceptions.ArgumentException("standard exception");
+            }
         }
 
         [Test]
@@ -164,6 +173,21 @@ namespace DotLiquid.Tests.Tags
             }, () =>
             {
                 Assert.Throws<StackLevelException>(() => Template.Parse("{% render 'loop' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
+                {
+                    ErrorsOutputMode = ErrorsOutputMode.Rethrow
+                }));
+            });
+        }
+
+        [Test]
+        public void TestSubContextsCountTowardsTheSameRecursiveLimit()
+        {
+            Helper.WithDictionaryFileSystem(new Dictionary<string, string>
+            {
+                ["loop_render"] = "{% render \"loop_render\" %}",
+            }, () =>
+            {
+                Assert.Throws<StackLevelException>(() => Template.Parse("{% render 'loop_render' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
                 {
                     ErrorsOutputMode = ErrorsOutputMode.Rethrow
                 }));
@@ -394,7 +418,7 @@ namespace DotLiquid.Tests.Tags
                 {
                     loop = new TestEnumerable()
                 });
-                Helper.AssertTemplateResult("123","{% render 'loop' for loop as value %}", vars);
+                Helper.AssertTemplateResult("123", "{% render 'loop' for loop as value %}", vars);
             });
         }
 
@@ -410,8 +434,27 @@ namespace DotLiquid.Tests.Tags
                 {
                     loop = new TestEnumerable()
                 });
-                Helper.AssertTemplateResult("TestEnumerable","{% render 'loop' with loop as value %}", vars);
+                Helper.AssertTemplateResult("TestEnumerable", "{% render 'loop' with loop as value %}", vars);
             });
         }
+
+        [Test]
+        public void TestRenderTagRendersErrorWithTemplateName()
+        {
+            Helper.WithDictionaryFileSystem(new Dictionary<string, string>
+            {
+                ["foo"] = "{{ foo.standard_exception }}",
+            }, () =>
+            {
+                var vars = Hash.FromAnonymousObject(new 
+                { 
+                    errors = new ErrorDrop()
+                });
+                Helper.AssertTemplateResult("Liquid error: standard exception", "{% render 'foo' with errors %}", vars);
+            });
+        }
+
+        // Note: test_render_tag_renders_error_with_template_name_from_template_factory not implemented
+        // No TemplateFactor concept in DotLiquid.
     }
 }

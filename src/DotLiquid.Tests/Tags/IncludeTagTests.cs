@@ -163,8 +163,8 @@ namespace DotLiquid.Tests.Tags
                 ["'product'"] = "Product: {{ product }}"
             }, () =>
             {
-                Assert.AreEqual("Product: foo", Template.Parse("{% include 'product' with 'foo' %}").Render());
-                Assert.AreEqual("Product: foo", Template.Parse("{% include 'product' for 'foo' %}").Render());
+                Assert.That(Template.Parse("{% include 'product' with 'foo' %}").Render(), Is.EqualTo("Product: foo"));
+                Assert.That(Template.Parse("{% include 'product' for 'foo' %}").Render(), Is.EqualTo("Product: foo"));
             });
         }
 
@@ -254,19 +254,21 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestDotLiquid22bUndefinedTemplateVariableShouldError()
         {
-            Assert.AreEqual("Liquid error: Argument error in tag 'include' - Illegal template name", Template.Parse("{% include undefined_variable %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
+            Assert.That(Template.Parse("{% include undefined_variable %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
             {
                 SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22b
-            }));
+            }),
+                Is.EqualTo("Liquid error: Argument error in tag 'include' - Illegal template name"));
         }
 
         [Test]
         public void TestDotLiquid22bNotStringTemplateVariableShouldError()
         {
-            Assert.AreEqual("Liquid error: Argument error in tag 'include' - Illegal template name", Template.Parse("{% include 123 %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
+            Assert.That(Template.Parse("{% include 123 %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
             {
                 SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22b
-            }));
+            }),
+                Is.EqualTo("Liquid error: Argument error in tag 'include' - Illegal template name"));
         }
 
         [Test]
@@ -274,11 +276,12 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithFileSystem(new ReflectFileSystem(), () =>
             {
-                Assert.AreEqual("'product'", Template.Parse("{% include 'product' %}").Render());
-                Assert.AreEqual("product", Template.Parse("{% include 'product' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
+                Assert.That(Template.Parse("{% include 'product' %}").Render(), Is.EqualTo("'product'"));
+                Assert.That(Template.Parse("{% include 'product' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
                 {
                     SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22b
-                }));
+                }),
+                    Is.EqualTo("product"));
             });
         }
 
@@ -288,11 +291,12 @@ namespace DotLiquid.Tests.Tags
             var fileSystem = new CountingFileSystem();
             Helper.WithFileSystem(fileSystem, () =>
             {
-                Assert.AreEqual("from CountingFileSystemfrom CountingFileSystem", Template.Parse("{% include 'pick_a_source' %}{% include 'pick_a_source' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
+                Assert.That(Template.Parse("{% include 'pick_a_source' %}{% include 'pick_a_source' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
                 {
                     SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22b
-                }));
-                Assert.AreEqual(1, fileSystem.Count);
+                }),
+                    Is.EqualTo("from CountingFileSystemfrom CountingFileSystem"));
+                Assert.That(fileSystem.Count, Is.EqualTo(1));
             });
         }
 
@@ -302,16 +306,18 @@ namespace DotLiquid.Tests.Tags
             var fileSystem = new CountingFileSystem();
             Helper.WithFileSystem(fileSystem, () =>
             {
-                Assert.AreEqual("from CountingFileSystem", Template.Parse("{% include 'pick_a_source' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
+                Assert.That(Template.Parse("{% include 'pick_a_source' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
                 {
                     SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22b
-                }));
-                Assert.AreEqual(1, fileSystem.Count);
-                Assert.AreEqual("from CountingFileSystem", Template.Parse("{% include 'pick_a_source' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
+                }),
+                    Is.EqualTo("from CountingFileSystem"));
+                Assert.That(fileSystem.Count, Is.EqualTo(1));
+                Assert.That(Template.Parse("{% include 'pick_a_source' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
                 {
                     SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22b
-                }));
-                Assert.AreEqual(2, fileSystem.Count);
+                }),
+                    Is.EqualTo("from CountingFileSystem"));
+                Assert.That(fileSystem.Count, Is.EqualTo(2));
             });
         }
     }

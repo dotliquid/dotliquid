@@ -1068,9 +1068,9 @@ namespace DotLiquid.Tests
             var context = new Context(CultureInfo.InvariantCulture);
             context.WithDisabledTags(new [] { "foo", "bar" }, () =>
             {
-                Assert.True(context.IsTagDisabled("foo"));
-                Assert.True(context.IsTagDisabled("bar"));
-                Assert.False(context.IsTagDisabled("unknown"));
+                Assert.That(context.IsTagDisabled("foo"), Is.True);
+                Assert.That(context.IsTagDisabled("bar"), Is.True);
+                Assert.That(context.IsTagDisabled("unknown"), Is.False);
             });
         }
 
@@ -1082,21 +1082,21 @@ namespace DotLiquid.Tests
             {
                 context.WithDisabledTags(new [] { "foo" }, () =>
                 {
-                    Assert.True(context.IsTagDisabled("foo"));
-                    Assert.False(context.IsTagDisabled("bar"));
+                    Assert.That(context.IsTagDisabled("foo"), Is.True);
+                    Assert.That(context.IsTagDisabled("bar"), Is.False);
                 });
                 context.WithDisabledTags(new [] { "bar" }, () =>
                 {
-                    Assert.True(context.IsTagDisabled("foo"));
-                    Assert.True(context.IsTagDisabled("bar"));
+                    Assert.That((context.IsTagDisabled("foo")), Is.True);
+                    Assert.That((context.IsTagDisabled("bar")), Is.True);
                     context.WithDisabledTags(new [] { "foo" }, () =>
                     {
-                        Assert.True(context.IsTagDisabled("foo"));
-                        Assert.True(context.IsTagDisabled("bar"));
+                        Assert.That((context.IsTagDisabled("foo")), Is.True);
+                        Assert.That((context.IsTagDisabled("bar")), Is.True);
                     });
                 });
-                Assert.True(context.IsTagDisabled("foo"));
-                Assert.False(context.IsTagDisabled("bar"));
+                Assert.That((context.IsTagDisabled("foo")), Is.True);
+                Assert.That((context.IsTagDisabled("bar")), Is.False);
             });
         }
 
@@ -1108,8 +1108,8 @@ namespace DotLiquid.Tests
             context.StaticEnvironments[0]["unshadowed"] = "static";
             context.Environments[0]["shadowed"] = "dynamic";
 
-            Assert.AreEqual("dynamic", context["shadowed"]);
-            Assert.AreEqual("static", context["unshadowed"]);
+            Assert.That(context["shadowed"], Is.EqualTo("dynamic"));
+            Assert.That(context["unshadowed"], Is.EqualTo("static"));
         }
 
         [Test]
@@ -1119,7 +1119,7 @@ namespace DotLiquid.Tests
             superContext["my_variable"] = "some value";
             var subcontext = superContext.NewIsolatedContext();
 
-            Assert.Null(subcontext["my_variable"]);
+            Assert.That(subcontext["my_variable"], Is.Null);
         }
 
         [Test]
@@ -1128,7 +1128,7 @@ namespace DotLiquid.Tests
             var superContext = new Context(CultureInfo.InvariantCulture);
             superContext.StaticEnvironments[0]["my_env"] = "my value";
             var subcontext = superContext.NewIsolatedContext();
-            Assert.AreEqual("my value", subcontext["my_env"]);
+            Assert.That(subcontext["my_env"], Is.EqualTo("my value"));
         }
 
         [Test]
@@ -1137,7 +1137,7 @@ namespace DotLiquid.Tests
             var superContext = new Context(CultureInfo.InvariantCulture);
             superContext.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22;
             var subcontext = superContext.NewIsolatedContext();
-            Assert.AreEqual(superContext.SyntaxCompatibilityLevel, subcontext.SyntaxCompatibilityLevel);
+            Assert.That(subcontext.SyntaxCompatibilityLevel, Is.EqualTo(superContext.SyntaxCompatibilityLevel));
         }
 
         [Test]
@@ -1146,7 +1146,7 @@ namespace DotLiquid.Tests
             var superContext = new Context(CultureInfo.InvariantCulture);
             superContext.UseRubyDateFormat = !superContext.UseRubyDateFormat;
             var subcontext = superContext.NewIsolatedContext();
-            Assert.AreEqual(superContext.UseRubyDateFormat, subcontext.UseRubyDateFormat);
+            Assert.That(subcontext.UseRubyDateFormat, Is.EqualTo(superContext.UseRubyDateFormat));
         }
 
         [Test]
@@ -1156,7 +1156,7 @@ namespace DotLiquid.Tests
             superContext.Registers["my_register"] = "my value";
             var subcontext = superContext.NewIsolatedContext();
             subcontext.Registers["my_register"] = "my alt value";
-            Assert.AreEqual("my value", superContext.Registers.Get<string>("my_register"));
+            Assert.That(superContext.Registers.Get<string>("my_register"), Is.EqualTo("my value"));
         }
 
         [Test]
@@ -1165,7 +1165,7 @@ namespace DotLiquid.Tests
             var superContext = new Context(CultureInfo.InvariantCulture);
             superContext.Registers["my_register"] = "my value";
             var subcontext = superContext.NewIsolatedContext();
-            Assert.AreEqual("my value", subcontext.Registers.Get<string>("my_register"));
+            Assert.That(subcontext.Registers.Get<string>("my_register"), Is.EqualTo("my value"));
         }
 
         [Test]
@@ -1175,7 +1175,7 @@ namespace DotLiquid.Tests
             superContext.AddFilters(typeof(MyFilters));
             var subcontext = superContext.NewIsolatedContext();
             var template = Template.Parse("{{ 123 | my_filter }}");
-            Assert.AreEqual("my filter result", template.Render(RenderParameters.FromContext(subcontext, subcontext.FormatProvider)));
+            Assert.That(template.Render(RenderParameters.FromContext(subcontext, subcontext.FormatProvider)), Is.EqualTo("my filter result"));
         }
 
         static class MyFilters

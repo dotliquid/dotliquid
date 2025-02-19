@@ -62,7 +62,8 @@ namespace DotLiquid.Tests.Tags
                 {
                     ["pick_a_source"] = "from register file system"
                 });
-                Assert.AreEqual("from register file system", Template.Parse("{% render 'pick_a_source' %}").Render(RenderParameters.FromContext(context, context.FormatProvider)));
+                Assert.That(Template.Parse("{% render 'pick_a_source' %}").Render(RenderParameters.FromContext(context, context.FormatProvider)),
+                    Is.EqualTo("from register file system"));
             });
         }
 
@@ -182,7 +183,7 @@ namespace DotLiquid.Tests.Tags
             Helper.WithFileSystem(fs, () =>
             {
                 Helper.AssertTemplateResult("from CountingFileSystemfrom CountingFileSystem", "{% render 'snippet' %}{% render 'snippet' %}");
-                Assert.AreEqual(1, fs.Count);
+                Assert.That(fs.Count, Is.EqualTo(1));
             });
         }
 
@@ -193,9 +194,9 @@ namespace DotLiquid.Tests.Tags
             Helper.WithFileSystem(fs, () =>
             {
                 Helper.AssertTemplateResult("from CountingFileSystem", "{% include 'pick_a_source' %}");
-                Assert.AreEqual(1, fs.Count);
+                Assert.That(fs.Count, Is.EqualTo(1));
                 Helper.AssertTemplateResult("from CountingFileSystem", "{% include 'pick_a_source' %}");
-                Assert.AreEqual(2, fs.Count);
+                Assert.That(fs.Count, Is.EqualTo(2));
             });
         }
 

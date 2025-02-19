@@ -35,7 +35,8 @@ namespace DotLiquid.Tests
                 var context = new Context(CultureInfo.InvariantCulture);
                 context.WithDisabledTags(new[] { "custom" }, () =>
                 {
-                    Assert.AreEqual("Liquid error: custom usage is not allowed in this context", Template.Parse("{% custom %}").Render(RenderParameters.FromContext(context, context.FormatProvider)));
+                    Assert.That(Template.Parse("{% custom %}").Render(RenderParameters.FromContext(context, context.FormatProvider)),
+                        Is.EqualTo("Liquid error: custom usage is not allowed in this context"));
                 });
             });
         }
@@ -50,8 +51,8 @@ namespace DotLiquid.Tests
                     var context = new Context(CultureInfo.InvariantCulture);
                     context.WithDisabledTags(new[] { "custom" }, () =>
                     {
-                        Assert.AreEqual("Liquid error: custom usage is not allowed in this context;custom2",
-                            Template.Parse("{% custom %};{% custom2 %}").Render(RenderParameters.FromContext(context, context.FormatProvider)));
+                        Assert.That(Template.Parse("{% custom %};{% custom2 %}").Render(RenderParameters.FromContext(context, context.FormatProvider)),
+                            Is.EqualTo("Liquid error: custom usage is not allowed in this context;custom2"));
                     });
                 });
             });
@@ -67,8 +68,8 @@ namespace DotLiquid.Tests
                     var context = new Context(CultureInfo.InvariantCulture);
                     context.WithDisabledTags(new[] { "custom", "custom2" }, () =>
                     {
-                        Assert.AreEqual("Liquid error: custom usage is not allowed in this context;Liquid error: custom2 usage is not allowed in this context",
-                            Template.Parse("{% custom %};{% custom2 %}").Render(RenderParameters.FromContext(context, context.FormatProvider)));
+                        Assert.That(Template.Parse("{% custom %};{% custom2 %}").Render(RenderParameters.FromContext(context, context.FormatProvider)),
+                            Is.EqualTo("Liquid error: custom usage is not allowed in this context;Liquid error: custom2 usage is not allowed in this context"));
                     });
                 });
             });
@@ -82,7 +83,8 @@ namespace DotLiquid.Tests
                 var context = new Context(CultureInfo.InvariantCulture);
                 context.WithDisabledTags(new[] { "no_name" }, () =>
                 {
-                    Assert.AreEqual("from no name: ", Template.Parse("{% no_name %}").Render(RenderParameters.FromContext(context, context.FormatProvider)));
+                    Assert.That(Template.Parse("{% no_name %}").Render(RenderParameters.FromContext(context, context.FormatProvider)),
+                        Is.EqualTo("from no name: "));
                 });
             });
         }

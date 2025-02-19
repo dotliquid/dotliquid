@@ -726,14 +726,16 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
             Helper.AssertTemplateResult(expected: "0", template: "{%increment port %}");
 
             var context = new Context(CultureInfo.InvariantCulture);
-            Assert.AreEqual("0", Template.Parse("{%increment port %}").Render(RenderParameters.FromContext(context, context.FormatProvider)));
+            Assert.That(Template.Parse("{%increment port %}").Render(RenderParameters.FromContext(context, context.FormatProvider)),
+                Is.EqualTo("0"));
         }
 
         [Test]
         public void TestIncrementRenderWithContext()
         {
             var context = new Context(CultureInfo.InvariantCulture);
-            Assert.AreEqual("0", Template.Parse("{%increment port %}").Render(RenderParameters.FromContext(context, context.FormatProvider)));
+            Assert.That(Template.Parse("{%increment port %}").Render(RenderParameters.FromContext(context, context.FormatProvider)),
+                Is.EqualTo("0"));
         }
 
         [Test]
@@ -792,7 +794,8 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
         public void TestDecrementRenderWithContext()
         {
             var context = new Context(CultureInfo.InvariantCulture);
-            Assert.AreEqual("-1", Template.Parse("{%decrement port %}").Render(RenderParameters.FromContext(context, context.FormatProvider)));
+            Assert.That(Template.Parse("{%decrement port %}").Render(RenderParameters.FromContext(context, context.FormatProvider)),
+                Is.EqualTo("-1"));
         }
 
         [Test]

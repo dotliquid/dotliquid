@@ -1701,6 +1701,7 @@ PaulGeorge",
             Assert.That(StandardFilters.Abs(_contextV20, "-5"), Is.EqualTo(5));
             Assert.That(StandardFilters.Abs(_contextV20, "30.60"), Is.EqualTo(30.60));
             Assert.That(StandardFilters.Abs(_contextV20, "30.60a"), Is.EqualTo(0));
+            Assert.That(StandardFilters.Abs(_contextV20, null), Is.EqualTo(0));
 
             Helper.AssertTemplateResult(
                 expected: "17",
@@ -1714,6 +1715,12 @@ PaulGeorge",
             Helper.AssertTemplateResult(
                 expected: "19.86",
                 template: "{{ '-19.86' | abs }}");
+            Helper.AssertTemplateResult(
+                expected: "0",
+                template: "{{ 'notNumber' | abs }}");
+            Helper.AssertTemplateResult(
+                expected: "0",
+                template: "{{ {} | abs }}");
         }
 
         [Test]

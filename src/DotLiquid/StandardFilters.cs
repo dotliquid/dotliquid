@@ -933,7 +933,7 @@ namespace DotLiquid
         public static double Abs(Context context, object input)
         {
             Double n;
-            return Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n) ? Math.Abs(n) : 0;
+            return Double.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out n) ? Math.Abs(n) : 0;
         }
 
         /// <summary>

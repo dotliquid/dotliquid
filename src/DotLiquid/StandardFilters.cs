@@ -575,7 +575,7 @@ namespace DotLiquid
         public static string Append(string input, string @string)
         {
             return input == null
-                ? input
+                ? @string
                 : input + @string;
         }
 

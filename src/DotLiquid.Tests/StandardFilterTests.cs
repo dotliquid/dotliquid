@@ -1517,6 +1517,7 @@ PaulGeorge",
             Helper.AssertTemplateResult(expected: "bcd", template: "{{ a | append: b}}", localVariables: assigns);
             Helper.AssertTemplateResult(expected: "/my/fancy/url.html", template: "{{ '/my/fancy/url' | append: '.html' }}");
             Helper.AssertTemplateResult(expected: "website.com/index.html", template: "{% assign filename = '/index.html' %}{{ 'website.com' | append: filename }}");
+            Helper.AssertTemplateResult(expected: "hi", template: "{{ nonesuch | append: 'hi' }}");
         }
 
         [Test]

@@ -18,6 +18,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotLiquid.Website", "DotLiq
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotLiquid.Website.Tests", "DotLiquid.Website.Tests\DotLiquid.Website.Tests.csproj", "{DB042750-6307-4947-A19F-FC48397D432F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotLiquid.Golden.Tests", "DotLiquid.Golden.Tests\DotLiquid.Golden.Tests.csproj", "{2A20396C-38DF-44BB-80F3-8A9DE3801471}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,10 @@ Global
 		{DB042750-6307-4947-A19F-FC48397D432F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB042750-6307-4947-A19F-FC48397D432F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB042750-6307-4947-A19F-FC48397D432F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A20396C-38DF-44BB-80F3-8A9DE3801471}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A20396C-38DF-44BB-80F3-8A9DE3801471}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A20396C-38DF-44BB-80F3-8A9DE3801471}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A20396C-38DF-44BB-80F3-8A9DE3801471}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -587,7 +587,7 @@ namespace DotLiquid
         public static string Prepend(string input, string @string)
         {
             return input == null
-                ? input
+                ? @string
                 : @string + input;
         }
 

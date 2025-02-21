@@ -133,7 +133,7 @@ namespace DotLiquid.Tests
 
             Assert.Throws<SyntaxException>(() =>
             {
-                var output = template.Render(new RenderParameters(CultureInfo.InvariantCulture)
+                template.Render(new RenderParameters(CultureInfo.InvariantCulture)
                 {
                     LocalVariables = assigns,
                     ErrorsOutputMode = ErrorsOutputMode.Rethrow

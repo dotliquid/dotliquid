@@ -945,10 +945,10 @@ namespace DotLiquid
         public static object AtLeast(Context context, object input, object atLeast)
         {
             double n;
-            var inputNumber = Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
+            var inputNumber = Double.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
 
             double min;
-            var atLeastNumber = Double.TryParse(atLeast.ToString(), NumberStyles.Number, context.CurrentCulture, out min);
+            var atLeastNumber = Double.TryParse(atLeast?.ToString(), NumberStyles.Number, context.CurrentCulture, out min);
 
             if (inputNumber && atLeastNumber)
             {
@@ -969,10 +969,10 @@ namespace DotLiquid
         public static object AtMost(Context context, object input, object atMost)
         {
             double n;
-            var inputNumber = Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
+            var inputNumber = Double.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
 
             double max;
-            var atMostNumber = Double.TryParse(atMost.ToString(), NumberStyles.Number, context.CurrentCulture, out max);
+            var atMostNumber = Double.TryParse(atMost?.ToString(), NumberStyles.Number, context.CurrentCulture, out max);
 
             if (inputNumber && atMostNumber)
             {

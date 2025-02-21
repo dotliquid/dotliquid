@@ -1737,6 +1737,8 @@ PaulGeorge",
             Assert.That(StandardFilters.AtLeast(_contextV20, "4", 5), Is.EqualTo(5));
             Assert.That(StandardFilters.AtLeast(_contextV20, "10a", 5), Is.EqualTo("10a"));
             Assert.That(StandardFilters.AtLeast(_contextV20, "4b", 5), Is.EqualTo("4b"));
+            Assert.That(StandardFilters.AtLeast(_contextV20, null, 5), Is.EqualTo(null));
+            Assert.That(StandardFilters.AtLeast(_contextV20, 5, null), Is.EqualTo(5));
 
             Helper.AssertTemplateResult(
                 expected: "5",
@@ -1760,6 +1762,8 @@ PaulGeorge",
             Assert.That(StandardFilters.AtMost(_contextV20, "4", 5), Is.EqualTo(4));
             Assert.That(StandardFilters.AtMost(_contextV20, "4a", 5), Is.EqualTo("4a"));
             Assert.That(StandardFilters.AtMost(_contextV20, "10b", 5), Is.EqualTo("10b"));
+            Assert.That(StandardFilters.AtMost(_contextV20, null, 5), Is.EqualTo(null));
+            Assert.That(StandardFilters.AtMost(_contextV20, 5, null), Is.EqualTo(5));
 
             Helper.AssertTemplateResult(
                 expected: "4",

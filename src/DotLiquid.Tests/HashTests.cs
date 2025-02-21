@@ -177,7 +177,7 @@ namespace DotLiquid.Tests
             IDictionary hash = new Hash();
             Assert.Throws<System.NotSupportedException>(() =>
             {
-                var value = hash[0]; // Only a string key is permitted.
+                _ = hash[0]; // Only a string key is permitted.
             });
         }
 

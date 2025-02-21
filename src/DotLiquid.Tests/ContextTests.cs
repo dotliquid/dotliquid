@@ -114,7 +114,7 @@ namespace DotLiquid.Tests
 
         private class ArrayLike : ILiquidizable
         {
-            private Dictionary<int, int> _counts = new Dictionary<int, int>();
+            private readonly Dictionary<int, int> _counts = new Dictionary<int, int>();
 
             public object Fetch(int index)
             {
@@ -294,7 +294,7 @@ namespace DotLiquid.Tests
         {
             Assert.DoesNotThrow(() => Template.Parse("{{ does_not_exist }}").Render(new RenderParameters(CultureInfo.InvariantCulture)
             {
-                RethrowErrors = true
+                ErrorsOutputMode = ErrorsOutputMode.Rethrow
             }));
         }
 

@@ -88,7 +88,7 @@ namespace DotLiquid.Tags
                 context.CurrentCulture = CultureInfo.GetCultureInfo(value);
 #endif
             }
-            catch (CultureNotFoundException exception)
+            catch (CultureNotFoundException)
             {
                 throw new SyntaxException("CultureNotFoundException", value);
             }

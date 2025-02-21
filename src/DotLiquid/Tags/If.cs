@@ -19,8 +19,8 @@ namespace DotLiquid.Tags
     /// </summary>
     public class If : DotLiquid.Block
     {
-        private string SyntaxHelp = Liquid.ResourceManager.GetString("IfTagSyntaxException");
-        private string TooMuchConditionsHelp = Liquid.ResourceManager.GetString("IfTagTooMuchConditionsException");
+        private readonly string SyntaxHelp = Liquid.ResourceManager.GetString("IfTagSyntaxException");
+        private readonly string TooMuchConditionsHelp = Liquid.ResourceManager.GetString("IfTagTooMuchConditionsException");
         private static readonly Regex Syntax = R.B(R.Q(@"({0})\s*([=!<>a-zA-Z_]+)?\s*({0})?"), Liquid.QuotedFragment);
 
         private static readonly string ExpressionsAndOperators = string.Format(R.Q(@"(?:\b(?:\s?and\s?|\s?or\s?)\b|(?:\s*(?!\b(?:\s?and\s?|\s?or\s?)\b)(?:{0}|\S+)\s*)+)"), Liquid.QuotedFragment);

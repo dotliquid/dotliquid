@@ -42,6 +42,14 @@ namespace DotLiquid.Tests
             {
                 return other == this.ToString();
             }
+
+            public override int GetHashCode()
+            {
+                int hashCode = 1384102433;
+                hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Make);
+                hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Model);
+                return hashCode;
+            }
         }
 
         public class DummyDrop : Drop

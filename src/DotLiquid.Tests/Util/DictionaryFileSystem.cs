@@ -17,7 +17,7 @@ namespace DotLiquid.Tests.Util
         {
             string templatePath = (string)context[templateName];
 
-            if (Templates.TryGetValue(templatePath, out var template))
+            if (templatePath != null && Templates.TryGetValue(templatePath, out var template))
                 return template;
 
             return templatePath;

@@ -156,7 +156,7 @@ namespace DotLiquid
         /// </summary>
         /// <param name="formatProvider">A CultureInfo instance that will be used to parse filter input and format filter output</param>
         public Context(IFormatProvider formatProvider)
-            : this(new List<Hash>(), new Hash(), new Hash(), ErrorsOutputMode.Display, 0, 0, formatProvider)
+            : this(new List<Hash>(), new Hash(), new Hash(), ErrorsOutputMode.Display, 0, formatProvider, CancellationToken.None)
         {
         }
 
@@ -188,6 +188,7 @@ namespace DotLiquid
         /// <typeparam name="TOut">Type of the returned value</typeparam>
         /// <param name="filterName">Filter name</param>
         /// <param name="func">Filter function</param>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Sonar Code Smell", "S2436:Classes and methods should not have too many generic parameters", Justification = "Deliberate design decision")]
         public void AddFilter<TIn, TIn2, TOut>(string filterName, Func<TIn, TIn2, TOut> func)
         {
             Strainer.AddFunction(filterName, func);

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 
 namespace DotLiquid
 {
@@ -79,10 +80,18 @@ namespace DotLiquid
 
             List<Hash> environments = new List<Hash>();
             if (LocalVariables != null)
+            {
                 environments.Add(LocalVariables);
+            }
+            CancellationToken token = CancellationToken.None;
+            if (Timeout != 0)
+            {
+                CancellationTokenSource source = new CancellationTokenSource(Timeout);
+                token = source.Token;
+            }
             if (template.IsThreadSafe)
             {
-                context = new Context(environments, new Hash(), new Hash(), ErrorsOutputMode, MaxIterations, Timeout, FormatProvider)
+                context = new Context(environments, new Hash(), new Hash(), ErrorsOutputMode, MaxIterations, FormatProvider, token)
                 {
                     SyntaxCompatibilityLevel = this.SyntaxCompatibilityLevel
                 };
@@ -90,7 +99,7 @@ namespace DotLiquid
             else
             {
                 environments.Add(template.Assigns);
-                context = new Context(environments, template.InstanceAssigns, template.Registers, ErrorsOutputMode, MaxIterations, Timeout, FormatProvider)
+                context = new Context(environments, template.InstanceAssigns, template.Registers, ErrorsOutputMode, MaxIterations, FormatProvider, token)
                 {
                     SyntaxCompatibilityLevel = this.SyntaxCompatibilityLevel
                 };

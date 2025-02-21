@@ -96,7 +96,7 @@ namespace DotLiquid.Tests
         public void TestTimeoutError()
         {
             var template = Template.Parse(" {% for i in (1..1000000) %} {{ i }} {% endfor %} ");
-            Assert.Throws<System.TimeoutException>(() =>
+            Assert.Throws<System.OperationCanceledException>(() =>
             {
                 template.Render(new RenderParameters(CultureInfo.InvariantCulture)
                 {

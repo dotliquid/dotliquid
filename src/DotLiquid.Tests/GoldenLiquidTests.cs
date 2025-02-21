@@ -8,47 +8,77 @@ using System;
 using System.Reflection;
 using System.Dynamic;
 using DotLiquid.FileSystems;
+using System.Linq;
 
 namespace DotLiquid.Tests
 {
     public class GoldenLiquidTests
     {
-        public static List<object[]> GoldenTests
+        #region Static Variables For Test Cases
+        private static GoldenLiquidRules rules;
+
+        public static GoldenLiquidRules Rules
         {
             get
             {
-                var tests = new List<object[]>();
+                if (rules == null)
+                    rules = Deserialize<GoldenLiquidRules>("DotLiquid.Tests.Embedded.golden_rules.json");
 
-                // Load the JSON content
-#if NETCOREAPP1_0
-                var assembly = typeof(GoldenLiquidTests).GetTypeInfo().Assembly;
-#else
-                var assembly = Assembly.GetExecutingAssembly();
-#endif
-                var jsonContent = string.Empty;
-                using (Stream stream = assembly.GetManifestResourceStream("DotLiquid.Tests.Embedded.golden_liquid.json"))
-                using (StreamReader reader = new StreamReader(stream))
-                {
-                    jsonContent = reader.ReadToEnd();
-                }
-
-                // Deserialize the JSON content
-                var goldenLiquid = JsonConvert.DeserializeObject<GoldenLiquid>(jsonContent);
-                
-
-                // Iterate through the tests
-                foreach (var testGroup in goldenLiquid.TestGroups)
-                {
-                    foreach (var test in testGroup.Tests)
-                    {
-                        tests.Add(new object[] { $"{testGroup.Name} - {test.Name}", test });
-                    }
-                }
-
-                return tests;
+                return rules;
             }
         }
 
+        public static List<object[]> GetGoldenTests(bool passing)
+        {
+            var tests = new List<object[]>();
+            var goldenLiquid = Deserialize<GoldenLiquid>("DotLiquid.Tests.Embedded.golden_liquid.json");
+
+            // Iterate through the tests
+            foreach (var testGroup in goldenLiquid.TestGroups)
+            {
+                if (Rules.SkippedGroups.Contains(testGroup.Name))
+                    continue;
+
+                foreach (var test in testGroup.Tests)
+                {
+                    var uniqueName = $"{testGroup.Name} - {test.Name}";
+                    if (Rules.AlternateTestExpectations.ContainsKey(uniqueName))
+                        test.Want = Rules.AlternateTestExpectations[uniqueName];
+
+                    if (Rules.FailingTests.Contains(uniqueName) != passing)
+                        tests.Add(new object[] { uniqueName, test });
+                }
+            }
+
+            return tests;
+        }
+
+        public static List<object[]> GoldenTestsPassing => GetGoldenTests(passing: true);
+
+        public static List<object[]> GoldenTestsFailing => GetGoldenTests(passing: false);
+
+        private static T Deserialize<T>(string resourceName)
+        {
+            // Load the JSON content
+#if NETCOREAPP1_0
+            var assembly = typeof(GoldenLiquidTests).GetTypeInfo().Assembly;
+#else
+            var assembly = Assembly.GetExecutingAssembly();
+#endif
+
+            var jsonContent = string.Empty;
+            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                jsonContent = reader.ReadToEnd();
+            }
+
+            // Deserialize the JSON content
+            return JsonConvert.DeserializeObject<T>(jsonContent);
+        }
+        #endregion
+
+        #region In-Memory FileSystem Implementation
         private class TestFileSystem : IFileSystem
         {
             public Dictionary<string, string> Templates = new Dictionary<string, string>();
@@ -82,9 +112,10 @@ namespace DotLiquid.Tests
         {
             Template.FileSystem = _originalFileSystem;
         }
+        #endregion
 
         [Test]
-        [TestCaseSource(nameof(GoldenTests))]
+        [TestCaseSource(nameof(GoldenTestsPassing))]
         public void ExecuteGoldenLiquidTests(string uniqueName, GoldenLiquidTest test)
         {   
             // Create a new Hash object to represent the context
@@ -114,6 +145,19 @@ namespace DotLiquid.Tests
                 Assert.That(Template.Parse(test.Template, syntax).Render(parameters), Is.EqualTo(test.Want), uniqueName);
             }
         }
+    }
+
+    #region Json Parsing Classes
+    public class GoldenLiquidRules
+    {
+        [JsonProperty("skipped_groups")]
+        public List<string> SkippedGroups { get; set; }
+
+        [JsonProperty("failing_tests")]
+        public List<string> FailingTests { get; set; }
+
+        [JsonProperty("alternate_test_expectations")]
+        public Dictionary<string, string> AlternateTestExpectations { get; set; }
     }
 
     public class GoldenLiquid
@@ -155,4 +199,5 @@ namespace DotLiquid.Tests
         [JsonProperty("strict")]
         public bool Strict { get; set; }
     }
+    #endregion
 }

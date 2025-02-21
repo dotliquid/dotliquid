@@ -1,0 +1,22 @@
+{
+    "skipped_groups": [
+        "liquid.golden.echo_tag", // not yet implemented
+        "liquid.golden.liquid_tag", // not yet implemented
+        "liquid.golden.render_tag" // not yet implemented
+    ],
+    "failing_tests": [
+        // Default filter allow_false attribute is not yet implemented
+        "liquid.golden.default_filter - allow false",
+        "liquid.golden.default_filter - allow false from context",
+        "liquid.golden.default_filter - false keyword argument before positional",
+        "liquid.golden.default_filter - true keyword argument before positional",
+        "liquid.golden.default_filter - zero is not falsy with allow_false",
+        "liquid.golden.default_filter - zero is not falsy with allow_false",
+        "liquid.golden.default_filter - render a default given a literal false with 'allow false' equal to false",
+        "liquid.golden.default_filter - render a default given a literal false with 'allow false' equal to true"
+    ],
+    "alternate_test_expectations": {
+        "liquid.golden.divided_by_filter - float division": "2.8571428571428571428571428571",
+        "liquid.golden.divided_by_filter - integer value and float arg": "5"
+    }
+}

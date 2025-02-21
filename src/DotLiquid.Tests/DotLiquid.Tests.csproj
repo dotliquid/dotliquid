@@ -22,11 +22,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Embedded\golden_liquid.json" />
+    <None Remove="Embedded\*.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Embedded\golden_liquid.json" />
+    <EmbeddedResource Include="Embedded\*.json" />
   </ItemGroup>
 
   <ItemGroup>

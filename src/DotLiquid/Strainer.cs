@@ -86,6 +86,7 @@ namespace DotLiquid
             AddMethodInfo(rawName, func.Target, func.GetMethodInfo());
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Sonar Code Smell", "S2436:Classes and methods should not have too many generic parameters", Justification = "Deliberate design decision")]
         public void AddFunction<TIn, TIn2, TOut>(string rawName, Func<TIn, TIn2, TOut> func)
         {
             AddMethodInfo(rawName, func.Target, func.GetMethodInfo());

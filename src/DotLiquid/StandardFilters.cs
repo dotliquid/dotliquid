@@ -912,8 +912,10 @@ namespace DotLiquid
                 return null;
 
             List<object> ary;
-            if (input is IEnumerable)
-                ary = ((IEnumerable)input).Flatten().Cast<object>().ToList();
+            if (input is IEnumerable values)
+            {
+                ary = values.Flatten().Cast<object>().ToList();
+            }
             else
             {
                 ary = new List<object>(new[] { input });
@@ -994,8 +996,10 @@ namespace DotLiquid
                 return null;
 
             List<object> ary;
-            if (input is IEnumerable)
-                ary = ((IEnumerable)input).Flatten().Cast<object>().ToList();
+            if (input is IEnumerable values)
+            {
+                ary = values.Flatten().Cast<object>().ToList();
+            }
             else
             {
                 ary = new List<object>(new[] { input });
@@ -1095,7 +1099,7 @@ namespace DotLiquid
             else if (right == null)
                 return left;
 
-            return left.Cast<object>().ToList().Concat(right.Cast<object>());
+            return left.Cast<object>().Concat(right.Cast<object>());
         }
 
         /// <summary>

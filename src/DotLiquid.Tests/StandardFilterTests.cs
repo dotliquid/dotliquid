@@ -949,6 +949,7 @@ PaulGeorge",
         {
             Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
             {
+                Liquid.UseRubyDateFormat = false;
                 var context = _contextV21;// _contextV21 specifies InvariantCulture
                 var unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).ToLocalTime();
                 Assert.That(StandardFilters.Date(context: context, input: 0, format: "g"), Is.EqualTo(unixEpoch.ToString("g", context.FormatProvider)));

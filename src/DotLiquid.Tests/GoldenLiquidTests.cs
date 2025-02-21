@@ -28,9 +28,9 @@ namespace DotLiquid.Tests
             }
         }
 
-        public static List<object[]> GetGoldenTests(bool passing)
+        public static List<GoldenLiquidTest> GetGoldenTests(bool passing)
         {
-            var tests = new List<object[]>();
+            var tests = new List<GoldenLiquidTest>();
             var goldenLiquid = Deserialize<GoldenLiquid>("DotLiquid.Tests.Embedded.golden_liquid.json");
 
             // Iterate through the tests
@@ -41,21 +41,20 @@ namespace DotLiquid.Tests
 
                 foreach (var test in testGroup.Tests)
                 {
-                    var uniqueName = $"{testGroup.Name} - {test.Name}";
+                    test.GroupName = testGroup.Name;
+                    var uniqueName = test.UniqueName;
                     if (Rules.AlternateTestExpectations.ContainsKey(uniqueName))
                         test.Want = Rules.AlternateTestExpectations[uniqueName];
 
                     if (Rules.FailingTests.Contains(uniqueName) != passing)
-                        tests.Add(new object[] { uniqueName, test });
+                        tests.Add(test);
                 }
             }
 
             return tests;
         }
 
-        public static List<object[]> GoldenTestsPassing => GetGoldenTests(passing: true);
-
-        public static List<object[]> GoldenTestsFailing => GetGoldenTests(passing: false);
+        public static List<GoldenLiquidTest> GoldenTestsPassing => GetGoldenTests(passing: true);
 
         private static T Deserialize<T>(string resourceName)
         {
@@ -116,8 +115,8 @@ namespace DotLiquid.Tests
 
         [Test]
         [TestCaseSource(nameof(GoldenTestsPassing))]
-        public void ExecuteGoldenLiquidTests(string uniqueName, GoldenLiquidTest test)
-        {   
+        public void ExecuteGoldenLiquidTests(GoldenLiquidTest test)
+        {
             // Create a new Hash object to represent the context
             var context = new Hash();
             foreach (var pair in test.Context)
@@ -138,12 +137,24 @@ namespace DotLiquid.Tests
             // If the test should produce an error, assert that it does
             if (test.Error)
             {
-                Assert.That(() => Template.Parse(test.Template, syntax).Render(parameters), Throws.Exception, uniqueName);
+                Assert.That(() => Template.Parse(test.Template, syntax).Render(parameters), Throws.Exception, test.UniqueName);
             }
             else
             {
-                Assert.That(Template.Parse(test.Template, syntax).Render(parameters), Is.EqualTo(test.Want), uniqueName);
+                Assert.That(Template.Parse(test.Template, syntax).Render(parameters).Replace("\r\n", "\n"), Is.EqualTo(test.Want), test.UniqueName);
             }
+        }
+
+        [Test]
+        public void ExecuteGoldenLiquidFailingTests()
+        {
+            var tests = GetGoldenTests(passing: false);
+            Assert.Multiple(() =>
+            {
+                foreach (var test in tests) {
+                    Assert.That(() => ExecuteGoldenLiquidTests(test), Throws.Exception, test.UniqueName);
+                }
+            });
         }
     }
 
@@ -178,6 +189,12 @@ namespace DotLiquid.Tests
 
     public class GoldenLiquidTest
     {
+        [JsonIgnore]
+        public string GroupName { get; set; }
+
+        [JsonIgnore]
+        public string UniqueName => $"{GroupName} - {Name}";
+
         [JsonProperty("name")]
         public string Name { get; set; }
 
@@ -198,6 +215,11 @@ namespace DotLiquid.Tests
 
         [JsonProperty("strict")]
         public bool Strict { get; set; }
+
+        public override string ToString()
+        {
+            return UniqueName;
+        }
     }
     #endregion
 }

@@ -1,14 +1,12 @@
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.IO;
-using DotLiquid;
 using Newtonsoft.Json;
 using System.Globalization;
 using System;
 using System.Reflection;
-using System.Dynamic;
-using DotLiquid.FileSystems;
-using System.Linq;
+using DotLiquid.Tests.Model;
+using DotLiquid.Tests.Util;
 
 namespace DotLiquid.Tests
 {
@@ -17,12 +15,12 @@ namespace DotLiquid.Tests
         #region Static Variables For Test Cases
         private static GoldenLiquidRules rules;
 
-        public static GoldenLiquidRules Rules
+        internal static GoldenLiquidRules Rules
         {
             get
             {
                 if (rules == null)
-                    rules = Deserialize<GoldenLiquidRules>("DotLiquid.Tests.Embedded.golden_rules.json");
+                    rules = DeserializeResource<GoldenLiquidRules>("DotLiquid.Tests.Embedded.golden_rules.json");
 
                 return rules;
             }
@@ -31,7 +29,7 @@ namespace DotLiquid.Tests
         public static List<GoldenLiquidTest> GetGoldenTests(bool passing)
         {
             var tests = new List<GoldenLiquidTest>();
-            var goldenLiquid = Deserialize<GoldenLiquid>("DotLiquid.Tests.Embedded.golden_liquid.json");
+            var goldenLiquid = DeserializeResource<GoldenLiquid>("DotLiquid.Tests.Embedded.golden_liquid.json");
 
             // Iterate through the tests
             foreach (var testGroup in goldenLiquid.TestGroups)
@@ -56,7 +54,7 @@ namespace DotLiquid.Tests
 
         public static List<GoldenLiquidTest> GoldenTestsPassing => GetGoldenTests(passing: true);
 
-        private static T Deserialize<T>(string resourceName)
+        private static T DeserializeResource<T>(string resourceName)
         {
             // Load the JSON content
 #if NETCOREAPP1_0
@@ -77,42 +75,6 @@ namespace DotLiquid.Tests
         }
         #endregion
 
-        #region In-Memory FileSystem Implementation
-        private class TestFileSystem : IFileSystem
-        {
-            public Dictionary<string, string> Templates = new Dictionary<string, string>();
-
-            public TestFileSystem(Dictionary<string, string> templates)
-            {
-                Templates = templates;
-            }
-
-            public string ReadTemplateFile(Context context, string templateName)
-            {
-                string templatePath = (string)context[templateName];
-
-                if (Templates.TryGetValue(templatePath, out var template))
-                    return template;
-
-                return templatePath;
-            }
-        }
-
-        private IFileSystem _originalFileSystem;
-
-        [OneTimeSetUp]
-        public void SetUp()
-        {
-            _originalFileSystem = Template.FileSystem;
-        }
-
-        [OneTimeTearDown]
-        public void TearDown()
-        {
-            Template.FileSystem = _originalFileSystem;
-        }
-        #endregion
-
         [Test]
         [TestCaseSource(nameof(GoldenTestsPassing))]
         public void ExecuteGoldenLiquidTests(GoldenLiquidTest test)
@@ -125,24 +87,29 @@ namespace DotLiquid.Tests
             }
 
             var syntax = SyntaxCompatibility.DotLiquid22a;
-            var parameters = new RenderParameters(CultureInfo.CurrentCulture) {
+            var parameters = new RenderParameters(CultureInfo.CurrentCulture)
+            {
                 SyntaxCompatibilityLevel = syntax,
                 LocalVariables = context,
                 ErrorsOutputMode = test.Error ? ErrorsOutputMode.Rethrow : ErrorsOutputMode.Display
             };
 
-            Liquid.UseRubyDateFormat = true;
-            Template.FileSystem = new TestFileSystem(test.Partials);
+            Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
+            {
+                Liquid.UseRubyDateFormat = true;
+                if (test.Partials?.Count > 0)
+                    Template.FileSystem = new DictionaryFileSystem(test.Partials);
 
-            // If the test should produce an error, assert that it does
-            if (test.Error)
-            {
-                Assert.That(() => Template.Parse(test.Template, syntax).Render(parameters), Throws.Exception, test.UniqueName);
-            }
-            else
-            {
-                Assert.That(Template.Parse(test.Template, syntax).Render(parameters).Replace("\r\n", "\n"), Is.EqualTo(test.Want), test.UniqueName);
-            }
+                // If the test should produce an error, assert that it does
+                if (test.Error)
+                {
+                    Assert.That(() => Template.Parse(test.Template, syntax).Render(parameters), Throws.Exception, test.UniqueName);
+                }
+                else
+                {
+                    Assert.That(Template.Parse(test.Template, syntax).Render(parameters).Replace("\r\n", "\n"), Is.EqualTo(test.Want), test.UniqueName);
+                }
+            });
         }
 
         [Test]
@@ -151,75 +118,11 @@ namespace DotLiquid.Tests
             var tests = GetGoldenTests(passing: false);
             Assert.Multiple(() =>
             {
-                foreach (var test in tests) {
+                foreach (var test in tests)
+                {
                     Assert.That(() => ExecuteGoldenLiquidTests(test), Throws.Exception, test.UniqueName);
                 }
             });
         }
     }
-
-    #region Json Parsing Classes
-    public class GoldenLiquidRules
-    {
-        [JsonProperty("skipped_groups")]
-        public List<string> SkippedGroups { get; set; }
-
-        [JsonProperty("failing_tests")]
-        public List<string> FailingTests { get; set; }
-
-        [JsonProperty("alternate_test_expectations")]
-        public Dictionary<string, string> AlternateTestExpectations { get; set; }
-    }
-
-    public class GoldenLiquid
-    {
-        public string Version { get; set; }
-
-        [JsonProperty("test_groups")]
-        public List<GoldenLiquidGroup> TestGroups { get; set; }
-    }
-
-    public class GoldenLiquidGroup
-    {
-        public string Name { get; set; }
-
-        [JsonProperty("tests")]
-        public List<GoldenLiquidTest> Tests { get; set; }
-    }
-
-    public class GoldenLiquidTest
-    {
-        [JsonIgnore]
-        public string GroupName { get; set; }
-
-        [JsonIgnore]
-        public string UniqueName => $"{GroupName} - {Name}";
-
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
-        [JsonProperty("template")]
-        public string Template { get; set; }
-
-        [JsonProperty("want")]
-        public string Want { get; set; }
-
-        [JsonProperty("context")]
-        public ExpandoObject Context { get; set; }
-
-        [JsonProperty("partials")]
-        public Dictionary<string, string> Partials { get; set; }
-
-        [JsonProperty("error")]
-        public bool Error { get; set; }
-
-        [JsonProperty("strict")]
-        public bool Strict { get; set; }
-
-        public override string ToString()
-        {
-            return UniqueName;
-        }
-    }
-    #endregion
 }

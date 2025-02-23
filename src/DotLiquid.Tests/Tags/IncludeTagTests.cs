@@ -4,50 +4,13 @@ using DotLiquid.FileSystems;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Globalization;
+using DotLiquid.Tests.Util;
 
 namespace DotLiquid.Tests.Tags
 {
     [TestFixture]
     public class IncludeTagTests
     {
-        private class TestFileSystem : IFileSystem
-        {
-            public string ReadTemplateFile(Context context, string templateName)
-            {
-                string templatePath = (string)context[templateName];
-
-                switch (templatePath)
-                {
-                    case "product":
-                        return "Product: {{ product.title }} ";
-
-                    case "locale_variables":
-                        return "Locale: {{echo1}} {{echo2}}";
-
-                    case "variant":
-                        return "Variant: {{ variant.title }}";
-
-                    case "nested_template":
-                        return "{% include 'header' %} {% include 'body' %} {% include 'footer' %}";
-
-                    case "body":
-                        return "body {% include 'body_detail' %}";
-
-                    case "nested_product_template":
-                        return "Product: {{ nested_product_template.title }} {%include 'details'%} ";
-
-                    case "recursively_nested_template":
-                        return "-{% include 'recursively_nested_template' %}";
-
-                    case "pick_a_source":
-                        return "from TestFileSystem";
-
-                    default:
-                        return templatePath;
-                }
-            }
-        }
-
         internal class TestTemplateFileSystem : ITemplateFileSystem
         {
             private IDictionary<string, Template> _templateCache = new Dictionary<string, Template>();
@@ -99,7 +62,18 @@ namespace DotLiquid.Tests.Tags
         [SetUp]
         public void SetUp()
         {
-            Template.FileSystem = new TestFileSystem();
+            var testTemplates = new Dictionary<string, string>()
+            {
+                { "product", "Product: {{ product.title }} " },
+                { "locale_variables", "Locale: {{echo1}} {{echo2}}" },
+                { "variant", "Variant: {{ variant.title }}" },
+                { "nested_template", "{% include 'header' %} {% include 'body' %} {% include 'footer' %}" },
+                { "body", "body {% include 'body_detail' %}" },
+                { "nested_product_template", "Product: {{ nested_product_template.title }} {%include 'details'%} " },
+                { "recursively_nested_template", "-{% include 'recursively_nested_template' %}" },
+                { "pick_a_source", "from TestFileSystem" }
+            };
+            Template.FileSystem = new DictionaryFileSystem(testTemplates);
         }
 
         [Test]
@@ -213,7 +187,7 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestIncludeFromTemplateFileSystem()
         {
-            var fileSystem = new TestTemplateFileSystem(new TestFileSystem());
+            var fileSystem = new TestTemplateFileSystem(Template.FileSystem);
             Template.FileSystem = fileSystem;
             for (int i = 0; i < 2; ++i)
             {

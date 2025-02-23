@@ -65,10 +65,14 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestDateFormats()
         {
-            Helper.AssertTemplateResult(
-                expected: ".NET=2020, Ruby=2020, .NET=2020",
-                template: ".NET={{sourceDate | date: 'yyyy'}}{%param date_format='ruBy'%}, Ruby={{sourceDate | date: '%Y'}}{%param DATEFORMAT = 'dotnet'%}, .NET={{sourceDate | date: 'yyyy'}}",
-                localVariables: Hash.FromAnonymousObject(new { sourceDate = "2020-02-03T12:13:14Z" }));
+            Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
+            {
+                Liquid.UseRubyDateFormat = false;
+                Helper.AssertTemplateResult(
+                    expected: ".NET=2020, Ruby=2020, .NET=2020",
+                    template: ".NET={{sourceDate | date: 'yyyy'}}{%param date_format='ruBy'%}, Ruby={{sourceDate | date: '%Y'}}{%param DATEFORMAT = 'dotnet'%}, .NET={{sourceDate | date: 'yyyy'}}",
+                    localVariables: Hash.FromAnonymousObject(new { sourceDate = "2020-02-03T12:13:14Z" }));
+            });
         }
 
         [Test]

@@ -13,6 +13,7 @@ namespace DotLiquid.Tests
     public class StandardFilterTests
     {
         private Context _contextV20;
+        private Context _contextV20EnUS;
         private Context _contextV21;
         private Context _contextV22;
         private Context _contextV22a;
@@ -21,6 +22,10 @@ namespace DotLiquid.Tests
         public void SetUp()
         {
             _contextV20 = new Context(CultureInfo.InvariantCulture)
+            {
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20
+            };
+            _contextV20EnUS = new Context(new CultureInfo("en-US"))
             {
                 SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20
             };
@@ -944,6 +949,7 @@ PaulGeorge",
         {
             Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
             {
+                Liquid.UseRubyDateFormat = false;
                 var context = _contextV21;// _contextV21 specifies InvariantCulture
                 var unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).ToLocalTime();
                 Assert.That(StandardFilters.Date(context: context, input: 0, format: "g"), Is.EqualTo(unixEpoch.ToString("g", context.FormatProvider)));
@@ -984,14 +990,69 @@ PaulGeorge",
             });
         }
 
+#if NET6_0_OR_GREATER
+        [Test]
+        public void TestDateOnly()
+        {
+            var currentIsRubyDateFormat = _contextV20.UseRubyDateFormat;
+            try
+            {
+                var dateOnly = new DateOnly(year: 2006, month: 8, day: 3);
+                Assert.Multiple(() =>
+                {
+                    _contextV20.UseRubyDateFormat = false;
+                    Assert.That(StandardFilters.Date(context: _contextV20, input: dateOnly, format: "MM/dd/yyyy"), Is.EqualTo("08/03/2006"));
+                    Assert.That(StandardFilters.Date(context: _contextV20EnUS, input: dateOnly, format: string.Empty), Is.EqualTo("8/3/2006"));
+                    Assert.That(StandardFilters.Date(context: _contextV20EnUS, input: dateOnly, format: null), Is.EqualTo("8/3/2006"));
+                    Assert.Throws<FormatException>(() => StandardFilters.Date(context: _contextV20, input: dateOnly, format: "HH:mm:ss"));
+                    _contextV20.UseRubyDateFormat = true;
+                    Assert.That(StandardFilters.Date(context: _contextV20, input: dateOnly, format: "%D"), Is.EqualTo("08/03/06"));
+                    Assert.That(StandardFilters.Date(context: _contextV20EnUS, input: dateOnly, format: string.Empty), Is.EqualTo("8/3/2006"));
+                    Assert.That(StandardFilters.Date(context: _contextV20EnUS, input: dateOnly, format: null), Is.EqualTo("8/3/2006"));
+                    Assert.Throws<FormatException>(() => StandardFilters.Date(context: _contextV20, input: dateOnly, format: "%T"));
+                });
+            }
+            finally
+            {
+                _contextV20.UseRubyDateFormat = currentIsRubyDateFormat;
+            }
+        }
+
+        [Test]
+        public void TestTimeOnly()
+        {
+            var currentIsRubyDateFormat = _contextV20.UseRubyDateFormat;
+            try
+            {
+                var timeOnly = new TimeOnly(hour: 12, minute: 14, second: 15);
+                Assert.Multiple(() =>
+                {
+                    _contextV20.UseRubyDateFormat = false;
+                    Assert.That(StandardFilters.Date(context: _contextV20, input: timeOnly, format: "HH:mm:ss"), Is.EqualTo("12:14:15"));
+                    Assert.That(StandardFilters.Date(context: _contextV20EnUS, input: timeOnly, format: string.Empty), Is.EqualTo("12:14 PM"));
+                    Assert.That(StandardFilters.Date(context: _contextV20EnUS, input: timeOnly, format: null), Is.EqualTo("12:14 PM"));
+                    Assert.Throws<FormatException>(() => StandardFilters.Date(context: _contextV20, input: timeOnly, format: "MM/dd/yyyy"));
+                    _contextV20.UseRubyDateFormat = true;
+                    Assert.That(StandardFilters.Date(context: _contextV20, input: timeOnly, format: "%T"), Is.EqualTo("12:14:15"));
+                    Assert.That(StandardFilters.Date(context: _contextV20EnUS, input: timeOnly, format: string.Empty), Is.EqualTo("12:14 PM"));
+                    Assert.That(StandardFilters.Date(context: _contextV20EnUS, input: timeOnly, format: null), Is.EqualTo("12:14 PM"));
+                    Assert.Throws<FormatException>(() => StandardFilters.Date(context: _contextV20, input: timeOnly, format: "%D"));
+                });
+            }
+            finally
+            {
+                _contextV20.UseRubyDateFormat = currentIsRubyDateFormat;
+            }
+        }
+#endif
+
         [Test]
         public void TestStrFTime()
         {
             Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
             {
-                var context = _contextV20;
+                var context = _contextV20EnUS;
                 context.UseRubyDateFormat = true;
-                context.CurrentCulture = new CultureInfo("en-US"); // _contextV20 is initialized with InvariantCulture, these tests require en-US
 
                 Assert.That(StandardFilters.Date(context: context, input: DateTime.Parse("2006-05-05 10:00:00"), format: "%B"), Is.EqualTo("May"));
                 Assert.That(StandardFilters.Date(context: context, input: DateTime.Parse("2006-06-05 10:00:00"), format: "%B"), Is.EqualTo("June"));

@@ -252,4 +252,16 @@
   <data name="IncrementSyntaxException" xml:space="preserve">
     <value>Syntax Error in 'increment' tag - Valid syntax: increment [var]</value>
   </data>
+  <data name="Base64FilterInvalidInput" xml:space="preserve">
+    <value>Invalid base64 provided to {0}</value>
+  </data>
+  <data name="DateFilterFormatNotSupported" xml:space="preserve">
+    <value>String '{0}' contains parts which are not specific to the {1}.</value>
+  </data>
+  <data name="DateFilterCultureRequired" xml:space="preserve">
+    <value>CultureInfo is mandatory</value>
+  </data>
+  <data name="DateFilterRubyDirectiveInvalid" xml:space="preserve">
+    <value>Invalid directive passed to {0}</value>
+  </data>
 </root>

@@ -41,6 +41,10 @@ namespace DotLiquid.Tests
                 {
                     test.GroupName = testGroup.Name;
                     var uniqueName = test.UniqueName;
+
+                    if (Rules.SkippedTests.Contains(uniqueName))
+                        continue;
+
                     if (Rules.AlternateTestExpectations.ContainsKey(uniqueName))
                         test.Want = Rules.AlternateTestExpectations[uniqueName];
 

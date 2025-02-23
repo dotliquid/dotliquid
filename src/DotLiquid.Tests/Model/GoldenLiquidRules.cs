@@ -9,6 +9,9 @@ namespace DotLiquid.Tests.Model
         [JsonProperty("skipped_groups")]
         public List<string> SkippedGroups { get; set; }
 
+        [JsonProperty("skipped_tests")]
+        public List<string> SkippedTests { get; set; }
+
         [JsonProperty("failing_tests")]
         public List<string> FailingTests { get; set; }
 

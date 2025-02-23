@@ -8,6 +8,9 @@
         "liquid.golden.sum_filter", // not yet implemented
         "liquid.golden.truncatewords_filter" // implemented as truncate_words so these will fail for now
     ],
+    "skipped_tests": [ //These tests are flaky and may pass or fail
+        "liquid.golden.date_filter - seconds since epoch format directive" // Test assumes that a parsed date is UTC, DotLiquid assumes system timezone
+    ],
     "failing_tests": [
         // Parser Errors
         "liquid.golden.assign_tag - assign with quoted notation and extra whitespace",
@@ -37,7 +40,6 @@
         "liquid.golden.default_filter - render a default given a literal false with 'allow false' equal to false",
         "liquid.golden.default_filter - render a default given a literal false with 'allow false' equal to true",
         // DotLiquid #457
-        "liquid.golden.date_filter - seconds since epoch format directive",
         "liquid.golden.date_filter - timestamp string",
         // DotLiquid #549
         "liquid.golden.first_filter - first of a string",

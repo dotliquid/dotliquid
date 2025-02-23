@@ -425,7 +425,7 @@ namespace DotLiquid
                         {
                             var startingRange = Convert.ToInt32(Resolve(match.Groups[1].Value));
                             var endingRange = Convert.ToInt32(Resolve(match.Groups[2].Value));
-                            return Enumerable.Range(startingRange, endingRange - startingRange + 1);
+                            return Enumerable.Range(startingRange, Math.Max(0, endingRange - startingRange + 1));
                         }
                         break;
                     default:

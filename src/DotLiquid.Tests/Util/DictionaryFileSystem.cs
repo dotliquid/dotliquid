@@ -6,20 +6,24 @@ namespace DotLiquid.Tests.Util
 {
     internal class DictionaryFileSystem : IFileSystem
     {
-        public Dictionary<string, string> Templates;
+        private readonly IDictionary<string, string> _templates;
 
-        public DictionaryFileSystem(Dictionary<string, string> templates)
+        public DictionaryFileSystem(IDictionary<string, string> templates)
         {
-            Templates = templates;
+            _templates = templates;
         }
 
         public string ReadTemplateFile(Context context, string templateName)
         {
-            string templatePath = (string)context[templateName];
-
-            if (templatePath != null && Templates.TryGetValue(templatePath, out var template))
+            if (_templates.TryGetValue(templateName, out var template))
+            {
                 return template;
-
+            }
+            string templatePath = context[templateName] as string;
+            if (templatePath != null && _templates.TryGetValue(templatePath, out template))
+            {
+                return template;
+            }
             return templatePath;
         }
     }

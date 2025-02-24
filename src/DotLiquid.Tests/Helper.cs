@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using DotLiquid.FileSystems;
 using DotLiquid.NamingConventions;
+using DotLiquid.Tests.Util;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -73,6 +76,47 @@ namespace DotLiquid.Tests
         public static void AssertTemplateResult(string expected, string template, SyntaxCompatibility syntax = SyntaxCompatibility.DotLiquid20)
         {
             AssertTemplateResult(expected: expected, template: template, localVariables: null, syntax: syntax);
+        }
+
+        public static void WithCustomTag<T>(string tagName, Action action) where T : Tag, new()
+        {
+            Type tagType = Template.UnregisterTag(tagName);
+            try
+            {
+                Template.RegisterTag<T>(tagName);
+                action();
+            }
+            finally
+            {
+                Template.UnregisterTag(tagName);
+                if (tagType != null)
+                {
+                    // Call RegisterTag with the original tagType to restore the original tag
+                    typeof(Template)
+                        .GetMethod("RegisterTag")
+                        .MakeGenericMethod(tagType)
+                        .Invoke(null, new object[] { tagName });
+                }
+            }
+        }
+
+        public static void WithFileSystem(IFileSystem fs, Action action)
+        {
+            var oldFileSystem = Template.FileSystem;
+            Template.FileSystem = fs;
+            try
+            {
+                action.Invoke();
+            }
+            finally
+            {
+                Template.FileSystem = oldFileSystem;
+            }
+        }
+
+        public static void WithDictionaryFileSystem(IDictionary<string, string> data, Action action)
+        {
+            WithFileSystem(new DictionaryFileSystem(data), action);
         }
 
         [LiquidTypeAttribute("PropAllowed")]

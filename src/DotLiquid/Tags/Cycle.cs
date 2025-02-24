@@ -49,7 +49,7 @@ namespace DotLiquid.Tags
                 if (match.Success)
                 {
                     _variables = VariablesFromString(markup);
-                    _name = "'" + string.Join(string.Empty, _variables) + "'";
+                    _name = "'" + string.Join(string.Empty, _variables).Replace("'", "") + "'";
                 }
                 else
                 {

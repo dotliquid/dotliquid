@@ -1122,6 +1122,10 @@ PaulGeorge",
             Assert.That(StandardFilters.Last(new object[] { }), Is.Null);
 
             Helper.AssertTemplateResult(
+                expected: ".",
+                template: "{{ 'Ground control to Major Tom.' | " + lastFilter + " }}",
+                namingConvention: namingConvention);
+            Helper.AssertTemplateResult(
                 expected: "Tom.",
                 template: "{{ 'Ground control to Major Tom.' | " + splitFilter + ": ' ' | " + lastFilter + " }}",
                 namingConvention: namingConvention);
@@ -1134,6 +1138,10 @@ PaulGeorge",
                 template: "{% assign my_array = 'zebra, octopus, giraffe, tiger' | " + splitFilter + ": ', ' %}{% if my_array." + lastFilter + " == 'tiger' %}There goes a tiger!{% endif %}",
                 namingConvention: namingConvention);
 
+            Helper.AssertTemplateResult(
+                expected: "G",
+                template: "{{ 'Ground control to Major Tom.' | " + firstFilter + " }}",
+                namingConvention: namingConvention);
             Helper.AssertTemplateResult(
                 expected: "Ground",
                 template: "{{ 'Ground control to Major Tom.' | " + splitFilter + ": ' ' | " + firstFilter + " }}",

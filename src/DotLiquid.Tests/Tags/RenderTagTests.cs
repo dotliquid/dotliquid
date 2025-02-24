@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using DotLiquid.Exceptions;
 using DotLiquid.FileSystems;
+using DotLiquid.Tests.Util;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests.Tags
@@ -51,7 +52,7 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["source"] = "rendered content"
+                { "source", "rendered content" }
             }, () =>
             {
                 Helper.AssertTemplateResult("rendered content", "{% render 'source' %}");
@@ -63,13 +64,13 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["pick_a_source"] = "from global file system"
+                { "pick_a_source", "from global file system" }
             }, () =>
             {
                 var context = new Context(CultureInfo.InvariantCulture);
-                context.Registers["file_system"] = new Helper.DictionaryFileSystem(new Dictionary<string, string>
+                context.Registers["file_system"] = new DictionaryFileSystem(new Dictionary<string, string>
                 {
-                    ["pick_a_source"] = "from register file system"
+                    { "pick_a_source", "from register file system" }
                 });
                 Assert.That(Template.Parse("{% render 'pick_a_source' %}").Render(RenderParameters.FromContext(context, context.FormatProvider)),
                     Is.EqualTo("from register file system"));
@@ -81,7 +82,7 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["product"] = "{{ inner_product.title }}"
+                { "product", "{{ inner_product.title }}" }
             }, () =>
             {
                 Helper.AssertTemplateResult("My Product", "{% render 'product', inner_product: outer_product %}", Hash.FromAnonymousObject(new
@@ -96,7 +97,7 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["snippet"] = "{{ price }}"
+                { "snippet", "{{ price }}" }
             }, () =>
             {
                 Helper.AssertTemplateResult("123", "{% render 'snippet', price: 123 %}");
@@ -108,7 +109,7 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["snippet"] = "{{ one }} {{ two }}"
+                { "snippet", "{{ one }} {{ two }}" }
             }, () =>
             {
                 Helper.AssertTemplateResult("1 2", "{% render 'snippet', one: 1, two: 2 %}");
@@ -120,10 +121,10 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["snippet"] = "{{ outer_variable }}"
+                { "snippet", "Nothing else{{ outer_variable }}" }
             }, () =>
             {
-                Helper.AssertTemplateResult("", "{% assign outer_variable = 'should not be visible' %}{% render 'snippet' %}");
+                Helper.AssertTemplateResult("Nothing else", "{% assign outer_variable = 'should not be visible' %}{% render 'snippet' %}");
             });
         }
 
@@ -132,10 +133,10 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["snippet"] = "{{ outer_variable }}"
+                { "snippet", "Nothing else{{ outer_variable }}" }
             }, () =>
             {
-                Helper.AssertTemplateResult("", "{% assign snippet = 'should not be visible' %}{% render 'snippet' %}");
+                Helper.AssertTemplateResult("Nothing else", "{% assign snippet = 'should not be visible' %}{% render 'snippet' %}");
             });
         }
 
@@ -144,10 +145,10 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["snippet"] = "{% assign inner = 1 %}"
+                { "snippet", "{{ foo }}{% assign foo='goodbye' %} {{ foo }}" }
             }, () =>
             {
-                Helper.AssertTemplateResult("", "{% render 'snippet' %}{{ inner }}");
+                Helper.AssertTemplateResult("hello goodbye", "{% render 'snippet', foo: 'hello' %}{{ foo }}");
             });
         }
 
@@ -156,8 +157,8 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["one"] = "one {% render 'two' %}",
-                ["two"] = "two"
+                { "one", "one {% render 'two' %}" },
+                { "two", "two" }
             }, () =>
             {
                 Helper.AssertTemplateResult("one two", "{% render 'one' %}");
@@ -169,7 +170,7 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["loop"] = "{% render 'loop' %}",
+                { "loop", "{% render 'loop' %}" },
             }, () =>
             {
                 Assert.Throws<StackLevelException>(() => Template.Parse("{% render 'loop' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
@@ -184,7 +185,7 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["loop_render"] = "{% render \"loop_render\" %}",
+                { "loop_render", "{% render \"loop_render\" %}" },
             }, () =>
             {
                 Assert.Throws<StackLevelException>(() => Template.Parse("{% render 'loop_render' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
@@ -197,13 +198,19 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestDynamicallyChoosenTemplatesAreNotAllowed()
         {
-            Assert.Throws<SyntaxException>(() => Template.Parse("{% assign name = 'snippet' %}{% render name %}"));
+            Helper.WithDictionaryFileSystem(new Dictionary<string, string>
+            {
+                { "snippet", "Nothing else{{ outer_variable }}" }
+            }, () =>
+            {
+                Assert.Throws<SyntaxException>(() => Template.Parse("{% assign name = 'snippet' %}{% render name %}"));
+            });
         }
 
         [Test]
-        public void TestIncludeTagCachesSecondReadOfSamePartial()
+        public void TestRenderTagCachesSecondReadOfSamePartial()
         {
-            var fs = new CountingFileSystem();
+            CountingFileSystem fs = new CountingFileSystem();
             Helper.WithFileSystem(fs, () =>
             {
                 Helper.AssertTemplateResult("from CountingFileSystemfrom CountingFileSystem", "{% render 'snippet' %}{% render 'snippet' %}");
@@ -214,7 +221,7 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestRenderTagDoesntCachePartialsAcrossRenders()
         {
-            var fs = new CountingFileSystem();
+            CountingFileSystem fs = new CountingFileSystem();
             Helper.WithFileSystem(fs, () =>
             {
                 Helper.AssertTemplateResult("from CountingFileSystem", "{% include 'pick_a_source' %}");
@@ -229,7 +236,7 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["snippet"] = "my message",
+                { "snippet", "my message" }
             }, () =>
             {
                 Helper.AssertTemplateResult("my message", "{% if true %}{% render 'snippet' %}{% endif %}");
@@ -241,7 +248,7 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["break"] = "{% break %}",
+                { "break", "{% break %}" }
             }, () =>
             {
                 Helper.AssertTemplateResult("1", "{% for i in (1..3) %}{{ i }}{% break %}{{ i }}{% endfor %}");
@@ -254,7 +261,7 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["incr"] = "{% increment foo %}",
+                { "incr", "{% increment foo %}" }
             }, () =>
             {
                 Helper.AssertTemplateResult("010", "{% increment foo %}{% increment foo %}{% render 'incr' %}");
@@ -266,7 +273,7 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["decr"] = "{% decrement foo %}",
+                { "decr", "{% decrement foo %}" }
             }, () =>
             {
                 Helper.AssertTemplateResult("-1-2-1", "{% decrement foo %}{% decrement foo %}{% render 'decr' %}");
@@ -278,8 +285,8 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["test_include"] = "{% include 'foo' %}",
-                ["foo"] = "bar",
+                { "test_include", "{% include 'foo' %}" },
+                { "foo", "bar" },
             }, () =>
             {
                 Helper.AssertTemplateResult("Liquid error: include usage is not allowed in this context", "{% render 'test_include' %}");
@@ -291,9 +298,9 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["nested_render_with_sibling_include"] = "{% render 'test_include' %}{% include 'foo' %}",
-                ["test_include"] = "{% include 'foo' %}",
-                ["foo"] = "bar",
+                { "nested_render_with_sibling_include", "{% render 'test_include' %}{% include 'foo' %}" },
+                { "test_include",  "{% include 'foo' %}" },
+                { "foo", "bar" },
             }, () =>
             {
                 Helper.AssertTemplateResult("Liquid error: include usage is not allowed in this context" +
@@ -307,8 +314,8 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["product"] = "Product: {{ product.title }} ",
-                ["product_alias"] = "Product: {{ product.title }} ",
+                { "product", "Product: {{ product.title }} " },
+                { "product_alias", "Product: {{ product.title }} " },
             }, () =>
             {
                 var vars = Hash.FromAnonymousObject(new
@@ -328,8 +335,8 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["product"] = "Product: {{ product.title }} ",
-                ["product_alias"] = "Product: {{ product.title }} ",
+                { "product", "Product: {{ product.title }} " },
+                { "product_alias", "Product: {{ product.title }} " },
             }, () =>
             {
                 var vars = Hash.FromAnonymousObject(new
@@ -349,8 +356,8 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["product"] = "Product: {{ product.title }} ",
-                ["product_alias"] = "Product: {{ product.title }} ",
+                { "product", "Product: {{ product.title }} " },
+                { "product_alias", "Product: {{ product.title }} " },
             }, () =>
             {
                 var vars = Hash.FromAnonymousObject(new
@@ -370,11 +377,11 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["product"] = "Product: {{ product.title }} ",
-                ["product_alias"] = "Product: {{ product.title }} ",
+                { "product", "Product: {{ product.title }} " },
+                { "product_alias", "Product: {{ product.title }} " },
             }, () =>
             {
-                var vars = Hash.FromAnonymousObject(new
+                Hash vars = Hash.FromAnonymousObject(new
                 {
                     products = new[]
                     {
@@ -391,10 +398,10 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["product"] = "Product: {{ product.title }} {% if forloop.first %}first{% endif %} {% if forloop.last %}last{% endif %} index:{{ forloop.index }} ",
+                { "product", "Product: {{ product.title }} {% if forloop.first %}first{% endif %} {% if forloop.last %}last{% endif %} index:{{ forloop.index }} " },
             }, () =>
             {
-                var vars = Hash.FromAnonymousObject(new
+                Hash vars = Hash.FromAnonymousObject(new
                 {
                     products = new[]
                     {
@@ -411,10 +418,10 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["loop"] = "{{ value.foo }}",
+                { "loop", "{{ value.foo }}" },
             }, () =>
             {
-                var vars = Hash.FromAnonymousObject(new
+                Hash vars = Hash.FromAnonymousObject(new
                 {
                     loop = new TestEnumerable()
                 });
@@ -427,10 +434,10 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["loop"] = "{{ value.Name }}",
+                { "loop", "{{ value.Name }}" },
             }, () =>
             {
-                var vars = Hash.FromAnonymousObject(new
+                Hash vars = Hash.FromAnonymousObject(new
                 {
                     loop = new TestEnumerable()
                 });
@@ -443,10 +450,10 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["foo"] = "{{ foo.standard_exception }}",
+                { "foo", "{{ foo.standard_exception }}" },
             }, () =>
             {
-                var vars = Hash.FromAnonymousObject(new 
+                Hash vars = Hash.FromAnonymousObject(new 
                 { 
                     errors = new ErrorDrop()
                 });
@@ -455,6 +462,6 @@ namespace DotLiquid.Tests.Tags
         }
 
         // Note: test_render_tag_renders_error_with_template_name_from_template_factory not implemented
-        // No TemplateFactor concept in DotLiquid.
+        // No TemplateFactory concept in DotLiquid.
     }
 }

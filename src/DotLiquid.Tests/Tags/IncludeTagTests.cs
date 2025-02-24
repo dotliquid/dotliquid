@@ -134,7 +134,7 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
             {
-                ["'product'"] = "Product: {{ product }}"
+                { "product", "Product: {{ product }}" }
             }, () =>
             {
                 Assert.That(Template.Parse("{% include 'product' with 'foo' %}").Render(), Is.EqualTo("Product: foo"));

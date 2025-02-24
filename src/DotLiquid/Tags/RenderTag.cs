@@ -14,7 +14,7 @@ namespace DotLiquid.Tags
         private static readonly Regex Syntax = R.B(@"({0}+)(\s+(with|{1})\s+({2}+)(?:\s+as\s+({3}+))?)?", Liquid.QuotedString, For, Liquid.QuotedFragment, Liquid.VariableSegment);
         private static readonly string[] DisabledTags = { "include" };
 
-        private string _templateNameExpr, _variableNameExpr, _aliasName;
+        private string _templateName, _variableName, _aliasName;
         private Dictionary<string, string> _attributes;
         private bool IsForLoop { get; set; }
 
@@ -23,12 +23,12 @@ namespace DotLiquid.Tags
             var syntaxMatch = Syntax.Match(markup);
             if (syntaxMatch.Success)
             {
-                _templateNameExpr = syntaxMatch.Groups[1].Value;
+                _templateName = syntaxMatch.Groups[1].Value;
                 var withOrFor = syntaxMatch.Groups[3].Value;
-                _variableNameExpr = syntaxMatch.Groups[4].Value;
+                _variableName = syntaxMatch.Groups[4].Value;
                 _aliasName = syntaxMatch.Groups[5].Value;
-                if (_variableNameExpr == string.Empty)
-                    _variableNameExpr = null;
+                if (_variableName == string.Empty)
+                    _variableName = null;
                 if (_aliasName == string.Empty)
                     _aliasName = null;
                 if (withOrFor == string.Empty)
@@ -49,20 +49,33 @@ namespace DotLiquid.Tags
 
         public override void Render(Context context, TextWriter result)
         {
-            if (!(context[_templateNameExpr] is string templateName))
-                throw new Exceptions.ArgumentException(Liquid.ResourceManager.GetString("TemplateNameArgumentException"), TagName);
-            var partial = PartialCache.Load(templateName, context);
-            var contextVariableName = _aliasName ?? templateName;
-            var variable = _variableNameExpr != null ? context[_variableNameExpr] : null;
+            Template partial;
+            string contextVariableName;
+            if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid22b)
+            {
+                if (!(context[_templateName] is string templateName))
+                    throw new Exceptions.ArgumentException(Liquid.ResourceManager.GetString("TemplateNameArgumentException"), TagName);
+                partial = PartialCache.Load(templateName, context);
+                contextVariableName = _aliasName ?? templateName;
+            }
+            else
+            {
+                partial = PartialCache.Fetch(_templateName, context);
+                contextVariableName = _aliasName ?? _templateName;
+            }
+
+            var variable = _variableName != null ? context[_variableName] : null;
 
             context.WithDisabledTags(DisabledTags, () =>
             {
-                if (IsForLoop && variable is IEnumerable c && !(variable is string))
+                if (IsForLoop && variable is IEnumerable enumerable && !(variable is string))
                 {
-                    var items = c.Cast<object>().ToList();
+                    var items = enumerable.Cast<object>().ToList();
                     var length = items.Count;
                     for (var index = 0; index < length; index++)
+                    {
                         RenderPartial(items[index], new ForloopDrop(length, index));
+                    }
                 }
                 else
                 {

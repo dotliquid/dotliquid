@@ -1518,14 +1518,20 @@ PaulGeorge",
             Helper.AssertTemplateResult(expected: "bcd", template: "{{ a | append: b}}", localVariables: assigns);
             Helper.AssertTemplateResult(expected: "/my/fancy/url.html", template: "{{ '/my/fancy/url' | append: '.html' }}");
             Helper.AssertTemplateResult(expected: "website.com/index.html", template: "{% assign filename = '/index.html' %}{{ 'website.com' | append: filename }}");
+            Helper.AssertTemplateResult(expected: "hi", template: "{{ nonesuch | append: 'hi' }}");
+            Helper.AssertTemplateResult(expected: "hi", template: "{{ 'hi' | append: nonesuch }}");
+            Helper.AssertTemplateResult(expected: string.Empty, template: "{{ alsononesuch | append: nonesuch }}");
         }
 
         [Test]
         public void TestPrepend()
         {
             Hash assigns = Hash.FromAnonymousObject(new { a = "bc", b = "a" });
-            Helper.AssertTemplateResult("abc", "{{ a | prepend: 'a'}}", assigns);
-            Helper.AssertTemplateResult("abc", "{{ a | prepend: b}}", assigns);
+            Helper.AssertTemplateResult(expected: "abc", template: "{{ a | prepend: 'a'}}", localVariables: assigns);
+            Helper.AssertTemplateResult(expected: "abc", template: "{{ a | prepend: b}}", localVariables: assigns);
+            Helper.AssertTemplateResult(expected: "hi", template: "{{ nonesuch | prepend: 'hi' }}");
+            Helper.AssertTemplateResult(expected: "hi", template: "{{ 'hi' | prepend: nonesuch }}");
+            Helper.AssertTemplateResult(expected: string.Empty, template: "{{ alsononesuch | prepend: nonesuch }}");
         }
 
         [Test]

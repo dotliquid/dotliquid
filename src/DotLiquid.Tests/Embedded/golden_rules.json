@@ -72,7 +72,6 @@
 
         // Undefined Arguments
         "liquid.golden.abs_filter - undefined left value",
-        "liquid.golden.append_filter - undefined left value",
         "liquid.golden.at_least_filter - undefined argument",
         "liquid.golden.at_least_filter - undefined left value",
         "liquid.golden.at_most_filter - undefined argument",
@@ -89,7 +88,6 @@
         "liquid.golden.modulo_filter - undefined left value",
         "liquid.golden.plus_filter - undefined argument",
         "liquid.golden.plus_filter - undefined left value",
-        "liquid.golden.prepend_filter - undefined left value",
         "liquid.golden.remove_filter - undefined argument",
         "liquid.golden.remove_last_filter - undefined argument",
         "liquid.golden.remove_last_filter - undefined left value",

@@ -1702,6 +1702,7 @@ PaulGeorge",
             Assert.That(StandardFilters.Abs(_contextV20, "-5"), Is.EqualTo(5));
             Assert.That(StandardFilters.Abs(_contextV20, "30.60"), Is.EqualTo(30.60));
             Assert.That(StandardFilters.Abs(_contextV20, "30.60a"), Is.EqualTo(0));
+            Assert.That(StandardFilters.Abs(_contextV20, null), Is.EqualTo(0));
 
             Helper.AssertTemplateResult(
                 expected: "17",
@@ -1715,6 +1716,12 @@ PaulGeorge",
             Helper.AssertTemplateResult(
                 expected: "19.86",
                 template: "{{ '-19.86' | abs }}");
+            Helper.AssertTemplateResult(
+                expected: "0",
+                template: "{{ 'notNumber' | abs }}");
+            Helper.AssertTemplateResult(
+                expected: "0",
+                template: "{{ {} | abs }}");
         }
 
         [Test]
@@ -1731,6 +1738,8 @@ PaulGeorge",
             Assert.That(StandardFilters.AtLeast(_contextV20, "4", 5), Is.EqualTo(5));
             Assert.That(StandardFilters.AtLeast(_contextV20, "10a", 5), Is.EqualTo("10a"));
             Assert.That(StandardFilters.AtLeast(_contextV20, "4b", 5), Is.EqualTo("4b"));
+            Assert.That(StandardFilters.AtLeast(_contextV20, null, 5), Is.EqualTo(null));
+            Assert.That(StandardFilters.AtLeast(_contextV20, 5, null), Is.EqualTo(5));
 
             Helper.AssertTemplateResult(
                 expected: "5",
@@ -1754,6 +1763,8 @@ PaulGeorge",
             Assert.That(StandardFilters.AtMost(_contextV20, "4", 5), Is.EqualTo(4));
             Assert.That(StandardFilters.AtMost(_contextV20, "4a", 5), Is.EqualTo("4a"));
             Assert.That(StandardFilters.AtMost(_contextV20, "10b", 5), Is.EqualTo("10b"));
+            Assert.That(StandardFilters.AtMost(_contextV20, null, 5), Is.EqualTo(null));
+            Assert.That(StandardFilters.AtMost(_contextV20, 5, null), Is.EqualTo(5));
 
             Helper.AssertTemplateResult(
                 expected: "4",

@@ -195,5 +195,24 @@ namespace DotLiquid.Tests.Tags
             }
             Assert.That(fileSystem.CacheHitTimes, Is.EqualTo(1));
         }
+
+        [Test]
+        public void TestIncludeTagWithStringVariable()
+        {
+            Helper.LockTemplateStaticVars(Template.NamingConvention, () => {
+                Template.FileSystem = new DictionaryFileSystem(new Dictionary<string, string>() { { "product", "Product: {{ product }}" } });
+                Assert.Multiple(() =>
+                {
+                    var expected = "Product: foo";
+                    Helper.AssertTemplateResult(expected, "{% include 'product' with 'foo' %}");
+                    Helper.AssertTemplateResult(expected, "{% include 'product' for 'foo' %}");
+
+                    Helper.AssertTemplateResult(expected, "{% include 'product' with var %}", Hash.FromAnonymousObject(new { var = "foo" }));
+                    Helper.AssertTemplateResult(expected, "{% include 'product' for var %}", Hash.FromAnonymousObject(new { var = "foo" }));
+                });
+            });
+
+        }
+
     }
 }

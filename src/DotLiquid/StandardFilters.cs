@@ -712,6 +712,9 @@ namespace DotLiquid
             if (array == null)
                 return null;
 
+            if (array is string)
+                return string.Empty;
+
             return array.Cast<object>().FirstOrDefault();
         }
 
@@ -726,6 +729,9 @@ namespace DotLiquid
         {
             if (array == null)
                 return null;
+
+            if (array is string)
+                return string.Empty;
 
             return array.Cast<object>().LastOrDefault();
         }

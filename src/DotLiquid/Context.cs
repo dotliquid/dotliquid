@@ -585,7 +585,11 @@ namespace DotLiquid
                 // Some special cases. If the part wasn't in square brackets and
                 // no key with the same name was found we interpret first/last/size
                 // as commands and call them on the current object
-                else if (!partResolved && (@object is IEnumerable enumerable) && (Template.NamingConvention.OperatorEquals(part as string, "size") || Template.NamingConvention.OperatorEquals(part as string, "first") || Template.NamingConvention.OperatorEquals(part as string, "last")))
+                else if (!partResolved && @object is string @string && Template.NamingConvention.OperatorEquals(part as string, "size"))
+                {
+                    @object = @string.Length;
+                }
+                else if (!partResolved && (@object is IEnumerable enumerable) && !(@object is string) && (Template.NamingConvention.OperatorEquals(part as string, "size") || Template.NamingConvention.OperatorEquals(part as string, "first") || Template.NamingConvention.OperatorEquals(part as string, "last")))
                 {
                     var castCollection = enumerable.Cast<object>();
                     if (Template.NamingConvention.OperatorEquals(part as string, "size"))
@@ -684,7 +688,7 @@ namespace DotLiquid
             {
                 return liquidizableObj.ToLiquid();
             }
-            if (obj is string || obj is IEnumerable || obj is decimal || obj is DateTime || obj is DateTimeOffset || obj is TimeSpan || obj is Guid || obj is Enum
+            if (obj is IEnumerable /* string is IEnumerable */ || obj is decimal || obj is DateTime || obj is DateTimeOffset || obj is TimeSpan || obj is Guid || obj is Enum 
 #if NET6_0_OR_GREATER
                 || obj is DateOnly || obj is TimeOnly
 #endif

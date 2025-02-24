@@ -2,7 +2,6 @@
     "skipped_groups": [
         "liquid.golden.echo_tag", // not yet implemented
         "liquid.golden.liquid_tag", // not yet implemented
-        "liquid.golden.render_tag", // not yet implemented
         "liquid.golden.inline_comment_tag", // not yet implemented
         "liquid.golden.replace_last_filter", // not yet implemented
         "liquid.golden.sum_filter", // not yet implemented

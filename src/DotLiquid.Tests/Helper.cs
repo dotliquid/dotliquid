@@ -15,6 +15,7 @@ namespace DotLiquid.Tests
             var currentNamingConvention = Template.NamingConvention;
             var currentSyntax = Template.DefaultSyntaxCompatibilityLevel;
             var currentIsRubyDateFormat = Liquid.UseRubyDateFormat;
+            var currentFileSystem = Template.FileSystem;
             lock (Template.NamingConvention)
             {
                 Template.NamingConvention = namingConvention;
@@ -28,6 +29,7 @@ namespace DotLiquid.Tests
                     Template.NamingConvention = currentNamingConvention;
                     Template.DefaultSyntaxCompatibilityLevel = currentSyntax;
                     Liquid.UseRubyDateFormat = currentIsRubyDateFormat;
+                    Template.FileSystem = currentFileSystem;
                 }
             }
         }

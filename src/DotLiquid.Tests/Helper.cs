@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 using DotLiquid.FileSystems;
 using DotLiquid.NamingConventions;
 using NUnit.Framework;
@@ -78,19 +79,23 @@ namespace DotLiquid.Tests
 
         public static void WithCustomTag<T>(string tagName, Action action) where T : Tag, new()
         {
-            var oldTag = Template.Tags.TryGetValue(tagName, out var rs) ? rs : default;
+            Type tagType = Template.UnregisterTag(tagName);
             try
             {
-                if (oldTag != null)
-                    Template.Tags.Remove(tagName);
                 Template.RegisterTag<T>(tagName);
                 action();
             }
             finally
             {
-                Template.Tags.Remove(tagName);
-                if (oldTag != null)
-                    Template.Tags[tagName] = oldTag;
+                Template.UnregisterTag(tagName);
+                if (tagType != null)
+                {
+                    // Call RegisterTag with the original tagType to restore the original tag
+                    typeof(Template)
+                        .GetMethod("RegisterTag")
+                        .MakeGenericMethod(tagType)
+                        .Invoke(null, new object[] { tagName });
+                }
             }
         }
 

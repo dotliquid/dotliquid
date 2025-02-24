@@ -49,7 +49,7 @@ namespace DotLiquid
         /// </summary>
         public static bool DefaultIsThreadSafe { get; set; }
 
-        internal static Dictionary<string, Tuple<ITagFactory, Type>> Tags { get; set; }
+        private static Dictionary<string, Tuple<ITagFactory, Type>> Tags { get; set; }
 
         /// <summary>
         /// TimeOut used for all Regex in DotLiquid
@@ -82,6 +82,23 @@ namespace DotLiquid
         {
             var tagType = typeof(T);
             Tags[name] = new Tuple<ITagFactory, Type>(new ActivatorTagFactory(tagType, name), tagType);
+        }
+
+        /// <summary>
+        /// Unregister a tag
+        /// </summary>
+        /// <param name="name">Name of the tag</param>
+        /// <returns>The registered type of the tag if the tag was found and removed, null otherwise</returns>
+        public static Type UnregisterTag(string name)
+        {
+            Type tagType = null;
+            bool found = Tags.TryGetValue(name, out Tuple<ITagFactory, Type> tag);
+            if (found)
+            {
+                Tags.Remove(name);
+                tagType = tag.Item2;
+            }
+            return tagType;
         }
 
         /// <summary>

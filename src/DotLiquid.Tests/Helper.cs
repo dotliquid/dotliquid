@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using DotLiquid.FileSystems;
 using DotLiquid.NamingConventions;
+using DotLiquid.Tests.Util;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -115,16 +116,7 @@ namespace DotLiquid.Tests
 
         public static void WithDictionaryFileSystem(IDictionary<string, string> data, Action action)
         {
-            var oldFileSystem = Template.FileSystem;
-            Template.FileSystem = new DictionaryFileSystem(data);
-            try
-            {
-                action.Invoke();
-            }
-            finally
-            {
-                Template.FileSystem = oldFileSystem;
-            }
+            WithFileSystem(new DictionaryFileSystem(data), action);
         }
 
         [LiquidTypeAttribute("PropAllowed")]
@@ -147,20 +139,6 @@ namespace DotLiquid.Tests
         public class DataObjectDrop : Drop
         {
             public string Prop { get; set; }
-        }
-
-        public class DictionaryFileSystem : IFileSystem
-        {
-            private readonly IDictionary<string, string> _data;
-
-            public DictionaryFileSystem(IDictionary<string, string> data) => _data = data;
-
-            public string ReadTemplateFile(Context context, string templateName)
-            {
-                if (_data.TryGetValue(templateName, out var rs))
-                    return rs;
-                return null;
-            }
         }
     }
 }

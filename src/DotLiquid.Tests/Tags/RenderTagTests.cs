@@ -12,17 +12,6 @@ namespace DotLiquid.Tests.Tags
     [TestFixture]
     public class RenderTagTests
     {
-        private class CountingFileSystem : IFileSystem
-        {
-            public int Count { get; private set; }
-
-            public string ReadTemplateFile(Context context, string templateName)
-            {
-                Count++;
-                return "from CountingFileSystem";
-            }
-        }
-
         private class TestEnumerable : Drop, IEnumerable<IDictionary<string, int>>
         {
             private readonly IList<IDictionary<string, int>> _data = new List<IDictionary<string, int>>

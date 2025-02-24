@@ -11,38 +11,6 @@ namespace DotLiquid.Tests.Tags
     [TestFixture]
     public class IncludeTagTests
     {
-        internal class TestTemplateFileSystem : ITemplateFileSystem
-        {
-            private IDictionary<string, Template> _templateCache = new Dictionary<string, Template>();
-            private IFileSystem _baseFileSystem = null;
-            private int _cacheHitTimes;
-            public int CacheHitTimes { get { return _cacheHitTimes; } }
-
-            public TestTemplateFileSystem(IFileSystem baseFileSystem)
-            {
-                _baseFileSystem = baseFileSystem;
-            }
-
-            public string ReadTemplateFile(Context context, string templateName)
-            {
-                return _baseFileSystem.ReadTemplateFile(context, templateName);
-            }
-
-            public Template GetTemplate(Context context, string templateName)
-            {
-                Template template;
-                if (_templateCache.TryGetValue(templateName, out template))
-                {
-                    ++_cacheHitTimes;
-                    return template;
-                }
-                var result = ReadTemplateFile(context, templateName);
-                template = Template.Parse(result);
-                _templateCache[templateName] = template;
-                return template;
-            }
-        }
-
         private class OtherFileSystem : IFileSystem
         {
             public string ReadTemplateFile(Context context, string templateName)
@@ -56,17 +24,6 @@ namespace DotLiquid.Tests.Tags
             public string ReadTemplateFile(Context context, string templateName)
             {
                 return "-{% include 'loop' %}";
-            }
-        }
-
-        private class CountingFileSystem : IFileSystem
-        {
-            public int Count { get; private set; }
-
-            public string ReadTemplateFile(Context context, string templateName)
-            {
-                Count++;
-                return "from CountingFileSystem";
             }
         }
 
@@ -216,7 +173,7 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestIncludeFromTemplateFileSystem()
         {
-            var fileSystem = new TestTemplateFileSystem(Template.FileSystem);
+            TemplateFileSystem fileSystem = new TemplateFileSystem(Template.FileSystem);
             Template.FileSystem = fileSystem;
             for (int i = 0; i < 2; ++i)
             {

@@ -1101,18 +1101,6 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestStaticEnvironmentsAreReadWithLowerPriorityThanEnvironments()
-        {
-            var context = new Context(CultureInfo.InvariantCulture);
-            context.StaticEnvironments[0]["shadowed"] = "static";
-            context.StaticEnvironments[0]["unshadowed"] = "static";
-            context.Environments[0]["shadowed"] = "dynamic";
-
-            Assert.That(context["shadowed"], Is.EqualTo("dynamic"));
-            Assert.That(context["unshadowed"], Is.EqualTo("static"));
-        }
-
-        [Test]
         public void TestNewIsolatedSubcontextDoesNotInheritVariables()
         {
             var superContext = new Context(CultureInfo.InvariantCulture);
@@ -1120,15 +1108,6 @@ namespace DotLiquid.Tests
             var subcontext = superContext.NewIsolatedContext();
 
             Assert.That(subcontext["my_variable"], Is.Null);
-        }
-
-        [Test]
-        public void TestNewIsolatedSubcontextInheritsStaticEnvironment()
-        {
-            var superContext = new Context(CultureInfo.InvariantCulture);
-            superContext.StaticEnvironments[0]["my_env"] = "my value";
-            var subcontext = superContext.NewIsolatedContext();
-            Assert.That(subcontext["my_env"], Is.EqualTo("my value"));
         }
 
         [Test]

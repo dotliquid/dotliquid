@@ -111,11 +111,6 @@ namespace DotLiquid
         public List<Hash> Environments { get; private set; }
 
         /// <summary>
-        /// Static Environments
-        /// </summary>
-        public List<Hash> StaticEnvironments { get; private set; }
-
-        /// <summary>
         /// Scopes
         /// </summary>
         public List<Hash> Scopes { get; private set; }
@@ -173,38 +168,10 @@ namespace DotLiquid
              , int maxIterations
              , IFormatProvider formatProvider
              , CancellationToken cancellationToken)
-            : this(environments, outerScope, registers, errorsOutputMode, maxIterations, formatProvider, cancellationToken, new List<Hash>())
-        {
-        }
-
-        /// <summary>
-        /// Creates a new rendering context
-        /// </summary>
-        /// <param name="environments"></param>
-        /// <param name="outerScope"></param>
-        /// <param name="registers"></param>
-        /// <param name="errorsOutputMode"></param>
-        /// <param name="maxIterations"></param>
-        /// <param name="formatProvider">A CultureInfo instance that will be used to parse filter input and format filter output</param>
-        /// <param name="cancellationToken"></param>
-        /// <param name="staticEnvironments"></param>
-        public Context
-        (List<Hash> environments
-            , Hash outerScope
-            , Hash registers
-            , ErrorsOutputMode errorsOutputMode
-            , int maxIterations
-            , IFormatProvider formatProvider
-            , CancellationToken cancellationToken
-            , List<Hash> staticEnvironments)
         {
             Environments = environments ?? new List<Hash>();
             if (Environments.Count == 0)
                 Environments.Add(new Hash());
-            StaticEnvironments = staticEnvironments ?? new List<Hash>();
-            if (StaticEnvironments.Count == 0)
-                StaticEnvironments.Add(new Hash());
-
             Scopes = new List<Hash>();
             if (outerScope != null)
                 Scopes.Add(outerScope);
@@ -241,8 +208,7 @@ namespace DotLiquid
                 errorsOutputMode: _errorsOutputMode,
                 maxIterations: _maxIterations,
                 formatProvider: FormatProvider,
-                cancellationToken: _cancellationToken,
-                staticEnvironments: StaticEnvironments);
+                cancellationToken: _cancellationToken);
             subContext._disabledTags = _disabledTags;
             subContext._strainer = _strainer;
             subContext.Errors = Errors;
@@ -580,20 +546,15 @@ namespace DotLiquid
                     foundVariable = TryEvaluateHashOrArrayLikeObject(environment, key, out foundValue);
                     if (foundVariable)
                     {
+                        scope = environment;
                         break;
                     }
                 }
 
-                if (!foundVariable)
+                if (scope == null)
                 {
-                    foreach (Hash environment in StaticEnvironments)
-                    {
-                        foundVariable = TryEvaluateHashOrArrayLikeObject(environment, key, out foundValue);
-                        if (foundVariable)
-                        {
-                            break;
-                        }
-                    }
+                    scope = Environments.LastOrDefault() ?? Scopes.Last();
+                    foundVariable = TryEvaluateHashOrArrayLikeObject(scope, key, out foundValue);
                 }
             }
             else

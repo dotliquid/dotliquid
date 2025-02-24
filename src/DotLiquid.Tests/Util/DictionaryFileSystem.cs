@@ -15,10 +15,15 @@ namespace DotLiquid.Tests.Util
 
         public string ReadTemplateFile(Context context, string templateName)
         {
-            string templatePath = context[templateName] as string;
-            if (templatePath != null && _templates.TryGetValue(templatePath, out var template))
+            if (_templates.TryGetValue(templateName, out var template))
+            {
                 return template;
-
+            }
+            string templatePath = context[templateName] as string;
+            if (templatePath != null && _templates.TryGetValue(templatePath, out template))
+            {
+                return template;
+            }
             return templatePath;
         }
     }

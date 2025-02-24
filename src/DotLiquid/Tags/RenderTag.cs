@@ -24,7 +24,7 @@ namespace DotLiquid.Tags
             if (syntaxMatch.Success)
             {
                 _templateName = syntaxMatch.Groups[1].Value;
-                var withOrFor = syntaxMatch.Groups[3].Value;
+                string withOrFor = syntaxMatch.Groups[3].Value;
                 _variableName = syntaxMatch.Groups[4].Value;
                 _aliasName = syntaxMatch.Groups[5].Value;
                 if (_variableName == string.Empty)
@@ -33,7 +33,7 @@ namespace DotLiquid.Tags
                     _aliasName = null;
                 if (withOrFor == string.Empty)
                     withOrFor = null;
-                IsForLoop = withOrFor == For;
+                IsForLoop = (withOrFor == For);
                 _attributes = new Dictionary<string, string>(Template.NamingConvention.StringComparer);
                 R.Scan(markup, Liquid.TagAttributes, (key, value) => _attributes[key] = value);
             }
@@ -49,21 +49,10 @@ namespace DotLiquid.Tags
 
         public override void Render(Context context, TextWriter result)
         {
-            Template partial;
-            string contextVariableName;
-            if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid22b)
-            {
-                if (!(context[_templateName] is string templateName))
+            if (!(context[_templateName] is string templateName))
                     throw new Exceptions.ArgumentException(Liquid.ResourceManager.GetString("TemplateNameArgumentException"), TagName);
-                partial = PartialCache.Load(templateName, context);
-                contextVariableName = _aliasName ?? templateName;
-            }
-            else
-            {
-                partial = PartialCache.Fetch(_templateName, context);
-                contextVariableName = _aliasName ?? _templateName;
-            }
-
+            Template partial = PartialCache.Load(templateName, context);
+            string contextVariableName = _aliasName ?? templateName;
             var variable = _variableName != null ? context[_variableName] : null;
 
             context.WithDisabledTags(DisabledTags, () =>

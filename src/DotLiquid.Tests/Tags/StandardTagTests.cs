@@ -165,6 +165,25 @@ namespace DotLiquid.Tests.Tags
         }
 
         [Test]
+        public void TestForWithString()
+        {
+            // Based on Liquid integration test_for_tag_string
+            var expected = "test string";
+            Helper.AssertTemplateResult(expected, "{%for val in str%}{{val}}{%endfor%}", Hash.FromAnonymousObject(new { str = expected }));
+            Helper.AssertTemplateResult(expected, "{%for val in str limit:1%}{{val}}{%endfor%}", Hash.FromAnonymousObject(new { str = expected }));
+            Helper.AssertTemplateResult(
+                expected: "val-str-1-1-0-1-0-true-true-test string",
+                template: "{%for val in str%}{{forloop.name}}-{{forloop.index}}-{{forloop.length}}-{{forloop.index0}}-{{forloop.rindex}}-{{forloop.rindex0}}-{{forloop.first}}-{{forloop.last}}-{{val}}{%endfor%}",
+                Hash.FromAnonymousObject(new { str = expected }));
+
+            // Additional tests for null and empty strings
+            string nullString = null;
+            Helper.AssertTemplateResult(string.Empty, "{%for val in str%}{{forloop.index}}{%endfor%}", Hash.FromAnonymousObject(new { str = nullString }));
+            Helper.AssertTemplateResult(string.Empty, "{%for val in str%}{{forloop.index}}{%endfor%}", Hash.FromAnonymousObject(new { str = string.Empty }));
+
+        }
+
+        [Test]
         public void TestForWithVariable()
         {
             Helper.AssertTemplateResult(" 1  2  3 ", "{%for item in array%} {{item}} {%endfor%}",

@@ -217,6 +217,11 @@
         "liquid.golden.minus_filter - integer value and float arg": "8",
         "liquid.golden.modulo_filter - integer value and float arg": "0",
         "liquid.golden.modulo_filter - string value and argument": "0",
-        "liquid.golden.plus_filter - integer value and float arg": "12"
+        "liquid.golden.plus_filter - integer value and float arg": "12",
+        // With Rails/ActiveSupport these work similar to DotLiquid
+        "liquid.golden.first_filter - first of a string": "h",
+        "liquid.golden.last_filter - last of a string": "o",
+        "liquid.golden.special - first of a string": "h",
+        "liquid.golden.special - last of a string": "o"
     }
 }

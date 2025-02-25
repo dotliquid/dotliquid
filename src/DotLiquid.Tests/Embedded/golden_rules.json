@@ -49,10 +49,6 @@
         "liquid.golden.special - first of a string",
         "liquid.golden.special - last of a string",
         // Non-integer arguments for numeric methods
-        "liquid.golden.at_least_filter - argument string not a number",
-        "liquid.golden.at_least_filter - left value not a number negative argument",
-        "liquid.golden.at_least_filter - left value not a number",
-        "liquid.golden.at_most_filter - left value not a number",
         "liquid.golden.divided_by_filter - not a string, int or float",
         "liquid.golden.divided_by_filter - string not a number",
         "liquid.golden.minus_filter - arg string not a number",
@@ -67,9 +63,6 @@
         "liquid.golden.range_objects - start is not a number",
 
         // Undefined Arguments
-        "liquid.golden.at_least_filter - undefined left value",
-        "liquid.golden.at_most_filter - undefined argument",
-        "liquid.golden.at_most_filter - undefined left value",
         "liquid.golden.concat_filter - undefined argument is an error",
         "liquid.golden.divided_by_filter - undefined argument",
         "liquid.golden.divided_by_filter - undefined left value",

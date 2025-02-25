@@ -942,20 +942,15 @@ namespace DotLiquid
         /// <param name="atLeast">Value to apply if more than input</param>
         public static object AtLeast(Context context, object input, object atLeast)
         {
-            double n;
-            var inputNumber = Double.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
-
-            double min;
-            var atLeastNumber = Double.TryParse(atLeast?.ToString(), NumberStyles.Number, context.CurrentCulture, out min);
-
-            if (inputNumber && atLeastNumber)
+            if (!decimal.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out decimal val1))
             {
-                return (double)((double)min > (double)n ? min : n);
+                val1 = 0m;
             }
-            else
+            if (!decimal.TryParse(atLeast?.ToString(), NumberStyles.Number, context.CurrentCulture, out decimal val2))
             {
-                return input;
+                val2 = 0m;
             }
+            return Math.Max(val1, val2);
         }
 
         /// <summary>
@@ -966,20 +961,15 @@ namespace DotLiquid
         /// <param name="atMost">Value to apply if less than input</param>
         public static object AtMost(Context context, object input, object atMost)
         {
-            double n;
-            var inputNumber = Double.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
-
-            double max;
-            var atMostNumber = Double.TryParse(atMost?.ToString(), NumberStyles.Number, context.CurrentCulture, out max);
-
-            if (inputNumber && atMostNumber)
+            if (!decimal.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out decimal val1))
             {
-                return (double)((double)max < (double)n ? max : n);
+                val1 = 0m;
             }
-            else
+            if (!decimal.TryParse(atMost?.ToString(), NumberStyles.Number, context.CurrentCulture, out decimal val2))
             {
-                return input;
+                val2 = 0m;
             }
+            return Math.Min(val1, val2);
         }
 
         /// <summary>

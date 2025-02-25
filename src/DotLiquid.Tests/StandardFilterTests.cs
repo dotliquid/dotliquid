@@ -1410,6 +1410,8 @@ PaulGeorge",
             using (CultureHelper.SetCulture("en-GB"))
             {
                 Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round: 3 }}");
+                Helper.AssertTemplateResult("1.23", "{{ 1.234678 | round: 2.7 }}");
+                Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round: 3.1 }}");
                 Helper.AssertTemplateResult("1", "{{ 1 | round }}");
                 Helper.AssertTemplateResult("1", "{{ 1.234678 | round }}");
                 Helper.AssertTemplateResult("1", "{{ 1.234678 | round: -3 }}");

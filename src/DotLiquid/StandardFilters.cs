@@ -776,8 +776,8 @@ namespace DotLiquid
         {
             if (decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
             {
-                const int MinDecimalPlaces = 0;
-                const int MaxDecimalPlaces = 16;
+                const decimal MinDecimalPlaces = 0m;
+                const decimal MaxDecimalPlaces = 16m;
                 if (decimal.TryParse(places?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal p))
                 {
                     p = Math.Max(MinDecimalPlaces, Math.Min(MaxDecimalPlaces, p));

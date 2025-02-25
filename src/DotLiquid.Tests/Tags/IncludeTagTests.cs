@@ -183,48 +183,48 @@ namespace DotLiquid.Tests.Tags
         }
 
         [Test]
-        public void TestDotLiquid22bUndefinedTemplateVariableShouldError()
+        public void TestDotLiquid24UndefinedTemplateVariableShouldError()
         {
             Assert.That(Template.Parse("{% include undefined_variable %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
             {
-                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22b
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid24
             }),
                 Is.EqualTo("Liquid error: Argument error in tag 'include' - Illegal template name"));
         }
 
         [Test]
-        public void TestDotLiquid22bNotStringTemplateVariableShouldError()
+        public void TestDotLiquid24NotStringTemplateVariableShouldError()
         {
             Assert.That(Template.Parse("{% include 123 %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
             {
-                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22b
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid24
             }),
                 Is.EqualTo("Liquid error: Argument error in tag 'include' - Illegal template name"));
         }
 
         [Test]
-        public void TestDotLiquid22bTemplateFileSystemReceiveTemplateNameInsteadOfRaw()
+        public void TestDotLiquid24TemplateFileSystemReceiveTemplateNameInsteadOfRaw()
         {
             Helper.WithFileSystem(new ReflectFileSystem(), () =>
             {
                 Assert.That(Template.Parse("{% include 'product' %}").Render(), Is.EqualTo("'product'"));
                 Assert.That(Template.Parse("{% include 'product' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
                 {
-                    SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22b
+                    SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid24
                 }),
                     Is.EqualTo("product"));
             });
         }
 
         [Test]
-        public void TestDotLiquid22bCacheSecondReadSamePartial()
+        public void TestDotLiquid24CacheSecondReadSamePartial()
         {
             var fileSystem = new CountingFileSystem();
             Helper.WithFileSystem(fileSystem, () =>
             {
                 Assert.That(Template.Parse("{% include 'pick_a_source' %}{% include 'pick_a_source' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
                 {
-                    SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22b
+                    SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid24
                 }),
                     Is.EqualTo("from CountingFileSystemfrom CountingFileSystem"));
                 Assert.That(fileSystem.Count, Is.EqualTo(1));
@@ -232,20 +232,20 @@ namespace DotLiquid.Tests.Tags
         }
 
         [Test]
-        public void TestDotLiquid22bDoesntCachePartialsAcrossRenders()
+        public void TestDotLiquid24DoesntCachePartialsAcrossRenders()
         {
             var fileSystem = new CountingFileSystem();
             Helper.WithFileSystem(fileSystem, () =>
             {
                 Assert.That(Template.Parse("{% include 'pick_a_source' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
                 {
-                    SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22b
+                    SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid24
                 }),
                     Is.EqualTo("from CountingFileSystem"));
                 Assert.That(fileSystem.Count, Is.EqualTo(1));
                 Assert.That(Template.Parse("{% include 'pick_a_source' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
                 {
-                    SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22b
+                    SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid24
                 }),
                     Is.EqualTo("from CountingFileSystem"));
                 Assert.That(fileSystem.Count, Is.EqualTo(2));

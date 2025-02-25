@@ -40,7 +40,7 @@ namespace DotLiquid.Tags
         public override void Render(Context context, TextWriter result)
         {
             Template partial;
-            if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid22b)
+            if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid24)
             {
                 if (!(context[_templateName] is string templateName))
                     throw new Exceptions.ArgumentException(Liquid.ResourceManager.GetString("TemplateNameArgumentException"), TagName);

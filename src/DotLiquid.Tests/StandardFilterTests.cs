@@ -1418,6 +1418,7 @@ PaulGeorge",
 
                 Assert.That(StandardFilters.Round(_contextV20, "1.2345678", "two"), Is.EqualTo(1m));
                 Assert.That(StandardFilters.Round(_contextV20, "1.2345678", "-2"), Is.EqualTo(1m));
+                Assert.That(StandardFilters.Round(_contextV20, 1.12345678901234567890m, 50), Is.EqualTo(1.1234567890123457m));
             }
         }
 

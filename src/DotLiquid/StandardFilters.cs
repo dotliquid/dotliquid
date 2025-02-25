@@ -770,17 +770,17 @@ namespace DotLiquid
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="places">Number of decimal places for rounding</param>
         /// <returns>The rounded value; zero if input is invalid, or rounded to 0 decimals if places is invalid</returns>
-        /// <remarks>Behaviour differs from Ruby implementation for places values outside [0, 28] range.
+        /// <remarks>Behaviour differs from Ruby implementation for negative places values.
         /// This will treat it as any other invalid places value, and round to closest integer.</remarks>
         public static object Round(Context context, object input, object places = null)
         {
             if (decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
             {
                 const int MinDecimalPlaces = 0;
-                const int MaxDecimalPlaces = 28;
-                if (decimal.TryParse(places?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal p) &&
-                    (p >= MinDecimalPlaces) && (p <= MaxDecimalPlaces))
+                const int MaxDecimalPlaces = 16;
+                if (decimal.TryParse(places?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal p))
                 {
+                    p = Math.Max(MinDecimalPlaces, Math.Min(MaxDecimalPlaces, p));
                     int decimals = (int)Math.Floor(p);
                     return Math.Round(d, decimals);
                 }

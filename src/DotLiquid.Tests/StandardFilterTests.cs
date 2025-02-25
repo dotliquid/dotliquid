@@ -1409,10 +1409,15 @@ PaulGeorge",
         {
             using (CultureHelper.SetCulture("en-GB"))
             {
-                Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round:3 }}");
+                Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round: 3 }}");
                 Helper.AssertTemplateResult("1", "{{ 1 | round }}");
+                Helper.AssertTemplateResult("1", "{{ 1.234678 | round }}");
+                Helper.AssertTemplateResult("1", "{{ 1.234678 | round: -3 }}");
+                Helper.AssertTemplateResult("1", "{{ 1.234678 | round: nonesuch }}");
+                Helper.AssertTemplateResult("0", "{{ nonesuch | round }}");
 
-                Assert.That(StandardFilters.Round("1.2345678", "two"), Is.Null);
+                Assert.That(StandardFilters.Round(_contextV20, "1.2345678", "two"), Is.EqualTo(1m));
+                Assert.That(StandardFilters.Round(_contextV20, "1.2345678", "-2"), Is.EqualTo(1m));
             }
         }
 
@@ -1425,9 +1430,11 @@ PaulGeorge",
                 Helper.AssertTemplateResult("2", "{{ 2.0 | ceil }}");
                 Helper.AssertTemplateResult("184", "{{ 183.357 | ceil }}");
                 Helper.AssertTemplateResult("4", "{{ \"3.5\" | ceil }}");
+                Helper.AssertTemplateResult("0", "{{ nonesuch | ceil }}");
 
-                Assert.That(StandardFilters.Ceil(_contextV20, ""), Is.Null);
-                Assert.That(StandardFilters.Ceil(_contextV20, "two"), Is.Null);
+                Assert.That(StandardFilters.Ceil(_contextV20, null), Is.EqualTo(0m));
+                Assert.That(StandardFilters.Ceil(_contextV20, ""), Is.EqualTo(0m));
+                Assert.That(StandardFilters.Ceil(_contextV20, "two"), Is.EqualTo(0m));
             }
         }
 
@@ -1438,11 +1445,13 @@ PaulGeorge",
             {
                 Helper.AssertTemplateResult("1", "{{ 1.2 | floor }}");
                 Helper.AssertTemplateResult("2", "{{ 2.0 | floor }}");
-                Helper.AssertTemplateResult("183", "{{ 183.357 | floor }}");
+                Helper.AssertTemplateResult("183", "{{ 183.57 | floor }}");
                 Helper.AssertTemplateResult("3", "{{ \"3.5\" | floor }}");
+                Helper.AssertTemplateResult("0", "{{ nonesuch | floor }}");
 
-                Assert.That(StandardFilters.Floor(_contextV20, ""), Is.Null);
-                Assert.That(StandardFilters.Floor(_contextV20, "two"), Is.Null);
+                Assert.That(StandardFilters.Floor(_contextV20, null), Is.EqualTo(0m));
+                Assert.That(StandardFilters.Floor(_contextV20, ""), Is.EqualTo(0m));
+                Assert.That(StandardFilters.Floor(_contextV20, "two"), Is.EqualTo(0m));
             }
         }
 

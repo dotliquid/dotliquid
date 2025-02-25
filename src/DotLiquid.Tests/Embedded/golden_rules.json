@@ -67,7 +67,6 @@
         "liquid.golden.range_objects - start is not a number",
 
         // Undefined Arguments
-        "liquid.golden.append_filter - undefined left value",
         "liquid.golden.at_least_filter - undefined left value",
         "liquid.golden.at_most_filter - undefined argument",
         "liquid.golden.at_most_filter - undefined left value",
@@ -81,7 +80,6 @@
         "liquid.golden.modulo_filter - undefined left value",
         "liquid.golden.plus_filter - undefined argument",
         "liquid.golden.plus_filter - undefined left value",
-        "liquid.golden.prepend_filter - undefined left value",
         "liquid.golden.remove_filter - undefined argument",
         "liquid.golden.remove_last_filter - undefined argument",
         "liquid.golden.remove_last_filter - undefined left value",

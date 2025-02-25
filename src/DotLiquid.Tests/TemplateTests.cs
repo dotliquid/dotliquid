@@ -360,12 +360,12 @@ namespace DotLiquid.Tests
             Assert.That(output, Is.EqualTo(""));
         }
 
-        public interface MyGenericInterface<T>
+        public interface IMyGenericInterface<T>
         {
             T Value { get; set; }
         }
 
-        public class MyGenericImpl<T> : MyGenericInterface<T>
+        public class MyGenericImpl<T> : IMyGenericInterface<T>
         {
             public T Value { get; set; }
         }
@@ -373,7 +373,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestRegisterGenericInterface()
         {
-            Template.RegisterSafeType(typeof(MyGenericInterface<>), new[] { "Value" });
+            Template.RegisterSafeType(typeof(IMyGenericInterface<>), new[] { "Value" });
             Template template = Template.Parse("{{context.Value}}");
 
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MyGenericImpl<string> { Value = "worked" } }));

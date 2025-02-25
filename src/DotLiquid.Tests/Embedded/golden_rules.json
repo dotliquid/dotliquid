@@ -2,7 +2,6 @@
     "skipped_groups": [
         "liquid.golden.echo_tag", // not yet implemented
         "liquid.golden.liquid_tag", // not yet implemented
-        "liquid.golden.render_tag", // not yet implemented
         "liquid.golden.inline_comment_tag", // not yet implemented
         "liquid.golden.replace_last_filter", // not yet implemented
         "liquid.golden.sum_filter", // not yet implemented
@@ -155,8 +154,6 @@
         "liquid.golden.illegal - no multiplication operator",
         "liquid.golden.illegal - no subtraction operator",
         "liquid.golden.include_tag - bound variable with alias",
-        "liquid.golden.include_tag - break from include",
-        "liquid.golden.include_tag - break from nested include",
         "liquid.golden.join_filter - joining a string is a noop",
         "liquid.golden.join_filter - joining an int is a noop",
         "liquid.golden.last_filter - array of things",
@@ -196,7 +193,6 @@
         "liquid.golden.tablerow_tag - break from a tablerow loop inside a for loop",
         "liquid.golden.tablerow_tag - break from a tablerow loop",
         "liquid.golden.tablerow_tag - cols is a float",
-        "liquid.golden.tablerow_tag - continue from a tablerow loop",
         "liquid.golden.tablerow_tag - no cols param",
         "liquid.golden.tablerow_tag - two column odd range row numbers",
         "liquid.golden.uniq_filter - array of objects with key property",

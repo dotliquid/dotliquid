@@ -201,11 +201,17 @@
   <data name="IncludeTagSyntaxException" xml:space="preserve">
     <value>Syntax Error in 'include' tag - Valid syntax: include [template]</value>
   </data>
+  <data name="RenderTagSyntaxException" xml:space="preserve">
+    <value>Syntax Error in 'render' tag - Valid syntax: render '[template]'</value>
+  </data>
   <data name="LocalFileSystemIllegalTemplateNameException" xml:space="preserve">
     <value>Error - Illegal template name '{0}'</value>
   </data>
   <data name="LocalFileSystemIllegalTemplatePathException" xml:space="preserve">
     <value>Error - Illegal template path '{0}'</value>
+  </data>
+  <data name="TemplateNameArgumentException" xml:space="preserve">
+    <value>Argument error in tag '{0}' - Illegal template name</value>
   </data>
   <data name="LocalFileSystemTemplateNotFoundException" xml:space="preserve">
     <value>Error - No such template '{0}'</value>
@@ -263,5 +269,8 @@
   </data>
   <data name="DateFilterRubyDirectiveInvalid" xml:space="preserve">
     <value>Invalid directive passed to {0}</value>
+  </data>
+  <data name="DisabledTagException" xml:space="preserve">
+    <value>{0} usage is not allowed in this context</value>
   </data>
 </root>

@@ -374,7 +374,7 @@ namespace DotLiquid.Tests
         {
             _context["var"] = 1000;
             _context.AddFilters(typeof(FiltersWithArguments));
-            Assert.AreEqual("[1150]", string.Join(string.Empty, new Variable("var | add_sub: 200 50").Render(_context));
+            Assert.That(string.Join(string.Empty, new Variable("var | add_sub: 200 50").Render(_context), Is.EqualTo("[1150]"));
         }*/
 
         [Test]

@@ -1409,10 +1409,18 @@ PaulGeorge",
         {
             using (CultureHelper.SetCulture("en-GB"))
             {
-                Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round:3 }}");
+                Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round: 3 }}");
+                Helper.AssertTemplateResult("1.23", "{{ 1.234678 | round: 2.7 }}");
+                Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round: 3.1 }}");
                 Helper.AssertTemplateResult("1", "{{ 1 | round }}");
+                Helper.AssertTemplateResult("1", "{{ 1.234678 | round }}");
+                Helper.AssertTemplateResult("1", "{{ 1.234678 | round: -3 }}");
+                Helper.AssertTemplateResult("1", "{{ 1.234678 | round: nonesuch }}");
+                Helper.AssertTemplateResult("0", "{{ nonesuch | round }}");
 
-                Assert.That(StandardFilters.Round("1.2345678", "two"), Is.Null);
+                Assert.That(StandardFilters.Round(_contextV20, "1.2345678", "two"), Is.EqualTo(1m));
+                Assert.That(StandardFilters.Round(_contextV20, "1.2345678", "-2"), Is.EqualTo(1m));
+                Assert.That(StandardFilters.Round(_contextV20, 1.12345678901234567890m, 50), Is.EqualTo(1.1234567890123457m));
             }
         }
 
@@ -1425,9 +1433,11 @@ PaulGeorge",
                 Helper.AssertTemplateResult("2", "{{ 2.0 | ceil }}");
                 Helper.AssertTemplateResult("184", "{{ 183.357 | ceil }}");
                 Helper.AssertTemplateResult("4", "{{ \"3.5\" | ceil }}");
+                Helper.AssertTemplateResult("0", "{{ nonesuch | ceil }}");
 
-                Assert.That(StandardFilters.Ceil(_contextV20, ""), Is.Null);
-                Assert.That(StandardFilters.Ceil(_contextV20, "two"), Is.Null);
+                Assert.That(StandardFilters.Ceil(_contextV20, null), Is.EqualTo(0m));
+                Assert.That(StandardFilters.Ceil(_contextV20, ""), Is.EqualTo(0m));
+                Assert.That(StandardFilters.Ceil(_contextV20, "two"), Is.EqualTo(0m));
             }
         }
 
@@ -1438,11 +1448,13 @@ PaulGeorge",
             {
                 Helper.AssertTemplateResult("1", "{{ 1.2 | floor }}");
                 Helper.AssertTemplateResult("2", "{{ 2.0 | floor }}");
-                Helper.AssertTemplateResult("183", "{{ 183.357 | floor }}");
+                Helper.AssertTemplateResult("183", "{{ 183.57 | floor }}");
                 Helper.AssertTemplateResult("3", "{{ \"3.5\" | floor }}");
+                Helper.AssertTemplateResult("0", "{{ nonesuch | floor }}");
 
-                Assert.That(StandardFilters.Floor(_contextV20, ""), Is.Null);
-                Assert.That(StandardFilters.Floor(_contextV20, "two"), Is.Null);
+                Assert.That(StandardFilters.Floor(_contextV20, null), Is.EqualTo(0m));
+                Assert.That(StandardFilters.Floor(_contextV20, ""), Is.EqualTo(0m));
+                Assert.That(StandardFilters.Floor(_contextV20, "two"), Is.EqualTo(0m));
             }
         }
 
@@ -1708,6 +1720,7 @@ PaulGeorge",
             Assert.That(StandardFilters.Abs(_contextV20, "-5"), Is.EqualTo(5));
             Assert.That(StandardFilters.Abs(_contextV20, "30.60"), Is.EqualTo(30.60));
             Assert.That(StandardFilters.Abs(_contextV20, "30.60a"), Is.EqualTo(0));
+            Assert.That(StandardFilters.Abs(_contextV20, null), Is.EqualTo(0));
 
             Helper.AssertTemplateResult(
                 expected: "17",
@@ -1721,22 +1734,30 @@ PaulGeorge",
             Helper.AssertTemplateResult(
                 expected: "19.86",
                 template: "{{ '-19.86' | abs }}");
+            Helper.AssertTemplateResult(
+                expected: "0",
+                template: "{{ 'notNumber' | abs }}");
+            Helper.AssertTemplateResult(
+                expected: "0",
+                template: "{{ {} | abs }}");
         }
 
         [Test]
         public void TestAtLeast()
         {
-            Assert.That(StandardFilters.AtLeast(_contextV20, "notNumber", 5), Is.EqualTo("notNumber"));
-            Assert.That(StandardFilters.AtLeast(_contextV20, 5, 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtLeast(_contextV20, 3, 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtLeast(_contextV20, 6, 5), Is.EqualTo(6));
-            Assert.That(StandardFilters.AtLeast(_contextV20, 10, 5), Is.EqualTo(10));
-            Assert.That(StandardFilters.AtLeast(_contextV20, 9.85, 5), Is.EqualTo(9.85));
-            Assert.That(StandardFilters.AtLeast(_contextV20, 3.56, 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtLeast(_contextV20, "10", 5), Is.EqualTo(10));
-            Assert.That(StandardFilters.AtLeast(_contextV20, "4", 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtLeast(_contextV20, "10a", 5), Is.EqualTo("10a"));
-            Assert.That(StandardFilters.AtLeast(_contextV20, "4b", 5), Is.EqualTo("4b"));
+            Assert.That(StandardFilters.AtLeast(_contextV20, "notNumber", 5), Is.EqualTo(5m));
+            Assert.That(StandardFilters.AtLeast(_contextV20, 5, 5), Is.EqualTo(5m));
+            Assert.That(StandardFilters.AtLeast(_contextV20, 3, 5), Is.EqualTo(5m));
+            Assert.That(StandardFilters.AtLeast(_contextV20, 6, 5), Is.EqualTo(6m));
+            Assert.That(StandardFilters.AtLeast(_contextV20, 10, 5), Is.EqualTo(10m));
+            Assert.That(StandardFilters.AtLeast(_contextV20, 9.85, 5), Is.EqualTo(9.85m));
+            Assert.That(StandardFilters.AtLeast(_contextV20, 3.56, 5), Is.EqualTo(5m));
+            Assert.That(StandardFilters.AtLeast(_contextV20, "10", 5), Is.EqualTo(10m));
+            Assert.That(StandardFilters.AtLeast(_contextV20, "4", 5), Is.EqualTo(5m));
+            Assert.That(StandardFilters.AtLeast(_contextV20, "10a", 5), Is.EqualTo(5m));
+            Assert.That(StandardFilters.AtLeast(_contextV20, "4b", 5), Is.EqualTo(5m));
+            Assert.That(StandardFilters.AtLeast(_contextV20, null, 5), Is.EqualTo(5m));
+            Assert.That(StandardFilters.AtLeast(_contextV20, 5, null), Is.EqualTo(5m));
 
             Helper.AssertTemplateResult(
                 expected: "5",
@@ -1749,17 +1770,19 @@ PaulGeorge",
         [Test]
         public void TestAtMost()
         {
-            Assert.That(StandardFilters.AtMost(_contextV20, "notNumber", 5), Is.EqualTo("notNumber"));
-            Assert.That(StandardFilters.AtMost(_contextV20, 5, 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtMost(_contextV20, 3, 5), Is.EqualTo(3));
-            Assert.That(StandardFilters.AtMost(_contextV20, 6, 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtMost(_contextV20, 10, 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtMost(_contextV20, 9.85, 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtMost(_contextV20, 3.56, 5), Is.EqualTo(3.56));
-            Assert.That(StandardFilters.AtMost(_contextV20, "10", 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtMost(_contextV20, "4", 5), Is.EqualTo(4));
-            Assert.That(StandardFilters.AtMost(_contextV20, "4a", 5), Is.EqualTo("4a"));
-            Assert.That(StandardFilters.AtMost(_contextV20, "10b", 5), Is.EqualTo("10b"));
+            Assert.That(StandardFilters.AtMost(_contextV20, "notNumber", 5), Is.EqualTo(0m));
+            Assert.That(StandardFilters.AtMost(_contextV20, 5, 5), Is.EqualTo(5m));
+            Assert.That(StandardFilters.AtMost(_contextV20, 3, 5), Is.EqualTo(3m));
+            Assert.That(StandardFilters.AtMost(_contextV20, 6, 5), Is.EqualTo(5m));
+            Assert.That(StandardFilters.AtMost(_contextV20, 10, 5), Is.EqualTo(5m));
+            Assert.That(StandardFilters.AtMost(_contextV20, 9.85, 5), Is.EqualTo(5m));
+            Assert.That(StandardFilters.AtMost(_contextV20, 3.56, 5), Is.EqualTo(3.56m));
+            Assert.That(StandardFilters.AtMost(_contextV20, "10", 5), Is.EqualTo(5m));
+            Assert.That(StandardFilters.AtMost(_contextV20, "4", 5), Is.EqualTo(4m));
+            Assert.That(StandardFilters.AtMost(_contextV20, "4a", 5), Is.EqualTo(0m));
+            Assert.That(StandardFilters.AtMost(_contextV20, "10b", 5), Is.EqualTo(0m));
+            Assert.That(StandardFilters.AtMost(_contextV20, null, 5), Is.EqualTo(0m));
+            Assert.That(StandardFilters.AtMost(_contextV20, 5, null), Is.EqualTo(0m));
 
             Helper.AssertTemplateResult(
                 expected: "4",

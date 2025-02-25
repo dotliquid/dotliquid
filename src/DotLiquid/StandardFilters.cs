@@ -766,21 +766,27 @@ namespace DotLiquid
         /// <summary>
         /// Rounds a decimal value to the specified places
         /// </summary>
+        /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="places">Number of decimal places for rounding</param>
-        /// <returns>The rounded value; null if an exception have occurred</returns>
-        public static object Round(object input, object places = null)
+        /// <returns>The rounded value; zero if input is invalid, or rounded to 0 decimals if places is invalid</returns>
+        /// <remarks>Behaviour differs from Ruby implementation for negative places values.
+        /// This will treat it as any other invalid places value, and round to closest integer.</remarks>
+        public static object Round(Context context, object input, object places = null)
         {
-            try
+            if (decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
             {
-                var p = places == null ? 0 : Convert.ToInt32(places);
-                var i = Convert.ToDecimal(input);
-                return Math.Round(i, p);
+                const decimal MinDecimalPlaces = 0m;
+                const decimal MaxDecimalPlaces = 16m;
+                if (decimal.TryParse(places?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal p))
+                {
+                    p = Math.Max(MinDecimalPlaces, Math.Min(MaxDecimalPlaces, p));
+                    int decimals = (int)Math.Floor(p);
+                    return Math.Round(d, decimals);
+                }
+                return Math.Round(d);
             }
-            catch (Exception)
-            {
-                return null;
-            }
+            return 0m;
         }
 
         /// <summary>
@@ -791,10 +797,10 @@ namespace DotLiquid
         /// <returns>The rounded value; null if an exception have occurred</returns>
         public static object Ceil(Context context, object input)
         {
-            if (decimal.TryParse(input.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
+            if (decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
                 return Math.Ceiling(d);
             else
-                return null;
+                return 0m;
         }
 
         /// <summary>
@@ -805,10 +811,10 @@ namespace DotLiquid
         /// <returns>The rounded value; null if an exception have occurred</returns>
         public static object Floor(Context context, object input)
         {
-            if (decimal.TryParse(input.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
+            if (decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
                 return Math.Floor(d);
             else
-                return null;
+                return 0m;
         }
 
         /// <summary>
@@ -920,10 +926,12 @@ namespace DotLiquid
         /// </summary>
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
-        public static double Abs(Context context, object input)
+        public static object Abs(Context context, object input)
         {
-            Double n;
-            return Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n) ? Math.Abs(n) : 0;
+            if (decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
+                return Math.Abs(d);
+            else
+                return 0m;
         }
 
         /// <summary>
@@ -934,20 +942,15 @@ namespace DotLiquid
         /// <param name="atLeast">Value to apply if more than input</param>
         public static object AtLeast(Context context, object input, object atLeast)
         {
-            double n;
-            var inputNumber = Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
-
-            double min;
-            var atLeastNumber = Double.TryParse(atLeast.ToString(), NumberStyles.Number, context.CurrentCulture, out min);
-
-            if (inputNumber && atLeastNumber)
+            if (!decimal.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out decimal val1))
             {
-                return (double)((double)min > (double)n ? min : n);
+                val1 = 0m;
             }
-            else
+            if (!decimal.TryParse(atLeast?.ToString(), NumberStyles.Number, context.CurrentCulture, out decimal val2))
             {
-                return input;
+                val2 = 0m;
             }
+            return Math.Max(val1, val2);
         }
 
         /// <summary>
@@ -958,20 +961,15 @@ namespace DotLiquid
         /// <param name="atMost">Value to apply if less than input</param>
         public static object AtMost(Context context, object input, object atMost)
         {
-            double n;
-            var inputNumber = Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
-
-            double max;
-            var atMostNumber = Double.TryParse(atMost.ToString(), NumberStyles.Number, context.CurrentCulture, out max);
-
-            if (inputNumber && atMostNumber)
+            if (!decimal.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out decimal val1))
             {
-                return (double)((double)max < (double)n ? max : n);
+                val1 = 0m;
             }
-            else
+            if (!decimal.TryParse(atMost?.ToString(), NumberStyles.Number, context.CurrentCulture, out decimal val2))
             {
-                return input;
+                val2 = 0m;
             }
+            return Math.Min(val1, val2);
         }
 
         /// <summary>

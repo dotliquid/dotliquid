@@ -199,24 +199,26 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestRenderTagCachesSecondReadOfSamePartial()
         {
-            CountingFileSystem fs = new CountingFileSystem();
-            Helper.WithFileSystem(fs, () =>
+            CountingFileSystem fileSystem = new CountingFileSystem();
+            Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
             {
+                Template.FileSystem = fileSystem;
                 Helper.AssertTemplateResult("from CountingFileSystemfrom CountingFileSystem", "{% render 'snippet' %}{% render 'snippet' %}");
-                Assert.That(fs.Count, Is.EqualTo(1));
+                Assert.That(fileSystem.Count, Is.EqualTo(1));
             });
         }
 
         [Test]
         public void TestRenderTagDoesntCachePartialsAcrossRenders()
         {
-            CountingFileSystem fs = new CountingFileSystem();
-            Helper.WithFileSystem(fs, () =>
+            CountingFileSystem fileSystem = new CountingFileSystem();
+            Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
             {
+                Template.FileSystem = fileSystem;
                 Helper.AssertTemplateResult("from CountingFileSystem", "{% include 'pick_a_source' %}");
-                Assert.That(fs.Count, Is.EqualTo(1));
+                Assert.That(fileSystem.Count, Is.EqualTo(1));
                 Helper.AssertTemplateResult("from CountingFileSystem", "{% include 'pick_a_source' %}");
-                Assert.That(fs.Count, Is.EqualTo(2));
+                Assert.That(fileSystem.Count, Is.EqualTo(2));
             });
         }
 

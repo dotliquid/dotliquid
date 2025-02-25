@@ -100,26 +100,16 @@ namespace DotLiquid.Tests
             }
         }
 
-        public static void WithFileSystem(IFileSystem fs, Action action)
-        {
-            var oldFileSystem = Template.FileSystem;
-            Template.FileSystem = fs;
-            try
-            {
-                action.Invoke();
-            }
-            finally
-            {
-                Template.FileSystem = oldFileSystem;
-            }
-        }
-
         public static void WithDictionaryFileSystem(IDictionary<string, string> data, Action action)
         {
-            WithFileSystem(new DictionaryFileSystem(data), action);
+            Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
+            {
+                Template.FileSystem = new DictionaryFileSystem(data);
+                action();
+            });
         }
 
-        [LiquidTypeAttribute("PropAllowed")]
+        [LiquidType("PropAllowed")]
         public class DataObject
         {
             public string PropAllowed { get; set; }

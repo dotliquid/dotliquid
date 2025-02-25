@@ -90,8 +90,8 @@ namespace DotLiquid.Tests.Tags
         public void TestIncludeTagWithStringVariable()
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>
-            {
-                { "product", "Product: {{ product }}" }
+                {
+                    { "product", "Product: {{ product }}" }
             }, () =>
             {
                 Assert.That(Template.Parse("{% include 'product' with 'foo' %}").Render(), Is.EqualTo("Product: foo"));
@@ -205,8 +205,9 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestDotLiquid24TemplateFileSystemReceiveTemplateNameInsteadOfRaw()
         {
-            Helper.WithFileSystem(new ReflectFileSystem(), () =>
+            Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
             {
+                Template.FileSystem = new ReflectFileSystem();
                 Assert.That(Template.Parse("{% include 'product' %}").Render(), Is.EqualTo("'product'"));
                 Assert.That(Template.Parse("{% include 'product' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
                 {
@@ -219,9 +220,10 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestDotLiquid24CacheSecondReadSamePartial()
         {
-            var fileSystem = new CountingFileSystem();
-            Helper.WithFileSystem(fileSystem, () =>
+            CountingFileSystem fileSystem = new CountingFileSystem();
+            Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
             {
+                Template.FileSystem = fileSystem;
                 Assert.That(Template.Parse("{% include 'pick_a_source' %}{% include 'pick_a_source' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
                 {
                     SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid24
@@ -234,9 +236,10 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestDotLiquid24DoesntCachePartialsAcrossRenders()
         {
-            var fileSystem = new CountingFileSystem();
-            Helper.WithFileSystem(fileSystem, () =>
+            CountingFileSystem fileSystem = new CountingFileSystem();
+            Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
             {
+                Template.FileSystem = fileSystem;
                 Assert.That(Template.Parse("{% include 'pick_a_source' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
                 {
                     SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid24

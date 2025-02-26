@@ -784,8 +784,10 @@ namespace DotLiquid
                     int decimals = (int)Math.Floor(placesValue);
                     return Math.Round(inputValue, decimals);
                 }
+
                 return Math.Round(inputValue);
             }
+
             return 0m;
         }
 

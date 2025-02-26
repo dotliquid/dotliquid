@@ -763,6 +763,21 @@ namespace DotLiquid
                 : DoMathsOperation(context, input, operand, Expression.MultiplyChecked);
         }
 
+
+        private static object Round_BeforeDotLiquid22b(object input, object places)
+        {
+            try
+            {
+                var p = places == null ? 0 : Convert.ToInt32(places);
+                var i = Convert.ToDecimal(input);
+                return Math.Round(i, p);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
         /// <summary>
         /// Rounds a decimal value to the specified places
         /// </summary>
@@ -774,18 +789,23 @@ namespace DotLiquid
         /// This will treat it as any other invalid places value, and round to closest integer.</remarks>
         public static object Round(Context context, object input, object places = null)
         {
-            if (decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal inputValue))
+            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22b)
+            {
+                return Round_BeforeDotLiquid22b(input, places);
+            }
+
+            int decimals = 0;
+            if (decimal.TryParse(places?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal placesValue))
             {
                 const decimal MinDecimalPlaces = 0m;
                 const decimal MaxDecimalPlaces = 28m;
-                if (decimal.TryParse(places?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal placesValue))
-                {
-                    placesValue = Math.Max(MinDecimalPlaces, Math.Min(MaxDecimalPlaces, placesValue));
-                    int decimals = (int)Math.Floor(placesValue);
-                    return Math.Round(inputValue, decimals);
-                }
+                placesValue = Math.Max(MinDecimalPlaces, Math.Min(MaxDecimalPlaces, placesValue));
+                decimals = (int)Math.Floor(placesValue);
+            }
 
-                return Math.Round(inputValue);
+            if (decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal inputValue))
+            {
+                return Math.Round(inputValue, decimals);
             }
 
             return 0m;

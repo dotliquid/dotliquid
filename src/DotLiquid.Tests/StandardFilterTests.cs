@@ -47,7 +47,10 @@ namespace DotLiquid.Tests
             {
                 SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22b
             };
-            _contextLatest = _contextV22b;
+            _contextLatest = new Context(CultureInfo.InvariantCulture)
+            {
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquidLatest
+            };
         }
 
         [Test]
@@ -1416,19 +1419,33 @@ PaulGeorge",
         {
             using (CultureHelper.SetCulture("en-GB"))
             {
-                Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round: 3 }}");
-                Helper.AssertTemplateResult("1.23", "{{ 1.234678 | round: 2.7 }}");
-                Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round: 3.1 }}");
-                Helper.AssertTemplateResult("1", "{{ 1 | round }}");
-                Helper.AssertTemplateResult("1", "{{ 1.234678 | round }}");
-                Helper.AssertTemplateResult("1", "{{ 1.234678 | round: -3 }}");
-                Helper.AssertTemplateResult("1", "{{ 1.234678 | round: nonesuch }}");
-                Helper.AssertTemplateResult("0", "{{ nonesuch | round }}");
-
-                Assert.That(StandardFilters.Round(_contextV20, "1.2345678", "two"), Is.EqualTo(1m));
-                Assert.That(StandardFilters.Round(_contextV20, "1.2345678", "-2"), Is.EqualTo(1m));
-                Assert.That(StandardFilters.Round(_contextV20, 1.123456789012345678901234567890123m, 50), Is.EqualTo(1.1234567890123456789012345679m)); // max = 28 places
+                Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round: 3 }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("1.23", "{{ 1.234678 | round: 2.7 }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round: 3.1 }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("1", "{{ 1 | round }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("1", "{{ 1.234678 | round }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("1", "{{ 1.234678 | round: -3 }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("1", "{{ 1.234678 | round: nonesuch }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("0", "{{ nonesuch | round }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("0", "{{ nonesuch | round: 3 }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
             }
+
+            Assert.That(StandardFilters.Round(_contextLatest, "1.2345678", "two"), Is.EqualTo(1m).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Round(_contextLatest, "1.2345678", "-2"), Is.EqualTo(1m).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Round(_contextLatest, 1.123456789012345678901234567890123m, 50),
+                Is.EqualTo(1.1234567890123456789012345679m).And.TypeOf(typeof(decimal))); // max = 28 places
+            Assert.That(StandardFilters.Round(_contextLatest, "1.2345678", "2.7"), Is.EqualTo(1.23m).And.TypeOf(typeof(decimal)));
+
+            Assert.That(StandardFilters.Round(_contextV22b, "1.2345678", "two"), Is.EqualTo(1m).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Round(_contextV22b, "1.2345678", "-2"), Is.EqualTo(1m).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Round(_contextV22b, 1.123456789012345678901234567890123m, 50),
+                Is.EqualTo(1.1234567890123456789012345679m).And.TypeOf(typeof(decimal))); // max = 28 places
+            Assert.That(StandardFilters.Round(_contextV22b, "1.2345678", "2.7"), Is.EqualTo(1.23m).And.TypeOf(typeof(decimal)));
+
+            Assert.That(StandardFilters.Round(_contextV20, "1.2345678", "two"), Is.Null);
+            Assert.That(StandardFilters.Round(_contextV20, "1.2345678", "-2"), Is.Null);
+            Assert.That(StandardFilters.Round(_contextV20, 1.123456789012345678901234567890123m, 50), Is.Null);
+            Assert.That(StandardFilters.Round(_contextV20, "1.2345678", "2.7"), Is.Null);
         }
 
         [Test]

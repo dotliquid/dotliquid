@@ -29,5 +29,10 @@ namespace DotLiquid
         /// Behavior as of DotLiquid 2.2b
         /// </summary>
         DotLiquid22b = 222,
+
+        /// <summary>
+        /// Equivalent to the latest version of DotLiquid
+        /// </summary>
+        DotLiquidLatest = DotLiquid22b,
     }
 }

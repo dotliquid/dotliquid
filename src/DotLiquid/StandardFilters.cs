@@ -821,7 +821,7 @@ namespace DotLiquid
         {
             if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22b)
             {
-                return decimal.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out decimal n) ? Math.Ceiling(n) : 0m;
+                return decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal n) ? Math.Ceiling(n) : 0m;
             }
 
             if (input == null) return 0;
@@ -848,7 +848,7 @@ namespace DotLiquid
         {
             if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22b)
             {
-                return decimal.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out decimal n) ? Math.Floor(n) : 0m;
+                return decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal n) ? Math.Floor(n) : 0m;
             }
 
             if (input == null) return 0;

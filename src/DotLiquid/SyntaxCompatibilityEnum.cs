@@ -24,5 +24,10 @@ namespace DotLiquid
         /// Behavior as of DotLiquid 2.2a
         /// </summary>
         DotLiquid22a = 221,
+
+        /// <summary>
+        /// Behavior as of DotLiquid 2.2b
+        /// </summary>
+        DotLiquid22b = 222,
     }
 }

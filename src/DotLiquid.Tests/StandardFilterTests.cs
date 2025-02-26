@@ -17,6 +17,8 @@ namespace DotLiquid.Tests
         private Context _contextV21;
         private Context _contextV22;
         private Context _contextV22a;
+        private Context _contextV22b;
+        private Context _contextLatest;
 
         [OneTimeSetUp]
         public void SetUp()
@@ -41,6 +43,11 @@ namespace DotLiquid.Tests
             {
                 SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22a
             };
+            _contextV22b = new Context(CultureInfo.InvariantCulture)
+            {
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22b
+            };
+            _contextLatest = _contextV22b;
         }
 
         [Test]
@@ -1429,16 +1436,37 @@ PaulGeorge",
         {
             using (CultureHelper.SetCulture("en-GB"))
             {
+                Helper.AssertTemplateResult("-1", "{{ -1.2 | ceil }}");
                 Helper.AssertTemplateResult("2", "{{ 1.2 | ceil }}");
                 Helper.AssertTemplateResult("2", "{{ 2.0 | ceil }}");
                 Helper.AssertTemplateResult("184", "{{ 183.357 | ceil }}");
                 Helper.AssertTemplateResult("4", "{{ \"3.5\" | ceil }}");
                 Helper.AssertTemplateResult("0", "{{ nonesuch | ceil }}");
-
-                Assert.That(StandardFilters.Ceil(_contextV20, null), Is.EqualTo(0m));
-                Assert.That(StandardFilters.Ceil(_contextV20, ""), Is.EqualTo(0m));
-                Assert.That(StandardFilters.Ceil(_contextV20, "two"), Is.EqualTo(0m));
             }
+
+            Assert.That(StandardFilters.Ceil(_contextLatest, 1.9), Is.EqualTo(2).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.Ceil(_contextLatest, 1.9m), Is.EqualTo(2).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Ceil(_contextLatest, "1.9"), Is.EqualTo(2).And.TypeOf(typeof(decimal)));
+
+            Assert.That(StandardFilters.Ceil(_contextV22b, 1.9), Is.EqualTo(2).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.Ceil(_contextV22b, 1.9m), Is.EqualTo(2).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Ceil(_contextV22b, "1.9"), Is.EqualTo(2).And.TypeOf(typeof(decimal)));
+
+            Assert.That(StandardFilters.Ceil(_contextV20, 1.9), Is.EqualTo(2).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Ceil(_contextV20, 1.9m), Is.EqualTo(2).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Ceil(_contextV20, "1.9"), Is.EqualTo(2).And.TypeOf(typeof(decimal)));
+
+            Assert.That(StandardFilters.Ceil(_contextLatest, null), Is.EqualTo(0).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Ceil(_contextLatest, ""), Is.EqualTo(0).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Ceil(_contextLatest, "two"), Is.EqualTo(0).And.TypeOf(typeof(int)));
+
+            Assert.That(StandardFilters.Ceil(_contextV22b, null), Is.EqualTo(0).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Ceil(_contextV22b, ""), Is.EqualTo(0).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Ceil(_contextV22b, "two"), Is.EqualTo(0).And.TypeOf(typeof(int)));
+
+            Assert.That(StandardFilters.Ceil(_contextV20, null), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Ceil(_contextV20, ""), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Ceil(_contextV20, "two"), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
         }
 
         [Test]
@@ -1446,16 +1474,37 @@ PaulGeorge",
         {
             using (CultureHelper.SetCulture("en-GB"))
             {
+                Helper.AssertTemplateResult("-2", "{{ -1.2 | floor }}");
                 Helper.AssertTemplateResult("1", "{{ 1.2 | floor }}");
                 Helper.AssertTemplateResult("2", "{{ 2.0 | floor }}");
                 Helper.AssertTemplateResult("183", "{{ 183.57 | floor }}");
                 Helper.AssertTemplateResult("3", "{{ \"3.5\" | floor }}");
                 Helper.AssertTemplateResult("0", "{{ nonesuch | floor }}");
-
-                Assert.That(StandardFilters.Floor(_contextV20, null), Is.EqualTo(0m));
-                Assert.That(StandardFilters.Floor(_contextV20, ""), Is.EqualTo(0m));
-                Assert.That(StandardFilters.Floor(_contextV20, "two"), Is.EqualTo(0m));
             }
+
+            Assert.That(StandardFilters.Floor(_contextLatest, 1.9), Is.EqualTo(1).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.Floor(_contextLatest, 1.9m), Is.EqualTo(1).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Floor(_contextLatest, "1.9"), Is.EqualTo(1).And.TypeOf(typeof(decimal)));
+
+            Assert.That(StandardFilters.Floor(_contextV22b, 1.9), Is.EqualTo(1).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.Floor(_contextV22b, 1.9m), Is.EqualTo(1).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Floor(_contextV22b, "1.9"), Is.EqualTo(1).And.TypeOf(typeof(decimal)));
+
+            Assert.That(StandardFilters.Floor(_contextV20, 1.9), Is.EqualTo(1).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Floor(_contextV20, 1.9m), Is.EqualTo(1).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Floor(_contextV20, "1.9"), Is.EqualTo(1).And.TypeOf(typeof(decimal)));
+
+            Assert.That(StandardFilters.Floor(_contextLatest, null), Is.EqualTo(0).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Floor(_contextLatest, ""), Is.EqualTo(0).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Floor(_contextLatest, "two"), Is.EqualTo(0).And.TypeOf(typeof(int)));
+
+            Assert.That(StandardFilters.Floor(_contextV22b, null), Is.EqualTo(0).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Floor(_contextV22b, ""), Is.EqualTo(0).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Floor(_contextV22b, "two"), Is.EqualTo(0).And.TypeOf(typeof(int)));
+
+            Assert.That(StandardFilters.Floor(_contextV20, null), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Floor(_contextV20, ""), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Floor(_contextV20, "two"), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
         }
 
         [Test]
@@ -1711,38 +1760,54 @@ PaulGeorge",
         [Test]
         public void TestAbs()
         {
-            Assert.That(StandardFilters.Abs(_contextV20, "notNumber"), Is.EqualTo(0));
-            Assert.That(StandardFilters.Abs(_contextV20, 10), Is.EqualTo(10));
-            Assert.That(StandardFilters.Abs(_contextV20, -5), Is.EqualTo(5));
-            Assert.That(StandardFilters.Abs(_contextV20, 19.86), Is.EqualTo(19.86));
-            Assert.That(StandardFilters.Abs(_contextV20, -19.86), Is.EqualTo(19.86));
-            Assert.That(StandardFilters.Abs(_contextV20, "10"), Is.EqualTo(10));
-            Assert.That(StandardFilters.Abs(_contextV20, "-5"), Is.EqualTo(5));
-            Assert.That(StandardFilters.Abs(_contextV20, "30.60"), Is.EqualTo(30.60));
-            Assert.That(StandardFilters.Abs(_contextV20, "30.60a"), Is.EqualTo(0));
-            Assert.That(StandardFilters.Abs(_contextV20, null), Is.EqualTo(0));
+            Assert.That(StandardFilters.Abs(_contextLatest, "notNumber"), Is.EqualTo(0).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Abs(_contextLatest, 10), Is.EqualTo(10).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Abs(_contextLatest, -5), Is.EqualTo(5).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Abs(_contextLatest, 19.86), Is.EqualTo(19.86).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.Abs(_contextLatest, -19.86m), Is.EqualTo(19.86m).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Abs(_contextLatest, -19.86), Is.EqualTo(19.86).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.Abs(_contextLatest, "10"), Is.EqualTo(10).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Abs(_contextLatest, "-5"), Is.EqualTo(5).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Abs(_contextLatest, "30.60"), Is.EqualTo(30.60).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Abs(_contextLatest, "30.60a"), Is.EqualTo(0).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Abs(_contextLatest, null), Is.EqualTo(0).And.TypeOf(typeof(int)));
+
+            Assert.That(StandardFilters.Abs(_contextV22a, 10), Is.EqualTo(10).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.Abs(_contextV22a, "10"), Is.EqualTo(10).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.Abs(_contextV22a, -19.86m), Is.EqualTo(19.86).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.Abs(_contextV22a, "30.60"), Is.EqualTo(30.60).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.Abs(_contextV22a, "30.60a"), Is.EqualTo(0).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.Abs(_contextV22a, null), Is.EqualTo(0).And.TypeOf(typeof(double)));
 
             Helper.AssertTemplateResult(
                 expected: "17",
-                template: "{{ -17 | abs }}");
+                template: "{{ -17 | abs }}",
+                syntax: _contextLatest.SyntaxCompatibilityLevel);
             Helper.AssertTemplateResult(
                 expected: "17",
-                template: "{{ 17 | abs }}");
+                template: "{{ 17 | abs }}",
+                syntax: _contextLatest.SyntaxCompatibilityLevel);
             Helper.AssertTemplateResult(
                 expected: "4",
-                template: "{{ 4 | abs }}");
+                template: "{{ 4 | abs }}",
+                syntax: _contextLatest.SyntaxCompatibilityLevel);
             Helper.AssertTemplateResult(
                 expected: "19.86",
-                template: "{{ '-19.86' | abs }}");
+                template: "{{ '-19.86' | abs }}",
+                syntax: _contextLatest.SyntaxCompatibilityLevel);
             Helper.AssertTemplateResult(
                 expected: "19.86",
-                template: "{{ -19.86 | abs }}");
+                template: "{{ -19.86 | abs }}",
+                syntax: _contextLatest.SyntaxCompatibilityLevel);
             Helper.AssertTemplateResult(
                 expected: "0",
-                template: "{{ 'notNumber' | abs }}");
+                template: "{{ 'notNumber' | abs }}",
+                syntax: _contextLatest.SyntaxCompatibilityLevel);
+
             Helper.AssertTemplateResult(
                 expected: "0",
-                template: "{{ {} | abs }}");
+                template: "{{ {} | abs }}",
+                syntax: _contextV21.SyntaxCompatibilityLevel);
         }
 
         [Test]

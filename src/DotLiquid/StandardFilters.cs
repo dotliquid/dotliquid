@@ -799,10 +799,23 @@ namespace DotLiquid
         /// <returns>The rounded value; null if an exception have occurred</returns>
         public static object Ceil(Context context, object input)
         {
-            if (decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
-                return Math.Ceiling(d);
-            else
-                return 0m;
+            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22b)
+            {
+                return decimal.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out decimal n) ? Math.Ceiling(n) : 0m;
+            }
+
+            if (input == null) return 0;
+
+            if (input is string inputString)
+            {
+                input = CoerceToNumericType(inputString, context.FormatProvider, 0);
+            }
+
+            if (input is decimal inputDecimal) { return Math.Ceiling(inputDecimal); }
+            else if (input is double inputDouble) { return Math.Ceiling(inputDouble); }
+            else if (input is int inputInt32) { return inputInt32; }
+            else if (input is long inputInt64) { return inputInt64; }
+            else return 0;
         }
 
         /// <summary>
@@ -813,10 +826,23 @@ namespace DotLiquid
         /// <returns>The rounded value; null if an exception have occurred</returns>
         public static object Floor(Context context, object input)
         {
-            if (decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
-                return Math.Floor(d);
-            else
-                return 0m;
+            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22b)
+            {
+                return decimal.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out decimal n) ? Math.Floor(n) : 0m;
+            }
+
+            if (input == null) return 0;
+
+            if (input is string inputString)
+            {
+                input = CoerceToNumericType(inputString, context.FormatProvider, 0);
+            }
+
+            if (input is decimal inputDecimal) { return Math.Floor(inputDecimal); }
+            else if (input is double inputDouble) { return Math.Floor(inputDouble); }
+            else if (input is int inputInt32) { return inputInt32; }
+            else if (input is long inputInt64) { return inputInt64; }
+            else return 0;
         }
 
         /// <summary>
@@ -945,6 +971,11 @@ namespace DotLiquid
         /// <param name="input">Input to be transformed by this filter</param>
         public static object Abs(Context context, object input)
         {
+            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22b)
+            {
+                return Double.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out double n) ? Math.Abs(n) : 0;
+            }
+
             if (input == null) return 0;
 
             if (input is string inputString)

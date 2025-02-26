@@ -8,9 +8,5 @@ namespace DotLiquid.Exceptions
             : base(string.Format(message, args))
         {
         }
-
-        public DisabledException()
-        {
-        }
     }
 }

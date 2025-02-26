@@ -821,7 +821,7 @@ namespace DotLiquid
         {
             if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22b)
             {
-                return decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal n) ? Math.Ceiling(n) : 0m;
+                return decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal n) ? (object)Math.Ceiling(n) : null;
             }
 
             if (input == null) return 0;
@@ -848,7 +848,7 @@ namespace DotLiquid
         {
             if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22b)
             {
-                return decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal n) ? Math.Floor(n) : 0m;
+                return decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal n) ? (object)Math.Floor(n) : null;
             }
 
             if (input == null) return 0;
@@ -1010,6 +1010,24 @@ namespace DotLiquid
             else return 0;
         }
 
+        private static object AtLeast_BeforeDotLiquid22b(Context context, object input, object atLeast)
+        {
+            double n;
+            var inputNumber = Double.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
+
+            double min;
+            var atLeastNumber = Double.TryParse(atLeast?.ToString(), NumberStyles.Number, context.CurrentCulture, out min);
+
+            if (inputNumber && atLeastNumber)
+            {
+                return (double)((double)min > (double)n ? min : n);
+            }
+            else
+            {
+                return input;
+            }
+        }
+
         /// <summary>
         /// Limits a number to a minimum value.
         /// </summary>
@@ -1018,6 +1036,11 @@ namespace DotLiquid
         /// <param name="atLeast">Value to apply if more than input</param>
         public static object AtLeast(Context context, object input, object atLeast)
         {
+            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22b)
+            {
+                return AtLeast_BeforeDotLiquid22b(context, input, atLeast);
+            }
+            
             if (!decimal.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out decimal val1))
             {
                 val1 = 0m;
@@ -1029,6 +1052,24 @@ namespace DotLiquid
             return Math.Max(val1, val2);
         }
 
+        private static object AtMost_BeforeDotLiquid22b(Context context, object input, object atMost)
+        {
+            double n;
+            var inputNumber = Double.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
+
+            double max;
+            var atMostNumber = Double.TryParse(atMost?.ToString(), NumberStyles.Number, context.CurrentCulture, out max);
+
+            if (inputNumber && atMostNumber)
+            {
+                return (double)((double)max < (double)n ? max : n);
+            }
+            else
+            {
+                return input;
+            }
+        }
+
         /// <summary>
         /// Limits a number to a maximum value.
         /// </summary>
@@ -1037,6 +1078,11 @@ namespace DotLiquid
         /// <param name="atMost">Value to apply if less than input</param>
         public static object AtMost(Context context, object input, object atMost)
         {
+            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22b)
+            {
+                return AtMost_BeforeDotLiquid22b(context, input, atMost);
+            }
+
             if (!decimal.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out decimal val1))
             {
                 val1 = 0m;

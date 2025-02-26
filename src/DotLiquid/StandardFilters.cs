@@ -853,6 +853,21 @@ namespace DotLiquid
 
         private static bool IsReal(object o) => o is double || o is float || o is decimal;
 
+        private static object CoerceToNumericType(string value, IFormatProvider formatProvider, object defaultValue)
+        {
+            object result = defaultValue;
+            if (value != null)
+            {
+                bool converted = value.TryParseToNumericType(formatProvider, out object convertedValue);
+                if (converted)
+                {
+                    result = convertedValue;
+                }
+            }
+            return result;
+        }
+
+
         private static object DoMathsOperation(Context context, object input, object operand, Func<Expression, Expression, BinaryExpression> operation)
         {
             if (input == null || operand == null)
@@ -930,10 +945,18 @@ namespace DotLiquid
         /// <param name="input">Input to be transformed by this filter</param>
         public static object Abs(Context context, object input)
         {
-            if (decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
-                return Math.Abs(d);
-            else
-                return 0m;
+            if (input == null) return 0;
+
+            if (input is string inputString)
+            {
+                input = CoerceToNumericType(inputString, context.FormatProvider, 0);
+            }
+
+            if (input is decimal inputDecimal) { return Math.Abs(inputDecimal); }
+            else if (input is double inputDouble) { return Math.Abs(inputDouble); }
+            else if (input is int inputInt32) { return Math.Abs(inputInt32); }
+            else if (input is long inputInt64) { return Math.Abs(inputInt64); }
+            else return 0;
         }
 
         /// <summary>

@@ -83,8 +83,7 @@ namespace DotLiquid
             {
                 foreach (var tagName in tagNames)
                 {
-                    if (_disabledTags.TryGetValue(tagName, out var cnt))
-                        _disabledTags[tagName] = cnt - 1;
+                    _disabledTags[tagName] = _disabledTags[tagName] - 1;
                 }
             }
         }

@@ -49,8 +49,7 @@ namespace DotLiquid.Tags
 
         public override void Render(Context context, TextWriter result)
         {
-            if (!(context[_templateName] is string templateName))
-                    throw new Exceptions.ArgumentException(Liquid.ResourceManager.GetString("TemplateNameArgumentException"), TagName);
+            string templateName = context[_templateName] as string;
             Template partial = PartialCache.Load(templateName, context);
             string contextVariableName = _aliasName ?? templateName;
             var variable = _variableName != null ? context[_variableName] : null;

@@ -49,6 +49,23 @@ namespace DotLiquid.Tests.Tags
         }
 
         [Test]
+        public void TestRenderUnknownTemplate()
+        {
+            Helper.WithDictionaryFileSystem(new Dictionary<string, string>
+            {
+            }, () =>
+            {
+                Helper.AssertTemplateResult("", "{% render 'unknown_source' %}");
+            });
+        }
+
+        [Test]
+        public void TestRenderTemplateNotStringVariable()
+        {
+            Assert.Throws<SyntaxException>(() => Template.Parse("{% render 123 %}"));
+        }
+
+        [Test]
         public void TestRenderTagLookForFileSystemInRegisterFirst()
         {
             Helper.WithDictionaryFileSystem(new Dictionary<string, string>

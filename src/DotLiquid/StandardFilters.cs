@@ -774,17 +774,17 @@ namespace DotLiquid
         /// This will treat it as any other invalid places value, and round to closest integer.</remarks>
         public static object Round(Context context, object input, object places = null)
         {
-            if (decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
+            if (decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal inputValue))
             {
                 const decimal MinDecimalPlaces = 0m;
                 const decimal MaxDecimalPlaces = 16m;
-                if (decimal.TryParse(places?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal p))
+                if (decimal.TryParse(places?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal placesValue))
                 {
-                    p = Math.Max(MinDecimalPlaces, Math.Min(MaxDecimalPlaces, p));
-                    int decimals = (int)Math.Floor(p);
-                    return Math.Round(d, decimals);
+                    placesValue = Math.Max(MinDecimalPlaces, Math.Min(MaxDecimalPlaces, placesValue));
+                    int decimals = (int)Math.Floor(placesValue);
+                    return Math.Round(inputValue, decimals);
                 }
-                return Math.Round(d);
+                return Math.Round(inputValue);
             }
             return 0m;
         }

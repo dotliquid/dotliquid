@@ -16,8 +16,8 @@ namespace DotLiquid.Tests.Util
         {
             bool converted = input.TryParseToNumericType(formatProvider, out object convertedValue);
             Assert.That(converted, Is.True);
-            Assert.That(convertedValue, Is.TypeOf(expectedValue.GetType()));
             Assert.That(convertedValue, Is.EqualTo(expectedValue));
+            Assert.That(convertedValue, Is.TypeOf(expectedValue.GetType()));
         }
 
         [Test]
@@ -56,6 +56,7 @@ namespace DotLiquid.Tests.Util
             yield return new object[] { $"{Decimal.MinValue:F}", invariantFormatProvider, Decimal.MinValue };
             yield return new object[] { "12345678901234567890123456.789", invariantFormatProvider, 12345678901234567890123456.789m };
             yield return new object[] { "12345678901234567890123456", invariantFormatProvider, 12345678901234567890123456m };
+            yield return new object[] { "0.30000000000000004", invariantFormatProvider, 0.30000000000000004m };
 
             yield return new object[] { "12,0", frenchFormatProvider, 12m };
             yield return new object[] { "12,567", frenchFormatProvider, 12.567m };

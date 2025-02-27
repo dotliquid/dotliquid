@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
+using System.Xml.Linq;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
 
@@ -18,7 +20,8 @@ namespace DotLiquid
     {
         private static readonly Dictionary<string, Type> Filters = new Dictionary<string, Type>();
         private static readonly Dictionary<string, Tuple<object, MethodInfo>> FilterFuncs = new Dictionary<string, Tuple<object, MethodInfo>>();
-
+        private static readonly LiquidFilterAttribute DefaultLiquidFilterAttribute = new LiquidFilterAttribute();
+        
         public static void GlobalFilter(Type filter)
         {
             Filters[filter.AssemblyQualifiedName] = filter;
@@ -36,11 +39,11 @@ namespace DotLiquid
             Strainer strainer = new Strainer(context);
 
             foreach (var keyValue in Filters)
-                strainer.Extend(keyValue.Value);
+                strainer.Extend(context.SyntaxCompatibilityLevel, keyValue.Value);
 
             foreach (var keyValue in FilterFuncs)
                 strainer.AddMethodInfo(keyValue.Key, keyValue.Value.Item1, keyValue.Value.Item2);
-            
+
             return strainer;
         }
 
@@ -61,24 +64,38 @@ namespace DotLiquid
         /// In this C# implementation, we can't use mixins. So we grab all the static
         /// methods from the specified type and use them instead.
         /// </summary>
+        /// <param name="syntaxCompatibilityLevel">The Liquid syntax flag used for backward compatibility</param>
         /// <param name="type"></param>
-        public void Extend(Type type)
+        public void Extend(SyntaxCompatibility syntaxCompatibilityLevel, Type type)
         {
             // Calls to Extend replace existing filters with the same number of params.
             var methods = type.GetRuntimeMethods().Where(m => m.IsPublic && m.IsStatic);
             foreach (var method in methods)
             {
-                string methodName = Template.NamingConvention.GetMemberName(method.Name);
-                if  (_methods.Any(m => method.MatchesMethod(m)))
+                var filterInfo = TypeUtility.GetLiquidFilterAttribute(method) ?? DefaultLiquidFilterAttribute;
+                if (filterInfo.MinVersion > syntaxCompatibilityLevel || filterInfo.MaxVersion < syntaxCompatibilityLevel)
+                    continue;
+
+                string methodName = Template.NamingConvention.GetMemberName(filterInfo.Name ?? method.Name);
+                ReplaceMethodInfo(methodName, method);
+
+                if (filterInfo.Alias != null)
                 {
-                    _methods.Remove(methodName);
+                    string aliasName = Template.NamingConvention.GetMemberName(filterInfo.Alias);
+                    if (!aliasName.Equals(methodName))
+                        ReplaceMethodInfo(aliasName, method);
                 }
             }
+        }
 
-            foreach (MethodInfo methodInfo in methods)
+        private void ReplaceMethodInfo(string name, MethodInfo method)
+        {
+            if (_methods.Any(m => method.MatchesMethod(name, m)))
             {
-                AddMethodInfo(methodInfo.Name, null, methodInfo);
-            } // foreach
+                _methods.Remove(name);
+            }
+
+            _methods.TryAdd(name, () => new List<Tuple<object, MethodInfo>>()).Add(Tuple.Create(default(object), method));
         }
 
         public void AddFunction<TIn, TOut>(string rawName, Func<TIn, TOut> func)
@@ -111,7 +128,7 @@ namespace DotLiquid
         public object Invoke(string method, List<object> args)
         {
             // First, try to find a method with the same number of arguments minus context which we set automatically further down.
-            var methodInfo = _methods[method].FirstOrDefault(m => 
+            var methodInfo = _methods[method].FirstOrDefault(m =>
                 m.Item2.GetNonContextParameterCount() == args.Count);
 
             // If we failed to do so, try one with max numbers of arguments, hoping

@@ -90,7 +90,6 @@ namespace DotLiquid.Tests
             Assert.That(StandardFilters.Escape(null), Is.EqualTo(null));
             Assert.That(StandardFilters.Escape(""), Is.EqualTo(""));
             Assert.That(StandardFilters.Escape("<strong>"), Is.EqualTo("&lt;strong&gt;"));
-            Assert.That(StandardFilters.H("<strong>"), Is.EqualTo("&lt;strong&gt;"));
 
             Helper.AssertTemplateResult(
                  expected: "Have you read &#39;James &amp; the Giant Peach&#39;?",
@@ -99,6 +98,10 @@ namespace DotLiquid.Tests
             Helper.AssertTemplateResult(
                  expected: "Tetsuro Takara",
                  template: "{{ 'Tetsuro Takara' | escape }}");
+
+            Helper.AssertTemplateResult(
+                 expected: "Tetsuro Takara",
+                 template: "{{ 'Tetsuro Takara' | h }}");
         }
 
         [Test]
@@ -318,39 +321,39 @@ PaulGeorge",
         public void TestSortV20()
         {
             var ints = new[] { 10, 3, 2, 1 };
-            Assert.That(StandardFilters.Sort(_contextV20, null), Is.EqualTo(null));
-            Assert.That(StandardFilters.Sort(_contextV20, new string[] { }), Is.EqualTo(new string[] { }).AsCollection);
-            Assert.That(StandardFilters.Sort(_contextV20, ints), Is.EqualTo(new[] { 1, 2, 3, 10 }).AsCollection);
-            Assert.That(StandardFilters.Sort(_contextV20, new[] { new { a = 10 }, new { a = 3 }, new { a = 1 }, new { a = 2 } }, "a"), Is.EqualTo(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 10 } }).AsCollection);
+            Assert.That(StandardFilters.SortV20(null), Is.EqualTo(null));
+            Assert.That(StandardFilters.SortV20(new string[] { }), Is.EqualTo(new string[] { }).AsCollection);
+            Assert.That(StandardFilters.SortV20(ints), Is.EqualTo(new[] { 1, 2, 3, 10 }).AsCollection);
+            Assert.That(StandardFilters.SortV20(new[] { new { a = 10 }, new { a = 3 }, new { a = 1 }, new { a = 2 } }, "a"), Is.EqualTo(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 10 } }).AsCollection);
 
             // Issue #393 - Incorrect (Case-Insensitve) Alphabetic Sort
             var strings = new[] { "zebra", "octopus", "giraffe", "Sally Snake" };
-            Assert.That(StandardFilters.Sort(_contextV20, strings), Is.EqualTo(new[] { "giraffe", "octopus", "Sally Snake", "zebra" }).AsCollection);
+            Assert.That(StandardFilters.SortV20(strings), Is.EqualTo(new[] { "giraffe", "octopus", "Sally Snake", "zebra" }).AsCollection);
 
             var hashes = new List<Hash>();
             for (var i = 0; i < strings.Length; i++)
                 hashes.Add(CreateHash(ints[i], strings[i]));
-            Assert.That(StandardFilters.Sort(_contextV20, hashes, "content"), Is.EqualTo(new[] { hashes[2], hashes[1], hashes[3], hashes[0] }).AsCollection);
-            Assert.That(StandardFilters.Sort(_contextV20, hashes, "sortby"), Is.EqualTo(new[] { hashes[3], hashes[2], hashes[1], hashes[0] }).AsCollection);
+            Assert.That(StandardFilters.SortV20(hashes, "content"), Is.EqualTo(new[] { hashes[2], hashes[1], hashes[3], hashes[0] }).AsCollection);
+            Assert.That(StandardFilters.SortV20(hashes, "sortby"), Is.EqualTo(new[] { hashes[3], hashes[2], hashes[1], hashes[0] }).AsCollection);
         }
 
         [Test]
         public void TestSortV22()
         {
             var ints = new[] { 10, 3, 2, 1 };
-            Assert.That(StandardFilters.Sort(_contextV22, null), Is.EqualTo(null));
-            Assert.That(StandardFilters.Sort(_contextV22, new string[] { }), Is.EqualTo(new string[] { }).AsCollection);
-            Assert.That(StandardFilters.Sort(_contextV22, ints), Is.EqualTo(new[] { 1, 2, 3, 10 }).AsCollection);
-            Assert.That(StandardFilters.Sort(_contextV22, new[] { new { a = 10 }, new { a = 3 }, new { a = 1 }, new { a = 2 } }, "a"), Is.EqualTo(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 10 } }).AsCollection);
+            Assert.That(StandardFilters.Sort(null), Is.EqualTo(null));
+            Assert.That(StandardFilters.Sort(new string[] { }), Is.EqualTo(new string[] { }).AsCollection);
+            Assert.That(StandardFilters.Sort(ints), Is.EqualTo(new[] { 1, 2, 3, 10 }).AsCollection);
+            Assert.That(StandardFilters.Sort(new[] { new { a = 10 }, new { a = 3 }, new { a = 1 }, new { a = 2 } }, "a"), Is.EqualTo(new[] { new { a = 1 }, new { a = 2 }, new { a = 3 }, new { a = 10 } }).AsCollection);
 
             var strings = new[] { "zebra", "octopus", "giraffe", "Sally Snake" };
-            Assert.That(StandardFilters.Sort(_contextV22, strings), Is.EqualTo(new[] { "Sally Snake", "giraffe", "octopus", "zebra" }).AsCollection);
+            Assert.That(StandardFilters.Sort(strings), Is.EqualTo(new[] { "Sally Snake", "giraffe", "octopus", "zebra" }).AsCollection);
 
             var hashes = new List<Hash>();
             for (var i = 0; i < strings.Length; i++)
                 hashes.Add(CreateHash(ints[i], strings[i]));
-            Assert.That(StandardFilters.Sort(_contextV22, hashes, "content"), Is.EqualTo(new[] { hashes[3], hashes[2], hashes[1], hashes[0] }).AsCollection);
-            Assert.That(StandardFilters.Sort(_contextV22, hashes, "sortby"), Is.EqualTo(new[] { hashes[3], hashes[2], hashes[1], hashes[0] }).AsCollection);
+            Assert.That(StandardFilters.Sort(hashes, "content"), Is.EqualTo(new[] { hashes[3], hashes[2], hashes[1], hashes[0] }).AsCollection);
+            Assert.That(StandardFilters.Sort(hashes, "sortby"), Is.EqualTo(new[] { hashes[3], hashes[2], hashes[1], hashes[0] }).AsCollection);
         }
 
         [Test]
@@ -383,7 +386,7 @@ PaulGeorge",
             list.Add(hash1);
             list.Add(hash2);
 
-            var result = StandardFilters.Sort(_contextV20, list, "sortby").Cast<Hash>().ToArray();
+            var result = StandardFilters.SortV20(list, "sortby").Cast<Hash>().ToArray();
             Assert.That(result.Count(), Is.EqualTo(3));
             Assert.That(result[0]["content"], Is.EqualTo(hash1["content"]));
             Assert.That(result[1]["content"], Is.EqualTo(hash2["content"]));
@@ -402,7 +405,7 @@ PaulGeorge",
             list.Add(hashWithNoSortByProperty);
             list.Add(hash1);
 
-            var result = StandardFilters.Sort(_contextV20, list, "sortby").Cast<Hash>().ToArray();
+            var result = StandardFilters.SortV20(list, "sortby").Cast<Hash>().ToArray();
             Assert.That(result.Count(), Is.EqualTo(3));
             Assert.That(result[0]["content"], Is.EqualTo(hashWithNoSortByProperty["content"]));
             Assert.That(result[1]["content"], Is.EqualTo(hash1["content"]));
@@ -422,7 +425,7 @@ PaulGeorge",
             Helper.LockTemplateStaticVars(new RubyNamingConvention(), () =>
             {
                 Assert.That(
-                    actual: StandardFilters.Sort(_contextV20, packages, "numberOfPiecesPerPackage"), Is.EqualTo(expected: expectedPackages).AsCollection);
+                    actual: StandardFilters.SortV20(packages, "numberOfPiecesPerPackage"), Is.EqualTo(expected: expectedPackages).AsCollection);
             });
         }
 
@@ -442,7 +445,7 @@ PaulGeorge",
             var expectedPackages = new List<ExpandoObject> { package2, package1, package3 };
 
             Assert.That(
-                actual: StandardFilters.Sort(_contextV20, packages, property: "numberOfPiecesPerPackage"), Is.EqualTo(expected: expectedPackages));
+                actual: StandardFilters.SortV20(packages, property: "numberOfPiecesPerPackage"), Is.EqualTo(expected: expectedPackages));
         }
 
         private static Hash CreateHash(int sortby, string content) =>
@@ -1159,18 +1162,18 @@ PaulGeorge",
         [Test]
         public void TestReplace()
         {
-            TestReplace(_contextV20);
+            TestReplace(_contextV20, (i, s, r) => StandardFilters.Replace(i, s, r)); ;
         }
 
-        public void TestReplace(Context context)
+        public void TestReplace(Context context, Func<string, string, string, string> filter)
         {
-            Assert.That(StandardFilters.Replace(context: context, input: null, @string: "a", replacement: "b"), Is.Null);
-            Assert.That(actual: StandardFilters.Replace(context: context, input: "", @string: "a", replacement: "b"), Is.EqualTo(expected: ""));
-            Assert.That(actual: StandardFilters.Replace(context: context, input: "a a a a", @string: null, replacement: "b"), Is.EqualTo(expected: "a a a a"));
-            Assert.That(actual: StandardFilters.Replace(context: context, input: "a a a a", @string: "", replacement: "b"), Is.EqualTo(expected: "a a a a"));
-            Assert.That(actual: StandardFilters.Replace(context: context, input: "a a a a", @string: "a", replacement: "b"), Is.EqualTo(expected: "b b b b"));
+            Assert.That(actual: filter(null, "a", "b"), Is.Null);
+            Assert.That(actual: filter("", "a", "b"), Is.EqualTo(expected: ""));
+            Assert.That(actual: filter("a a a a", null, "b"), Is.EqualTo(expected: "a a a a"));
+            Assert.That(actual: filter("a a a a", "", "b"), Is.EqualTo(expected: "a a a a"));
+            Assert.That(actual: filter("a a a a", "a", "b"), Is.EqualTo(expected: "b b b b"));
 
-            Assert.That(actual: StandardFilters.Replace(context: context, input: "Tesvalue\"", @string: "\"", replacement: "\\\""), Is.EqualTo(expected: "Tesvalue\\\""));
+            Assert.That(actual: filter("Tesvalue\"", "\"", "\\\""), Is.EqualTo(expected: "Tesvalue\\\""));
             Helper.AssertTemplateResult(expected: "Tesvalue\\\"", template: "{{ 'Tesvalue\"' | replace: '\"', '\\\"' }}", syntax: context.SyntaxCompatibilityLevel);
             Helper.AssertTemplateResult(
                 expected: "Tesvalue\\\"",
@@ -1183,15 +1186,15 @@ PaulGeorge",
         public void TestReplaceRegexV20()
         {
             var context = _contextV20;
-            Assert.That(actual: StandardFilters.Replace(context: context, input: "a A A a", @string: "[Aa]", replacement: "b"), Is.EqualTo(expected: "b b b b"));
+            Assert.That(actual: StandardFilters.ReplaceV20(input: "a A A a", @string: "[Aa]", replacement: "b"), Is.EqualTo(expected: "b b b b"));
         }
 
         [Test]
         public void TestReplaceRegexV21()
         {
             var context = _contextV21;
-            Assert.That(actual: StandardFilters.Replace(context: context, input: "a A A a", @string: "[Aa]", replacement: "b"), Is.EqualTo(expected: "a A A a"));
-            TestReplace(context);
+            Assert.That(actual: StandardFilters.Replace(input: "a A A a", @string: "[Aa]", replacement: "b"), Is.EqualTo(expected: "a A A a"));
+            TestReplace(context, (i, s, r) => StandardFilters.Replace(i, s, r));
         }
 
         [Test]
@@ -1646,10 +1649,10 @@ PaulGeorge",
         public void TestCapitalizeV20()
         {
             var context = _contextV20;
-            Assert.That(StandardFilters.Capitalize(context: context, input: null), Is.EqualTo(null));
-            Assert.That(StandardFilters.Capitalize(context: context, input: ""), Is.EqualTo(""));
-            Assert.That(StandardFilters.Capitalize(context: context, input: " "), Is.EqualTo(" "));
-            Assert.That(StandardFilters.Capitalize(context: context, input: "That is one sentence."), Is.EqualTo("That Is One Sentence."));
+            Assert.That(StandardFilters.CapitalizeV20(context: context, input: null), Is.EqualTo(null));
+            Assert.That(StandardFilters.CapitalizeV20(context: context, input: ""), Is.EqualTo(""));
+            Assert.That(StandardFilters.CapitalizeV20(context: context, input: " "), Is.EqualTo(" "));
+            Assert.That(StandardFilters.CapitalizeV20(context: context, input: "That is one sentence."), Is.EqualTo("That Is One Sentence."));
 
             Helper.AssertTemplateResult(
                 expected: "Title",
@@ -1661,10 +1664,10 @@ PaulGeorge",
         public void TestCapitalizeV21()
         {
             var context = _contextV21;
-            Assert.That(StandardFilters.Capitalize(context: context, input: null), Is.EqualTo(null));
-            Assert.That(StandardFilters.Capitalize(context: context, input: ""), Is.EqualTo(""));
-            Assert.That(StandardFilters.Capitalize(context: context, input: " "), Is.EqualTo(" "));
-            Assert.That(StandardFilters.Capitalize(context: context, input: " my boss is Mr. Doe."), Is.EqualTo(" My boss is Mr. Doe."));
+            Assert.That(StandardFilters.CapitalizeV21(input: null), Is.EqualTo(null));
+            Assert.That(StandardFilters.CapitalizeV21(input: ""), Is.EqualTo(""));
+            Assert.That(StandardFilters.CapitalizeV21(input: " "), Is.EqualTo(" "));
+            Assert.That(StandardFilters.CapitalizeV21(input: " my boss is Mr. Doe."), Is.EqualTo(" My boss is Mr. Doe."));
 
             Helper.AssertTemplateResult(
                 expected: "My great title",
@@ -1676,10 +1679,10 @@ PaulGeorge",
         public void TestCapitalizeV22()
         {
             var context = _contextV22;
-            Assert.That(StandardFilters.Capitalize(context: context, input: null), Is.EqualTo(null));
-            Assert.That(StandardFilters.Capitalize(context: context, input: ""), Is.EqualTo(""));
-            Assert.That(StandardFilters.Capitalize(context: context, input: " "), Is.EqualTo(" "));
-            Assert.That(StandardFilters.Capitalize(context: context, input: "my boss is Mr. Doe."), Is.EqualTo("My boss is mr. doe."));
+            Assert.That(StandardFilters.Capitalize(input: null), Is.EqualTo(null));
+            Assert.That(StandardFilters.Capitalize(input: ""), Is.EqualTo(""));
+            Assert.That(StandardFilters.Capitalize(input: " "), Is.EqualTo(" "));
+            Assert.That(StandardFilters.Capitalize(input: "my boss is Mr. Doe."), Is.EqualTo("My boss is mr. doe."));
 
             Helper.AssertTemplateResult(
                 expected: "My great title",

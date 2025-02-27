@@ -37,11 +37,10 @@ namespace DotLiquid.Tests
         [Test]
         public void TestUpcaseFirst()
         {
-            var context = _context;
-            Assert.That(ExtendedFilters.UpcaseFirst(context: context, input: null), Is.EqualTo(null));
-            Assert.That(ExtendedFilters.UpcaseFirst(context: context, input: ""), Is.EqualTo(""));
-            Assert.That(ExtendedFilters.UpcaseFirst(context: context, input: " "), Is.EqualTo(" "));
-            Assert.That(ExtendedFilters.UpcaseFirst(context: context, input: " my boss is Mr. Doe."), Is.EqualTo(" My boss is Mr. Doe."));
+            Assert.That(ExtendedFilters.UpcaseFirst(input: null), Is.EqualTo(null));
+            Assert.That(ExtendedFilters.UpcaseFirst(input: ""), Is.EqualTo(""));
+            Assert.That(ExtendedFilters.UpcaseFirst(input: " "), Is.EqualTo(" "));
+            Assert.That(ExtendedFilters.UpcaseFirst(input: " my boss is Mr. Doe."), Is.EqualTo(" My boss is Mr. Doe."));
 
             Helper.AssertTemplateResult(
                 expected: "My great title",

@@ -181,15 +181,24 @@ namespace DotLiquid
         /// </summary>
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
-        public static string Capitalize(Context context, string input)
-        {
-            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22)
-            {
-                if (context.SyntaxCompatibilityLevel == SyntaxCompatibility.DotLiquid21)
-                    return ExtendedFilters.UpcaseFirst(context, input);
-                return ExtendedFilters.Titleize(context, input);
-            }
+        [LiquidFilter(Name = nameof(Capitalize), MinVersion = SyntaxCompatibility.DotLiquid20, MaxVersion = SyntaxCompatibility.DotLiquid20)]
+        public static string CapitalizeV20(Context context, string input) => ExtendedFilters.Titleize(context, input);
 
+        /// <summary>
+        /// capitalize words in the input sentence
+        /// </summary>
+        /// <param name="input">Input to be transformed by this filter</param>
+        [LiquidFilter(Name = nameof(Capitalize), MinVersion = SyntaxCompatibility.DotLiquid21, MaxVersion = SyntaxCompatibility.DotLiquid21)]
+        public static string CapitalizeV21(string input) => ExtendedFilters.UpcaseFirst(input);
+
+
+        /// <summary>
+        /// capitalize words in the input sentence
+        /// </summary>
+        /// <param name="input">Input to be transformed by this filter</param>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid22)]
+        public static string Capitalize(string input)
+        {
             if (input.IsNullOrWhiteSpace())
                 return input;
 
@@ -203,6 +212,7 @@ namespace DotLiquid
         /// <param name="input">String to escape</param>
         /// <returns>Escaped string</returns>
         /// <remarks>Alias of H</remarks>
+        [LiquidFilter(Name = nameof(Escape), Alias = "H")]
         public static string Escape(string input)
         {
             if (string.IsNullOrEmpty(input))
@@ -228,17 +238,6 @@ namespace DotLiquid
         public static string EscapeOnce(string input)
         {
             return string.IsNullOrEmpty(input) ? input : WebUtility.HtmlEncode(WebUtility.HtmlDecode(input));
-        }
-
-        /// <summary>
-        /// Escape html chars
-        /// </summary>
-        /// <param name="input">String to escape</param>
-        /// <returns>Escaped string</returns>
-        /// <remarks>Alias of Escape</remarks>
-        public static string H(string input)
-        {
-            return Escape(input);
         }
 
         /// <summary>
@@ -404,19 +403,18 @@ namespace DotLiquid
         /// <summary>
         /// Sort elements of the array
         /// </summary>
-        /// <param name="context">The DotLiquid context</param>
         /// <param name="input">The object to sort</param>
         /// <param name="property">Optional property with which to sort an array of hashes or drops</param>
-        public static IEnumerable Sort(Context context, object input, string property = null)
-        {
-            if (input == null)
-                return null;
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid22)]
+        public static IEnumerable Sort(object input, string property = null) => SortInternal(StringComparer.Ordinal, input, property);
 
-            if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid22)
-                return SortInternal(StringComparer.Ordinal, input, property);
-            else
-                return SortInternal(StringComparer.OrdinalIgnoreCase, input, property);
-        }
+        /// <summary>
+        /// Sort elements of the array
+        /// </summary>
+        /// <param name="input">The object to sort</param>
+        /// <param name="property">Optional property with which to sort an array of hashes or drops</param>
+        [LiquidFilter(Name = nameof(Sort), MaxVersion = SyntaxCompatibility.DotLiquid21)]
+        public static IEnumerable SortV20(object input, string property = null) => SortInternal(StringComparer.OrdinalIgnoreCase, input, property);
 
         /// <summary>
         /// Sort elements of the array in case-insensitive order
@@ -425,14 +423,14 @@ namespace DotLiquid
         /// <param name="property">Optional property with which to sort an array of hashes or drops</param>
         public static IEnumerable SortNatural(object input, string property = null)
         {
-            if (input == null)
-                return null;
-
             return SortInternal(StringComparer.OrdinalIgnoreCase, input, property);
         }
 
         private static IEnumerable SortInternal(StringComparer stringComparer, object input, string property = null)
         {
+            if (input == null)
+                return null;
+
             List<object> ary;
             if (input is IEnumerable<Hash> enumerableHash && !string.IsNullOrEmpty(property))
                 ary = enumerableHash.Cast<object>().ToList();
@@ -498,17 +496,29 @@ namespace DotLiquid
         /// <summary>
         /// Replaces every occurrence of the first argument in a string with the second argument
         /// </summary>
-        /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="string">Substring to be replaced</param>
         /// <param name="replacement">Replacement string to be inserted</param>
-        public static string Replace(Context context, string input, string @string, string replacement = "")
+        [LiquidFilter(Name = nameof(Replace), MinVersion = SyntaxCompatibility.DotLiquid21)]
+        public static string Replace(string input, string @string, string replacement = "")
         {
             if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(@string))
                 return input;
 
-            if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21)
-                return input.Replace(@string, replacement);
+            return input.Replace(@string, replacement);
+        }
+
+        /// <summary>
+        /// Replaces every occurrence of the first argument in a string with the second argument
+        /// </summary>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="string">Substring to be replaced</param>
+        /// <param name="replacement">Replacement string to be inserted</param>
+        [LiquidFilter(Name = nameof(Replace), MaxVersion = SyntaxCompatibility.DotLiquid20)]
+        public static string ReplaceV20(string input, string @string, string replacement = "")
+        {
+            if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(@string))
+                return input;
 
             return ExtendedFilters.RegexReplace(input: input, pattern: @string, replacement: replacement);
         }
@@ -726,11 +736,21 @@ namespace DotLiquid
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="operand">Number to be added to input</param>
+        [LiquidFilter(Name = "Plus", MinVersion = SyntaxCompatibility.DotLiquid21)]
         public static object Plus(Context context, object input, object operand)
         {
-            if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21)
-                return DoMathsOperation(context, input, operand, Expression.AddChecked);
+            return DoMathsOperation(context, input, operand, Expression.AddChecked);
+        }
 
+        /// <summary>
+        /// Addition
+        /// </summary>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="operand">Number to be added to input</param>
+        [LiquidFilter(Name = "Plus", MaxVersion = SyntaxCompatibility.DotLiquid20)]
+        public static object PlusV20(Context context, object input, object operand)
+        {
             return input is string
                 ? string.Concat(input, operand)
                 : DoMathsOperation(context, input, operand, Expression.AddChecked);
@@ -753,15 +773,22 @@ namespace DotLiquid
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="operand">Number to multiple input by</param>
-        public static object Times(Context context, object input, object operand)
+        [LiquidFilter(Name = nameof(Times), MaxVersion = SyntaxCompatibility.DotLiquid20)]
+        public static object TimesV20(Context context, object input, object operand)
         {
-            if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21)
-                return DoMathsOperation(context, input, operand, Expression.MultiplyChecked);
-
             return input is string && (operand is int || operand is long)
                 ? Enumerable.Repeat((string)input, Convert.ToInt32(operand))
                 : DoMathsOperation(context, input, operand, Expression.MultiplyChecked);
         }
+
+        /// <summary>
+        /// Multiplication
+        /// </summary>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="operand">Number to multiple input by</param>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid21)]
+        public static object Times(Context context, object input, object operand) => DoMathsOperation(context, input, operand, Expression.MultiplyChecked);
 
         /// <summary>
         /// Rounds a decimal value to the specified places
@@ -1048,10 +1075,7 @@ namespace DotLiquid
                     indexable = safeTypeTransformer(obj) as DropBase;
                 else
                 {
-                    var liquidTypeAttribute = type
-                        .GetTypeInfo()
-                        .GetCustomAttributes(attributeType: typeof(LiquidTypeAttribute), inherit: false)
-                        .FirstOrDefault() as LiquidTypeAttribute;
+                    var liquidTypeAttribute = TypeUtility.GetLiquidTypeAttribute(type);
                     if (liquidTypeAttribute != null)
                     {
                         indexable = new DropProxy(obj, liquidTypeAttribute.AllowedMembers);

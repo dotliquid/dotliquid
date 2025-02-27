@@ -44,7 +44,7 @@ namespace DotLiquid.Tests
             };
             _contextV22b = new Context(CultureInfo.InvariantCulture)
             {
-                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22b
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid24
             };
             _contextLatest = new Context(CultureInfo.InvariantCulture)
             {

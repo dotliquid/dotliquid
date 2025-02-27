@@ -789,7 +789,7 @@ namespace DotLiquid
         /// This will treat it as any other invalid places value, and round to closest integer.</remarks>
         public static object Round(Context context, object input, object places = null)
         {
-            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22b)
+            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid24)
             {
                 return Round_BeforeDotLiquid22b(input, places);
             }
@@ -819,7 +819,7 @@ namespace DotLiquid
         /// <returns>The rounded value; null if an exception have occurred</returns>
         public static object Ceil(Context context, object input)
         {
-            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22b)
+            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid24)
             {
                 return decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal n) ? (object)Math.Ceiling(n) : null;
             }
@@ -846,7 +846,7 @@ namespace DotLiquid
         /// <returns>The rounded value; null if an exception have occurred</returns>
         public static object Floor(Context context, object input)
         {
-            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22b)
+            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid24)
             {
                 return decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal n) ? (object)Math.Floor(n) : null;
             }
@@ -991,7 +991,7 @@ namespace DotLiquid
         /// <param name="input">Input to be transformed by this filter</param>
         public static object Abs(Context context, object input)
         {
-            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22b)
+            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid24)
             {
                 return Double.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out double n) ? Math.Abs(n) : 0;
             }
@@ -1036,7 +1036,7 @@ namespace DotLiquid
         /// <param name="atLeast">Value to apply if more than input</param>
         public static object AtLeast(Context context, object input, object atLeast)
         {
-            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22b)
+            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid24)
             {
                 return AtLeast_BeforeDotLiquid22b(context, input, atLeast);
             }
@@ -1078,7 +1078,7 @@ namespace DotLiquid
         /// <param name="atMost">Value to apply if less than input</param>
         public static object AtMost(Context context, object input, object atMost)
         {
-            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22b)
+            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid24)
             {
                 return AtMost_BeforeDotLiquid22b(context, input, atMost);
             }

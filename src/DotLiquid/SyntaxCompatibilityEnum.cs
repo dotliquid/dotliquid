@@ -26,13 +26,13 @@ namespace DotLiquid
         DotLiquid22a = 221,
 
         /// <summary>
-        /// Behavior as of DotLiquid 2.2b
+        /// Behavior as of DotLiquid 2.4
         /// </summary>
-        DotLiquid22b = 222,
+        DotLiquid24 = 240,
 
         /// <summary>
         /// Equivalent to the latest version of DotLiquid
         /// </summary>
-        DotLiquidLatest = DotLiquid22b,
+        DotLiquidLatest = DotLiquid24,
     }
 }

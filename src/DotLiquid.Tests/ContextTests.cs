@@ -242,6 +242,7 @@ namespace DotLiquid.Tests
             Assert.That(_context["list[0]"], Is.EqualTo(list[0]));
             Assert.That(_context["list[-1]"], Is.EqualTo(list[list.Count - 1]));
             Assert.That(_context["list[12]"], Is.Null);
+            Assert.That(_context["list[-12]"], Is.Null);
 
             List<string> emptyList = new List<string>();
             _context["empty_list"] = emptyList;

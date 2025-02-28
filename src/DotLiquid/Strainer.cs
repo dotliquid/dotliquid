@@ -34,9 +34,14 @@ namespace DotLiquid
             FilterFuncs[name] = Tuple.Create(target, methodInfo);
         }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="Strainer"/> class.
+        /// </summary>
+        /// <param name="context">The DotLiquid context to be used for creating the <see cref="Strainer"/>.</param>
+        /// <returns>A new instance of the <see cref="Strainer"/> class.</returns>
         public static Strainer Create(Context context)
         {
-            Strainer strainer = new Strainer(context);
+            var strainer = new Strainer(context);
 
             foreach (var keyValue in Filters)
                 strainer.Extend(context.SyntaxCompatibilityLevel, keyValue.Value);
@@ -55,6 +60,10 @@ namespace DotLiquid
             get { return _methods.Values.SelectMany(m => m.Select(x => x.Item2)); }
         }
 
+        /// <summary>
+        /// Creates a new instance of the <see cref="Strainer"/> class.
+        /// </summary>
+        /// <param name="context">The DotLiquid context to be used for creating the <see cref="Strainer"/>.</param>
         public Strainer(Context context)
         {
             _context = context;
@@ -65,7 +74,7 @@ namespace DotLiquid
         /// methods from the specified type and use them instead.
         /// </summary>
         /// <param name="syntaxCompatibilityLevel">The Liquid syntax flag used for backward compatibility</param>
-        /// <param name="type"></param>
+        /// <param name="type">The type from which static methods will be extracted and mixed to the current <see cref="Strainer"/>.</param>
         public void Extend(SyntaxCompatibility syntaxCompatibilityLevel, Type type)
         {
             // Calls to Extend replace existing filters with the same number of params.

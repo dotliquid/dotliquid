@@ -179,22 +179,6 @@ namespace DotLiquid
         /// <summary>
         /// capitalize words in the input sentence
         /// </summary>
-        /// <param name="context">The DotLiquid context</param>
-        /// <param name="input">Input to be transformed by this filter</param>
-        [LiquidFilter(Name = nameof(Capitalize), MinVersion = SyntaxCompatibility.DotLiquid20, MaxVersion = SyntaxCompatibility.DotLiquid20)]
-        public static string CapitalizeV20(Context context, string input) => ExtendedFilters.Titleize(context, input);
-
-        /// <summary>
-        /// capitalize words in the input sentence
-        /// </summary>
-        /// <param name="input">Input to be transformed by this filter</param>
-        [LiquidFilter(Name = nameof(Capitalize), MinVersion = SyntaxCompatibility.DotLiquid21, MaxVersion = SyntaxCompatibility.DotLiquid21)]
-        public static string CapitalizeV21(string input) => ExtendedFilters.UpcaseFirst(input);
-
-
-        /// <summary>
-        /// capitalize words in the input sentence
-        /// </summary>
         /// <param name="input">Input to be transformed by this filter</param>
         [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid22)]
         public static string Capitalize(string input)
@@ -409,14 +393,6 @@ namespace DotLiquid
         public static IEnumerable Sort(object input, string property = null) => SortInternal(StringComparer.Ordinal, input, property);
 
         /// <summary>
-        /// Sort elements of the array
-        /// </summary>
-        /// <param name="input">The object to sort</param>
-        /// <param name="property">Optional property with which to sort an array of hashes or drops</param>
-        [LiquidFilter(Name = nameof(Sort), MaxVersion = SyntaxCompatibility.DotLiquid21)]
-        public static IEnumerable SortV20(object input, string property = null) => SortInternal(StringComparer.OrdinalIgnoreCase, input, property);
-
-        /// <summary>
         /// Sort elements of the array in case-insensitive order
         /// </summary>
         /// <param name="input">The object to sort</param>
@@ -426,7 +402,7 @@ namespace DotLiquid
             return SortInternal(StringComparer.OrdinalIgnoreCase, input, property);
         }
 
-        private static IEnumerable SortInternal(StringComparer stringComparer, object input, string property = null)
+        internal static IEnumerable SortInternal(StringComparer stringComparer, object input, string property = null)
         {
             if (input == null)
                 return null;
@@ -506,21 +482,6 @@ namespace DotLiquid
                 return input;
 
             return input.Replace(@string, replacement);
-        }
-
-        /// <summary>
-        /// Replaces every occurrence of the first argument in a string with the second argument
-        /// </summary>
-        /// <param name="input">Input to be transformed by this filter</param>
-        /// <param name="string">Substring to be replaced</param>
-        /// <param name="replacement">Replacement string to be inserted</param>
-        [LiquidFilter(Name = nameof(Replace), MaxVersion = SyntaxCompatibility.DotLiquid20)]
-        public static string ReplaceV20(string input, string @string, string replacement = "")
-        {
-            if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(@string))
-                return input;
-
-            return ExtendedFilters.RegexReplace(input: input, pattern: @string, replacement: replacement);
         }
 
         /// <summary>
@@ -743,20 +704,6 @@ namespace DotLiquid
         }
 
         /// <summary>
-        /// Addition
-        /// </summary>
-        /// <param name="context">The DotLiquid context</param>
-        /// <param name="input">Input to be transformed by this filter</param>
-        /// <param name="operand">Number to be added to input</param>
-        [LiquidFilter(Name = "Plus", MaxVersion = SyntaxCompatibility.DotLiquid20)]
-        public static object PlusV20(Context context, object input, object operand)
-        {
-            return input is string
-                ? string.Concat(input, operand)
-                : DoMathsOperation(context, input, operand, Expression.AddChecked);
-        }
-
-        /// <summary>
         /// Subtraction
         /// </summary>
         /// <param name="context">The DotLiquid context</param>
@@ -765,20 +712,6 @@ namespace DotLiquid
         public static object Minus(Context context, object input, object operand)
         {
             return DoMathsOperation(context, input, operand, Expression.SubtractChecked);
-        }
-
-        /// <summary>
-        /// Multiplication
-        /// </summary>
-        /// <param name="context">The DotLiquid context</param>
-        /// <param name="input">Input to be transformed by this filter</param>
-        /// <param name="operand">Number to multiple input by</param>
-        [LiquidFilter(Name = nameof(Times), MaxVersion = SyntaxCompatibility.DotLiquid20)]
-        public static object TimesV20(Context context, object input, object operand)
-        {
-            return input is string && (operand is int || operand is long)
-                ? Enumerable.Repeat((string)input, Convert.ToInt32(operand))
-                : DoMathsOperation(context, input, operand, Expression.MultiplyChecked);
         }
 
         /// <summary>
@@ -872,7 +805,7 @@ namespace DotLiquid
 
         private static bool IsReal(object o) => o is double || o is float || o is decimal;
 
-        private static object DoMathsOperation(Context context, object input, object operand, Func<Expression, Expression, BinaryExpression> operation)
+        internal static object DoMathsOperation(Context context, object input, object operand, Func<Expression, Expression, BinaryExpression> operation)
         {
             if (input == null || operand == null)
                 return null;

@@ -132,12 +132,26 @@ namespace DotLiquid.Tests
             Assert.That(StandardFilters.TruncateWords("one two three"), Is.EqualTo("one two three"));
             Assert.That(StandardFilters.TruncateWords("Two small (13&#8221; x 5.5&#8221; x 10&#8221; high) baskets fit inside one large basket (13&#8221; x 16&#8221; x 10.5&#8221; high) with cover.", 15), Is.EqualTo("Two small (13&#8221; x 5.5&#8221; x 10&#8221; high) baskets fit inside one large basket (13&#8221;..."));
 
-            Helper.AssertTemplateResult(expected: "Ground control to...", template: "{{ \"Ground control to Major Tom.\" | truncate_words: 3}}");
-            Helper.AssertTemplateResult(expected: "Ground control to--", template: "{{ \"Ground control to Major Tom.\" | truncate_words: 3, \"--\"}}");
-            Helper.AssertTemplateResult(expected: "Ground control to", template: "{{ \"Ground control to Major Tom.\" | truncate_words: 3, \"\"}}");
-            Helper.AssertTemplateResult(expected: "...", template: "{{ \"Ground control to Major Tom.\" | truncate_words: 0}}");
-            Helper.AssertTemplateResult(expected: "...", template: "{{ \"Ground control to Major Tom.\" | truncate_words: -1}}");
-            Helper.AssertTemplateResult(expected: "Liquid error: Value was either too large or too small for an Int32.", template: $"{{{{ \"Ground control to Major Tom.\" | truncate_words: {((long)int.MaxValue) + 1}}}}}");
+            TestTruncateWords(SyntaxCompatibility.DotLiquid20);
+            TestTruncateWords(SyntaxCompatibility.DotLiquid24);
+        }
+
+        [Test]
+        public void TestTruncateWords(SyntaxCompatibility syntax)
+        {
+            Helper.AssertTemplateResult(expected: "Ground control to...", template: "{{ \"Ground control to Major Tom.\" | truncate_words: 3}}", syntax: syntax);
+            Helper.AssertTemplateResult(expected: "Ground control to--", template: "{{ \"Ground control to Major Tom.\" | truncate_words: 3, \"--\"}}", syntax: syntax);
+            Helper.AssertTemplateResult(expected: "Ground control to", template: "{{ \"Ground control to Major Tom.\" | truncate_words: 3, \"\"}}", syntax: syntax);
+            Helper.AssertTemplateResult(expected: "...", template: "{{ \"Ground control to Major Tom.\" | truncate_words: 0}}", syntax: syntax);
+            Helper.AssertTemplateResult(expected: "...", template: "{{ \"Ground control to Major Tom.\" | truncate_words: -1}}", syntax: syntax);
+            Helper.AssertTemplateResult(expected: "Liquid error: Value was either too large or too small for an Int32.", template: $"{{{{ \"Ground control to Major Tom.\" | truncate_words: {((long)int.MaxValue) + 1}}}}}", syntax: syntax);
+        }
+
+        [Test]
+        public void TestTruncateWordsWhitespaceV24()
+        {
+            Assert.That(StandardFilters.TruncateWords("    one    two three    four  ", 2), Is.EqualTo("one two..."));
+            Assert.That(StandardFilters.TruncateWords("one  two\tthree\nfour", 3), Is.EqualTo("one two three..."));
         }
 
         [Test]
@@ -150,6 +164,14 @@ namespace DotLiquid.Tests
             Assert.That(StandardFilters.Split("YMCA", null), Is.EqualTo(new[] { "Y", "M", "C", "A" }).AsCollection);
             Assert.That(StandardFilters.Split("YMCA", ""), Is.EqualTo(new[] { "Y", "M", "C", "A" }).AsCollection);
             Assert.That(StandardFilters.Split(" ", ""), Is.EqualTo(new[] { " " }).AsCollection);
+        }
+
+        [Test]
+        public void TestSplitWhitespace()
+        {
+            Assert.That(StandardFilters.Split("    one    two three    four  ", " "), Is.EqualTo(new[] { "one", "two", "three", "four" }).AsCollection);
+            Assert.That(StandardFilters.Split("one  two\tthree\nfour", " "), Is.EqualTo(new[] { "one", "two", "three", "four" }).AsCollection);
+            Assert.That(StandardFilters.Split("one  two\tthree\nfour", "\n"), Is.EqualTo(new[] { "one  two\tthree", "four" }).AsCollection);
         }
 
         [Test]

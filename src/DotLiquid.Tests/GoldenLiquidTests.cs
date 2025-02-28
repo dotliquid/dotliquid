@@ -93,7 +93,7 @@ namespace DotLiquid.Tests
                 context[pair.Key] = pair.Value;
             }
 
-            var syntax = SyntaxCompatibility.DotLiquid22a;
+            var syntax = SyntaxCompatibility.DotLiquidLatest;
             var parameters = new RenderParameters(CultureInfo.CurrentCulture)
             {
                 SyntaxCompatibilityLevel = syntax,

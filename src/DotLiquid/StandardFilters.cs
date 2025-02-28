@@ -242,7 +242,7 @@ namespace DotLiquid
                 return truncateString;
             }
 
-            var lengthExcludingTruncateString = length - truncateString.Length;
+            var lengthExcludingTruncateString = truncateString == null ? length : length - truncateString.Length;
             return input.Length > length
                 ? input.Substring(startIndex: 0, length: lengthExcludingTruncateString < 0 ? 0 : lengthExcludingTruncateString) + truncateString
                 : input;
@@ -254,6 +254,7 @@ namespace DotLiquid
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="words">optional maximum number of words in returned string, defaults to 15</param>
         /// <param name="truncateString">Optional suffix to append when string is truncated, defaults to ellipsis(...)</param>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24, Alias = "Truncatewords")]
         public static string TruncateWords(string input, int words = 15, string truncateString = "...")
         {
             if (string.IsNullOrEmpty(input))
@@ -262,11 +263,10 @@ namespace DotLiquid
             }
 
             if (words <= 0)
-            {
-                return truncateString;
-            }
+                words = 1;
 
-            var wordArray = input.Split(' ');
+            // Split to an array using any ascii whitespace as noted in the StandardFilters.Split method.
+            var wordArray = input.Split(Tokenizer.WhitespaceCharsV22, words + 1, StringSplitOptions.RemoveEmptyEntries);
             return wordArray.Length > words
                 ? string.Join(separator: " ", values: wordArray.Take(words)) + truncateString
                 : input;
@@ -288,8 +288,12 @@ namespace DotLiquid
 
             // If the pattern is empty convert to an array as specified in the Liquid Reverse filter example.
             // See: https://shopify.github.io/liquid/filters/reverse/
-            return string.IsNullOrEmpty(pattern)
-                ? input.ToCharArray().Select(character => character.ToString()).ToArray()
+            if (string.IsNullOrEmpty(pattern))
+                return input.ToCharArray().Select(character => character.ToString()).ToArray();
+
+            // Ruby docs: If pattern is a single space, str is split on whitespace, with leading and trailing whitespace and runs of contiguous whitespace characters ignored.
+            return pattern == " "
+                ? input.Split(Tokenizer.WhitespaceCharsV22, StringSplitOptions.RemoveEmptyEntries)
                 : input.Split(new[] { pattern }, StringSplitOptions.RemoveEmptyEntries);
         }
 

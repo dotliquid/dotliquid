@@ -123,7 +123,20 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestTruncateWords()
+        public void TestTruncateWordsV20()
+        {
+            Assert.That(LegacyFilters.TruncateWords(null), Is.EqualTo(null));
+            Assert.That(LegacyFilters.TruncateWords(""), Is.EqualTo(""));
+            Assert.That(LegacyFilters.TruncateWords("one two three", 4), Is.EqualTo("one two three"));
+            Assert.That(LegacyFilters.TruncateWords("one two three", 2), Is.EqualTo("one two..."));
+            Assert.That(LegacyFilters.TruncateWords("one two three"), Is.EqualTo("one two three"));
+            Assert.That(LegacyFilters.TruncateWords("Two small (13&#8221; x 5.5&#8221; x 10&#8221; high) baskets fit inside one large basket (13&#8221; x 16&#8221; x 10.5&#8221; high) with cover.", 15), Is.EqualTo("Two small (13&#8221; x 5.5&#8221; x 10&#8221; high) baskets fit inside one large basket (13&#8221;..."));
+
+            TestTruncateWords(SyntaxCompatibility.DotLiquid20, "truncate_words");
+        }
+
+        [Test]
+        public void TestTruncateWordsV24()
         {
             Assert.That(StandardFilters.TruncateWords(null), Is.EqualTo(null));
             Assert.That(StandardFilters.TruncateWords(""), Is.EqualTo(""));
@@ -132,19 +145,30 @@ namespace DotLiquid.Tests
             Assert.That(StandardFilters.TruncateWords("one two three"), Is.EqualTo("one two three"));
             Assert.That(StandardFilters.TruncateWords("Two small (13&#8221; x 5.5&#8221; x 10&#8221; high) baskets fit inside one large basket (13&#8221; x 16&#8221; x 10.5&#8221; high) with cover.", 15), Is.EqualTo("Two small (13&#8221; x 5.5&#8221; x 10&#8221; high) baskets fit inside one large basket (13&#8221;..."));
 
-            TestTruncateWords(SyntaxCompatibility.DotLiquid20);
-            TestTruncateWords(SyntaxCompatibility.DotLiquid24);
+            TestTruncateWords(SyntaxCompatibility.DotLiquid24, "truncate_words");
+            TestTruncateWords(SyntaxCompatibility.DotLiquid24, "truncatewords");
+        }
+
+        public void TestTruncateWords(SyntaxCompatibility syntax, string filterName)
+        {
+            Helper.AssertTemplateResult(expected: "Ground control to...", template: "{{ \"Ground control to Major Tom.\" | " + filterName + ": 3}}", syntax: syntax);
+            Helper.AssertTemplateResult(expected: "Ground control to--", template: "{{ \"Ground control to Major Tom.\" | " + filterName + ": 3, \"--\"}}", syntax: syntax);
+            Helper.AssertTemplateResult(expected: "Ground control to", template: "{{ \"Ground control to Major Tom.\" | " + filterName + ": 3, \"\"}}", syntax: syntax);
+            Helper.AssertTemplateResult(expected: "Liquid error: Value was either too large or too small for an Int32.", template: $"{{{{ \"Ground control to Major Tom.\" | {filterName}: {((long)int.MaxValue) + 1}}}}}", syntax: syntax);
         }
 
         [Test]
-        public void TestTruncateWords(SyntaxCompatibility syntax)
+        public void TestTruncateWordsZeroV20 ()
         {
-            Helper.AssertTemplateResult(expected: "Ground control to...", template: "{{ \"Ground control to Major Tom.\" | truncate_words: 3}}", syntax: syntax);
-            Helper.AssertTemplateResult(expected: "Ground control to--", template: "{{ \"Ground control to Major Tom.\" | truncate_words: 3, \"--\"}}", syntax: syntax);
-            Helper.AssertTemplateResult(expected: "Ground control to", template: "{{ \"Ground control to Major Tom.\" | truncate_words: 3, \"\"}}", syntax: syntax);
-            Helper.AssertTemplateResult(expected: "...", template: "{{ \"Ground control to Major Tom.\" | truncate_words: 0}}", syntax: syntax);
-            Helper.AssertTemplateResult(expected: "...", template: "{{ \"Ground control to Major Tom.\" | truncate_words: -1}}", syntax: syntax);
-            Helper.AssertTemplateResult(expected: "Liquid error: Value was either too large or too small for an Int32.", template: $"{{{{ \"Ground control to Major Tom.\" | truncate_words: {((long)int.MaxValue) + 1}}}}}", syntax: syntax);
+            Helper.AssertTemplateResult(expected: "...", template: "{{ \"Ground control to Major Tom.\" | truncate_words: 0}}", syntax: SyntaxCompatibility.DotLiquid20);
+            Helper.AssertTemplateResult(expected: "...", template: "{{ \"Ground control to Major Tom.\" | truncate_words: -1}}", syntax: SyntaxCompatibility.DotLiquid20);
+        }
+
+        [Test]
+        public void TestTruncateWordsZeroV24()
+        {
+            Helper.AssertTemplateResult(expected: "Ground...", template: "{{ \"Ground control to Major Tom.\" | truncate_words: 0}}", syntax: SyntaxCompatibility.DotLiquid24);
+            Helper.AssertTemplateResult(expected: "Ground...", template: "{{ \"Ground control to Major Tom.\" | truncate_words: -1}}", syntax: SyntaxCompatibility.DotLiquid24);
         }
 
         [Test]

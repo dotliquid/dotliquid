@@ -78,5 +78,30 @@ namespace DotLiquid
                 ? Enumerable.Repeat(@string, Convert.ToInt32(operand))
                 : StandardFilters.DoMathsOperation(context, input, operand, Expression.MultiplyChecked);
         }
+
+        /// <summary>
+        /// Truncate a string down to x words
+        /// </summary>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="words">optional maximum number of words in returned string, defaults to 15</param>
+        /// <param name="truncateString">Optional suffix to append when string is truncated, defaults to ellipsis(...)</param>
+        [LiquidFilter(MaxVersion = SyntaxCompatibility.DotLiquid22a)]
+        public static string TruncateWords(string input, int words = 15, string truncateString = "...")
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return input;
+            }
+
+            if (words <= 0)
+            {
+                return truncateString;
+            }
+
+            var wordArray = input.Split(' ');
+            return wordArray.Length > words
+                ? string.Join(separator: " ", values: wordArray.Take(words)) + truncateString
+                : input;
+        }
     }
 }

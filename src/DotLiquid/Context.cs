@@ -38,7 +38,7 @@ namespace DotLiquid
             set
             {
                 if (_strainer != null)
-                    throw new System.ArgumentException("");
+                    throw new ContextException(Liquid.ResourceManager.GetString("ContextPropertyReadonly"), nameof(SyntaxCompatibilityLevel));
                 _syntaxCompatibilityLevel = value;
             }
         }

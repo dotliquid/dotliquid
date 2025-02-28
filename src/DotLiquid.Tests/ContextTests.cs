@@ -438,6 +438,14 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        public void TestSyntaxCompatibilityReadonly()
+        {
+            Context context = new Context(CultureInfo.InvariantCulture) { SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20 };
+            context.AddFilters(new[] { typeof(TestFilters) });
+            Assert.Throws<ContextException>(() => context.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22);
+        }
+
+        [Test]
         public void TestOverrideGlobalFilter()
         {
             Template.RegisterFilter(typeof(GlobalFilters));

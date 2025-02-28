@@ -264,4 +264,7 @@
   <data name="DateFilterRubyDirectiveInvalid" xml:space="preserve">
     <value>Invalid directive passed to {0}</value>
   </data>
+  <data name="ContextPropertyReadonly" xml:space="preserve">
+    <value>Property '{0}' cannot be modified after the context has entered its current state.</value>
+  </data>
 </root>

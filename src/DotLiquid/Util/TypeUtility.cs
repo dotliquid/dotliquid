@@ -8,11 +8,11 @@ namespace DotLiquid.Util
 {
     internal static class TypeUtility
     {
-        private static ConditionalWeakTable<Type, ReflectionCacheValue> _cache = new ConditionalWeakTable<Type, ReflectionCacheValue>();
+        private static readonly ConditionalWeakTable<Type, ReflectionCacheValue> _cache = new ConditionalWeakTable<Type, ReflectionCacheValue>();
 
-        private static ConditionalWeakTable<MethodInfo, LiquidFilterAttribute> _filterAttributeCache = new ConditionalWeakTable<MethodInfo, LiquidFilterAttribute>();
+        private static readonly ConditionalWeakTable<MethodInfo, LiquidFilterAttribute> _filterAttributeCache = new ConditionalWeakTable<MethodInfo, LiquidFilterAttribute>();
 
-        private static ConditionalWeakTable<Type, LiquidTypeAttribute> _typeAttributeCache = new ConditionalWeakTable<Type, LiquidTypeAttribute>();
+        private static readonly ConditionalWeakTable<Type, LiquidTypeAttribute> _typeAttributeCache = new ConditionalWeakTable<Type, LiquidTypeAttribute>();
 
 
         public static bool IsAnonymousType(Type t)

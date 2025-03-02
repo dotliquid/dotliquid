@@ -239,8 +239,8 @@ namespace DotLiquid.Tests
             List<int> list = new List<int> { 1, 2, 3, 4, 5 };
             _context["list"] = list;
             Assert.That(_context["list"], Is.EqualTo(list));
-            Assert.That(_context["list[0]"], Is.EqualTo(list[0]));
-            Assert.That(_context["list[-1]"], Is.EqualTo(list[list.Count - 1]));
+            Assert.That(_context["list[0]"], Is.EqualTo(1));
+            Assert.That(_context["list[-1]"], Is.EqualTo(5));
             Assert.That(_context["list[12]"], Is.Null);
             Assert.That(_context["list[-12]"], Is.Null);
 

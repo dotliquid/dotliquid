@@ -26,10 +26,10 @@ namespace DotLiquid
             { ">", (left, right) => left != null && right != null && Comparer<object>.Default.Compare(left, Convert.ChangeType(right, left.GetType())) == 1 },
             { "<=", (left, right) => left != null && right != null && Comparer<object>.Default.Compare(left, Convert.ChangeType(right, left.GetType())) <= 0 },
             { ">=", (left, right) => left != null && right != null && Comparer<object>.Default.Compare(left, Convert.ChangeType(right, left.GetType())) >= 0 },
-            { "contains", (left, right) => ((left is string) ? ((string)left).Contains((string)right) : (left is IEnumerable) ? Any((IEnumerable) left, (element) => element.BackCompatSafeTypeInsensitiveEqual(right)) : false) },
-            { "startsWith", (left, right) => (left is IList) ? EqualVariables(((IList) left).OfType<object>().FirstOrDefault(), right) : ((left is string) ? ((string)left).StartsWith((string) right) : false) },
-            { "endsWith", (left, right) => (left is IList) ? EqualVariables(((IList) left).OfType<object>().LastOrDefault(), right) : ((left is string) ? ((string)left).EndsWith((string) right) : false) },
-            { "hasKey", (left, right) => (left is IDictionary) ? ((IDictionary) left).Contains(right) : false },
+            { "contains", (left, right) => ((left is string && right != null) ? ((string)left).Contains((string)right) : (left is IEnumerable) ? Any((IEnumerable) left, (element) => element.BackCompatSafeTypeInsensitiveEqual(right)) : false) },
+            { "startsWith", (left, right) => (left is IList) ? EqualVariables(((IList) left).OfType<object>().FirstOrDefault(), right) : ((left is string && right != null) ? ((string)left).StartsWith((string) right) : false) },
+            { "endsWith", (left, right) => (left is IList) ? EqualVariables(((IList) left).OfType<object>().LastOrDefault(), right) : ((left is string && right != null) ? ((string)left).EndsWith((string) right) : false) },
+            { "hasKey", (left, right) => (left is IDictionary) ? ((right != null) && ((IDictionary) left).Contains(right)) : false },
             { "hasValue", (left, right) => (left is IDictionary) ? ((IDictionary) left).Values.Cast<object>().Contains(right) : false }
         };
 

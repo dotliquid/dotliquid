@@ -22,7 +22,7 @@ namespace DotLiquid
     {
         private static readonly Lazy<Regex> StripHtmlBlocks = new Lazy<Regex>(() => R.C(@"<script.*?</script>|<!--.*?-->|<style.*?</style>", RegexOptions.Singleline | RegexOptions.IgnoreCase), LazyThreadSafetyMode.ExecutionAndPublication);
         private static readonly Lazy<Regex> StripHtmlTags = new Lazy<Regex>(() => R.C(@"<.*?>", RegexOptions.Singleline), LazyThreadSafetyMode.ExecutionAndPublication);
-
+        private static string Space = " ";
 #if NETSTANDARD1_3
         private class StringAwareObjectComparer : IComparer
         {
@@ -268,7 +268,7 @@ namespace DotLiquid
             // Split to an array using any ascii whitespace as noted in the StandardFilters.Split method.
             var wordArray = input.Split(Tokenizer.WhitespaceCharsV22, words + 1, StringSplitOptions.RemoveEmptyEntries);
             return wordArray.Length > words
-                ? string.Join(separator: " ", values: wordArray.Take(words)) + truncateString
+                ? string.Join(separator: Space, values: wordArray.Take(words)) + truncateString
                 : input;
         }
 
@@ -276,8 +276,9 @@ namespace DotLiquid
         /// Split input string into an array of substrings separated by given pattern.
         /// </summary>
         /// <remarks>
-        /// If the pattern is empty the input string is converted to an array of 1-char
-        /// strings (as specified in the Liquid Reverse filter example).
+        /// If the pattern is empty the input string is converted to an array of 0-char strings
+        /// If pattern is a single space, input is split on whitespace, removing all empty entries
+        /// Else, input is split and empty entries at the end are discarded
         /// </remarks>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="pattern">separator string</param>
@@ -293,7 +294,7 @@ namespace DotLiquid
                 return input.ToCharArray().Select(character => character.ToString()).ToArray();
 
             // Ruby docs: If pattern is a single space, str is split on whitespace, with leading and trailing whitespace and runs of contiguous whitespace characters ignored.
-            if (pattern == " ")
+            if (pattern == Space)
                 return input.Split(Tokenizer.WhitespaceCharsV22, StringSplitOptions.RemoveEmptyEntries);
 
             // Ruby docs: When field_sep is a string different from ' ' and limit is 0, the split occurs at each occurrence of field_sep; trailing empty substrings are not returned.

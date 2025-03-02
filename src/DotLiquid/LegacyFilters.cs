@@ -66,6 +66,28 @@ namespace DotLiquid
         }
 
         /// <summary>
+        /// Split input string into an array of substrings separated by given pattern.
+        /// </summary>
+        /// <remarks>
+        /// If the pattern is empty the input string is converted to an array of 1-char
+        /// strings (as specified in the Liquid Reverse filter example).
+        /// </remarks>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="pattern">separator string</param>
+        [LiquidFilter(MaxVersion = SyntaxCompatibility.DotLiquid22a)]
+        public static string[] Split(string input, string pattern)
+        {
+            if (input.IsNullOrWhiteSpace())
+                return new[] { input };
+
+            // If the pattern is empty convert to an array as specified in the Liquid Reverse filter example.
+            // See: https://shopify.github.io/liquid/filters/reverse/
+            return string.IsNullOrEmpty(pattern)
+                ? input.ToCharArray().Select(character => character.ToString()).ToArray()
+                : input.Split(new[] { pattern }, StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        /// <summary>
         /// Multiplication
         /// </summary>
         /// <param name="context">The DotLiquid context</param>

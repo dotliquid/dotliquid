@@ -189,7 +189,7 @@ namespace DotLiquid
             {
                 string rubyMethod = Template.NamingConvention.GetMemberName(method);
 
-                if (TypeResolution.CachedMethods.TryGetValue(rubyMethod, out MethodInfo mi) || TypeResolution.CachedProperties.TryGetValue(rubyMethod, out PropertyInfo pi))
+                if (TypeResolution.CachedMethods.TryGetValue(rubyMethod, out _) || TypeResolution.CachedProperties.TryGetValue(rubyMethod, out _))
                 {
                     return string.Format(Liquid.ResourceManager.GetString("DropWrongNamingConventionMessage"), rubyMethod);
                 }

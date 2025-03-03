@@ -49,7 +49,7 @@ namespace DotLiquid
         /// </summary>
         public static bool DefaultIsThreadSafe { get; set; }
 
-        private static Dictionary<string, Tuple<ITagFactory, Type>> Tags { get; set; }
+        private static Dictionary<string, ITagFactory> Tags { get; set; }
 
         /// <summary>
         /// TimeOut used for all Regex in DotLiquid
@@ -66,7 +66,7 @@ namespace DotLiquid
             RegexTimeOut = TimeSpan.FromSeconds(10);
             NamingConvention = new RubyNamingConvention();
             FileSystem = new BlankFileSystem();
-            Tags = new Dictionary<string, Tuple<ITagFactory, Type>>();
+            Tags = new Dictionary<string, ITagFactory>();
             SafeTypeTransformers = new Dictionary<Type, Func<object, object>>();
             ValueTypeTransformers = new Dictionary<Type, Func<object, object>>();
             ValueTypeTransformerCache = new ConcurrentDictionary<Type, Func<object, object>>();
@@ -81,7 +81,7 @@ namespace DotLiquid
             where T : Tag, new()
         {
             var tagType = typeof(T);
-            Tags[name] = new Tuple<ITagFactory, Type>(new ActivatorTagFactory(tagType, name), tagType);
+            Tags[name] = new ConstructorTagFactory<T>(name);
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace DotLiquid
         /// <param name="tagFactory">The ITagFactory to be registered</param>
         public static void RegisterTagFactory(ITagFactory tagFactory)
         {
-            Tags[tagFactory.TagName] = new Tuple<ITagFactory, Type>(tagFactory, null);
+            Tags[tagFactory.TagName] = tagFactory;
         }
 
         /// <summary>
@@ -100,8 +100,8 @@ namespace DotLiquid
         /// <returns></returns>
         public static Type GetTagType(string name)
         {
-            Tags.TryGetValue(name, out Tuple<ITagFactory, Type> result);
-            return result.Item2;
+            Tags.TryGetValue(name, out ITagFactory factory);
+            return factory.TagType;
         }
 
         /// <summary>
@@ -111,12 +111,12 @@ namespace DotLiquid
         /// <returns></returns>
         internal static bool IsRawTag(string name)
         {
-            Tags.TryGetValue(name, out Tuple<ITagFactory, Type> result);
+            Tags.TryGetValue(name, out ITagFactory factory);
             return typeof(RawBlock)
 #if NETSTANDARD1_3
                 .GetTypeInfo()
 #endif
-                .IsAssignableFrom(result?.Item2
+                .IsAssignableFrom(factory?.TagType
 #if NETSTANDARD1_3
                     ?.GetTypeInfo()
 #endif
@@ -126,12 +126,8 @@ namespace DotLiquid
         internal static Tag CreateTag(string name)
         {
             Tag tagInstance = null;
-            Tags.TryGetValue(name, out Tuple<ITagFactory, Type> result);
-
-            if (result != null)
-            {
-                tagInstance = result.Item1.Create();
-            }
+            if (Tags.TryGetValue(name, out ITagFactory factory))
+                tagInstance = factory.Create();
 
             return tagInstance;
         }

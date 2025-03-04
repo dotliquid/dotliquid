@@ -36,6 +36,7 @@ namespace DotLiquid.Tags
 
         protected override void Parse(List<string> tokens)
         {
+            // All parsing occurs in Initialize
         }
 
         public override void Render(Context context, TextWriter result)

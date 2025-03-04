@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 
 namespace DotLiquid
@@ -17,6 +17,7 @@ namespace DotLiquid
             return scope;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Sonar Bug", "S3881:\"IDisposable\" should be implemented correctly", Justification = "<Pending>")]
         private class CultureScope : IDisposable
         {
             private readonly CultureInfo culture;

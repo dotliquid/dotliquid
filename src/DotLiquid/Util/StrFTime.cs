@@ -8,6 +8,11 @@ namespace DotLiquid.Util
 {
     public static class StrFTime
     {
+        private class DateFormatInvalidException : Exceptions.LiquidException
+        {
+            public DateFormatInvalidException() : base() { }
+        }
+
         // Group names and Regex to capture all supported specifiers from a provided format string
         private const string GROUP_FLAGS = "flags";
         private const string GROUP_WIDTH = "width";
@@ -63,7 +68,7 @@ namespace DotLiquid.Util
                     return ((long)(dto - new DateTimeOffset(1970, 1, 1, 0,0,0, TimeSpan.Zero)).TotalSeconds).ToString(culture);
                 if (dateTime is DateTime dt)
                     return ((int)(dt - new DateTime(1970, 1, 1)).TotalSeconds).ToString(culture);
-                throw new DotLiquid.Exceptions.DateFormatInvalidException();
+                throw new DateFormatInvalidException();
             }},
             { "S", (dateTime, culture) => string.Format(culture, "{0:ss}", dateTime) },
             { "t", (dateTime, culture) => "\t" },
@@ -168,7 +173,7 @@ namespace DotLiquid.Util
                         culture: culture
                         ));
             }
-            catch (DotLiquid.Exceptions.DateFormatInvalidException)
+            catch (DateFormatInvalidException)
             {
                 throw new FormatException(string.Format(Liquid.ResourceManager.GetString("DateFilterFormatNotSupported"), format, source.GetType().Name));
             }
@@ -201,7 +206,7 @@ namespace DotLiquid.Util
             else if (DateFormats.ContainsKey(directive) && source is DateOnly dateOnly)
                 result = DateFormats[directive].Invoke(dateOnly.ToDateTime(TimeOnly.MinValue), culture);
             else if (DateFormats.ContainsKey(directive) && source is TimeOnly)
-                throw new DotLiquid.Exceptions.DateFormatInvalidException();
+                throw new DateFormatInvalidException();
 #endif
             else
                 return specifier; // This is an unconfigured specifier

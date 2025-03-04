@@ -1079,5 +1079,105 @@ namespace DotLiquid.Tests
             Context context = new Context(CultureInfo.CurrentCulture.NumberFormat);
             Assert.That(context.CurrentCulture, Is.SameAs(CultureInfo.CurrentCulture));
         }
+
+        [Test]
+        public void TestDisablesTagSpecified()
+        {
+            var context = new Context(CultureInfo.InvariantCulture);
+            context.WithDisabledTags(new [] { "foo", "bar" }, () =>
+            {
+                Assert.That(context.IsTagDisabled("foo"), Is.True);
+                Assert.That(context.IsTagDisabled("bar"), Is.True);
+                Assert.That(context.IsTagDisabled("unknown"), Is.False);
+            });
+        }
+
+        [Test]
+        public void TestDisablesNestedTags()
+        {
+            var context = new Context(CultureInfo.InvariantCulture);
+            context.WithDisabledTags(new [] { "foo" }, () =>
+            {
+                context.WithDisabledTags(new [] { "foo" }, () =>
+                {
+                    Assert.That(context.IsTagDisabled("foo"), Is.True);
+                    Assert.That(context.IsTagDisabled("bar"), Is.False);
+                });
+                context.WithDisabledTags(new [] { "bar" }, () =>
+                {
+                    Assert.That((context.IsTagDisabled("foo")), Is.True);
+                    Assert.That((context.IsTagDisabled("bar")), Is.True);
+                    context.WithDisabledTags(new [] { "foo" }, () =>
+                    {
+                        Assert.That((context.IsTagDisabled("foo")), Is.True);
+                        Assert.That((context.IsTagDisabled("bar")), Is.True);
+                    });
+                });
+                Assert.That((context.IsTagDisabled("foo")), Is.True);
+                Assert.That((context.IsTagDisabled("bar")), Is.False);
+            });
+        }
+
+        [Test]
+        public void TestNewIsolatedSubcontextDoesNotInheritVariables()
+        {
+            var superContext = new Context(CultureInfo.InvariantCulture);
+            superContext["my_variable"] = "some value";
+            var subcontext = superContext.NewIsolatedContext();
+
+            Assert.That(subcontext["my_variable"], Is.Null);
+        }
+
+        [Test]
+        public void TestNewIsolatedSubcontextInheritsSyntaxCompatibilityLevel()
+        {
+            var superContext = new Context(CultureInfo.InvariantCulture);
+            superContext.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22;
+            var subcontext = superContext.NewIsolatedContext();
+            Assert.That(subcontext.SyntaxCompatibilityLevel, Is.EqualTo(superContext.SyntaxCompatibilityLevel));
+        }
+
+        [Test]
+        public void TestNewIsolatedSubcontextInheritsRubyDateFormat()
+        {
+            var superContext = new Context(CultureInfo.InvariantCulture);
+            superContext.UseRubyDateFormat = !superContext.UseRubyDateFormat;
+            var subcontext = superContext.NewIsolatedContext();
+            Assert.That(subcontext.UseRubyDateFormat, Is.EqualTo(superContext.UseRubyDateFormat));
+        }
+
+        [Test]
+        public void TestNewIsolatedSubcontextInheritsRegisters()
+        {
+            var superContext = new Context(CultureInfo.InvariantCulture);
+            superContext.Registers["my_register"] = "my value";
+            var subcontext = superContext.NewIsolatedContext();
+            subcontext.Registers["my_register"] = "my alt value";
+            Assert.That(superContext.Registers.Get<string>("my_register"), Is.EqualTo("my value"));
+        }
+
+        [Test]
+        public void TestNewIsolatedSubcontextRegistersDoNotPolluteContext()
+        {
+            var superContext = new Context(CultureInfo.InvariantCulture);
+            superContext.Registers["my_register"] = "my value";
+            var subcontext = superContext.NewIsolatedContext();
+            Assert.That(subcontext.Registers.Get<string>("my_register"), Is.EqualTo("my value"));
+        }
+
+        [Test]
+        public void TestNewIsolatedSubcontextInheritsFilters()
+        {
+            var superContext = new Context(CultureInfo.InvariantCulture);
+            superContext.AddFilters(typeof(MyFilters));
+            var subcontext = superContext.NewIsolatedContext();
+            var template = Template.Parse("{{ 123 | my_filter }}");
+            Assert.That(template.Render(RenderParameters.FromContext(subcontext, subcontext.FormatProvider)), Is.EqualTo("my filter result"));
+        }
+
+        static class MyFilters
+        {
+            public static string MyFilter(object input) => "my filter result";
+        }
     }
 }

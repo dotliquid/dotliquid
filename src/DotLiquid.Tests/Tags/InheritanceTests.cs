@@ -1,4 +1,5 @@
 using DotLiquid.FileSystems;
+using DotLiquid.Tests.Util;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests.Tags
@@ -166,7 +167,7 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestExtendFromTemplateFileSystem()
         {
-            var fileSystem = new IncludeTagTests.TestTemplateFileSystem(new TestFileSystem());
+            var fileSystem = new TemplateFileSystem(new TestFileSystem());
             Template.FileSystem = fileSystem;
             for (int i = 0; i < 2; ++i)
             {

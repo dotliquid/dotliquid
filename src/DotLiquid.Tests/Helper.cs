@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using DotLiquid.FileSystems;
 using DotLiquid.NamingConventions;
+using DotLiquid.Tests.Util;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -75,7 +78,38 @@ namespace DotLiquid.Tests
             AssertTemplateResult(expected: expected, template: template, localVariables: null, syntax: syntax);
         }
 
-        [LiquidTypeAttribute("PropAllowed")]
+        public static void WithCustomTag<T>(string tagName, Action action) where T : Tag, new()
+        {
+            Type tagType = Template.UnregisterTag(tagName);
+            try
+            {
+                Template.RegisterTag<T>(tagName);
+                action();
+            }
+            finally
+            {
+                Template.UnregisterTag(tagName);
+                if (tagType != null)
+                {
+                    // Call RegisterTag with the original tagType to restore the original tag
+                    typeof(Template)
+                        .GetMethod("RegisterTag")
+                        .MakeGenericMethod(tagType)
+                        .Invoke(null, new object[] { tagName });
+                }
+            }
+        }
+
+        public static void WithDictionaryFileSystem(IDictionary<string, string> data, Action action)
+        {
+            Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
+            {
+                Template.FileSystem = new DictionaryFileSystem(data);
+                action();
+            });
+        }
+
+        [LiquidType("PropAllowed")]
         public class DataObject
         {
             public string PropAllowed { get; set; }

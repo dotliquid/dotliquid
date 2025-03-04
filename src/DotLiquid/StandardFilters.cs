@@ -763,13 +763,8 @@ namespace DotLiquid
                 : DoMathsOperation(context, input, operand, Expression.MultiplyChecked);
         }
 
-        /// <summary>
-        /// Rounds a decimal value to the specified places
-        /// </summary>
-        /// <param name="input">Input to be transformed by this filter</param>
-        /// <param name="places">Number of decimal places for rounding</param>
-        /// <returns>The rounded value; null if an exception have occurred</returns>
-        public static object Round(object input, object places = null)
+
+        private static object Round_BeforeDotLiquid22b(object input, object places)
         {
             try
             {
@@ -784,6 +779,39 @@ namespace DotLiquid
         }
 
         /// <summary>
+        /// Rounds a decimal value to the specified places
+        /// </summary>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="places">Number of decimal places for rounding</param>
+        /// <returns>The rounded value; zero if input is invalid, or rounded to 0 decimals if places is invalid</returns>
+        /// <remarks>Behaviour differs from Ruby implementation for negative places values.
+        /// This will treat it as any other invalid places value, and round to closest integer.</remarks>
+        public static object Round(Context context, object input, object places = null)
+        {
+            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid24)
+            {
+                return Round_BeforeDotLiquid22b(input, places);
+            }
+
+            int decimals = 0;
+            if (decimal.TryParse(places?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal placesValue))
+            {
+                const decimal MinDecimalPlaces = 0m;
+                const decimal MaxDecimalPlaces = 28m;
+                placesValue = Math.Max(MinDecimalPlaces, Math.Min(MaxDecimalPlaces, placesValue));
+                decimals = (int)Math.Floor(placesValue);
+            }
+
+            if (decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal inputValue))
+            {
+                return Math.Round(inputValue, decimals);
+            }
+
+            return 0m;
+        }
+
+        /// <summary>
         /// Rounds a decimal value up to the next integer, unless already the integer value, removing all decimal places 
         /// </summary>
         /// <param name="context">The DotLiquid context</param>
@@ -791,10 +819,23 @@ namespace DotLiquid
         /// <returns>The rounded value; null if an exception have occurred</returns>
         public static object Ceil(Context context, object input)
         {
-            if (decimal.TryParse(input.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
-                return Math.Ceiling(d);
-            else
-                return null;
+            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid24)
+            {
+                return decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal n) ? (object)Math.Ceiling(n) : null;
+            }
+
+            if (input == null) return 0;
+
+            if (input is string inputString)
+            {
+                input = CoerceToNumericType(inputString, context.FormatProvider, 0);
+            }
+
+            if (input is decimal inputDecimal) { return Math.Ceiling(inputDecimal); }
+            else if (input is double inputDouble) { return Math.Ceiling(inputDouble); }
+            else if (input is int inputInt32) { return inputInt32; }
+            else if (input is long inputInt64) { return inputInt64; }
+            else return 0;
         }
 
         /// <summary>
@@ -805,10 +846,23 @@ namespace DotLiquid
         /// <returns>The rounded value; null if an exception have occurred</returns>
         public static object Floor(Context context, object input)
         {
-            if (decimal.TryParse(input.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
-                return Math.Floor(d);
-            else
-                return null;
+            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid24)
+            {
+                return decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal n) ? (object)Math.Floor(n) : null;
+            }
+
+            if (input == null) return 0;
+
+            if (input is string inputString)
+            {
+                input = CoerceToNumericType(inputString, context.FormatProvider, 0);
+            }
+
+            if (input is decimal inputDecimal) { return Math.Floor(inputDecimal); }
+            else if (input is double inputDouble) { return Math.Floor(inputDouble); }
+            else if (input is int inputInt32) { return inputInt32; }
+            else if (input is long inputInt64) { return inputInt64; }
+            else return 0;
         }
 
         /// <summary>
@@ -844,6 +898,21 @@ namespace DotLiquid
         }
 
         private static bool IsReal(object o) => o is double || o is float || o is decimal;
+
+        private static object CoerceToNumericType(string value, IFormatProvider formatProvider, object defaultValue)
+        {
+            object result = defaultValue;
+            if (value != null)
+            {
+                bool converted = value.TryParseToNumericType(formatProvider, out object convertedValue);
+                if (converted)
+                {
+                    result = convertedValue;
+                }
+            }
+            return result;
+        }
+
 
         private static object DoMathsOperation(Context context, object input, object operand, Func<Expression, Expression, BinaryExpression> operation)
         {
@@ -920,10 +989,43 @@ namespace DotLiquid
         /// </summary>
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
-        public static double Abs(Context context, object input)
+        public static object Abs(Context context, object input)
         {
-            Double n;
-            return Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n) ? Math.Abs(n) : 0;
+            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid24)
+            {
+                return Double.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out double n) ? Math.Abs(n) : 0;
+            }
+
+            if (input == null) return 0;
+
+            if (input is string inputString)
+            {
+                input = CoerceToNumericType(inputString, context.FormatProvider, 0);
+            }
+
+            if (input is decimal inputDecimal) { return Math.Abs(inputDecimal); }
+            else if (input is double inputDouble) { return Math.Abs(inputDouble); }
+            else if (input is int inputInt32) { return Math.Abs(inputInt32); }
+            else if (input is long inputInt64) { return Math.Abs(inputInt64); }
+            else return 0;
+        }
+
+        private static object AtLeast_BeforeDotLiquid22b(Context context, object input, object atLeast)
+        {
+            double n;
+            var inputNumber = Double.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
+
+            double min;
+            var atLeastNumber = Double.TryParse(atLeast?.ToString(), NumberStyles.Number, context.CurrentCulture, out min);
+
+            if (inputNumber && atLeastNumber)
+            {
+                return (double)((double)min > (double)n ? min : n);
+            }
+            else
+            {
+                return input;
+            }
         }
 
         /// <summary>
@@ -934,15 +1036,33 @@ namespace DotLiquid
         /// <param name="atLeast">Value to apply if more than input</param>
         public static object AtLeast(Context context, object input, object atLeast)
         {
-            double n;
-            var inputNumber = Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
-
-            double min;
-            var atLeastNumber = Double.TryParse(atLeast.ToString(), NumberStyles.Number, context.CurrentCulture, out min);
-
-            if (inputNumber && atLeastNumber)
+            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid24)
             {
-                return (double)((double)min > (double)n ? min : n);
+                return AtLeast_BeforeDotLiquid22b(context, input, atLeast);
+            }
+            
+            if (!decimal.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out decimal val1))
+            {
+                val1 = 0m;
+            }
+            if (!decimal.TryParse(atLeast?.ToString(), NumberStyles.Number, context.CurrentCulture, out decimal val2))
+            {
+                val2 = 0m;
+            }
+            return Math.Max(val1, val2);
+        }
+
+        private static object AtMost_BeforeDotLiquid22b(Context context, object input, object atMost)
+        {
+            double n;
+            var inputNumber = Double.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
+
+            double max;
+            var atMostNumber = Double.TryParse(atMost?.ToString(), NumberStyles.Number, context.CurrentCulture, out max);
+
+            if (inputNumber && atMostNumber)
+            {
+                return (double)((double)max < (double)n ? max : n);
             }
             else
             {
@@ -958,20 +1078,20 @@ namespace DotLiquid
         /// <param name="atMost">Value to apply if less than input</param>
         public static object AtMost(Context context, object input, object atMost)
         {
-            double n;
-            var inputNumber = Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
-
-            double max;
-            var atMostNumber = Double.TryParse(atMost.ToString(), NumberStyles.Number, context.CurrentCulture, out max);
-
-            if (inputNumber && atMostNumber)
+            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid24)
             {
-                return (double)((double)max < (double)n ? max : n);
+                return AtMost_BeforeDotLiquid22b(context, input, atMost);
             }
-            else
+
+            if (!decimal.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out decimal val1))
             {
-                return input;
+                val1 = 0m;
             }
+            if (!decimal.TryParse(atMost?.ToString(), NumberStyles.Number, context.CurrentCulture, out decimal val2))
+            {
+                val2 = 0m;
+            }
+            return Math.Min(val1, val2);
         }
 
         /// <summary>

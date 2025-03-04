@@ -82,7 +82,7 @@ namespace DotLiquid.Tags
                 _name = string.Format("{0}-{1}", _variableName, _collectionName);
                 _reversed = (!string.IsNullOrEmpty(match.Groups[3].Value));
                 _attributes = new Dictionary<string, string>(Template.NamingConvention.StringComparer);
-                R.Scan(markup, Liquid.TagAttributes,
+                R.Scan(markup, Liquid.TagAttributesRegex,
                     (key, value) => _attributes[key] = value);
             }
             else

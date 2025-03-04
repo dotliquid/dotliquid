@@ -92,7 +92,7 @@ namespace DotLiquid.Util
         /// <param name="input"></param>
         /// <param name="pattern"></param>
         /// <param name="callback"></param>
-        [Obsolete("Use Scan(string, Regex, Action) instead.")]
+        [Obsolete("Use Scan(string, Regex, Action<string, string>) instead.")]
         public static void Scan(string input, string pattern, Action<string, string> callback)
         {
             foreach (Match match in Regex.Matches(input, pattern, RegexOptions.None, Template.RegexTimeOut))

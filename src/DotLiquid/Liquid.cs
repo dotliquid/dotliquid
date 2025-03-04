@@ -69,9 +69,6 @@ namespace DotLiquid
 
             Template.RegisterTag<Tags.Html.TableRow>("tablerow");
 
-            Template.RegisterFilter(typeof(LegacyFilters));
-            Template.RegisterFilter(typeof(StandardFilters));
-
             // Safe list optional filters so that they can be enabled by Designers.
             Template.SafelistFilter(typeof(ExtendedFilters));
             Template.SafelistFilter(typeof(ShopifyFilters));

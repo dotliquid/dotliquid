@@ -43,6 +43,11 @@ namespace DotLiquid
         {
             var strainer = new Strainer(context);
 
+            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquidLatest)
+                strainer.Extend(context.SyntaxCompatibilityLevel, typeof(LegacyFilters));
+
+            strainer.Extend(context.SyntaxCompatibilityLevel, typeof(StandardFilters));
+
             foreach (var keyValue in Filters)
                 strainer.Extend(context.SyntaxCompatibilityLevel, keyValue.Value);
 

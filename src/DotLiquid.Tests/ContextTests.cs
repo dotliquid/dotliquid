@@ -233,6 +233,24 @@ namespace DotLiquid.Tests
             Assert.That(_context["nil"], Is.EqualTo(null));
         }
 
+        [Test]
+        public void TestVariablesArray()
+        {
+            List<int> list = new List<int> { 1, 2, 3, 4, 5 };
+            _context["list"] = list;
+            Assert.That(_context["list"], Is.EqualTo(list));
+            Assert.That(_context["list[0]"], Is.EqualTo(1));
+            Assert.That(_context["list[-1]"], Is.EqualTo(5));
+            Assert.That(_context["list[12]"], Is.Null);
+            Assert.That(_context["list[-12]"], Is.Null);
+
+            List<string> emptyList = new List<string>();
+            _context["empty_list"] = emptyList;
+            Assert.That(_context["empty_list"], Is.EqualTo(emptyList));
+            Assert.That(_context["empty_list[0]"], Is.Null);
+            Assert.That(_context["empty_list[-1]"], Is.Null);
+        }
+
 #if NET6_0_OR_GREATER
         [Test]
         public void TestVariables_NET60()

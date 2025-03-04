@@ -572,24 +572,14 @@ namespace DotLiquid
         /// </summary>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="string">String to be added to the end of input</param>
-        public static string Append(string input, string @string)
-        {
-            return input == null
-                ? input
-                : input + @string;
-        }
+        public static string Append(string input, string @string) => $"{input}{@string}";
 
         /// <summary>
         /// Prepend a string to another
         /// </summary>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="string">String to be added to the beginning of input</param>
-        public static string Prepend(string input, string @string)
-        {
-            return input == null
-                ? input
-                : @string + input;
-        }
+        public static string Prepend(string input, string @string) => $"{@string}{input}";
 
         /// <summary>
         /// Add <br /> tags in front of all newlines in input string

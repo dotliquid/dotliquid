@@ -60,6 +60,19 @@ namespace DotLiquid.Util
         }
 
         /// <summary>
+        /// Overload that only works when the pattern contains two groups. The callback
+        /// is called for each match, passing the two group values.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="regex"></param>
+        /// <param name="callback"></param>
+        public static void Scan(string input, Regex regex, Action<string, string> callback)
+        {
+            foreach (Match match in regex.Matches(input))
+                callback(match.Groups[1].Value, match.Groups[2].Value);
+        }
+
+        /// <summary>
         /// Deprecated for performance reasons. New code should not use this.
         /// See comments for Scan(string, Regex) above.
         /// </summary>
@@ -79,7 +92,7 @@ namespace DotLiquid.Util
         /// <param name="input"></param>
         /// <param name="pattern"></param>
         /// <param name="callback"></param>
-        /// <returns></returns>
+        [Obsolete("Use Scan(string, Regex, Action) instead.")]
         public static void Scan(string input, string pattern, Action<string, string> callback)
         {
             foreach (Match match in Regex.Matches(input, pattern, RegexOptions.None, Template.RegexTimeOut))

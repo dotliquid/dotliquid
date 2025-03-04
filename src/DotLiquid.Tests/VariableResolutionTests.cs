@@ -69,6 +69,7 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Sonar Code Smell", "S112:General exceptions should never be thrown", Justification = "<Pending>")]
         public void TestHashWithDefaultProc()
         {
             Template template = Template.Parse("Hello {{ test }}");

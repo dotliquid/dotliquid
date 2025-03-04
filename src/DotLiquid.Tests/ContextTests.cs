@@ -112,30 +112,6 @@ namespace DotLiquid.Tests
             }
         }
 
-        private class ArrayLike : ILiquidizable
-        {
-            private readonly Dictionary<int, int> _counts = new Dictionary<int, int>();
-
-            public object Fetch(int index)
-            {
-                return null;
-            }
-
-            public object this[int index]
-            {
-                get
-                {
-                    _counts[index] += 1;
-                    return _counts[index];
-                }
-            }
-
-            public object ToLiquid()
-            {
-                return this;
-            }
-        }
-
         private class IndexableLiquidizable : IIndexable, ILiquidizable
         {
             private const string theKey = "thekey";
@@ -264,18 +240,18 @@ namespace DotLiquid.Tests
         }
 #endif
 
-        private enum TestEnum { Yes, No }
+        private enum YesOrNo { Yes, No }
 
         [Test]
         public void TestGetVariable_Enum()
         {
-            _context["yes"] = TestEnum.Yes;
-            _context["no"] = TestEnum.No;
-            _context["not_enum"] = TestEnum.Yes.ToString();
+            _context["yes"] = YesOrNo.Yes;
+            _context["no"] = YesOrNo.No;
+            _context["not_enum"] = YesOrNo.Yes.ToString();
 
-            Assert.That(_context["yes"], Is.EqualTo(TestEnum.Yes));
-            Assert.That(_context["no"], Is.EqualTo(TestEnum.No));
-            Assert.That(_context["not_enum"], Is.Not.EqualTo(TestEnum.Yes));
+            Assert.That(_context["yes"], Is.EqualTo(YesOrNo.Yes));
+            Assert.That(_context["no"], Is.EqualTo(YesOrNo.No));
+            Assert.That(_context["not_enum"], Is.Not.EqualTo(YesOrNo.Yes));
         }
 
         [Test]

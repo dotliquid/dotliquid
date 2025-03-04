@@ -692,13 +692,13 @@ namespace DotLiquid.Tests
             Helper.AssertTemplateResult("Liquid error: Unknown operator starts_with", "{% if 'bob' starts_with 'B' %} YES {% endif %}", null, new CSharpNamingConvention());
         }
 
-        private enum TestEnum { Yes, No }
+        private enum YesOrNo { Yes, No }
 
         [Test]
         public void TestEqualOperatorsWorksOnEnum()
         {
             _context = new Context(CultureInfo.InvariantCulture);
-            _context["enum"] = TestEnum.Yes;
+            _context["enum"] = YesOrNo.Yes;
 
             AssertEvaluatesTrue("enum", "==", "'Yes'");
             AssertEvaluatesTrue("enum", "!=", "'No'");

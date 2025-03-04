@@ -8,69 +8,64 @@ namespace DotLiquid.Tests
     public class RenderParametersTests
     {
         [Test]
+        [Obsolete("Tests an obsolete property")]
         public void TestRethrowErrorsIsTrueWhenRethrow()
         {
             RenderParameters parameters = new RenderParameters(CultureInfo.InvariantCulture)
             {
                 ErrorsOutputMode = ErrorsOutputMode.Rethrow
             };
-#pragma warning disable CS0618 // Type or member is obsolete
             // We want to test the obsolete property 
             Assert.That(parameters.RethrowErrors, Is.True);
-#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [Test]
+        [Obsolete("Tests an obsolete property")]
         public void TestRethrowErrorsIsFalseWhenSuppress()
         {
             RenderParameters parameters = new RenderParameters(CultureInfo.InvariantCulture)
             {
                 ErrorsOutputMode = ErrorsOutputMode.Suppress
             };
-#pragma warning disable CS0618 // Type or member is obsolete
             // We want to test the obsolete property 
             Assert.That(parameters.RethrowErrors, Is.False);
-#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [Test]
+        [Obsolete("Tests an obsolete property")]
         public void TestRethrowErrorsIsFalseWhenDisplay()
         {
             RenderParameters parameters = new RenderParameters(CultureInfo.InvariantCulture)
             {
                 ErrorsOutputMode = ErrorsOutputMode.Display
             };
-#pragma warning disable CS0618 // Type or member is obsolete
             // We want to test the obsolete property 
             Assert.That(parameters.RethrowErrors, Is.False);
-#pragma warning restore CS0618 // Type or member is obsolete
         }
 
         [Test]
+        [Obsolete("Tests an obsolete property")]
         public void TestRethrowErrorsObsoleteTrue()
         {
-#pragma warning disable CS0618 // Type or member is obsolete
             RenderParameters parameters = new RenderParameters(CultureInfo.InvariantCulture)
             {
                 RethrowErrors = true
             };
             // We want to test the obsolete property 
             Assert.That(parameters.RethrowErrors, Is.True);
-#pragma warning restore CS0618 // Type or member is obsolete
             Assert.That(parameters.ErrorsOutputMode, Is.EqualTo(ErrorsOutputMode.Rethrow));
         }
 
         [Test]
+        [Obsolete("Tests an obsolete property")]
         public void TestRethrowErrorsObsoleteFalse()
         {
-#pragma warning disable CS0618 // Type or member is obsolete
             RenderParameters parameters = new RenderParameters(CultureInfo.InvariantCulture)
             {
                 RethrowErrors = false
             };
             // We want to test the obsolete property 
             Assert.That(parameters.RethrowErrors, Is.False);
-#pragma warning restore CS0618 // Type or member is obsolete
             Assert.That(parameters.ErrorsOutputMode, Is.EqualTo(ErrorsOutputMode.Display));
         }
     }

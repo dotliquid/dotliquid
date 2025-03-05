@@ -143,18 +143,7 @@ namespace DotLiquid
                 {
                     var parameterType = parameterInfos[argumentIndex].ParameterType;
                     if (convertibleArg.GetType() != parameterType
-                        && !parameterType
-#if NETSTANDARD1_3
-                            .GetTypeInfo()
-#endif
-                            .IsAssignableFrom(
-                                convertibleArg
-                                    .GetType()
-#if NETSTANDARD1_3
-                                    .GetTypeInfo()
-#endif
-                                    )
-                        )
+                        && !parameterType.IsAssignableFrom(convertibleArg.GetType()))
                     {
                         args[argumentIndex] = Convert.ChangeType(convertibleArg, parameterType);
                     }

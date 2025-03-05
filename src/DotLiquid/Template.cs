@@ -112,15 +112,7 @@ namespace DotLiquid
         internal static bool IsRawTag(string name)
         {
             Tags.TryGetValue(name, out Tuple<ITagFactory, Type> result);
-            return typeof(RawBlock)
-#if NETSTANDARD1_3
-                .GetTypeInfo()
-#endif
-                .IsAssignableFrom(result?.Item2
-#if NETSTANDARD1_3
-                    ?.GetTypeInfo()
-#endif
-                );
+            return typeof(RawBlock).IsAssignableFrom(result?.Item2);
         }
 
         internal static Tag CreateTag(string name)

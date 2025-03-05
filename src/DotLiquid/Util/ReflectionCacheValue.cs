@@ -24,20 +24,11 @@ namespace DotLiquid.Util
 
         private bool IsAnonymousInternal()
         {
-#if NETSTANDARD1_3
-            var typeInfo = _type.GetTypeInfo();
-#endif
             return (_type.Name.StartsWith("<>") || _type.Name.StartsWith("VB$"))
                 && (_type.Name.Contains("AnonymousType") || _type.Name.Contains("AnonType"))
-#if NETSTANDARD1_3
-                    && typeInfo.GetCustomAttribute<CompilerGeneratedAttribute>() != null
-                        && typeInfo.IsGenericType
-                            && (typeInfo.Attributes & AnonymousTypeAttributes) == AnonymousTypeAttributes;
-#else
                     && _type.GetCustomAttribute<CompilerGeneratedAttribute>() != null
                         && _type.IsGenericType
                             && (_type.Attributes & AnonymousTypeAttributes) == AnonymousTypeAttributes;
-#endif
         }
     }
 }

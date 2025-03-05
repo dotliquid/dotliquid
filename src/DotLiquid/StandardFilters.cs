@@ -23,33 +23,6 @@ namespace DotLiquid
         private static readonly Lazy<Regex> StripHtmlBlocks = new Lazy<Regex>(() => R.C(@"<script.*?</script>|<!--.*?-->|<style.*?</style>", RegexOptions.Singleline | RegexOptions.IgnoreCase), LazyThreadSafetyMode.ExecutionAndPublication);
         private static readonly Lazy<Regex> StripHtmlTags = new Lazy<Regex>(() => R.C(@"<.*?>", RegexOptions.Singleline), LazyThreadSafetyMode.ExecutionAndPublication);
 
-#if NETSTANDARD1_3
-        private class StringAwareObjectComparer : IComparer
-        {
-            private readonly StringComparer _stringComparer;
-
-            public StringAwareObjectComparer(StringComparer stringComparer)
-            {
-                _stringComparer = stringComparer;
-            }
-
-            public int Compare(Object x, Object y)
-            {
-                if (x == y)
-                    return 0;
-                if (x == null)
-                    return -1;
-                if (y == null)
-                    return 1;
-
-                if (x is string textX && y is string textY)
-                    return _stringComparer.Compare(textX, textY);
-
-                return Comparer<object>.Default.Compare(x, y);
-            }
-        }
-#endif
-
         /// <summary>
         /// Return the size of an array or of an string
         /// </summary>
@@ -446,12 +419,7 @@ namespace DotLiquid
             if (!ary.Any())
                 return ary;
 
-#if NETSTANDARD1_3
-            var comparer = new StringAwareObjectComparer(stringComparer);
-#else
             var comparer = stringComparer;
-#endif 
-
             if (string.IsNullOrEmpty(property))
             {
                 ary.Sort((a, b) => comparer.Compare(a, b));
@@ -643,11 +611,7 @@ namespace DotLiquid
             }
             else if ((input is decimal) || (input is double) || (input is float) || (input is int) || (input is uint) || (input is long) || (input is ulong) || (input is short) || (input is ushort))
             {
-#if CORE
-                dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(input)).ToLocalTime();
-#else
                 dateTimeOffset = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(Convert.ToDouble(input)).ToLocalTime();
-#endif
             }
             else
             {

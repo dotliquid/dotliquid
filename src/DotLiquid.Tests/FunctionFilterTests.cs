@@ -23,6 +23,7 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Sonar Code Smell", "S1121:Extract the assignment of 'x' from this expression", Justification = "Deliberate design decision")]
         public void AddFilterWithOneArgAnonymousFunctionWithClosure()
         {
             _context["var"] = 2;
@@ -46,6 +47,7 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Sonar Code Smell", "S1121:Extract the assignment of 'x' from this expression", Justification = "Deliberate design decision")]
         public void AddFilterWithTwoArgsAnonymousFunctionWithClosure()
         {
             _context["var"] = 2;

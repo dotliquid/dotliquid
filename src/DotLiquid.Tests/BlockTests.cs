@@ -88,8 +88,6 @@ namespace DotLiquid.Tests
                 get { return "custom"; }
             }
 
-            public Type TagType => typeof(CustomTag);
-
             public Tag Create()
             {
                 return new CustomTag();

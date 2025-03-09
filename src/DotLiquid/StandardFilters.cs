@@ -70,17 +70,13 @@ namespace DotLiquid
         /// <summary>
         /// Returns a substring of one character or series of array items beginning at the index specified by the first argument.
         /// </summary>
-        /// <param name="context">The DotLiquid context</param>
         /// <param name="input">The input to be sliced</param>
         /// <param name="offset">zero-based start position of string or array, negative values count back from the end of the string/array.</param>
         /// <param name="length">An optional argument specifies the length of the substring or number of array items to be returned</param>
-        public static object Slice(Context context, object input, int offset, int length = 1)
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid22a)]
+        public static object Slice(object input, int offset, int length = 1)
         {
-            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22a && input is string inputString)
-            {
-                return SliceString(input: inputString, start: offset, len: length);
-            }
-            else if (input is IEnumerable enumerableInput)
+            if (input is IEnumerable enumerableInput)
             {
                 var inputSize = Size(input);
                 var skip = offset;
@@ -104,7 +100,7 @@ namespace DotLiquid
                 return enumerableInput.Cast<object>().Skip(skip).Take<object>(take);
             }
 
-            return (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid22a && input == null) ? string.Empty : input;
+            return input == null ? string.Empty : input;
         }
 
         /// <summary>
@@ -496,30 +492,16 @@ namespace DotLiquid
         /// <summary>
         /// Replace the first occurrence of a string with another
         /// </summary>
-        /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="string">Substring to be replaced</param>
         /// <param name="replacement">Replacement string to be inserted</param>
-        public static string ReplaceFirst(Context context, string input, string @string, string replacement = "")
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid22)]
+        public static string ReplaceFirst(string input, string @string, string replacement = "")
         {
             if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(@string))
                 return input;
-
-            if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21)
-            {
                 int position = input.IndexOf(@string);
                 return position < 0 ? input : input.Remove(position, @string.Length).Insert(position, replacement);
-            }
-
-            bool doneReplacement = false;
-            return Regex.Replace(input, @string, m =>
-            {
-                if (doneReplacement)
-                    return m.Value;
-
-                doneReplacement = true;
-                return replacement;
-            }, RegexOptions.None, Template.RegexTimeOut);
         }
 
         /// <summary>
@@ -537,14 +519,14 @@ namespace DotLiquid
         /// <summary>
         /// Remove the first occurrence of a substring
         /// </summary>
-        /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="string">String to be removed from input</param>
-        public static string RemoveFirst(Context context, string input, string @string)
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid22)]
+        public static string RemoveFirst(string input, string @string)
         {
             return input.IsNullOrWhiteSpace()
                 ? input
-                : ReplaceFirst(context: context, input: input, @string: @string, replacement: string.Empty);
+                : ReplaceFirst(input: input, @string: @string, replacement: string.Empty);
         }
 
         /// <summary>
@@ -706,7 +688,7 @@ namespace DotLiquid
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="operand">Number to be added to input</param>
-        [LiquidFilter(Name = "Plus", MinVersion = SyntaxCompatibility.DotLiquid21)]
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid21)]
         public static object Plus(Context context, object input, object operand)
         {
             return DoMathsOperation(context, input, operand, Expression.AddChecked);

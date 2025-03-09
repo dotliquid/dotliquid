@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace DotLiquid
@@ -37,6 +38,19 @@ namespace DotLiquid
         public static IEnumerable Sort(object input, string property = null) => StandardFilters.SortInternal(StringComparer.OrdinalIgnoreCase, input, property);
 
         /// <summary>
+        /// Remove the first occurrence of a substring
+        /// </summary>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="string">String to be removed from input</param>
+        [LiquidFilter(MaxVersion = SyntaxCompatibility.DotLiquid21)]
+        public static string RemoveFirst(string input, string @string)
+        {
+            return input.IsNullOrWhiteSpace()
+                ? input
+                : ReplaceFirst(input: input, @string: @string, replacement: string.Empty);
+        }
+
+        /// <summary>
         /// Replaces every occurrence of the first argument in a string with the second argument
         /// </summary>
         /// <param name="input">Input to be transformed by this filter</param>
@@ -52,6 +66,29 @@ namespace DotLiquid
         }
 
         /// <summary>
+        /// Replace the first occurrence of a string with another
+        /// </summary>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="string">Substring to be replaced</param>
+        /// <param name="replacement">Replacement string to be inserted</param>
+        [LiquidFilter(MaxVersion = SyntaxCompatibility.DotLiquid21)]
+        public static string ReplaceFirst(string input, string @string, string replacement = "")
+        {
+            if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(@string))
+                return input;
+
+            bool doneReplacement = false;
+            return Regex.Replace(input, @string, m =>
+            {
+                if (doneReplacement)
+                    return m.Value;
+
+                doneReplacement = true;
+                return replacement;
+            }, RegexOptions.None, Template.RegexTimeOut);
+        }            
+
+        /// <summary>
         /// Addition
         /// </summary>
         /// <param name="context">The DotLiquid context</param>
@@ -63,6 +100,46 @@ namespace DotLiquid
             return input is string
                 ? string.Concat(input, operand)
                 : StandardFilters.DoMathsOperation(context, input, operand, Expression.AddChecked);
+        }
+
+        /// <summary>
+        /// Return a Part of a String
+        /// </summary>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="start">start position of string</param>
+        /// <param name="len">optional length of slice to be returned</param>
+        [LiquidFilter(MaxVersion = SyntaxCompatibility.DotLiquid22)]
+        public static object Slice(object input, int start, int len = 1)
+        {
+            if (input == null)
+                return null;
+
+            if (input is string inputString)
+            {
+                if (start > inputString.Length)
+                    return null;
+
+                if (start < 0)
+                {
+                    start += inputString.Length;
+                    if (start < 0)
+                    {
+                        len = Math.Max(0, len + start);
+                        start = 0;
+                    }
+                }
+                if (start + len > inputString.Length)
+                {
+                    len = inputString.Length - start;
+                }
+                return inputString.Substring(Convert.ToInt32(start), Convert.ToInt32(len));
+            }
+            else if (input is IEnumerable enumerableInput)
+            {
+                return StandardFilters.Slice(input, start, len);
+            }
+
+            return input;
         }
 
         /// <summary>

@@ -165,6 +165,24 @@ namespace DotLiquid
         }
 
         /// <summary>
+        /// Extracts attributes from the provided markup string and returns them as a dictionary.
+        /// The keys are the attribute names and the values are the attribute values.
+        /// </summary>
+        /// <param name="markup">The markup string from which attributes will be extracted.</param>
+        /// <returns>A dictionary where each key is an attribute name and each value is the corresponding attribute value.</returns>
+        internal static Dictionary<string, string> GetAttributes(string markup)
+        {
+            var attributes = new Dictionary<string, string>(Template.NamingConvention.StringComparer);
+            foreach (Match attributeMatch in Liquid.TagAttributesRegex.Matches(markup))
+            {
+                string key = attributeMatch.Groups[1].Value;
+                string value = attributeMatch.Groups[2].Value;
+                attributes[key] = value;
+            }
+            return attributes;
+        }
+
+        /// <summary>
         /// Reads a fixed number of characters and advances the enumerator position
         /// </summary>
         /// <param name="markupEnumerator">The string enumerator</param>

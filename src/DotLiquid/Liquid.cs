@@ -26,7 +26,6 @@ namespace DotLiquid
         public static readonly string QuotedString = R.Q(@"""[^""]*""|'[^']*'");
         public static readonly string QuotedFragment = string.Format(R.Q(@"{0}|(?:[^\s,\|'""]|{0})+"), QuotedString);
         public static readonly string QuotedAssignFragment = string.Format(R.Q(@"{0}|(?:[^\s\|'""]|{0})+"), QuotedString);
-        public static readonly string TagAttributes = string.Format(R.Q(@"(\w+)\s*\:\s*({0})"), QuotedFragment);
         public static readonly string AnyStartingTag = R.Q(@"\{\{|\{\%");
         public static readonly string VariableParser = string.Format(R.Q(@"\[[^\]]+\]|{0}+\??"), VariableSegment);
         public static readonly string LiteralShorthand = R.Q(@"^(?:\{\{\{\s?)(.*?)(?:\s*\}\}\})$");
@@ -38,10 +37,12 @@ namespace DotLiquid
         private static readonly Lazy<Regex> LazyDirectorySeparatorsRegex = new Lazy<Regex>(() => R.C(DirectorySeparators), LazyThreadSafetyMode.ExecutionAndPublication);
         private static readonly Lazy<Regex> LazyLimitRelativePathRegex = new Lazy<Regex>(() => R.C(LimitRelativePath), LazyThreadSafetyMode.ExecutionAndPublication);
         private static readonly Lazy<Regex> LazyVariableSegmentRegex = new Lazy<Regex>(() => R.B(R.Q(@"\A\s*(?<Variable>{0}+)\s*\Z"), Liquid.VariableSegment), LazyThreadSafetyMode.ExecutionAndPublication);
+        private static readonly Lazy<Regex> LazyTagAttributesRegex = new Lazy<Regex>(() => R.B(R.Q(@"(\w+)\s*\:\s*({0})"), QuotedFragment), LazyThreadSafetyMode.ExecutionAndPublication);
 
         internal static Regex DirectorySeparatorsRegex => LazyDirectorySeparatorsRegex.Value;
         internal static Regex LimitRelativePathRegex => LazyLimitRelativePathRegex.Value;
         internal static Regex VariableSegmentRegex => LazyVariableSegmentRegex.Value;
+        internal static Regex TagAttributesRegex => LazyTagAttributesRegex.Value;
 
 
         static Liquid()

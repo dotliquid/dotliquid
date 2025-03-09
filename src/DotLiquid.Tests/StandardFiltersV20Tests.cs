@@ -35,11 +35,7 @@ namespace DotLiquid.Tests
         public void TestCapitalizeBehavesLikeTitleize()
         {
             Assert.That(Capitalize(input: "That is one sentence."), Is.EqualTo("That Is One Sentence."));
-
-            Helper.AssertTemplateResult(
-                expected: "Title",
-                template: "{{ 'title' | capitalize }}",
-                syntax: SyntaxCompatibilityLevel);
+            Assert.That(Capitalize(input: "title"), Is.EqualTo("Title"));
         }
 
 

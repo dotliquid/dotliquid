@@ -43,7 +43,8 @@ namespace DotLiquid
         {
             var strainer = new Strainer(context);
 
-            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquidLatest)
+            // Note for maintainers, SyntaxCompatibility may need to be adjusted in the future if LiquidFilterAttribute are changed but not if changes are limited to parsing
+            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid24)
                 strainer.Extend(context.SyntaxCompatibilityLevel, typeof(LegacyFilters));
 
             strainer.Extend(context.SyntaxCompatibilityLevel, typeof(StandardFilters));

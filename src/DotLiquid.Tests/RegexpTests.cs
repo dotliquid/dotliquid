@@ -79,6 +79,19 @@ namespace DotLiquid.Tests
             Assert.That(Run("arg1 arg2 \"arg 3\" arg4", Liquid.QuotedFragment), Is.EqualTo(new[] { "arg1", "arg2", "\"arg 3\"", "arg4" }).AsCollection);
         }
 
+        [Test]
+        public void TestAttributeParser()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(Tokenizer.GetAttributes("cols:3"), Is.EqualTo(new Dictionary<string, string> { { "cols", "3" } }));
+                Assert.That(Tokenizer.GetAttributes("limit:4 offset:2"), Is.EqualTo(new Dictionary<string, string> { { "limit", "4" }, { "offset", "2" } }));
+                Assert.That(Tokenizer.GetAttributes("limit: limit offset: offset"), Is.EqualTo(new Dictionary<string, string> { { "limit", "limit" }, { "offset", "offset" } }));
+                Assert.That(Tokenizer.GetAttributes(" echo1: 'test123'"), Is.EqualTo(new Dictionary<string, string> { { "echo1", "'test123'" } }));
+                Assert.That(Tokenizer.GetAttributes("echo1: echo1, echo2: more_echos.echo2"), Is.EqualTo(new Dictionary<string, string> { { "echo1", "echo1" }, { "echo2", "more_echos.echo2" } }));
+            });
+        }
+
         #region Tests of obsolete functions
 
         [Test]

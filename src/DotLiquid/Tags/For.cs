@@ -82,13 +82,7 @@ namespace DotLiquid.Tags
                 _collectionName = match.Groups[2].Value;
                 _name = string.Format("{0}-{1}", _variableName, _collectionName);
                 _reversed = (!string.IsNullOrEmpty(match.Groups[3].Value));
-                _attributes = new Dictionary<string, string>(Template.NamingConvention.StringComparer);
-                foreach (Match attributeMatch in Liquid.TagAttributesRegex.Matches(markup))
-                {
-                    string key = attributeMatch.Groups[1].Value;
-                    string value = attributeMatch.Groups[2].Value;
-                    _attributes[key] = value;
-                }
+                _attributes = Tokenizer.GetAttributes(markup);
             }
             else
             {

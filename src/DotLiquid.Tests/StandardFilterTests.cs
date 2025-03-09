@@ -15,8 +15,6 @@ namespace DotLiquid.Tests
         private Context _contextV20;
         private Context _contextV20EnUS;
         private Context _contextV21;
-        private Context _contextV22;
-        private Context _contextV22a;
 
         [OneTimeSetUp]
         public void SetUp()
@@ -32,14 +30,6 @@ namespace DotLiquid.Tests
             _contextV21 = new Context(CultureInfo.InvariantCulture)
             {
                 SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid21
-            };
-            _contextV22 = new Context(CultureInfo.InvariantCulture)
-            {
-                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22
-            };
-            _contextV22a = new Context(CultureInfo.InvariantCulture)
-            {
-                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22a
             };
         }
 
@@ -158,51 +148,6 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestTruncateWordsZeroV20 ()
-        {
-            Helper.AssertTemplateResult(expected: "...", template: "{{ \"Ground control to Major Tom.\" | truncate_words: 0}}", syntax: SyntaxCompatibility.DotLiquid20);
-            Helper.AssertTemplateResult(expected: "...", template: "{{ \"Ground control to Major Tom.\" | truncate_words: -1}}", syntax: SyntaxCompatibility.DotLiquid20);
-        }
-
-        [Test]
-        public void TestTruncateWordsZeroV24()
-        {
-            Helper.AssertTemplateResult(expected: "Ground...", template: "{{ \"Ground control to Major Tom.\" | truncate_words: 0}}", syntax: SyntaxCompatibility.DotLiquid24);
-            Helper.AssertTemplateResult(expected: "Ground...", template: "{{ \"Ground control to Major Tom.\" | truncate_words: -1}}", syntax: SyntaxCompatibility.DotLiquid24);
-        }
-
-        [Test]
-        public void TestTruncateWordsWhitespaceV24()
-        {
-            Assert.That(StandardFilters.TruncateWords("    one    two three    four  ", 2), Is.EqualTo("one two..."));
-            Assert.That(StandardFilters.TruncateWords("one  two\tthree\nfour", 3), Is.EqualTo("one two three..."));
-        }
-
-        [Test]
-        public void TestSplitV20()
-        {
-            Assert.That(LegacyFilters.Split("This is a sentence", " "), Is.EqualTo(new[] { "This", "is", "a", "sentence" }).AsCollection);
-            Assert.That(LegacyFilters.Split(null, null), Is.EqualTo(new string[] { null }).AsCollection);
-
-            // A string with no pattern should be split into a string[], as required for the Liquid Reverse filter
-            Assert.That(LegacyFilters.Split("YMCA", null), Is.EqualTo(new[] { "Y", "M", "C", "A" }).AsCollection);
-            Assert.That(LegacyFilters.Split("YMCA", ""), Is.EqualTo(new[] { "Y", "M", "C", "A" }).AsCollection);
-            Assert.That(LegacyFilters.Split(" ", ""), Is.EqualTo(new[] { " " }).AsCollection);
-        }
-
-        [Test]
-        public void TestSplitV24()
-        {
-            Assert.That(StandardFilters.Split("This is a sentence", " "), Is.EqualTo(new[] { "This", "is", "a", "sentence" }).AsCollection);
-            Assert.That(StandardFilters.Split(null, null), Has.Exactly(0).Items);
-
-            // A string with no pattern should be split into a string[], as required for the Liquid Reverse filter
-            Assert.That(StandardFilters.Split("YMCA", null), Is.EqualTo(new[] { "Y", "M", "C", "A" }).AsCollection);
-            Assert.That(StandardFilters.Split("YMCA", ""), Is.EqualTo(new[] { "Y", "M", "C", "A" }).AsCollection);
-            Assert.That(StandardFilters.Split(" ", ""), Is.EqualTo(new[] { " " }).AsCollection);
-        }
-
-        [Test]
         public void TestSplitWhitespace()
         {
             Assert.Multiple(() =>
@@ -261,87 +206,6 @@ namespace DotLiquid.Tests
             Assert.That(StandardFilters.Rstrip("test   "), Is.EqualTo("test"));
             Assert.That(StandardFilters.Rstrip("test"), Is.EqualTo("test"));
             Assert.That(StandardFilters.Rstrip(null), Is.EqualTo(null));
-        }
-
-        [Test]
-        public void TestSlice_V22()
-        {
-            Context context = _contextV22;
-
-            // Verify backwards compatibility for pre-22a syntax (DotLiquid returns null for null input or empty slice)
-            Assert.That(StandardFilters.Slice(context, null, 1), Is.EqualTo(null)); // DotLiquid test case
-            Assert.That(StandardFilters.Slice(context, "", 10), Is.EqualTo(null)); // DotLiquid test case
-
-            Assert.That(StandardFilters.Slice(context, null, 0), Is.EqualTo(null)); // Liquid test case
-            Assert.That(StandardFilters.Slice(context, "foobar", 100, 10), Is.EqualTo(null)); // Liquid test case
-
-            // Verify DotLiquid is consistent with Liquid for everything else
-            TestSliceString(context);
-            TestSliceArrays(context);
-        }
-
-        [Test]
-        public void TestSlice_V22a()
-        {
-            Context context = _contextV22a;
-
-            // Verify Liquid compliance from V22a syntax:
-            Assert.That(StandardFilters.Slice(context, null, 1), Is.EqualTo("")); // DotLiquid test case
-            Assert.That(StandardFilters.Slice(context, "", 10), Is.EqualTo("")); // DotLiquid test case
-
-            Assert.That(StandardFilters.Slice(context, null, 0), Is.EqualTo("")); // Liquid test case
-            Assert.That(StandardFilters.Slice(context, "foobar", 100, 10), Is.EqualTo("")); // Liquid test case
-
-            // Verify DotLiquid is consistent with Liquid for everything else
-            TestSliceString(context);
-            TestSliceArrays(context);
-        }
-
-        private void TestSliceString(Context context)
-        {
-            Assert.That(StandardFilters.Slice(context, "abcdefg", 0, 3), Is.EqualTo("abc"));
-            Assert.That(StandardFilters.Slice(context, "abcdefg", 1, 3), Is.EqualTo("bcd"));
-            Assert.That(StandardFilters.Slice(context, "abcdefg", -3, 3), Is.EqualTo("efg"));
-            Assert.That(StandardFilters.Slice(context, "abcdefg", -3, 30), Is.EqualTo("efg"));
-            Assert.That(StandardFilters.Slice(context, "abcdefg", 4, 30), Is.EqualTo("efg"));
-            Assert.That(StandardFilters.Slice(context, "abc", -4, 2), Is.EqualTo("a"));
-            Assert.That(StandardFilters.Slice(context, "abcdefg", -10, 1), Is.EqualTo(""));
-
-            // Test replicated from the Ruby library (https://github.com/Shopify/liquid/blob/master/test/integration/standard_filter_test.rb)
-            Assert.That(StandardFilters.Slice(context, "foobar", 1, 3), Is.EqualTo("oob"));
-            Assert.That(StandardFilters.Slice(context, "foobar", 1, 1000), Is.EqualTo("oobar"));
-            Assert.That(StandardFilters.Slice(context, "foobar", 1, 0), Is.EqualTo(""));
-            Assert.That(StandardFilters.Slice(context, "foobar", 1, 1), Is.EqualTo("o"));
-            Assert.That(StandardFilters.Slice(context, "foobar", 3, 3), Is.EqualTo("bar"));
-            Assert.That(StandardFilters.Slice(context, "foobar", -2, 2), Is.EqualTo("ar"));
-            Assert.That(StandardFilters.Slice(context, "foobar", -2, 1000), Is.EqualTo("ar"));
-            Assert.That(StandardFilters.Slice(context, "foobar", -1), Is.EqualTo("r"));
-            Assert.That(StandardFilters.Slice(context, "foobar", -100, 10), Is.EqualTo(""));
-            Assert.That(StandardFilters.Slice(context, "foobar", 1, 3), Is.EqualTo("oob"));
-        }
-
-        private void TestSliceArrays(Context context)
-        {
-            // Test replicated from the Ruby library
-            var testArray = new[] { "f", "o", "o", "b", "a", "r" };
-            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, testArray, 1, 3), Is.EqualTo(ToStringArray("oob")).AsCollection);
-            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, testArray, 1, 1000), Is.EqualTo(ToStringArray("oobar")).AsCollection);
-            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, testArray, 1, 0), Is.EqualTo(ToStringArray("")).AsCollection);
-            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, testArray, 1, 1), Is.EqualTo(ToStringArray("o")).AsCollection);
-            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, testArray, 3, 3), Is.EqualTo(ToStringArray("bar")).AsCollection);
-            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, testArray, -2, 2), Is.EqualTo(ToStringArray("ar")).AsCollection);
-            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, testArray, -2, 1000), Is.EqualTo(ToStringArray("ar")).AsCollection);
-            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, testArray, -1), Is.EqualTo(ToStringArray("r")).AsCollection);
-            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, testArray, 100, 10), Is.EqualTo(ToStringArray("")).AsCollection);
-            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, testArray, -100, 10), Is.EqualTo(ToStringArray("")).AsCollection);
-
-            // additional tests
-            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, testArray, -6, 2), Is.EqualTo(ToStringArray("fo")).AsCollection);
-            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, testArray, -8, 4), Is.EqualTo(ToStringArray("fo")).AsCollection);
-
-            // Non-string arrays tests
-            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, new[] { 1, 2, 3, 4, 5 }, 1, 3), Is.EqualTo(new[] { 2, 3, 4 }).AsCollection);
-            Assert.That((IEnumerable<object>)StandardFilters.Slice(context, new[] { 'a', 'b', 'c', 'd', 'e' }, -4, 3), Is.EqualTo(new[] { 'b', 'c', 'd' }).AsCollection);
         }
 
         /// <summary>
@@ -1224,43 +1088,6 @@ PaulGeorge",
                 namingConvention: namingConvention);
         }
 
-        [Test]
-        public void TestReplace()
-        {
-            TestReplace(_contextV20, (i, s, r) => LegacyFilters.Replace(i, s, r)); ;
-        }
-
-        public void TestReplace(Context context, Func<string, string, string, string> filter)
-        {
-            Assert.That(actual: filter(null, "a", "b"), Is.Null);
-            Assert.That(actual: filter("", "a", "b"), Is.EqualTo(expected: ""));
-            Assert.That(actual: filter("a a a a", null, "b"), Is.EqualTo(expected: "a a a a"));
-            Assert.That(actual: filter("a a a a", "", "b"), Is.EqualTo(expected: "a a a a"));
-            Assert.That(actual: filter("a a a a", "a", "b"), Is.EqualTo(expected: "b b b b"));
-
-            Assert.That(actual: filter("Tesvalue\"", "\"", "\\\""), Is.EqualTo(expected: "Tesvalue\\\""));
-            Helper.AssertTemplateResult(expected: "Tesvalue\\\"", template: "{{ 'Tesvalue\"' | replace: '\"', '\\\"' }}", syntax: context.SyntaxCompatibilityLevel);
-            Helper.AssertTemplateResult(
-                expected: "Tesvalue\\\"",
-                template: "{{ context | replace: '\"', '\\\"' }}",
-                localVariables: Hash.FromAnonymousObject(new { context = "Tesvalue\"" }),
-                syntax: context.SyntaxCompatibilityLevel);
-        }
-
-        [Test]
-        public void TestReplaceRegexV20()
-        {
-            var context = _contextV20;
-            Assert.That(actual: LegacyFilters.Replace(input: "a A A a", @string: "[Aa]", replacement: "b"), Is.EqualTo(expected: "b b b b"));
-        }
-
-        [Test]
-        public void TestReplaceRegexV21()
-        {
-            var context = _contextV21;
-            Assert.That(actual: StandardFilters.Replace(input: "a A A a", @string: "[Aa]", replacement: "b"), Is.EqualTo(expected: "a A A a"));
-            TestReplace(context, (i, s, r) => StandardFilters.Replace(i, s, r));
-        }
 
         [Test]
         public void TestReplaceChain()
@@ -1275,63 +1102,25 @@ PaulGeorge",
         }
 
         [Test]
-        public void TestReplaceFirst()
-        {
-            TestReplaceFirst(_contextV20);
-        }
-
-        public void TestReplaceFirst(Context context)
-        {
-            Assert.That(StandardFilters.ReplaceFirst(context: context, input: null, @string: "a", replacement: "b"), Is.Null);
-            Assert.That(StandardFilters.ReplaceFirst(context: context, input: "", @string: "a", replacement: "b"), Is.EqualTo(""));
-            Assert.That(StandardFilters.ReplaceFirst(context: context, input: "a a a a", @string: null, replacement: "b"), Is.EqualTo("a a a a"));
-            Assert.That(StandardFilters.ReplaceFirst(context: context, input: "a a a a", @string: "", replacement: "b"), Is.EqualTo("a a a a"));
-            Assert.That(StandardFilters.ReplaceFirst(context: context, input: "a a a a", @string: "a", replacement: "b"), Is.EqualTo("b a a a"));
-            Helper.AssertTemplateResult(expected: "b a a a", template: "{{ 'a a a a' | replace_first: 'a', 'b' }}", syntax: context.SyntaxCompatibilityLevel);
-        }
-
-        [Test]
-        public void TestReplaceFirstRegexV20()
-        {
-            var context = _contextV20;
-            Assert.That(actual: StandardFilters.ReplaceFirst(context: context, input: "a A A a", @string: "[Aa]", replacement: "b"), Is.EqualTo(expected: "b A A a"));
-        }
-
-        [Test]
-        public void TestReplaceFirstRegexV21()
-        {
-            var context = _contextV21;
-            Assert.That(actual: StandardFilters.ReplaceFirst(context: context, input: "a A A a", @string: "[Aa]", replacement: "b"), Is.EqualTo(expected: "a A A a"));
-            TestReplaceFirst(context);
-        }
-
-        [Test]
         public void TestRemove()
         {
-            TestRemove(_contextV20);
-        }
-
-        public void TestRemove(Context context)
-        {
-
             Assert.That(StandardFilters.Remove("a a a a", "a"), Is.EqualTo("   "));
-            Assert.That(StandardFilters.RemoveFirst(context: context, input: "a a a a", @string: "a "), Is.EqualTo("a a a"));
-            Helper.AssertTemplateResult(expected: "a a a", template: "{{ 'a a a a' | remove_first: 'a ' }}", syntax: context.SyntaxCompatibilityLevel);
         }
 
         [Test]
         public void TestRemoveFirstRegexV20()
         {
-            var context = _contextV20;
-            Assert.That(actual: StandardFilters.RemoveFirst(context: context, input: "Mr. Jones", @string: "."), Is.EqualTo(expected: "r. Jones"));
+            Assert.That(actual: LegacyFilters.RemoveFirst(input: "Mr. Jones", @string: "."), Is.EqualTo(expected: "r. Jones"));
+            Assert.That(LegacyFilters.RemoveFirst(input: "a a a a", @string: "a "), Is.EqualTo("a a a"));
+            Helper.AssertTemplateResult(expected: "a a a", template: "{{ 'a a a a' | remove_first: 'a ' }}", syntax: SyntaxCompatibility.DotLiquid20);
         }
 
         [Test]
         public void TestRemoveFirstRegexV21()
         {
-            var context = _contextV21;
-            Assert.That(actual: StandardFilters.RemoveFirst(context: context, input: "Mr. Jones", @string: "."), Is.EqualTo(expected: "Mr Jones"));
-            TestRemove(context);
+            Assert.That(actual: StandardFilters.RemoveFirst(input: "Mr. Jones", @string: "."), Is.EqualTo(expected: "Mr Jones"));
+            Assert.That(StandardFilters.RemoveFirst(input: "a a a a", @string: "a "), Is.EqualTo("a a a"));
+            Helper.AssertTemplateResult(expected: "a a a", template: "{{ 'a a a a' | remove_first: 'a ' }}", syntax: SyntaxCompatibility.DotLiquid21);
         }
 
         [Test]
@@ -1368,52 +1157,6 @@ PaulGeorge",
             Helper.AssertTemplateResult("a<br />\nb<br />\nc",
                 "{{ source | newline_to_br }}",
                 Hash.FromAnonymousObject(new { source = "a\nb\nc" }));
-        }
-
-        [Test]
-        public void TestPlus()
-        {
-            TestPlus(_contextV20);
-        }
-
-        private void TestPlus(Context context)
-        {
-            using (CultureHelper.SetCulture("en-GB"))
-            {
-                Helper.AssertTemplateResult(expected: "2", template: "{{ 1 | plus:1 }}", syntax: context.SyntaxCompatibilityLevel);
-                Helper.AssertTemplateResult(expected: "5.5", template: "{{ 2  | plus:3.5 }}", syntax: context.SyntaxCompatibilityLevel);
-                Helper.AssertTemplateResult(expected: "5.5", template: "{{ 3.5 | plus:2 }}", syntax: context.SyntaxCompatibilityLevel);
-
-                // Test that decimals are not introducing rounding-precision issues
-                Helper.AssertTemplateResult(expected: "148397.77", template: "{{ 148387.77 | plus:10 }}", syntax: context.SyntaxCompatibilityLevel);
-
-                Helper.AssertTemplateResult(
-                    expected: "2147483648",
-                    template: "{{ i | plus: i2 }}",
-                    localVariables: Hash.FromAnonymousObject(new { i = (int)Int32.MaxValue, i2 = (Int64)1 }),
-                    syntax: context.SyntaxCompatibilityLevel);
-            }
-        }
-
-        [Test]
-        public void TestPlusStringV20()
-        {
-            var context = _contextV20;
-            Helper.AssertTemplateResult(expected: "11", template: "{{ '1' | plus: 1 }}", syntax: context.SyntaxCompatibilityLevel);
-            var renderParams = new RenderParameters(CultureInfo.InvariantCulture) { ErrorsOutputMode = ErrorsOutputMode.Rethrow, SyntaxCompatibilityLevel = context.SyntaxCompatibilityLevel };
-            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ 1 | plus: '1' }}").Render(renderParams));
-        }
-
-        [Test]
-        public void TestPlusStringV21()
-        {
-            var context = _contextV21;
-            Helper.AssertTemplateResult(expected: "2", template: "{{ '1' | plus: 1 }}", syntax: context.SyntaxCompatibilityLevel);
-            Helper.AssertTemplateResult(expected: "2", template: "{{ 1 | plus: '1' }}", syntax: context.SyntaxCompatibilityLevel);
-            Helper.AssertTemplateResult(expected: "2", template: "{{ '1' | plus: '1' }}", syntax: context.SyntaxCompatibilityLevel);
-            Helper.AssertTemplateResult(expected: "5.5", template: "{{ 2 | plus: '3.5' }}", syntax: context.SyntaxCompatibilityLevel);
-            Helper.AssertTemplateResult(expected: "5.5", template: "{{ '3.5' | plus: 2 }}", syntax: context.SyntaxCompatibilityLevel);
-            TestPlus(context);
         }
 
         [Test]
@@ -1708,51 +1451,6 @@ PaulGeorge",
             Helper.AssertTemplateResult("foo", "{{ var1 | default: 'foobar' }}", assigns);
             Helper.AssertTemplateResult("bar", "{{ var2 | default: 'foobar' }}", assigns);
             Helper.AssertTemplateResult("foobar", "{{ unknownvariable | default: 'foobar' }}", assigns);
-        }
-
-        [Test]
-        public void TestCapitalizeV20()
-        {
-            var context = _contextV20;
-            Assert.That(LegacyFilters.Capitalize(context: context, input: null), Is.EqualTo(null));
-            Assert.That(LegacyFilters.Capitalize(context: context, input: ""), Is.EqualTo(""));
-            Assert.That(LegacyFilters.Capitalize(context: context, input: " "), Is.EqualTo(" "));
-            Assert.That(LegacyFilters.Capitalize(context: context, input: "That is one sentence."), Is.EqualTo("That Is One Sentence."));
-
-            Helper.AssertTemplateResult(
-                expected: "Title",
-                template: "{{ 'title' | capitalize }}",
-                syntax: context.SyntaxCompatibilityLevel);
-        }
-
-        [Test]
-        public void TestCapitalizeV21()
-        {
-            var context = _contextV21;
-            Assert.That(LegacyFilters.CapitalizeV21(input: null), Is.EqualTo(null));
-            Assert.That(LegacyFilters.CapitalizeV21(input: ""), Is.EqualTo(""));
-            Assert.That(LegacyFilters.CapitalizeV21(input: " "), Is.EqualTo(" "));
-            Assert.That(LegacyFilters.CapitalizeV21(input: " my boss is Mr. Doe."), Is.EqualTo(" My boss is Mr. Doe."));
-
-            Helper.AssertTemplateResult(
-                expected: "My great title",
-                template: "{{ 'my great title' | capitalize }}",
-                syntax: context.SyntaxCompatibilityLevel);
-        }
-
-        [Test]
-        public void TestCapitalizeV22()
-        {
-            var context = _contextV22;
-            Assert.That(StandardFilters.Capitalize(input: null), Is.EqualTo(null));
-            Assert.That(StandardFilters.Capitalize(input: ""), Is.EqualTo(""));
-            Assert.That(StandardFilters.Capitalize(input: " "), Is.EqualTo(" "));
-            Assert.That(StandardFilters.Capitalize(input: "my boss is Mr. Doe."), Is.EqualTo("My boss is mr. doe."));
-
-            Helper.AssertTemplateResult(
-                expected: "My great title",
-                template: "{{ 'my Great Title' | capitalize }}",
-                syntax: context.SyntaxCompatibilityLevel);
         }
 
         [Test]

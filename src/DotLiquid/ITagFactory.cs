@@ -1,6 +1,4 @@
-using System;
-
-namespace DotLiquid
+﻿namespace DotLiquid
 {
     /// <summary>
     /// Interface for tag factory.
@@ -12,11 +10,6 @@ namespace DotLiquid
         /// Name of the tag
         /// </summary>
         string TagName { get; }
-
-        /// <summary>
-        /// The type of the resulting tag
-        /// </summary>
-        Type TagType { get; }
 
         /// <summary>
         /// Creates the tag

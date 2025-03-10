@@ -133,6 +133,8 @@ namespace DotLiquid.Tests.Util
             Assert.That(ObjectExtensionMethods.RespondTo(instance, "GetValue"), Is.True);
 
             Assert.That(ObjectExtensionMethods.RespondTo(instance, "NotFound"), Is.False);
+
+            Assert.Throws<ArgumentNullException>(() => ObjectExtensionMethods.RespondTo(NIL, "GetValue"));
         }
 
         [Test]
@@ -143,6 +145,8 @@ namespace DotLiquid.Tests.Util
             Assert.That(ObjectExtensionMethods.Send(instance, "GetValue"), Is.EqualTo(35));
 
             Assert.That(ObjectExtensionMethods.Send(instance, "NotFound"), Is.Null);
+
+            Assert.Throws<ArgumentNullException>(() => ObjectExtensionMethods.Send(NIL, "GetValue"));
         }
     }
 }

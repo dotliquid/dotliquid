@@ -1,3 +1,6 @@
+using System;
+using System.Globalization;
+using System.IO;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -126,6 +129,36 @@ namespace DotLiquid.Tests
         {
             Variable var = new Variable(" test.test ");
             Assert.That(var.Name, Is.EqualTo("test.test"));
+        }
+
+        [Test]
+        public void TestVariableStringConversion()
+        {
+            using (CultureHelper.SetCulture("en-US"))
+            {
+                Assert.Multiple(() =>
+                {
+                    Assert.That(RenderVariable(""), Is.EqualTo(string.Empty));
+                    Assert.That(RenderVariable(null), Is.EqualTo(string.Empty));
+                    Assert.That(RenderVariable("this"), Is.EqualTo("this"));
+                    Assert.That(RenderVariable(3), Is.EqualTo("3"));
+                    Assert.That(RenderVariable(3.14), Is.EqualTo("3.14"));
+                    Assert.That(RenderVariable(new DateTime(2006, 8, 4)), Is.EqualTo("08/04/2006 00:00:00"));
+                    Assert.That(RenderVariable(new string[] { "foo", "bar" }), Is.EqualTo("foobar"));
+                });
+            }
+        }
+
+        private static string RenderVariable(object data)
+        {
+            Variable variable = new Variable("{{data}}");
+            Context context = new Context(CultureInfo.CurrentCulture);
+            context["data"] = data;
+            using (TextWriter writer = new StringWriter(CultureInfo.InvariantCulture))
+            {
+                variable.Render(context, writer);
+                return writer.ToString();
+            }
         }
 
         private static void AssertFiltersAreEqual(Variable.Filter[] expected, System.Collections.Generic.List<Variable.Filter> actual)

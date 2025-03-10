@@ -150,14 +150,16 @@ namespace DotLiquid
                 }
             }
 
+            object result = null;
             try
             {
-                return methodInfo.Item2.Invoke(methodInfo.Item1, args.ToArray());
+                result = methodInfo.Item2.Invoke(methodInfo.Item1, args.ToArray());
             }
             catch (TargetInvocationException ex)
             {
                 ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
             }
+            return result;
         }
     }
 }

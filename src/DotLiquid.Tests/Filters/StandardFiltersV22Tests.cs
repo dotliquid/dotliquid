@@ -1,24 +1,30 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NUnit.Framework;
 
-namespace DotLiquid.Tests
+namespace DotLiquid.Tests.Filters
 {
     [TestFixture]
     public class StandardFiltersV22Tests : StandardFiltersTestsBase
     {
         public override SyntaxCompatibility SyntaxCompatibilityLevel => SyntaxCompatibility.DotLiquid22;
         public override CapitalizeDelegate Capitalize => i => StandardFilters.Capitalize(i);
-        public override PlusDelegate Plus => (i, o) => StandardFilters.Plus(_context, i, o);
+        public override MathDelegate Divide => (i, o) => StandardFilters.DividedBy(_context, i, o);
+        public override MathDelegate Plus => (i, o) => StandardFilters.Plus(_context, i, o);
+        public override MathDelegate Minus => (i, o) => StandardFilters.Minus(_context, i, o);
+        public override MathDelegate Modulo => (i, o) => StandardFilters.Modulo(_context, i, o);
+        public override RemoveFirstDelegate RemoveFirst => (a, b) => StandardFilters.RemoveFirst(a, b);
         public override ReplaceDelegate Replace => (i, s, r) => StandardFilters.Replace(i, s, r);
         public override ReplaceFirstDelegate ReplaceFirst => (i, s, r) => StandardFilters.ReplaceFirst(i, s, r);
         public override SliceDelegate Slice => (i, s, l) => l.HasValue ? LegacyFilters.Slice(i, s, l.Value) : LegacyFilters.Slice(i, s);
         public override SplitDelegate Split => (i, p) => LegacyFilters.Split(i, p);
-        public override TruncateWordsDelegate TruncateWords => (i, w, s) => s == null ? LegacyFilters.TruncateWords(i, w) : LegacyFilters.TruncateWords(i, w, s);
+        public override MathDelegate Times => (i, o) => StandardFilters.Times(_context, i, o);
+        public override TruncateWordsDelegate TruncateWords => (i, w, s) =>
+        {
+            if (w.HasValue)
+                return s == null ? LegacyFilters.TruncateWords(i, w.Value) : LegacyFilters.TruncateWords(i, w.Value, s);
+            return LegacyFilters.TruncateWords(i);
+        };
 
         private Context _context;
 

@@ -16,12 +16,7 @@ namespace DotLiquid
         public static string Titleize(Context context, string input)
         {
             return input.IsNullOrWhiteSpace()
-                ? input
-#if CORE
-                : Regex.Replace(input, @"\b(\w)", m => m.Value.ToUpper(), RegexOptions.None, Template.RegexTimeOut);
-#else
-                : context.CurrentCulture.TextInfo.ToTitleCase(input);
-#endif
+                ? input : context.CurrentCulture.TextInfo.ToTitleCase(input);
         }
 
         /// <summary>

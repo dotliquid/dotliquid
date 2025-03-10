@@ -100,8 +100,9 @@ namespace DotLiquid
         /// <returns></returns>
         public static Type GetTagType(string name)
         {
-            Tags.TryGetValue(name, out Tuple<ITagFactory, Type> result);
-            return result.Item2;
+            if (Tags.TryGetValue(name, out Tuple<ITagFactory, Type> result))
+                return result.Item2;
+            return null;
         }
 
         /// <summary>
@@ -111,24 +112,16 @@ namespace DotLiquid
         /// <returns></returns>
         internal static bool IsRawTag(string name)
         {
-            Tags.TryGetValue(name, out Tuple<ITagFactory, Type> result);
-            return typeof(RawBlock)
-#if NETSTANDARD1_3
-                .GetTypeInfo()
-#endif
-                .IsAssignableFrom(result?.Item2
-#if NETSTANDARD1_3
-                    ?.GetTypeInfo()
-#endif
-                );
+            if (Tags.TryGetValue(name, out Tuple<ITagFactory, Type> result))
+                return typeof(RawBlock).IsAssignableFrom(result?.Item2);
+            return false;
         }
 
         internal static Tag CreateTag(string name)
         {
             Tag tagInstance = null;
-            Tags.TryGetValue(name, out Tuple<ITagFactory, Type> result);
-
-            if (result != null)
+            if (Tags.TryGetValue(name, out Tuple<ITagFactory, Type> result) &&
+                result != null)
             {
                 tagInstance = result.Item1.Create();
             }
@@ -400,6 +393,9 @@ namespace DotLiquid
         /// <returns>The rendering result as string.</returns>
         public string Render(RenderParameters parameters)
         {
+            if (parameters == null)
+                throw new ArgumentNullException(paramName: nameof(parameters));
+
             using (var writer = new StringWriter(parameters.FormatProvider))
             {
                 return this.Render(writer, parameters);
@@ -438,6 +434,11 @@ namespace DotLiquid
         /// <param name="parameters">The render parameters.</param>
         public void Render(Stream stream, RenderParameters parameters)
         {
+            if (stream == null)
+                throw new ArgumentNullException(paramName: nameof(stream));
+            if (parameters == null)
+                throw new ArgumentNullException(paramName: nameof(parameters));
+
             // Can't dispose this new StreamWriter, because it would close the
             // passed-in stream, which isn't up to us.
             StreamWriter streamWriter = new StreamWriterWithFormatProvider(stream, parameters.FormatProvider);

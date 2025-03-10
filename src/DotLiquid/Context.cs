@@ -637,7 +637,11 @@ namespace DotLiquid
                 || (key is decimal dec && Math.Truncate(dec) == dec) || (key is double dbl && Math.Truncate(dbl) == dbl) || (key is float flt && Math.Truncate(flt) == flt)))
             {
                 var index = Convert.ToInt32(key);
-                value = listObj[index < 0 ? listObj.Count + index : index];
+                index = index < 0 ? listObj.Count + index : index;
+                if (index >= 0 && index < listObj.Count)
+                    value = listObj[index];
+                else
+                    return false;
             }
 
             else if (TypeUtility.IsAnonymousType(obj.GetType()) && obj.GetType().GetRuntimeProperty((string)key) != null)
@@ -694,11 +698,7 @@ namespace DotLiquid
             }
 
             var valueType = obj.GetType();
-#if NETSTANDARD1_3
-            if (valueType.GetTypeInfo().IsPrimitive)
-#else
             if (valueType.IsPrimitive)
-#endif
             {
                 return obj;
             }
@@ -733,11 +733,7 @@ namespace DotLiquid
             if (obj != null)
             {
                 Type valueType = obj.GetType();
-#if NETSTANDARD1_3
-                if (valueType.GetTypeInfo().IsGenericType)
-#else
                 if (valueType.IsGenericType)
-#endif
                 {
                     Type baseType = valueType.GetGenericTypeDefinition();
                     if (baseType == typeof(KeyValuePair<,>))

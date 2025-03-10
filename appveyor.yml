@@ -15,8 +15,6 @@ install:
 
     choco install codecov -y
 
-    choco install dotnetcore-runtime.install --version=1.1.13 --allow-downgrade -y
-
     choco install dotnetcore-runtime.install --version=2.1.30 -y
 
     dotnet restore src/DotLiquid.sln

@@ -392,6 +392,9 @@ namespace DotLiquid
         /// <returns>The rendering result as string.</returns>
         public string Render(RenderParameters parameters)
         {
+            if (parameters == null)
+                throw new ArgumentNullException(paramName: nameof(parameters));
+
             using (var writer = new StringWriter(parameters.FormatProvider))
             {
                 return this.Render(writer, parameters);
@@ -430,6 +433,11 @@ namespace DotLiquid
         /// <param name="parameters">The render parameters.</param>
         public void Render(Stream stream, RenderParameters parameters)
         {
+            if (stream == null)
+                throw new ArgumentNullException(paramName: nameof(stream));
+            if (parameters == null)
+                throw new ArgumentNullException(paramName: nameof(parameters));
+
             // Can't dispose this new StreamWriter, because it would close the
             // passed-in stream, which isn't up to us.
             StreamWriter streamWriter = new StreamWriterWithFormatProvider(stream, parameters.FormatProvider);

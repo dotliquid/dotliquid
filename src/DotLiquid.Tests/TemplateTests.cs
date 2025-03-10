@@ -1,3 +1,4 @@
+using System;
 using System.Globalization;
 using System.IO;
 using System.Net;
@@ -156,7 +157,7 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestRenderToStreamWriter()
+        public void TestRenderToTextWriter()
         {
             Template template = Template.Parse("{{test}}");
 
@@ -181,6 +182,66 @@ namespace DotLiquid.Tests
             using (TextReader reader = new StreamReader(output))
             {
                 Assert.That(reader.ReadToEnd(), Is.EqualTo("worked"));
+            }
+        }
+
+        [Test]
+        public void TestRenderEmptyDocument()
+        {
+            Template template = Template.Parse(null);
+            Assert.That(template.Render(CultureInfo.CurrentCulture), Is.EqualTo(String.Empty));
+        }
+
+        [Test]
+        public void TestRenderNoRoot()
+        {
+            Template template = Template.Parse(null);
+            template.Root = null;
+
+            Assert.That(template.Render(CultureInfo.CurrentCulture), Is.EqualTo(String.Empty));
+        }
+
+        [Test]
+        public void TestRenderToNullStream()
+        {
+            Template template = Template.Parse("{{test}}");
+            Stream stream = null;
+            Assert.Throws<ArgumentNullException>(() => template.Render(stream, new RenderParameters(CultureInfo.InvariantCulture)));
+        }
+
+        [Test]
+        public void TestRenderToNullTextWriter()
+        {
+            Template template = Template.Parse("{{test}}");
+            TextWriter writer = null;
+            Assert.Throws<ArgumentNullException>(() => template.Render(writer, new RenderParameters(CultureInfo.InvariantCulture)));
+        }
+
+        [Test]
+        public void TestRenderNullParameters()
+        {
+            Template template = Template.Parse("{{test}}");
+            RenderParameters parameters = null;
+            Assert.Throws<ArgumentNullException>(() => template.Render(parameters));
+        }
+
+        [Test]
+        public void TestRenderToStreamNullParameters()
+        {
+            Template template = Template.Parse("{{test}}");
+            using (Stream stream = new MemoryStream())
+            {
+                Assert.Throws<ArgumentNullException>(() => template.Render(stream, null));
+            }
+        }
+
+        [Test]
+        public void TestRenderToTextWriterNullParameters()
+        {
+            Template template = Template.Parse("{{test}}");
+            using (TextWriter writer = new StringWriter(CultureInfo.InvariantCulture))
+            {
+                Assert.Throws<ArgumentNullException>(() => template.Render(writer, null));
             }
         }
 

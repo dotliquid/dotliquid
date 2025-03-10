@@ -5,7 +5,7 @@
     <AssemblyTitle>DotLiquid</AssemblyTitle>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Authors>Tim Jones;Alessandro Petrelli</Authors>
-    <TargetFrameworks>netstandard2.0;net461;net6.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net462;net6.0;net8.0</TargetFrameworks>
     <AssemblyName>DotLiquid</AssemblyName>
     <AssemblyOriginatorKeyFile>../Formosatek-OpenSource.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>

@@ -11,38 +11,6 @@ namespace DotLiquid.Tests.Tags
     [TestFixture]
     public class IncludeTagTests
     {
-        internal class TestTemplateFileSystem : ITemplateFileSystem
-        {
-            private IDictionary<string, Template> _templateCache = new Dictionary<string, Template>();
-            private IFileSystem _baseFileSystem = null;
-            private int _cacheHitTimes;
-            public int CacheHitTimes { get { return _cacheHitTimes; } }
-
-            public TestTemplateFileSystem(IFileSystem baseFileSystem)
-            {
-                _baseFileSystem = baseFileSystem;
-            }
-
-            public string ReadTemplateFile(Context context, string templateName)
-            {
-                return _baseFileSystem.ReadTemplateFile(context, templateName);
-            }
-
-            public Template GetTemplate(Context context, string templateName)
-            {
-                Template template;
-                if (_templateCache.TryGetValue(templateName, out template))
-                {
-                    ++_cacheHitTimes;
-                    return template;
-                }
-                var result = ReadTemplateFile(context, templateName);
-                template = Template.Parse(result);
-                _templateCache[templateName] = template;
-                return template;
-            }
-        }
-
         private class OtherFileSystem : IFileSystem
         {
             public string ReadTemplateFile(Context context, string templateName)
@@ -57,6 +25,11 @@ namespace DotLiquid.Tests.Tags
             {
                 return "-{% include 'loop' %}";
             }
+        }
+
+        private class ReflectFileSystem : IFileSystem
+        {
+            public string ReadTemplateFile(Context context, string templateName) => templateName;
         }
 
         [SetUp]
@@ -111,6 +84,19 @@ namespace DotLiquid.Tests.Tags
         public void TestIncludeTagWithLocalVariables()
         {
             Assert.That(Template.Parse("{% include 'locale_variables' echo1: 'test123' %}").Render(), Is.EqualTo("Locale: test123 "));
+        }
+
+        [Test]
+        public void TestIncludeTagWithStringVariable()
+        {
+            Helper.WithDictionaryFileSystem(new Dictionary<string, string>
+                {
+                    { "product", "Product: {{ product }}" }
+            }, () =>
+            {
+                Assert.That(Template.Parse("{% include 'product' with 'foo' %}").Render(), Is.EqualTo("Product: foo"));
+                Assert.That(Template.Parse("{% include 'product' for 'foo' %}").Render(), Is.EqualTo("Product: foo"));
+            });
         }
 
         [Test]
@@ -187,13 +173,86 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestIncludeFromTemplateFileSystem()
         {
-            var fileSystem = new TestTemplateFileSystem(Template.FileSystem);
+            TemplateFileSystem fileSystem = new TemplateFileSystem(Template.FileSystem);
             Template.FileSystem = fileSystem;
             for (int i = 0; i < 2; ++i)
             {
                 Assert.That(Template.Parse("{% include 'product' with products[0] %}").Render(Hash.FromAnonymousObject(new { products = new[] { Hash.FromAnonymousObject(new { title = "Draft 151cm" }), Hash.FromAnonymousObject(new { title = "Element 155cm" }) } })), Is.EqualTo("Product: Draft 151cm "));
             }
             Assert.That(fileSystem.CacheHitTimes, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void TestDotLiquid24UndefinedTemplateVariableShouldError()
+        {
+            Assert.That(Template.Parse("{% include undefined_variable %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
+            {
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid24
+            }),
+                Is.EqualTo("Liquid error: Argument error in tag 'include' - Illegal template name"));
+        }
+
+        [Test]
+        public void TestDotLiquid24NotStringTemplateVariableShouldError()
+        {
+            Assert.That(Template.Parse("{% include 123 %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
+            {
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid24
+            }),
+                Is.EqualTo("Liquid error: Argument error in tag 'include' - Illegal template name"));
+        }
+
+        [Test]
+        public void TestDotLiquid24TemplateFileSystemReceiveTemplateNameInsteadOfRaw()
+        {
+            Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
+            {
+                Template.FileSystem = new ReflectFileSystem();
+                Assert.That(Template.Parse("{% include 'product' %}").Render(), Is.EqualTo("'product'"));
+                Assert.That(Template.Parse("{% include 'product' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
+                {
+                    SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid24
+                }),
+                    Is.EqualTo("product"));
+            });
+        }
+
+        [Test]
+        public void TestDotLiquid24CacheSecondReadSamePartial()
+        {
+            CountingFileSystem fileSystem = new CountingFileSystem();
+            Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
+            {
+                Template.FileSystem = fileSystem;
+                Assert.That(Template.Parse("{% include 'pick_a_source' %}{% include 'pick_a_source' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
+                {
+                    SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid24
+                }),
+                    Is.EqualTo("from CountingFileSystemfrom CountingFileSystem"));
+                Assert.That(fileSystem.Count, Is.EqualTo(1));
+            });
+        }
+
+        [Test]
+        public void TestDotLiquid24DoesntCachePartialsAcrossRenders()
+        {
+            CountingFileSystem fileSystem = new CountingFileSystem();
+            Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
+            {
+                Template.FileSystem = fileSystem;
+                Assert.That(Template.Parse("{% include 'pick_a_source' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
+                {
+                    SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid24
+                }),
+                    Is.EqualTo("from CountingFileSystem"));
+                Assert.That(fileSystem.Count, Is.EqualTo(1));
+                Assert.That(Template.Parse("{% include 'pick_a_source' %}").Render(new RenderParameters(CultureInfo.InvariantCulture)
+                {
+                    SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid24
+                }),
+                    Is.EqualTo("from CountingFileSystem"));
+                Assert.That(fileSystem.Count, Is.EqualTo(2));
+            });
         }
     }
 }

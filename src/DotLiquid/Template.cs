@@ -85,6 +85,23 @@ namespace DotLiquid
         }
 
         /// <summary>
+        /// Unregister a tag
+        /// </summary>
+        /// <param name="name">Name of the tag</param>
+        /// <returns>The registered type of the tag if the tag was found and removed, null otherwise</returns>
+        public static Type UnregisterTag(string name)
+        {
+            Type tagType = null;
+            bool found = Tags.TryGetValue(name, out Tuple<ITagFactory, Type> tag);
+            if (found)
+            {
+                Tags.Remove(name);
+                tagType = tag.Item2;
+            }
+            return tagType;
+        }
+
+        /// <summary>
         /// Registers a tag factory.
         /// </summary>
         /// <param name="tagFactory">The ITagFactory to be registered</param>

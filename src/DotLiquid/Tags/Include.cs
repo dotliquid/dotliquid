@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
-using DotLiquid.FileSystems;
 using DotLiquid.Util;
 
 namespace DotLiquid.Tags
@@ -39,39 +38,39 @@ namespace DotLiquid.Tags
 
         public override void Render(Context context, TextWriter result)
         {
-            IFileSystem fileSystem = context.Registers["file_system"] as IFileSystem ?? Template.FileSystem;
-            ITemplateFileSystem templateFileSystem = fileSystem as ITemplateFileSystem;
-            Template partial = null;
-            if (templateFileSystem != null)
+            Template partial;
+            if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid24)
             {
-                partial = templateFileSystem.GetTemplate(context, _templateName);
+                if (!(context[_templateName] is string templateName))
+                    throw new Exceptions.ArgumentException(Liquid.ResourceManager.GetString("TemplateNameArgumentException"), TagName);
+                partial = PartialCache.Load(templateName, context);
             }
-            if (partial == null)
+            else
             {
-                string source = fileSystem.ReadTemplateFile(context, _templateName);
-                partial = Template.Parse(source);
+                partial = PartialCache.Fetch(_templateName, context);
             }
 
-            string shortenedTemplateName = _templateName.Substring(1, _templateName.Length - 2);
-            object variable = context[_variableName ?? shortenedTemplateName, _variableName != null];
-
+            var contextVariableName = _templateName.Substring(1, _templateName.Length - 2);;
+            object variable = context[_variableName ?? contextVariableName, _variableName != null];
             context.Stack(() =>
             {
                 foreach (var keyValue in _attributes)
                     context[keyValue.Key] = context[keyValue.Value];
 
-                if (variable is IEnumerable)
+                if (variable is IEnumerable enumerable && !(variable is string))
                 {
-                    ((IEnumerable) variable).Cast<object>().ToList().ForEach(v =>
+                    enumerable.Cast<object>().ToList().ForEach(v =>
                     {
-                        context[shortenedTemplateName] = v;
+                        context[contextVariableName] = v;
                         partial.Render(result, RenderParameters.FromContext(context, result.FormatProvider));
                     });
-                    return;
+                }
+                else
+                {
+                    context[contextVariableName] = variable;
+                    partial.Render(result, RenderParameters.FromContext(context, result.FormatProvider));
                 }
 
-                context[shortenedTemplateName] = variable;
-                partial.Render(result, RenderParameters.FromContext(context, result.FormatProvider));
             });
         }
     }

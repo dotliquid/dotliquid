@@ -169,29 +169,17 @@ namespace DotLiquid.Tags
 
                     // Ensure the 'for-loop' object is available to templates.
                     // See: https://shopify.dev/api/liquid/objects/for-loops
-                    context["forloop"] = new Dictionary<string, object>
+                    context["forloop"] = new ForloopDrop(length, index)
                     {
-                        ["name"] = _name,
-                        ["length"] = length,
-                        ["index"] = index + 1,
-                        ["index0"] = index,
-                        ["rindex"] = length - index,
-                        ["rindex0"] = length - index - 1,
-                        ["first"] = (index == 0),
-                        ["last"] = (index == length - 1)
+                        Name = _name
                     };
 
-                    try
+                    RenderAll(ForBlock, context, result);
+                    if (context.IsInterrupt())
                     {
-                        RenderAll(ForBlock, context, result);
-                    }
-                    catch (BreakInterrupt)
-                    {
-                        break;
-                    }
-                    catch (ContinueInterrupt)
-                    {
-                        // ContinueInterrupt is used only to skip the current value but not to stop the iteration
+                        var interrupt = context.PopInterrupt();
+                        if (interrupt is BreakInterrupt)
+                            break;
                     }
                 }
             });

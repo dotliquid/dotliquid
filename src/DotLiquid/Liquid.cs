@@ -68,6 +68,7 @@ namespace DotLiquid
             Template.RegisterTag<Tags.Param>("param");
 
             Template.RegisterTag<Tags.Html.TableRow>("tablerow");
+            Template.RegisterTag<Tags.RenderTag>("render");
 
             Template.RegisterFilter(typeof(StandardFilters));
 

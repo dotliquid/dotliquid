@@ -102,7 +102,9 @@ namespace DotLiquid.Tests
             {
                 Liquid.UseRubyDateFormat = true;
                 if (test.Partials?.Count > 0)
+                {
                     Template.FileSystem = new DictionaryFileSystem(test.Partials);
+                }
 
                 // If the test should produce an error, assert that it does
                 if (test.Error)

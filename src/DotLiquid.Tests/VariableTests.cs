@@ -142,9 +142,11 @@ namespace DotLiquid.Tests
                     Assert.That(RenderVariable(null), Is.EqualTo(string.Empty));
                     Assert.That(RenderVariable("this"), Is.EqualTo("this"));
                     Assert.That(RenderVariable(3), Is.EqualTo("3"));
-                    Assert.That(RenderVariable(3.14), Is.EqualTo("3.14"));
+                    Assert.That(RenderVariable(3m), Is.EqualTo("3"));
+                    Assert.That(RenderVariable(3.14m), Is.EqualTo("3.14"));
                     Assert.That(RenderVariable(new DateTime(2006, 8, 4)), Is.EqualTo("08/04/2006 00:00:00"));
                     Assert.That(RenderVariable(new string[] { "foo", "bar" }), Is.EqualTo("foobar"));
+                    Assert.That(RenderVariable(new string[] { "foo", null, "bar" }), Is.EqualTo("foobar"));
                 });
             }
         }

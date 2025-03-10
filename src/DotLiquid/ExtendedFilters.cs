@@ -27,10 +27,9 @@ namespace DotLiquid
         /// <summary>
         /// Converts just the first character to uppercase
         /// </summary>
-        /// <param name="context"></param>
         /// <param name="input"></param>
         /// <returns></returns>
-        public static string UpcaseFirst(Context context, string input)
+        public static string UpcaseFirst(string input)
         {
             if (input.IsNullOrWhiteSpace())
                 return input;

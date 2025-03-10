@@ -24,10 +24,8 @@ namespace DotLiquid
             Filters[filter.AssemblyQualifiedName] = filter;
         }
 
-        public static void GlobalFilter(string rawName, object target, MethodInfo methodInfo)
+        public static void GlobalFilter(string name, object target, MethodInfo methodInfo)
         {
-            var name = Template.NamingConvention.GetMemberName(rawName);
-
             FilterFuncs[name] = Tuple.Create(target, methodInfo);
         }
 
@@ -68,9 +66,9 @@ namespace DotLiquid
             var methods = type.GetRuntimeMethods().Where(m => m.IsPublic && m.IsStatic);
             foreach (var method in methods)
             {
-                string methodName = Template.NamingConvention.GetMemberName(method.Name);
                 if  (_methods.Any(m => method.MatchesMethod(m)))
                 {
+                    var methodName = Template.NamingConvention.GetMemberName(method.Name);
                     _methods.Remove(methodName);
                 }
             }

@@ -91,11 +91,11 @@ namespace DotLiquid
                 if (!(output is string outputString))
                 {
                     if (output is IEnumerable enumerable)
-                        outputString = string.Join(string.Empty, enumerable.Cast<object>().Select(o => ToFormattedString(o, result.FormatProvider)).ToArray());
+                        outputString = string.Join(string.Empty, enumerable.Cast<object>().Select(o => ToFormattedString(o, context.CurrentCulture)).ToArray());
                     else if (output is bool)
                         outputString = output.ToString().ToLower();
                     else
-                        outputString = ToFormattedString(output, result.FormatProvider);
+                        outputString = ToFormattedString(output, context.CurrentCulture);
                 }
 
                 result.Write(outputString);

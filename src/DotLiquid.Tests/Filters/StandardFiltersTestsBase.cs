@@ -1,30 +1,35 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Emit;
 using NUnit.Framework;
 
-namespace DotLiquid.Tests
+namespace DotLiquid.Tests.Filters
 {
     [TestFixture]
     public abstract class StandardFiltersTestsBase
     {
         public abstract SyntaxCompatibility SyntaxCompatibilityLevel { get; }
         public abstract CapitalizeDelegate Capitalize { get; }
-        public abstract PlusDelegate Plus { get; }
+        public abstract MathDelegate Divide { get; }
+        public abstract MathDelegate Plus { get; }
+        public abstract MathDelegate Minus { get; }
+        public abstract MathDelegate Modulo { get; }
+        public abstract RemoveFirstDelegate RemoveFirst { get; }
         public abstract ReplaceDelegate Replace { get; }
         public abstract ReplaceFirstDelegate ReplaceFirst { get; }
         public abstract SliceDelegate Slice { get; }
         public abstract SplitDelegate Split { get; }
+        public abstract MathDelegate Times { get; }
         public abstract TruncateWordsDelegate TruncateWords { get; }
 
         public delegate string CapitalizeDelegate(string input);
-        public delegate object PlusDelegate(object input, object operand);
+        public delegate object MathDelegate(object input, object operand);
+        public delegate string RemoveFirstDelegate(string input, string @string);
         public delegate string ReplaceDelegate(string input, string @string, string replacement);
         public delegate string ReplaceFirstDelegate(string input, string @string, string replacement);
         public delegate object SliceDelegate(object input, int start, int? len = null);
         public delegate string[] SplitDelegate(string input, string pattern);
-        public delegate string TruncateWordsDelegate(string input, int words, string truncateString = null);
+        public delegate string TruncateWordsDelegate(string input, int? words = null, string truncateString = null);
 
         [Test]
         public void TestCapitalize()
@@ -32,6 +37,22 @@ namespace DotLiquid.Tests
             Assert.That(Capitalize(input: null), Is.EqualTo(null));
             Assert.That(Capitalize(input: ""), Is.EqualTo(""));
             Assert.That(Capitalize(input: " "), Is.EqualTo(" "));
+        }
+
+
+        [Test]
+        public void TestDividedBy()
+        {
+            Assert.That(Divide(input: 12, operand: 3), Is.EqualTo(4));
+            Assert.That(Divide(input: 14, operand: 3), Is.EqualTo(4));
+            Assert.That(Divide(input: 15, operand: 3), Is.EqualTo(5));
+            Assert.That(Divide(input: null, operand: 3), Is.Null);
+            Assert.That(Divide(input: 4, operand: null), Is.Null);
+
+            // Ensure we preserve floating point behavior for division by zero, and don't start throwing exceptions.
+            Assert.That(Divide(input: 1.0, operand: 0.0), Is.EqualTo(double.PositiveInfinity));
+            Assert.That(Divide(input: -1.0, operand: 0.0), Is.EqualTo(double.NegativeInfinity));
+            Assert.That(Divide(input: 0.0, operand: 0.0), Is.EqualTo(double.NaN));
         }
 
         [Test]
@@ -47,7 +68,32 @@ namespace DotLiquid.Tests
                 Assert.That(Plus(input: 148387.77, operand: 10), Is.EqualTo(148397.77));
 
                 // Test that mix of 32-bit and 64-bit int returns 64-bit
-                Assert.That(Plus(input: (int)Int32.MaxValue, operand: (Int64)1), Is.EqualTo(2147483648));
+                Assert.That(Plus(input: int.MaxValue, operand: (long)1), Is.EqualTo(2147483648));
+            });
+        }
+
+        [Test]
+        public void TestMinus()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(Minus(input: 5, operand: 1), Is.EqualTo(4));
+                Assert.That(Minus(input: 2, operand: 3.5), Is.EqualTo(-1.5));
+                Assert.That(Minus(input: 3.5, operand: 2), Is.EqualTo(1.5));
+            });
+        }
+
+        [Test]
+        public void TestModulo()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(Modulo(input: 3, operand: 2), Is.EqualTo(1));
+                Assert.That(Modulo(input: 148387.77, operand: 10), Is.EqualTo(7.77));
+                Assert.That(Modulo(input: 3455.32, operand: 10), Is.EqualTo(5.32));
+                Assert.That(Modulo(input: 23423.12, operand: 10), Is.EqualTo(3.12));
+                Assert.That(Modulo(input: null, operand: 3), Is.Null);
+                Assert.That(Modulo(input: 4, operand: null), Is.Null);
             });
         }
 
@@ -133,11 +179,22 @@ namespace DotLiquid.Tests
         public void TestSplit()
         {
             Assert.That(Split("This is a sentence", " "), Is.EqualTo(new[] { "This", "is", "a", "sentence" }).AsCollection);
-            
+
             // A string with no pattern should be split into a string[], as required for the Liquid Reverse filter
             Assert.That(Split("YMCA", null), Is.EqualTo(new[] { "Y", "M", "C", "A" }).AsCollection);
             Assert.That(Split("YMCA", ""), Is.EqualTo(new[] { "Y", "M", "C", "A" }).AsCollection);
             Assert.That(Split(" ", ""), Is.EqualTo(new[] { " " }).AsCollection);
+        }
+
+        [Test]
+        public void TestTruncateWords()
+        {
+            Assert.That(TruncateWords(null), Is.EqualTo(null));
+            Assert.That(TruncateWords(""), Is.EqualTo(""));
+            Assert.That(TruncateWords("one two three", 4), Is.EqualTo("one two three"));
+            Assert.That(TruncateWords("one two three", 2), Is.EqualTo("one two..."));
+            Assert.That(TruncateWords("one two three"), Is.EqualTo("one two three"));
+            Assert.That(TruncateWords("Two small (13&#8221; x 5.5&#8221; x 10&#8221; high) baskets fit inside one large basket (13&#8221; x 16&#8221; x 10.5&#8221; high) with cover.", 15), Is.EqualTo("Two small (13&#8221; x 5.5&#8221; x 10&#8221; high) baskets fit inside one large basket (13&#8221;..."));
         }
 
         /// <summary>

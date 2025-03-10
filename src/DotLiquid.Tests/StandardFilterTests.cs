@@ -115,26 +115,12 @@ namespace DotLiquid.Tests
         [Test]
         public void TestTruncateWordsV20()
         {
-            Assert.That(LegacyFilters.TruncateWords(null), Is.EqualTo(null));
-            Assert.That(LegacyFilters.TruncateWords(""), Is.EqualTo(""));
-            Assert.That(LegacyFilters.TruncateWords("one two three", 4), Is.EqualTo("one two three"));
-            Assert.That(LegacyFilters.TruncateWords("one two three", 2), Is.EqualTo("one two..."));
-            Assert.That(LegacyFilters.TruncateWords("one two three"), Is.EqualTo("one two three"));
-            Assert.That(LegacyFilters.TruncateWords("Two small (13&#8221; x 5.5&#8221; x 10&#8221; high) baskets fit inside one large basket (13&#8221; x 16&#8221; x 10.5&#8221; high) with cover.", 15), Is.EqualTo("Two small (13&#8221; x 5.5&#8221; x 10&#8221; high) baskets fit inside one large basket (13&#8221;..."));
-
             TestTruncateWords(SyntaxCompatibility.DotLiquid20, "truncate_words");
         }
 
         [Test]
         public void TestTruncateWordsV24()
         {
-            Assert.That(StandardFilters.TruncateWords(null), Is.EqualTo(null));
-            Assert.That(StandardFilters.TruncateWords(""), Is.EqualTo(""));
-            Assert.That(StandardFilters.TruncateWords("one two three", 4), Is.EqualTo("one two three"));
-            Assert.That(StandardFilters.TruncateWords("one two three", 2), Is.EqualTo("one two..."));
-            Assert.That(StandardFilters.TruncateWords("one two three"), Is.EqualTo("one two three"));
-            Assert.That(StandardFilters.TruncateWords("Two small (13&#8221; x 5.5&#8221; x 10&#8221; high) baskets fit inside one large basket (13&#8221; x 16&#8221; x 10.5&#8221; high) with cover.", 15), Is.EqualTo("Two small (13&#8221; x 5.5&#8221; x 10&#8221; high) baskets fit inside one large basket (13&#8221;..."));
-
             TestTruncateWords(SyntaxCompatibility.DotLiquid24, "truncate_words");
             TestTruncateWords(SyntaxCompatibility.DotLiquid24, "truncatewords");
         }
@@ -1108,22 +1094,6 @@ PaulGeorge",
         }
 
         [Test]
-        public void TestRemoveFirstRegexV20()
-        {
-            Assert.That(actual: LegacyFilters.RemoveFirst(input: "Mr. Jones", @string: "."), Is.EqualTo(expected: "r. Jones"));
-            Assert.That(LegacyFilters.RemoveFirst(input: "a a a a", @string: "a "), Is.EqualTo("a a a"));
-            Helper.AssertTemplateResult(expected: "a a a", template: "{{ 'a a a a' | remove_first: 'a ' }}", syntax: SyntaxCompatibility.DotLiquid20);
-        }
-
-        [Test]
-        public void TestRemoveFirstRegexV21()
-        {
-            Assert.That(actual: StandardFilters.RemoveFirst(input: "Mr. Jones", @string: "."), Is.EqualTo(expected: "Mr Jones"));
-            Assert.That(StandardFilters.RemoveFirst(input: "a a a a", @string: "a "), Is.EqualTo("a a a"));
-            Helper.AssertTemplateResult(expected: "a a a", template: "{{ 'a a a a' | remove_first: 'a ' }}", syntax: SyntaxCompatibility.DotLiquid21);
-        }
-
-        [Test]
         public void TestPipesInStringArguments()
         {
             Helper.AssertTemplateResult("foobar", "{{ 'foo|bar' | remove: '|' }}");
@@ -1157,42 +1127,6 @@ PaulGeorge",
             Helper.AssertTemplateResult("a<br />\nb<br />\nc",
                 "{{ source | newline_to_br }}",
                 Hash.FromAnonymousObject(new { source = "a\nb\nc" }));
-        }
-
-        [Test]
-        public void TestMinus()
-        {
-            TestMinus(_contextV20);
-        }
-
-        private void TestMinus(Context context)
-        {
-            using (CultureHelper.SetCulture("en-GB"))
-            {
-                Helper.AssertTemplateResult(expected: "4", template: "{{ input | minus:operand }}", localVariables: Hash.FromAnonymousObject(new { input = 5, operand = 1 }), syntax: context.SyntaxCompatibilityLevel);
-                Helper.AssertTemplateResult(expected: "-1.5", template: "{{ 2  | minus:3.5 }}", syntax: context.SyntaxCompatibilityLevel);
-                Helper.AssertTemplateResult(expected: "1.5", template: "{{ 3.5 | minus:2 }}", syntax: context.SyntaxCompatibilityLevel);
-            }
-        }
-
-        [Test]
-        public void TestMinusStringV20()
-        {
-            var renderParams = new RenderParameters(CultureInfo.InvariantCulture) { ErrorsOutputMode = ErrorsOutputMode.Rethrow, SyntaxCompatibilityLevel = _contextV20.SyntaxCompatibilityLevel };
-            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ '2' | minus: 1 }}").Render(renderParams));
-            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ 2 | minus: '1' }}").Render(renderParams));
-        }
-
-        [Test]
-        public void TestMinusStringV21()
-        {
-            var context = _contextV21;
-            Helper.AssertTemplateResult(expected: "1", template: "{{ '2' | minus: 1 }}", syntax: context.SyntaxCompatibilityLevel);
-            Helper.AssertTemplateResult(expected: "1", template: "{{ 2 | minus: '1' }}", syntax: context.SyntaxCompatibilityLevel);
-            Helper.AssertTemplateResult(expected: "-1.5", template: "{{ 2 | minus: '3.5' }}", syntax: context.SyntaxCompatibilityLevel);
-            Helper.AssertTemplateResult(expected: "-1.5", template: "{{ '2.5' | minus: 4 }}", syntax: context.SyntaxCompatibilityLevel);
-            Helper.AssertTemplateResult(expected: "-1", template: "{{ '2.5' | minus: '3.5' }}", syntax: context.SyntaxCompatibilityLevel);
-            TestMinus(context);
         }
 
         [Test]
@@ -1301,27 +1235,6 @@ PaulGeorge",
         }
 
         [Test]
-        public void TestTimesStringV20()
-        {
-            var context = _contextV20;
-            Helper.AssertTemplateResult(expected: "foofoofoofoo", template: "{{ 'foo' | times:4 }}", syntax: context.SyntaxCompatibilityLevel);
-            Helper.AssertTemplateResult(expected: "3333", template: "{{ '3' | times:4 }}", syntax: context.SyntaxCompatibilityLevel);
-            var renderParams = new RenderParameters(CultureInfo.InvariantCulture) { ErrorsOutputMode = ErrorsOutputMode.Rethrow, SyntaxCompatibilityLevel = context.SyntaxCompatibilityLevel };
-            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ 3 | times: '4' }}").Render(renderParams));
-            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ '3' | times: '4' }}").Render(renderParams));
-        }
-
-        [Test]
-        public void TestTimesStringV21()
-        {
-            var context = _contextV21;
-            Helper.AssertTemplateResult(expected: "12", template: "{{ '3' | times: 4 }}", syntax: context.SyntaxCompatibilityLevel);
-            Helper.AssertTemplateResult(expected: "12", template: "{{ 3 | times: '4' }}", syntax: context.SyntaxCompatibilityLevel);
-            Helper.AssertTemplateResult(expected: "12", template: "{{ '3' | times: '4' }}", syntax: context.SyntaxCompatibilityLevel);
-            TestTimes(context);
-        }
-
-        [Test]
         public void TestAppend()
         {
             Hash assigns = Hash.FromAnonymousObject(new { a = "bc", b = "d" });
@@ -1346,43 +1259,6 @@ PaulGeorge",
         }
 
         [Test]
-        public void TestDividedBy()
-        {
-            TestDividedBy(_contextV20);
-        }
-
-        private void TestDividedBy(Context context)
-        {
-            Helper.AssertTemplateResult(expected: "4", template: "{{ 12 | divided_by:3 }}", syntax: context.SyntaxCompatibilityLevel);
-            Helper.AssertTemplateResult(expected: "4", template: "{{ 14 | divided_by:3 }}", syntax: context.SyntaxCompatibilityLevel);
-            Helper.AssertTemplateResult(expected: "5", template: "{{ 15 | divided_by:3 }}", syntax: context.SyntaxCompatibilityLevel);
-            Assert.That(StandardFilters.DividedBy(context: context, input: null, operand: 3), Is.Null);
-            Assert.That(StandardFilters.DividedBy(context: context, input: 4, operand: null), Is.Null);
-
-            // Ensure we preserve floating point behavior for division by zero, and don't start throwing exceptions.
-            Helper.AssertTemplateResult(expected: double.PositiveInfinity.ToString(), template: "{{ 1.0 | divided_by:0.0 }}", syntax: context.SyntaxCompatibilityLevel);
-            Helper.AssertTemplateResult(expected: double.NegativeInfinity.ToString(), template: "{{ -1.0 | divided_by:0.0 }}", syntax: context.SyntaxCompatibilityLevel);
-            Helper.AssertTemplateResult(expected: "NaN", template: "{{ 0.0 | divided_by:0.0 }}", syntax: context.SyntaxCompatibilityLevel);
-        }
-
-        [Test]
-        public void TestDividedByStringV20()
-        {
-            var renderParams = new RenderParameters(CultureInfo.InvariantCulture) { ErrorsOutputMode = ErrorsOutputMode.Rethrow, SyntaxCompatibilityLevel = _contextV20.SyntaxCompatibilityLevel };
-            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ '12' | divided_by: 3 }}").Render(renderParams));
-            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ 12 | divided_by: '3' }}").Render(renderParams));
-        }
-
-        [Test]
-        public void TestDividedByStringV21()
-        {
-            var context = _contextV21;
-            Helper.AssertTemplateResult(expected: "4", template: "{{ '12' | divided_by: 3 }}", syntax: context.SyntaxCompatibilityLevel);
-            Helper.AssertTemplateResult(expected: "4", template: "{{ 12 | divided_by: '3' }}", syntax: context.SyntaxCompatibilityLevel);
-            TestDividedBy(context);
-        }
-
-        [Test]
         public void TestInt32DividedByInt64()
         {
             int a = 20;
@@ -1393,38 +1269,6 @@ PaulGeorge",
 
             Hash assigns = Hash.FromAnonymousObject(new { a = a, b = b });
             Helper.AssertTemplateResult("4", "{{ a | divided_by:b }}", assigns);
-        }
-
-        [Test]
-        public void TestModulo()
-        {
-            TestModulo(_contextV20);
-        }
-
-        private void TestModulo(Context context)
-        {
-            Helper.AssertTemplateResult(expected: "1", template: "{{ 3 | modulo:2 }}", syntax: context.SyntaxCompatibilityLevel);
-            Helper.AssertTemplateResult(expected: "7.77", template: "{{ 148387.77 | modulo:10 }}", syntax: context.SyntaxCompatibilityLevel);
-            Helper.AssertTemplateResult(expected: "5.32", template: "{{ 3455.32 | modulo:10 }}", syntax: context.SyntaxCompatibilityLevel);
-            Helper.AssertTemplateResult(expected: "3.12", template: "{{ 23423.12 | modulo:10 }}", syntax: context.SyntaxCompatibilityLevel);
-            Assert.That(StandardFilters.Modulo(context: context, input: null, operand: 3), Is.Null);
-            Assert.That(StandardFilters.Modulo(context: context, input: 4, operand: null), Is.Null);
-        }
-
-        public void TestModuloStringV20()
-        {
-            var renderParams = new RenderParameters(CultureInfo.InvariantCulture) { ErrorsOutputMode = ErrorsOutputMode.Rethrow, SyntaxCompatibilityLevel = _contextV20.SyntaxCompatibilityLevel };
-            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ '3' | modulo: 2 }}").Render(renderParams));
-            Assert.Throws<InvalidOperationException>(() => Template.Parse("{{ 3 | modulo: '2' }}").Render(renderParams));
-        }
-
-        [Test]
-        public void TestModuloStringV21()
-        {
-            var context = _contextV21;
-            Helper.AssertTemplateResult(expected: "1", template: "{{ '3' | modulo: 2 }}", syntax: context.SyntaxCompatibilityLevel);
-            Helper.AssertTemplateResult(expected: "1", template: "{{ 3 | modulo: '2' }}", syntax: context.SyntaxCompatibilityLevel);
-            TestModulo(context);
         }
 
         [Test]

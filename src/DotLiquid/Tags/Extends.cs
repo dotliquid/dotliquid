@@ -91,7 +91,7 @@ namespace DotLiquid.Tags
                     throw new SyntaxException(Liquid.ResourceManager.GetString("ExtendsTagUnallowedTagsException"));
             });
 
-            if (NodeList.Count(o => o is Extends) > 0)
+            if (NodeList.Any(o => o is Extends))
             {
                 throw new SyntaxException(Liquid.ResourceManager.GetString("ExtendsTagCanBeUsedOneException"));
             }
@@ -168,9 +168,10 @@ namespace DotLiquid.Tags
                     {
                         Block block = n as Block;
 
-                        if (block != null)
+                        if (block != null &&
+                            blocks.All(bl => bl.BlockName != block.BlockName))
                         {
-                            if (blocks.All(bl => bl.BlockName != block.BlockName)) blocks.Add(block);
+                            blocks.Add(block);
                         }
 
                         FindBlocks(n, blocks);

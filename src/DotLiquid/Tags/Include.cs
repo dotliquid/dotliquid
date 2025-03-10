@@ -35,6 +35,7 @@ namespace DotLiquid.Tags
 
         protected override void Parse(List<string> tokens)
         {
+            // All parsing occurs in Initialize
         }
 
         public override void Render(Context context, TextWriter result)
@@ -60,9 +61,9 @@ namespace DotLiquid.Tags
                 foreach (var keyValue in _attributes)
                     context[keyValue.Key] = context[keyValue.Value];
 
-                if (variable is IEnumerable)
+                if (variable is IEnumerable values)
                 {
-                    ((IEnumerable) variable).Cast<object>().ToList().ForEach(v =>
+                    values.Cast<object>().ToList().ForEach(v =>
                     {
                         context[shortenedTemplateName] = v;
                         partial.Render(result, RenderParameters.FromContext(context, result.FormatProvider));

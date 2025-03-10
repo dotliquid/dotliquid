@@ -111,7 +111,17 @@ namespace DotLiquid.Tests
                 }
                 else
                 {
-                    Assert.That(Template.Parse(test.Template, syntax).Render(parameters).Replace("\r\n", "\n"), Is.EqualTo(test.Want), test.UniqueName);
+                    string output = Template.Parse(test.Template, syntax).Render(parameters);
+                    // Allow both \r\n and \n for newline characters in the output.
+                    if (test.Want.Contains("\n"))
+                    {
+                        string clean_output = output.Replace("\r\n", "\n");
+                        Assert.That(test.Want, Is.EqualTo(output).Or.EqualTo(clean_output), test.UniqueName);
+                    }
+                    else
+                    {
+                        Assert.That(output, Is.EqualTo(test.Want), test.UniqueName);
+                    }
                 }
             });
         }

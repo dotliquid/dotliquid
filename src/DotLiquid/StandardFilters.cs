@@ -104,33 +104,6 @@ namespace DotLiquid
         }
 
         /// <summary>
-        /// Return a Part of a String
-        /// </summary>
-        /// <param name="input">Input to be transformed by this filter</param>
-        /// <param name="start">start position of string</param>
-        /// <param name="len">optional length of slice to be returned</param>
-        private static string SliceString(string input, long start, long len)
-        {
-            if (input == null || start > input.Length)
-                return null;
-
-            if (start < 0)
-            {
-                start += input.Length;
-                if (start < 0)
-                {
-                    len = Math.Max(0, len + start);
-                    start = 0;
-                }
-            }
-            if (start + len > input.Length)
-            {
-                len = input.Length - start;
-            }
-            return input.Substring(Convert.ToInt32(start), Convert.ToInt32(len));
-        }
-
-        /// <summary>
         /// convert a input string to DOWNCASE
         /// </summary>
         /// <param name="input">Input to be transformed by this filter</param>

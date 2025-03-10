@@ -3,7 +3,7 @@ using System;
 namespace DotLiquid.Exceptions
 {
     [Serializable]
-    public abstract class LiquidException : ApplicationException
+    public abstract class LiquidException : Exception
     {
         protected LiquidException(string message, Exception innerException)
             : base(message, innerException)

@@ -100,8 +100,9 @@ namespace DotLiquid
         /// <returns></returns>
         public static Type GetTagType(string name)
         {
-            Tags.TryGetValue(name, out Tuple<ITagFactory, Type> result);
-            return result.Item2;
+            if (Tags.TryGetValue(name, out Tuple<ITagFactory, Type> result))
+                return result.Item2;
+            return null;
         }
 
         /// <summary>
@@ -111,16 +112,16 @@ namespace DotLiquid
         /// <returns></returns>
         internal static bool IsRawTag(string name)
         {
-            Tags.TryGetValue(name, out Tuple<ITagFactory, Type> result);
-            return typeof(RawBlock).IsAssignableFrom(result?.Item2);
+            if (Tags.TryGetValue(name, out Tuple<ITagFactory, Type> result))
+                return typeof(RawBlock).IsAssignableFrom(result?.Item2);
+            return false;
         }
 
         internal static Tag CreateTag(string name)
         {
             Tag tagInstance = null;
-            Tags.TryGetValue(name, out Tuple<ITagFactory, Type> result);
-
-            if (result != null)
+            if (Tags.TryGetValue(name, out Tuple<ITagFactory, Type> result) &&
+                result != null)
             {
                 tagInstance = result.Item1.Create();
             }

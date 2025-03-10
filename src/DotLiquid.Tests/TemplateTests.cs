@@ -245,6 +245,12 @@ namespace DotLiquid.Tests
             }
         }
 
+        [Test]
+        public void TestGetTagTypeUnknownTag()
+        {
+            Assert.That(Template.GetTagType("unknown"), Is.Null);
+        }
+
         public class MySimpleType
         {
             public string Name { get; set; }

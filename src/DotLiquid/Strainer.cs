@@ -157,7 +157,6 @@ namespace DotLiquid
             catch (TargetInvocationException ex)
             {
                 ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
-                throw;
             }
         }
     }

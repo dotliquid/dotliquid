@@ -194,14 +194,6 @@ namespace DotLiquid.Tests
             Assert.That(StandardFilters.Rstrip(null), Is.EqualTo(null));
         }
 
-        /// <summary>
-        /// Convert a string into a string[] where each character is mapped into an array element.
-        /// </summary>
-        private static string[] ToStringArray(string input)
-        {
-            return input.ToCharArray().Select(character => character.ToString()).ToArray();
-        }
-
         [Test]
         public void TestSliceShopifySamples()
         {

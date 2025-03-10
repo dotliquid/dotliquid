@@ -98,6 +98,16 @@ namespace DotLiquid.Tests.Filters
         }
 
         [Test]
+        public void TestRemoveFirst()
+        {
+            Assert.That(RemoveFirst(input: null, @string: "a"), Is.Null);
+            Assert.That(RemoveFirst(input: "", @string: "a"), Is.EqualTo(""));
+            Assert.That(RemoveFirst(input: "a a a a", @string: null), Is.EqualTo("a a a a"));
+            Assert.That(RemoveFirst(input: "a a a a", @string: ""), Is.EqualTo("a a a a"));
+            Assert.That(RemoveFirst(input: "a a a a", @string: "a "), Is.EqualTo("a a a"));
+        }
+
+        [Test]
         public void TestReplace()
         {
             Assert.That(actual: Replace(null, "a", "b"), Is.Null);

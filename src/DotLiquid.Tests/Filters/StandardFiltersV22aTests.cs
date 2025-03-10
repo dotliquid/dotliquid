@@ -43,6 +43,7 @@ namespace DotLiquid.Tests.Filters
             // Verify Liquid compliance from V22a syntax:
             Assert.That(Slice(null, 1), Is.EqualTo("")); // DotLiquid test case
             Assert.That(Slice("", 10), Is.EqualTo("")); // DotLiquid test case
+            Assert.That(Slice(123, 1), Is.EqualTo(123)); // Ignore invalid input
 
             Assert.That(Slice(null, 0), Is.EqualTo("")); // Liquid test case
             Assert.That(Slice("foobar", 100, 10), Is.EqualTo("")); // Liquid test case

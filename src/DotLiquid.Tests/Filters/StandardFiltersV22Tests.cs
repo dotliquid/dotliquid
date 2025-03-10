@@ -50,6 +50,7 @@ namespace DotLiquid.Tests.Filters
             // Verify backwards compatibility for pre-22a syntax (DotLiquid returns null for null input or empty slice)
             Assert.That(Slice(null, 1), Is.EqualTo(null)); // DotLiquid test case
             Assert.That(Slice("", 10), Is.EqualTo(null)); // DotLiquid test case
+            Assert.That(Slice(123, 1), Is.EqualTo(123)); // Ignore invalid input
 
             Assert.That(Slice(null, 0), Is.EqualTo(null)); // Liquid test case
             Assert.That(Slice("foobar", 100, 10), Is.EqualTo(null)); // Liquid test case

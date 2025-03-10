@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Globalization;
 using System.Linq;
-using System.Threading;
 using DotLiquid.NamingConventions;
 using NUnit.Framework;
 
@@ -17,6 +16,8 @@ namespace DotLiquid.Tests
         private Context _contextV21;
         private Context _contextV22;
         private Context _contextV22a;
+        private Context _contextV22b;
+        private Context _contextLatest;
 
         [OneTimeSetUp]
         public void SetUp()
@@ -40,6 +41,14 @@ namespace DotLiquid.Tests
             _contextV22a = new Context(CultureInfo.InvariantCulture)
             {
                 SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22a
+            };
+            _contextV22b = new Context(CultureInfo.InvariantCulture)
+            {
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid24
+            };
+            _contextLatest = new Context(CultureInfo.InvariantCulture)
+            {
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquidLatest
             };
         }
 
@@ -1409,11 +1418,33 @@ PaulGeorge",
         {
             using (CultureHelper.SetCulture("en-GB"))
             {
-                Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round:3 }}");
-                Helper.AssertTemplateResult("1", "{{ 1 | round }}");
-
-                Assert.That(StandardFilters.Round("1.2345678", "two"), Is.Null);
+                Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round: 3 }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("1.23", "{{ 1.234678 | round: 2.7 }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round: 3.1 }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("1", "{{ 1 | round }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("1", "{{ 1.234678 | round }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("1", "{{ 1.234678 | round: -3 }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("1", "{{ 1.234678 | round: nonesuch }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("0", "{{ nonesuch | round }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("0", "{{ nonesuch | round: 3 }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
             }
+
+            Assert.That(StandardFilters.Round(_contextLatest, "1.2345678", "two"), Is.EqualTo(1m).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Round(_contextLatest, "1.2345678", "-2"), Is.EqualTo(1m).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Round(_contextLatest, 1.123456789012345678901234567890123m, 50),
+                Is.EqualTo(1.1234567890123456789012345679m).And.TypeOf(typeof(decimal))); // max = 28 places
+            Assert.That(StandardFilters.Round(_contextLatest, "1.2345678", "2.7"), Is.EqualTo(1.23m).And.TypeOf(typeof(decimal)));
+
+            Assert.That(StandardFilters.Round(_contextV22b, "1.2345678", "two"), Is.EqualTo(1m).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Round(_contextV22b, "1.2345678", "-2"), Is.EqualTo(1m).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Round(_contextV22b, 1.123456789012345678901234567890123m, 50),
+                Is.EqualTo(1.1234567890123456789012345679m).And.TypeOf(typeof(decimal))); // max = 28 places
+            Assert.That(StandardFilters.Round(_contextV22b, "1.2345678", "2.7"), Is.EqualTo(1.23m).And.TypeOf(typeof(decimal)));
+
+            Assert.That(StandardFilters.Round(_contextV20, "1.2345678", "two"), Is.Null);
+            Assert.That(StandardFilters.Round(_contextV20, "1.2345678", "-2"), Is.Null);
+            Assert.That(StandardFilters.Round(_contextV20, 1.123456789012345678901234567890123m, 50), Is.Null);
+            Assert.That(StandardFilters.Round(_contextV20, "1.2345678", "2.7"), Is.Null);
         }
 
         [Test]
@@ -1421,14 +1452,37 @@ PaulGeorge",
         {
             using (CultureHelper.SetCulture("en-GB"))
             {
-                Helper.AssertTemplateResult("2", "{{ 1.2 | ceil }}");
-                Helper.AssertTemplateResult("2", "{{ 2.0 | ceil }}");
-                Helper.AssertTemplateResult("184", "{{ 183.357 | ceil }}");
-                Helper.AssertTemplateResult("4", "{{ \"3.5\" | ceil }}");
-
-                Assert.That(StandardFilters.Ceil(_contextV20, ""), Is.Null);
-                Assert.That(StandardFilters.Ceil(_contextV20, "two"), Is.Null);
+                Helper.AssertTemplateResult("-1", "{{ -1.2 | ceil }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("2", "{{ 1.2 | ceil }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("2", "{{ 2.0 | ceil }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("184", "{{ 183.357 | ceil }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("4", "{{ \"3.5\" | ceil }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("0", "{{ nonesuch | ceil }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
             }
+
+            Assert.That(StandardFilters.Ceil(_contextLatest, 1.9), Is.EqualTo(2).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.Ceil(_contextLatest, 1.9m), Is.EqualTo(2).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Ceil(_contextLatest, "1.9"), Is.EqualTo(2).And.TypeOf(typeof(decimal)));
+
+            Assert.That(StandardFilters.Ceil(_contextV22b, 1.9), Is.EqualTo(2).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.Ceil(_contextV22b, 1.9m), Is.EqualTo(2).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Ceil(_contextV22b, "1.9"), Is.EqualTo(2).And.TypeOf(typeof(decimal)));
+
+            Assert.That(StandardFilters.Ceil(_contextV20, 1.9), Is.EqualTo(2).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Ceil(_contextV20, 1.9m), Is.EqualTo(2).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Ceil(_contextV20, "1.9"), Is.EqualTo(2).And.TypeOf(typeof(decimal)));
+
+            Assert.That(StandardFilters.Ceil(_contextLatest, null), Is.EqualTo(0).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Ceil(_contextLatest, ""), Is.EqualTo(0).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Ceil(_contextLatest, "two"), Is.EqualTo(0).And.TypeOf(typeof(int)));
+
+            Assert.That(StandardFilters.Ceil(_contextV22b, null), Is.EqualTo(0).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Ceil(_contextV22b, ""), Is.EqualTo(0).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Ceil(_contextV22b, "two"), Is.EqualTo(0).And.TypeOf(typeof(int)));
+
+            Assert.That(StandardFilters.Ceil(_contextV20, null), Is.Null);
+            Assert.That(StandardFilters.Ceil(_contextV20, ""), Is.Null);
+            Assert.That(StandardFilters.Ceil(_contextV20, "two"), Is.Null);
         }
 
         [Test]
@@ -1436,14 +1490,37 @@ PaulGeorge",
         {
             using (CultureHelper.SetCulture("en-GB"))
             {
-                Helper.AssertTemplateResult("1", "{{ 1.2 | floor }}");
-                Helper.AssertTemplateResult("2", "{{ 2.0 | floor }}");
-                Helper.AssertTemplateResult("183", "{{ 183.357 | floor }}");
-                Helper.AssertTemplateResult("3", "{{ \"3.5\" | floor }}");
-
-                Assert.That(StandardFilters.Floor(_contextV20, ""), Is.Null);
-                Assert.That(StandardFilters.Floor(_contextV20, "two"), Is.Null);
+                Helper.AssertTemplateResult("-2", "{{ -1.2 | floor }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("1", "{{ 1.2 | floor }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("2", "{{ 2.0 | floor }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("183", "{{ 183.57 | floor }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("3", "{{ \"3.5\" | floor }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("0", "{{ nonesuch | floor }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
             }
+
+            Assert.That(StandardFilters.Floor(_contextLatest, 1.9), Is.EqualTo(1).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.Floor(_contextLatest, 1.9m), Is.EqualTo(1).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Floor(_contextLatest, "1.9"), Is.EqualTo(1).And.TypeOf(typeof(decimal)));
+
+            Assert.That(StandardFilters.Floor(_contextV22b, 1.9), Is.EqualTo(1).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.Floor(_contextV22b, 1.9m), Is.EqualTo(1).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Floor(_contextV22b, "1.9"), Is.EqualTo(1).And.TypeOf(typeof(decimal)));
+
+            Assert.That(StandardFilters.Floor(_contextV20, 1.9), Is.EqualTo(1).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Floor(_contextV20, 1.9m), Is.EqualTo(1).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Floor(_contextV20, "1.9"), Is.EqualTo(1).And.TypeOf(typeof(decimal)));
+
+            Assert.That(StandardFilters.Floor(_contextLatest, null), Is.EqualTo(0).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Floor(_contextLatest, ""), Is.EqualTo(0).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Floor(_contextLatest, "two"), Is.EqualTo(0).And.TypeOf(typeof(int)));
+
+            Assert.That(StandardFilters.Floor(_contextV22b, null), Is.EqualTo(0).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Floor(_contextV22b, ""), Is.EqualTo(0).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Floor(_contextV22b, "two"), Is.EqualTo(0).And.TypeOf(typeof(int)));
+
+            Assert.That(StandardFilters.Floor(_contextV20, null), Is.Null);
+            Assert.That(StandardFilters.Floor(_contextV20, ""), Is.Null);
+            Assert.That(StandardFilters.Floor(_contextV20, "two"), Is.Null);
         }
 
         [Test]
@@ -1699,74 +1776,159 @@ PaulGeorge",
         [Test]
         public void TestAbs()
         {
-            Assert.That(StandardFilters.Abs(_contextV20, "notNumber"), Is.EqualTo(0));
-            Assert.That(StandardFilters.Abs(_contextV20, 10), Is.EqualTo(10));
-            Assert.That(StandardFilters.Abs(_contextV20, -5), Is.EqualTo(5));
-            Assert.That(StandardFilters.Abs(_contextV20, 19.86), Is.EqualTo(19.86));
-            Assert.That(StandardFilters.Abs(_contextV20, -19.86), Is.EqualTo(19.86));
-            Assert.That(StandardFilters.Abs(_contextV20, "10"), Is.EqualTo(10));
-            Assert.That(StandardFilters.Abs(_contextV20, "-5"), Is.EqualTo(5));
-            Assert.That(StandardFilters.Abs(_contextV20, "30.60"), Is.EqualTo(30.60));
-            Assert.That(StandardFilters.Abs(_contextV20, "30.60a"), Is.EqualTo(0));
+            using (CultureHelper.SetCulture("en-GB"))
+            {
+                Helper.AssertTemplateResult("17", "{{ -17 | abs }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("17", "{{ 17 | abs }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("4", "{{ 4 | abs }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("19.86", "{{ '-19.86' | abs }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("19.86", "{{ -19.86 | abs }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("0", "{{ 'notNumber' | abs }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
 
-            Helper.AssertTemplateResult(
-                expected: "17",
-                template: "{{ -17 | abs }}");
-            Helper.AssertTemplateResult(
-                expected: "17",
-                template: "{{ 17 | abs }}");
-            Helper.AssertTemplateResult(
-                expected: "4",
-                template: "{{ 4 | abs }}");
-            Helper.AssertTemplateResult(
-                expected: "19.86",
-                template: "{{ '-19.86' | abs }}");
+                Helper.AssertTemplateResult("0", "{{ {} | abs }}", syntax: _contextV21.SyntaxCompatibilityLevel);
+            }
+
+            Assert.That(StandardFilters.Abs(_contextLatest, "notNumber"), Is.EqualTo(0).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Abs(_contextLatest, 10), Is.EqualTo(10).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Abs(_contextLatest, -5), Is.EqualTo(5).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Abs(_contextLatest, 19.86), Is.EqualTo(19.86).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.Abs(_contextLatest, -19.86m), Is.EqualTo(19.86m).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Abs(_contextLatest, -19.86), Is.EqualTo(19.86).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.Abs(_contextLatest, "10"), Is.EqualTo(10).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Abs(_contextLatest, "-5"), Is.EqualTo(5).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Abs(_contextLatest, "30.60"), Is.EqualTo(30.60).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Abs(_contextLatest, "30.60a"), Is.EqualTo(0).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Abs(_contextLatest, null), Is.EqualTo(0).And.TypeOf(typeof(int)));
+
+            Assert.That(StandardFilters.Abs(_contextV22b, "notNumber"), Is.EqualTo(0).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Abs(_contextV22b, 10), Is.EqualTo(10).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Abs(_contextV22b, -5), Is.EqualTo(5).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Abs(_contextV22b, 19.86), Is.EqualTo(19.86).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.Abs(_contextV22b, -19.86m), Is.EqualTo(19.86m).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Abs(_contextV22b, -19.86), Is.EqualTo(19.86).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.Abs(_contextV22b, "10"), Is.EqualTo(10).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Abs(_contextV22b, "-5"), Is.EqualTo(5).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Abs(_contextV22b, "30.60"), Is.EqualTo(30.60).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.Abs(_contextV22b, "30.60a"), Is.EqualTo(0).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.Abs(_contextV22b, null), Is.EqualTo(0).And.TypeOf(typeof(int)));
+
+            Assert.That(StandardFilters.Abs(_contextV20, 10), Is.EqualTo(10).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.Abs(_contextV20, "10"), Is.EqualTo(10).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.Abs(_contextV20, -19.86m), Is.EqualTo(19.86).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.Abs(_contextV20, "30.60"), Is.EqualTo(30.60).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.Abs(_contextV20, "30.60a"), Is.EqualTo(0).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.Abs(_contextV20, null), Is.EqualTo(0).And.TypeOf(typeof(double)));
+
         }
 
         [Test]
         public void TestAtLeast()
         {
+            using (CultureHelper.SetCulture("en-GB"))
+            {
+                Helper.AssertTemplateResult("5", "{{ 4 | at_least: 5 }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("4", "{{ 4 | at_least: 3 }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+            }
+
+            Assert.That(StandardFilters.AtLeast(_contextLatest, "notNumber", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextLatest, 5, "notNumber"), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextLatest, 5, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextLatest, 3, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextLatest, 6, 5), Is.EqualTo(6).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextLatest, 10, 5), Is.EqualTo(10).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextLatest, 9.85, 5), Is.EqualTo(9.85).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextLatest, 3.56, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextLatest, "10", 5), Is.EqualTo(10).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextLatest, "4", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextLatest, "10a", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextLatest, "4b", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextLatest, null, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextLatest, 5, null), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+
+            Assert.That(StandardFilters.AtLeast(_contextV22b, "notNumber", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextV22b, 5, "notNumber"), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextV22b, 5, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextV22b, 3, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextV22b, 6, 5), Is.EqualTo(6).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextV22b, 10, 5), Is.EqualTo(10).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextV22b, 9.85, 5), Is.EqualTo(9.85).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextV22b, 3.56, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextV22b, "10", 5), Is.EqualTo(10).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextV22b, "4", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextV22b, "10a", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextV22b, "4b", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextV22b, null, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtLeast(_contextV22b, 5, null), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+
             Assert.That(StandardFilters.AtLeast(_contextV20, "notNumber", 5), Is.EqualTo("notNumber"));
-            Assert.That(StandardFilters.AtLeast(_contextV20, 5, 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtLeast(_contextV20, 3, 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtLeast(_contextV20, 6, 5), Is.EqualTo(6));
-            Assert.That(StandardFilters.AtLeast(_contextV20, 10, 5), Is.EqualTo(10));
-            Assert.That(StandardFilters.AtLeast(_contextV20, 9.85, 5), Is.EqualTo(9.85));
-            Assert.That(StandardFilters.AtLeast(_contextV20, 3.56, 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtLeast(_contextV20, "10", 5), Is.EqualTo(10));
-            Assert.That(StandardFilters.AtLeast(_contextV20, "4", 5), Is.EqualTo(5));
+            Assert.That(StandardFilters.AtLeast(_contextV20, 5, "notNumber"), Is.EqualTo(5).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.AtLeast(_contextV20, 5, 5), Is.EqualTo(5).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.AtLeast(_contextV20, 3, 5), Is.EqualTo(5).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.AtLeast(_contextV20, 6, 5), Is.EqualTo(6).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.AtLeast(_contextV20, 10, 5), Is.EqualTo(10).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.AtLeast(_contextV20, 9.85, 5), Is.EqualTo(9.85).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.AtLeast(_contextV20, 3.56, 5), Is.EqualTo(5).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.AtLeast(_contextV20, "10", 5), Is.EqualTo(10).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.AtLeast(_contextV20, "4", 5), Is.EqualTo(5).And.TypeOf(typeof(double)));
             Assert.That(StandardFilters.AtLeast(_contextV20, "10a", 5), Is.EqualTo("10a"));
             Assert.That(StandardFilters.AtLeast(_contextV20, "4b", 5), Is.EqualTo("4b"));
-
-            Helper.AssertTemplateResult(
-                expected: "5",
-                template: "{{ 4 | at_least: 5 }}");
-            Helper.AssertTemplateResult(
-                expected: "4",
-                template: "{{ 4 | at_least: 3 }}");
+            Assert.That(StandardFilters.AtLeast(_contextV20, null, 5), Is.Null);
+            Assert.That(StandardFilters.AtLeast(_contextV20, 5, null), Is.EqualTo(5).And.TypeOf(typeof(int)));
         }
 
         [Test]
         public void TestAtMost()
         {
+            using (CultureHelper.SetCulture("en-GB"))
+            {
+                Helper.AssertTemplateResult("4", "{{ 4 | at_most: 5 }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("3", "{{ 4 | at_most: 3 }}", syntax: _contextLatest.SyntaxCompatibilityLevel);
+            }
+
+            Assert.That(StandardFilters.AtMost(_contextLatest, "notNumber", 5), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextLatest, 5, "notNumber"), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextLatest, 5, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextLatest, 3, 5), Is.EqualTo(3).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextLatest, 6, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextLatest, 10, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextLatest, 9.85, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextLatest, 3.56, 5), Is.EqualTo(3.56).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextLatest, "10", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextLatest, "4", 5), Is.EqualTo(4).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextLatest, "4a", 5), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextLatest, "10b", 5), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextLatest, null, 5), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextLatest, 5, null), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
+
+            Assert.That(StandardFilters.AtMost(_contextV22b, "notNumber", 5), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextV22b, 5, "notNumber"), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextV22b, 5, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextV22b, 3, 5), Is.EqualTo(3).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextV22b, 6, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextV22b, 10, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextV22b, 9.85, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextV22b, 3.56, 5), Is.EqualTo(3.56).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextV22b, "10", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextV22b, "4", 5), Is.EqualTo(4).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextV22b, "4a", 5), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextV22b, "10b", 5), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextV22b, null, 5), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
+            Assert.That(StandardFilters.AtMost(_contextV22b, 5, null), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
+
             Assert.That(StandardFilters.AtMost(_contextV20, "notNumber", 5), Is.EqualTo("notNumber"));
-            Assert.That(StandardFilters.AtMost(_contextV20, 5, 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtMost(_contextV20, 3, 5), Is.EqualTo(3));
-            Assert.That(StandardFilters.AtMost(_contextV20, 6, 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtMost(_contextV20, 10, 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtMost(_contextV20, 9.85, 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtMost(_contextV20, 3.56, 5), Is.EqualTo(3.56));
-            Assert.That(StandardFilters.AtMost(_contextV20, "10", 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtMost(_contextV20, "4", 5), Is.EqualTo(4));
+            Assert.That(StandardFilters.AtMost(_contextV20, 5, "notNumber"), Is.EqualTo(5).And.TypeOf(typeof(int)));
+            Assert.That(StandardFilters.AtMost(_contextV20, 5, 5), Is.EqualTo(5).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.AtMost(_contextV20, 3, 5), Is.EqualTo(3).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.AtMost(_contextV20, 6, 5), Is.EqualTo(5).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.AtMost(_contextV20, 10, 5), Is.EqualTo(5).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.AtMost(_contextV20, 9.85, 5), Is.EqualTo(5).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.AtMost(_contextV20, 3.56, 5), Is.EqualTo(3.56).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.AtMost(_contextV20, "10", 5), Is.EqualTo(5).And.TypeOf(typeof(double)));
+            Assert.That(StandardFilters.AtMost(_contextV20, "4", 5), Is.EqualTo(4).And.TypeOf(typeof(double)));
             Assert.That(StandardFilters.AtMost(_contextV20, "4a", 5), Is.EqualTo("4a"));
             Assert.That(StandardFilters.AtMost(_contextV20, "10b", 5), Is.EqualTo("10b"));
-
-            Helper.AssertTemplateResult(
-                expected: "4",
-                template: "{{ 4 | at_most: 5 }}");
-            Helper.AssertTemplateResult(
-                expected: "3",
-                template: "{{ 4 | at_most: 3 }}");
+            Assert.That(StandardFilters.AtMost(_contextV20, null, 5), Is.Null);
+            Assert.That(StandardFilters.AtMost(_contextV20, 5, null), Is.EqualTo(5).And.TypeOf(typeof(int)));
         }
 
         [Test]

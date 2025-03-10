@@ -5,7 +5,7 @@
     <AssemblyTitle>DotLiquid</AssemblyTitle>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Authors>Tim Jones;Alessandro Petrelli</Authors>
-    <TargetFrameworks>netstandard2.0;net45;net6.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net461;net6.0;net8.0</TargetFrameworks>
     <AssemblyName>DotLiquid</AssemblyName>
     <AssemblyOriginatorKeyFile>../Formosatek-OpenSource.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
@@ -41,7 +41,7 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>

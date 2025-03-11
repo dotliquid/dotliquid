@@ -28,6 +28,47 @@ namespace DotLiquid.Tests.Util
         }
 
         [Test]
+        public void TestSafeTypeInsensitiveEqualArrays()
+        {
+            string[] array1 = { "a", "b", "c" };
+            string[] array2 = { "a", "b", "c" };
+            string[] array3 = { "a", "b", "d" };
+            string[] array4 = { "A", "B", "C" };
+            string[] array5 = { "b", "c", "a" };
+            string[] array6 = { "a", "b", "c", "d" };
+            string[] array7 = { };
+            string[] array8 = { "1", "2", "3" };
+            List<string> list1 = new List<string> { "a", "b", "c" };
+            int[] intArray1 = { 1, 2, 3 };
+            int[] intArray2 = { 1, 2, 3 };
+            int[] intArray3 = { 1, 2, 3, 4, 5 };
+
+            // Not equal
+            Assert.That(array1.SafeTypeInsensitiveEqual(array3), Is.False);
+            Assert.That(array1.SafeTypeInsensitiveEqual(array4), Is.False);
+            Assert.That(array1.SafeTypeInsensitiveEqual(array5), Is.False);
+            Assert.That(array1.SafeTypeInsensitiveEqual(array6), Is.False);
+            Assert.That(array1.SafeTypeInsensitiveEqual(array7), Is.False);
+            Assert.That(array1.SafeTypeInsensitiveEqual(intArray1), Is.False);
+            Assert.That(array1.SafeTypeInsensitiveEqual("a,b,c"), Is.False);
+            Assert.That(array1.SafeTypeInsensitiveEqual(null), Is.False);
+            Assert.That(array3.SafeTypeInsensitiveEqual(array1), Is.False);
+            Assert.That("abc".SafeTypeInsensitiveEqual(array1), Is.False);
+            Assert.That(intArray1.SafeTypeInsensitiveEqual(intArray3), Is.False);
+            Assert.That(intArray1.SafeTypeInsensitiveEqual(array1), Is.False);
+
+            // Equals
+            Assert.That(array1.SafeTypeInsensitiveEqual(array1), Is.True);
+            Assert.That(array1.SafeTypeInsensitiveEqual(array2), Is.True);
+            Assert.That(array2.SafeTypeInsensitiveEqual(array1), Is.True);
+            Assert.That(array1.SafeTypeInsensitiveEqual(list1), Is.True);
+            Assert.That(list1.SafeTypeInsensitiveEqual(array1), Is.True);
+            Assert.That(intArray1.SafeTypeInsensitiveEqual(intArray1), Is.True);
+            Assert.That(intArray1.SafeTypeInsensitiveEqual(intArray2), Is.True);
+            Assert.That(intArray1.SafeTypeInsensitiveEqual(array8), Is.True);
+        }
+
+        [Test]
         public void TestIsTruthy()
         {
             Assert.That(ObjectExtensionMethods.IsTruthy(null), Is.False);

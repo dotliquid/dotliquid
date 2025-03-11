@@ -82,6 +82,11 @@ namespace DotLiquid.Tests
             Helper.AssertTemplateResult(expected: "FALSE", template: "{% if false != false %}TRUE{% else %}FALSE{% endif %}");
             Helper.AssertTemplateResult(expected: "TRUE", template: "{% if false != true %}TRUE{% else %}FALSE{% endif %}");
 
+            Helper.AssertTemplateResult(
+                expected: "TRUE",
+                template: "{% if x == y %}TRUE{% else %}FALSE{% endif %}",
+                localVariables: Hash.FromAnonymousObject(new { x = new string[] { "a", "b", "c" }, y = new string[] { "a", "b", "c" } }));
+
             // NOTE(David Burg): disabled test due to https://github.com/dotliquid/dotliquid/issues/394
             ////Helper.AssertTemplateResult(expected: "This text will always appear if \"name\" is defined.", template: "{% assign name = 'Tobi' %}{% if name == true %}This text will always appear if \"name\" is defined.{% endif %}");
         }

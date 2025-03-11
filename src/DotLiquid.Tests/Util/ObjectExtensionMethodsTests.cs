@@ -18,6 +18,21 @@ namespace DotLiquid.Tests.Util
             Assert.That("nil".SafeTypeInsensitiveEqual(null), Is.False);
             Assert.That("a string".SafeTypeInsensitiveEqual("A STRING"), Is.False); // different case string equality
 
+            Assert.That(true.SafeTypeInsensitiveEqual(false), Is.False); // bool to bool equality
+            Assert.That(true.SafeTypeInsensitiveEqual("false"), Is.False); // bool to Falsy string equality
+            Assert.That("true".SafeTypeInsensitiveEqual(false), Is.False); // Truthy string to bool equality
+            Assert.That("true".SafeTypeInsensitiveEqual("FALSE"), Is.False); // Truthy string to Falsy string equality
+
+            Assert.That(false.SafeTypeInsensitiveEqual("true"), Is.False); // bool to Truthy string equality
+            Assert.That("false".SafeTypeInsensitiveEqual(true), Is.False); // Falsy string to bool equality
+            Assert.That("false".SafeTypeInsensitiveEqual(true), Is.False); // Falsy string to bool equality
+            Assert.That("false".SafeTypeInsensitiveEqual("TRUE"), Is.False); // Falsy string to Truthy string equality
+
+            Assert.That(false.SafeTypeInsensitiveEqual(0), Is.False); // bool to int(0) equality
+            Assert.That("false".SafeTypeInsensitiveEqual(0), Is.False); // Falsy string to int(0) equality
+            Assert.That(true.SafeTypeInsensitiveEqual(1), Is.False); // bool to int(1) equality
+            Assert.That("true".SafeTypeInsensitiveEqual(1), Is.False); // Falsy string to int(1) equality
+
             // Equals
             Assert.That(NIL.SafeTypeInsensitiveEqual(null), Is.True); // null equalilty
             Assert.That("a string".SafeTypeInsensitiveEqual("a string"), Is.True); // same type equality
@@ -25,6 +40,16 @@ namespace DotLiquid.Tests.Util
             Assert.That(Int64.Parse("99").SafeTypeInsensitiveEqual(Int32.Parse("99")), Is.True); // long to int equality
             Assert.That(2.0f.SafeTypeInsensitiveEqual("2.0"), Is.True);  // float to string equality
             Assert.That(2.0d.SafeTypeInsensitiveEqual("2.0"), Is.True);  // double to string equality
+
+            Assert.That(true.SafeTypeInsensitiveEqual(true), Is.True); // bool to bool equality
+            Assert.That(true.SafeTypeInsensitiveEqual("true"), Is.True); // bool to Truthy string equality
+            Assert.That("true".SafeTypeInsensitiveEqual(true), Is.True); // Truthy string to bool equality
+            Assert.That("true".SafeTypeInsensitiveEqual("TRUE"), Is.True); // Truthy string to Truthy string equality
+
+            Assert.That(false.SafeTypeInsensitiveEqual("false"), Is.True); // bool to Falsy string equality
+            Assert.That("false".SafeTypeInsensitiveEqual(false), Is.True); // Falsy string to bool equality
+            Assert.That("false".SafeTypeInsensitiveEqual(false), Is.True); // Falsy string to bool equality
+            Assert.That("false".SafeTypeInsensitiveEqual("FALSE"), Is.True); // Falsy string to Falsy string equality
         }
 
         [Test]

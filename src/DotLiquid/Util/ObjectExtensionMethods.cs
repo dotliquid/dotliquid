@@ -109,6 +109,20 @@ namespace DotLiquid.Util
                 return false;
             }
 
+            // NOTE(Rodney Richardson): If either value is boolean or the string "true" or "false", compare with Falsy/Truthy
+            // We can't use IsTruthy() directly, as everything that's not Falsy is considered Truthy
+            bool valueIsFalsy = value.IsFalsy();
+            bool valueIsTruthy = (value is bool boolValue && boolValue == true)
+                || (value is string stringValue && "true".Equals(stringValue, StringComparison.OrdinalIgnoreCase));
+            bool otherValueIsFalsy = otherValue.IsFalsy();
+            bool otherValueIsTruthy = (otherValue is bool boolOtherValue && boolOtherValue == true)
+                || (otherValue is string stringOtherValue && "true".Equals(stringOtherValue, StringComparison.OrdinalIgnoreCase));
+
+            if (valueIsFalsy) return otherValueIsFalsy;
+            else if (valueIsTruthy) return otherValueIsTruthy;
+            else if (otherValueIsFalsy) return valueIsFalsy;
+            else if (otherValueIsTruthy) return valueIsTruthy;
+
             // NOTE(David Burg): If both types are the same we can just do a regular comparison
             var aType = value.GetType();
             var bType = otherValue.GetType();
@@ -156,8 +170,8 @@ namespace DotLiquid.Util
         public static bool IsFalsy(this object any)
         {
             return any == null
-                || (any is bool _bool && _bool == false)
-                || (any is string _string && "false".Equals(_string, StringComparison.OrdinalIgnoreCase));
+                || (any is bool @bool && @bool == false)
+                || (any is string @string && "false".Equals(@string, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

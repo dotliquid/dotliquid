@@ -95,12 +95,13 @@ namespace DotLiquid.Tests.Util
                 }
             }
 
+            // Only include a single unsigned MinValue, as they are all zero
             object[] inequalValues = {
-                byte.MinValue,
+                // byte.MinValue,
                 byte.MaxValue,
-                ushort.MinValue,
+                // ushort.MinValue,
                 ushort.MaxValue,
-                uint.MinValue,
+                // uint.MinValue,
                 uint.MaxValue,
                 ulong.MinValue,
                 ulong.MaxValue,
@@ -127,7 +128,7 @@ namespace DotLiquid.Tests.Util
                     if (i != j)
                     {
                         Assert.That(inequalValues[i].SafeTypeInsensitiveEqual(inequalValues[j]), Is.False,
-                            $"{inequalValues[i].GetType()} == {inequalValues[j].GetType()}");
+                            $"{inequalValues[i]}({inequalValues[i].GetType()}) == {inequalValues[j]}({inequalValues[j].GetType()})");
                     }
                 }
             }

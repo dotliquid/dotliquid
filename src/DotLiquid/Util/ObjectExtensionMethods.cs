@@ -88,6 +88,14 @@ namespace DotLiquid.Util
             return ObjectExtensionMethods.SafeTypeInsensitiveEqual(value: value, otherValue: otherValue);
         }
 
+        private static bool IsNumeric(object value) =>
+            (value is decimal) || (value is double) || (value is float) ||
+            (value is sbyte) || (value is byte) || (value is short) || (value is ushort) ||
+            (value is int) || (value is uint) || (value is long) || (value is ulong);
+
+        private static bool IsComparableToString(object value) =>
+            (value is Enum) || (value is char);
+
         /// <summary>
         /// Test values for equality across type boundaries, null-safe
         /// </summary>
@@ -103,40 +111,54 @@ namespace DotLiquid.Util
                 return value == otherValue;
             }
 
-            // NOTE(David Burg): a is not null so if b is null the values are not equal.
+            // NOTE(David Burg): value is not null, so if otherValue is null the values are not equal.
             if (otherValue == null)
             {
                 return false;
             }
 
             // NOTE(David Burg): If both types are the same we can just do a regular comparison
-            var aType = value.GetType();
-            var bType = otherValue.GetType();
-            if (aType == bType)
+            var valueType = value.GetType();
+            var otherValueType = otherValue.GetType();
+            if (valueType == otherValueType)
             {
                 // NOTE(David Burg): Use Equals method to allow unboxing. Comparing boxed values with == operator would lead to reference comparison and unexpected results.
                 return value.Equals(otherValue);
             }
 
-            // NOTE(David Burg): When types are different we need to try if one can be converted to the other without loss or vice-versa
-            // NOTE(David Burg): Order in which conversion is attempted changes the outcome for comparison between string and bool.
-            // It's out of Shopify spec compliance but so for backward compatibility.
-            try
-            {
-                return Convert.ChangeType(otherValue, aType).Equals(value);
-            }
-            catch (Exception ex) when (ex is InvalidCastException || ex is FormatException || ex is OverflowException)
+            // NOTE(Rodney Richardson): When values are different numeric types we need to try if one can be converted to the other without loss or vice-versa
+            if (IsNumeric(value) && IsNumeric(otherValue))
             {
                 try
                 {
-                    return Convert.ChangeType(value, bType).Equals(otherValue);
+                    return Convert.ChangeType(otherValue, valueType).Equals(value);
                 }
-                catch (Exception ex2) when (ex2 is InvalidCastException || ex2 is FormatException || ex2 is OverflowException)
+                catch (Exception ex) when (ex is InvalidCastException || ex is FormatException || ex is OverflowException)
                 {
-                    // NOTE(David Burg): Types are not the same and we can't convert so the values cannot be the same.
-                    return false;
+                    try
+                    {
+                        return Convert.ChangeType(value, otherValueType).Equals(otherValue);
+                    }
+                    catch (Exception ex2) when (ex2 is InvalidCastException || ex2 is FormatException || ex2 is OverflowException)
+                    {
+                        // NOTE(David Burg): Types are not the same and we can't convert so the values cannot be the same.
+                        return false;
+                    }
                 }
             }
+
+            // NOTE(Rodney Richardson): Allow string comparison to char and Enum
+            if (value is string valueString && IsComparableToString(otherValue))
+            {
+                return valueString.Equals(otherValue.ToString(), StringComparison.Ordinal);
+            }
+            else if (otherValue is string otherValueString && IsComparableToString(value))
+            {
+                return otherValueString.Equals(value.ToString(), StringComparison.Ordinal);
+            }
+
+            // Types are not comparable
+            return false;
         }
 
         /// <summary>
@@ -156,8 +178,7 @@ namespace DotLiquid.Util
         public static bool IsFalsy(this object any)
         {
             return any == null
-                || (any is bool _bool && _bool == false)
-                || (any is string _string && "false".Equals(_string, StringComparison.OrdinalIgnoreCase));
+                || (any is bool @bool && @bool == false);
         }
     }
 }

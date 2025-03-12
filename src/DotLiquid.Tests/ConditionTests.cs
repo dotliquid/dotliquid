@@ -59,9 +59,7 @@ namespace DotLiquid.Tests
             Assert.That(actual: new Condition(left: "1", @operator: "==", right: "2").Evaluate(context: null, formatProvider: CultureInfo.InvariantCulture), Is.EqualTo(expected: false));
             Assert.That(actual: new Condition(left: "1", @operator: "==", right: "1").Evaluate(context: null, formatProvider: CultureInfo.InvariantCulture), Is.EqualTo(expected: true));
 
-            // NOTE(David Burg): Validate that type conversion order preserves legacy behavior
-            // Even if it's out of Shopify spec compliance (all type but null and false should evaluate to true).
-            Helper.AssertTemplateResult(expected: "TRUE", template: "{% if true == 'true' %}TRUE{% else %}FALSE{% endif %}");
+            Helper.AssertTemplateResult(expected: "FALSE", template: "{% if true == 'true' %}TRUE{% else %}FALSE{% endif %}");
             Helper.AssertTemplateResult(expected: "FALSE", template: "{% if 'true' == true %}TRUE{% else %}FALSE{% endif %}");
 
             Helper.AssertTemplateResult(expected: "TRUE", template: "{% if true %}TRUE{% endif %}");
@@ -221,10 +219,11 @@ namespace DotLiquid.Tests
 
             AssertEvaluatesTrue(left: "array", op: "contains", right: "first");
             AssertEvaluatesTrue(left: "array", op: "startsWith", right: "first");
-            AssertEvaluatesTrue(left: "array.first", op: "==", right: "'true'");
-            AssertEvaluatesTrue(left: "array", op: "startsWith", right: "'true'");
+            AssertEvaluatesTrue(left: "array.first", op: "==", right: "true");
+            AssertEvaluatesTrue(left: "array", op: "startsWith", right: "true");
 
             AssertEvaluatesFalse(left: "array", op: "contains", right: "'true'"); // to be re-evaluated in #362
+            AssertEvaluatesFalse(left: "array.first", op: "==", right: "'true'");
         }
 
         [Test]

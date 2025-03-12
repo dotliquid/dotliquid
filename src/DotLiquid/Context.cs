@@ -564,12 +564,12 @@ namespace DotLiquid
 
                 // If object is a KeyValuePair and the required part is either 0 or 'Key', return the Key.
                 var isKeyValuePair = IsKeyValuePair(@object);
-                if (isKeyValuePair && (part.SafeTypeInsensitiveEqual(0L) || part.Equals("Key")))
+                if (isKeyValuePair && (part.SafeTypeInsensitiveEqual("0") || part.Equals("Key")))
                 {
                     @object = Liquidize(@object.GetPropertyValue("Key"));
                 }
                 // If object is a KeyValuePair and the required part is either 1 or 'Value' or part matches the key, return the Value.
-                else if (isKeyValuePair && (part.SafeTypeInsensitiveEqual(1L)
+                else if (isKeyValuePair && (part.SafeTypeInsensitiveEqual("1")
                                         || part.Equals("Value")
                                         || part.Equals(@object.GetPropertyValue("Key"))))
                 {

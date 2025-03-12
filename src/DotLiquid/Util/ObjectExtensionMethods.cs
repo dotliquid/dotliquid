@@ -88,6 +88,9 @@ namespace DotLiquid.Util
             return ObjectExtensionMethods.SafeTypeInsensitiveEqual(value: value, otherValue: otherValue);
         }
 
+        private static bool IsNumeric(object value) => (value is decimal) || (value is double) || (value is float) || (value is int) || (value is uint) || (value is long) || (value is ulong) || (value is short) || (value is ushort);
+        private static bool IsComparableToString(object value) => (value is Enum) || (value is char);
+
         /// <summary>
         /// Test values for equality across type boundaries, null-safe
         /// </summary>
@@ -109,20 +112,6 @@ namespace DotLiquid.Util
                 return false;
             }
 
-            // NOTE(Rodney Richardson): If either value is boolean or the string "true" or "false", compare with Falsy/Truthy
-            // We can't use IsTruthy() directly, as everything that's not Falsy is considered Truthy
-            bool valueIsFalsy = value.IsFalsy();
-            bool valueIsTruthy = (value is bool boolValue && boolValue == true)
-                || (value is string stringValue && "true".Equals(stringValue, StringComparison.OrdinalIgnoreCase));
-            bool otherValueIsFalsy = otherValue.IsFalsy();
-            bool otherValueIsTruthy = (otherValue is bool boolOtherValue && boolOtherValue == true)
-                || (otherValue is string stringOtherValue && "true".Equals(stringOtherValue, StringComparison.OrdinalIgnoreCase));
-
-            if (valueIsFalsy) return otherValueIsFalsy;
-            else if (valueIsTruthy) return otherValueIsTruthy;
-            else if (otherValueIsFalsy) return valueIsFalsy;
-            else if (otherValueIsTruthy) return valueIsTruthy;
-
             // NOTE(David Burg): If both types are the same we can just do a regular comparison
             var aType = value.GetType();
             var bType = otherValue.GetType();
@@ -132,25 +121,40 @@ namespace DotLiquid.Util
                 return value.Equals(otherValue);
             }
 
-            // NOTE(David Burg): When types are different we need to try if one can be converted to the other without loss or vice-versa
-            // NOTE(David Burg): Order in which conversion is attempted changes the outcome for comparison between string and bool.
-            // It's out of Shopify spec compliance but so for backward compatibility.
-            try
-            {
-                return Convert.ChangeType(otherValue, aType).Equals(value);
-            }
-            catch (Exception ex) when (ex is InvalidCastException || ex is FormatException || ex is OverflowException)
+            // NOTE(Rodney Richardson): When values are different numeric types we need to try if one can be converted to the other without loss or vice-versa
+            if (IsNumeric(value) && IsNumeric(otherValue))
             {
                 try
                 {
-                    return Convert.ChangeType(value, bType).Equals(otherValue);
+                    var newOtherValue = Convert.ChangeType(otherValue, aType);
+                    return newOtherValue.Equals(value);
                 }
-                catch (Exception ex2) when (ex2 is InvalidCastException || ex2 is FormatException || ex2 is OverflowException)
+                catch (Exception ex) when (ex is InvalidCastException || ex is FormatException || ex is OverflowException)
                 {
-                    // NOTE(David Burg): Types are not the same and we can't convert so the values cannot be the same.
-                    return false;
+                    try
+                    {
+                        var newValue = Convert.ChangeType(value, bType);
+                        return newValue.Equals(otherValue);
+                    }
+                    catch (Exception ex2) when (ex2 is InvalidCastException || ex2 is FormatException || ex2 is OverflowException)
+                    {
+                        // NOTE(David Burg): Types are not the same and we can't convert so the values cannot be the same.
+                        return false;
+                    }
                 }
             }
+
+            // NOTE(Rodney Richardson): Allow string comparison to char and Enum
+            if (value is string valueString && IsComparableToString(otherValue))
+            {
+                return valueString.Equals(otherValue.ToString());
+            }
+            else if (otherValue is string otherValueString && IsComparableToString(value))
+            {
+                return otherValueString.Equals(value.ToString());
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -170,8 +174,7 @@ namespace DotLiquid.Util
         public static bool IsFalsy(this object any)
         {
             return any == null
-                || (any is bool @bool && @bool == false)
-                || (any is string @string && "false".Equals(@string, StringComparison.OrdinalIgnoreCase));
+                || (any is bool @bool && @bool == false);
         }
     }
 }

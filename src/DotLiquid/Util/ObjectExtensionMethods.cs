@@ -11,7 +11,7 @@ namespace DotLiquid.Util
         private class SafeTypeInsensitiveEqualityComparer : IEqualityComparer<object>
         {
             bool IEqualityComparer<object>.Equals(object x, object y) => SafeTypeInsensitiveEqual(x, y);
-            int IEqualityComparer<object>.GetHashCode(object obj) => obj.GetHashCode();
+            int IEqualityComparer<object>.GetHashCode(object obj) => throw new NotImplementedException();
         }
 
         private static readonly IEqualityComparer<object> _EqualityComparer = new SafeTypeInsensitiveEqualityComparer();

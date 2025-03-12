@@ -86,6 +86,7 @@ namespace DotLiquid.Tests.Util
                 valueFloat,
                 valueDouble
             };
+
             for (int i = 0; i < equalValues.Length; i++)
             {
                 for (int j = 0; j < equalValues.Length; j++)

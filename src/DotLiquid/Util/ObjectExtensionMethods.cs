@@ -131,15 +131,13 @@ namespace DotLiquid.Util
             {
                 try
                 {
-                    var newOtherValue = Convert.ChangeType(otherValue, valueType);
-                    return newOtherValue.Equals(value);
+                    return Convert.ChangeType(otherValue, valueType).Equals(value);
                 }
                 catch (Exception ex) when (ex is InvalidCastException || ex is FormatException || ex is OverflowException)
                 {
                     try
                     {
-                        var newValue = Convert.ChangeType(value, otherValueType);
-                        return newValue.Equals(otherValue);
+                        return Convert.ChangeType(value, otherValueType).Equals(otherValue);
                     }
                     catch (Exception ex2) when (ex2 is InvalidCastException || ex2 is FormatException || ex2 is OverflowException)
                     {

@@ -111,16 +111,16 @@ namespace DotLiquid.Util
                 return value == otherValue;
             }
 
-            // NOTE(David Burg): a is not null so if b is null the values are not equal.
+            // NOTE(David Burg): value is not null, so if otherValue is null the values are not equal.
             if (otherValue == null)
             {
                 return false;
             }
 
             // NOTE(David Burg): If both types are the same we can just do a regular comparison
-            var aType = value.GetType();
-            var bType = otherValue.GetType();
-            if (aType == bType)
+            var valueType = value.GetType();
+            var otherValueType = otherValue.GetType();
+            if (valueType == otherValueType)
             {
                 // NOTE(David Burg): Use Equals method to allow unboxing. Comparing boxed values with == operator would lead to reference comparison and unexpected results.
                 return value.Equals(otherValue);
@@ -131,14 +131,14 @@ namespace DotLiquid.Util
             {
                 try
                 {
-                    var newOtherValue = Convert.ChangeType(otherValue, aType);
+                    var newOtherValue = Convert.ChangeType(otherValue, valueType);
                     return newOtherValue.Equals(value);
                 }
                 catch (Exception ex) when (ex is InvalidCastException || ex is FormatException || ex is OverflowException)
                 {
                     try
                     {
-                        var newValue = Convert.ChangeType(value, bType);
+                        var newValue = Convert.ChangeType(value, otherValueType);
                         return newValue.Equals(otherValue);
                     }
                     catch (Exception ex2) when (ex2 is InvalidCastException || ex2 is FormatException || ex2 is OverflowException)
@@ -152,11 +152,11 @@ namespace DotLiquid.Util
             // NOTE(Rodney Richardson): Allow string comparison to char and Enum
             if (value is string valueString && IsComparableToString(otherValue))
             {
-                return valueString.Equals(otherValue.ToString());
+                return valueString.Equals(otherValue.ToString(), StringComparison.Ordinal);
             }
             else if (otherValue is string otherValueString && IsComparableToString(value))
             {
-                return otherValueString.Equals(value.ToString());
+                return otherValueString.Equals(value.ToString(), StringComparison.Ordinal);
             }
 
             // Types are not comparable

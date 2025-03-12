@@ -243,9 +243,9 @@ namespace DotLiquid.Tags
 
         public override object BeforeMethod(string method)
         {
-            if (method.SafeTypeInsensitiveEqual(0L) || method.Equals("Key") || method.Equals("itemName"))
+            if (method.Equals("0") || method.Equals("Key") || method.Equals("itemName"))
                 return key;
-            else if (method.SafeTypeInsensitiveEqual(1L) || method.Equals("Value"))
+            else if (method.Equals("1") || method.Equals("Value"))
                 return value;
             else if (value.ContainsKey(method))
                 return value[method];
@@ -255,8 +255,8 @@ namespace DotLiquid.Tags
         public override bool ContainsKey(object name)
         {
             string method = name.ToString();
-            return method.SafeTypeInsensitiveEqual(0L) || method.Equals("Key") || method.Equals("itemName")
-                || method.SafeTypeInsensitiveEqual(1L) || method.Equals("Value") || value.ContainsKey(method);
+            return method.Equals("0") || method.Equals("Key") || method.Equals("itemName")
+                || method.Equals("1") || method.Equals("Value") || value.ContainsKey(method);
         }
     }
 }

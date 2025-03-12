@@ -51,8 +51,86 @@ namespace DotLiquid.Tests.Util
             Assert.That(NIL.SafeTypeInsensitiveEqual(null), Is.True); // null equalilty
             Assert.That("a string".SafeTypeInsensitiveEqual("a string"), Is.True); // same type equality
             Assert.That(Int64.Parse("99").SafeTypeInsensitiveEqual(Int32.Parse("99")), Is.True); // long to int equality
-
             Assert.That(true.SafeTypeInsensitiveEqual(true), Is.True); // bool to bool equality
+            Assert.That(false.SafeTypeInsensitiveEqual(false), Is.True); // bool to bool equality
+            Assert.That("A".SafeTypeInsensitiveEqual('A'), Is.True); // string to char equality
+            Assert.That('A'.SafeTypeInsensitiveEqual("A"), Is.True); // char to string equality
+            Assert.That(StringComparison.Ordinal.SafeTypeInsensitiveEqual("Ordinal"), Is.True); // enum to string equality
+            Assert.That("Ordinal".SafeTypeInsensitiveEqual(StringComparison.Ordinal), Is.True); // string to enum equality
+        }
+
+        [Test]
+        public void TestSafeTypeInsensitiveEqual_NumericTypes()
+        {
+            byte valueU8 = 12;
+            ushort valueU16 = 12;
+            uint valueU32 = 12;
+            ulong valueU64 = 12;
+            sbyte value8 = 12;
+            short value16 = 12;
+            int value32 = 12;
+            long value64 = 12;
+            decimal valueDecimal = 12;
+            float valueFloat = 12;
+            double valueDouble = 12;
+            object[] equalValues = {
+                valueU8,
+                valueU16,
+                valueU32,
+                valueU64,
+                value8,
+                value16,
+                value32,
+                value64,
+                valueDecimal,
+                valueFloat,
+                valueDouble
+            };
+            for (int i = 0; i < equalValues.Length; i++)
+            {
+                for (int j = 0; j < equalValues.Length; j++)
+                {
+                    Assert.That(equalValues[i].SafeTypeInsensitiveEqual(equalValues[j]), Is.True,
+                        $"{equalValues[i].GetType()} != {equalValues[j].GetType()}");
+                }
+            }
+
+            object[] inequalValues = {
+                byte.MinValue,
+                byte.MaxValue,
+                ushort.MinValue,
+                ushort.MaxValue,
+                uint.MinValue,
+                uint.MaxValue,
+                ulong.MinValue,
+                ulong.MaxValue,
+                sbyte.MinValue,
+                sbyte.MaxValue,
+                short.MinValue,
+                short.MaxValue,
+                int.MinValue,
+                int.MaxValue,
+                long.MinValue,
+                long.MaxValue,
+                decimal.MinValue,
+                decimal.MaxValue,
+                float.MinValue,
+                float.MaxValue,
+                double.MinValue,
+                double.MaxValue
+            };
+
+            for (int i = 0; i < inequalValues.Length; i++)
+            {
+                for (int j = 0; j < inequalValues.Length; j++)
+                {
+                    if (i != j)
+                    {
+                        Assert.That(inequalValues[i].SafeTypeInsensitiveEqual(inequalValues[j]), Is.False,
+                            $"{inequalValues[i].GetType()} == {inequalValues[j].GetType()}");
+                    }
+                }
+            }
         }
 
         [Test]

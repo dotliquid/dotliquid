@@ -88,8 +88,13 @@ namespace DotLiquid.Util
             return ObjectExtensionMethods.SafeTypeInsensitiveEqual(value: value, otherValue: otherValue);
         }
 
-        private static bool IsNumeric(object value) => (value is decimal) || (value is double) || (value is float) || (value is int) || (value is uint) || (value is long) || (value is ulong) || (value is short) || (value is ushort);
-        private static bool IsComparableToString(object value) => (value is Enum) || (value is char);
+        private static bool IsNumeric(object value) =>
+            (value is decimal) || (value is double) || (value is float) ||
+            (value is sbyte) || (value is byte) || (value is short) || (value is ushort) ||
+            (value is int) || (value is uint) || (value is long) || (value is ulong);
+
+        private static bool IsComparableToString(object value) =>
+            (value is Enum) || (value is char);
 
         /// <summary>
         /// Test values for equality across type boundaries, null-safe
@@ -154,6 +159,7 @@ namespace DotLiquid.Util
                 return otherValueString.Equals(value.ToString());
             }
 
+            // Types are not comparable
             return false;
         }
 

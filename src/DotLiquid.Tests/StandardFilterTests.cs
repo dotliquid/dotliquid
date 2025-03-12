@@ -2014,10 +2014,11 @@ Cheapest products:
 {% endfor %}",
                 localVariables: Hash.FromAnonymousObject(new { products }));
 
-            // The products array has a price of 7.0f, compare to the string '7.0'
+            // The products array has a price of 7.0f, compare to the string '7'
+            // Expect string != number
             Helper.AssertTemplateResult(
-                expected: "\r\n\r\nCheapest products:\r\n\r\n- Spatula\r\n",
-                template: @"{% assign cheap_products = products | where: ""price"", '7.0' %}
+                expected: "\r\n\r\nCheapest products:\r\n",
+                template: @"{% assign cheap_products = products | where: ""price"", '7' %}
 
 Cheapest products:
 {% for product in cheap_products %}

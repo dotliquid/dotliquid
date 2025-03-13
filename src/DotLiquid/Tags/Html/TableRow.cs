@@ -39,8 +39,7 @@ namespace DotLiquid.Tags.Html
             {
                 _variableName = syntaxMatch.Groups[1].Value;
                 _collectionName = syntaxMatch.Groups[2].Value;
-                _attributes = new Dictionary<string, string>(Template.NamingConvention.StringComparer);
-                R.Scan(markup, Liquid.TagAttributes, (key, value) => _attributes[key] = value);
+                _attributes = Tokenizer.GetAttributes(markup);
             }
             else
                 throw new SyntaxException(Liquid.ResourceManager.GetString("TableRowTagSyntaxException"));

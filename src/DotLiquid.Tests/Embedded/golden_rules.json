@@ -12,8 +12,14 @@
         "liquid.golden.sum_filter", // not yet implemented
         "liquid.golden.truncatewords_filter" // implemented as truncate_words so these will fail for now
     ],
-    "skipped_tests": [ //These tests are flaky and may pass or fail
-        "liquid.golden.date_filter - seconds since epoch format directive" // Test assumes that a parsed date is UTC, DotLiquid assumes system timezone
+    "skipped_tests": [
+        // Test assumes that a parsed date is UTC, DotLiquid assumes system timezone
+        "liquid.golden.date_filter - seconds since epoch format directive"
+
+        // These operators are implemented by DotLiquid but not Ruby
+        "liquid.golden.if_tag - endswith is not a valid operator",
+        "liquid.golden.if_tag - haskey is not a valid operator",
+        "liquid.golden.if_tag - startswith is not a valid operator",
     ],
     "failing_tests": [
         // Parser Errors
@@ -120,10 +126,6 @@
         "liquid.golden.cycle_tag - undefined variable names mixed with no name",
         // Contains Not Implemented Tags/Filters
         "liquid.golden.whitespace_control - don't suppress whitespace only blocks containing echo",
-        // False positives (e.g. functionality implemented by DotLiquid but not Ruby)
-        "liquid.golden.if_tag - endswith is not a valid operator",
-        "liquid.golden.if_tag - haskey is not a valid operator",
-        "liquid.golden.if_tag - startswith is not a valid operator",
         // Unsorted Exceptions
         "liquid.golden.whitespace_control - white space control with  carriage return, newline and spaces",
         "liquid.golden.case_tag - switch on array",

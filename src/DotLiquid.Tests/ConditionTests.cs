@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -362,6 +363,23 @@ namespace DotLiquid.Tests
 
             AssertEvaluatesTrue("dictionary", "haskey", "'bob'");
             AssertEvaluatesFalse("dictionary", "haskey", "'0'");
+
+            AssertEvaluatesFalse("dictionary", "haskey", "not_assigned");
+            AssertEvaluatesFalse("not_assigned", "haskey", "'0'");
+        }
+
+        [Test]
+        public void TestExpandoHasKey()
+        {
+            _context = new Context(CultureInfo.InvariantCulture);
+            dynamic testDictionary = new ExpandoObject();
+            testDictionary.title = "Vacuum";
+            testDictionary.type = "cleaning";
+            _context["dictionary"] = testDictionary;
+            
+
+            AssertEvaluatesTrue("dictionary", "haskey", "'title'");
+            AssertEvaluatesFalse("dictionary", "haskey", "'name'");
         }
 
         [Test]
@@ -377,6 +395,23 @@ namespace DotLiquid.Tests
 
             AssertEvaluatesTrue("dictionary", "hasvalue", "'0'");
             AssertEvaluatesFalse("dictionary", "hasvalue", "'bob'");
+
+            AssertEvaluatesFalse("dictionary", "hasvalue", "not_assigned");
+            AssertEvaluatesFalse("not_assigned", "hasvalue", "'0'");
+        }
+
+        [Test]
+        public void TestExpandoHasValue()
+        {
+            _context = new Context(CultureInfo.InvariantCulture);
+            dynamic testDictionary = new ExpandoObject();
+            testDictionary.title = "Vacuum";
+            testDictionary.type = "cleaning";
+            _context["dictionary"] = testDictionary;
+
+
+            AssertEvaluatesTrue("dictionary", "hasvalue", "'Vacuum'");
+            AssertEvaluatesFalse("dictionary", "hasvalue", "'title'");
         }
 
         [Test]

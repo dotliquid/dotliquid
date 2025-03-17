@@ -29,8 +29,29 @@ namespace DotLiquid
             { "contains", (left, right) => ((left is string) ? ((string)left).Contains((string)right) : (left is IEnumerable) ? Any((IEnumerable) left, (element) => element.BackCompatSafeTypeInsensitiveEqual(right)) : false) },
             { "startsWith", (left, right) => (left is IList) ? EqualVariables(((IList) left).OfType<object>().FirstOrDefault(), right) : ((left is string) ? ((string)left).StartsWith((string) right) : false) },
             { "endsWith", (left, right) => (left is IList) ? EqualVariables(((IList) left).OfType<object>().LastOrDefault(), right) : ((left is string) ? ((string)left).EndsWith((string) right) : false) },
-            { "hasKey", (left, right) => (left is IDictionary) ? ((IDictionary) left).Contains(right) : false },
-            { "hasValue", (left, right) => (left is IDictionary) ? ((IDictionary) left).Values.Cast<object>().Contains(right) : false }
+            {
+                "hasKey", (left, right) => {
+                    if (right is null)
+                        return false;
+                    if (left is IDictionary leftDictionary)
+                        return leftDictionary.Contains(right);
+                    if (left is IDictionary<string, object> leftDictKey)
+                        return leftDictKey.ContainsKey(right.ToString());
+                    return false;
+                }
+            },
+            {
+                "hasValue", (left, right) =>
+                {
+                    if (right is null)
+                        return false;
+                    if (left is IDictionary leftDictionary)
+                        return leftDictionary.Values.Cast<object>().Contains(right);
+                    if (left is IDictionary<string, object> leftDictKey)
+                        return leftDictKey.Values.Contains(right);
+                    return false;
+                }
+            }
         };
 
         private static bool Any(IEnumerable enumerable, Func<object, bool> condition)
@@ -116,12 +137,12 @@ namespace DotLiquid
         private static bool EqualVariables(object left, object right)
         {
             if (left is Symbol leftSymbol)
-            { 
+            {
                 return leftSymbol.EvaluationFunction(right);
             }
 
             if (right is Symbol rightSymbol)
-            { 
+            {
                 return rightSymbol.EvaluationFunction(left);
             }
 
@@ -136,7 +157,7 @@ namespace DotLiquid
             if (string.IsNullOrEmpty(op))
             {
                 object result = context[left, false];
-                return (result != null && (!(result is bool) || (bool) result));
+                return (result != null && (!(result is bool) || (bool)result));
             }
 
             object leftObject = context[left];
@@ -147,7 +168,7 @@ namespace DotLiquid
                                                                 || Template.NamingConvention.OperatorEquals(opk, op)
                                                      );
             if (opKey == null)
-            { 
+            {
                 throw new Exceptions.ArgumentException(Liquid.ResourceManager.GetString("ConditionUnknownOperatorException"), op);
             }
 

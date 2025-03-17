@@ -43,8 +43,6 @@ namespace DotLiquid
             {
                 "hasValue", (left, right) =>
                 {
-                    if (right is null)
-                        return false;
                     if (left is IDictionary leftDictionary && leftDictionary.Values.Cast<object>().Contains(right))
                         return true;
                     if (left is IDictionary<string, object> leftDictObjectValue && leftDictObjectValue.Values.Contains(right))

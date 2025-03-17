@@ -33,10 +33,10 @@ namespace DotLiquid
                 "hasKey", (left, right) => {
                     if (right is null)
                         return false;
-                    if (left is IDictionary<string, object> leftDictKey)
-                        return leftDictKey.ContainsKey(right.ToString());
-                    if (left is IDictionary leftDictionary)
-                        return leftDictionary.Contains(right);
+                    if (left is IDictionary leftDictionary && leftDictionary.Contains(right))
+                        return true;
+                    if (left is IDictionary<string, object> leftDictStringKey && leftDictStringKey.ContainsKey(right.ToString()))
+                        return true;
                     return false;
                 }
             },
@@ -45,10 +45,10 @@ namespace DotLiquid
                 {
                     if (right is null)
                         return false;
-                    if (left is IDictionary<string, object> leftDictKey)
-                        return leftDictKey.Values.Contains(right);
-                    if (left is IDictionary leftDictionary)
-                        return leftDictionary.Values.Cast<object>().Contains(right);
+                    if (left is IDictionary leftDictionary && leftDictionary.Values.Cast<object>().Contains(right))
+                        return true;
+                    if (left is IDictionary<string, object> leftDictObjectValue && leftDictObjectValue.Values.Contains(right))
+                        return true;
                     return false;
                 }
             }

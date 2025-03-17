@@ -15,11 +15,6 @@
     "skipped_tests": [
         // Test assumes that a parsed date is UTC, DotLiquid assumes system timezone
         "liquid.golden.date_filter - seconds since epoch format directive"
-
-        // These operators are implemented by DotLiquid but not Ruby
-        "liquid.golden.if_tag - endswith is not a valid operator",
-        "liquid.golden.if_tag - haskey is not a valid operator",
-        "liquid.golden.if_tag - startswith is not a valid operator",
     ],
     "failing_tests": [
         // Parser Errors
@@ -249,6 +244,11 @@
         "liquid.golden.minus_filter - integer value and float arg": "8",
         "liquid.golden.modulo_filter - integer value and float arg": "0",
         "liquid.golden.modulo_filter - string value and argument": "0",
-        "liquid.golden.plus_filter - integer value and float arg": "12"
+        "liquid.golden.plus_filter - integer value and float arg": "12",
+
+        // These operators are implemented by DotLiquid but not Ruby
+        "liquid.golden.if_tag - endswith is not a valid operator": "TRUE",
+        "liquid.golden.if_tag - haskey is not a valid operator": "TRUE",
+        "liquid.golden.if_tag - startswith is not a valid operator": "TRUE"
     }
 }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -356,12 +357,31 @@ namespace DotLiquid.Tests
             System.Collections.Generic.Dictionary<string, string> testDictionary = new System.Collections.Generic.Dictionary<string, string>
             {
                 { "dave", "0" },
-                { "bob", "4" }
+                { "bob", "4" },
+                { "rodney", null },
             };
             _context["dictionary"] = testDictionary;
 
             AssertEvaluatesTrue("dictionary", "haskey", "'bob'");
+
             AssertEvaluatesFalse("dictionary", "haskey", "'0'");
+            AssertEvaluatesFalse("dictionary", "haskey", null);
+            AssertEvaluatesFalse("dictionary", "haskey", "not_assigned");
+            AssertEvaluatesFalse("not_assigned", "haskey", "'0'");
+        }
+
+        [Test]
+        public void TestExpandoHasKey()
+        {
+            _context = new Context(CultureInfo.InvariantCulture);
+            dynamic testDictionary = new ExpandoObject();
+            testDictionary.title = "Vacuum";
+            testDictionary.type = "cleaning";
+            _context["dictionary"] = testDictionary;
+            
+
+            AssertEvaluatesTrue("dictionary", "haskey", "'title'");
+            AssertEvaluatesFalse("dictionary", "haskey", "'name'");
         }
 
         [Test]
@@ -371,12 +391,31 @@ namespace DotLiquid.Tests
             System.Collections.Generic.Dictionary<string, string> testDictionary = new System.Collections.Generic.Dictionary<string, string>
             {
                 { "dave", "0" },
-                { "bob", "4" }
+                { "bob", "4" },
+                { "rodney", null },
             };
             _context["dictionary"] = testDictionary;
 
             AssertEvaluatesTrue("dictionary", "hasvalue", "'0'");
+            AssertEvaluatesTrue("dictionary", "hasvalue", null);
+            AssertEvaluatesTrue("dictionary", "hasvalue", "not_assigned");
+
             AssertEvaluatesFalse("dictionary", "hasvalue", "'bob'");
+            AssertEvaluatesFalse("not_assigned", "hasvalue", "'0'");
+        }
+
+        [Test]
+        public void TestExpandoHasValue()
+        {
+            _context = new Context(CultureInfo.InvariantCulture);
+            dynamic testDictionary = new ExpandoObject();
+            testDictionary.title = "Vacuum";
+            testDictionary.type = "cleaning";
+            _context["dictionary"] = testDictionary;
+
+
+            AssertEvaluatesTrue("dictionary", "hasvalue", "'Vacuum'");
+            AssertEvaluatesFalse("dictionary", "hasvalue", "'title'");
         }
 
         [Test]

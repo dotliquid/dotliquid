@@ -1,5 +1,5 @@
 {
-    "version": "0.23.0",
+    "version": "0.25.0",
     "test_groups": [
         {
             "name": "liquid.golden.abs_filter",
@@ -2383,6 +2383,405 @@
             ]
         },
         {
+            "name": "liquid.golden.find_filter",
+            "tests": [
+                {
+                    "name": "array of hashes, int value, match",
+                    "template": "{% assign b = a | find: 'z', 42 %}{{ b.foo }}",
+                    "want": "bar",
+                    "context": {
+                        "a": [
+                            {
+                                "x": 99
+                            },
+                            {
+                                "z": 42,
+                                "foo": "bar"
+                            }
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array of hashes, with a nil",
+                    "template": "{% assign b = a | find: 'z', 42 %}{{ b.foo }}",
+                    "want": "",
+                    "context": {
+                        "a": [
+                            {
+                                "x": 99
+                            },
+                            null,
+                            {
+                                "z": 42,
+                                "foo": "bar"
+                            }
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array of strings, default value",
+                    "template": "{{ a | find: 'z' }}",
+                    "want": "z",
+                    "context": {
+                        "a": [
+                            "x",
+                            "y",
+                            "z"
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array of strings, default value, no match",
+                    "template": "{{ a | find: 'foo' }}",
+                    "want": "",
+                    "context": {
+                        "a": [
+                            "x",
+                            "y",
+                            "zoo"
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array of strings, substring match, default value",
+                    "template": "{{ a | find: 'oo' }}",
+                    "want": "zoo",
+                    "context": {
+                        "a": [
+                            "x",
+                            "y",
+                            "zoo"
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "hash input, default value, match",
+                    "template": "{% assign b = a | find: 'z' %}{{ b.z }}",
+                    "want": "42",
+                    "context": {
+                        "a": {
+                            "z": 42
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "hash input, default value, no match",
+                    "template": "{% assign b = a | find: 'foo' %}{{ b }}",
+                    "want": "",
+                    "context": {
+                        "a": {
+                            "z": 42
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "hash input, explicit nil, match",
+                    "template": "{% assign b = a | find: 'z', nil %}{{ b.z }}",
+                    "want": "",
+                    "context": {
+                        "a": {
+                            "z": null
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "hash input, int value, match",
+                    "template": "{% assign b = a | find: 'z', 42 %}{{ b.z }}",
+                    "want": "42",
+                    "context": {
+                        "a": {
+                            "z": 42
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "mixed array, default value",
+                    "template": "{{ a | find: 'z' }}",
+                    "want": "",
+                    "context": {
+                        "a": [
+                            "x",
+                            null,
+                            "z",
+                            false,
+                            true
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "string input, default value, match",
+                    "template": "{{ a | find: 'z' }}",
+                    "want": "zoo",
+                    "context": {
+                        "a": "zoo"
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "string input, string value, match",
+                    "template": "{{ a | find: 'z', 'z' }}",
+                    "want": "zoo",
+                    "context": {
+                        "a": "zoo"
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "string input, string value, no match",
+                    "template": "{{ a | find: 'z', 'y' }}",
+                    "want": "",
+                    "context": {
+                        "a": "zoo"
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                }
+            ]
+        },
+        {
+            "name": "liquid.golden.find_index_filter",
+            "tests": [
+                {
+                    "name": "array of hashes, explicit nil, match",
+                    "template": "{{ a | find_index: 'z', nil }}",
+                    "want": "",
+                    "context": {
+                        "a": [
+                            "foo",
+                            "bar",
+                            {
+                                "z": null
+                            }
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array of hashes, int value, match",
+                    "template": "{{ a | find_index: 'z', 42 }}",
+                    "want": "1",
+                    "context": {
+                        "a": [
+                            {
+                                "x": 99
+                            },
+                            {
+                                "z": 42,
+                                "foo": "bar"
+                            }
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array of hashes, with a nil",
+                    "template": "{% assign b = a | find_index: 'z', 42 %}{{ b.foo }}",
+                    "want": "",
+                    "context": {
+                        "a": [
+                            {
+                                "x": 99
+                            },
+                            null,
+                            {
+                                "z": 42,
+                                "foo": "bar"
+                            }
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array of strings, default value",
+                    "template": "{{ a | find_index: 'z' }}",
+                    "want": "2",
+                    "context": {
+                        "a": [
+                            "x",
+                            "y",
+                            "z"
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array of strings, default value, no match",
+                    "template": "{{ a | find_index: 'foo' }}",
+                    "want": "",
+                    "context": {
+                        "a": [
+                            "x",
+                            "y",
+                            "zoo"
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array of strings, substring match, default value",
+                    "template": "{{ a | find_index: 'oo' }}",
+                    "want": "2",
+                    "context": {
+                        "a": [
+                            "x",
+                            "y",
+                            "zoo"
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "hash input, default value, match",
+                    "template": "{{ a | find_index: 'z' }}",
+                    "want": "0",
+                    "context": {
+                        "a": {
+                            "z": 42
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "hash input, default value, no match",
+                    "template": "{{ a | find_index: 'foo' }}",
+                    "want": "",
+                    "context": {
+                        "a": {
+                            "z": 42
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "hash input, explicit nil, match",
+                    "template": "{{ a | find_index: 'z', nil }}",
+                    "want": "",
+                    "context": {
+                        "a": {
+                            "z": null
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "hash input, int value, match",
+                    "template": "{{ a | find_index: 'z', 42 }}",
+                    "want": "0",
+                    "context": {
+                        "a": {
+                            "z": 42
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "mixed array, default value",
+                    "template": "{{ a | find_index: 'z' }}",
+                    "want": "",
+                    "context": {
+                        "a": [
+                            "x",
+                            null,
+                            "z",
+                            false,
+                            true
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "string input, default value, match",
+                    "template": "{{ a | find_index: 'z' }}",
+                    "want": "0",
+                    "context": {
+                        "a": "zoo"
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "string input, string value, match",
+                    "template": "{{ a | find_index: 'z', 'z' }}",
+                    "want": "0",
+                    "context": {
+                        "a": "zoo"
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "string input, string value, no match",
+                    "template": "{{ a | find_index: 'z', 'y' }}",
+                    "want": "",
+                    "context": {
+                        "a": "zoo"
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                }
+            ]
+        },
+        {
             "name": "liquid.golden.first_filter",
             "tests": [
                 {
@@ -3473,6 +3872,338 @@
             ]
         },
         {
+            "name": "liquid.golden.has_filter",
+            "tests": [
+                {
+                    "name": "array of hashes, false property",
+                    "template": "{{ a | has: false }}",
+                    "want": "false",
+                    "context": {
+                        "a": [
+                            {
+                                "x": 99
+                            },
+                            {
+                                "z": 42
+                            }
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array of hashes, int property",
+                    "template": "{{ a | has: 42 }}",
+                    "want": "false",
+                    "context": {
+                        "a": [
+                            {
+                                "x": 99
+                            },
+                            {
+                                "z": 42
+                            }
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array of hashes, int value, match",
+                    "template": "{{ a | has: 'z', 42 }}",
+                    "want": "true",
+                    "context": {
+                        "a": [
+                            {
+                                "x": 99
+                            },
+                            {
+                                "z": 42
+                            }
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array of hashes, int value, no match",
+                    "template": "{{ a | has: 'z', 7 }}",
+                    "want": "false",
+                    "context": {
+                        "a": [
+                            {
+                                "x": 99
+                            },
+                            {
+                                "z": 42
+                            }
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array of hashes, nil property",
+                    "template": "{{ a | has: nil }}",
+                    "want": "false",
+                    "context": {
+                        "a": [
+                            {
+                                "x": 99
+                            },
+                            {
+                                "z": 42
+                            }
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array of hashes, with a nil",
+                    "template": "{{ a | has: 'z', 42 }}",
+                    "want": "",
+                    "context": {
+                        "a": [
+                            {
+                                "x": 99
+                            },
+                            null,
+                            {
+                                "z": 42
+                            }
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array of ints, default value",
+                    "template": "{{ a | has: 2 }}",
+                    "want": "true",
+                    "context": {
+                        "a": [
+                            1,
+                            2,
+                            3
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array of ints, string argument, default value",
+                    "template": "{{ a | has: '2' }}",
+                    "want": "",
+                    "context": {
+                        "a": [
+                            1,
+                            2,
+                            3
+                        ]
+                    },
+                    "partials": {},
+                    "error": true,
+                    "strict": false
+                },
+                {
+                    "name": "array of strings, default value",
+                    "template": "{{ a | has: 'z' }}",
+                    "want": "true",
+                    "context": {
+                        "a": [
+                            "x",
+                            "y",
+                            "z"
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array of strings, default value, no match",
+                    "template": "{{ a | has: ':(' }}",
+                    "want": "false",
+                    "context": {
+                        "a": [
+                            "x",
+                            "y",
+                            "z"
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array of strings, default value, substring match",
+                    "template": "{{ a | has: 'z' }}",
+                    "want": "true",
+                    "context": {
+                        "a": [
+                            "x",
+                            "y",
+                            "zoo"
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "hash input, default value, match",
+                    "template": "{{ a | has: 'z' }}",
+                    "want": "true",
+                    "context": {
+                        "a": {
+                            "z": 42
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "hash input, default value, no match",
+                    "template": "{{ a | has: 'z' }}",
+                    "want": "false",
+                    "context": {
+                        "a": {
+                            "x": 42
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "hash input, explicit nil, match",
+                    "template": "{{ a | has: 'z', nil }}",
+                    "want": "false",
+                    "context": {
+                        "a": {
+                            "z": null
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "hash input, explicit nil, no match",
+                    "template": "{{ a | has: 'z', nil }}",
+                    "want": "true",
+                    "context": {
+                        "a": {
+                            "z": 42
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "hash input, false value, match",
+                    "template": "{{ a | has: 'z', false }}",
+                    "want": "true",
+                    "context": {
+                        "a": {
+                            "z": false
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "hash input, int value, match",
+                    "template": "{{ a | has: 'z', 42 }}",
+                    "want": "true",
+                    "context": {
+                        "a": {
+                            "z": 42
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "hash input, int value, no match",
+                    "template": "{{ a | has: 'z', 99 }}",
+                    "want": "false",
+                    "context": {
+                        "a": {
+                            "z": 42
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "hash input, string value, no type coercion",
+                    "template": "{{ a | has: 'z', '42' }}",
+                    "want": "false",
+                    "context": {
+                        "a": {
+                            "z": 42
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "mixed array, default value",
+                    "template": "{{ a | has: 'z' }}",
+                    "want": "",
+                    "context": {
+                        "a": [
+                            "x",
+                            null,
+                            "z",
+                            false,
+                            true
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "string input, default value, match",
+                    "template": "{{ a | has: 'z' }}",
+                    "want": "true",
+                    "context": {
+                        "a": "zoo"
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "string input, default value, no match",
+                    "template": "{{ a | has: 'z' }}",
+                    "want": "false",
+                    "context": {
+                        "a": "foo"
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                }
+            ]
+        },
+        {
             "name": "liquid.golden.identifiers",
             "tests": [
                 {
@@ -3817,6 +4548,37 @@
                     "strict": false
                 },
                 {
+                    "name": "array contains nil",
+                    "template": "{% if a contains nil %}TRUE{% else %}FALSE{% endif %}",
+                    "want": "FALSE",
+                    "context": {
+                        "a": [
+                            1,
+                            2,
+                            null
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array contains undefined",
+                    "template": "{% if a contains nosuchthing %}TRUE{% else %}FALSE{% endif %}",
+                    "want": "FALSE",
+                    "context": {
+                        "a": [
+                            1,
+                            2,
+                            3,
+                            null
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
                     "name": "array is equal to array",
                     "template": "{% assign x = 'a,b,c' | split: ',' %}{% assign y = 'a,b,c' | split: ',' %}{% if x == y %}true{% else %}false{% endif %}",
                     "want": "true",
@@ -4010,6 +4772,18 @@
                     "strict": false
                 },
                 {
+                    "name": "endswith is not a valid operator",
+                    "template": "{% if s endswith t %}TRUE{% else %}FALSE{% endif %}",
+                    "want": "",
+                    "context": {
+                        "s": "hello",
+                        "t": "lo"
+                    },
+                    "partials": {},
+                    "error": true,
+                    "strict": false
+                },
+                {
                     "name": "extra else blocks are ignored",
                     "template": "{% if false %}1{% else %}2{% else %}3{% endif %}",
                     "want": "2",
@@ -4026,6 +4800,32 @@
                     "partials": {},
                     "error": false,
                     "strict": true
+                },
+                {
+                    "name": "haskey is not a valid operator",
+                    "template": "{% if obj haskey x %}TRUE{% else %}FALSE{% endif %}",
+                    "want": "",
+                    "context": {
+                        "obj": {
+                            "foo": "bar"
+                        },
+                        "x": "foo"
+                    },
+                    "partials": {},
+                    "error": true,
+                    "strict": false
+                },
+                {
+                    "name": "in is not a valid operator",
+                    "template": "{% if t in s %}TRUE{% else %}FALSE{% endif %}",
+                    "want": "",
+                    "context": {
+                        "s": "hello",
+                        "t": "lo"
+                    },
+                    "partials": {},
+                    "error": true,
+                    "strict": false
                 },
                 {
                     "name": "int does not equal string",
@@ -4127,6 +4927,32 @@
                     "strict": false
                 },
                 {
+                    "name": "object contains nil",
+                    "template": "{% if obj contains nosuchthing %}TRUE{% else %}FALSE{% endif %}",
+                    "want": "FALSE",
+                    "context": {
+                        "obj": {
+                            "foo": "bar"
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "object contains undefined",
+                    "template": "{% if obj contains nosuchthing %}TRUE{% else %}FALSE{% endif %}",
+                    "want": "FALSE",
+                    "context": {
+                        "obj": {
+                            "foo": "bar"
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
                     "name": "one is not equal to true",
                     "template": "{% if 1 == true %}Hello{% else %}Goodbye{% endif %}",
                     "want": "Goodbye",
@@ -4145,10 +4971,33 @@
                     "strict": false
                 },
                 {
+                    "name": "startswith is not a valid operator",
+                    "template": "{% if s startswith t %}TRUE{% else %}FALSE{% endif %}",
+                    "want": "",
+                    "context": {
+                        "s": "hello",
+                        "t": "hell"
+                    },
+                    "partials": {},
+                    "error": true,
+                    "strict": false
+                },
+                {
                     "name": "string contains int",
                     "template": "{% if 'hel9lo' contains 9 %}TRUE{% else %}FALSE{% endif %}",
                     "want": "TRUE",
                     "context": {},
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "string contains nil",
+                    "template": "{% if s contains nil %}TRUE{% else %}FALSE{% endif %}",
+                    "want": "FALSE",
+                    "context": {
+                        "s": "hello"
+                    },
                     "partials": {},
                     "error": false,
                     "strict": false
@@ -4168,6 +5017,17 @@
                     "want": "TRUE",
                     "context": {
                         "s": "llo"
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "string contains undefined",
+                    "template": "{% if s contains nosuchthing %}TRUE{% else %}FALSE{% endif %}",
+                    "want": "FALSE",
+                    "context": {
+                        "s": "hello"
                     },
                     "partials": {},
                     "error": false,
@@ -4258,6 +5118,54 @@
                     "name": "string is not less than string",
                     "template": "{% if 'bbb' < 'aaa' %}true{% else %}false{% endif %}",
                     "want": "false",
+                    "context": {},
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "undefined contains array",
+                    "template": "{% if undefined contains a %}TRUE{% else %}FALSE{% endif %}",
+                    "want": "FALSE",
+                    "context": {
+                        "a": [
+                            1,
+                            2,
+                            3
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "undefined contains object",
+                    "template": "{% if undefined contains obj %}TRUE{% else %}FALSE{% endif %}",
+                    "want": "FALSE",
+                    "context": {
+                        "obj": {
+                            "foo": "bar"
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "undefined contains string",
+                    "template": "{% if undefined contains s %}TRUE{% else %}FALSE{% endif %}",
+                    "want": "FALSE",
+                    "context": {
+                        "s": "hello"
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "undefined contains undefined",
+                    "template": "{% if undefined contains thing %}TRUE{% else %}FALSE{% endif %}",
+                    "want": "FALSE",
                     "context": {},
                     "partials": {},
                     "error": false,
@@ -5815,6 +6723,21 @@
                     "strict": false
                 },
                 {
+                    "name": "array index out of bounds",
+                    "template": "{{ a[3] }}",
+                    "want": "",
+                    "context": {
+                        "a": [
+                            1,
+                            2,
+                            3
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
                     "name": "assign a variable the value of an existing variable",
                     "template": "{% capture some %}hello{% endcapture %}{% assign other = some %}{% assign some = 'foo' %}{{ some }}-{{ other }}",
                     "want": "foo-hello",
@@ -5882,8 +6805,8 @@
                         ]
                     },
                     "partials": {},
-                    "error": false,
-                    "strict": false
+                    "error": true,
+                    "strict": true
                 },
                 {
                     "name": "chained identifier dot separated index",
@@ -5904,6 +6827,32 @@
                     "strict": true
                 },
                 {
+                    "name": "dot followed by bracket",
+                    "template": "{{ product.['title'] }}",
+                    "want": "shoe",
+                    "context": {
+                        "product": {
+                            "title": "shoe"
+                        }
+                    },
+                    "partials": {},
+                    "error": true,
+                    "strict": true
+                },
+                {
+                    "name": "double dot",
+                    "template": "{{ foo..bar }}",
+                    "want": "42",
+                    "context": {
+                        "foo": {
+                            "bar": 42
+                        }
+                    },
+                    "partials": {},
+                    "error": true,
+                    "strict": true
+                },
+                {
                     "name": "dump an array from the global context",
                     "template": "{{ product.tags | join: '#' }}",
                     "want": "sports#garden",
@@ -5914,6 +6863,21 @@
                                 "garden"
                             ]
                         }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "negative array index out of bounds",
+                    "template": "{{ a[-4] }}",
+                    "want": "",
+                    "context": {
+                        "a": [
+                            1,
+                            2,
+                            3
+                        ]
                     },
                     "partials": {},
                     "error": false,
@@ -6195,6 +7159,58 @@
                     "partials": {},
                     "error": false,
                     "strict": false
+                },
+                {
+                    "name": "whitespace between bracket notation",
+                    "template": "{{ ['foo'] \n\t['bar'] }}",
+                    "want": "42",
+                    "context": {
+                        "foo": {
+                            "bar": 42
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "whitespace between dot and word",
+                    "template": "{{ foo. \n\tbar }}",
+                    "want": "42",
+                    "context": {
+                        "foo": {
+                            "bar": 42
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "whitespace between word and dot",
+                    "template": "{{ foo \n\t.bar }}",
+                    "want": "42",
+                    "context": {
+                        "foo": {
+                            "bar": 42
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "whitespace between words",
+                    "template": "{{ foo \n\tbar }}",
+                    "want": "42",
+                    "context": {
+                        "foo": {
+                            "bar": 42
+                        }
+                    },
+                    "partials": {},
+                    "error": true,
+                    "strict": true
                 }
             ]
         },
@@ -6400,6 +7416,15 @@
                     "strict": false
                 },
                 {
+                    "name": "integer literals",
+                    "template": "{{ (1..5) | join: '#' }}",
+                    "want": "1#2#3#4#5",
+                    "context": {},
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
                     "name": "start and end are negative",
                     "template": "{{ (start..end) | join: '#' }}",
                     "want": "-5#-4#-3#-2",
@@ -6431,6 +7456,60 @@
                         "start": "foo",
                         "end": 5
                     },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "whitespace after dots",
+                    "template": "{{ (1.. \n\t5) | join: '#' }}",
+                    "want": "1#2#3#4#5",
+                    "context": {},
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "whitespace after stop",
+                    "template": "{{ (1..5 \n\t) | join: '#' }}",
+                    "want": "1#2#3#4#5",
+                    "context": {},
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "whitespace before and after dots",
+                    "template": "{{ (1 .. 5) | join: '#' }}",
+                    "want": "1#2#3#4#5",
+                    "context": {},
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "whitespace before and after dots, for loop",
+                    "template": "{% for x in (1 .. 5) %}{{ x }},{% endfor %}",
+                    "want": "1,2,3,4,5,",
+                    "context": {},
+                    "partials": {},
+                    "error": false,
+                    "strict": true
+                },
+                {
+                    "name": "whitespace before dots",
+                    "template": "{{ (1 \n\t..5) | join: '#' }}",
+                    "want": "1#2#3#4#5",
+                    "context": {},
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "whitespace before start",
+                    "template": "{{ ( \n\t1..5) | join: '#' }}",
+                    "want": "1#2#3#4#5",
+                    "context": {},
                     "partials": {},
                     "error": false,
                     "strict": false
@@ -6483,6 +7562,404 @@
                     "context": {},
                     "partials": {},
                     "error": false,
+                    "strict": false
+                }
+            ]
+        },
+        {
+            "name": "liquid.golden.reject_filter",
+            "tests": [
+                {
+                    "name": "array containing an int, default value",
+                    "template": "{{ a | reject: 'c' }}",
+                    "want": "",
+                    "context": {
+                        "a": [
+                            "x",
+                            "y",
+                            "cat",
+                            1
+                        ]
+                    },
+                    "partials": {},
+                    "error": true,
+                    "strict": false
+                },
+                {
+                    "name": "array containing null, default value",
+                    "template": "{{ a | reject: 'c' }}",
+                    "want": "",
+                    "context": {
+                        "a": [
+                            "x",
+                            "y",
+                            "cat",
+                            null
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array of hashes, default value",
+                    "template": "{% assign b = a | reject: 'title' %}{% for obj in b %}{% for itm in obj %}({{ itm[0] }},{{ itm[1] }}), {% endfor %}{% endfor %}",
+                    "want": "(title,false), (title,), (heading,baz), ",
+                    "context": {
+                        "a": [
+                            {
+                                "title": "foo"
+                            },
+                            {
+                                "title": false
+                            },
+                            {
+                                "title": null
+                            },
+                            {
+                                "heading": "baz"
+                            }
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array of hashes, explicit false",
+                    "template": "{% assign b = a | reject: 'title', false %}{% for obj in b %}{% for itm in obj %}({{ itm[0] }},{{ itm[1] }}), {% endfor %}{% endfor %}",
+                    "want": "(title,bar), (title,), (heading,baz), ",
+                    "context": {
+                        "a": [
+                            {
+                                "title": false
+                            },
+                            {
+                                "title": "bar"
+                            },
+                            {
+                                "title": null
+                            },
+                            {
+                                "heading": "baz"
+                            }
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array of hashes, explicit nil",
+                    "template": "{% assign b = a | reject: 'title', nil %}{% for obj in b %}{% for itm in obj %}({{ itm[0] }},{{ itm[1] }}), {% endfor %}{% endfor %}",
+                    "want": "(title,false), (title,), (heading,baz), ",
+                    "context": {
+                        "a": [
+                            {
+                                "title": "foo"
+                            },
+                            {
+                                "title": false
+                            },
+                            {
+                                "title": null
+                            },
+                            {
+                                "heading": "baz"
+                            }
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array of hashes, explicit true",
+                    "template": "{% assign b = a | reject: 'title', true %}{% for obj in b %}{% for itm in obj %}({{ itm[0] }},{{ itm[1] }}), {% endfor %}{% endfor %}",
+                    "want": "(title,bar), (title,), ",
+                    "context": {
+                        "a": [
+                            {
+                                "title": true
+                            },
+                            {
+                                "title": "bar"
+                            },
+                            {
+                                "title": null
+                            }
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array of hashes, missing property",
+                    "template": "{% assign b = a | reject: 'title', 'bar' %}{% for obj in b %}{% for itm in obj %}({{ itm[0] }},{{ itm[1] }}), {% endfor %}{% endfor %}",
+                    "want": "(heading,foo), (title,), ",
+                    "context": {
+                        "a": [
+                            {
+                                "heading": "foo"
+                            },
+                            {
+                                "title": "bar"
+                            },
+                            {
+                                "title": null
+                            }
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array of hashes, string value",
+                    "template": "{% assign b = a | reject: 'title', 'bar' %}{% for obj in b %}{% for itm in obj %}({{ itm[0] }},{{ itm[1] }}), {% endfor %}{% endfor %}",
+                    "want": "(title,foo), (title,), (heading,baz), ",
+                    "context": {
+                        "a": [
+                            {
+                                "title": "foo"
+                            },
+                            {
+                                "title": "bar"
+                            },
+                            {
+                                "title": null
+                            },
+                            {
+                                "heading": "baz"
+                            }
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "array of strings, default value",
+                    "template": "{% assign b = a | reject: 'c' %}{% for obj in b %}{{ obj }}, {% endfor %}",
+                    "want": "x, y, ",
+                    "context": {
+                        "a": [
+                            "x",
+                            "y",
+                            "cat"
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "first argument is undefined",
+                    "template": "{% assign b = a | reject: nosuchthing %}{% for obj in b %}{{ obj }}, {% endfor %}",
+                    "want": "",
+                    "context": {
+                        "a": [
+                            "x",
+                            "y",
+                            "cat"
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "input is a hash, default value",
+                    "template": "{% assign b = h | reject: 'bar' %}{% for obj in b %}{{ obj }}, {% endfor %}",
+                    "want": "",
+                    "context": {
+                        "h": {
+                            "foo": 1,
+                            "bar": 2,
+                            "baz": 3
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "input is a hash, default value, nil match",
+                    "template": "{% assign b = h | reject: 'bar' %}{% for obj in b %}{% for itm in obj %}({{ itm[0] }},{{ itm[1] }}), {% endfor %}{% endfor %}",
+                    "want": "(foo,1), (bar,), (baz,3), ",
+                    "context": {
+                        "h": {
+                            "foo": 1,
+                            "bar": null,
+                            "baz": 3
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "input is a hash, default value, no match",
+                    "template": "{% assign b = h | reject: 'barbar' %}{% for obj in b %}{% for itm in obj %}({{ itm[0] }},{{ itm[1] }}), {% endfor %}{% endfor %}",
+                    "want": "(foo,1), (bar,2), (baz,3), ",
+                    "context": {
+                        "h": {
+                            "foo": 1,
+                            "bar": 2,
+                            "baz": 3
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "input is a hash, explicit nil match",
+                    "template": "{% assign b = h | reject: 'bar', nil %}{% for obj in b %}{% for itm in obj %}({{ itm[0] }},{{ itm[1] }}), {% endfor %}{% endfor %}",
+                    "want": "(foo,1), (bar,), (baz,3), ",
+                    "context": {
+                        "h": {
+                            "foo": 1,
+                            "bar": null,
+                            "baz": 3
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "input is a hash, int value, match",
+                    "template": "{% assign b = h | reject: 'bar', 2 %}{% for obj in b %}{% for itm in obj %}({{ itm[0] }},{{ itm[1] }}), {% endfor %}{% endfor %}",
+                    "want": "",
+                    "context": {
+                        "h": {
+                            "foo": 1,
+                            "bar": 2,
+                            "baz": 3
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "input is a hash, int value, no match",
+                    "template": "{% assign b = h | reject: 'bar', 1 %}{% for obj in b %}{% for itm in obj %}({{ itm[0] }},{{ itm[1] }}), {% endfor %}{% endfor %}",
+                    "want": "(foo,1), (bar,2), (baz,3), ",
+                    "context": {
+                        "h": {
+                            "foo": 1,
+                            "bar": 2,
+                            "baz": 3
+                        }
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "input is undefined",
+                    "template": "{% assign b = nosuchthing | reject: 'c' %}{% for obj in b %}{{ obj }}, {% endfor %}",
+                    "want": "",
+                    "context": {},
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "missing argument",
+                    "template": "{% assign b = a | reject %}{% for obj in b %}{{ obj }}, {% endfor %}",
+                    "want": "",
+                    "context": {
+                        "a": [
+                            "x",
+                            "y",
+                            "cat"
+                        ]
+                    },
+                    "partials": {},
+                    "error": true,
+                    "strict": false
+                },
+                {
+                    "name": "nested array of hashes gets flattened",
+                    "template": "{% assign b = a | reject: 'title', 'bar' %}{% for obj in b %}{% for itm in obj %}({{ itm[0] }},{{ itm[1] }}), {% endfor %}{% endfor %}",
+                    "want": "(title,foo), (title,), ",
+                    "context": {
+                        "a": [
+                            [
+                                {
+                                    "title": "foo"
+                                },
+                                {
+                                    "title": "bar"
+                                }
+                            ],
+                            [
+                                [
+                                    {
+                                        "title": null
+                                    }
+                                ]
+                            ]
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "second argument is undefined",
+                    "template": "{% assign b = a | reject: 'title', nosuchthing %}{% for obj in b %}{% for itm in obj %}({{ itm[0] }},{{ itm[1] }}), {% endfor %}{% endfor %}",
+                    "want": "(title,), ",
+                    "context": {
+                        "a": [
+                            {
+                                "title": "foo"
+                            },
+                            {
+                                "title": "bar"
+                            },
+                            {
+                                "title": null
+                            }
+                        ]
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "string input becomes a single element array, no match",
+                    "template": "{% assign b = s | reject: 'xx' %}{% for obj in b %}{{ obj }}, {% endfor %}",
+                    "want": "foobar, ",
+                    "context": {
+                        "s": "foobar"
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "string input becomes a single element array, substring match",
+                    "template": "{% assign b = s | reject: 'oo' %}{% for obj in b %}{{ obj }}, {% endfor %}",
+                    "want": "",
+                    "context": {
+                        "s": "foobar"
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "too many arguments",
+                    "template": "{% assign b = a | reject: 'x', 'y', 'z' %}{% for obj in b %}{{ obj }}, {% endfor %}",
+                    "want": "",
+                    "context": {},
+                    "partials": {},
+                    "error": true,
                     "strict": false
                 }
             ]
@@ -8305,6 +9782,26 @@
                     "name": "argument does not appear in string",
                     "template": "{% assign a = \"abc\" | split: \",\" %}{% for i in a %}#{{ forloop.index0 }}{{ i }}{% endfor %}",
                     "want": "#0abc",
+                    "context": {},
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "argument is a newline",
+                    "template": "{% assign a = \"a b\nc\" | split: x %}{% for i in a %}#{{ forloop.index0 }}{{ i }}{% endfor %}",
+                    "want": "#0a b#1c",
+                    "context": {
+                        "x": "\n"
+                    },
+                    "partials": {},
+                    "error": false,
+                    "strict": false
+                },
+                {
+                    "name": "argument is a single space",
+                    "template": "{% assign a = \"a b\nc\" | split: \" \" %}{% for i in a %}#{{ forloop.index0 }}{{ i }}{% endfor %}",
+                    "want": "#0a#1b#2c",
                     "context": {},
                     "partials": {},
                     "error": false,

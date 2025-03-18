@@ -281,10 +281,11 @@ namespace DotLiquid
         /// </remarks>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="pattern">separator string</param>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static string[] Split(string input, string pattern)
         {
-            if (input.IsNullOrWhiteSpace())
-                return new[] { input };
+            if (string.IsNullOrEmpty(input))
+                return new string[] { };
 
             // If the pattern is empty convert to an array as specified in the Liquid Reverse filter example.
             // See: https://shopify.github.io/liquid/filters/reverse/
@@ -292,9 +293,12 @@ namespace DotLiquid
                 return input.ToCharArray().Select(character => character.ToString()).ToArray();
 
             // Ruby docs: If pattern is a single space, str is split on whitespace, with leading and trailing whitespace and runs of contiguous whitespace characters ignored.
-            return pattern == " "
-                ? input.Split(Tokenizer.WhitespaceCharsV22, StringSplitOptions.RemoveEmptyEntries)
-                : input.Split(new[] { pattern }, StringSplitOptions.RemoveEmptyEntries);
+            if (pattern == " ")
+                return input.Split(Tokenizer.WhitespaceCharsV22, StringSplitOptions.RemoveEmptyEntries);
+
+            // Ruby docs: When field_sep is a string different from ' ' and limit is 0, the split occurs at each occurrence of field_sep; trailing empty substrings are not returned.
+            var parts = input.Split(new[] { pattern }, StringSplitOptions.None);
+            return parts.Reverse().SkipWhile(s => string.IsNullOrEmpty(s)).Reverse().ToArray();
         }
 
         /// <summary>

@@ -179,10 +179,22 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestSplit()
+        public void TestSplitV20()
+        {
+            Assert.That(LegacyFilters.Split("This is a sentence", " "), Is.EqualTo(new[] { "This", "is", "a", "sentence" }).AsCollection);
+            Assert.That(LegacyFilters.Split(null, null), Is.EqualTo(new string[] { null }).AsCollection);
+
+            // A string with no pattern should be split into a string[], as required for the Liquid Reverse filter
+            Assert.That(LegacyFilters.Split("YMCA", null), Is.EqualTo(new[] { "Y", "M", "C", "A" }).AsCollection);
+            Assert.That(LegacyFilters.Split("YMCA", ""), Is.EqualTo(new[] { "Y", "M", "C", "A" }).AsCollection);
+            Assert.That(LegacyFilters.Split(" ", ""), Is.EqualTo(new[] { " " }).AsCollection);
+        }
+
+        [Test]
+        public void TestSplitV24()
         {
             Assert.That(StandardFilters.Split("This is a sentence", " "), Is.EqualTo(new[] { "This", "is", "a", "sentence" }).AsCollection);
-            Assert.That(StandardFilters.Split(null, null), Is.EqualTo(new string[] { null }).AsCollection);
+            Assert.That(StandardFilters.Split(null, null), Has.Exactly(0).Items);
 
             // A string with no pattern should be split into a string[], as required for the Liquid Reverse filter
             Assert.That(StandardFilters.Split("YMCA", null), Is.EqualTo(new[] { "Y", "M", "C", "A" }).AsCollection);
@@ -193,9 +205,16 @@ namespace DotLiquid.Tests
         [Test]
         public void TestSplitWhitespace()
         {
-            Assert.That(StandardFilters.Split("    one    two three    four  ", " "), Is.EqualTo(new[] { "one", "two", "three", "four" }).AsCollection);
-            Assert.That(StandardFilters.Split("one  two\tthree\nfour", " "), Is.EqualTo(new[] { "one", "two", "three", "four" }).AsCollection);
-            Assert.That(StandardFilters.Split("one  two\tthree\nfour", "\n"), Is.EqualTo(new[] { "one  two\tthree", "four" }).AsCollection);
+            Assert.Multiple(() =>
+            {
+                Assert.That(StandardFilters.Split("    one    two three    four  ", " "), Is.EqualTo(new[] { "one", "two", "three", "four" }).AsCollection);
+                Assert.That(StandardFilters.Split("one  two\tthree\nfour", " "), Is.EqualTo(new[] { "one", "two", "three", "four" }).AsCollection);
+                Assert.That(StandardFilters.Split("one  two\tthree\nfour", "\n"), Is.EqualTo(new[] { "one  two\tthree", "four" }).AsCollection);
+
+                Assert.That(StandardFilters.Split("abracadabra", "ab"), Is.EqualTo(new[] { "", "racad", "ra" }).AsCollection);
+                Assert.That(StandardFilters.Split("aaabcdaaa", "a"), Is.EqualTo(new[] { "", "", "", "bcd" }).AsCollection);
+                Assert.That(StandardFilters.Split("", "a"), Has.Exactly(0).Items);
+            });
         }
 
         [Test]

@@ -357,13 +357,15 @@ namespace DotLiquid.Tests
             System.Collections.Generic.Dictionary<string, string> testDictionary = new System.Collections.Generic.Dictionary<string, string>
             {
                 { "dave", "0" },
-                { "bob", "4" }
+                { "bob", "4" },
+                { "rodney", null },
             };
             _context["dictionary"] = testDictionary;
 
             AssertEvaluatesTrue("dictionary", "haskey", "'bob'");
-            AssertEvaluatesFalse("dictionary", "haskey", "'0'");
 
+            AssertEvaluatesFalse("dictionary", "haskey", "'0'");
+            AssertEvaluatesFalse("dictionary", "haskey", null);
             AssertEvaluatesFalse("dictionary", "haskey", "not_assigned");
             AssertEvaluatesFalse("not_assigned", "haskey", "'0'");
         }
@@ -389,14 +391,16 @@ namespace DotLiquid.Tests
             System.Collections.Generic.Dictionary<string, string> testDictionary = new System.Collections.Generic.Dictionary<string, string>
             {
                 { "dave", "0" },
-                { "bob", "4" }
+                { "bob", "4" },
+                { "rodney", null },
             };
             _context["dictionary"] = testDictionary;
 
             AssertEvaluatesTrue("dictionary", "hasvalue", "'0'");
-            AssertEvaluatesFalse("dictionary", "hasvalue", "'bob'");
+            AssertEvaluatesTrue("dictionary", "hasvalue", null);
+            AssertEvaluatesTrue("dictionary", "hasvalue", "not_assigned");
 
-            AssertEvaluatesFalse("dictionary", "hasvalue", "not_assigned");
+            AssertEvaluatesFalse("dictionary", "hasvalue", "'bob'");
             AssertEvaluatesFalse("not_assigned", "hasvalue", "'0'");
         }
 

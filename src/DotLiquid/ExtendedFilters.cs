@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace DotLiquid
@@ -47,6 +49,42 @@ namespace DotLiquid
         public static string RegexReplace(string input, string pattern, string replacement = "")
         {
             return Regex.Replace(input: input, pattern: pattern, replacement: replacement, options: RegexOptions.None, matchTimeout: Template.RegexTimeOut);
+        }
+
+        /// <summary>
+        /// Split input string into an array of substrings separated by given pattern.
+        /// </summary>
+        /// <remarks>
+        /// If the pattern is empty the input string is converted to an array of 0-char strings
+        /// If pattern is a single space, input is split on whitespace, removing all empty entries
+        /// Else, input is split and empty entries at the end are discarded
+        /// </remarks>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="pattern">separator string</param>
+        public static string[] RubySplit(string input, string pattern)
+        {
+            if (string.IsNullOrEmpty(input))
+                return new string[] { };
+
+            // If the pattern is empty convert to an array as specified in the Liquid Reverse filter example.
+            // See: https://shopify.github.io/liquid/filters/reverse/
+            if (string.IsNullOrEmpty(pattern))
+                return input.ToCharArray().Select(character => character.ToString()).ToArray();
+
+            // Ruby docs: If pattern is a single space, str is split on whitespace, with leading and trailing whitespace and runs of contiguous whitespace characters ignored.
+            if (pattern == " ")
+                return input.Split(Tokenizer.WhitespaceCharsV22, StringSplitOptions.RemoveEmptyEntries);
+
+            // Ruby docs: When field_sep is a string different from ' ' and limit is 0, the split occurs at each occurrence of field_sep; trailing empty substrings are not returned.
+            var parts = input.Split(new[] { pattern }, StringSplitOptions.None);
+            int indexTillTrailingEmpty = parts.Length;
+
+            while (indexTillTrailingEmpty > 0 && string.IsNullOrEmpty(parts[indexTillTrailingEmpty - 1]))
+            {
+                indexTillTrailingEmpty--;
+            }
+
+            return indexTillTrailingEmpty < parts.Length ? parts.Take(indexTillTrailingEmpty).ToArray() : parts;
         }
     }
 }

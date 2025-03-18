@@ -51,6 +51,9 @@ namespace DotLiquid.Tests
                         test.Error = false;
                     }
 
+                    if (testGroup.Name == "liquid.golden.tablerow_tag")
+                        test.Want = test.Want.Replace("\n", "\r\n");
+
                     if (Rules.FailingTests.Contains(uniqueName) != passing)
                         tests.Add(test);
                 }
@@ -82,6 +85,11 @@ namespace DotLiquid.Tests
         }
         #endregion
 
+        internal static class RubyFilters
+        {
+            public static string[] Split(string input, string pattern) => ExtendedFilters.RubySplit(input, pattern);
+        }
+
         [Test]
         [TestCaseSource(nameof(GoldenTestsPassing))]
         public void ExecuteGoldenLiquidTests(GoldenLiquidTest test)
@@ -98,7 +106,8 @@ namespace DotLiquid.Tests
             {
                 SyntaxCompatibilityLevel = syntax,
                 LocalVariables = context,
-                ErrorsOutputMode = test.Error ? ErrorsOutputMode.Rethrow : ErrorsOutputMode.Display
+                ErrorsOutputMode = test.Error ? ErrorsOutputMode.Rethrow : ErrorsOutputMode.Display,
+                Filters = new[] { typeof(RubyFilters) }
             };
 
             Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
@@ -114,7 +123,7 @@ namespace DotLiquid.Tests
                 }
                 else
                 {
-                    Assert.That(Template.Parse(test.Template, syntax).Render(parameters).Replace("\r\n", "\n"), Is.EqualTo(test.Want), test.UniqueName);
+                    Assert.That(Template.Parse(test.Template, syntax).Render(parameters), Is.EqualTo(test.Want), test.UniqueName);
                 }
             });
         }

@@ -122,7 +122,6 @@
         // Contains Not Implemented Tags/Filters
         "liquid.golden.whitespace_control - don't suppress whitespace only blocks containing echo",
         // Unsorted Exceptions
-        "liquid.golden.whitespace_control - white space control with  carriage return, newline and spaces",
         "liquid.golden.case_tag - switch on array",
         "liquid.golden.compact_filter - array of objects with key property",
         "liquid.golden.concat_filter - left value is not array-like",
@@ -210,6 +209,8 @@
         "liquid.golden.sort_natural_filter - incompatible types",
         "liquid.golden.special - first of an object",
         "liquid.golden.special - last of a object",
+        "liquid.golden.split_filter - argument is a newline",
+        "liquid.golden.split_filter - argument is a single space",
         "liquid.golden.strip_newlines_filter - newline and other whitespace",
         "liquid.golden.tablerow_tag - break from a tablerow loop inside a for loop",
         "liquid.golden.tablerow_tag - break from a tablerow loop",

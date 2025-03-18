@@ -52,5 +52,31 @@ namespace DotLiquid.Tests
         {
             Assert.That(actual: ExtendedFilters.RegexReplace(input: "a A A a", pattern: "[Aa]", replacement: "b"), Is.EqualTo(expected: "b b b b"));
         }
+
+        [Test]
+        public void TestRubySplit()
+        {
+            Assert.That(ExtendedFilters.RubySplit("This is a sentence", " "), Is.EqualTo(new[] { "This", "is", "a", "sentence" }).AsCollection);
+
+            // A string with no pattern should be split into a string[], as required for the Liquid Reverse filter
+            Assert.That(ExtendedFilters.RubySplit("YMCA", null), Is.EqualTo(new[] { "Y", "M", "C", "A" }).AsCollection);
+            Assert.That(ExtendedFilters.RubySplit("YMCA", ""), Is.EqualTo(new[] { "Y", "M", "C", "A" }).AsCollection);
+            Assert.That(ExtendedFilters.RubySplit(" ", ""), Is.EqualTo(new[] { " " }).AsCollection);
+        }
+
+        [Test]
+        public void TestRubySplitWhitespace()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(ExtendedFilters.RubySplit("    one    two three    four  ", " "), Is.EqualTo(new[] { "one", "two", "three", "four" }).AsCollection);
+                Assert.That(ExtendedFilters.RubySplit("one  two\tthree\nfour", " "), Is.EqualTo(new[] { "one", "two", "three", "four" }).AsCollection);
+                Assert.That(ExtendedFilters.RubySplit("one  two\tthree\nfour", "\n"), Is.EqualTo(new[] { "one  two\tthree", "four" }).AsCollection);
+
+                Assert.That(ExtendedFilters.RubySplit("abracadabra", "ab"), Is.EqualTo(new[] { "", "racad", "ra" }).AsCollection);
+                Assert.That(ExtendedFilters.RubySplit("aaabcdaaa", "a"), Is.EqualTo(new[] { "", "", "", "bcd" }).AsCollection);
+                Assert.That(ExtendedFilters.RubySplit("", "a"), Has.Exactly(0).Items);
+            });
+        }
     }
 }

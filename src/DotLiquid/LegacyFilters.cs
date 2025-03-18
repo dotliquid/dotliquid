@@ -157,11 +157,7 @@ namespace DotLiquid
             if (input.IsNullOrWhiteSpace())
                 return new[] { input };
 
-            // If the pattern is empty convert to an array as specified in the Liquid Reverse filter example.
-            // See: https://shopify.github.io/liquid/filters/reverse/
-            return string.IsNullOrEmpty(pattern)
-                ? input.ToCharArray().Select(character => character.ToString()).ToArray()
-                : input.Split(new[] { pattern }, StringSplitOptions.RemoveEmptyEntries);
+            return StandardFilters.Split(input, pattern);
         }
 
         /// <summary>

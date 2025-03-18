@@ -134,21 +134,6 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestSplitWhitespace()
-        {
-            Assert.Multiple(() =>
-            {
-                Assert.That(StandardFilters.Split("    one    two three    four  ", " "), Is.EqualTo(new[] { "one", "two", "three", "four" }).AsCollection);
-                Assert.That(StandardFilters.Split("one  two\tthree\nfour", " "), Is.EqualTo(new[] { "one", "two", "three", "four" }).AsCollection);
-                Assert.That(StandardFilters.Split("one  two\tthree\nfour", "\n"), Is.EqualTo(new[] { "one  two\tthree", "four" }).AsCollection);
-
-                Assert.That(StandardFilters.Split("abracadabra", "ab"), Is.EqualTo(new[] { "", "racad", "ra" }).AsCollection);
-                Assert.That(StandardFilters.Split("aaabcdaaa", "a"), Is.EqualTo(new[] { "", "", "", "bcd" }).AsCollection);
-                Assert.That(StandardFilters.Split("", "a"), Has.Exactly(0).Items);
-            });
-        }
-
-        [Test]
         public void TestStripHtml()
         {
             Assert.That(StandardFilters.StripHtml("<div>test</div>"), Is.EqualTo("test"));

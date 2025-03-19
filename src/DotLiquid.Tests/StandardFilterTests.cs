@@ -2093,6 +2093,8 @@ Cheapest products:
             Assert.That(StandardFilters.Sum(context, stringArray), Is.EqualTo(9.4));
             Assert.That(StandardFilters.Sum(context, mixedArray), Is.EqualTo(12m));
 
+            Assert.That(StandardFilters.Sum(context, null), Is.EqualTo(0));
+            Assert.That(StandardFilters.Sum(context, null, "UnknownProperty"), Is.EqualTo(0));
             Assert.That(StandardFilters.Sum(context, intArray, "UnknownProperty"), Is.EqualTo(0));
         }
 

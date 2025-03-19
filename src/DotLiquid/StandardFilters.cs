@@ -1066,10 +1066,6 @@ namespace DotLiquid
                             valueToAdd = doubleValue;
                         }
                     }
-                    else if (value is IEnumerable enumerableValue)
-                    {
-                        valueToAdd = Sum(context, enumerableValue);
-                    }
                     sum = DoMathsOperation(context, sum, valueToAdd, Expression.AddChecked);
                 }
             }

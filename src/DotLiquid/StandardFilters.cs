@@ -1049,19 +1049,19 @@ namespace DotLiquid
                     }
                     else if (value is string stringValue)
                     {
-                        if (int.TryParse(stringValue, out int intValue))
+                        if (int.TryParse(stringValue, NumberStyles.Integer, context.FormatProvider, out int intValue))
                         {
                             valueToAdd = intValue;
                         }
-                        else if (long.TryParse(stringValue, out long longValue))
+                        else if (long.TryParse(stringValue, NumberStyles.Integer, context.FormatProvider, out long longValue))
                         {
                             valueToAdd = longValue;
                         }
-                        else if (decimal.TryParse(stringValue, out decimal decimalValue))
+                        else if (decimal.TryParse(stringValue, NumberStyles.Float, context.FormatProvider, out decimal decimalValue))
                         {
                             valueToAdd = decimalValue;
                         }
-                        else if (double.TryParse(stringValue, out double doubleValue))
+                        else if (double.TryParse(stringValue, NumberStyles.Float, context.FormatProvider, out double doubleValue))
                         {
                             valueToAdd = doubleValue;
                         }

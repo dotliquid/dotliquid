@@ -2094,6 +2094,37 @@ Cheapest products:
 
         [Test]
         [TestCaseSource(nameof(GetContexts))]
+        public void TestSum_StringToNumeric(Context context)
+        {
+            // Ensure that the different types of numeric values can be converted from strings
+            // Ensure that the sum is non-zero
+            string[] intStringArray = new string[] {
+                int.MaxValue.ToString(context.FormatProvider),
+                int.MinValue.ToString(context.FormatProvider),
+            };
+            string[] longStringArray = new string[] {
+                long.MaxValue.ToString(context.FormatProvider),
+                long.MinValue.ToString(context.FormatProvider),
+            };
+            string[] decimalStringArray = new string[] {
+                decimal.MaxValue.ToString(context.FormatProvider),
+                "-1",
+                decimal.MinValue.ToString(context.FormatProvider),
+            };
+            // These will parse as double, but not decimal
+            string[] doubleStringArray = new string[] {
+                "1e203",
+                "-1e202",
+            };
+
+            Assert.That(StandardFilters.Sum(context, intStringArray), Is.EqualTo(-1));
+            Assert.That(StandardFilters.Sum(context, longStringArray), Is.EqualTo(-1));
+            Assert.That(StandardFilters.Sum(context, decimalStringArray), Is.EqualTo(-1.0m));
+            Assert.That(StandardFilters.Sum(context, doubleStringArray), Is.EqualTo(9e202));
+        }
+
+        [Test]
+        [TestCaseSource(nameof(GetContexts))]
         public void TestSum_NumericProperty(Context context)
         {
             var kIntArray = new object[] {
@@ -2106,7 +2137,7 @@ Cheapest products:
                 new { k = "2" },
                 new { k = "3" }
             };
-            var mixedIntArray = new object[] {
+            var mixedKeyIntArray = new object[] {
                 new { k = 1 },
                 new { k = 2 },
                 new { x = 5 }
@@ -2116,8 +2147,8 @@ Cheapest products:
             Assert.That(StandardFilters.Sum(context, kIntArray, "x"), Is.EqualTo(0));
             Assert.That(StandardFilters.Sum(context, kStringArray, "k"), Is.EqualTo(6));
             Assert.That(StandardFilters.Sum(context, kStringArray, "x"), Is.EqualTo(0));
-            Assert.That(StandardFilters.Sum(context, mixedIntArray, "k"), Is.EqualTo(3));
-            Assert.That(StandardFilters.Sum(context, mixedIntArray, "x"), Is.EqualTo(5));
+            Assert.That(StandardFilters.Sum(context, mixedKeyIntArray, "k"), Is.EqualTo(3));
+            Assert.That(StandardFilters.Sum(context, mixedKeyIntArray, "x"), Is.EqualTo(5));
         }
 
         [Test]

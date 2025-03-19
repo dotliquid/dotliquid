@@ -2082,12 +2082,16 @@ Cheapest products:
             int[] intArray = new int[] { 1, 2, 3, 4, 5 };
             decimal[] decimalArray = new decimal[] { 1.1m, 2.2m, 3.3m, 4.4m, 5.5m };
             string[] stringArray = new string[] { "1", "2", "-3", "4.4", "5.0" };
-            object[] mixedArray = new object[] { "1", 2, 3m, 4.0 };
+            object[] mixedArray = new object[] {
+                "1",
+                (decimal)1, (float)1, (double)1,
+                (sbyte)1, (byte)1, (short)1, (ushort)1, (int)1, (uint)1, (long)1, (ulong)1,
+            };
 
             Assert.That(StandardFilters.Sum(context, intArray), Is.EqualTo(15));
             Assert.That(StandardFilters.Sum(context, decimalArray), Is.EqualTo(16.5m));
             Assert.That(StandardFilters.Sum(context, stringArray), Is.EqualTo(9.4));
-            Assert.That(StandardFilters.Sum(context, mixedArray), Is.EqualTo(10.0));
+            Assert.That(StandardFilters.Sum(context, mixedArray), Is.EqualTo(12m));
 
             Assert.That(StandardFilters.Sum(context, intArray, "UnknownProperty"), Is.EqualTo(0));
         }

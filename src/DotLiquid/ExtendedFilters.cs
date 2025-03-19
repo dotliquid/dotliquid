@@ -73,7 +73,7 @@ namespace DotLiquid
 
             // Ruby docs: If pattern is a single space, str is split on whitespace, with leading and trailing whitespace and runs of contiguous whitespace characters ignored.
             if (pattern == " ")
-                return input.Split(Tokenizer.WhitespaceCharsV22, StringSplitOptions.RemoveEmptyEntries);
+                return input.Split(Liquid.AsciiWhitespaceChars, StringSplitOptions.RemoveEmptyEntries);
 
             // Ruby docs: When field_sep is a string different from ' ' and limit is 0, the split occurs at each occurrence of field_sep; trailing empty substrings are not returned.
             var parts = input.Split(new[] { pattern }, StringSplitOptions.None);

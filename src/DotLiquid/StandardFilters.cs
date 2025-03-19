@@ -235,7 +235,7 @@ namespace DotLiquid
                 words = 1;
 
             // Split to an array using any ascii whitespace as noted in the StandardFilters.Split method.
-            var wordArray = input.Split(Tokenizer.WhitespaceCharsV22, words + 1, StringSplitOptions.RemoveEmptyEntries);
+            var wordArray = input.Split(Liquid.AsciiWhitespaceChars, words + 1, StringSplitOptions.RemoveEmptyEntries);
             return wordArray.Length > words
                 ? string.Join(separator: Space, values: wordArray.Take(words)) + truncateString
                 : input;

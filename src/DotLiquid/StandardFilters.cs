@@ -844,6 +844,8 @@ namespace DotLiquid
         }
 
         private static bool IsReal(object o) => o is double || o is float || o is decimal;
+        private static bool IsInteger(object o) => o is int || o is uint || o is long || o is ulong || o is short || o is ushort || o is byte || o is sbyte;
+        private static bool IsNumeric(object o) => IsReal(o) || IsInteger(o);
 
         private static object DoMathsOperation(Context context, object input, object operand, Func<Expression, Expression, BinaryExpression> operation)
         {
@@ -1013,6 +1015,65 @@ namespace DotLiquid
                 throw new ArgumentNullException(paramName: nameof(propertyName), message: $"'{nameof(propertyName)}' cannot be null or empty.");
 
             return input.Cast<object>().Where(source => source.HasMatchingProperty(propertyName, targetValue));
+        }
+
+        /// <summary>
+        /// Sums all items in an array. If <paramref name="propertyName"/> is supplied, it sums the property values./> 
+        /// </summary>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">An array of numerics values, or objects with a numeric property, to be summed.</param>
+        /// <param name="propertyName">The name of a numeric property to sum. </param>
+        /// <returns>The sum of the input values.</returns>
+        public static object Sum(Context context, IEnumerable input, string propertyName=null)
+        {
+            if (input == null)
+                return 0;
+
+            // If propertyName is specified, expect a list of objects with a numeric property of the same name
+            if (propertyName != null)
+            {
+                IEnumerable<object> values = input.Cast<object>()
+                    .Select(source => source.ResolveObjectPropertyValue(propertyName));
+                return Sum(context, values);
+            }
+
+            object sum = 0;
+            foreach (object value in input)
+            {
+                if (value != null)
+                {
+                    object valueToAdd = 0;
+                    if (IsNumeric(value))
+                    {
+                        valueToAdd = value;
+                    }
+                    else if (value is string stringValue)
+                    {
+                        if (int.TryParse(stringValue, out int intValue))
+                        {
+                            valueToAdd = intValue;
+                        }
+                        else if (long.TryParse(stringValue, out long longValue))
+                        {
+                            valueToAdd = longValue;
+                        }
+                        else if (decimal.TryParse(stringValue, out decimal decimalValue))
+                        {
+                            valueToAdd = decimalValue;
+                        }
+                        else if (double.TryParse(stringValue, out double doubleValue))
+                        {
+                            valueToAdd = doubleValue;
+                        }
+                    }
+                    else if (value is IEnumerable enumerableValue)
+                    {
+                        valueToAdd = Sum(context, enumerableValue);
+                    }
+                    sum = DoMathsOperation(context, sum, valueToAdd, Expression.AddChecked);
+                }
+            }
+            return sum;
         }
 
         /// <summary>

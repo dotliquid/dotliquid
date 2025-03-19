@@ -9,7 +9,6 @@
         "liquid.golden.reject_filter", // not yet implemented
         "liquid.golden.render_tag", // not yet implemented
         "liquid.golden.replace_last_filter", // not yet implemented
-        "liquid.golden.sum_filter", // not yet implemented
         "liquid.golden.truncatewords_filter" // implemented as truncate_words so these will fail for now
     ],
     "skipped_tests": [
@@ -246,9 +245,12 @@
         "liquid.golden.modulo_filter - string value and argument": "0",
         "liquid.golden.plus_filter - integer value and float arg": "12",
 
-        // These operators are implemented by DotLiquid but not Ruby
+        // if_tag: These operators are implemented by DotLiquid but not Ruby
         "liquid.golden.if_tag - endswith is not a valid operator": "TRUE",
         "liquid.golden.if_tag - haskey is not a valid operator": "TRUE",
         "liquid.golden.if_tag - startswith is not a valid operator": "TRUE"
+
+        // sum_filter: Objects without the specified propertyName are treated as zero
+        "liquid.golden.sum_filter - properties arguments with non-hash items": "0",
     }
 }

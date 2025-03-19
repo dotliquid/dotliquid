@@ -18,6 +18,37 @@ namespace DotLiquid.Tests
         private Context _contextV22;
         private Context _contextV22a;
 
+        private static IEnumerable<Context> GetContexts()
+        {
+            // This must be updated whenever a new SyntaxCompatibility value is added
+            if (SyntaxCompatibility.DotLiquidLatest != SyntaxCompatibility.DotLiquid22a)
+            {
+                throw new InvalidOperationException("Ensure all contexts are listed below.");
+            }
+
+            // This is called before SetUp, so we can't use _contextV20, etc.
+            yield return new Context(CultureInfo.InvariantCulture)
+            {
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20
+            };
+            yield return new Context(new CultureInfo("en-US"))
+            {
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20
+            };
+            yield return new Context(CultureInfo.InvariantCulture)
+            {
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid21
+            };
+            yield return new Context(CultureInfo.InvariantCulture)
+            {
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22
+            };
+            yield return new Context(CultureInfo.InvariantCulture)
+            {
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22a
+            };
+        }
+
         [OneTimeSetUp]
         public void SetUp()
         {
@@ -2042,6 +2073,51 @@ Cheapest products:
                 Assert.That(
                     actual: StandardFilters.Where(products, propertyName: "type", targetValue: "kitchen"), Is.EqualTo(expected: expectedKitchenProducts).AsCollection);
             });
+        }
+
+        [Test]
+        [TestCaseSource(nameof(GetContexts))]
+        public void TestSum_Numeric(Context context)
+        {
+            int[] intArray = new int[] { 1, 2, 3, 4, 5 };
+            decimal[] decimalArray = new decimal[] { 1.1m, 2.2m, 3.3m, 4.4m, 5.5m };
+            string[] stringArray = new string[] { "1", "2", "-3", "4.4", "5.0" };
+            object[] mixedArray = new object[] { "1", 2, 3m, 4.0 };
+
+            Assert.That(StandardFilters.Sum(context, intArray), Is.EqualTo(15));
+            Assert.That(StandardFilters.Sum(context, decimalArray), Is.EqualTo(16.5m));
+            Assert.That(StandardFilters.Sum(context, stringArray), Is.EqualTo(9.4));
+            Assert.That(StandardFilters.Sum(context, mixedArray), Is.EqualTo(10.0));
+
+            Assert.That(StandardFilters.Sum(context, intArray, "UnknownProperty"), Is.EqualTo(0));
+        }
+
+        [Test]
+        [TestCaseSource(nameof(GetContexts))]
+        public void TestSum_NumericProperty(Context context)
+        {
+            var kIntArray = new object[] {
+                new { k = 1 },
+                new { k = 2 },
+                new { k = 3 }
+            };
+            var kStringArray = new object[] {
+                new { k = "1" },
+                new { k = "2" },
+                new { k = "3" }
+            };
+            var mixedIntArray = new object[] {
+                new { k = 1 },
+                new { k = 2 },
+                new { x = 5 }
+            };
+
+            Assert.That(StandardFilters.Sum(context, kIntArray, "k"), Is.EqualTo(6));
+            Assert.That(StandardFilters.Sum(context, kIntArray, "x"), Is.EqualTo(0));
+            Assert.That(StandardFilters.Sum(context, kStringArray, "k"), Is.EqualTo(6));
+            Assert.That(StandardFilters.Sum(context, kStringArray, "x"), Is.EqualTo(0));
+            Assert.That(StandardFilters.Sum(context, mixedIntArray, "k"), Is.EqualTo(3));
+            Assert.That(StandardFilters.Sum(context, mixedIntArray, "x"), Is.EqualTo(5));
         }
 
         [Test]

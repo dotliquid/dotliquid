@@ -55,9 +55,10 @@ namespace DotLiquid
         /// Split input string into an array of substrings separated by given pattern.
         /// </summary>
         /// <remarks>
-        /// If the pattern is empty the input string is converted to an array of 0-char strings
-        /// If pattern is a single space, input is split on whitespace, removing all empty entries
-        /// Else, input is split and empty entries at the end are discarded
+        /// <para>If <paramref name="input"/> is null or empty, an empty array is returned.</para>
+        /// <para>If <paramref name="pattern"/> is null or empty, the input string is converted to an array of single-character strings.</para>
+        /// <para>If <paramref name="pattern"/> is a space, the input string is split using any whitespace character, and all empty entries are removed.</para>
+        /// <para>If <paramref name="pattern"/> is any other value, the input string is split using the pattern, and empty entries at the end are removed.</para>
         /// </remarks>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="pattern">separator string</param>

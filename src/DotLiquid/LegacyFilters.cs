@@ -143,11 +143,11 @@ namespace DotLiquid
         }
 
         /// <summary>
-        /// Split input string into an array of substrings separated by given pattern.
+        /// Split input string into an array of substrings separated by given pattern, eliminating empty entries at the end.
         /// </summary>
         /// <remarks>
-        /// If the pattern is empty the input string is converted to an array of 1-char
-        /// strings (as specified in the Liquid Reverse filter example).
+        /// <para>If <paramref name="input"/> is null or empty, an array containing the original input is returned.</para>
+        /// <para>If <paramref name="pattern"/> is null or empty, the input string is converted to an array of single-character strings.</para>
         /// </remarks>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="pattern">separator string</param>

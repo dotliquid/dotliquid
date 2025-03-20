@@ -1274,6 +1274,7 @@ PaulGeorge",
             Assert.That(StandardFilters.ReplaceLast(input: "", @string: "a", replacement: "b"), Is.EqualTo(""));
             Assert.That(StandardFilters.ReplaceLast(input: "a a a a", @string: null, replacement: "b"), Is.EqualTo("a a a ab"));
             Assert.That(StandardFilters.ReplaceLast(input: "a a a a", @string: "", replacement: "b"), Is.EqualTo("a a a ab"));
+            Assert.That(StandardFilters.ReplaceLast(input: "a a a a", @string: "", replacement: null), Is.EqualTo("a a a a"));
             Assert.That(StandardFilters.ReplaceLast(input: "a a b a", @string: " a", replacement: null), Is.EqualTo("a a b"));
 
             //Adapted from Shopify Tests

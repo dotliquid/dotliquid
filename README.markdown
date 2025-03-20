@@ -82,6 +82,6 @@ Are you using DotLiquid in an open source project? Tell us with a PR!
 
 ### License
 DotLiquid is intended to be used in both open-source and commercial environments. To allow its use in as many
-situations as possible, DotLiquid is dual-licensed. You may choose to use DotLiquid under either the Apache License,
-Version 2.0, or the Microsoft Public License (Ms-PL). These licenses are essentially identical, but you are
+situations as possible, DotLiquid is dual-licensed. You may choose to use DotLiquid under either the [Apache License,
+Version 2.0](LICENSE-Apache), or the [Microsoft Public License (Ms‑PL)](LICENSE-Ms-PL). These licenses are essentially identical, but you are
 encouraged to evaluate both to determine which best fits your intended use.

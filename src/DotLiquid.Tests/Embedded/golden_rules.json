@@ -9,8 +9,7 @@
         "liquid.golden.reject_filter", // not yet implemented
         "liquid.golden.render_tag", // not yet implemented
         "liquid.golden.replace_last_filter", // not yet implemented
-        "liquid.golden.sum_filter", // not yet implemented
-        "liquid.golden.truncatewords_filter" // implemented as truncate_words so these will fail for now
+        "liquid.golden.sum_filter" // not yet implemented
     ],
     "skipped_tests": [
         // Test assumes that a parsed date is UTC, DotLiquid assumes system timezone
@@ -35,6 +34,7 @@
         "liquid.golden.strip_filter - right padded",
         "liquid.golden.strip_newlines_filter - reference implementation test 1",
         "liquid.golden.strip_newlines_filter - reference implementation test 2",
+        "liquid.golden.truncatewords_filter - reference implementation test 3",
         // Default filter allow_false attribute is not yet implemented
         "liquid.golden.default_filter - allow false",
         "liquid.golden.default_filter - allow false from context",
@@ -108,7 +108,7 @@
         "liquid.golden.times_filter - undefined argument",
         "liquid.golden.times_filter - undefined left value",
         "liquid.golden.truncate_filter - undefined first argument",
-        "liquid.golden.truncate_filter - undefined second argument",
+        "liquid.golden.truncatewords_filter - undefined first argument",
         "liquid.golden.where_filter - both arguments are undefined",
         "liquid.golden.where_filter - first argument is undefined",
         "liquid.golden.where_filter - both arguments are undefined",
@@ -122,7 +122,6 @@
         // Contains Not Implemented Tags/Filters
         "liquid.golden.whitespace_control - don't suppress whitespace only blocks containing echo",
         // Unsorted Exceptions
-        "liquid.golden.whitespace_control - white space control with  carriage return, newline and spaces",
         "liquid.golden.compact_filter - array of objects with key property",
         "liquid.golden.concat_filter - left value is not array-like",
         "liquid.golden.concat_filter - nested left value gets flattened",
@@ -209,8 +208,6 @@
         "liquid.golden.special - last of a object",
         "liquid.golden.split_filter - argument is a newline",
         "liquid.golden.split_filter - argument is a single space",
-        "liquid.golden.split_filter - empty string and empty argument",
-        "liquid.golden.split_filter - empty string and single char argument",
         "liquid.golden.strip_newlines_filter - newline and other whitespace",
         "liquid.golden.tablerow_tag - break from a tablerow loop inside a for loop",
         "liquid.golden.tablerow_tag - break from a tablerow loop",

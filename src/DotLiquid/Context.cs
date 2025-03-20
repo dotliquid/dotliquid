@@ -28,10 +28,20 @@ namespace DotLiquid
 
         private readonly ErrorsOutputMode _errorsOutputMode;
 
+        private SyntaxCompatibility _syntaxCompatibilityLevel;
+
         /// <summary>
         /// Liquid syntax flag used for backward compatibility
         /// </summary>
-        public SyntaxCompatibility SyntaxCompatibilityLevel { get; set; }
+        public SyntaxCompatibility SyntaxCompatibilityLevel {
+            get => _syntaxCompatibilityLevel;
+            set
+            {
+                if (_strainer != null)
+                    throw new ContextException(Liquid.ResourceManager.GetString("ContextPropertyReadonly"), nameof(SyntaxCompatibilityLevel));
+                _syntaxCompatibilityLevel = value;
+            }
+        }
 
         /// <summary>
         /// Ruby Date Format flag, switches Date filter syntax between Ruby and CSharp formats.
@@ -202,7 +212,7 @@ namespace DotLiquid
         public void AddFilters(IEnumerable<Type> filters)
         {
             foreach (Type f in filters)
-                Strainer.Extend(f);
+                Strainer.Extend(SyntaxCompatibilityLevel, f);
         }
 
         /// <summary>
@@ -718,7 +728,7 @@ namespace DotLiquid
                 return safeTypeTransformer(obj);
             }
 
-            var attr = (LiquidTypeAttribute)valueType.GetTypeInfo().GetCustomAttributes(typeof(LiquidTypeAttribute), false).FirstOrDefault();
+            var attr = TypeUtility.GetLiquidTypeAttribute(valueType);
             if (attr != null)
             {
                 return new DropProxy(obj, attr.AllowedMembers);

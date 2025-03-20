@@ -543,7 +543,7 @@ namespace DotLiquid
         }
 
         /// <summary>
-        /// Replace the first occurrence of a string with another
+        /// Replace the last occurrence of a string with another
         /// </summary>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="string">Substring to be replaced</param>
@@ -552,11 +552,12 @@ namespace DotLiquid
         {
             if (string.IsNullOrEmpty(input))
                 return input;
-            @string = @string ?? string.Empty;
-            replacement = replacement ?? string.Empty;
+
+            if (string.IsNullOrEmpty(@string))
+                return input.Insert(input.Length, replacement ?? string.Empty);
 
             int position = input.LastIndexOf(@string);
-            return position < 0 ? input : input.Remove(position, @string.Length).Insert(position, replacement);
+            return position < 0 ? input : input.Remove(position, @string.Length).Insert(position, replacement ?? string.Empty);
         }
 
         /// <summary>
@@ -585,7 +586,7 @@ namespace DotLiquid
         }
 
         /// <summary>
-        /// Remove the first occurrence of a substring
+        /// Remove the last occurrence of a substring
         /// </summary>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="string">String to be removed from input</param>

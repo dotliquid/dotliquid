@@ -469,8 +469,6 @@ namespace DotLiquid.Tests
             Assert.That(context.Invoke("hi", new List<object> { "hi?" }), Is.EqualTo("hi? hi!"));
 
             context = new Context(CultureInfo.InvariantCulture) { SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22 };
-            Assert.That(context.Invoke("hi", new List<object> { "hi?" }), Is.EqualTo("hi? hi from King Kong!"));
-            // or 
             Assert.Throws<FilterNotFoundException>(() => context.Invoke("hi", new List<object> { "hi?" }));
         }
 
@@ -488,25 +486,26 @@ namespace DotLiquid.Tests
         [Test]
         public void TestAddFilters()
         {
-            Context context = new Context(CultureInfo.InvariantCulture);
+            Context context = new Context(CultureInfo.InvariantCulture) { SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20 };
             context.AddFilters(new[] { typeof(TestFilters) });
             Assert.That(context.Invoke("hi", new List<object> { "hi?" }), Is.EqualTo("hi? hi!"));
-            context.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22;
+
+            context = new Context(CultureInfo.InvariantCulture) { SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22 };
+            context.AddFilters(new[] { typeof(TestFilters) });
             Assert.That(context.Invoke("hi", new List<object> { "hi?" }), Is.EqualTo("hi? hi!"));
         }
 
         [Test]
         public void TestAddContextFilters()
         {
-            // This test differs from TestAddFilters only in that the Hi method within this class has a Context parameter in addition to the input string
             Context context = new Context(CultureInfo.InvariantCulture) { SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20 };
             context["name"] = "King Kong";
-
             context.AddFilters(new[] { typeof(TestContextFilters) });
             Assert.That(context.Invoke("hi", new List<object> { "hi?" }), Is.EqualTo("hi? hi from King Kong!"));
 
-            context = new Context(CultureInfo.InvariantCulture) { SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20 };
-            Assert.That(context.Invoke("hi", new List<object> { "hi?" }), Is.EqualTo("hi?"));
+            context = new Context(CultureInfo.InvariantCulture) { SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22 };
+            context.AddFilters(new[] { typeof(TestContextFilters) });
+            Assert.That(context.Invoke("hi", new List<object> { "hi?" }), Is.EqualTo("hi? hi from !"));
         }
 
         [Test]

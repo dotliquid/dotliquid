@@ -46,7 +46,10 @@ namespace DotLiquid.Tests
                         continue;
 
                     if (Rules.AlternateTestExpectations.ContainsKey(uniqueName))
+                    { 
                         test.Want = Rules.AlternateTestExpectations[uniqueName];
+                        test.Error = false;
+                    }
 
                     if (Rules.FailingTests.Contains(uniqueName) != passing)
                         tests.Add(test);

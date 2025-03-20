@@ -1637,7 +1637,7 @@ Cheapest products:
             var array1 = new String[] { "one", "two" };
             var array2 = new String[] { "alpha", "bravo" };
 
-            Assert.That(StandardFilters.Concat(null, null), Is.EqualTo(null).AsCollection);
+            Assert.That(StandardFilters.Concat(null, null), Is.EqualTo(null));
             Assert.That(StandardFilters.Concat(array1, null), Is.EqualTo(array1).AsCollection);
             Assert.That(StandardFilters.Concat(null, array1), Is.EqualTo(array1).AsCollection);
             Assert.That(StandardFilters.Concat(array1, array2), Is.EqualTo(new[] { "one", "two", "alpha", "bravo" }).AsCollection);
@@ -1677,7 +1677,7 @@ Cheapest products:
             var array = new String[] { "one", "two", "three" };
             var arrayReversed = new String[] { "three", "two", "one" };
 
-            Assert.That(StandardFilters.Reverse(null), Is.EqualTo(null).AsCollection);
+            Assert.That(StandardFilters.Reverse(null), Is.EqualTo(null));
             Assert.That(StandardFilters.Reverse(array), Is.EqualTo(arrayReversed).AsCollection);
             Assert.That(StandardFilters.Reverse(arrayReversed), Is.EqualTo(array).AsCollection);
             Assert.That(StandardFilters.Reverse(new[] { 1, 2, 2, 3 }), Is.EqualTo(new[] { 3, 2, 2, 1 }).AsCollection);

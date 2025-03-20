@@ -251,6 +251,68 @@ namespace DotLiquid.Tests
             Assert.That(Template.GetTagType("unknown"), Is.Null);
         }
 
+        private class CustomTagFactory : ITagFactory
+        {
+            public string TagName
+            {
+                get { return "custom"; }
+            }
+
+            public Tag Create()
+            {
+                return new CustomTag();
+            }
+
+            public class CustomTag : Tag
+            {
+                public override void Render(Context context, System.IO.TextWriter result)
+                {
+                    result.WriteLine("I am a custom tag");
+                }
+            }
+        }
+
+        private class CustomRawTagFactory : ITagFactory
+        {
+            public string TagName
+            {
+                get { return "customraw"; }
+            }
+
+            public Tag Create()
+            {
+                return new CustomRawTag();
+            }
+
+            public class CustomRawTag : RawBlock
+            {
+                public override void Render(Context context, System.IO.TextWriter result)
+                {
+                    result.WriteLine("I am a raw custom tag");
+                }
+            }
+        }
+
+        [Test]
+        public void TestIsRawTag()
+        {
+            // Trigger the Liquid static constructor to register default Tags.
+            Assert.That(Liquid.ArgumentSeparator, Is.Not.Null);
+            Template.RegisterTagFactory(new CustomTagFactory());
+            Template.RegisterTagFactory(new CustomRawTagFactory());
+
+            Assert.That(Template.IsRawTag("comment"), Is.True);
+            Assert.That(Template.IsRawTag("raw"), Is.True);
+
+            Assert.That(Template.IsRawTag("if"), Is.False);
+            Assert.That(Template.IsRawTag("include"), Is.False);
+
+            Assert.That(Template.IsRawTag("custom"), Is.False);
+            Assert.That(Template.IsRawTag("customraw"), Is.False);
+
+            Assert.That(Template.IsRawTag("unknown"), Is.False);
+        }
+
         public class MySimpleType
         {
             public string Name { get; set; }

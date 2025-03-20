@@ -175,33 +175,23 @@ namespace DotLiquid
                 {
                     var parameterType = parameterInfos[argumentIndex].ParameterType;
                     if (convertibleArg.GetType() != parameterType
-                        && !parameterType
-#if NETSTANDARD1_3
-                            .GetTypeInfo()
-#endif
-                            .IsAssignableFrom(
-                                convertibleArg
-                                    .GetType()
-#if NETSTANDARD1_3
-                                    .GetTypeInfo()
-#endif
-                                    )
-                        )
+                        && !parameterType.IsInstanceOfType(convertibleArg))
                     {
                         args[argumentIndex] = Convert.ChangeType(convertibleArg, parameterType);
                     }
                 }
             }
 
+            object result = null;
             try
             {
-                return methodInfo.Item2.Invoke(methodInfo.Item1, args.ToArray());
+                result = methodInfo.Item2.Invoke(methodInfo.Item1, args.ToArray());
             }
             catch (TargetInvocationException ex)
             {
                 ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
-                throw;
             }
+            return result;
         }
     }
 }

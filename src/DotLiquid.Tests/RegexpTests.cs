@@ -12,7 +12,6 @@ namespace DotLiquid.Tests
     [TestFixture]
     public class RegexpTests
     {
-#if !NETCOREAPP1_0
         [Test]
         public void TestAllRegexesAreCompiled()
         {
@@ -28,7 +27,6 @@ namespace DotLiquid.Tests
                 }
             }
         }
-#endif
 
         private static List<string> Run(string input, string pattern)
         {

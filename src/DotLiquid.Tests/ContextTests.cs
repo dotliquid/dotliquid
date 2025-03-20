@@ -5,6 +5,7 @@ using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 using DotLiquid.Exceptions;
+using DotLiquid.Util;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
@@ -184,6 +185,63 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        public void TestDefaultVariables()
+        {
+            Assert.That(_context[null], Is.EqualTo(null));
+            Assert.That(_context["nil"], Is.EqualTo(null));
+            Assert.That(_context["null"], Is.EqualTo(null));
+            Assert.That(_context[String.Empty], Is.EqualTo(null));
+
+            Assert.That(_context["true"], Is.True);
+            Assert.That(_context["false"], Is.False);
+
+            List<int> emptyList = new List<int>();
+            List<int> nonEmptyList = new List<int> { 1, 2, 3, 4, 5 };
+            string whitespace = "\r\n\t";
+
+            Symbol blank = _context["blank"] as Symbol;
+            Assert.That(blank, Is.Not.Null);
+            Assert.That(blank.EvaluationFunction(null), Is.True);
+            Assert.That(blank.EvaluationFunction(false), Is.True);
+            Assert.That(blank.EvaluationFunction(emptyList), Is.True);
+            Assert.That(blank.EvaluationFunction(string.Empty), Is.True);
+            Assert.That(blank.EvaluationFunction(whitespace), Is.True);
+
+            Assert.That(blank.EvaluationFunction(new object()), Is.False);
+            Assert.That(blank.EvaluationFunction(5), Is.False);
+            Assert.That(blank.EvaluationFunction(true), Is.False);
+            Assert.That(blank.EvaluationFunction(nonEmptyList), Is.False);
+            Assert.That(blank.EvaluationFunction("banana"), Is.False);
+
+            Symbol empty = _context["empty"] as Symbol;
+            Assert.That(empty, Is.Not.Null);
+            Assert.That(empty.EvaluationFunction(emptyList), Is.True);
+            Assert.That(empty.EvaluationFunction(string.Empty), Is.True);
+
+            Assert.That(empty.EvaluationFunction(null), Is.False);
+            Assert.That(empty.EvaluationFunction(false), Is.False);
+            Assert.That(empty.EvaluationFunction(whitespace), Is.False);
+            Assert.That(empty.EvaluationFunction(new object()), Is.False);
+            Assert.That(empty.EvaluationFunction(5), Is.False);
+            Assert.That(empty.EvaluationFunction(true), Is.False);
+            Assert.That(empty.EvaluationFunction(nonEmptyList), Is.False);
+            Assert.That(empty.EvaluationFunction("banana"), Is.False);
+        }
+
+        [Test]
+        public void TestDefaultVariableAssignment()
+        {
+            // Cannot override default variables, but they're still stored.
+            _context["nil"] = "banana";
+            Assert.That(_context["nil"], Is.Null);
+            Assert.That(_context.Scopes[0]["nil"], Is.EqualTo("banana"));
+
+            _context["true"] = false;
+            Assert.That(_context["true"], Is.True);
+            Assert.That(_context.Scopes[0]["true"], Is.False);
+        }
+
+        [Test]
         public void TestVariables()
         {
             _context["string"] = "string";
@@ -231,6 +289,10 @@ namespace DotLiquid.Tests
             _context["nil"] = null;
             Assert.That(_context["nil"], Is.EqualTo(null));
             Assert.That(_context["nil"], Is.EqualTo(null));
+
+            _context["anonymous"] = new { fruit = "banana" };
+            Assert.That(_context["anonymous"], Is.Not.Null);
+            Assert.That(_context["anonymous.fruit"], Is.EqualTo("banana"));
         }
 
         [Test]
@@ -253,7 +315,7 @@ namespace DotLiquid.Tests
 
 #if NET6_0_OR_GREATER
         [Test]
-        public void TestVariables_NET60()
+        public void TestVariables_NET6_0_OR_GREATER()
         {
             var dateOnly = new DateOnly(year: 2013, month: 9, day: 10);
             _context["dateonly"] = dateOnly;
@@ -264,18 +326,18 @@ namespace DotLiquid.Tests
         }
 #endif
 
-        private enum TestEnum { Yes, No }
+        private enum YesOrNo { Yes, No }
 
         [Test]
         public void TestGetVariable_Enum()
         {
-            _context["yes"] = TestEnum.Yes;
-            _context["no"] = TestEnum.No;
-            _context["not_enum"] = TestEnum.Yes.ToString();
+            _context["yes"] = YesOrNo.Yes;
+            _context["no"] = YesOrNo.No;
+            _context["not_enum"] = YesOrNo.Yes.ToString();
 
-            Assert.That(_context["yes"], Is.EqualTo(TestEnum.Yes));
-            Assert.That(_context["no"], Is.EqualTo(TestEnum.No));
-            Assert.That(_context["not_enum"], Is.Not.EqualTo(TestEnum.Yes));
+            Assert.That(_context["yes"], Is.EqualTo(YesOrNo.Yes));
+            Assert.That(_context["no"], Is.EqualTo(YesOrNo.No));
+            Assert.That(_context["not_enum"], Is.Not.EqualTo(YesOrNo.Yes));
         }
 
         [Test]
@@ -392,7 +454,7 @@ namespace DotLiquid.Tests
         public void TestAddFilter()
         {
             Context context = new Context(CultureInfo.InvariantCulture);
-            context.AddFilters(new[] { typeof(TestFilters) });
+            context.AddFilter<string, string>("hi", TestFilters.Hi);
             Assert.That(context.Invoke("hi", new List<object> { "hi?" }), Is.EqualTo("hi? hi!"));
             
             context = new Context(CultureInfo.InvariantCulture);
@@ -407,6 +469,8 @@ namespace DotLiquid.Tests
             Assert.That(context.Invoke("hi", new List<object> { "hi?" }), Is.EqualTo("hi? hi!"));
 
             context = new Context(CultureInfo.InvariantCulture) { SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22 };
+            Assert.That(context.Invoke("hi", new List<object> { "hi?" }), Is.EqualTo("hi? hi from King Kong!"));
+            // or 
             Assert.Throws<FilterNotFoundException>(() => context.Invoke("hi", new List<object> { "hi?" }));
         }
 
@@ -414,6 +478,27 @@ namespace DotLiquid.Tests
         public void TestAddContextFilter()
         {
             // This test differs from TestAddFilter only in that the Hi method within this class has a Context parameter in addition to the input string
+            Context context = new Context(CultureInfo.InvariantCulture);
+            context["name"] = "King Kong";
+
+            context.AddFilter<Context, string, string>("hi", TestContextFilters.Hi);
+            Assert.That(context.Invoke("hi", new List<object> { "hi?" }), Is.EqualTo("hi? hi from King Kong!"));
+        }
+
+        [Test]
+        public void TestAddFilters()
+        {
+            Context context = new Context(CultureInfo.InvariantCulture);
+            context.AddFilters(new[] { typeof(TestFilters) });
+            Assert.That(context.Invoke("hi", new List<object> { "hi?" }), Is.EqualTo("hi? hi!"));
+            context.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22;
+            Assert.That(context.Invoke("hi", new List<object> { "hi?" }), Is.EqualTo("hi? hi!"));
+        }
+
+        [Test]
+        public void TestAddContextFilters()
+        {
+            // This test differs from TestAddFilters only in that the Hi method within this class has a Context parameter in addition to the input string
             Context context = new Context(CultureInfo.InvariantCulture) { SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20 };
             context["name"] = "King Kong";
 
@@ -421,6 +506,15 @@ namespace DotLiquid.Tests
             Assert.That(context.Invoke("hi", new List<object> { "hi?" }), Is.EqualTo("hi? hi from King Kong!"));
 
             context = new Context(CultureInfo.InvariantCulture) { SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20 };
+            Assert.That(context.Invoke("hi", new List<object> { "hi?" }), Is.EqualTo("hi?"));
+        }
+
+        [Test]
+        public void TestFilterNotFound()
+        {
+            Context context = new Context(CultureInfo.InvariantCulture);
+
+            context.SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20;
             Assert.That(context.Invoke("hi", new List<object> { "hi?" }), Is.EqualTo("hi?"));
         }
 

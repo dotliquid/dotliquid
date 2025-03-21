@@ -130,8 +130,6 @@ namespace DotLiquid.Tests.Filters
         {
             Assert.That(ReplaceFirst(input: null, @string: "a", replacement: "b"), Is.Null);
             Assert.That(ReplaceFirst(input: "", @string: "a", replacement: "b"), Is.EqualTo(""));
-            Assert.That(ReplaceFirst(input: "a a a a", @string: null, replacement: "b"), Is.EqualTo("a a a a"));
-            Assert.That(ReplaceFirst(input: "a a a a", @string: "", replacement: "b"), Is.EqualTo("a a a a"));
             Assert.That(ReplaceFirst(input: "a a a a", @string: "a", replacement: "b"), Is.EqualTo("b a a a"));
             Helper.AssertTemplateResult(expected: "b a a a", template: "{{ 'a a a a' | replace_first: 'a', 'b' }}", syntax: SyntaxCompatibilityLevel);
         }

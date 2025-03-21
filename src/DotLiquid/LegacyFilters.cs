@@ -42,12 +42,25 @@ namespace DotLiquid
         /// </summary>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="string">String to be removed from input</param>
-        [LiquidFilter(MaxVersion = SyntaxCompatibility.DotLiquid21)]
+        [LiquidFilter(MaxVersion = SyntaxCompatibility.DotLiquid20)]
         public static string RemoveFirst(string input, string @string)
         {
             return input.IsNullOrWhiteSpace()
                 ? input
                 : ReplaceFirst(input: input, @string: @string, replacement: string.Empty);
+        }
+
+        /// <summary>
+        /// Remove the first occurrence of a substring
+        /// </summary>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="string">String to be removed from input</param>
+        [LiquidFilter(Name = nameof(RemoveFirst), MinVersion = SyntaxCompatibility.DotLiquid21, MaxVersion = SyntaxCompatibility.DotLiquid22a)]
+        public static string RemoveFirstV21(string input, string @string)
+        {
+            return input.IsNullOrWhiteSpace()
+                ? input
+                : ReplaceFirstV21(input: input, @string: @string, replacement: string.Empty);
         }
 
         /// <summary>
@@ -71,7 +84,7 @@ namespace DotLiquid
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="string">Substring to be replaced</param>
         /// <param name="replacement">Replacement string to be inserted</param>
-        [LiquidFilter(MaxVersion = SyntaxCompatibility.DotLiquid21)]
+        [LiquidFilter(MaxVersion = SyntaxCompatibility.DotLiquid20)]
         public static string ReplaceFirst(string input, string @string, string replacement = "")
         {
             if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(@string))
@@ -86,7 +99,22 @@ namespace DotLiquid
                 doneReplacement = true;
                 return replacement;
             }, RegexOptions.None, Template.RegexTimeOut);
-        }            
+        }
+
+        /// <summary>
+        /// Replace the first occurrence of a string with another
+        /// </summary>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="string">Substring to be replaced</param>
+        /// <param name="replacement">Replacement string to be inserted</param>
+        [LiquidFilter(Name = nameof(ReplaceFirst), MinVersion = SyntaxCompatibility.DotLiquid21, MaxVersion = SyntaxCompatibility.DotLiquid22a)]
+        public static string ReplaceFirstV21(string input, string @string, string replacement = "")
+        {
+            if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(@string))
+                return input;
+            int position = input.IndexOf(@string);
+            return position < 0 ? input : input.Remove(position, @string.Length).Insert(position, replacement);
+        }
 
         /// <summary>
         /// Addition

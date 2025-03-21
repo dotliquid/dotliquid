@@ -13,9 +13,9 @@ namespace DotLiquid.Tests.Filters
         public override MathDelegate Plus => (i, o) => StandardFilters.Plus(_context, i, o);
         public override MathDelegate Minus => (i, o) => StandardFilters.Minus(_context, i, o);
         public override MathDelegate Modulo => (i, o) => StandardFilters.Modulo(_context, i, o);
-        public override RemoveFirstDelegate RemoveFirst => (a, b) => StandardFilters.RemoveFirst(a, b);
+        public override RemoveFirstDelegate RemoveFirst => (a, b) => LegacyFilters.RemoveFirstV21(a, b);
         public override ReplaceDelegate Replace => (i, s, r) => StandardFilters.Replace(i, s, r);
-        public override ReplaceFirstDelegate ReplaceFirst => (i, s, r) => StandardFilters.ReplaceFirst(i, s, r);
+        public override ReplaceFirstDelegate ReplaceFirst => (i, s, r) => LegacyFilters.ReplaceFirstV21(i, s, r);
         public override SliceDelegate Slice => (i, s, l) => l.HasValue ? LegacyFilters.Slice(i, s, l.Value) : LegacyFilters.Slice(i, s);
         public override SplitDelegate Split => (i, p) => LegacyFilters.Split(i, p);
         public override MathDelegate Times => (i, o) => StandardFilters.Times(_context, i, o);

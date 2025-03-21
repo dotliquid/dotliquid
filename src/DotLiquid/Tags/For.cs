@@ -199,7 +199,7 @@ namespace DotLiquid.Tags
 
         private static List<object> SliceCollectionUsingEach(Context context, IEnumerable collection, int from, int? to)
         {
-            if (collection is string @string && @string.Length > 0)
+            if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid24 && collection is string @string && @string.Length > 0)
                 return new List<object> { @string };
 
             List<object> segments = new List<object>();

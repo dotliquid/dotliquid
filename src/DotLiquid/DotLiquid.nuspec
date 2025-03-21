@@ -16,7 +16,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <tags>template templating language liquid markup</tags>
     <dependencies>
-      <group targetFramework="net461" />
+      <group targetFramework="net462" />
       <group targetFramework="netstandard2.0" />
       <group targetFramework="net6.0" />
       <group targetFramework="net8.0" />

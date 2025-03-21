@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using DotLiquid.NamingConventions;
 using NUnit.Framework;
 
-namespace DotLiquid.Tests
+namespace DotLiquid.Tests.Helpers
 {
     public class Helper
     {
@@ -75,26 +75,5 @@ namespace DotLiquid.Tests
             AssertTemplateResult(expected: expected, template: template, localVariables: null, syntax: syntax);
         }
 
-        [LiquidTypeAttribute("PropAllowed")]
-        public class DataObject
-        {
-            public string PropAllowed { get; set; }
-            public string PropDisallowed { get; set; }
-        }
-
-        public class DataObjectRegistered
-        {
-            static DataObjectRegistered()
-            {
-                Template.RegisterSafeType(typeof(DataObjectRegistered), new[] { "PropAllowed" });
-            }
-            public string PropAllowed { get; set; }
-            public string PropDisallowed { get; set; }
-        }
-
-        public class DataObjectDrop : Drop
-        {
-            public string Prop { get; set; }
-        }
     }
 }

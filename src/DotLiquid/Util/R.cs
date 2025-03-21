@@ -32,10 +32,7 @@ namespace DotLiquid.Util
         /// <returns>the regex</returns>
         public static Regex C(string pattern, RegexOptions options = RegexOptions.None)
         {
-#if !CORE
-            options = options | RegexOptions.Compiled;
-#endif
-            var regex = new Regex(pattern, options, Template.RegexTimeOut);
+            Regex regex = new Regex(pattern, options | RegexOptions.Compiled, Template.RegexTimeOut);
 
             // execute once to trigger the lazy compilation (not strictly necessary, but avoids the first real execution taking a longer time than subsequent ones)
             regex.IsMatch(string.Empty);

@@ -7,6 +7,7 @@ using System;
 using System.Reflection;
 using DotLiquid.Tests.Model;
 using DotLiquid.Tests.Util;
+using DotLiquid.Tests.Helpers;
 
 namespace DotLiquid.Tests
 {
@@ -67,12 +68,7 @@ namespace DotLiquid.Tests
         private static T DeserializeResource<T>(string resourceName)
         {
             // Load the JSON content
-#if NETCOREAPP1_0
-            var assembly = typeof(GoldenLiquidTests).GetTypeInfo().Assembly;
-#else
             var assembly = Assembly.GetExecutingAssembly();
-#endif
-
             var jsonContent = string.Empty;
             using (Stream stream = assembly.GetManifestResourceStream(resourceName))
             using (StreamReader reader = new StreamReader(stream))
@@ -85,10 +81,14 @@ namespace DotLiquid.Tests
         }
         #endregion
 
-        internal static class RubyFilters
+        #region Classes used in tests
+
+        private static class RubyFilters
         {
             public static string[] Split(string input, string pattern) => ExtendedFilters.RubySplit(input, pattern);
         }
+
+        #endregion
 
         [Test]
         [TestCaseSource(nameof(GoldenTestsPassing))]

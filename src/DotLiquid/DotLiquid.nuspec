@@ -12,7 +12,6 @@
     <projectUrl>https://www.dotliquid.org</projectUrl>
     <icon>images\logo_nuget.png</icon>
     <license type="expression">Apache-2.0 OR MS-PL</license>
-    <readme>readme.txt</readme>
     <repository type="git" url="https://github.com/dotliquid/dotliquid.git" />
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <tags>template templating language liquid markup</tags>

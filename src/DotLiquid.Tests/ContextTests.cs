@@ -280,16 +280,6 @@ namespace DotLiquid.Tests
             _context["datetimeoffset"] = offset;
             Assert.That(_context["datetimeoffset"], Is.EqualTo(offset));
 
-#if NET6_0_OR_GREATER
-            DateOnly maxDateOnly = DateOnly.MaxValue;
-            _context["dateonly"] = maxDateOnly;
-            Assert.That(_context["dateonly"], Is.EqualTo(maxDateOnly));
-
-            TimeOnly maxTimeOnly = TimeOnly.MaxValue;
-            _context["timeonly"] = maxTimeOnly;
-            Assert.That(_context["timeonly"], Is.EqualTo(maxTimeOnly));
-
-#endif
             Guid guid = Guid.NewGuid();
             _context["guid"] = guid;
             Assert.That(_context["guid"], Is.EqualTo(guid));
@@ -333,6 +323,7 @@ namespace DotLiquid.Tests
             var dateOnly = new DateOnly(year: 2013, month: 9, day: 10);
             _context["dateonly"] = dateOnly;
             Assert.That(_context["dateOnly"], Is.EqualTo(dateOnly));
+
             var timeOnly = new TimeOnly(hour: 0, minute: 10, second: 32);
             _context["timeonly"] = timeOnly;
             Assert.That(_context["timeonly"], Is.EqualTo(timeOnly));

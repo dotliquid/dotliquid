@@ -1,15 +1,20 @@
 {
     "skipped_groups": [
         "liquid.golden.echo_tag", // not yet implemented
-        "liquid.golden.liquid_tag", // not yet implemented
-        "liquid.golden.render_tag", // not yet implemented
+        "liquid.golden.find_filter", // not yet implemented
+        "liquid.golden.find_index_filter", // not yet implemented
+        "liquid.golden.has_filter", // not yet implemented
         "liquid.golden.inline_comment_tag", // not yet implemented
+        "liquid.golden.liquid_tag", // not yet implemented
+        "liquid.golden.reject_filter", // not yet implemented
+        "liquid.golden.render_tag", // not yet implemented
         "liquid.golden.replace_last_filter", // not yet implemented
         "liquid.golden.sum_filter", // not yet implemented
         "liquid.golden.truncatewords_filter" // implemented as truncate_words so these will fail for now
     ],
-    "skipped_tests": [ //These tests are flaky and may pass or fail
-        "liquid.golden.date_filter - seconds since epoch format directive" // Test assumes that a parsed date is UTC, DotLiquid assumes system timezone
+    "skipped_tests": [
+        // Test assumes that a parsed date is UTC, DotLiquid assumes system timezone
+        "liquid.golden.date_filter - seconds since epoch format directive"
     ],
     "failing_tests": [
         // Parser Errors
@@ -118,7 +123,6 @@
         "liquid.golden.whitespace_control - don't suppress whitespace only blocks containing echo",
         // Unsorted Exceptions
         "liquid.golden.whitespace_control - white space control with  carriage return, newline and spaces",
-        "liquid.golden.case_tag - switch on array",
         "liquid.golden.compact_filter - array of objects with key property",
         "liquid.golden.concat_filter - left value is not array-like",
         "liquid.golden.concat_filter - nested left value gets flattened",
@@ -140,8 +144,8 @@
         "liquid.golden.identifiers - leading hyphen in for loop target",
         "liquid.golden.identifiers - leading hyphen",
         "liquid.golden.identifiers - trailing question mark in for loop variable",
-        "liquid.golden.if_tag - array is equal to array from context",
-        "liquid.golden.if_tag - array is equal to array",
+        "liquid.golden.if_tag - array contains nil",
+        "liquid.golden.if_tag - array contains undefined",
         "liquid.golden.if_tag - blocks that contain only whitespace and comments are not rendered",
         "liquid.golden.if_tag - blocks that contain only whitespace are not rendered",
         "liquid.golden.if_tag - int does not equal string",
@@ -165,12 +169,23 @@
         "liquid.golden.map_filter - array containing a non object",
         "liquid.golden.map_filter - input is a hash",
         "liquid.golden.map_filter - nested arrays get flattened",
+        "liquid.golden.output_statement - chained bracketed identifier index no dot",
         "liquid.golden.output_statement - chained identifier dot separated index",
+        "liquid.golden.output_statement - dot followed by bracket",
         "liquid.golden.output_statement - nested bracketed variable resolving to a string",
         "liquid.golden.output_statement - render a default given a literal false with 'allow false' equal to false",
         "liquid.golden.output_statement - render a default given a literal false with 'allow false' equal to true",
         "liquid.golden.output_statement - render a default given a literal false",
         "liquid.golden.output_statement - unexpected left value for the `join` filter passes through",
+        "liquid.golden.output_statement - whitespace between bracket notation",
+        "liquid.golden.output_statement - whitespace between dot and word",
+        "liquid.golden.output_statement - whitespace between word and dot",
+        "liquid.golden.range_objects - whitespace after dots",
+        "liquid.golden.range_objects - whitespace after stop",
+        "liquid.golden.range_objects - whitespace before and after dots",
+        "liquid.golden.range_objects - whitespace before and after dots, for loop",
+        "liquid.golden.range_objects - whitespace before dots",
+        "liquid.golden.range_objects - whitespace before start",
         "liquid.golden.remove_last_filter - argument not a string",
         "liquid.golden.remove_last_filter - not a string",
         "liquid.golden.remove_last_filter - remove substrings",
@@ -190,6 +205,8 @@
         "liquid.golden.sort_natural_filter - incompatible types",
         "liquid.golden.special - first of an object",
         "liquid.golden.special - last of a object",
+        "liquid.golden.split_filter - argument is a newline",
+        "liquid.golden.split_filter - argument is a single space",
         "liquid.golden.split_filter - empty string and empty argument",
         "liquid.golden.split_filter - empty string and single char argument",
         "liquid.golden.strip_newlines_filter - newline and other whitespace",
@@ -202,8 +219,6 @@
         "liquid.golden.uniq_filter - array of objects with key property",
         "liquid.golden.uniq_filter - array of objects with missing key property",
         "liquid.golden.uniq_filter - unhashable items",
-        "liquid.golden.unless_tag - array is equal to array from context",
-        "liquid.golden.unless_tag - array is equal to array",
         "liquid.golden.unless_tag - blocks that contain only whitespace are not rendered",
         "liquid.golden.unless_tag - one is not equal to true",
         "liquid.golden.unless_tag - zero is not equal to false",
@@ -222,6 +237,11 @@
         "liquid.golden.minus_filter - integer value and float arg": "8",
         "liquid.golden.modulo_filter - integer value and float arg": "0",
         "liquid.golden.modulo_filter - string value and argument": "0",
-        "liquid.golden.plus_filter - integer value and float arg": "12"
+        "liquid.golden.plus_filter - integer value and float arg": "12",
+
+        // These operators are implemented by DotLiquid but not Ruby
+        "liquid.golden.if_tag - endswith is not a valid operator": "TRUE",
+        "liquid.golden.if_tag - haskey is not a valid operator": "TRUE",
+        "liquid.golden.if_tag - startswith is not a valid operator": "TRUE"
     }
 }

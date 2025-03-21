@@ -12,9 +12,11 @@
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotLiquid</PackageId>
     <PackageTags>template;templating;language;liquid;markup</PackageTags>
-    <PackageIconUrl>https://github.com/formosatek/dotliquid/raw/master/build/logo_nuget.png</PackageIconUrl>
-    <PackageProjectUrl>http://dotliquidmarkup.org</PackageProjectUrl>
-    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
+    <PackageIcon>images\logo_nuget.png</PackageIcon>
+    <PackageIconUrl>https://raw.githubusercontent.com/dotliquid/dotliquid/master/src/DotLiquid/logo_nuget.png</PackageIconUrl>
+    <PackageProjectUrl>https://dotliquid.org</PackageProjectUrl>
+    <PackageReadmeFile>docs\readme.txt</PackageReadmeFile>
+    <PackageLicenseExpression>Apache-2.0 OR MS-PL</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/dotliquid/dotliquid</RepositoryUrl>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
@@ -36,9 +38,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="LICENSE.txt">
-      <Pack>true</Pack>
-    </None>
+    <None Include="logo_nuget.png" Pack="true" PackagePath="images\"/>
+    <None Include="readme.txt" Pack="true" PackagePath="docs\"/>
+    <None Include="LICENSE.txt" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">

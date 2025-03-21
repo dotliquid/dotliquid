@@ -17,7 +17,6 @@ namespace DotLiquid
         private static readonly HashSet<char> SearchQuoteOrVariableEnd = new HashSet<char> { '}', '\'', '"' };
         private static readonly HashSet<char> SearchQuoteOrTagEnd = new HashSet<char> { '%', '\'', '"' };
         private static readonly char[] WhitespaceCharsV20 = new char[] { '\t', ' ' };
-        private static readonly char[] WhitespaceCharsV22 = new char[] { '\t', '\n', '\v', '\f', '\r', ' ' };
         private static readonly Regex LiquidAnyStartingTagRegex = R.B(R.Q(@"({0})([-])?"), Liquid.AnyStartingTag);
         private static readonly Regex TagNameRegex = R.B(R.Q(@"{0}\s*(\w+)"), Liquid.AnyStartingTag);
         private static readonly Regex VariableSegmentRegex = R.C(Liquid.VariableSegment);
@@ -35,7 +34,7 @@ namespace DotLiquid
                 return new List<string>();
 
             // Trim leading whitespace - backward compatible list of chars
-            var whitespaceChars = syntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22 ? WhitespaceCharsV20 : WhitespaceCharsV22;
+            var whitespaceChars = syntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22 ? WhitespaceCharsV20 : Liquid.AsciiWhitespaceChars;
 
             // Trim trailing whitespace - new lines or spaces/tabs but not both
             if (syntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22)

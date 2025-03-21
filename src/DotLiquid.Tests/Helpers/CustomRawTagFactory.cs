@@ -14,14 +14,6 @@ namespace DotLiquid.Tests.Helpers
         {
             return new CustomRawTag();
         }
-
-        public class CustomRawTag : RawBlock
-        {
-            public override void Render(Context context, System.IO.TextWriter result)
-            {
-                result.WriteLine("I am a raw custom tag");
-            }
-        }
     }
 
 }

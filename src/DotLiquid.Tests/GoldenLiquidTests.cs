@@ -81,10 +81,14 @@ namespace DotLiquid.Tests
         }
         #endregion
 
+        #region Classes used in tests
+
         private static class RubyFilters
         {
             public static string[] Split(string input, string pattern) => ExtendedFilters.RubySplit(input, pattern);
         }
+
+        #endregion
 
         [Test]
         [TestCaseSource(nameof(GoldenTestsPassing))]

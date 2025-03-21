@@ -12,7 +12,7 @@ namespace DotLiquid.Tests.Tags
     {
         #region Classes used in tests
 
-        public class TestDictObject : Drop
+        private class TestDictObject : Drop
         {
             public TestDictObject()
             {

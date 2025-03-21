@@ -14,14 +14,6 @@ namespace DotLiquid.Tests.Helpers
         {
             return new CustomTag();
         }
-
-        public class CustomTag : Tag
-        {
-            public override void Render(Context context, System.IO.TextWriter result)
-            {
-                result.WriteLine("I am a custom tag");
-            }
-        }
     }
 
 }

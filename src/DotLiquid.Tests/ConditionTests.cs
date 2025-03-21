@@ -14,7 +14,8 @@ namespace DotLiquid.Tests
     public class ConditionTests
     {
         #region Classes used in tests
-        public class Car : Drop, System.IEquatable<Car>, System.IEquatable<string>
+
+        private class Car : Drop, System.IEquatable<Car>, System.IEquatable<string>
         {
             public string Make { get; set; }
             public string Model { get; set; }
@@ -46,9 +47,10 @@ namespace DotLiquid.Tests
             }
         }
 
-        public class DummyDrop : Drop
+        private class DummyDrop : Drop
         {
         }
+
         #endregion
 
         // NOTE(David Burg): This forces sequential execution of tests, risk side effect resulting in non deterministic behavior.

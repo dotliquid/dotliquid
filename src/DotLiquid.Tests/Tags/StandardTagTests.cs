@@ -165,6 +165,42 @@ namespace DotLiquid.Tests.Tags
         }
 
         [Test]
+        public void TestForWithString_V24()
+        {
+            // Based on Liquid integration test_for_tag_string
+            var expected = "test string";
+            Helper.AssertTemplateResult($"{expected} ", "{%for val in str%}{{val}} {%endfor%}", Hash.FromAnonymousObject(new { str = expected }), SyntaxCompatibility.DotLiquid24);
+            Helper.AssertTemplateResult(expected, "{%for val in str limit:1%}{{val}}{%endfor%}", Hash.FromAnonymousObject(new { str = expected }), SyntaxCompatibility.DotLiquid24);
+            Helper.AssertTemplateResult(
+                expected: "val-str-1-1-0-1-0-true-true-test string",
+                template: "{%for val in str%}{{forloop.name}}-{{forloop.index}}-{{forloop.length}}-{{forloop.index0}}-{{forloop.rindex}}-{{forloop.rindex0}}-{{forloop.first}}-{{forloop.last}}-{{val}}{%endfor%}",
+                Hash.FromAnonymousObject(new { str = expected }), SyntaxCompatibility.DotLiquid24);
+
+            // Additional tests for null and empty strings
+            string nullString = null;
+            Helper.AssertTemplateResult(string.Empty, "{%for val in str%}{{forloop.index}}{%endfor%}", Hash.FromAnonymousObject(new { str = nullString }), SyntaxCompatibility.DotLiquid24);
+            Helper.AssertTemplateResult(string.Empty, "{%for val in str%}{{forloop.index}}{%endfor%}", Hash.FromAnonymousObject(new { str = string.Empty }), SyntaxCompatibility.DotLiquid24);
+        }
+
+        [Test]
+        public void TestForWithString_V20()
+        {
+            // Based on Liquid integration test_for_tag_string
+            var expected = "test string";
+            Helper.AssertTemplateResult("t e s t   s t r i n g ", "{%for val in str%}{{val}} {%endfor%}", Hash.FromAnonymousObject(new { str = expected }), SyntaxCompatibility.DotLiquid20);
+            Helper.AssertTemplateResult("t", "{%for val in str limit:1%}{{val}}{%endfor%}", Hash.FromAnonymousObject(new { str = expected }), SyntaxCompatibility.DotLiquid20);
+            Helper.AssertTemplateResult(
+                expected: "val-str-1-2-0-2-1-true-false-tval-str-2-2-1-1-0-false-true-e",
+                template: "{%for val in str limit: 2%}{{forloop.name}}-{{forloop.index}}-{{forloop.length}}-{{forloop.index0}}-{{forloop.rindex}}-{{forloop.rindex0}}-{{forloop.first}}-{{forloop.last}}-{{val}}{%endfor%}",
+                Hash.FromAnonymousObject(new { str = expected }), SyntaxCompatibility.DotLiquid20);
+
+            // Additional tests for null and empty strings
+            string nullString = null;
+            Helper.AssertTemplateResult(string.Empty, "{%for val in str%}{{forloop.index}}{%endfor%}", Hash.FromAnonymousObject(new { str = nullString }), SyntaxCompatibility.DotLiquid20);
+            Helper.AssertTemplateResult(string.Empty, "{%for val in str%}{{forloop.index}}{%endfor%}", Hash.FromAnonymousObject(new { str = string.Empty }), SyntaxCompatibility.DotLiquid20);
+        }
+
+        [Test]
         public void TestForWithVariable()
         {
             Helper.AssertTemplateResult(" 1  2  3 ", "{%for item in array%} {{item}} {%endfor%}",

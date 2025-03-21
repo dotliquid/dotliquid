@@ -38,6 +38,13 @@ namespace DotLiquid.Tests.Filters
         }
 
         [Test]
+        public void TestReplaceFirstInvalidSearchPrepends()
+        {
+            Assert.That(ReplaceFirst(input: "a a a a", @string: null, replacement: "b"), Is.EqualTo("ba a a a"));
+            Assert.That(ReplaceFirst(input: "a a a a", @string: "", replacement: "b"), Is.EqualTo("ba a a a"));
+        }
+
+        [Test]
         public void TestSplitNullReturnsEmptyArray()
         {
             Assert.That(Split(null, null), Has.Exactly(0).Items);

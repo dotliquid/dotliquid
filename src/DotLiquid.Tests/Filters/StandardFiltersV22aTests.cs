@@ -38,6 +38,13 @@ namespace DotLiquid.Tests.Filters
         }
 
         [Test]
+        public void TestReplaceFirstInvalidSearchReturnsInput()
+        {
+            Assert.That(ReplaceFirst(input: "a a a a", @string: null, replacement: "b"), Is.EqualTo("a a a a"));
+            Assert.That(ReplaceFirst(input: "a a a a", @string: "", replacement: "b"), Is.EqualTo("a a a a"));
+        }
+
+        [Test]
         public void TestSlice()
         {
             // Verify Liquid compliance from V22a syntax:

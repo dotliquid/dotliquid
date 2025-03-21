@@ -94,8 +94,6 @@
         "liquid.golden.plus_filter - undefined left value",
         "liquid.golden.remove_filter - undefined argument",
         "liquid.golden.replace_filter - undefined first argument",
-        "liquid.golden.replace_first_filter - undefined first argument",
-        "liquid.golden.replace_first_filter - undefined second argument",
         "liquid.golden.slice_filter - undefined first argument",
         "liquid.golden.slice_filter - undefined second argument",
         "liquid.golden.sort_natural_filter - argument is undefined",

@@ -1090,6 +1090,12 @@ PaulGeorge",
         [Test]
         public void TestRemoveLast()
         {
+            Assert.That(StandardFilters.RemoveLast(input: null, @string: "a"), Is.Null);
+            Assert.That(StandardFilters.RemoveLast(input: "", @string: "a"), Is.EqualTo(""));
+            Assert.That(StandardFilters.RemoveLast(input: "  ", @string: " "), Is.EqualTo(" "));
+            Assert.That(StandardFilters.RemoveLast(input: "a a a a", @string: null), Is.EqualTo("a a a a"));
+            Assert.That(StandardFilters.RemoveLast(input: "a a a a", @string: ""), Is.EqualTo("a a a a"));
+            Assert.That(StandardFilters.RemoveLast(input: "a a a a", @string: "b"), Is.EqualTo("a a a a"));
             Assert.That(StandardFilters.RemoveLast(input: "a b a a", @string: "a "), Is.EqualTo("a b a"));
             Assert.That(StandardFilters.RemoveLast(input: "a a b a", @string: " a"), Is.EqualTo("a a b"));
         }

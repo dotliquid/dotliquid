@@ -460,13 +460,17 @@ namespace DotLiquid
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="string">Substring to be replaced</param>
         /// <param name="replacement">Replacement string to be inserted</param>
-        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid22)]
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static string ReplaceFirst(string input, string @string, string replacement = "")
         {
-            if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(@string))
+            if (string.IsNullOrEmpty(input))
                 return input;
-                int position = input.IndexOf(@string);
-                return position < 0 ? input : input.Remove(position, @string.Length).Insert(position, replacement);
+
+            if (string.IsNullOrEmpty(@string))
+                return input.Insert(0, replacement ?? string.Empty);
+
+            int position = input.IndexOf(@string);
+            return position < 0 ? input : input.Remove(position, @string.Length).Insert(position, replacement ?? string.Empty);
         }
 
         /// <summary>
@@ -504,25 +508,15 @@ namespace DotLiquid
         /// </summary>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="string">String to be removed from input</param>
-        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid22)]
-        public static string RemoveFirst(string input, string @string)
-        {
-            return input.IsNullOrWhiteSpace()
-                ? input
-                : ReplaceFirst(input: input, @string: @string, replacement: string.Empty);
-        }
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
+        public static string RemoveFirst(string input, string @string) => ReplaceFirst(input: input, @string: @string, replacement: string.Empty);
 
         /// <summary>
         /// Remove the last occurrence of a substring
         /// </summary>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="string">String to be removed from input</param>
-        public static string RemoveLast(string input, string @string)
-        {
-            return input.IsNullOrWhiteSpace()
-                ? input
-                : ReplaceLast(input: input, @string: @string, replacement: string.Empty);
-        }
+        public static string RemoveLast(string input, string @string) => ReplaceLast(input: input, @string: @string, replacement: string.Empty);
 
         /// <summary>
         /// Add one string to another

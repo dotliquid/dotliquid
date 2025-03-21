@@ -172,6 +172,11 @@ namespace DotLiquid.Tests
             }
         }
 
+        internal class MethodDrop : Drop
+        {
+            public int ProductID() => 1;
+        }
+
         internal static class ProductFilter
         {
             public static string ProductText(object input)
@@ -420,5 +425,47 @@ namespace DotLiquid.Tests
                     localVariables: Hash.FromAnonymousObject(new { value = new ConflictingChildDrop() }));
             });
         }
+
+        [Test]
+        public void TestDropRootKeys()
+        {
+            Helper.AssertTemplateResult(
+                expected: "1",
+                template: "{{ product_id }}",
+                localVariables: new CamelCaseDrop(),
+                namingConvention: new RubyNamingConvention());
+        }
+
+        [Test]
+        public void TestDropRootMethods()
+        {
+            Helper.AssertTemplateResult(
+                expected: "1",
+                template: "{{ product_id }}",
+                localVariables: new MethodDrop(),
+                namingConvention: new RubyNamingConvention());
+        }
+
+#if !CORE
+        [Test]
+        public void TestDropRootCatchall()
+        {
+            var dataTable = new System.Data.DataTable();
+            dataTable.Columns.Add("Column1");
+            dataTable.Columns.Add("Column2");
+
+            var dataRow = dataTable.NewRow();
+            dataRow["Column1"] = "Hello";
+            dataRow["Column2"] = "World";
+
+            Template tpl = Template.Parse("");
+            Helper.AssertTemplateResult(
+                expected: " Hello ",
+                template: " {{ column1 }} ",
+                localVariables: new DataRowDrop(dataRow),
+                namingConvention: new RubyNamingConvention());
+
+        }
+#endif
     }
 }

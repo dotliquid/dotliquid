@@ -17,7 +17,7 @@ namespace DotLiquid
         /// <summary>
         /// Hash of local variables used during rendering
         /// </summary>
-        public Hash LocalVariables { get; set; }
+        public IIndexable LocalVariables { get; set; }
 
         /// <summary>
         /// Filters used during rendering
@@ -102,7 +102,7 @@ namespace DotLiquid
                 return;
             }
 
-            List<Hash> environments = new List<Hash>();
+            List<IIndexable> environments = new List<IIndexable>();
             if (LocalVariables != null)
                 environments.Add(LocalVariables);
             if (template.IsThreadSafe)

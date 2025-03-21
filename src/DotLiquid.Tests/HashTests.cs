@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using DotLiquid.Tests.Helpers;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests.Ns1

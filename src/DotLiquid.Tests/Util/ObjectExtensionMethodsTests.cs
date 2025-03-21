@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DotLiquid.Tests.Helpers;
 using DotLiquid.Util;
 using NUnit.Framework;
 
@@ -8,11 +9,15 @@ namespace DotLiquid.Tests.Util
     [TestFixture]
     public class ObjectExtensionMethodsTests
     {
+        #region Classes used in tests
+
         private class DummyClass
         {
             public int IntProperty { get; set; } = 42;
             public int GetValue() => 35;
         }
+
+        #endregion
 
         private static readonly object NIL = null;
 

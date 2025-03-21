@@ -8,9 +8,9 @@ namespace DotLiquid.Tests
     public class CustomIndexableTests
     {
         #region Test classes
-        internal class VirtualList : IIndexable, IEnumerable
+        private class VirtualList : IIndexable, IEnumerable
         {
-            internal VirtualList(params object[] items)
+            public VirtualList(params object[] items)
             {
                 this.items = items;
             }
@@ -42,9 +42,9 @@ namespace DotLiquid.Tests
             }
         }
 
-        internal class VirtualLongList : IIndexable, IEnumerable
+        private class VirtualLongList : IIndexable, IEnumerable
         {
-            internal VirtualLongList(params object[] items)
+            public VirtualLongList(params object[] items)
             {
                 this.items = items;
             }
@@ -76,7 +76,7 @@ namespace DotLiquid.Tests
             }
         }
 
-        internal class CustomIndexable : IIndexable, ILiquidizable
+        private class CustomIndexable : IIndexable, ILiquidizable
         {
             public object this[object key]
             {
@@ -101,7 +101,7 @@ namespace DotLiquid.Tests
             }
         }
 
-        internal class OnlyIndexable : IIndexable
+        private class OnlyIndexable : IIndexable
         {
             public object this[object key]
             {

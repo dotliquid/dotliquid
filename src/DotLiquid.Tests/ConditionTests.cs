@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
 using DotLiquid.NamingConventions;
+using DotLiquid.Tests.Helpers;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests

@@ -1,4 +1,5 @@
 using System.Globalization;
+using DotLiquid.Tests.Helpers;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 
@@ -7,6 +8,18 @@ namespace DotLiquid.Tests.Tags
     [TestFixture]
     public class AssignTests
     {
+        #region Classes used in tests
+
+        private class AssignDrop : Drop
+        {
+            public string MyProperty
+            {
+                get { return "MyValue"; }
+            }
+        }
+
+        #endregion
+
         [Test]
         public void TestAssignedVariable()
         {
@@ -96,14 +109,6 @@ namespace DotLiquid.Tests.Tags
         {
             Helper.AssertTemplateResult(".bar.", "{% assign foo = values | split: ',' %}.{{ foo[1] }}.",
                 Hash.FromAnonymousObject(new { values = "foo,bar,baz" }));
-        }
-
-        private class AssignDrop : Drop
-        {
-            public string MyProperty
-            {
-                get { return "MyValue"; }
-            }
         }
 
         [Test]

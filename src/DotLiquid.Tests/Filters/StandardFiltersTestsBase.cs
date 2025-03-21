@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotLiquid.Tests.Helpers;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests.Filters

@@ -1,9 +1,9 @@
 using System;
 using System.Globalization;
 
-namespace DotLiquid
+namespace DotLiquid.Tests.Helpers
 {
-    internal static class CultureHelper
+    public static class CultureHelper
     {
         public static IDisposable SetCulture(string name)
         {
@@ -23,7 +23,7 @@ namespace DotLiquid
 
             public void Dispose()
             {
-                System.Threading.Thread.CurrentThread.CurrentCulture =  this.culture;
+                System.Threading.Thread.CurrentThread.CurrentCulture =  culture;
             }
         }
     }

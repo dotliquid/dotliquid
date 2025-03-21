@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace DotLiquid.Tests.Model
 {
-    internal class GoldenLiquid
+    public class GoldenLiquid
     {
         public string Version { get; set; }
 

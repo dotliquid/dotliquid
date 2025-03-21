@@ -1,55 +1,60 @@
+using DotLiquid.Tests.Helpers;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
 {
     [TestFixture]
-    internal class LiquidTypeAttributeTests
+    public class LiquidTypeAttributeTests
     {
+        #region Classes used in tests
+
         [LiquidType]
-        public class MyLiquidTypeWithNoAllowedMembers
+        private class MyLiquidTypeWithNoAllowedMembers
         {
             public string Name { get; set; }
         }
 
         [LiquidType("Name")]
-        public class MyLiquidTypeWithAllowedMember
+        private class MyLiquidTypeWithAllowedMember
         {
             public string Name { get; set; }
         }
 
         [LiquidType("*")]
-        public class MyLiquidTypeWithGlobalMemberAllowance
+        private class MyLiquidTypeWithGlobalMemberAllowance
         {
             public string Name { get; set; }
         }
 
         [LiquidType("*")]
-        public class MyLiquidTypeWithGlobalMemberAllowanceAndHiddenChild
+        private class MyLiquidTypeWithGlobalMemberAllowanceAndHiddenChild
         {
             public string Name { get; set; }
             public MyLiquidTypeWithNoAllowedMembers Child { get; set; }
         }
 
         [LiquidType("*")]
-        public class MyLiquidTypeWithGlobalMemberAllowanceAndExposedChild
+        private class MyLiquidTypeWithGlobalMemberAllowanceAndExposedChild
         {
             public string Name { get; set; }
             public MyLiquidTypeWithAllowedMember Child { get; set; }
         }
 
         [LiquidType("*")]
-        public class MyLiquidTypeWithReservedKeyword
+        private class MyLiquidTypeWithReservedKeyword
         {
             public string Type { get; set; }
         }
 
         [LiquidType("*")]
-        public class MyLiquidTypeWithConflictingGetter
+        private class MyLiquidTypeWithConflictingGetter
         {
             public string Name { get; set; }
 
             public string GetName() => $"GetName: {Name}";
         }
+
+        #endregion
 
         [Test]
         public void TestLiquidTypeAttributeWithNoAllowedMembers()

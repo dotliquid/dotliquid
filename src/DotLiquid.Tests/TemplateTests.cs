@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Net;
+using DotLiquid.Tests.Helpers;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -9,6 +10,55 @@ namespace DotLiquid.Tests
     [TestFixture]
     public class TemplateTests
     {
+        #region Classes and functions used in tests
+
+        private class MySimpleType
+        {
+            public string Name { get; set; }
+
+            public override string ToString()
+            {
+                return "Foo";
+            }
+        }
+
+        private class NestedMySimpleType
+        {
+            public string Name { get; set; }
+
+            public NestedMySimpleType Nested { get; set; }
+
+            public override string ToString()
+            {
+                return "Foo";
+            }
+        }
+
+        private interface IMySimpleInterface2
+        {
+            string Name { get; }
+        }
+
+        private class MySimpleType2 : IMySimpleInterface2
+        {
+            public string Name { get; set; }
+        }
+
+        private class MyUnsafeType2
+        {
+            public string Name { get; set; }
+        }
+
+        private interface MyGenericInterface<T>
+        {
+            T Value { get; set; }
+        }
+
+        private class MyGenericImpl<T> : MyGenericInterface<T>
+        {
+            public T Value { get; set; }
+        }
+
         private System.Collections.Generic.List<string> TokenizeValidateBackwardCompatibility(string input)
         {
             var v20 = Tokenizer.Tokenize(input, SyntaxCompatibility.DotLiquid20);
@@ -16,6 +66,8 @@ namespace DotLiquid.Tests
             Assert.That(v22, Is.EqualTo(v20).AsCollection);
             return v22;
         }
+
+        #endregion
 
         [Test]
         public void TestTokenizeStrings()
@@ -251,48 +303,6 @@ namespace DotLiquid.Tests
             Assert.That(Template.GetTagType("unknown"), Is.Null);
         }
 
-        private class CustomTagFactory : ITagFactory
-        {
-            public string TagName
-            {
-                get { return "custom"; }
-            }
-
-            public Tag Create()
-            {
-                return new CustomTag();
-            }
-
-            public class CustomTag : Tag
-            {
-                public override void Render(Context context, System.IO.TextWriter result)
-                {
-                    result.WriteLine("I am a custom tag");
-                }
-            }
-        }
-
-        private class CustomRawTagFactory : ITagFactory
-        {
-            public string TagName
-            {
-                get { return "customraw"; }
-            }
-
-            public Tag Create()
-            {
-                return new CustomRawTag();
-            }
-
-            public class CustomRawTag : RawBlock
-            {
-                public override void Render(Context context, System.IO.TextWriter result)
-                {
-                    result.WriteLine("I am a raw custom tag");
-                }
-            }
-        }
-
         [Test]
         public void TestIsRawTag()
         {
@@ -311,16 +321,6 @@ namespace DotLiquid.Tests
             Assert.That(Template.IsRawTag("customraw"), Is.False);
 
             Assert.That(Template.IsRawTag("unknown"), Is.False);
-        }
-
-        public class MySimpleType
-        {
-            public string Name { get; set; }
-
-            public override string ToString()
-            {
-                return "Foo";
-            }
         }
 
         [Test]
@@ -387,18 +387,6 @@ namespace DotLiquid.Tests
             Assert.That(output, Is.EqualTo("FooBar"));
         }
 
-        public class NestedMySimpleType
-        {
-            public string Name { get; set; }
-
-            public NestedMySimpleType Nested { get; set; }
-
-            public override string ToString()
-            {
-                return "Foo";
-            }
-        }
-
         [Test]
         public void TestNestedRegisterRegisterSafeTypeWithValueTypeTransformer()
         {
@@ -438,16 +426,6 @@ namespace DotLiquid.Tests
             Assert.That(output, Is.EqualTo("&lt;html&gt; Some &lt;b&gt;bold&lt;/b&gt; text."));
         }
 
-        public interface IMySimpleInterface2
-        {
-            string Name { get; }
-        }
-
-        public class MySimpleType2 : IMySimpleInterface2
-        {
-            public string Name { get; set; }
-        }
-
         [Test]
         public void TestRegisterSimpleTypeTransformIntoAnonymousType()
         {
@@ -472,11 +450,6 @@ namespace DotLiquid.Tests
             Assert.That(output, Is.EqualTo("worked"));
         }
 
-        public class MyUnsafeType2
-        {
-            public string Name { get; set; }
-        }
-
         [Test]
         public void TestRegisterSimpleTypeTransformIntoUnsafeType()
         {
@@ -487,16 +460,6 @@ namespace DotLiquid.Tests
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType2 { Name = "worked" } }));
 
             Assert.That(output, Is.EqualTo(""));
-        }
-
-        public interface MyGenericInterface<T>
-        {
-            T Value { get; set; }
-        }
-
-        public class MyGenericImpl<T> : MyGenericInterface<T>
-        {
-            public T Value { get; set; }
         }
 
         [Test]

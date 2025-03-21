@@ -7,6 +7,7 @@ using System;
 using System.Reflection;
 using DotLiquid.Tests.Model;
 using DotLiquid.Tests.Util;
+using DotLiquid.Tests.Helpers;
 
 namespace DotLiquid.Tests
 {
@@ -80,7 +81,7 @@ namespace DotLiquid.Tests
         }
         #endregion
 
-        internal static class RubyFilters
+        private static class RubyFilters
         {
             public static string[] Split(string input, string pattern) => ExtendedFilters.RubySplit(input, pattern);
         }

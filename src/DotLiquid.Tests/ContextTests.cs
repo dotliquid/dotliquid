@@ -5,6 +5,7 @@ using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 using DotLiquid.Exceptions;
+using DotLiquid.Tests.Helpers;
 using DotLiquid.Util;
 using Newtonsoft.Json;
 using NUnit.Framework;

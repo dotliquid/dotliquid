@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using DotLiquid.Exceptions;
+using DotLiquid.Tests.Helpers;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests.Tags
@@ -9,6 +10,19 @@ namespace DotLiquid.Tests.Tags
     [TestFixture]
     public class StandardTagTests
     {
+        #region Classes used in tests
+
+        public class TestDictObject : Drop
+        {
+            public TestDictObject()
+            {
+                Testdict = new Dictionary<string, string>() { { "aa", "bb" }, { "dd", "ee" }, { "ff", "gg" } };
+            }
+            public Dictionary<string, string> Testdict { get; set; }
+        }
+
+        #endregion
+
         [Test]
         public void TestTag()
         {
@@ -118,15 +132,6 @@ namespace DotLiquid.Tests.Tags
                 template: "{% for item in People %}{{ item.itemName }}{{ item.First }}{{ item.Key }}:{{ item.Value.First }},{%endfor%}",
                 localVariables: Hash.FromDictionary(dictionary),
                 syntax: SyntaxCompatibility.DotLiquid22);
-        }
-
-        public class TestDictObject : Drop
-        {
-            public TestDictObject()
-            {
-                Testdict = new Dictionary<string, string>() { { "aa", "bb" }, { "dd", "ee" }, { "ff", "gg" } };
-            }
-            public Dictionary<string, string> Testdict { get; set; }
         }
 
         [Test]

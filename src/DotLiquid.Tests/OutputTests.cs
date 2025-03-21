@@ -10,6 +10,7 @@ namespace DotLiquid.Tests
     {
         private static class FunnyFilter
         {
+            [System.Diagnostics.CodeAnalysis.SuppressMessage("Sonar Code Smell", "S1172:Unused method parameters should be removed", Justification = "Needed for test")]
             public static string MakeFunny(string input)
             {
                 return "LOL";
@@ -96,6 +97,7 @@ namespace DotLiquid.Tests
             Assert.That(Render(c), Is.EqualTo("3.145"));
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Sonar Bug", "S3881:\"IDisposable\" should be implemented correctly", Justification = "<Pending>")]
         private class ActionDisposable : IDisposable
         {
             private readonly Action _Action;

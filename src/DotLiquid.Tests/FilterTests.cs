@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using DotLiquid.Exceptions;
 using NUnit.Framework;
 
@@ -74,11 +75,13 @@ namespace DotLiquid.Tests
         {
             public static string ConcatWithContext(Context context, string one, string two)
             {
+                Assert.That(context, Is.Not.Null);
                 return string.Concat(one, two);
             }
 
             public static string ConcatWithContext(Context context, string one, string two, string three)
             {
+                Assert.That(context, Is.Not.Null);
                 return string.Concat(one, two, three);
             }
         }
@@ -112,6 +115,7 @@ namespace DotLiquid.Tests
         {
             public static string Concatenate(Context context, string one, string two, string three)
             {
+                Assert.That(context, Is.Not.Null);
                 return string.Concat(one, two, three);
             }
         }
@@ -120,6 +124,7 @@ namespace DotLiquid.Tests
         {
             public static string ConcatWithContext(Context context, string one, string two, string three)
             {
+                Assert.That(context, Is.Not.Null);
                 return string.Concat(one, two, three);
             }
         }
@@ -128,6 +133,7 @@ namespace DotLiquid.Tests
         {
             public static string ConcatWithContext(Context context, string one, string two)
             {
+                Assert.That(context, Is.Not.Null);
                 return string.Concat(one, two);
             }
         }
@@ -143,19 +149,33 @@ namespace DotLiquid.Tests
         #endregion
 
         private Context _context;
+        private Context _contextV22;
 
         [OneTimeSetUp]
         public void SetUp()
         {
             _context = new Context(CultureInfo.InvariantCulture);
+            _contextV22 = new Context(CultureInfo.InvariantCulture)
+            {
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22
+            };
+
         }
 
-        /*[Test]
-        public void TestNonExistentFilter()
+        [Test]
+        public void TestNonExistentFilterV22()
+        {
+            _contextV22["var"] = 1000;
+            Assert.Throws<FilterNotFoundException>(() => new Variable("var | syzzy").Render(_contextV22));
+        }
+
+        [Test]
+        public void TestNonExistentFilterV20()
         {
             _context["var"] = 1000;
-            Assert.Throws<FilterNotFoundException>(() => new Variable("var | syzzy").Render(_context));
-        }*/
+            object output = new Variable("var | syzzy").Render(_context);
+            Assert.That(output, Is.EqualTo(1000));
+        }
 
         [Test]
         public void TestLocalFilter()
@@ -366,16 +386,15 @@ namespace DotLiquid.Tests
                            localFilters: new[] { typeof(FilterWithSameMethodSignatureDifferentClassTwo), typeof(FilterWithSameMethodSignatureDifferentClassOne) });
         }
 
-        /*/// <summary>
-        /// ATM the trailing value is silently ignored. Should raise an exception?
-        /// </summary>
         [Test]
+        [Ignore("This test is ignored because the trailing value is silently ignored. Should raise an exception?")]
         public void TestFilterWithTwoArgumentsNoComma()
         {
             _context["var"] = 1000;
-            _context.AddFilters(typeof(FiltersWithArguments));
-            Assert.AreEqual("[1150]", string.Join(string.Empty, new Variable("var | add_sub: 200 50").Render(_context));
-        }*/
+            _context.AddFilters(typeof(FiltersWithArgumentsInt));
+            object output = new Variable("var | add_sub: 200 50").Render(_context);
+            Assert.That(output, Is.EqualTo("[1150]"));
+        }
 
         [Test]
         public void TestSecondFilterOverwritesFirst()

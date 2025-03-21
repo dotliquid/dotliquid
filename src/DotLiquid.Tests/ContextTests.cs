@@ -242,7 +242,7 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestVariables()
+        public void TestVariablesByType()
         {
             _context["string"] = "string";
             Assert.That(_context["string"], Is.EqualTo("string"));
@@ -250,8 +250,11 @@ namespace DotLiquid.Tests
             _context["EscapedCharacter"] = "EscapedCharacter\"";
             Assert.That(_context["EscapedCharacter"], Is.EqualTo("EscapedCharacter\""));
 
-            _context["num"] = 5;
-            Assert.That(_context["num"], Is.EqualTo(5));
+            _context["int"] = 5;
+            Assert.That(_context["int"], Is.EqualTo(5));
+
+            _context["long"] = Int64.MaxValue;
+            Assert.That(_context["long"], Is.EqualTo(Int64.MaxValue));
 
             _context["decimal"] = 5m;
             Assert.That(_context["decimal"], Is.EqualTo(5m));
@@ -276,15 +279,28 @@ namespace DotLiquid.Tests
             _context["datetimeoffset"] = offset;
             Assert.That(_context["datetimeoffset"], Is.EqualTo(offset));
 
+#if NET6_0_OR_GREATER
+            DateOnly maxDateOnly = DateOnly.MaxValue;
+            _context["dateonly"] = maxDateOnly;
+            Assert.That(_context["dateonly"], Is.EqualTo(maxDateOnly));
+
+            TimeOnly maxTimeOnly = TimeOnly.MaxValue;
+            _context["timeonly"] = maxTimeOnly;
+            Assert.That(_context["timeonly"], Is.EqualTo(maxTimeOnly));
+
+#endif
             Guid guid = Guid.NewGuid();
             _context["guid"] = guid;
             Assert.That(_context["guid"], Is.EqualTo(guid));
 
             _context["bool"] = true;
-            Assert.That(_context["bool"], Is.EqualTo(true));
+            Assert.That(_context["bool"], Is.True);
 
             _context["bool"] = false;
-            Assert.That(_context["bool"], Is.EqualTo(false));
+            Assert.That(_context["bool"], Is.False);
+
+            _context["reference_null"] = null;
+            Assert.That(_context["reference_null"], Is.Null);
 
             _context["anonymous"] = new { fruit = "banana" };
             Assert.That(_context["anonymous"], Is.Not.Null);

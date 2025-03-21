@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests.Ns1
@@ -578,6 +579,28 @@ namespace DotLiquid.Tests
             hash.Clear();
 
             Assert.That(hash.Count, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void TestIDictionary_IsReadOnly()
+        {
+            IDictionary hash = new Hash();
+            Assert.That(hash.IsReadOnly, Is.False);
+
+            // Hash is never read-only
+            IDictionary hashFromReadOnlyDictionary = Hash.FromDictionary(
+                new ReadOnlyDictionary<string, object>(
+                    new Dictionary<string, object>()
+                    )
+                );
+            Assert.That(hashFromReadOnlyDictionary.IsReadOnly, Is.False);
+        }
+
+        [Test]
+        public void TestIDictionary_IsFixedSize()
+        {
+            IDictionary hash = new Hash();
+            Assert.That(hash.IsFixedSize, Is.False);
         }
 
         [Test]

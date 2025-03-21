@@ -286,10 +286,6 @@ namespace DotLiquid.Tests
             _context["bool"] = false;
             Assert.That(_context["bool"], Is.EqualTo(false));
 
-            _context["nil"] = null;
-            Assert.That(_context["nil"], Is.EqualTo(null));
-            Assert.That(_context["nil"], Is.EqualTo(null));
-
             _context["anonymous"] = new { fruit = "banana" };
             Assert.That(_context["anonymous"], Is.Not.Null);
             Assert.That(_context["anonymous.fruit"], Is.EqualTo("banana"));

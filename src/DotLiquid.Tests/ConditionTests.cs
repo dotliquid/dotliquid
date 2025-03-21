@@ -134,6 +134,11 @@ namespace DotLiquid.Tests
             AssertEvaluatesFalse("'bob'", "contains", "'---'");
 
             AssertEvaluatesFalse("'bob'", "contains", "not_assigned");
+            AssertEvaluatesFalse("not_assigned", "contains", "'bob'");
+
+            AssertEvaluatesFalse(null, "contains", "'bob'");
+            AssertEvaluatesFalse("'bob'", "contains", null);
+            AssertEvaluatesFalse(null, "contains", null);
         }
 
         [Test]
@@ -156,6 +161,7 @@ namespace DotLiquid.Tests
             AssertEvaluatesFalse(left: "array", op: "contains", right: "6");
 
             AssertEvaluatesFalse("array", "contains", "not_assigned");
+            AssertEvaluatesFalse("array", "contains", null);
 
             // NOTE(daviburg): Historically testing for equality cross integer and string boundaries resulted in not equal.
             AssertEvaluatesFalse(left: "array", op: "contains", right: "'1'");
@@ -178,6 +184,7 @@ namespace DotLiquid.Tests
 
             AssertEvaluatesFalse("array", "contains", "'1'");
             AssertEvaluatesFalse("array", "contains", "not_assigned");
+            AssertEvaluatesFalse("array", "contains", null);
         }
 
         [Test]
@@ -202,6 +209,7 @@ namespace DotLiquid.Tests
             AssertEvaluatesFalse(left: "array", op: "contains", right: "'Orang'");
 
             AssertEvaluatesTrue("array", "contains", "not_assigned");
+            AssertEvaluatesTrue("array", "contains", null);
             AssertEvaluatesFalse("array", "startswith", "not_assigned");
             AssertEvaluatesFalse("array", "endswith", "not_assigned");
         }
@@ -226,6 +234,7 @@ namespace DotLiquid.Tests
             AssertEvaluatesFalse(left: "array", op: "contains", right: "camry");
 
             AssertEvaluatesFalse("array", "contains", "not_assigned");
+            AssertEvaluatesFalse("array", "contains", null);
             AssertEvaluatesFalse("array", "startswith", "not_assigned");
             AssertEvaluatesFalse("array", "endswith", "not_assigned");
         }
@@ -246,6 +255,7 @@ namespace DotLiquid.Tests
             AssertEvaluatesFalse(left: "array", op: "contains", right: "'true'"); // to be re-evaluated in #362
 
             AssertEvaluatesFalse("array", "contains", "not_assigned");
+            AssertEvaluatesFalse("array", "contains", null);
             AssertEvaluatesFalse("array", "startswith", "not_assigned");
             AssertEvaluatesFalse("array", "endswith", "not_assigned");
         }
@@ -270,6 +280,7 @@ namespace DotLiquid.Tests
             AssertEvaluatesTrue(left: "array", op: "endsWith", right: "last");
 
             AssertEvaluatesFalse("array", "contains", "not_assigned");
+            AssertEvaluatesFalse("array", "contains", null);
             AssertEvaluatesFalse("array", "startswith", "not_assigned");
             AssertEvaluatesFalse("array", "endswith", "not_assigned");
         }
@@ -292,6 +303,7 @@ namespace DotLiquid.Tests
             AssertEvaluatesTrue(left: "array", op: "endsWith", right: "last");
 
             AssertEvaluatesFalse("array", "contains", "not_assigned");
+            AssertEvaluatesFalse("array", "contains", null);
             AssertEvaluatesFalse("array", "startswith", "not_assigned");
             AssertEvaluatesFalse("array", "endswith", "not_assigned");
         }
@@ -312,6 +324,7 @@ namespace DotLiquid.Tests
 
             AssertEvaluatesFalse("array", "contains", "'1'");
             AssertEvaluatesFalse("array", "contains", "not_assigned");
+            AssertEvaluatesFalse("array", "contains", null);
         }
 
         [Test]

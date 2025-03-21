@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -288,12 +288,7 @@ namespace DotLiquid
 
         internal static bool TryFromLiquidType(object obj, Type objType, out DropProxy drop)
         {
-            var liquidTypeAttribute = objType
-#if CORE
-                .GetTypeInfo()
-#endif
-                .GetCustomAttributes(attributeType: typeof(LiquidTypeAttribute), inherit: false)
-                .FirstOrDefault() as LiquidTypeAttribute;
+            var liquidTypeAttribute = TypeUtility.GetLiquidTypeAttribute(objType);
             if (liquidTypeAttribute != null)
             {
                 drop = new DropProxy(obj, liquidTypeAttribute.AllowedMembers);

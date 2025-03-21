@@ -175,7 +175,7 @@
     <value>Annidamento eccessivo</value>
   </data>
   <data name="CycleTagSyntaxException" xml:space="preserve">
-    <value>Syntax Error in 'cycle' tag - Valid syntax: cycle [name :] var [, var2, var3 ...]</value>
+    <value>Errore di sintassi nel tag 'cycle' - Sintassi valida: cycle [nome :] var [, var2, var3 ...]</value>
   </data>
   <data name="DropWrongNamingConventionMessage" xml:space="preserve">
     <value>Proprietà non riconosciuta. Forse intendevi '{0}'?</value>
@@ -245,5 +245,26 @@
   </data>
   <data name="MissingLiquidTypeAttributeError" xml:space="preserve">
     <value>L'oggetto '{0}' non è valido perché non è decorato con LiquidTypeAttribute.</value>
+  </data>
+  <data name="DecrementSyntaxException" xml:space="preserve">
+    <value>Errore di sintassi nel tag 'decrement' - Sintassi valida: decrement [var]</value>
+  </data>
+  <data name="IncrementSyntaxException" xml:space="preserve">
+    <value>Errore di sintassi nel tag 'increment' - Sintassi valida: increment [var]</value>
+  </data>
+  <data name="Base64FilterInvalidInput" xml:space="preserve">
+    <value>Base64 non valido fornito a {0}</value>
+  </data>
+  <data name="DateFilterFormatNotSupported" xml:space="preserve">
+    <value>La stringa '{0}' contiene parti che non sono specifiche di {1}.</value>
+  </data>
+  <data name="DateFilterCultureRequired" xml:space="preserve">
+    <value>CultureInfo è obbligatorio</value>
+  </data>
+  <data name="DateFilterRubyDirectiveInvalid" xml:space="preserve">
+    <value>Direttiva non valida passata a {0}</value>
+  </data>
+  <data name="ContextPropertyReadonly" xml:space="preserve">
+    <value>La proprietà '{0}' non può essere modificata dopo che il contesto è entrato nel suo stato corrente.</value>
   </data>
 </root>

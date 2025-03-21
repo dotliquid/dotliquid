@@ -255,4 +255,19 @@
   <data name="MissingLiquidTypeAttributeError" xml:space="preserve">
     <value>Object '{0}' is invalid because it is not decorated with LiquidTypeAttribute.</value>
   </data>
+  <data name="Base64FilterInvalidInput" xml:space="preserve">
+    <value>Invalid base64 provided to {0}</value>
+  </data>
+  <data name="DateFilterFormatNotSupported" xml:space="preserve">
+    <value>String '{0}' contains parts which are not specific to the {1}.</value>
+  </data>
+  <data name="DateFilterCultureRequired" xml:space="preserve">
+    <value>CultureInfo is mandatory</value>
+  </data>
+  <data name="DateFilterRubyDirectiveInvalid" xml:space="preserve">
+    <value>Invalid directive passed to {0}</value>
+  </data>
+  <data name="ContextPropertyReadonly" xml:space="preserve">
+    <value>Property '{0}' cannot be modified after the context has entered its current state.</value>
+  </data>
 </root>

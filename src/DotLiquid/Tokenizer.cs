@@ -17,7 +17,6 @@ namespace DotLiquid
         private static readonly HashSet<char> SearchQuoteOrVariableEnd = new HashSet<char> { '}', '\'', '"' };
         private static readonly HashSet<char> SearchQuoteOrTagEnd = new HashSet<char> { '%', '\'', '"' };
         private static readonly char[] WhitespaceCharsV20 = new char[] { '\t', ' ' };
-        private static readonly char[] WhitespaceCharsV22 = new char[] { '\t', '\n', '\v', '\f', '\r', ' ' };
         private static readonly Regex LiquidAnyStartingTagRegex = R.B(R.Q(@"({0})([-])?"), Liquid.AnyStartingTag);
         private static readonly Regex TagNameRegex = R.B(R.Q(@"{0}\s*(\w+)"), Liquid.AnyStartingTag);
         private static readonly Regex VariableSegmentRegex = R.C(Liquid.VariableSegment);
@@ -35,7 +34,7 @@ namespace DotLiquid
                 return new List<string>();
 
             // Trim leading whitespace - backward compatible list of chars
-            var whitespaceChars = syntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22 ? WhitespaceCharsV20 : WhitespaceCharsV22;
+            var whitespaceChars = syntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22 ? WhitespaceCharsV20 : Liquid.AsciiWhitespaceChars;
 
             // Trim trailing whitespace - new lines or spaces/tabs but not both
             if (syntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid22)
@@ -162,6 +161,24 @@ namespace DotLiquid
                         yield return nextVariable.ToString();
                 };
             }
+        }
+
+        /// <summary>
+        /// Extracts attributes from the provided markup string and returns them as a dictionary.
+        /// The keys are the attribute names and the values are the attribute values.
+        /// </summary>
+        /// <param name="markup">The markup string from which attributes will be extracted.</param>
+        /// <returns>A dictionary where each key is an attribute name and each value is the corresponding attribute value.</returns>
+        internal static Dictionary<string, string> GetAttributes(string markup)
+        {
+            var attributes = new Dictionary<string, string>(Template.NamingConvention.StringComparer);
+            foreach (Match attributeMatch in Liquid.TagAttributesRegex.Matches(markup))
+            {
+                string key = attributeMatch.Groups[1].Value;
+                string value = attributeMatch.Groups[2].Value;
+                attributes[key] = value;
+            }
+            return attributes;
         }
 
         /// <summary>

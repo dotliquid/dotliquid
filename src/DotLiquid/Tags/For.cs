@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
 
@@ -81,9 +82,7 @@ namespace DotLiquid.Tags
                 _collectionName = match.Groups[2].Value;
                 _name = string.Format("{0}-{1}", _variableName, _collectionName);
                 _reversed = (!string.IsNullOrEmpty(match.Groups[3].Value));
-                _attributes = new Dictionary<string, string>(Template.NamingConvention.StringComparer);
-                R.Scan(markup, Liquid.TagAttributes,
-                    (key, value) => _attributes[key] = value);
+                _attributes = Tokenizer.GetAttributes(markup);
             }
             else
             {

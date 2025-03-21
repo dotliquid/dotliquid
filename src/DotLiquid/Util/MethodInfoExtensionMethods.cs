@@ -23,11 +23,12 @@ namespace DotLiquid.Util
         /// Check if current method matches compareMethod in name and in parameters
         /// </summary>
         /// <param name="method"></param>
+        /// <param name="methodName"></param>
         /// <param name="compareMethod"></param>
         /// <returns></returns>
-        public static bool MatchesMethod(this MethodInfo method, KeyValuePair<string, IList<Tuple<object, MethodInfo>>> compareMethod)
+        public static bool MatchesMethod(this MethodInfo method, string methodName, KeyValuePair<string, IList<Tuple<object, MethodInfo>>> compareMethod)
         {
-            if (compareMethod.Key != Template.NamingConvention.GetMemberName(method.Name))
+            if (compareMethod.Key != methodName)
             {
                 return false;
             }

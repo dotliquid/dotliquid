@@ -25,8 +25,7 @@ namespace DotLiquid.Tags
                 _variableName = syntaxMatch.Groups[3].Value;
                 if (_variableName == string.Empty)
                     _variableName = null;
-                _attributes = new Dictionary<string, string>(Template.NamingConvention.StringComparer);
-                R.Scan(markup, Liquid.TagAttributes, (key, value) => _attributes[key] = value);
+                _attributes = Tokenizer.GetAttributes(markup);
             }
             else
                 throw new SyntaxException(Liquid.ResourceManager.GetString("IncludeTagSyntaxException"));

@@ -38,9 +38,6 @@
 
   <ItemGroup>
     <None Include="logo_nuget.png" Pack="true" PackagePath="images\"/>
-    <None Update="LICENSE.txt">
-      <Pack>true</Pack>
-    </None>
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">

@@ -24,8 +24,6 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="LICENSE.txt" target="" />
-    <file src="readme.txt" target="" />
     <file src="logo_nuget.png" target="images\" />
     <file src="bin\Release\netstandard1.3\DotLiquid.dll" target="lib\netstandard1.3" />
     <file src="bin\Release\netstandard1.3\it\DotLiquid.resources.dll" target="lib\netstandard1.3\it" />

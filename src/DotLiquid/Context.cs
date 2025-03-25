@@ -495,7 +495,7 @@ namespace DotLiquid
             IIndexable scope = Scopes.FirstOrDefault(s => s.ContainsKey(key));
             if (scope == null)
             {
-                foreach (IIndexable environment in Environments)
+                foreach (var environment in Environments)
                 {
                     foundVariable = TryEvaluateHashOrArrayLikeObject(environment, key, out foundValue);
                     if (foundVariable)

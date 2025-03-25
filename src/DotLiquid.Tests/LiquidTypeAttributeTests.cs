@@ -160,10 +160,27 @@ namespace DotLiquid.Tests
         public void TestNonSafeTypeException()
         {
             Assert.Throws<Exceptions.ArgumentException>(() => DropBase.FromSafeType(string.Empty));
+            Assert.That(DropBase.TryFromSafeType(string.Empty, out _), Is.False);
 
             Template.RegisterSafeType(typeof(TemplateTests.MySimpleType), o => o.ToString());
             Assert.Throws<Exceptions.ArgumentException>(() => DropBase.FromSafeType(new TemplateTests.MySimpleType()));
+            Assert.That(DropBase.TryFromSafeType(new TemplateTests.MySimpleType(), out _), Is.False);
         }
 
+        [Test]
+        public void TestLiquidTypeParsesAllowedMembers()
+        {
+            Assert.That(DropProxy.TryFromLiquidType(new MyLiquidTypeWithNoAllowedMembers(), typeof(MyLiquidTypeWithNoAllowedMembers), out var noAllowedDrop), Is.True);
+            Assert.That(noAllowedDrop.CreateTypeResolution(typeof(MyLiquidTypeWithNoAllowedMembers)).CachedProperties, Has.Exactly(0).Items);
+            Assert.That(DropProxy.TryFromLiquidType(new MyLiquidTypeWithAllowedMember(), typeof(MyLiquidTypeWithAllowedMember), out var allowedDrop), Is.True);
+            Assert.That(allowedDrop.CreateTypeResolution(typeof(MyLiquidTypeWithAllowedMember)).CachedProperties, Has.Exactly(1).Items);
+        }
+
+        [Test]
+        public void TestNonLiquidTypeException()
+        {
+            Assert.That(DropProxy.TryFromLiquidType(string.Empty, typeof(string), out _), Is.False);
+            Assert.That(DropProxy.TryFromLiquidType(new TemplateTests.MySimpleType(), typeof(TemplateTests.MySimpleType), out _), Is.False);
+        }
     }
 }

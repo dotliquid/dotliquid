@@ -170,6 +170,38 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        public void TestStringInIntArrays()
+        {
+            // NOTE(Rodney Richardson): DotLiquid is inconsistent with string to numeric conversions.
+            // One of these places is the contains and startswith/endswith implementations.
+            // - contains will return false when looking for a string in an int array
+            // - startswith and endswith will return true.
+            _context = new Context(CultureInfo.InvariantCulture);
+            _context["array"] = new[] { 1, 2, 3, 4, 5 };
+
+            AssertEvaluatesFalse(left: "array", op: "contains", right: "'1'");
+
+            AssertEvaluatesTrue(left: "array", op: "startswith", right: "'1'");
+            AssertEvaluatesTrue(left: "array", op: "endswith", right: "'5'");
+        }
+
+        [Test]
+        public void TestIntInStringArrays()
+        {
+            // NOTE(Rodney Richardson): DotLiquid is inconsistent with string to numeric conversions.
+            // One of these places is the contains and startswith/endswith implementations.
+            // - contains will return false when looking for an int in a string array
+            // - startswith and endswith will return true.
+            _context = new Context(CultureInfo.InvariantCulture);
+            _context["array"] = new[] { "1", "2", "3", "4", "5" };
+
+            AssertEvaluatesFalse(left: "array", op: "contains", right: "1");
+
+            AssertEvaluatesTrue(left: "array", op: "startswith", right: "1");
+            AssertEvaluatesTrue(left: "array", op: "endswith", right: "5");
+        }
+
+        [Test]
         public void TestContainsWorksOnLongArrays()
         {
             _context = new Context(CultureInfo.InvariantCulture);
@@ -365,6 +397,8 @@ namespace DotLiquid.Tests
             AssertEvaluatesTrue("array", "startswith", "1");
 
             AssertEvaluatesFalse("array", "startswith", "not_assigned");
+            AssertEvaluatesFalse("array", "startswith", "''");
+            AssertEvaluatesFalse("array", "startswith", null);
         }
 
         [Test]
@@ -403,6 +437,8 @@ namespace DotLiquid.Tests
             AssertEvaluatesTrue("array", "endswith", "5");
 
             AssertEvaluatesFalse("array", "endswith", "not_assigned");
+            AssertEvaluatesFalse("array", "endswith", "''");
+            AssertEvaluatesFalse("array", "endswith", null);
         }
 
         [Test]

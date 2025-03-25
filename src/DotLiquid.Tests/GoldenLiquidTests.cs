@@ -7,6 +7,9 @@ using System;
 using System.Reflection;
 using DotLiquid.Tests.Model;
 using DotLiquid.Tests.Util;
+using System.Linq;
+using Newtonsoft.Json.Serialization;
+using System.Diagnostics;
 
 namespace DotLiquid.Tests
 {
@@ -26,40 +29,40 @@ namespace DotLiquid.Tests
             }
         }
 
-        public static List<GoldenLiquidTest> GetGoldenTests(bool passing)
+        public static IEnumerable<GoldenLiquidTest> GetGoldenTests()
         {
             var tests = new List<GoldenLiquidTest>();
             var goldenLiquid = DeserializeResource<GoldenLiquid>("DotLiquid.Tests.Embedded.golden_liquid.json");
 
             // Iterate through the tests
-            foreach (var testGroup in goldenLiquid.TestGroups)
+            foreach (var test in goldenLiquid.Tests)
             {
-                if (Rules.SkippedGroups.Contains(testGroup.Name))
+                var uniqueName = test.UniqueName;
+                
+                if (Rules.SkippedGroups.Any(groupPrefix => uniqueName.StartsWith(groupPrefix)))
                     continue;
 
-                foreach (var test in testGroup.Tests)
+                if (Rules.SkippedTests.Contains(uniqueName))
+                    continue;
+
+                if (Rules.AlternateTestExpectations.ContainsKey(uniqueName))
                 {
-                    test.GroupName = testGroup.Name;
-                    var uniqueName = test.UniqueName;
-
-                    if (Rules.SkippedTests.Contains(uniqueName))
-                        continue;
-
-                    if (Rules.AlternateTestExpectations.ContainsKey(uniqueName))
-                    { 
-                        test.Want = Rules.AlternateTestExpectations[uniqueName];
-                        test.Error = false;
-                    }
-
-                    if (Rules.FailingTests.Contains(uniqueName) != passing)
-                        tests.Add(test);
+                    test.Result = Rules.AlternateTestExpectations[uniqueName];
+                    test.Results = null;
+                    test.IsInvalid = false;
                 }
-            }
 
+                tests.Add(test);
+            }
             return tests;
         }
 
-        public static List<GoldenLiquidTest> GoldenTestsPassing => GetGoldenTests(passing: true);
+        public static IEnumerable<GoldenLiquidTest> GetGoldenTests(bool passing)
+        {
+            return GetGoldenTests().Where(test => Rules.FailingTests.Contains(test.UniqueName) != passing);
+        }
+
+        public static IEnumerable<GoldenLiquidTest> GoldenTestsPassing => GetGoldenTests(passing: true);
 
         private static T DeserializeResource<T>(string resourceName)
         {
@@ -87,34 +90,39 @@ namespace DotLiquid.Tests
         public void ExecuteGoldenLiquidTests(GoldenLiquidTest test)
         {
             // Create a new Hash object to represent the context
-            var context = new Hash();
-            foreach (var pair in test.Context)
-            {
-                context[pair.Key] = pair.Value;
-            }
+            var context = Hash.FromDictionary(test.Data);
 
             var syntax = SyntaxCompatibility.DotLiquid22a;
             var parameters = new RenderParameters(CultureInfo.CurrentCulture)
             {
                 SyntaxCompatibilityLevel = syntax,
                 LocalVariables = context,
-                ErrorsOutputMode = test.Error ? ErrorsOutputMode.Rethrow : ErrorsOutputMode.Display
+                ErrorsOutputMode = test.IsInvalid ? ErrorsOutputMode.Rethrow : ErrorsOutputMode.Display
             };
 
             Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
             {
                 Liquid.UseRubyDateFormat = true;
-                if (test.Partials?.Count > 0)
-                    Template.FileSystem = new DictionaryFileSystem(test.Partials);
+                if (test.Templates?.Count > 0)
+                    Template.FileSystem = new DictionaryFileSystem(test.Templates);
 
                 // If the test should produce an error, assert that it does
-                if (test.Error)
+                if (test.IsInvalid)
                 {
                     Assert.That(() => Template.Parse(test.Template, syntax).Render(parameters), Throws.Exception, test.UniqueName);
                 }
                 else
                 {
-                    Assert.That(Template.Parse(test.Template, syntax).Render(parameters).Replace("\r\n", "\n"), Is.EqualTo(test.Want), test.UniqueName);
+                    // test will contain either Result or Results, but not both.
+                    string result = Template.Parse(test.Template, syntax).Render(parameters).Replace("\r\n", "\n");
+                    if (test.Result != null)
+                    {
+                        Assert.That(result, Is.EqualTo(test.Result), test.UniqueName);
+                    }
+                    else
+                    {
+                        Assert.That(test.Results, Contains.Item(result), test.UniqueName);
+                    }
                 }
             });
         }
@@ -131,5 +139,77 @@ namespace DotLiquid.Tests
                 }
             });
         }
+
+        #region Integrity checks for golden_rules.json
+
+        [Test]
+        public void CheckRules_FailingTestsExist()
+        {
+            // Checks all the tests listed in Rules.FailingTests exist
+            var testNames = GetGoldenTests(false).Select(test => test.UniqueName);
+            var expectedTestNames = Rules.FailingTests;
+
+            Assert.Multiple(() =>
+            {
+                foreach (var expectedTestName in expectedTestNames)
+                {
+                    Assert.That(testNames.Contains(expectedTestName), expectedTestName);
+                }
+            });
+        }
+
+        [Test]
+        public void CheckRules_AlternateTestExpectationsExist()
+        {
+            // Checks all the tests listed in Rules.AlternateTestExpectations exist
+            var testNames = GetGoldenTests(true).Select(test => test.UniqueName);
+            var expectedTestNames = Rules.AlternateTestExpectations.Keys;
+
+            Assert.Multiple(() =>
+            {
+                foreach (var expectedTestName in expectedTestNames)
+                {
+                    Assert.That(testNames.Contains(expectedTestName), expectedTestName);
+                }
+            });
+        }
+
+        [Test]
+        public void CheckRules_SkippedTestsExist()
+        {
+            // Checks all the tests listed in Rules.SkippedTests exist
+            var testNames = DeserializeResource<GoldenLiquid>("DotLiquid.Tests.Embedded.golden_liquid.json")
+                .Tests
+                .Select(test => test.UniqueName);
+            var expectedTestNames = Rules.SkippedTests;
+
+            Assert.Multiple(() =>
+            {
+                foreach (var expectedTestName in expectedTestNames)
+                {
+                    Assert.That(testNames.Contains(expectedTestName), expectedTestName);
+                }
+            });
+        }
+
+        [Test]
+        public void CheckRules_SkippedGroupsExist()
+        {
+            // Checks all the prefixes listed in Rules.SkippedGroups exist
+            var testNames = DeserializeResource<GoldenLiquid>("DotLiquid.Tests.Embedded.golden_liquid.json")
+                .Tests
+                .Select(test => test.UniqueName);
+            var expectedTestPrefixes = Rules.SkippedGroups;
+
+            Assert.Multiple(() =>
+            {
+                foreach (var expectedTestPrefix in expectedTestPrefixes)
+                {
+                    Assert.That(testNames.Any(testName => testName.StartsWith(expectedTestPrefix)), expectedTestPrefix);
+                }
+            });
+        }
+
+        #endregion
     }
 }

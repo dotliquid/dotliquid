@@ -8,10 +8,7 @@ namespace DotLiquid.Tests.Model
     public class GoldenLiquidTest
     {
         [JsonIgnore]
-        public string GroupName { get; set; }
-
-        [JsonIgnore]
-        public string UniqueName => $"{GroupName} - {Name}";
+        public string UniqueName => Name;
 
         [JsonProperty("name")]
         public string Name { get; set; }
@@ -19,24 +16,27 @@ namespace DotLiquid.Tests.Model
         [JsonProperty("template")]
         public string Template { get; set; }
 
-        [JsonProperty("want")]
-        public string Want { get; set; }
+        [JsonProperty("data")]
+        public ExpandoObject Data { get; set; }
 
-        [JsonProperty("context")]
-        public ExpandoObject Context { get; set; }
+        [JsonProperty("result")]
+        public string Result { get; set; }
 
-        [JsonProperty("partials")]
-        public Dictionary<string, string> Partials { get; set; }
+        [JsonProperty("results")]
+        public List<string> Results { get; set; }
 
-        [JsonProperty("error")]
-        public bool Error { get; set; }
+        [JsonProperty("templates")]
+        public Dictionary<string, string> Templates { get; set; }
 
-        [JsonProperty("strict")]
-        public bool Strict { get; set; }
+        [JsonProperty("invalid")]
+        public bool IsInvalid { get; set; }
+
+        [JsonProperty("tags")]
+        public List<GoldenLiquidTag> Tags { get; set; }
 
         public override string ToString()
         {
-            return UniqueName;
+            return Name;
         }
     }
 }

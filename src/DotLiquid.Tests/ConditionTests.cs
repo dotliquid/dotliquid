@@ -128,6 +128,8 @@ namespace DotLiquid.Tests
             AssertEvaluatesTrue("'bob'", "contains", "'bo'");
             AssertEvaluatesTrue("'bob'", "contains", "'ob'");
             AssertEvaluatesTrue("'bob'", "contains", "'bob'");
+            AssertEvaluatesTrue("'bob'", "contains", "''");
+            AssertEvaluatesTrue("''", "contains", "''");
 
             AssertEvaluatesFalse("'bob'", "contains", "'bob2'");
             AssertEvaluatesFalse("'bob'", "contains", "'a'");
@@ -343,6 +345,8 @@ namespace DotLiquid.Tests
             AssertEvaluatesTrue("'dave'", "startswith", "'da'");
             AssertEvaluatesTrue("'dave'", "startswith", "'dav'");
             AssertEvaluatesTrue("'dave'", "startswith", "'dave'");
+            AssertEvaluatesTrue("'dave'", "startswith", "''");
+            AssertEvaluatesTrue("''", "startswith", "''");
 
             AssertEvaluatesFalse("'dave'", "startswith", "'ave'");
             AssertEvaluatesFalse("'dave'", "startswith", "'e'");
@@ -379,6 +383,8 @@ namespace DotLiquid.Tests
             AssertEvaluatesTrue("'dave'", "endswith", "'ve'");
             AssertEvaluatesTrue("'dave'", "endswith", "'ave'");
             AssertEvaluatesTrue("'dave'", "endswith", "'dave'");
+            AssertEvaluatesTrue("'dave'", "endswith", "''");
+            AssertEvaluatesTrue("''", "endswith", "''");
 
             AssertEvaluatesFalse("'dave'", "endswith", "'dav'");
             AssertEvaluatesFalse("'dave'", "endswith", "'d'");

@@ -143,8 +143,6 @@
         "liquid.golden.if_tag - one is not equal to true",
         "liquid.golden.if_tag - range equals range",
         "liquid.golden.if_tag - string contains int",
-        "liquid.golden.if_tag - string contains nil",
-        "liquid.golden.if_tag - string contains undefined",
         "liquid.golden.if_tag - string does not equal int",
         "liquid.golden.if_tag - string greater than int",
         "liquid.golden.if_tag - zero is not equal to false",

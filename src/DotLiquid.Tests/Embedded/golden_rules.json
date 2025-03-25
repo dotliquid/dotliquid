@@ -19,7 +19,7 @@
     ],
     "failing_tests": [
         // Parser Errors
-	    "tags, assign, assign with quoted notation and extra whitespace",
+        "tags, assign, assign with quoted notation and extra whitespace",
         "identifiers, trailing question mark in for loop target",
         "identifiers, trailing question mark output",
         "filters, lstrip, left and right padded",
@@ -152,8 +152,6 @@
         "tags, if, one is not equal to true",
         "tags, if, range equals range",
         "tags, if, string contains int",
-        "tags, if, string contains nil",
-        "tags, if, string contains undefined",
         "tags, if, string does not equal int",
         "tags, if, string greater than int",
         "tags, if, zero is not equal to false",

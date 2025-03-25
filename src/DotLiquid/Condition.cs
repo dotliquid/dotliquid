@@ -26,7 +26,7 @@ namespace DotLiquid
             { ">", (left, right) => left != null && right != null && Comparer<object>.Default.Compare(left, Convert.ChangeType(right, left.GetType())) == 1 },
             { "<=", (left, right) => left != null && right != null && Comparer<object>.Default.Compare(left, Convert.ChangeType(right, left.GetType())) <= 0 },
             { ">=", (left, right) => left != null && right != null && Comparer<object>.Default.Compare(left, Convert.ChangeType(right, left.GetType())) >= 0 },
-            { "contains", (left, right) => (left is string leftString && right != null) ? leftString.Contains((string)right) : (left is IEnumerable leftList && Any(leftList, (element) => element.BackCompatSafeTypeInsensitiveEqual(right))) },
+            { "contains", (left, right) => (left is string leftString && right != null) ? leftString.Contains((string)right) : (left is IEnumerable leftEnumerable && Any(leftEnumerable, (element) => element.BackCompatSafeTypeInsensitiveEqual(right))) },
             { "startsWith", (left, right) => (left is IList leftList) ? EqualVariables(leftList.OfType<object>().FirstOrDefault(), right) : (left is string leftString && right is string rightString && leftString.StartsWith(rightString)) },
             { "endsWith", (left, right) => (left is IList leftList) ? EqualVariables(leftList.OfType<object>().LastOrDefault(), right) : (left is string leftString && right is string rightString && leftString.EndsWith(rightString)) },
             {

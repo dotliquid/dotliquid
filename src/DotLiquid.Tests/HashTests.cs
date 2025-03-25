@@ -182,6 +182,22 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        public void TestFromNullDictionary()
+        {
+            var hash = Hash.FromDictionary(null);
+            Assert.That(hash, Is.Not.Null);
+            Assert.That(hash.Count, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void TestFromEmptyDictionary()
+        {
+            var hash = Hash.FromDictionary(new Dictionary<string, object>());
+            Assert.That(hash, Is.Not.Null);
+            Assert.That(hash.Count, Is.EqualTo(0));
+        }
+
+        [Test]
         public void TestMergeNestedDictionaries()
         {
             var hash = Hash.FromDictionary(new Dictionary<string, object> {{

@@ -1082,6 +1082,36 @@ PaulGeorge",
         }
 
         [Test]
+        public void TestReplaceLast()
+        {
+            //Adapted from ReplaceFirst Tests
+            Assert.That(StandardFilters.ReplaceLast(input: null, @string: "a", replacement: "b"), Is.Null);
+            Assert.That(StandardFilters.ReplaceLast(input: "", @string: "a", replacement: "b"), Is.EqualTo(""));
+            Assert.That(StandardFilters.ReplaceLast(input: "a a a a", @string: null, replacement: "b"), Is.EqualTo("a a a ab"));
+            Assert.That(StandardFilters.ReplaceLast(input: "a a a a", @string: "", replacement: "b"), Is.EqualTo("a a a ab"));
+            Assert.That(StandardFilters.ReplaceLast(input: "a a a a", @string: "", replacement: null), Is.EqualTo("a a a a"));
+            Assert.That(StandardFilters.ReplaceLast(input: "a a b a", @string: " a", replacement: null), Is.EqualTo("a a b"));
+
+            //Adapted from Shopify Tests
+            Assert.That(StandardFilters.ReplaceLast(input: "a a a a", @string: "a", replacement: "b"), Is.EqualTo("a a a b"));
+            Assert.That(StandardFilters.ReplaceLast(input: "1 1 1 1", @string: "1", replacement: "2"), Is.EqualTo("1 1 1 2"));
+            Assert.That(StandardFilters.ReplaceLast(input: "1 1 1 1", @string: "2", replacement: "3"), Is.EqualTo("1 1 1 1"));
+        }
+
+        [Test]
+        public void TestRemoveLast()
+        {
+            Assert.That(StandardFilters.RemoveLast(input: null, @string: "a"), Is.Null);
+            Assert.That(StandardFilters.RemoveLast(input: "", @string: "a"), Is.EqualTo(""));
+            Assert.That(StandardFilters.RemoveLast(input: "  ", @string: " "), Is.EqualTo(" "));
+            Assert.That(StandardFilters.RemoveLast(input: "a a a a", @string: null), Is.EqualTo("a a a a"));
+            Assert.That(StandardFilters.RemoveLast(input: "a a a a", @string: ""), Is.EqualTo("a a a a"));
+            Assert.That(StandardFilters.RemoveLast(input: "a a a a", @string: "b"), Is.EqualTo("a a a a"));
+            Assert.That(StandardFilters.RemoveLast(input: "a b a a", @string: "a "), Is.EqualTo("a b a"));
+            Assert.That(StandardFilters.RemoveLast(input: "a a b a", @string: " a"), Is.EqualTo("a a b"));
+        }
+
+        [Test]
         public void TestPipesInStringArguments()
         {
             Helper.AssertTemplateResult("foobar", "{{ 'foo|bar' | remove: '|' }}");

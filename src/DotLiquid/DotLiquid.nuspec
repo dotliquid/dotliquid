@@ -11,6 +11,7 @@
     <language>en-US</language>
     <projectUrl>https://www.dotliquid.org</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/dotliquid/dotliquid/master/src/DotLiquid/logo_nuget.png</iconUrl>
+    <icon>images\logo_nuget.png</icon>
     <license type="expression">Apache-2.0 OR MS-PL</license>
     <repository type="git" url="https://github.com/dotliquid/dotliquid.git" />
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -23,8 +24,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="LICENSE.txt" target="" />
-    <file src="readme.txt" target="" />
+    <file src="logo_nuget.png" target="images\" />
     <file src="bin\Release\netstandard2.0\DotLiquid.dll" target="lib\netstandard2.0" />
     <file src="bin\Release\netstandard2.0\it\DotLiquid.resources.dll" target="lib\netstandard2.0\it" />
     <file src="bin\Release\netstandard2.0\DotLiquid.pdb" target="lib\netstandard2.0" />

@@ -16,45 +16,6 @@ namespace DotLiquid.Tests
         private Context _contextV20EnUS;
         private Context _contextV21;
 
-        private static IEnumerable<Context> GetContexts()
-        {
-            // This must be updated whenever a new SyntaxCompatibility value is added
-            if (SyntaxCompatibility.DotLiquidLatest != SyntaxCompatibility.DotLiquid24)
-            {
-                throw new InvalidOperationException("Ensure all contexts are listed below.");
-            }
-
-            // This is called before SetUp, so we can't use _contextV20, etc.
-            yield return new Context(CultureInfo.InvariantCulture)
-            {
-                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20
-            };
-            yield return new Context(new CultureInfo("en-US"))
-            {
-                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20
-            };
-            yield return new Context(new CultureInfo("fr-FR"))
-            {
-                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20
-            };
-            yield return new Context(CultureInfo.InvariantCulture)
-            {
-                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid21
-            };
-            yield return new Context(CultureInfo.InvariantCulture)
-            {
-                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22
-            };
-            yield return new Context(CultureInfo.InvariantCulture)
-            {
-                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22a
-            };
-            yield return new Context(CultureInfo.InvariantCulture)
-            {
-                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid24
-            };
-        }
-
         [OneTimeSetUp]
         public void SetUp()
         {
@@ -1698,89 +1659,6 @@ Cheapest products:
                 Assert.That(
                     actual: StandardFilters.Where(products, propertyName: "type", targetValue: "kitchen"), Is.EqualTo(expected: expectedKitchenProducts).AsCollection);
             });
-        }
-
-        [Test]
-        [TestCaseSource(nameof(GetContexts))]
-        public void TestSum_Numeric(Context context)
-        {
-            int[] intArray = new int[] { 1, 2, 3, 4, 5 };
-            decimal[] decimalArray = new decimal[] { 1.1m, 2.2m, 3.3m, 4.4m, 5.5m };
-            string[] stringArray = new string[] { "1", "2", "-3", (4.4).ToString(context.CurrentCulture), (5.1).ToString(context.CurrentCulture) };
-            object[] mixedArray = new object[] {
-                null, "banana",
-                "1",
-                (decimal)1, (float)1, (double)1,
-                (sbyte)1, (byte)1, (short)1, (ushort)1, (int)1, (uint)1, (long)1, (ulong)1,
-            };
-
-            Assert.That(StandardFilters.Sum(context, intArray), Is.EqualTo(15));
-            Assert.That(StandardFilters.Sum(context, decimalArray), Is.EqualTo(16.5m));
-            Assert.That(StandardFilters.Sum(context, stringArray), Is.EqualTo(9.5));
-            Assert.That(StandardFilters.Sum(context, mixedArray), Is.EqualTo(12m));
-
-            Assert.That(StandardFilters.Sum(context, null), Is.EqualTo(0));
-            Assert.That(StandardFilters.Sum(context, null, "UnknownProperty"), Is.EqualTo(0));
-            Assert.That(StandardFilters.Sum(context, intArray, "UnknownProperty"), Is.EqualTo(0));
-        }
-
-        [Test]
-        [TestCaseSource(nameof(GetContexts))]
-        public void TestSum_StringToNumeric(Context context)
-        {
-            // Ensure that the different types of numeric values can be converted from strings
-            // Ensure that the sum is non-zero
-            string[] intStringArray = new string[] {
-                int.MaxValue.ToString(context.FormatProvider),
-                int.MinValue.ToString(context.FormatProvider),
-            };
-            string[] longStringArray = new string[] {
-                long.MaxValue.ToString(context.FormatProvider),
-                long.MinValue.ToString(context.FormatProvider),
-            };
-            string[] decimalStringArray = new string[] {
-                decimal.MaxValue.ToString(context.FormatProvider),
-                "-1",
-                decimal.MinValue.ToString(context.FormatProvider),
-            };
-            // These will parse as double, but not decimal
-            string[] doubleStringArray = new string[] {
-                "1e203",
-                "-1e202",
-            };
-
-            Assert.That(StandardFilters.Sum(context, intStringArray), Is.EqualTo(-1));
-            Assert.That(StandardFilters.Sum(context, longStringArray), Is.EqualTo(-1));
-            Assert.That(StandardFilters.Sum(context, decimalStringArray), Is.EqualTo(-1.0m));
-            Assert.That(StandardFilters.Sum(context, doubleStringArray), Is.EqualTo(9e202));
-        }
-
-        [Test]
-        [TestCaseSource(nameof(GetContexts))]
-        public void TestSum_PropertyName(Context context)
-        {
-            var kIntArray = new object[] {
-                new { k = 1 },
-                new { k = 2 },
-                new { k = 3 }
-            };
-            var kStringArray = new object[] {
-                new { k = "1" },
-                new { k = "2" },
-                new { k = "3" }
-            };
-            var mixedKeyIntArray = new object[] {
-                new { k = 1 },
-                new { k = 2 },
-                new { x = 5 }
-            };
-
-            Assert.That(StandardFilters.Sum(context, kIntArray, "k"), Is.EqualTo(6));
-            Assert.That(StandardFilters.Sum(context, kIntArray, "x"), Is.EqualTo(0));
-            Assert.That(StandardFilters.Sum(context, kStringArray, "k"), Is.EqualTo(6));
-            Assert.That(StandardFilters.Sum(context, kStringArray, "x"), Is.EqualTo(0));
-            Assert.That(StandardFilters.Sum(context, mixedKeyIntArray, "k"), Is.EqualTo(3));
-            Assert.That(StandardFilters.Sum(context, mixedKeyIntArray, "x"), Is.EqualTo(5));
         }
 
         [Test]

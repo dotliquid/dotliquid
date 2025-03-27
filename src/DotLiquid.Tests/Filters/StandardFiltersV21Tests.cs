@@ -7,6 +7,7 @@ namespace DotLiquid.Tests.Filters
     [TestFixture]
     public class StandardFiltersV21Tests : StandardFiltersTestsBase
     {
+        public override IFormatProvider FormatProvider => CultureInfo.InvariantCulture;
         public override SyntaxCompatibility SyntaxCompatibilityLevel => SyntaxCompatibility.DotLiquid21;
         public override CapitalizeDelegate Capitalize => i => LegacyFilters.CapitalizeV21(i);
         public override MathDelegate Divide => (i, o) => StandardFilters.DividedBy(_context, i, o);
@@ -18,6 +19,7 @@ namespace DotLiquid.Tests.Filters
         public override ReplaceFirstDelegate ReplaceFirst => (a, b, c) => LegacyFilters.ReplaceFirstV21(a, b, c);
         public override SliceDelegate Slice => (a, b, c) => c.HasValue ? LegacyFilters.Slice(a, b, c.Value) : LegacyFilters.Slice(a, b);
         public override SplitDelegate Split => (i, p) => LegacyFilters.Split(i, p);
+        public override SumDelegate Sum => (i, p) => StandardFilters.Sum(_context, i, p);
         public override MathDelegate Times => (i, o) => StandardFilters.Times(_context, i, o);
         public override TruncateWordsDelegate TruncateWords => (i, w, s) =>
         {
@@ -25,17 +27,6 @@ namespace DotLiquid.Tests.Filters
                 return s == null ? LegacyFilters.TruncateWords(i, w.Value) : LegacyFilters.TruncateWords(i, w.Value, s);
             return LegacyFilters.TruncateWords(i);
         };
-
-        private Context _context;
-
-        [OneTimeSetUp]
-        public void SetUp()
-        {
-            _context = new Context(CultureInfo.InvariantCulture)
-            {
-                SyntaxCompatibilityLevel = SyntaxCompatibilityLevel
-            };
-        }
 
         [Test]
         public void TestCapitalizeBehavesLikeUpcaseFirst()

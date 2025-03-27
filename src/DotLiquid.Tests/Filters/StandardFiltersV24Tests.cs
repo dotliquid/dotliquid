@@ -7,6 +7,7 @@ namespace DotLiquid.Tests.Filters
     [TestFixture]
     public class StandardFiltersV24Tests : StandardFiltersTestsBase
     {
+        public override IFormatProvider FormatProvider => CultureInfo.InvariantCulture;
         public override SyntaxCompatibility SyntaxCompatibilityLevel => SyntaxCompatibility.DotLiquid24;
         public override CapitalizeDelegate Capitalize => i => StandardFilters.Capitalize(i);
         public override MathDelegate Divide => (i, o) => StandardFilters.DividedBy(_context, i, o);
@@ -18,6 +19,7 @@ namespace DotLiquid.Tests.Filters
         public override ReplaceFirstDelegate ReplaceFirst => (a, b, c) => StandardFilters.ReplaceFirst(a, b, c);
         public override SliceDelegate Slice => (a, b, c) => c.HasValue ? StandardFilters.Slice(a, b, c.Value) : StandardFilters.Slice(a, b);
         public override SplitDelegate Split => (i, p) => StandardFilters.Split(i, p);
+        public override SumDelegate Sum => (i, p) => StandardFilters.Sum(_context, i, p);
         public override MathDelegate Times => (i, o) => StandardFilters.Times(_context, i, o);
         public override TruncateWordsDelegate TruncateWords => (i, w, s) =>
         {
@@ -25,17 +27,6 @@ namespace DotLiquid.Tests.Filters
                 return s == null ? StandardFilters.TruncateWords(i, w.Value) : StandardFilters.TruncateWords(i, w.Value, s);
             return StandardFilters.TruncateWords(i);
         };
-
-        private Context _context;
-
-        [OneTimeSetUp]
-        public void SetUp()
-        {
-            _context = new Context(CultureInfo.InvariantCulture)
-            {
-                SyntaxCompatibilityLevel = SyntaxCompatibilityLevel
-            };
-        }
 
         [Test]
         public void TestReplaceFirstInvalidSearchPrepends()

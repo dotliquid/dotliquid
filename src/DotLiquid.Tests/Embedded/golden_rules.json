@@ -45,13 +45,6 @@
         "liquid.golden.default_filter - render a default given a literal false with 'allow false' equal to true",
         // DotLiquid #457
         "liquid.golden.date_filter - timestamp string",
-        // DotLiquid #549
-        "liquid.golden.first_filter - first of a string",
-        "liquid.golden.for_tag - loop over a string literal",
-        "liquid.golden.for_tag - loop over a string variable",
-        "liquid.golden.last_filter - last of a string",
-        "liquid.golden.special - first of a string",
-        "liquid.golden.special - last of a string",
         // Non-integer arguments for numeric methods
         "liquid.golden.at_least_filter - argument string not a number",
         "liquid.golden.at_least_filter - left value not a number negative argument",
@@ -224,7 +217,11 @@
         "liquid.golden.modulo_filter - integer value and float arg": "0",
         "liquid.golden.modulo_filter - string value and argument": "0",
         "liquid.golden.plus_filter - integer value and float arg": "12",
-
+        // With Rails/ActiveSupport these work similar to DotLiquid
+        "liquid.golden.first_filter - first of a string": "h",
+        "liquid.golden.last_filter - last of a string": "o",
+        "liquid.golden.special - first of a string": "h",
+        "liquid.golden.special - last of a string": "o",
         // These operators are implemented by DotLiquid but not Ruby
         "liquid.golden.if_tag - endswith is not a valid operator": "TRUE",
         "liquid.golden.if_tag - haskey is not a valid operator": "TRUE",

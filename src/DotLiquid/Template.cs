@@ -379,7 +379,7 @@ namespace DotLiquid
         /// <param name="localVariables">Local variables.</param>
         /// <param name="formatProvider">String formatting provider.</param>
         /// <returns>The rendering result as string.</returns>
-        public string Render(Hash localVariables, IFormatProvider formatProvider = null)
+        public string Render(IIndexable localVariables, IFormatProvider formatProvider = null)
         {
             using (var writer = new StringWriter(formatProvider ?? CultureInfo.CurrentCulture))
             {

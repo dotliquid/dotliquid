@@ -15,6 +15,8 @@ install:
 
     choco install codecov -y
 
+    choco install dotnetcore-runtime.install --version=3.1.32 -y
+
     dotnet restore src/DotLiquid.sln
 cache:
 - C:\ProgramData\chocolatey\bin -> appveyor.yml

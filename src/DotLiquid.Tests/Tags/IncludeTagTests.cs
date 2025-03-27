@@ -211,8 +211,6 @@ namespace DotLiquid.Tests.Tags
                     Helper.AssertTemplateResult(expected, "{% include 'product' for var %}", Hash.FromAnonymousObject(new { var = "foo" }));
                 });
             });
-
         }
-
     }
 }

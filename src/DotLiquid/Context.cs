@@ -698,7 +698,7 @@ namespace DotLiquid
             {
                 return liquidizableObj.ToLiquid();
             }
-            if (obj is IEnumerable /* string is IEnumerable */ || obj is decimal || obj is DateTime || obj is DateTimeOffset || obj is TimeSpan || obj is Guid || obj is Enum 
+            if (obj is IEnumerable /* string is IEnumerable */ || obj is decimal || obj is DateTime || obj is DateTimeOffset || obj is TimeSpan || obj is Guid || obj is Enum
 #if NET6_0_OR_GREATER
                 || obj is DateOnly || obj is TimeOnly
 #endif

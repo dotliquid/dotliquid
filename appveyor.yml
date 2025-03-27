@@ -33,9 +33,7 @@ after_build:
     nuget pack src/DotLiquid/DotLiquid.nuspec -Symbols -SymbolPackageFormat snupkg -Version "$($env:APPVEYOR_BUILD_VERSION)" -OutputDirectory build\pkg
 test_script:
 - cmd: >-
-    opencover.console -target:"C:\Program Files\dotnet\dotnet.exe" -targetargs:"test src\DotLiquid.Tests\DotLiquid.Tests.csproj --framework net6.0 --configuration Debug /p:ForceNetStandard=true" -output:TestsCoverage.xml -filter:"+[DotLiquid]*" -register:user -returntargetcode -oldstyle
-
-    opencover.console -target:"C:\Program Files\dotnet\dotnet.exe" -targetargs:"test src\DotLiquid.Tests\DotLiquid.Tests.csproj /clp:ErrorsOnly" -output:TestsCoverage.xml -filter:"+[DotLiquid]*" -register:user -returntargetcode -oldstyle -merge-output
+    opencover.console -target:"C:\Program Files\dotnet\dotnet.exe" -targetargs:"test src\DotLiquid.Tests\DotLiquid.Tests.csproj /clp:ErrorsOnly" -output:TestsCoverage.xml -filter:"+[DotLiquid]*" -register:user -returntargetcode -oldstyle
     
     codecov -f TestsCoverage.xml
 artifacts:

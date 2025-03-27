@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using DotLiquid.NamingConventions;
+using DotLiquid.Tests.Helpers;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -13,7 +14,7 @@ namespace DotLiquid.Tests
     {
         #region Classes used in tests
 
-        internal class NullDrop : Drop
+        private class NullDrop : Drop
         {
             public override object BeforeMethod(string method)
             {
@@ -21,7 +22,7 @@ namespace DotLiquid.Tests
             }
         }
 
-        internal class ContextDrop : Drop
+        private class ContextDrop : Drop
         {
             public int Scopes
             {
@@ -49,9 +50,9 @@ namespace DotLiquid.Tests
             }
         }
 
-        internal class ProductDrop : Drop
+        private class ProductDrop : Drop
         {
-            internal class ComplexDrop : Drop
+            public class ComplexDrop : Drop
             {
                 public TextDrop[] ArrayOfDrops
                 {
@@ -64,7 +65,7 @@ namespace DotLiquid.Tests
                 }
             }
 
-            internal class TextDrop : Drop
+            public class TextDrop : Drop
             {
                 public string[] Array
                 {
@@ -82,7 +83,7 @@ namespace DotLiquid.Tests
                 }
             }
 
-            internal class CatchallDrop : Drop
+            public class CatchallDrop : Drop
             {
                 public override object BeforeMethod(string method)
                 {
@@ -116,21 +117,21 @@ namespace DotLiquid.Tests
             }
         }
 
-        internal class ConflictingParentDrop : Drop
+        private class ConflictingParentDrop : Drop
         {
             public string Name { get; set; } = nameof(ConflictingParentDrop);
 
             public string GetClassName() => nameof(ConflictingParentDrop);
         }
 
-        internal class ConflictingChildDrop : ConflictingParentDrop
+        private class ConflictingChildDrop : ConflictingParentDrop
         {
             public new string Name { get; set; } = nameof(ConflictingChildDrop);
 
             public new string GetClassName() => nameof(ConflictingChildDrop);
         }
 
-        internal class EnumerableDrop : Drop, IEnumerable
+        private class EnumerableDrop : Drop, IEnumerable
         {
             public int Size
             {
@@ -145,8 +146,7 @@ namespace DotLiquid.Tests
             }
         }
 
-#if !CORE
-        internal class DataRowDrop : Drop
+        private class DataRowDrop : Drop
         {
             private readonly System.Data.DataRow _dataRow;
 
@@ -162,9 +162,8 @@ namespace DotLiquid.Tests
                 return null;
             }
         }
-#endif
 
-        internal class CamelCaseDrop : Drop
+        private class CamelCaseDrop : Drop
         {
             public int ProductID
             {
@@ -172,12 +171,12 @@ namespace DotLiquid.Tests
             }
         }
 
-        internal class MethodDrop : Drop
+        private class MethodDrop : Drop
         {
             public int ProductID() => 1;
         }
 
-        internal static class ProductFilter
+        private static class ProductFilter
         {
             public static string ProductText(object input)
             {
@@ -380,7 +379,6 @@ namespace DotLiquid.Tests
             Assert.That(Template.Parse("{{ nulldrop.a_method }}").Render(Hash.FromAnonymousObject(new { nulldrop = new NullDrop() })), Is.EqualTo(""));
         }
 
-#if !CORE
         [Test]
         public void TestDataRowDrop()
         {
@@ -395,7 +393,6 @@ namespace DotLiquid.Tests
             Template tpl = Template.Parse(" {{ row.column1 }} ");
             Assert.That(tpl.Render(Hash.FromAnonymousObject(new { row = new DataRowDrop(dataRow) })), Is.EqualTo(" Hello "));
         }
-#endif
 
         [Test]
         public void TestRubyNamingConventionPrintsHelpfulErrorIfMissingPropertyWouldMatchCSharpNamingConvention()
@@ -446,7 +443,7 @@ namespace DotLiquid.Tests
                 namingConvention: new RubyNamingConvention());
         }
 
-#if !CORE
+
         [Test]
         public void TestDropRootCatchall()
         {
@@ -466,6 +463,5 @@ namespace DotLiquid.Tests
                 namingConvention: new RubyNamingConvention());
 
         }
-#endif
     }
 }

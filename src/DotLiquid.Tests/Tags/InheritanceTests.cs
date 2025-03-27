@@ -6,6 +6,8 @@ namespace DotLiquid.Tests.Tags
     [TestFixture]
     public class InheritanceTests
     {
+        #region Classes used in tests
+
         private class TestFileSystem : IFileSystem
         {
             public string ReadTemplateFile(Context context, string templateName)
@@ -46,6 +48,8 @@ namespace DotLiquid.Tests.Tags
                 }
             }
         }
+
+        #endregion
 
         private IFileSystem _originalFileSystem;
 
@@ -166,7 +170,7 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestExtendFromTemplateFileSystem()
         {
-            var fileSystem = new IncludeTagTests.TestTemplateFileSystem(new TestFileSystem());
+            var fileSystem = new Helpers.TestTemplateFileSystem(new TestFileSystem());
             Template.FileSystem = fileSystem;
             for (int i = 0; i < 2; ++i)
             {

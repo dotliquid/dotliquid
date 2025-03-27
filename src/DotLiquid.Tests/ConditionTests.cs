@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using DotLiquid.Exceptions;
 using DotLiquid.NamingConventions;
+using DotLiquid.Tests.Helpers;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -13,7 +14,8 @@ namespace DotLiquid.Tests
     public class ConditionTests
     {
         #region Classes used in tests
-        public class Car : Drop, System.IEquatable<Car>, System.IEquatable<string>
+
+        private class Car : Drop, System.IEquatable<Car>, System.IEquatable<string>
         {
             public string Make { get; set; }
             public string Model { get; set; }
@@ -45,9 +47,10 @@ namespace DotLiquid.Tests
             }
         }
 
-        public class DummyDrop : Drop
+        private class DummyDrop : Drop
         {
         }
+
         #endregion
 
         // NOTE(David Burg): This forces sequential execution of tests, risk side effect resulting in non deterministic behavior.
@@ -821,13 +824,11 @@ namespace DotLiquid.Tests
             Helper.AssertTemplateResult("Liquid error: Unknown operator starts_with", "{% if 'bob' starts_with 'B' %} YES {% endif %}", null, new CSharpNamingConvention());
         }
 
-        private enum TestEnum { Yes, No }
-
         [Test]
         public void TestEqualOperatorsWorksOnEnum()
         {
             _context = new Context(CultureInfo.InvariantCulture);
-            _context["enum"] = TestEnum.Yes;
+            _context["enum"] = Helpers.YesOrNo.Yes;
 
             AssertEvaluatesTrue("enum", "==", "'Yes'");
             AssertEvaluatesTrue("enum", "!=", "'No'");

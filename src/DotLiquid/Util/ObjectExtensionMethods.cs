@@ -23,7 +23,7 @@ namespace DotLiquid.Util
         public static bool RespondTo(this object value, string member, bool ensureNoParameters = true)
         {
             if (value == null)
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
 
             Type type = value.GetType();
 
@@ -48,7 +48,7 @@ namespace DotLiquid.Util
         public static object Send(this object value, string member, object[] parameters = null)
         {
             if (value == null)
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
 
             Type type = value.GetType();
 

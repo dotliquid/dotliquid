@@ -711,11 +711,7 @@ namespace DotLiquid
             }
 
             var valueType = obj.GetType();
-#if NETSTANDARD1_3
-            if (valueType.GetTypeInfo().IsPrimitive)
-#else
             if (valueType.IsPrimitive)
-#endif
             {
                 return obj;
             }
@@ -749,11 +745,7 @@ namespace DotLiquid
             if (obj != null)
             {
                 Type valueType = obj.GetType();
-#if NETSTANDARD1_3
-                if (valueType.GetTypeInfo().IsGenericType)
-#else
                 if (valueType.IsGenericType)
-#endif
                 {
                     Type baseType = valueType.GetGenericTypeDefinition();
                     if (baseType == typeof(KeyValuePair<,>))

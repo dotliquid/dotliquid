@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using DotLiquid.Exceptions;
+using DotLiquid.Tests.Helpers;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests.Tags
@@ -9,6 +10,19 @@ namespace DotLiquid.Tests.Tags
     [TestFixture]
     public class StandardTagTests
     {
+        #region Classes used in tests
+
+        private class TestDictObject : Drop
+        {
+            public TestDictObject()
+            {
+                Testdict = new Dictionary<string, string>() { { "aa", "bb" }, { "dd", "ee" }, { "ff", "gg" } };
+            }
+            public Dictionary<string, string> Testdict { get; set; }
+        }
+
+        #endregion
+
         [Test]
         public void TestTag()
         {
@@ -118,15 +132,6 @@ namespace DotLiquid.Tests.Tags
                 template: "{% for item in People %}{{ item.itemName }}{{ item.First }}{{ item.Key }}:{{ item.Value.First }},{%endfor%}",
                 localVariables: Hash.FromDictionary(dictionary),
                 syntax: SyntaxCompatibility.DotLiquid22);
-        }
-
-        public class TestDictObject : Drop
-        {
-            public TestDictObject()
-            {
-                Testdict = new Dictionary<string, string>() { { "aa", "bb" }, { "dd", "ee" }, { "ff", "gg" } };
-            }
-            public Dictionary<string, string> Testdict { get; set; }
         }
 
         [Test]
@@ -804,11 +809,11 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
         [Test]
         public void TestIncrementDropRoot()
         {
-            Helper.AssertTemplateResult(expected: "0 1", template: "{%increment port %} {{ port }}", localVariables: new ConditionTests.DummyDrop());
-            Helper.AssertTemplateResult(expected: "0 1", template: "{%increment port %} {%increment port%}", localVariables: new ConditionTests.DummyDrop());
+            Helper.AssertTemplateResult(expected: "0 1", template: "{%increment port %} {{ port }}", localVariables: new DummyDrop());
+            Helper.AssertTemplateResult(expected: "0 1", template: "{%increment port %} {%increment port%}", localVariables: new DummyDrop());
             Helper.AssertTemplateResult(
                 expected: "Me 0 1 Me",
-                template: "{{ prop }} {%increment port %} {%increment port%} {{ prop }}", localVariables: new Helper.DataObjectDrop() { Prop = "Me" });
+                template: "{{ prop }} {%increment port %} {%increment port%} {{ prop }}", localVariables: new DataObjectDrop() { Prop = "Me" });
         }
 
         [Test]
@@ -865,11 +870,11 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
         [Test]
         public void TestDecrementDropRoot()
         {
-            Helper.AssertTemplateResult(expected: "-1 -1", template: "{%decrement port %} {{ port }}", localVariables: new ConditionTests.DummyDrop());
-            Helper.AssertTemplateResult(expected: "-1 -2", template: "{%decrement port %} {%decrement port%}", localVariables: new ConditionTests.DummyDrop());
+            Helper.AssertTemplateResult(expected: "-1 -1", template: "{%decrement port %} {{ port }}", localVariables: new DummyDrop());
+            Helper.AssertTemplateResult(expected: "-1 -2", template: "{%decrement port %} {%decrement port%}", localVariables: new DummyDrop());
             Helper.AssertTemplateResult(
                 expected: "Me -1 -2 Me",
-                template: "{{ prop }} {%decrement port %} {%decrement port%} {{ prop }}", localVariables: new Helper.DataObjectDrop() { Prop = "Me" });
+                template: "{{ prop }} {%decrement port %} {%decrement port%} {{ prop }}", localVariables: new DataObjectDrop() { Prop = "Me" });
         }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DotLiquid.Tests.Helpers;
 using DotLiquid.Util;
 using NUnit.Framework;
 
@@ -8,6 +9,16 @@ namespace DotLiquid.Tests.Util
     [TestFixture]
     public class ObjectExtensionMethodsTests
     {
+        #region Classes used in tests
+
+        private class DummyClass
+        {
+            public int IntProperty { get; set; } = 42;
+            public int GetValue() => 35;
+        }
+
+        #endregion
+
         private static readonly object NIL = null;
 
         [Test]
@@ -159,6 +170,30 @@ namespace DotLiquid.Tests.Util
 
             Assert.That(keyValuePair.GetPropertyValue("Key"), Is.EqualTo("*key*"));
             Assert.That(keyValuePair.GetPropertyValue("Value"), Is.EqualTo("*value*"));
+        }
+
+        [Test]
+        public void TestRepondTo()
+        {
+            DummyClass instance = new DummyClass();
+            Assert.That(ObjectExtensionMethods.RespondTo(instance, "IntProperty"), Is.True);
+            Assert.That(ObjectExtensionMethods.RespondTo(instance, "GetValue"), Is.True);
+
+            Assert.That(ObjectExtensionMethods.RespondTo(instance, "NotFound"), Is.False);
+
+            Assert.Throws<ArgumentNullException>(() => ObjectExtensionMethods.RespondTo(NIL, "GetValue"));
+        }
+
+        [Test]
+        public void TestSend()
+        {
+            DummyClass instance = new DummyClass();
+            Assert.That(ObjectExtensionMethods.Send(instance, "IntProperty"), Is.EqualTo(42));
+            Assert.That(ObjectExtensionMethods.Send(instance, "GetValue"), Is.EqualTo(35));
+
+            Assert.That(ObjectExtensionMethods.Send(instance, "NotFound"), Is.Null);
+
+            Assert.Throws<ArgumentNullException>(() => ObjectExtensionMethods.Send(NIL, "GetValue"));
         }
     }
 }

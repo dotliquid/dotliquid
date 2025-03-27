@@ -1,4 +1,4 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,8 +12,9 @@ namespace DotLiquid.Tests
     [TestFixture]
     public class LazyHashTest
     {
+        #region Classes used in tests
 
-        public class LazyHash : Hash
+        private class LazyHash : Hash
         {
             #region Fields
 
@@ -70,9 +71,7 @@ namespace DotLiquid.Tests
             }
         }
 
-
-
-        public class TestLazyObject
+        private class TestLazyObject
         {
             public Lazy<string> _lazyProperty1 => new Lazy<string>(() =>
             {
@@ -88,6 +87,8 @@ namespace DotLiquid.Tests
 
             public string StaticProperty => "STATIC_PROPERTY";
         }
+
+        #endregion
 
         [Test]
         public void TestLazyHashProperty1WithoutAccessingProperty2()

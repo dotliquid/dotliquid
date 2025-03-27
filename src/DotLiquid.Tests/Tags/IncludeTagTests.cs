@@ -4,44 +4,14 @@ using DotLiquid.FileSystems;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Globalization;
-using DotLiquid.Tests.Util;
+using DotLiquid.Tests.Helpers;
 
 namespace DotLiquid.Tests.Tags
 {
     [TestFixture]
     public class IncludeTagTests
     {
-        internal class TestTemplateFileSystem : ITemplateFileSystem
-        {
-            private IDictionary<string, Template> _templateCache = new Dictionary<string, Template>();
-            private IFileSystem _baseFileSystem = null;
-            private int _cacheHitTimes;
-            public int CacheHitTimes { get { return _cacheHitTimes; } }
-
-            public TestTemplateFileSystem(IFileSystem baseFileSystem)
-            {
-                _baseFileSystem = baseFileSystem;
-            }
-
-            public string ReadTemplateFile(Context context, string templateName)
-            {
-                return _baseFileSystem.ReadTemplateFile(context, templateName);
-            }
-
-            public Template GetTemplate(Context context, string templateName)
-            {
-                Template template;
-                if (_templateCache.TryGetValue(templateName, out template))
-                {
-                    ++_cacheHitTimes;
-                    return template;
-                }
-                var result = ReadTemplateFile(context, templateName);
-                template = Template.Parse(result);
-                _templateCache[templateName] = template;
-                return template;
-            }
-        }
+        #region Classes used in tests
 
         private class OtherFileSystem : IFileSystem
         {
@@ -59,6 +29,8 @@ namespace DotLiquid.Tests.Tags
             }
         }
 
+        #endregion
+
         [SetUp]
         public void SetUp()
         {
@@ -73,7 +45,7 @@ namespace DotLiquid.Tests.Tags
                 { "recursively_nested_template", "-{% include 'recursively_nested_template' %}" },
                 { "pick_a_source", "from TestFileSystem" }
             };
-            Template.FileSystem = new DictionaryFileSystem(testTemplates);
+            Template.FileSystem = new Helpers.DictionaryFileSystem(testTemplates);
         }
 
         [Test]
@@ -187,7 +159,7 @@ namespace DotLiquid.Tests.Tags
         [Test]
         public void TestIncludeFromTemplateFileSystem()
         {
-            var fileSystem = new TestTemplateFileSystem(Template.FileSystem);
+            var fileSystem = new Helpers.TestTemplateFileSystem(Template.FileSystem);
             Template.FileSystem = fileSystem;
             for (int i = 0; i < 2; ++i)
             {

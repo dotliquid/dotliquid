@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using DotLiquid.FileSystems;
 
-namespace DotLiquid.Tests.Util
+namespace DotLiquid.Tests.Helpers
 {
-    internal class DictionaryFileSystem : IFileSystem
+    public class DictionaryFileSystem : IFileSystem
     {
         public Dictionary<string, string> Templates;
 

@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace DotLiquid.Tests.Model
 {
-    internal class GoldenLiquidRules
+    public class GoldenLiquidRules
     {
         [JsonProperty("skipped_groups")]
         public List<string> SkippedGroups { get; set; }

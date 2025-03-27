@@ -142,6 +142,9 @@ namespace DotLiquid
              , IFormatProvider formatProvider
              , CancellationToken cancellationToken)
         {
+            if (environments == null)
+                throw new ArgumentNullException(nameof(environments));
+
             Environments = environments is List<IIndexable> list ? list : environments.ToList();
 
             Scopes = new List<Hash>();

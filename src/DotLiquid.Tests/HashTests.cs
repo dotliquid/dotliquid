@@ -207,6 +207,18 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        public void TestFromAnonymousObjectAcceptsNull()
+        {
+            var hash = Hash.FromAnonymousObject(null);
+            Assert.That(hash, Is.Not.Null);
+            Assert.That(hash.Count, Is.EqualTo(0));
+
+            Assert.That(hash.Contains("unknown-key"), Is.False);
+            Assert.That(hash.ContainsKey("unknown-key"), Is.False);
+            Assert.That(hash["unknown-key"], Is.Null);
+        }
+
+        [Test]
         public void TestHashIDictionaryGenericsInterfaceAccess()
         {
             var zeroPair = new KeyValuePair<string, object>("Zero", "0");

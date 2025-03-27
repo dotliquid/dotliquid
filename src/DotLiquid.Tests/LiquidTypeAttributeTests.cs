@@ -157,7 +157,7 @@ namespace DotLiquid.Tests
             Helper.AssertTemplateResult(
                 expected: "worked",
                 template: "{{ prop_allowed }}",
-                localVariables: DropBase.FromSafeType(new Helper.DataObjectRegistered() { PropAllowed = "worked" }),
+                localVariables: DropBase.FromSafeType(new DataObjectRegistered() { PropAllowed = "worked" }),
                 namingConvention: new NamingConventions.RubyNamingConvention());
         }
 
@@ -167,9 +167,9 @@ namespace DotLiquid.Tests
             Assert.Throws<Exceptions.ArgumentException>(() => DropBase.FromSafeType(string.Empty));
             Assert.That(DropBase.TryFromSafeType(string.Empty, out _), Is.False);
 
-            Template.RegisterSafeType(typeof(TemplateTests.MySimpleType), o => o.ToString());
-            Assert.Throws<Exceptions.ArgumentException>(() => DropBase.FromSafeType(new TemplateTests.MySimpleType()));
-            Assert.That(DropBase.TryFromSafeType(new TemplateTests.MySimpleType(), out _), Is.False);
+            Template.RegisterSafeType(typeof(MySimpleType), o => o.ToString());
+            Assert.Throws<Exceptions.ArgumentException>(() => DropBase.FromSafeType(new MySimpleType()));
+            Assert.That(DropBase.TryFromSafeType(new MySimpleType(), out _), Is.False);
         }
 
         [Test]
@@ -185,7 +185,7 @@ namespace DotLiquid.Tests
         public void TestNonLiquidTypeException()
         {
             Assert.That(DropProxy.TryFromLiquidType(string.Empty, typeof(string), out _), Is.False);
-            Assert.That(DropProxy.TryFromLiquidType(new TemplateTests.MySimpleType(), typeof(TemplateTests.MySimpleType), out _), Is.False);
+            Assert.That(DropProxy.TryFromLiquidType(new MySimpleType(), typeof(MySimpleType), out _), Is.False);
         }
     }
 }

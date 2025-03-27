@@ -8,19 +8,9 @@ using NUnit.Framework;
 namespace DotLiquid.Tests
 {
     [TestFixture]
-    public class TemplateTests
+    public partial class TemplateTests
     {
         #region Classes and functions used in tests
-
-        private class MySimpleType
-        {
-            public string Name { get; set; }
-
-            public override string ToString()
-            {
-                return "Foo";
-            }
-        }
 
         private class NestedMySimpleType
         {

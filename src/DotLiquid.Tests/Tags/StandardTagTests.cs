@@ -809,11 +809,11 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
         [Test]
         public void TestIncrementDropRoot()
         {
-            Helper.AssertTemplateResult(expected: "0 1", template: "{%increment port %} {{ port }}", localVariables: new ConditionTests.DummyDrop());
-            Helper.AssertTemplateResult(expected: "0 1", template: "{%increment port %} {%increment port%}", localVariables: new ConditionTests.DummyDrop());
+            Helper.AssertTemplateResult(expected: "0 1", template: "{%increment port %} {{ port }}", localVariables: new DummyDrop());
+            Helper.AssertTemplateResult(expected: "0 1", template: "{%increment port %} {%increment port%}", localVariables: new DummyDrop());
             Helper.AssertTemplateResult(
                 expected: "Me 0 1 Me",
-                template: "{{ prop }} {%increment port %} {%increment port%} {{ prop }}", localVariables: new Helper.DataObjectDrop() { Prop = "Me" });
+                template: "{{ prop }} {%increment port %} {%increment port%} {{ prop }}", localVariables: new DataObjectDrop() { Prop = "Me" });
         }
 
         [Test]
@@ -870,11 +870,11 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
         [Test]
         public void TestDecrementDropRoot()
         {
-            Helper.AssertTemplateResult(expected: "-1 -1", template: "{%decrement port %} {{ port }}", localVariables: new ConditionTests.DummyDrop());
-            Helper.AssertTemplateResult(expected: "-1 -2", template: "{%decrement port %} {%decrement port%}", localVariables: new ConditionTests.DummyDrop());
+            Helper.AssertTemplateResult(expected: "-1 -1", template: "{%decrement port %} {{ port }}", localVariables: new DummyDrop());
+            Helper.AssertTemplateResult(expected: "-1 -2", template: "{%decrement port %} {%decrement port%}", localVariables: new DummyDrop());
             Helper.AssertTemplateResult(
                 expected: "Me -1 -2 Me",
-                template: "{{ prop }} {%decrement port %} {%decrement port%} {{ prop }}", localVariables: new Helper.DataObjectDrop() { Prop = "Me" });
+                template: "{{ prop }} {%decrement port %} {%decrement port%} {{ prop }}", localVariables: new DataObjectDrop() { Prop = "Me" });
         }
     }
 }

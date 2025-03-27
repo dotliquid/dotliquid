@@ -4,7 +4,7 @@ using DotLiquid.FileSystems;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Globalization;
-using DotLiquid.Tests.Util;
+using DotLiquid.Tests.Helpers;
 
 namespace DotLiquid.Tests.Tags
 {

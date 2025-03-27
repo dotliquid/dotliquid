@@ -15,6 +15,7 @@
     <PackageVersion>1.0.0</PackageVersion>
     <PackageTags>template;templating;language;liquid;markup</PackageTags>
     <PackageIcon>images\logo_nuget.png</PackageIcon>
+    <PackageReadmeFile>docs\readme_nuget.md</PackageReadmeFile>
     <PackageIconUrl>https://raw.githubusercontent.com/dotliquid/dotliquid/master/src/DotLiquid/logo_nuget.png</PackageIconUrl>
     <PackageProjectUrl>https://dotliquid.org</PackageProjectUrl>
     <PackageLicenseExpression>Apache-2.0 OR MS-PL</PackageLicenseExpression>
@@ -37,6 +38,7 @@
 
   <ItemGroup>
     <None Include="logo_nuget.png" Pack="true" PackagePath="images\"/>
+    <None Include="readme_nuget.md" Pack="true" PackagePath="docs\"/>
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">

@@ -19,7 +19,7 @@ namespace DotLiquid.Tests
         private static IEnumerable<Context> GetContexts()
         {
             // This must be updated whenever a new SyntaxCompatibility value is added
-            if (SyntaxCompatibility.DotLiquidLatest != SyntaxCompatibility.DotLiquid22a)
+            if (SyntaxCompatibility.DotLiquidLatest != SyntaxCompatibility.DotLiquid24)
             {
                 throw new InvalidOperationException("Ensure all contexts are listed below.");
             }
@@ -30,6 +30,10 @@ namespace DotLiquid.Tests
                 SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20
             };
             yield return new Context(new CultureInfo("en-US"))
+            {
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20
+            };
+            yield return new Context(new CultureInfo("fr-FR"))
             {
                 SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid20
             };
@@ -44,6 +48,10 @@ namespace DotLiquid.Tests
             yield return new Context(CultureInfo.InvariantCulture)
             {
                 SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22a
+            };
+            yield return new Context(CultureInfo.InvariantCulture)
+            {
+                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid24
             };
         }
 
@@ -1698,7 +1706,7 @@ Cheapest products:
         {
             int[] intArray = new int[] { 1, 2, 3, 4, 5 };
             decimal[] decimalArray = new decimal[] { 1.1m, 2.2m, 3.3m, 4.4m, 5.5m };
-            string[] stringArray = new string[] { "1", "2", "-3", "4.4", "5.0" };
+            string[] stringArray = new string[] { "1", "2", "-3", (4.4).ToString(context.CurrentCulture), (5.1).ToString(context.CurrentCulture) };
             object[] mixedArray = new object[] {
                 null, "banana",
                 "1",
@@ -1708,7 +1716,7 @@ Cheapest products:
 
             Assert.That(StandardFilters.Sum(context, intArray), Is.EqualTo(15));
             Assert.That(StandardFilters.Sum(context, decimalArray), Is.EqualTo(16.5m));
-            Assert.That(StandardFilters.Sum(context, stringArray), Is.EqualTo(9.4));
+            Assert.That(StandardFilters.Sum(context, stringArray), Is.EqualTo(9.5));
             Assert.That(StandardFilters.Sum(context, mixedArray), Is.EqualTo(12m));
 
             Assert.That(StandardFilters.Sum(context, null), Is.EqualTo(0));

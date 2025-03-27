@@ -81,7 +81,7 @@ namespace DotLiquid
         /// <summary>
         /// Environments
         /// </summary>
-        public List<Hash> Environments { get; private set; }
+        public List<IIndexable> Environments { get; private set; }
 
         /// <summary>
         /// Scopes
@@ -110,7 +110,7 @@ namespace DotLiquid
         /// <param name="formatProvider">A CultureInfo instance that will be used to parse filter input and format filter output</param>
         [Obsolete("The method with timeout argument is deprecated. Please use the one with CancellationToken.")]
         public Context
-            (List<Hash> environments
+            (IEnumerable<IIndexable> environments
              , Hash outerScope
              , Hash registers
              , ErrorsOutputMode errorsOutputMode
@@ -134,7 +134,7 @@ namespace DotLiquid
         /// <param name="formatProvider">A CultureInfo instance that will be used to parse filter input and format filter output</param>
         /// <param name="cancellationToken"></param>
         public Context
-            (List<Hash> environments
+            (IEnumerable<IIndexable> environments
              , Hash outerScope
              , Hash registers
              , ErrorsOutputMode errorsOutputMode
@@ -142,7 +142,10 @@ namespace DotLiquid
              , IFormatProvider formatProvider
              , CancellationToken cancellationToken)
         {
-            Environments = environments;
+            if (environments == null)
+                throw new ArgumentNullException(nameof(environments));
+
+            Environments = environments is List<IIndexable> list ? list : environments.ToList();
 
             Scopes = new List<Hash>();
             if (outerScope != null)
@@ -166,7 +169,7 @@ namespace DotLiquid
         /// </summary>
         /// <param name="formatProvider">A CultureInfo instance that will be used to parse filter input and format filter output</param>
         public Context(IFormatProvider formatProvider)
-            : this(new List<Hash>(), new Hash(), new Hash(), ErrorsOutputMode.Display, 0, 0, formatProvider)
+            : this(new List<IIndexable>(), new Hash(), new Hash(), ErrorsOutputMode.Display, 0, formatProvider, CancellationToken.None)
         {
         }
 
@@ -492,10 +495,10 @@ namespace DotLiquid
         {
             bool foundVariable = false;
             object foundValue = null;
-            Hash scope = Scopes.FirstOrDefault(s => s.ContainsKey(key));
+            IIndexable scope = Scopes.FirstOrDefault(s => s.ContainsKey(key));
             if (scope == null)
             {
-                foreach (Hash environment in Environments)
+                foreach (var environment in Environments)
                 {
                     foundVariable = TryEvaluateHashOrArrayLikeObject(environment, key, out foundValue);
                     if (foundVariable)
@@ -728,10 +731,9 @@ namespace DotLiquid
                 return safeTypeTransformer(obj);
             }
 
-            var attr = TypeUtility.GetLiquidTypeAttribute(valueType);
-            if (attr != null)
+            if (DropProxy.TryFromLiquidType(obj, valueType, out var drop))
             {
-                return new DropProxy(obj, attr.AllowedMembers);
+                return drop;
             }
 
             if (IsKeyValuePair(obj))
@@ -769,7 +771,7 @@ namespace DotLiquid
 
             Hash lastScope = Scopes.Last();
             foreach (string k in lastScope.Keys)
-                foreach (Hash env in Environments)
+                foreach (IIndexable env in Environments)
                     if (env.ContainsKey(k))
                     {
                         tempAssigns[k] = env[k];

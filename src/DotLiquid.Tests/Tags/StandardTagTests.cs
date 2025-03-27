@@ -802,6 +802,16 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
         }
 
         [Test]
+        public void TestIncrementDropRoot()
+        {
+            Helper.AssertTemplateResult(expected: "0 1", template: "{%increment port %} {{ port }}", localVariables: new ConditionTests.DummyDrop());
+            Helper.AssertTemplateResult(expected: "0 1", template: "{%increment port %} {%increment port%}", localVariables: new ConditionTests.DummyDrop());
+            Helper.AssertTemplateResult(
+                expected: "Me 0 1 Me",
+                template: "{{ prop }} {%increment port %} {%increment port%} {{ prop }}", localVariables: new Helper.DataObjectDrop() { Prop = "Me" });
+        }
+
+        [Test]
         public void TestDecrement()
         {
             Helper.AssertTemplateResult(expected: "9", template: "{%decrement port %}", localVariables: Hash.FromAnonymousObject(new { port = 10 }));
@@ -850,6 +860,16 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
             // See https://github.com/Shopify/liquid/issues/1570
             Assert.Throws<SyntaxException>(() => Template.Parse("{% decrement var1 var2 %}"));
             Assert.Throws<SyntaxException>(() => Template.Parse("{% decrement product.qty %}"));
+        }
+
+        [Test]
+        public void TestDecrementDropRoot()
+        {
+            Helper.AssertTemplateResult(expected: "-1 -1", template: "{%decrement port %} {{ port }}", localVariables: new ConditionTests.DummyDrop());
+            Helper.AssertTemplateResult(expected: "-1 -2", template: "{%decrement port %} {%decrement port%}", localVariables: new ConditionTests.DummyDrop());
+            Helper.AssertTemplateResult(
+                expected: "Me -1 -2 Me",
+                template: "{{ prop }} {%decrement port %} {%decrement port%} {{ prop }}", localVariables: new Helper.DataObjectDrop() { Prop = "Me" });
         }
     }
 }

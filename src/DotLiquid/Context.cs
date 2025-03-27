@@ -98,12 +98,6 @@ namespace DotLiquid
         /// </summary>
         public List<Exception> Errors { get; private set; }
 
-        /// <inheritdoc />
-        public override string ToString()
-        {
-            return $"Context: {SyntaxCompatibilityLevel} {CurrentCulture}";
-        }
-
         /// <summary>
         /// Creates a new rendering context
         /// </summary>

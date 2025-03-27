@@ -47,8 +47,13 @@ namespace DotLiquid.Tests
 
                 if (Rules.AlternateTestExpectations.ContainsKey(uniqueName))
                 {
-                    test.Result = Rules.AlternateTestExpectations[uniqueName];
-                    test.Results = null;
+                    // If we don't have a list, move the Result to the list.
+                    if (test.Results == null)
+                    {
+                        test.Results = new List<string> { test.Result };
+                        test.Result = null;
+                    }
+                    test.Results.Add(Rules.AlternateTestExpectations[uniqueName]);
                     test.IsInvalid = false;
                 }
 

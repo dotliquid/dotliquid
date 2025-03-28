@@ -12,7 +12,7 @@ namespace DotLiquid.Tests.Util
     {
         [Test]
         [TestCaseSource(nameof(GoodTestCaseSource))]
-        public void TestCoerceToNumericType(string input, IFormatProvider formatProvider, object expectedValue)
+        public void TestCoerceToNumericType(object input, IFormatProvider formatProvider, object expectedValue)
         {
             object coercedValue = input.CoerceToNumericType(formatProvider, null);
 
@@ -23,7 +23,7 @@ namespace DotLiquid.Tests.Util
 
         [Test]
         [TestCaseSource(nameof(ErrorTestCaseSource))]
-        public void TestCoerceToNumericTypeErrors(string input, IFormatProvider formatProvider)
+        public void TestCoerceToNumericTypeErrors(object input, IFormatProvider formatProvider)
         {
             object defaultValue = new object();
             object coercedValue = input.CoerceToNumericType(formatProvider, defaultValue);
@@ -49,6 +49,24 @@ namespace DotLiquid.Tests.Util
             Assert.That(converted, Is.False, $"convertedValue: {convertedValue}");
         }
 
+        [Test]
+        [TestCaseSource(nameof(GoodTestCaseSource))]
+        public void TestTryParseObjectToNumericType(object input, IFormatProvider formatProvider, object expectedValue)
+        {
+            bool converted = input.TryParseToNumericType(formatProvider, out object convertedValue);
+            Assert.That(converted, Is.True);
+            Assert.That(convertedValue, Is.EqualTo(expectedValue));
+            Assert.That(convertedValue, Is.TypeOf(expectedValue.GetType()));
+        }
+
+        [Test]
+        [TestCaseSource(nameof(ErrorTestCaseSource))]
+        public void TestTryParseObjectToNumericTypeErrors(object input, IFormatProvider formatProvider)
+        {
+            bool converted = input.TryParseToNumericType(formatProvider, out object convertedValue);
+            Assert.That(converted, Is.False, $"convertedValue: {convertedValue}");
+        }
+
         static IEnumerable GoodTestCaseSource()
         {
             IFormatProvider invariantFormatProvider = CultureInfo.InvariantCulture;
@@ -65,6 +83,10 @@ namespace DotLiquid.Tests.Util
                 invariantFormatProvider, 12567 };
             yield return new object[] { String.Format(frenchFormatProvider, "{0:#,##0}", 12567),
                 frenchFormatProvider, 12567 };
+            // Note: For fallback to happen, the number must be big enough to contain 2 separators,
+            // otherwise it will be interprested as a French floating point number.
+            yield return new object[] { String.Format(invariantFormatProvider, "{0:#,##0}", 12567890),
+                frenchFormatProvider, 12567890 }; 
 
             // Int64
             yield return new object[] { $"{Int64.MaxValue}", null, Int64.MaxValue };

@@ -17,9 +17,11 @@ namespace DotLiquid.Tests.Filters
         public override ReplaceDelegate Replace => (i, s, r) => StandardFilters.Replace(i, s, r);
         public override ReplaceFirstDelegate ReplaceFirst => (a, b, c) => StandardFilters.ReplaceFirst(a, b, c);
         public override RoundDelegate Round => (i, p) => StandardFilters.Round(_context, i, p);
-        public override SingleInputDelegate Abs => i => StandardFilters.Abs(_context, i);
-        public override SingleInputDelegate Ceil => i => StandardFilters.Ceil(_context, i);
-        public override SingleInputDelegate Floor => i => StandardFilters.Floor(_context, i);
+        public override TwoInputDelegate AtLeast => (i, p) => StandardFilters.AtLeast(_context, i, p);
+        public override TwoInputDelegate AtMost => (i, p) => StandardFilters.AtMost(_context, i, p);
+        public override OneInputDelegate Abs => i => StandardFilters.Abs(_context, i);
+        public override OneInputDelegate Ceil => i => StandardFilters.Ceil(_context, i);
+        public override OneInputDelegate Floor => i => StandardFilters.Floor(_context, i);
         public override SliceDelegate Slice => (a, b, c) => c.HasValue ? StandardFilters.Slice(a, b, c.Value) : StandardFilters.Slice(a, b);
         public override SplitDelegate Split => (i, p) => StandardFilters.Split(i, p);
         public override MathDelegate Times => (i, o) => StandardFilters.Times(_context, i, o);
@@ -83,6 +85,44 @@ namespace DotLiquid.Tests.Filters
             Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round: 3.1 }}", syntax: SyntaxCompatibilityLevel);
 
             Helper.AssertTemplateResult("1", "{{ 1.234678 | round: -3 }}", syntax: SyntaxCompatibilityLevel);
+        }
+
+        [Test]
+        public void TestAtLeastFloatingPointTypes()
+        {
+            Assert.That(AtLeast("notNumber", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(AtLeast(5, "notNumber"), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(AtLeast(5, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(AtLeast(3, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(AtLeast(6, 5), Is.EqualTo(6).And.TypeOf(typeof(decimal)));
+            Assert.That(AtLeast(10, 5), Is.EqualTo(10).And.TypeOf(typeof(decimal)));
+            Assert.That(AtLeast(9.85, 5), Is.EqualTo(9.85).And.TypeOf(typeof(decimal)));
+            Assert.That(AtLeast(3.56, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(AtLeast("10", 5), Is.EqualTo(10).And.TypeOf(typeof(decimal)));
+            Assert.That(AtLeast("4", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(AtLeast("10a", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(AtLeast("4b", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(AtLeast(null, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(AtLeast(5, null), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+        }
+
+        [Test]
+        public void TestAtMostFloatingPointTypes()
+        {
+            Assert.That(AtMost("notNumber", 5), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
+            Assert.That(AtMost(5, "notNumber"), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
+            Assert.That(AtMost(5, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(AtMost(3, 5), Is.EqualTo(3).And.TypeOf(typeof(decimal)));
+            Assert.That(AtMost(6, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(AtMost(10, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(AtMost(9.85, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(AtMost(3.56, 5), Is.EqualTo(3.56).And.TypeOf(typeof(decimal)));
+            Assert.That(AtMost("10", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(AtMost("4", 5), Is.EqualTo(4).And.TypeOf(typeof(decimal)));
+            Assert.That(AtMost("4a", 5), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
+            Assert.That(AtMost("10b", 5), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
+            Assert.That(AtMost(null, 5), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
+            Assert.That(AtMost(5, null), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
         }
 
         [Test]

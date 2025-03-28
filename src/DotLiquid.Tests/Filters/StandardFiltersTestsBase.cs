@@ -18,9 +18,11 @@ namespace DotLiquid.Tests.Filters
         public abstract ReplaceDelegate Replace { get; }
         public abstract ReplaceFirstDelegate ReplaceFirst { get; }
         public abstract RoundDelegate Round { get; }
-        public abstract SingleInputDelegate Abs { get; }
-        public abstract SingleInputDelegate Ceil { get; }
-        public abstract SingleInputDelegate Floor { get; }
+        public abstract TwoInputDelegate AtLeast { get; }
+        public abstract TwoInputDelegate AtMost { get; }
+        public abstract OneInputDelegate Abs { get; }
+        public abstract OneInputDelegate Ceil { get; }
+        public abstract OneInputDelegate Floor { get; }
         public abstract SliceDelegate Slice { get; }
         public abstract SplitDelegate Split { get; }
         public abstract MathDelegate Times { get; }
@@ -33,7 +35,8 @@ namespace DotLiquid.Tests.Filters
         public delegate string ReplaceFirstDelegate(string input, string @string, string replacement);
         public delegate object RoundDelegate(object input, object places = null);
         public delegate object SliceDelegate(object input, int start, int? len = null);
-        public delegate object SingleInputDelegate(object input);
+        public delegate object OneInputDelegate(object input);
+        public delegate object TwoInputDelegate(object input, object parameter);
         public delegate string[] SplitDelegate(string input, string pattern);
         public delegate string TruncateWordsDelegate(string input, int? words = null, string truncateString = null);
 
@@ -44,7 +47,6 @@ namespace DotLiquid.Tests.Filters
             Assert.That(Capitalize(input: ""), Is.EqualTo(""));
             Assert.That(Capitalize(input: " "), Is.EqualTo(" "));
         }
-
 
         [Test]
         public void TestDividedBy()
@@ -155,6 +157,20 @@ namespace DotLiquid.Tests.Filters
         {
             Helper.AssertTemplateResult("0", "{{ nonesuch | round }}", syntax: SyntaxCompatibilityLevel);
             Helper.AssertTemplateResult("0", "{{ nonesuch | round: 3 }}", syntax: SyntaxCompatibilityLevel);
+        }
+
+        [Test]
+        public void TestAtLeast()
+        {
+            Helper.AssertTemplateResult("5", "{{ 4 | at_least: 5 }}", syntax: SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult("4", "{{ 4 | at_least: 3 }}", syntax: SyntaxCompatibilityLevel);
+        }
+
+        [Test]
+        public void TestAtMost()
+        {
+            Helper.AssertTemplateResult("4", "{{ 4 | at_most: 5 }}", syntax: SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult("3", "{{ 4 | at_most: 3 }}", syntax: SyntaxCompatibilityLevel);
         }
 
         [Test]

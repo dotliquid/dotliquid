@@ -8,7 +8,6 @@
         "liquid.golden.liquid_tag", // not yet implemented
         "liquid.golden.reject_filter", // not yet implemented
         "liquid.golden.render_tag", // not yet implemented
-        "liquid.golden.sum_filter" // not yet implemented
     ],
     "skipped_tests": [
         // Test assumes that a parsed date is UTC, DotLiquid assumes system timezone
@@ -206,9 +205,13 @@
         "liquid.golden.last_filter - last of a string": "o",
         "liquid.golden.special - first of a string": "h",
         "liquid.golden.special - last of a string": "o",
-        // These operators are implemented by DotLiquid but not Ruby
+        // if_tag: These operators are implemented by DotLiquid but not Ruby
         "liquid.golden.if_tag - endswith is not a valid operator": "TRUE",
         "liquid.golden.if_tag - haskey is not a valid operator": "TRUE",
-        "liquid.golden.if_tag - startswith is not a valid operator": "TRUE"
+        "liquid.golden.if_tag - startswith is not a valid operator": "TRUE",
+        // sum_filter: Objects without the specified propertyName are treated as zero
+        "liquid.golden.sum_filter - properties arguments with non-hash items": "0",
+        // sum_filter: Don't flatten nested arrays - treat nested arrays as per any other object
+        "liquid.golden.sum_filter - nested ints": "1",
     }
 }

@@ -1010,6 +1010,7 @@ namespace DotLiquid
                     sum = DoMathsOperation(context, sum, valueToAdd, Expression.AddChecked);
                 }
             }
+
             return sum;
         }
 

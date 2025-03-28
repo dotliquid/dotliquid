@@ -61,9 +61,10 @@ namespace DotLiquid.Tests.Util
             yield return new object[] { "-123", invariantFormatProvider, -123 };
 
             // Int32 with thousands separator
-            // Note: The French thousands separator is a thin space (U+202F) 
-            yield return new object[] { "12,567", invariantFormatProvider, 12567 };
-            yield return new object[] { "12 567", frenchFormatProvider, 12567 };
+            yield return new object[] { String.Format(invariantFormatProvider, "{0:#,##0}", 12567),
+                invariantFormatProvider, 12567 };
+            yield return new object[] { String.Format(frenchFormatProvider, "{0:#,##0}", 12567),
+                frenchFormatProvider, 12567 };
 
             // Int64
             yield return new object[] { $"{Int64.MaxValue}", null, Int64.MaxValue };
@@ -71,9 +72,12 @@ namespace DotLiquid.Tests.Util
             yield return new object[] { $"{Int64.MinValue}", invariantFormatProvider, Int64.MinValue };
 
             // Int64 with thousands separator
-            yield return new object[] { String.Format(invariantFormatProvider, "{0:#,##0}", Int64.MaxValue), invariantFormatProvider, Int64.MaxValue };
-            yield return new object[] { String.Format(frenchFormatProvider, "{0:#,##0}", Int64.MaxValue), frenchFormatProvider, Int64.MaxValue };
-            yield return new object[] { String.Format(invariantFormatProvider, "{0:#,##0}", Int64.MaxValue), frenchFormatProvider, Int64.MaxValue };
+            yield return new object[] { String.Format(invariantFormatProvider, "{0:#,##0}", Int64.MaxValue),
+                invariantFormatProvider, Int64.MaxValue };
+            yield return new object[] { String.Format(frenchFormatProvider, "{0:#,##0}", Int64.MaxValue),
+                frenchFormatProvider, Int64.MaxValue };
+            yield return new object[] { String.Format(invariantFormatProvider, "{0:#,##0}", Int64.MaxValue),
+                frenchFormatProvider, Int64.MaxValue };
 
             // Decimal
             yield return new object[] { "0.0", null, 0m };
@@ -95,10 +99,12 @@ namespace DotLiquid.Tests.Util
             yield return new object[] { "-12,567", frenchFormatProvider, -12.567m };
 
             // Decimal with thousands separator
-            // Note: The French thousands separator is a thin space (U+202F) 
-            yield return new object[] { "12,567.10", invariantFormatProvider, 12567.1m };
-            yield return new object[] { "12 567,10", frenchFormatProvider, 12567.1m };
-            yield return new object[] { "12,567.10", frenchFormatProvider, 12567.1m };
+            yield return new object[] { String.Format(invariantFormatProvider, "{0:#,##0.00}", 12567.1m),
+                invariantFormatProvider, 12567.1m };
+            yield return new object[] { String.Format(frenchFormatProvider, "{0:#,##0.00}", 12567.1m),
+                frenchFormatProvider, 12567.1m };
+            yield return new object[] { String.Format(invariantFormatProvider, "{0:#,##0.00}", 12567.1m),
+                frenchFormatProvider, 12567.1m };
 
             // Double
             double largePositiveValue = double.Parse("1e203");
@@ -108,9 +114,12 @@ namespace DotLiquid.Tests.Util
             yield return new object[] { $"{largeNegativeValue:F}", invariantFormatProvider, largeNegativeValue};
 
             // Double with thousands separator
-            yield return new object[] { String.Format(invariantFormatProvider, "{0:#,##0.00}", largePositiveValue), invariantFormatProvider, largePositiveValue };
-            yield return new object[] { String.Format(frenchFormatProvider, "{0:#,##0.00}", largePositiveValue), frenchFormatProvider, largePositiveValue };
-            yield return new object[] { String.Format(invariantFormatProvider, "{0:#,##0.00}", largePositiveValue), frenchFormatProvider, largePositiveValue };
+            yield return new object[] { String.Format(invariantFormatProvider, "{0:#,##0.00}", largePositiveValue),
+                invariantFormatProvider, largePositiveValue };
+            yield return new object[] { String.Format(frenchFormatProvider, "{0:#,##0.00}", largePositiveValue),
+                frenchFormatProvider, largePositiveValue };
+            yield return new object[] { String.Format(invariantFormatProvider, "{0:#,##0.00}", largePositiveValue),
+                frenchFormatProvider, largePositiveValue };
         }
 
         static IEnumerable ErrorTestCaseSource()

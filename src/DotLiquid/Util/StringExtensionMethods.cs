@@ -7,11 +7,42 @@ using System.Text.RegularExpressions;
 
 namespace DotLiquid.Util
 {
+    /// <summary>
+    /// ExtensionMethods for Strings.
+    /// </summary>
     public static class StringExtensionMethods
     {
         private static readonly Regex IntegerRegex = R.C(R.Q(@"^([+-]?\d+)$"));
         private static readonly Regex NumericRegex = R.C(R.Q(@"^([+-]?\d[\d\.|\,]+)$"));
 
+        /// <summary>
+        /// Coerce the string into a numeric type.
+        /// </summary>
+        /// <param name="value">The string to coerce.</param>
+        /// <param name="formatProvider">The format provider for converting floating point numbers.</param>
+        /// <param name="defaultValue">The value to return if coercion fails.</param>
+        /// <returns>The coerced value as int, long, double or decimal type, or <paramref name="defaultValue"/> if coercion fails.</returns>
+        public static object CoerceToNumericType(this string value, IFormatProvider formatProvider, object defaultValue)
+        {
+            object result = defaultValue;
+            if (value != null)
+            {
+                bool converted = value.TryParseToNumericType(formatProvider, out object convertedValue);
+                if (converted)
+                {
+                    result = convertedValue;
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Try to parse the string into a numeric type.
+        /// </summary>
+        /// <param name="value">The string to parse.</param>
+        /// <param name="formatProvider">The format provider for converting floating point numbers.</param>
+        /// <param name="convertedValue">The coerced value as int, long, double or decimal type, or null if parsing fails.</param>
+        /// <returns>true if parsing was successful; Otherwise, false.</returns>
         public static bool TryParseToNumericType(this string value, IFormatProvider formatProvider, out object convertedValue)
         {
             if (value == null)

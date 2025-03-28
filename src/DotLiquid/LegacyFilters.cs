@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -114,6 +115,63 @@ namespace DotLiquid
                 return input;
             int position = input.IndexOf(@string);
             return position < 0 ? input : input.Remove(position, @string.Length).Insert(position, replacement);
+        }
+
+
+        /// <summary>
+        /// Rounds a decimal value to the specified places
+        /// </summary>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="places">Number of decimal places for rounding</param>
+        /// <returns>The rounded value; zero if input is invalid, or rounded to 0 decimals if places is invalid</returns>
+        [LiquidFilter(MaxVersion = SyntaxCompatibility.DotLiquid22a)]
+        public static object Round(object input, object places = null)
+        {
+            try
+            {
+                var p = places == null ? 0 : Convert.ToInt32(places);
+                var i = Convert.ToDecimal(input);
+                return Math.Round(i, p);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Returns the absolute value of a number.
+        /// </summary>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
+        [LiquidFilter(MaxVersion = SyntaxCompatibility.DotLiquid22a)]
+        public static object Abs(Context context, object input)
+        {
+            return Double.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out double n) ? Math.Abs(n) : 0;
+        }
+
+        /// <summary>
+        /// Rounds a decimal value up to the next integer, unless already the integer value, removing all decimal places 
+        /// </summary>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <returns>The rounded value; null if an exception have occurred</returns>
+        [LiquidFilter(MaxVersion = SyntaxCompatibility.DotLiquid22a)]
+        public static object Ceil(Context context, object input)
+        {
+            return decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal n) ? (object)Math.Ceiling(n) : null;
+        }
+
+        /// <summary>
+        /// Rounds a decimal value down to an integer, removing all decimal places 
+        /// </summary>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <returns>The rounded value; null if an exception have occurred</returns>
+        [LiquidFilter(MaxVersion = SyntaxCompatibility.DotLiquid22a)]
+        public static object Floor(Context context, object input)
+        {
+                return decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal n) ? (object)Math.Floor(n) : null;
         }
 
         /// <summary>

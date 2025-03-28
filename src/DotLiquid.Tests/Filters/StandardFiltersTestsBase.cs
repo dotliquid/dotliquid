@@ -17,6 +17,10 @@ namespace DotLiquid.Tests.Filters
         public abstract RemoveFirstDelegate RemoveFirst { get; }
         public abstract ReplaceDelegate Replace { get; }
         public abstract ReplaceFirstDelegate ReplaceFirst { get; }
+        public abstract RoundDelegate Round { get; }
+        public abstract SingleInputDelegate Abs { get; }
+        public abstract SingleInputDelegate Ceil { get; }
+        public abstract SingleInputDelegate Floor { get; }
         public abstract SliceDelegate Slice { get; }
         public abstract SplitDelegate Split { get; }
         public abstract MathDelegate Times { get; }
@@ -27,7 +31,9 @@ namespace DotLiquid.Tests.Filters
         public delegate string RemoveFirstDelegate(string input, string @string);
         public delegate string ReplaceDelegate(string input, string @string, string replacement);
         public delegate string ReplaceFirstDelegate(string input, string @string, string replacement);
+        public delegate object RoundDelegate(object input, object places = null);
         public delegate object SliceDelegate(object input, int start, int? len = null);
+        public delegate object SingleInputDelegate(object input);
         public delegate string[] SplitDelegate(string input, string pattern);
         public delegate string TruncateWordsDelegate(string input, int? words = null, string truncateString = null);
 
@@ -132,6 +138,55 @@ namespace DotLiquid.Tests.Filters
             Assert.That(ReplaceFirst(input: "", @string: "a", replacement: "b"), Is.EqualTo(""));
             Assert.That(ReplaceFirst(input: "a a a a", @string: "a", replacement: "b"), Is.EqualTo("b a a a"));
             Helper.AssertTemplateResult(expected: "b a a a", template: "{{ 'a a a a' | replace_first: 'a', 'b' }}", syntax: SyntaxCompatibilityLevel);
+        }
+
+        [Test]
+        public void TestRound()
+        {
+            Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round: 3 }}", syntax: SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult("1", "{{ 1 | round }}", syntax: SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult("1", "{{ 1.234678 | round }}", syntax: SyntaxCompatibilityLevel);
+
+            Helper.AssertTemplateResult("1", "{{ 1.234678 | round: nonesuch }}", syntax: SyntaxCompatibilityLevel);
+        }
+
+        [Test]
+        public void TestRoundHandlesBadInput()
+        {
+            Helper.AssertTemplateResult("0", "{{ nonesuch | round }}", syntax: SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult("0", "{{ nonesuch | round: 3 }}", syntax: SyntaxCompatibilityLevel);
+        }
+
+        [Test]
+        public void TestAbs()
+        {
+            Helper.AssertTemplateResult("17", "{{ -17 | abs }}", syntax: SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult("17", "{{ 17 | abs }}", syntax: SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult("4", "{{ 4 | abs }}", syntax: SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult("19.86", "{{ '-19.86' | abs }}", syntax: SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult("19.86", "{{ -19.86 | abs }}", syntax: SyntaxCompatibilityLevel);
+
+            Helper.AssertTemplateResult("0", "{{ 'notNumber' | abs }}", syntax: SyntaxCompatibilityLevel);
+        }
+
+        [Test]
+        public void TestCeil()
+        {
+            Helper.AssertTemplateResult("-1", "{{ -1.2 | ceil }}", syntax: SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult("2", "{{ 1.2 | ceil }}", syntax: SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult("2", "{{ 2.0 | ceil }}", syntax: SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult("184", "{{ 183.357 | ceil }}", syntax: SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult("4", "{{ \"3.5\" | ceil }}", syntax: SyntaxCompatibilityLevel);
+        }
+
+        [Test]
+        public void TestFloor()
+        {
+            Helper.AssertTemplateResult("-2", "{{ -1.2 | floor }}", syntax: SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult("1", "{{ 1.2 | floor }}", syntax: SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult("2", "{{ 2.0 | floor }}", syntax: SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult("183", "{{ 183.57 | floor }}", syntax: SyntaxCompatibilityLevel);
+            Helper.AssertTemplateResult("3", "{{ \"3.5\" | floor }}", syntax: SyntaxCompatibilityLevel);
         }
 
         [Test]

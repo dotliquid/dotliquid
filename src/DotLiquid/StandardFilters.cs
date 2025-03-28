@@ -703,21 +703,6 @@ namespace DotLiquid
         [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid21)]
         public static object Times(Context context, object input, object operand) => DoMathsOperation(context, input, operand, Expression.MultiplyChecked);
 
-
-        private static object Round_BeforeDotLiquid22b(object input, object places)
-        {
-            try
-            {
-                var p = places == null ? 0 : Convert.ToInt32(places);
-                var i = Convert.ToDecimal(input);
-                return Math.Round(i, p);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-
         /// <summary>
         /// Rounds a decimal value to the specified places
         /// </summary>
@@ -727,13 +712,9 @@ namespace DotLiquid
         /// <returns>The rounded value; zero if input is invalid, or rounded to 0 decimals if places is invalid</returns>
         /// <remarks>Behaviour differs from Ruby implementation for negative places values.
         /// This will treat it as any other invalid places value, and round to closest integer.</remarks>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object Round(Context context, object input, object places = null)
         {
-            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid24)
-            {
-                return Round_BeforeDotLiquid22b(input, places);
-            }
-
             int decimals = 0;
             if (decimal.TryParse(places?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal placesValue))
             {
@@ -756,7 +737,8 @@ namespace DotLiquid
         /// </summary>
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
-        /// <returns>The rounded value; null if an exception have occurred</returns>
+        /// <returns>The rounded value; zero if an exception has occurred</returns>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object Ceil(Context context, object input)
         {
             if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid24)
@@ -768,7 +750,7 @@ namespace DotLiquid
 
             if (input is string inputString)
             {
-                input = CoerceToNumericType(inputString, context.FormatProvider, 0);
+                input = inputString.CoerceToNumericType(context.FormatProvider, 0);
             }
 
             if (input is decimal inputDecimal) { return Math.Ceiling(inputDecimal); }
@@ -783,19 +765,15 @@ namespace DotLiquid
         /// </summary>
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
-        /// <returns>The rounded value; null if an exception have occurred</returns>
+        /// <returns>The rounded value; zero if an exception has occurred</returns>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object Floor(Context context, object input)
         {
-            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid24)
-            {
-                return decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal n) ? (object)Math.Floor(n) : null;
-            }
-
             if (input == null) return 0;
 
             if (input is string inputString)
             {
-                input = CoerceToNumericType(inputString, context.FormatProvider, 0);
+                input = inputString.CoerceToNumericType(context.FormatProvider, 0);
             }
 
             if (input is decimal inputDecimal) { return Math.Floor(inputDecimal); }
@@ -838,21 +816,6 @@ namespace DotLiquid
         }
 
         private static bool IsReal(object o) => o is double || o is float || o is decimal;
-
-        private static object CoerceToNumericType(string value, IFormatProvider formatProvider, object defaultValue)
-        {
-            object result = defaultValue;
-            if (value != null)
-            {
-                bool converted = value.TryParseToNumericType(formatProvider, out object convertedValue);
-                if (converted)
-                {
-                    result = convertedValue;
-                }
-            }
-            return result;
-        }
-
 
         internal static object DoMathsOperation(Context context, object input, object operand, Func<Expression, Expression, BinaryExpression> operation)
         {
@@ -929,18 +892,14 @@ namespace DotLiquid
         /// </summary>
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object Abs(Context context, object input)
         {
-            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid24)
-            {
-                return Double.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out double n) ? Math.Abs(n) : 0;
-            }
-
             if (input == null) return 0;
 
             if (input is string inputString)
             {
-                input = CoerceToNumericType(inputString, context.FormatProvider, 0);
+                input = inputString.CoerceToNumericType(context.FormatProvider, 0);
             }
 
             if (input is decimal inputDecimal) { return Math.Abs(inputDecimal); }

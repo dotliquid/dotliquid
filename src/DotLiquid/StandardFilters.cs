@@ -741,11 +741,6 @@ namespace DotLiquid
         [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object Ceil(Context context, object input)
         {
-            if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid24)
-            {
-                return decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal n) ? (object)Math.Ceiling(n) : null;
-            }
-
             if (input == null) return 0;
 
             if (input is string inputString)

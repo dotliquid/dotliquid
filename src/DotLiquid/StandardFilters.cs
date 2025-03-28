@@ -706,21 +706,27 @@ namespace DotLiquid
         /// <summary>
         /// Rounds a decimal value to the specified places
         /// </summary>
+        /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="places">Number of decimal places for rounding</param>
-        /// <returns>The rounded value; null if an exception have occurred</returns>
-        public static object Round(object input, object places = null)
+        /// <returns>The rounded value; zero if input is invalid, or rounded to 0 decimals if places is invalid</returns>
+        /// <remarks>Behaviour differs from Ruby implementation for negative places values.
+        /// This will treat it as any other invalid places value, and round to closest integer.</remarks>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
+        public static object Round(Context context, object input, object places = null)
         {
-            try
+            int decimals = 0;
+            if (places != null)
             {
-                var p = places == null ? 0 : Convert.ToInt32(places);
-                var i = Convert.ToDecimal(input);
-                return Math.Round(i, p);
+                decimal placesValue = places.CoerceToDecimal(context.FormatProvider, 0m);
+                const decimal MinDecimalPlaces = 0m;
+                const decimal MaxDecimalPlaces = 28m;
+                placesValue = Math.Max(MinDecimalPlaces, Math.Min(MaxDecimalPlaces, placesValue));
+                decimals = (int)Math.Floor(placesValue);
             }
-            catch (Exception)
-            {
-                return null;
-            }
+
+            decimal inputValue = input.CoerceToDecimal(context.FormatProvider, 0m);
+            return Math.Round(inputValue, decimals);
         }
 
         /// <summary>
@@ -728,13 +734,22 @@ namespace DotLiquid
         /// </summary>
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
-        /// <returns>The rounded value; null if an exception have occurred</returns>
+        /// <returns>The rounded value; zero if an exception has occurred</returns>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object Ceil(Context context, object input)
         {
-            if (decimal.TryParse(input.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
-                return Math.Ceiling(d);
-            else
-                return null;
+            if (input == null) return 0;
+
+            if (input is string inputString)
+            {
+                input = inputString.CoerceToNumericType(context.FormatProvider, 0);
+            }
+
+            if (input is decimal inputDecimal) { return Math.Ceiling(inputDecimal); }
+            else if (input is double inputDouble) { return Math.Ceiling(inputDouble); }
+            else if (input is int inputInt32) { return inputInt32; }
+            else if (input is long inputInt64) { return inputInt64; }
+            else return 0;
         }
 
         /// <summary>
@@ -742,13 +757,22 @@ namespace DotLiquid
         /// </summary>
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
-        /// <returns>The rounded value; null if an exception have occurred</returns>
+        /// <returns>The rounded value; zero if an exception has occurred</returns>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object Floor(Context context, object input)
         {
-            if (decimal.TryParse(input.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
-                return Math.Floor(d);
-            else
-                return null;
+            if (input == null) return 0;
+
+            if (input is string inputString)
+            {
+                input = inputString.CoerceToNumericType(context.FormatProvider, 0);
+            }
+
+            if (input is decimal inputDecimal) { return Math.Floor(inputDecimal); }
+            else if (input is double inputDouble) { return Math.Floor(inputDouble); }
+            else if (input is int inputInt32) { return inputInt32; }
+            else if (input is long inputInt64) { return inputInt64; }
+            else return 0;
         }
 
         /// <summary>
@@ -860,10 +884,21 @@ namespace DotLiquid
         /// </summary>
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
-        public static double Abs(Context context, object input)
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
+        public static object Abs(Context context, object input)
         {
-            Double n;
-            return Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n) ? Math.Abs(n) : 0;
+            if (input == null) return 0;
+
+            if (input is string inputString)
+            {
+                input = inputString.CoerceToNumericType(context.FormatProvider, 0);
+            }
+
+            if (input is decimal inputDecimal) { return Math.Abs(inputDecimal); }
+            else if (input is double inputDouble) { return Math.Abs(inputDouble); }
+            else if (input is int inputInt32) { return Math.Abs(inputInt32); }
+            else if (input is long inputInt64) { return Math.Abs(inputInt64); }
+            else return 0;
         }
 
         /// <summary>
@@ -872,22 +907,12 @@ namespace DotLiquid
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="atLeast">Value to apply if more than input</param>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object AtLeast(Context context, object input, object atLeast)
         {
-            double n;
-            var inputNumber = Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
-
-            double min;
-            var atLeastNumber = Double.TryParse(atLeast.ToString(), NumberStyles.Number, context.CurrentCulture, out min);
-
-            if (inputNumber && atLeastNumber)
-            {
-                return (double)((double)min > (double)n ? min : n);
-            }
-            else
-            {
-                return input;
-            }
+            decimal val1 = input.CoerceToDecimal(context.FormatProvider, 0);
+            decimal val2 = atLeast.CoerceToDecimal(context.FormatProvider, 0);
+            return Math.Max(val1, val2);
         }
 
         /// <summary>
@@ -896,22 +921,12 @@ namespace DotLiquid
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="atMost">Value to apply if less than input</param>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object AtMost(Context context, object input, object atMost)
         {
-            double n;
-            var inputNumber = Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
-
-            double max;
-            var atMostNumber = Double.TryParse(atMost.ToString(), NumberStyles.Number, context.CurrentCulture, out max);
-
-            if (inputNumber && atMostNumber)
-            {
-                return (double)((double)max < (double)n ? max : n);
-            }
-            else
-            {
-                return input;
-            }
+            decimal val1 = input.CoerceToDecimal(context.FormatProvider, 0);
+            decimal val2 = atMost.CoerceToDecimal(context.FormatProvider, 0);
+            return Math.Min(val1, val2);
         }
 
         /// <summary>
@@ -953,6 +968,39 @@ namespace DotLiquid
                 throw new ArgumentNullException(paramName: nameof(propertyName), message: $"'{nameof(propertyName)}' cannot be null or empty.");
 
             return input.Cast<object>().Where(source => source.HasMatchingProperty(propertyName, targetValue));
+        }
+
+        /// <summary>
+        /// Sums all items in an array. If <paramref name="propertyName"/> is supplied, it sums the property values./> 
+        /// </summary>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">An array of numerics values, or objects with a numeric property, to be summed.</param>
+        /// <param name="propertyName">The name of a numeric property to sum. </param>
+        /// <returns>The sum of the input values.</returns>
+        public static object Sum(Context context, IEnumerable input, string propertyName=null)
+        {
+            if (input == null)
+                return 0;
+
+            // If propertyName is specified, expect a list of objects with a numeric property of the same name
+            if (propertyName != null)
+            {
+                IEnumerable<object> values = input.Cast<object>()
+                    .Select(source => source.ResolveObjectPropertyValue(propertyName));
+                return Sum(context, values);
+            }
+
+            object sum = 0;
+            foreach (object value in input)
+            {
+                if (value != null)
+                {
+                    object valueToAdd = value.CoerceToNumericType(context.FormatProvider, 0);
+                    sum = DoMathsOperation(context, sum, valueToAdd, Expression.AddChecked);
+                }
+            }
+
+            return sum;
         }
 
         /// <summary>

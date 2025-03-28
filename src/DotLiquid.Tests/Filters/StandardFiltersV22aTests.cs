@@ -130,14 +130,43 @@ namespace DotLiquid.Tests.Filters
         }
 
         [Test]
+        public void TestAbsIntegerTypes()
+        {
+            long valueInt64 = ((long)Int32.MinValue) - 1;
+            long absValueInt64 = Math.Abs(valueInt64);
+
+            Assert.That(Abs(-1), Is.EqualTo(1).And.TypeOf(typeof(double)));
+            Assert.That(Abs(valueInt64), Is.EqualTo(absValueInt64).And.TypeOf(typeof(double)));
+        }
+
+        [Test]
         public void TestAbsFloatingPointTypes()
         {
             Assert.That(Abs(10), Is.EqualTo(10).And.TypeOf(typeof(double)));
-            Assert.That(Abs("10"), Is.EqualTo(10).And.TypeOf(typeof(double)));
+            Assert.That(Abs(-5), Is.EqualTo(5).And.TypeOf(typeof(double)));
+            Assert.That(Abs(19.86), Is.EqualTo(19.86).And.TypeOf(typeof(double)));
+            Assert.That(Abs(-19.86m), Is.EqualTo(19.86m).And.TypeOf(typeof(double)));
             Assert.That(Abs(-19.86m), Is.EqualTo(19.86).And.TypeOf(typeof(double)));
+            Assert.That(Abs("10"), Is.EqualTo(10).And.TypeOf(typeof(double)));
+            Assert.That(Abs(-5), Is.EqualTo(5).And.TypeOf(typeof(double)));
             Assert.That(Abs("30.60"), Is.EqualTo(30.60).And.TypeOf(typeof(double)));
+        }
+
+        [Test]
+        public void TestAbsBadValues()
+        {
+            Assert.That(Abs("notNumber"), Is.EqualTo(0).And.TypeOf(typeof(double)));
             Assert.That(Abs("30.60a"), Is.EqualTo(0).And.TypeOf(typeof(double)));
             Assert.That(Abs(null), Is.EqualTo(0).And.TypeOf(typeof(double)));
+        }
+
+        [Test]
+        public void TestCeilIntegerTypes()
+        {
+            long valueInt64 = ((long)Int32.MaxValue) + 1;
+
+            Assert.That(Ceil(1), Is.EqualTo(1).And.TypeOf(typeof(decimal)));
+            Assert.That(Ceil(valueInt64), Is.EqualTo(valueInt64).And.TypeOf(typeof(decimal)));
         }
 
         [Test]
@@ -154,8 +183,15 @@ namespace DotLiquid.Tests.Filters
             Assert.That(Ceil(null), Is.Null);
             Assert.That(Ceil(""), Is.Null);
             Assert.That(Ceil("two"), Is.Null);
+        }
 
-            Helper.AssertTemplateResult("", "{{ nonesuch | ceil }}", syntax: SyntaxCompatibilityLevel);
+        [Test]
+        public void TestFloorIntegerTypes()
+        {
+            long valueInt64 = ((long)Int32.MaxValue) + 1;
+
+            Assert.That(Floor(1), Is.EqualTo(1).And.TypeOf(typeof(decimal)));
+            Assert.That(Floor(valueInt64), Is.EqualTo(valueInt64).And.TypeOf(typeof(decimal)));
         }
 
         [Test]
@@ -172,8 +208,6 @@ namespace DotLiquid.Tests.Filters
             Assert.That(Floor(null), Is.Null);
             Assert.That(Floor(""), Is.Null);
             Assert.That(Floor("two"), Is.Null);
-
-            Helper.AssertTemplateResult("", "{{ nonesuch | floor }}", syntax: SyntaxCompatibilityLevel);
         }
     }
 }

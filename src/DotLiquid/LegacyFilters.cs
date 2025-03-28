@@ -117,7 +117,6 @@ namespace DotLiquid
             return position < 0 ? input : input.Remove(position, @string.Length).Insert(position, replacement);
         }
 
-
         /// <summary>
         /// Rounds a decimal value to the specified places
         /// </summary>

@@ -20,6 +20,7 @@ namespace DotLiquid.Tags
 
         public override void Render(Context context, TextWriter result)
         {
+            // Comments are not rendered
         }
     }
 }

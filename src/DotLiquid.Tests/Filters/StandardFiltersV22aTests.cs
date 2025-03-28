@@ -5,6 +5,7 @@ using NUnit.Framework;
 namespace DotLiquid.Tests.Filters
 {
     [TestFixture]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Sonar Code Smell", "S101:Types should be named in camel case", Justification = "<Pending>")]
     public class StandardFiltersV22aTests : StandardFiltersTestsBase
     {
         public override SyntaxCompatibility SyntaxCompatibilityLevel => SyntaxCompatibility.DotLiquid22a;

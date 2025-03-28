@@ -17,6 +17,8 @@ namespace DotLiquid
     /// </summary>
     public class Condition
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Sonar Vulnerability", "S2386:Mutable fields should not be \"public static\"", Justification = "Deliberate design decision")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Sonar Bug", "S3887:Mutable, non-private fields should not be \"readonly\"", Justification = "Deliberate design decision")]
         public static readonly Dictionary<string, ConditionOperatorDelegate> Operators = new Dictionary<string, ConditionOperatorDelegate>()
         {
             { "==", (left, right) => EqualVariables(left, right) },

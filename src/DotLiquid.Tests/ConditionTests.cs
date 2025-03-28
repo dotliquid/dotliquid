@@ -43,6 +43,14 @@ namespace DotLiquid.Tests
             {
                 return other == this.ToString();
             }
+
+            public override int GetHashCode()
+            {
+                int hashCode = 1384102433;
+                hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Make);
+                hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Model);
+                return hashCode;
+            }
         }
 
         public class DummyDrop : Drop
@@ -821,13 +829,13 @@ namespace DotLiquid.Tests
             Helper.AssertTemplateResult("Liquid error: Unknown operator starts_with", "{% if 'bob' starts_with 'B' %} YES {% endif %}", null, new CSharpNamingConvention());
         }
 
-        private enum TestEnum { Yes, No }
+        private enum YesOrNo { Yes, No }
 
         [Test]
         public void TestEqualOperatorsWorksOnEnum()
         {
             _context = new Context(CultureInfo.InvariantCulture);
-            _context["enum"] = TestEnum.Yes;
+            _context["enum"] = YesOrNo.Yes;
 
             AssertEvaluatesTrue("enum", "==", "'Yes'");
             AssertEvaluatesTrue("enum", "!=", "'No'");

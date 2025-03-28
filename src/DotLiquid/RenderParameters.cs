@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 
 namespace DotLiquid
 {
@@ -38,42 +39,21 @@ namespace DotLiquid
             get { return (ErrorsOutputMode == ErrorsOutputMode.Rethrow); }
             set { ErrorsOutputMode = (value ? ErrorsOutputMode.Rethrow : ErrorsOutputMode.Display); }
         }
-        
-        private ErrorsOutputMode _erorsOutputMode = ErrorsOutputMode.Display;
 
         /// <summary>
         /// Errors output mode
         /// </summary>
-        public ErrorsOutputMode ErrorsOutputMode
-        {
-            get
-            {
-                return _erorsOutputMode;
-            }
-
-            set
-            {
-                _erorsOutputMode = value;
-            }
-        }
+        public ErrorsOutputMode ErrorsOutputMode { get; set; } = ErrorsOutputMode.Display;
 
         /// <summary>
         /// Liquid syntax flag used for backward compatibility
         /// </summary>
         public SyntaxCompatibility SyntaxCompatibilityLevel { get; set; }
 
-        private int _maxIterations = 0;
-
         /// <summary>
         /// Maximum number of iterations for the For tag
         /// </summary>
-        public int MaxIterations
-        {
-            get { return _maxIterations; }
-            set { _maxIterations = value; }
-        }
-
-        private int _timeout = 0;
+        public int MaxIterations { get; set; } = 0;
         public IFormatProvider FormatProvider { get; }
 
         public RenderParameters(IFormatProvider formatProvider)
@@ -85,11 +65,7 @@ namespace DotLiquid
         /// <summary>
         /// Rendering timeout in ms
         /// </summary>
-        public int Timeout
-        {
-            get { return _timeout; }
-            set { _timeout = value; }
-        }
+        public int Timeout { get; set; } = 0;
 
         internal void Evaluate(Template template, out Context context, out Hash registers, out IEnumerable<Type> filters)
         {
@@ -104,10 +80,18 @@ namespace DotLiquid
 
             List<IIndexable> environments = new List<IIndexable>();
             if (LocalVariables != null)
+            {
                 environments.Add(LocalVariables);
+            }
+            CancellationToken token = CancellationToken.None;
+            if (Timeout != 0)
+            {
+                CancellationTokenSource source = new CancellationTokenSource(Timeout);
+                token = source.Token;
+            }
             if (template.IsThreadSafe)
             {
-                context = new Context(environments, new Hash(), new Hash(), ErrorsOutputMode, MaxIterations, Timeout, FormatProvider)
+                context = new Context(environments, new Hash(), new Hash(), ErrorsOutputMode, MaxIterations, FormatProvider, token)
                 {
                     SyntaxCompatibilityLevel = this.SyntaxCompatibilityLevel
                 };
@@ -115,7 +99,7 @@ namespace DotLiquid
             else
             {
                 environments.Add(template.Assigns);
-                context = new Context(environments, template.InstanceAssigns, template.Registers, ErrorsOutputMode, MaxIterations, Timeout, FormatProvider)
+                context = new Context(environments, template.InstanceAssigns, template.Registers, ErrorsOutputMode, MaxIterations, FormatProvider, token)
                 {
                     SyntaxCompatibilityLevel = this.SyntaxCompatibilityLevel
                 };

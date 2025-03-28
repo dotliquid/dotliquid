@@ -12,6 +12,27 @@ namespace DotLiquid.Tests.Util
     {
         [Test]
         [TestCaseSource(nameof(GoodTestCaseSource))]
+        public void TestCoerceToNumericType(string input, IFormatProvider formatProvider, object expectedValue)
+        {
+            object coercedValue = input.CoerceToNumericType(formatProvider, null);
+
+            Assert.That(coercedValue, Is.Not.Null);
+            Assert.That(coercedValue, Is.EqualTo(expectedValue));
+            Assert.That(coercedValue, Is.TypeOf(expectedValue.GetType()));
+        }
+
+        [Test]
+        [TestCaseSource(nameof(ErrorTestCaseSource))]
+        public void TestCoerceToNumericTypeErrors(string input, IFormatProvider formatProvider)
+        {
+            object defaultValue = new object();
+            object coercedValue = input.CoerceToNumericType(formatProvider, defaultValue);
+
+            Assert.That(coercedValue, Is.EqualTo(defaultValue));
+        }
+
+        [Test]
+        [TestCaseSource(nameof(GoodTestCaseSource))]
         public void TestTryParseToNumericType(string input, IFormatProvider formatProvider, object expectedValue)
         {
             bool converted = input.TryParseToNumericType(formatProvider, out object convertedValue);

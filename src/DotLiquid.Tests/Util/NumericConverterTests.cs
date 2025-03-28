@@ -11,6 +11,22 @@ namespace DotLiquid.Tests.Util
     public class NumericConverterTests
     {
         [Test]
+        public void TestCoerceToDecimal()
+        {
+            Assert.That(15.CoerceToDecimal(CultureInfo.InvariantCulture, 0), Is.EqualTo(15m));
+            Assert.That(15m.CoerceToDecimal(CultureInfo.InvariantCulture, 0), Is.EqualTo(15m));
+            Assert.That("15".CoerceToDecimal(CultureInfo.InvariantCulture, 0), Is.EqualTo(15m));
+            Assert.That("-15".CoerceToDecimal(CultureInfo.InvariantCulture, 0), Is.EqualTo(-15m));
+        }
+
+        [Test]
+        public void TestCoerceToDecimalOverflow()
+        {
+            string largePositiveValue = $"{double.Parse("1e203"):F}";
+            Assert.That(largePositiveValue.CoerceToDecimal(CultureInfo.InvariantCulture, 15m), Is.EqualTo(15m));
+        }
+
+        [Test]
         [TestCaseSource(nameof(GoodTestCaseSource))]
         public void TestCoerceToNumericType(object input, IFormatProvider formatProvider, object expectedValue)
         {

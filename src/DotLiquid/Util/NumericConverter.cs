@@ -40,10 +40,6 @@ namespace DotLiquid.Util
                     {
                         result = Convert.ToDecimal(convertedObject);
                     }
-                    catch (InvalidCastException)
-                    {
-                        // Ignore - conversion failed
-                    }
                     catch (OverflowException)
                     {
                         // Ignore - conversion failed

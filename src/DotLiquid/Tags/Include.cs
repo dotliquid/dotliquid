@@ -25,8 +25,7 @@ namespace DotLiquid.Tags
                 _variableName = syntaxMatch.Groups[3].Value;
                 if (_variableName == string.Empty)
                     _variableName = null;
-                _attributes = new Dictionary<string, string>(Template.NamingConvention.StringComparer);
-                R.Scan(markup, Liquid.TagAttributes, (key, value) => _attributes[key] = value);
+                _attributes = Tokenizer.GetAttributes(markup);
             }
             else
                 throw new SyntaxException(Liquid.ResourceManager.GetString("IncludeTagSyntaxException"));
@@ -61,9 +60,9 @@ namespace DotLiquid.Tags
                 foreach (var keyValue in _attributes)
                     context[keyValue.Key] = context[keyValue.Value];
 
-                if (variable is IEnumerable)
+                if (variable is IEnumerable enumerable && !(variable is string))
                 {
-                    ((IEnumerable) variable).Cast<object>().ToList().ForEach(v =>
+                    enumerable.Cast<object>().ToList().ForEach(v =>
                     {
                         context[shortenedTemplateName] = v;
                         partial.Render(result, RenderParameters.FromContext(context, result.FormatProvider));

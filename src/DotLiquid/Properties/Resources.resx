@@ -252,6 +252,9 @@
   <data name="IncrementSyntaxException" xml:space="preserve">
     <value>Syntax Error in 'increment' tag - Valid syntax: increment [var]</value>
   </data>
+  <data name="MissingLiquidTypeAttributeError" xml:space="preserve">
+    <value>Object '{0}' is invalid because it is not decorated with LiquidTypeAttribute.</value>
+  </data>
   <data name="Base64FilterInvalidInput" xml:space="preserve">
     <value>Invalid base64 provided to {0}</value>
   </data>
@@ -263,5 +266,8 @@
   </data>
   <data name="DateFilterRubyDirectiveInvalid" xml:space="preserve">
     <value>Invalid directive passed to {0}</value>
+  </data>
+  <data name="ContextPropertyReadonly" xml:space="preserve">
+    <value>Property '{0}' cannot be modified after the context has entered its current state.</value>
   </data>
 </root>

@@ -10,7 +10,7 @@ namespace DotLiquid
     /// <summary>
     /// Represents a collection of keys and values and is a DotLiquid safe type
     /// </summary>
-    public class Hash : IDictionary<string, object>, IDictionary
+    public class Hash : IDictionary<string, object>, IDictionary, IIndexable
     {
         #region Static fields
 
@@ -186,10 +186,7 @@ namespace DotLiquid
             if (_lambda != null)
                 return _lambda(this, key);
 
-            if (_defaultValue != null)
-                return _defaultValue;
-
-            return null;
+            return _defaultValue;
         }
 
         /// <summary>
@@ -380,7 +377,14 @@ namespace DotLiquid
         {
             get { return _nestedDictionary.Values; }
         }
+        #endregion
 
+        #region IIndexable
+        /// <inheritdoc />
+        object IIndexable.this[object key] => ((IDictionary)this)[key];
+
+        /// <inheritdoc />
+        public bool ContainsKey(object key) => Contains(key);
         #endregion
     }
 }

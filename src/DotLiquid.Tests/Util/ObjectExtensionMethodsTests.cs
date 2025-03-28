@@ -28,6 +28,48 @@ namespace DotLiquid.Tests.Util
         }
 
         [Test]
+        public void TestSafeTypeInsensitiveEqualArrays()
+        {
+            string[] alphabetSubset1 = { "a", "b", "c" };
+            string[] alphabetSubset2 = { "a", "b", "c" };
+            string[] alphabetSubsetDifferent = { "a", "b", "d" };
+            string[] uppercaseAlphabetSubset = { "A", "B", "C" };
+            string[] shuffledAlphabetSubset = { "b", "c", "a" };
+            string[] extendedAlphabetSubset = { "a", "b", "c", "d" };
+            string[] emptyArray = { };
+            string[] numberStrings = { "1", "2", "3" };
+            List<string> alphabetSubsetList = new List<string> { "a", "b", "c" };
+            int[] numberArray1 = { 1, 2, 3 };
+            int[] numberArray2 = { 1, 2, 3 };
+            int[] extendedNumberArray = { 1, 2, 3, 4, 5 };
+
+            // Not equal
+            Assert.That(alphabetSubset1.SafeTypeInsensitiveEqual(alphabetSubsetDifferent), Is.False);
+            Assert.That(alphabetSubset1.SafeTypeInsensitiveEqual(uppercaseAlphabetSubset), Is.False);
+            Assert.That(alphabetSubset1.SafeTypeInsensitiveEqual(shuffledAlphabetSubset), Is.False);
+            Assert.That(alphabetSubset1.SafeTypeInsensitiveEqual(extendedAlphabetSubset), Is.False);
+            Assert.That(alphabetSubset1.SafeTypeInsensitiveEqual(emptyArray), Is.False);
+            Assert.That(alphabetSubset1.SafeTypeInsensitiveEqual(numberArray1), Is.False);
+            Assert.That(alphabetSubset1.SafeTypeInsensitiveEqual("a,b,c"), Is.False);
+            Assert.That(alphabetSubset1.SafeTypeInsensitiveEqual(null), Is.False);
+            Assert.That(alphabetSubsetDifferent.SafeTypeInsensitiveEqual(alphabetSubset1), Is.False);
+            Assert.That("abc".SafeTypeInsensitiveEqual(alphabetSubset1), Is.False);
+            Assert.That(numberArray1.SafeTypeInsensitiveEqual(extendedNumberArray), Is.False);
+            Assert.That(numberArray1.SafeTypeInsensitiveEqual(alphabetSubset1), Is.False);
+
+            // Equals
+            Assert.That(alphabetSubset1.SafeTypeInsensitiveEqual(alphabetSubset1), Is.True);
+            Assert.That(alphabetSubset1.SafeTypeInsensitiveEqual(alphabetSubset2), Is.True);
+            Assert.That(alphabetSubset2.SafeTypeInsensitiveEqual(alphabetSubset1), Is.True);
+            Assert.That(alphabetSubset1.SafeTypeInsensitiveEqual(alphabetSubsetList), Is.True);
+            Assert.That(alphabetSubsetList.SafeTypeInsensitiveEqual(alphabetSubset1), Is.True);
+            Assert.That(numberArray1.SafeTypeInsensitiveEqual(numberArray1), Is.True);
+            Assert.That(numberArray1.SafeTypeInsensitiveEqual(numberArray2), Is.True);
+            Assert.That(numberStrings.SafeTypeInsensitiveEqual(numberArray1), Is.True);
+            Assert.That(numberArray1.SafeTypeInsensitiveEqual(numberStrings), Is.True);
+        }
+
+        [Test]
         public void TestIsTruthy()
         {
             Assert.That(ObjectExtensionMethods.IsTruthy(null), Is.False);

@@ -17,9 +17,6 @@ namespace DotLiquid.Util
         private static bool IsInteger(object o) => o is int || o is uint || o is long || o is ulong || o is short || o is ushort || o is byte || o is sbyte;
         private static bool IsNumeric(object o) => IsReal(o) || IsInteger(o);
 
-        private static readonly Regex IntegerRegex = R.C(R.Q(@"^([+-]?\d+)$"));
-        private static readonly Regex NumericRegex = R.C(R.Q(@"^([+-]?\d[\d\.|\,]+)$"));
-
         /// <summary>
         /// Coerce an object into a numeric type.
         /// </summary>

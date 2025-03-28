@@ -8,7 +8,7 @@ using NUnit.Framework;
 namespace DotLiquid.Tests.Util
 {
     [TestFixture]
-    public class StringExtensionMethodsTests
+    public class NumericConverterTests
     {
         [Test]
         [TestCaseSource(nameof(GoodTestCaseSource))]
@@ -60,6 +60,10 @@ namespace DotLiquid.Tests.Util
             yield return new object[] { "123", invariantFormatProvider, 123 };
             yield return new object[] { "-123", invariantFormatProvider, -123 };
 
+            // Int32 with thousands separator
+            yield return new object[] { String.Format(invariantFormatProvider, "{0:#,##0}", 12567), invariantFormatProvider, 12567 };
+            yield return new object[] { String.Format(frenchFormatProvider, "{0:#,##0}", 12567), frenchFormatProvider, 12567 };
+
             // Int64
             yield return new object[] { $"{Int64.MaxValue}", null, Int64.MaxValue };
             yield return new object[] { $"{Int64.MaxValue}", invariantFormatProvider, Int64.MaxValue };
@@ -83,7 +87,10 @@ namespace DotLiquid.Tests.Util
             yield return new object[] { "12,567", frenchFormatProvider, 12.567m };
             yield return new object[] { "-12,0", frenchFormatProvider, -12m };
             yield return new object[] { "-12,567", frenchFormatProvider, -12.567m };
-            yield return new object[] { "12.567", frenchFormatProvider, 12.567m };
+
+            // Decimal with thousands separator
+            yield return new object[] { String.Format(invariantFormatProvider, "{0:#,##0.00}", 12567.1), invariantFormatProvider, 12567.1m };
+            yield return new object[] { String.Format(frenchFormatProvider, "{0:#,##0.00}", 12567.1), frenchFormatProvider, 12567.1m };
 
             // Double
             double largePositiveValue = double.Parse("1e203");
@@ -96,12 +103,14 @@ namespace DotLiquid.Tests.Util
         static IEnumerable ErrorTestCaseSource()
         {
             IFormatProvider invariantFormatProvider = CultureInfo.InvariantCulture;
+            IFormatProvider frenchFormatProvider = new CultureInfo("fr-FR");
 
             yield return new object[] { null, null };
             yield return new object[] { null, invariantFormatProvider };
             yield return new object[] { string.Empty, invariantFormatProvider };
             yield return new object[] { "banana", invariantFormatProvider };
-            // yield return new object[] { "-12,567", invariantFormatProvider }; // This returns -12567m
+
+            yield return new object[] { "12,567.10", frenchFormatProvider };
         }
     }
     }

@@ -64,18 +64,16 @@ namespace DotLiquid.Tests.Filters
         [Test]
         public void TestRoundHandlesBadParams()
         {
-            Assert.That(Round("1.2345678", "two"), Is.EqualTo(1m).And.TypeOf(typeof(decimal)));
-            Assert.That(Round("1.2345678", "-2"), Is.EqualTo(1m).And.TypeOf(typeof(decimal)));
+            var value = String.Format(FormatProvider, "{0:0.0000000}", 1.2345678);
+
+            Assert.That(Round(value, "two"), Is.EqualTo(1m).And.TypeOf(typeof(decimal)));
+            Assert.That(Round(value, "-2"), Is.EqualTo(1m).And.TypeOf(typeof(decimal)));
             Assert.That(Round(1.123456789012345678901234567890123m, 50),
                 Is.EqualTo(1.1234567890123456789012345679m).And.TypeOf(typeof(decimal))); // max = 28 places
-            Assert.That(Round("1.2345678", "2.7"), Is.EqualTo(1.23m).And.TypeOf(typeof(decimal)));
+            Assert.That(Round(value, "2.7"), Is.EqualTo(1.23m).And.TypeOf(typeof(decimal)));
 
-            Assert.That(Round("1.2345678", 2.7), Is.EqualTo(1.23m));
-
-            Helper.AssertTemplateResult("1.23", "{{ 1.234678 | round: 2.7 }}", syntax: SyntaxCompatibilityLevel);
-            Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round: 3.1 }}", syntax: SyntaxCompatibilityLevel);
-
-            Helper.AssertTemplateResult("1", "{{ 1.234678 | round: -3 }}", syntax: SyntaxCompatibilityLevel);
+            Assert.That(Round(value, 2.7), Is.EqualTo(1.23m));
+            Assert.That(Round(value, 3.1), Is.EqualTo(1.235m));
         }
 
         [Test]

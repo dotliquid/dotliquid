@@ -18,6 +18,42 @@ namespace DotLiquid.Util
         private static bool IsNumeric(object o) => IsReal(o) || IsInteger(o);
 
         /// <summary>
+        /// Coerce an object into a decimal value.
+        /// </summary>
+        /// <param name="value">The string to coerce.</param>
+        /// <param name="formatProvider">The format provider for converting floating point numbers.</param>
+        /// <param name="defaultValue">The value to return if coercion fails.</param>
+        /// <returns>The coerced value as decimal type, or <paramref name="defaultValue"/> if coercion fails.</returns>
+        public static decimal CoerceToDecimal(this object value, IFormatProvider formatProvider, decimal defaultValue)
+        {
+            decimal result = defaultValue;
+            if (value != null)
+            {
+                object convertedObject = value.CoerceToNumericType(formatProvider, defaultValue);
+                if (convertedObject is decimal convertedValue)
+                {
+                    result = convertedValue;
+                }
+                else
+                {
+                    try
+                    {
+                        result = Convert.ToDecimal(convertedObject);
+                    }
+                    catch (InvalidCastException)
+                    {
+                        // Ignore - conversion failed
+                    }
+                    catch (OverflowException)
+                    {
+                        // Ignore - conversion failed
+                    }
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Coerce an object into a numeric type.
         /// </summary>
         /// <param name="value">The string to coerce.</param>

@@ -716,20 +716,17 @@ namespace DotLiquid
         public static object Round(Context context, object input, object places = null)
         {
             int decimals = 0;
-            if (decimal.TryParse(places?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal placesValue))
+            if (places != null)
             {
+                decimal placesValue = places.CoerceToDecimal(context.FormatProvider, 0m);
                 const decimal MinDecimalPlaces = 0m;
                 const decimal MaxDecimalPlaces = 28m;
                 placesValue = Math.Max(MinDecimalPlaces, Math.Min(MaxDecimalPlaces, placesValue));
                 decimals = (int)Math.Floor(placesValue);
             }
 
-            if (decimal.TryParse(input?.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal inputValue))
-            {
-                return Math.Round(inputValue, decimals);
-            }
-
-            return 0m;
+            decimal inputValue = input.CoerceToDecimal(context.FormatProvider, 0m);
+            return Math.Round(inputValue, decimals);
         }
 
         /// <summary>
@@ -811,8 +808,6 @@ namespace DotLiquid
         }
 
         private static bool IsReal(object o) => o is double || o is float || o is decimal;
-        private static bool IsInteger(object o) => o is int || o is uint || o is long || o is ulong || o is short || o is ushort || o is byte || o is sbyte;
-        private static bool IsNumeric(object o) => IsReal(o) || IsInteger(o);
 
         internal static object DoMathsOperation(Context context, object input, object operand, Func<Expression, Expression, BinaryExpression> operation)
         {
@@ -915,14 +910,8 @@ namespace DotLiquid
         [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object AtLeast(Context context, object input, object atLeast)
         {
-            if (!decimal.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out decimal val1))
-            {
-                val1 = 0m;
-            }
-            if (!decimal.TryParse(atLeast?.ToString(), NumberStyles.Number, context.CurrentCulture, out decimal val2))
-            {
-                val2 = 0m;
-            }
+            decimal val1 = input.CoerceToDecimal(context.FormatProvider, 0);
+            decimal val2 = atLeast.CoerceToDecimal(context.FormatProvider, 0);
             return Math.Max(val1, val2);
         }
 
@@ -935,14 +924,8 @@ namespace DotLiquid
         [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object AtMost(Context context, object input, object atMost)
         {
-            if (!decimal.TryParse(input?.ToString(), NumberStyles.Number, context.CurrentCulture, out decimal val1))
-            {
-                val1 = 0m;
-            }
-            if (!decimal.TryParse(atMost?.ToString(), NumberStyles.Number, context.CurrentCulture, out decimal val2))
-            {
-                val2 = 0m;
-            }
+            decimal val1 = input.CoerceToDecimal(context.FormatProvider, 0);
+            decimal val2 = atMost.CoerceToDecimal(context.FormatProvider, 0);
             return Math.Min(val1, val2);
         }
 
@@ -1012,31 +995,7 @@ namespace DotLiquid
             {
                 if (value != null)
                 {
-                    object valueToAdd = 0;
-                    if (IsNumeric(value))
-                    {
-                        valueToAdd = value;
-                    }
-                    else if (value is string stringValue)
-                    {
-                        if (int.TryParse(stringValue, NumberStyles.Integer, context.FormatProvider, out int intValue))
-                        {
-                            valueToAdd = intValue;
-                        }
-                        else if (long.TryParse(stringValue, NumberStyles.Integer, context.FormatProvider, out long longValue))
-                        {
-                            valueToAdd = longValue;
-                        }
-                        else if (decimal.TryParse(stringValue, NumberStyles.Float, context.FormatProvider, out decimal decimalValue))
-                        {
-                            valueToAdd = decimalValue;
-                        }
-                        else if (double.TryParse(stringValue, NumberStyles.Float, context.FormatProvider, out double doubleValue))
-                        {
-                            valueToAdd = doubleValue;
-                        }
-                    }
-
+                    object valueToAdd = value.CoerceToNumericType(context.FormatProvider, 0);
                     sum = DoMathsOperation(context, sum, valueToAdd, Expression.AddChecked);
                 }
             }

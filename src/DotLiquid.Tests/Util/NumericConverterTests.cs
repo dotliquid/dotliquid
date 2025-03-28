@@ -125,7 +125,6 @@ namespace DotLiquid.Tests.Util
         static IEnumerable ErrorTestCaseSource()
         {
             IFormatProvider invariantFormatProvider = CultureInfo.InvariantCulture;
-            IFormatProvider frenchFormatProvider = new CultureInfo("fr-FR");
 
             yield return new object[] { null, null };
             yield return new object[] { null, invariantFormatProvider };

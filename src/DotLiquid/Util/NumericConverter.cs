@@ -98,6 +98,30 @@ namespace DotLiquid.Util
                     convertedValue = doubleValue;
                     return true;
                 }
+                else if (formatProvider != CultureInfo.InvariantCulture)
+                {
+                    // Fall back to Invariant FormatProvider
+                    if (int.TryParse(value, NumberStyles.Integer | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out intValue))
+                    {
+                        convertedValue = intValue;
+                        return true;
+                    }
+                    else if (long.TryParse(value, NumberStyles.Integer | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out longValue))
+                    {
+                        convertedValue = longValue;
+                        return true;
+                    }
+                    else if (decimal.TryParse(value, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out decimalValue))
+                    {
+                        convertedValue = decimalValue;
+                        return true;
+                    }
+                    else if (double.TryParse(value, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out doubleValue))
+                    {
+                        convertedValue = doubleValue;
+                        return true;
+                    }
+                }
             }
 
             convertedValue = null;

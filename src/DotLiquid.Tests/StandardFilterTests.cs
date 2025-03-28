@@ -14,10 +14,6 @@ namespace DotLiquid.Tests
         private Context _contextV20;
         private Context _contextV20EnUS;
         private Context _contextV21;
-        private Context _contextV22;
-        private Context _contextV22a;
-        private Context _contextV22b;
-        private Context _contextLatest;
 
         [OneTimeSetUp]
         public void SetUp()
@@ -33,22 +29,6 @@ namespace DotLiquid.Tests
             _contextV21 = new Context(CultureInfo.InvariantCulture)
             {
                 SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid21
-            };
-            _contextV22 = new Context(CultureInfo.InvariantCulture)
-            {
-                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22
-            };
-            _contextV22a = new Context(CultureInfo.InvariantCulture)
-            {
-                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid22a
-            };
-            _contextV22b = new Context(CultureInfo.InvariantCulture)
-            {
-                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquid24
-            };
-            _contextLatest = new Context(CultureInfo.InvariantCulture)
-            {
-                SyntaxCompatibilityLevel = SyntaxCompatibility.DotLiquidLatest
             };
         }
 

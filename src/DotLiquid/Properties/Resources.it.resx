@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -246,6 +246,9 @@
   <data name="CultureNotFoundException" xml:space="preserve">
     <value>La cultura '{0}' non è supportata</value>
   </data>
+  <data name="MissingLiquidTypeAttributeError" xml:space="preserve">
+    <value>L'oggetto '{0}' non è valido perché non è decorato con LiquidTypeAttribute.</value>
+  </data>
   <data name="DecrementSyntaxException" xml:space="preserve">
     <value>Errore di sintassi nel tag 'decrement' - Sintassi valida: decrement [var]</value>
   </data>
@@ -263,5 +266,8 @@
   </data>
   <data name="DateFilterRubyDirectiveInvalid" xml:space="preserve">
     <value>Direttiva non valida passata a {0}</value>
+  </data>
+  <data name="ContextPropertyReadonly" xml:space="preserve">
+    <value>La proprietà '{0}' non può essere modificata dopo che il contesto è entrato nel suo stato corrente.</value>
   </data>
 </root>

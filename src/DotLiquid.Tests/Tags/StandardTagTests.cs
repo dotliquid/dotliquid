@@ -171,6 +171,42 @@ namespace DotLiquid.Tests.Tags
         }
 
         [Test]
+        public void TestForWithString_V24()
+        {
+            // Based on Liquid integration test_for_tag_string
+            var expected = "test string";
+            Helper.AssertTemplateResult($"{expected} ", "{%for val in str%}{{val}} {%endfor%}", Hash.FromAnonymousObject(new { str = expected }), SyntaxCompatibility.DotLiquid24);
+            Helper.AssertTemplateResult(expected, "{%for val in str limit:1%}{{val}}{%endfor%}", Hash.FromAnonymousObject(new { str = expected }), SyntaxCompatibility.DotLiquid24);
+            Helper.AssertTemplateResult(
+                expected: "val-str-1-1-0-1-0-true-true-test string",
+                template: "{%for val in str%}{{forloop.name}}-{{forloop.index}}-{{forloop.length}}-{{forloop.index0}}-{{forloop.rindex}}-{{forloop.rindex0}}-{{forloop.first}}-{{forloop.last}}-{{val}}{%endfor%}",
+                Hash.FromAnonymousObject(new { str = expected }), SyntaxCompatibility.DotLiquid24);
+
+            // Additional tests for null and empty strings
+            string nullString = null;
+            Helper.AssertTemplateResult(string.Empty, "{%for val in str%}{{forloop.index}}{%endfor%}", Hash.FromAnonymousObject(new { str = nullString }), SyntaxCompatibility.DotLiquid24);
+            Helper.AssertTemplateResult(string.Empty, "{%for val in str%}{{forloop.index}}{%endfor%}", Hash.FromAnonymousObject(new { str = string.Empty }), SyntaxCompatibility.DotLiquid24);
+        }
+
+        [Test]
+        public void TestForWithString_V20()
+        {
+            // Based on Liquid integration test_for_tag_string
+            var expected = "test string";
+            Helper.AssertTemplateResult("t e s t   s t r i n g ", "{%for val in str%}{{val}} {%endfor%}", Hash.FromAnonymousObject(new { str = expected }), SyntaxCompatibility.DotLiquid20);
+            Helper.AssertTemplateResult("t", "{%for val in str limit:1%}{{val}}{%endfor%}", Hash.FromAnonymousObject(new { str = expected }), SyntaxCompatibility.DotLiquid20);
+            Helper.AssertTemplateResult(
+                expected: "val-str-1-2-0-2-1-true-false-tval-str-2-2-1-1-0-false-true-e",
+                template: "{%for val in str limit: 2%}{{forloop.name}}-{{forloop.index}}-{{forloop.length}}-{{forloop.index0}}-{{forloop.rindex}}-{{forloop.rindex0}}-{{forloop.first}}-{{forloop.last}}-{{val}}{%endfor%}",
+                Hash.FromAnonymousObject(new { str = expected }), SyntaxCompatibility.DotLiquid20);
+
+            // Additional tests for null and empty strings
+            string nullString = null;
+            Helper.AssertTemplateResult(string.Empty, "{%for val in str%}{{forloop.index}}{%endfor%}", Hash.FromAnonymousObject(new { str = nullString }), SyntaxCompatibility.DotLiquid20);
+            Helper.AssertTemplateResult(string.Empty, "{%for val in str%}{{forloop.index}}{%endfor%}", Hash.FromAnonymousObject(new { str = string.Empty }), SyntaxCompatibility.DotLiquid20);
+        }
+
+        [Test]
         public void TestForWithVariable()
         {
             Helper.AssertTemplateResult(" 1  2  3 ", "{%for item in array%} {{item}} {%endfor%}",
@@ -772,6 +808,16 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
         }
 
         [Test]
+        public void TestIncrementDropRoot()
+        {
+            Helper.AssertTemplateResult(expected: "0 1", template: "{%increment port %} {{ port }}", localVariables: new ConditionTests.DummyDrop());
+            Helper.AssertTemplateResult(expected: "0 1", template: "{%increment port %} {%increment port%}", localVariables: new ConditionTests.DummyDrop());
+            Helper.AssertTemplateResult(
+                expected: "Me 0 1 Me",
+                template: "{{ prop }} {%increment port %} {%increment port%} {{ prop }}", localVariables: new Helper.DataObjectDrop() { Prop = "Me" });
+        }
+
+        [Test]
         public void TestDecrement()
         {
             Helper.AssertTemplateResult(expected: "9", template: "{%decrement port %}", localVariables: Hash.FromAnonymousObject(new { port = 10 }));
@@ -820,6 +866,16 @@ Maths 2: Eric Schmidt (ID3), Bruce Banner (ID4),
             // See https://github.com/Shopify/liquid/issues/1570
             Assert.Throws<SyntaxException>(() => Template.Parse("{% decrement var1 var2 %}"));
             Assert.Throws<SyntaxException>(() => Template.Parse("{% decrement product.qty %}"));
+        }
+
+        [Test]
+        public void TestDecrementDropRoot()
+        {
+            Helper.AssertTemplateResult(expected: "-1 -1", template: "{%decrement port %} {{ port }}", localVariables: new ConditionTests.DummyDrop());
+            Helper.AssertTemplateResult(expected: "-1 -2", template: "{%decrement port %} {%decrement port%}", localVariables: new ConditionTests.DummyDrop());
+            Helper.AssertTemplateResult(
+                expected: "Me -1 -2 Me",
+                template: "{{ prop }} {%decrement port %} {%decrement port%} {{ prop }}", localVariables: new Helper.DataObjectDrop() { Prop = "Me" });
         }
     }
 }

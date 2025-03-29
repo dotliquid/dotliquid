@@ -46,7 +46,7 @@ namespace DotLiquid.Tests
                     continue;
 
                 // Tweak newlines characters in result for tablerow tests
-                if (uniqueName.StartsWith("tags, tablerow"))
+                if (Rules.NewlineGroups.Any(groupPrefix => uniqueName.StartsWith(groupPrefix)))
                 {
                     if (test.Result != null)
                     {
@@ -227,6 +227,24 @@ namespace DotLiquid.Tests
                 .Tests
                 .Select(test => test.UniqueName);
             var expectedTestPrefixes = Rules.SkippedGroups;
+
+            Assert.Multiple(() =>
+            {
+                foreach (var expectedTestPrefix in expectedTestPrefixes)
+                {
+                    Assert.That(testNames.Any(testName => testName.StartsWith(expectedTestPrefix)), expectedTestPrefix);
+                }
+            });
+        }
+
+        [Test]
+        public void CheckRules_NewlineGroupsExist()
+        {
+            // Checks all the prefixes listed in Rules.NewlineGroups exist
+            var testNames = DeserializeResource<GoldenLiquid>("DotLiquid.Tests.Embedded.golden_liquid.json")
+                .Tests
+                .Select(test => test.UniqueName);
+            var expectedTestPrefixes = Rules.NewlineGroups;
 
             Assert.Multiple(() =>
             {

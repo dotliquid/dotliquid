@@ -13,9 +13,13 @@
         "tags, liquid,", // not yet implemented
         "tags, render,", // not yet implemented
     ],
+    "newline_groups": [
+        // Tests in these groups will replace \n with \r\n expected results
+        "tags, tablerow,",
+    ],
     "skipped_tests": [
         // Test assumes that a parsed date is UTC, DotLiquid assumes system timezone
-        "filters, date, seconds since epoch format directive"
+        "filters, date, seconds since epoch format directive",
     ],
     "failing_tests": [
         // Parser Errors
@@ -213,7 +217,7 @@
         "whitespace control, suppress whitespace only if blocks",
         "whitespace control, suppress whitespace only unless blocks",
         "whitespace control, suppress whitespace surrounding a capture block",
-        "whitespace control, suppress whitespace surrounding an empty capture block"
+        "whitespace control, suppress whitespace surrounding an empty capture block",
     ],
     "alternate_test_expectations": {
         "filters, divided by, float division": "2.8571428571428571428571428571",
@@ -227,6 +231,6 @@
         // These operators are implemented by DotLiquid but not Ruby
         "tags, if, endswith is not a valid operator": "TRUE",
         "tags, if, haskey is not a valid operator": "TRUE",
-        "tags, if, startswith is not a valid operator": "TRUE"
+        "tags, if, startswith is not a valid operator": "TRUE",
     }
 }

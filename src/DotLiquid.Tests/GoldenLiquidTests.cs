@@ -45,6 +45,22 @@ namespace DotLiquid.Tests
                 if (Rules.SkippedTests.Contains(uniqueName))
                     continue;
 
+                // Tweak newlines characters in result for tablerow tests
+                if (uniqueName.StartsWith("tags, tablerow"))
+                {
+                    if (test.Result != null)
+                    {
+                        test.Result = test.Result.Replace("\n", "\r\n");
+                    }
+                    else
+                    {
+                        for (int i = 0; i < test.Results.Count; i++)
+                        {
+                            test.Results[i] = test.Results[i].Replace("\n", "\r\n");
+                        }
+                    }
+                }
+
                 if (Rules.AlternateTestExpectations.ContainsKey(uniqueName))
                 {
                     // If we don't have a list, move the Result to the list.
@@ -90,6 +106,11 @@ namespace DotLiquid.Tests
         }
         #endregion
 
+        internal static class RubyFilters
+        {
+            public static string[] Split(string input, string pattern) => ExtendedFilters.RubySplit(input, pattern);
+        }
+
         [Test]
         [TestCaseSource(nameof(GoldenTestsPassing))]
         public void ExecuteGoldenLiquidTests(GoldenLiquidTest test)
@@ -97,12 +118,13 @@ namespace DotLiquid.Tests
             // Create a new Hash object to represent the context
             var context = Hash.FromDictionary(test.Data);
 
-            var syntax = SyntaxCompatibility.DotLiquid22a;
+            var syntax = SyntaxCompatibility.DotLiquidLatest;
             var parameters = new RenderParameters(CultureInfo.CurrentCulture)
             {
                 SyntaxCompatibilityLevel = syntax,
                 LocalVariables = context,
-                ErrorsOutputMode = test.IsInvalid ? ErrorsOutputMode.Rethrow : ErrorsOutputMode.Display
+                ErrorsOutputMode = test.IsInvalid ? ErrorsOutputMode.Rethrow : ErrorsOutputMode.Display,
+                Filters = new[] { typeof(RubyFilters) }
             };
 
             Helper.LockTemplateStaticVars(Template.NamingConvention, () =>
@@ -118,8 +140,8 @@ namespace DotLiquid.Tests
                 }
                 else
                 {
+                    var result = Template.Parse(test.Template, syntax).Render(parameters);
                     // test will contain either Result or Results, but not both.
-                    string result = Template.Parse(test.Template, syntax).Render(parameters).Replace("\r\n", "\n");
                     if (test.Result != null)
                     {
                         Assert.That(result, Is.EqualTo(test.Result), test.UniqueName);

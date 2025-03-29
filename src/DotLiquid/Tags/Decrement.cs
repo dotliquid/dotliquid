@@ -43,31 +43,40 @@ namespace DotLiquid.Tags
         /// <param name="result">The output buffer containing the currently rendered template</param>
         public override void Render(Context context, TextWriter result)
         {
-            Decrement32(context, result, context.Environments[0].TryGetValue(_variable, out var counterObj) ? counterObj : 0);
+            var environment = context.Environments[0];
+            var currentValue = environment.ContainsKey(_variable) ? environment[_variable] : 0;
+            if (environment is IDictionary<string, object> dict)
+                Decrement32(dict, result, currentValue);
+            else
+            {
+                var stackedEnvironment = new Hash();
+                context.Environments.Insert(0, stackedEnvironment);
+                Decrement32(stackedEnvironment, result, currentValue);
+            }
             base.Render(context, result);
         }
 
-        private void Decrement32(Context context, TextWriter result, object current)
+        private void Decrement32(IDictionary<string, object> environment, TextWriter result, object current)
         {
             try
             {
                 checked
                 { //needed to force OverflowException at runtime
                     var counter = Convert.ToInt32(current) - 1;
-                    context.Environments[0][_variable] = counter;
+                    environment[_variable] = counter;
                     result.Write(counter);
                 }
             }
             catch (OverflowException)
             {
-                Decrement64(context, result, current);
+                Decrement64(environment, result, current);
             }
         }
 
-        private void Decrement64(Context context, TextWriter result, object current)
+        private void Decrement64(IDictionary<string, object> environment, TextWriter result, object current)
         {
             var counter = Convert.ToInt64(current) - 1;
-            context.Environments[0][_variable] = counter;
+            environment[_variable] = counter;
             result.Write(counter);
         }
     }

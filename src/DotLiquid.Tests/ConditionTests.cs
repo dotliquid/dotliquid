@@ -512,7 +512,6 @@ namespace DotLiquid.Tests
             testDictionary.type = "cleaning";
             _context["dictionary"] = testDictionary;
 
-
             AssertEvaluatesTrue("dictionary", "hasvalue", "'Vacuum'");
             AssertEvaluatesFalse("dictionary", "hasvalue", "'title'");
         }

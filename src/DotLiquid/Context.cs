@@ -19,8 +19,8 @@ namespace DotLiquid
     public class Context
     {
         private static readonly HashSet<char> SpecialCharsSet = new HashSet<char>() { '\'', '"', '(', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-' };
-        private static readonly Regex SingleQuotedRegex = R.C(R.Q(@"^'(.*)'$"));
-        private static readonly Regex DoubleQuotedRegex = R.C(R.Q(@"^""(.*)""$"));
+        private static readonly Regex SingleQuotedRegex = R.C(R.Q(@"^'([\s\S]*)'$"));
+        private static readonly Regex DoubleQuotedRegex = R.C(R.Q(@"^""([\s\S]*)""$"));
         private static readonly Regex IntegerRegex = R.C(R.Q(@"^([+-]?\d+)$"));
         private static readonly Regex RangeRegex = R.C(R.Q(@"^\((\S+)\.\.(\S+)\)$"));
         private static readonly Regex NumericRegex = R.C(R.Q(@"^([+-]?\d[\d\.|\,]+)$"));

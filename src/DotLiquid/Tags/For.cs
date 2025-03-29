@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using DotLiquid.Exceptions;
 using DotLiquid.Util;
 
@@ -81,9 +82,7 @@ namespace DotLiquid.Tags
                 _collectionName = match.Groups[2].Value;
                 _name = string.Format("{0}-{1}", _variableName, _collectionName);
                 _reversed = (!string.IsNullOrEmpty(match.Groups[3].Value));
-                _attributes = new Dictionary<string, string>(Template.NamingConvention.StringComparer);
-                R.Scan(markup, Liquid.TagAttributes,
-                    (key, value) => _attributes[key] = value);
+                _attributes = Tokenizer.GetAttributes(markup);
             }
             else
             {
@@ -200,6 +199,9 @@ namespace DotLiquid.Tags
 
         private static List<object> SliceCollectionUsingEach(Context context, IEnumerable collection, int from, int? to)
         {
+            if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid24 && collection is string @string && @string.Length > 0)
+                return new List<object> { @string };
+
             List<object> segments = new List<object>();
             int index = 0;
             foreach (object item in collection)

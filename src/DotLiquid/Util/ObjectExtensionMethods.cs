@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -7,6 +8,13 @@ namespace DotLiquid.Util
 {
     public static class ObjectExtensionMethods
     {
+        private class SafeTypeInsensitiveEqualityComparer : IEqualityComparer<object>
+        {
+            bool IEqualityComparer<object>.Equals(object x, object y) => SafeTypeInsensitiveEqual(x, y);
+            int IEqualityComparer<object>.GetHashCode(object obj) => throw new NotImplementedException();
+        }
+
+        private static readonly IEqualityComparer<object> _EqualityComparer = new SafeTypeInsensitiveEqualityComparer();
         private static HashSet<HashSet<Type>> _BackCompatComparableTypeBoundaries = new HashSet<HashSet<Type>>() {
             new HashSet<Type> { typeof(decimal), typeof(double), typeof(float), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(short), typeof(ushort) },
             new HashSet<Type> { typeof(string), typeof(char) }
@@ -107,6 +115,17 @@ namespace DotLiquid.Util
             if (otherValue == null)
             {
                 return false;
+            }
+
+            // NOTE(Rodney Richardson): Compare arrays as a special case.
+            if (!(value is string) &&
+                !(otherValue is string) &&
+                value is IEnumerable valueEnumerable &&
+                otherValue is IEnumerable otherValueEnumerable)
+            {
+                return valueEnumerable.Cast<object>().SequenceEqual(
+                    otherValueEnumerable.Cast<object>(),
+                    _EqualityComparer);
             }
 
             // NOTE(David Burg): If both types are the same we can just do a regular comparison

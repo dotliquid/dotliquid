@@ -562,7 +562,7 @@ namespace DotLiquid
             }
             else if ((input is decimal) || (input is double) || (input is float) || (input is int) || (input is uint) || (input is long) || (input is ulong) || (input is short) || (input is ushort))
             {
-#if NET6_0_OR_GREATER || NETSTANDARD2_0
+#if NET6_0_OR_GREATER || NETSTANDARD2_0_OR_GREATER
                 dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(input)).ToLocalTime();
 #else
                 dateTimeOffset = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(Convert.ToDouble(input)).ToLocalTime();

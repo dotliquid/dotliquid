@@ -49,6 +49,24 @@ namespace DotLiquid.Tests.Util
 
         [Test]
         [TestCaseSource(nameof(GoodTestCaseSource))]
+        public void TestTryCoerceToNumericType(object input, IFormatProvider formatProvider, object expectedValue)
+        {
+            bool converted = input.TryCoerceToNumericType(formatProvider, out object convertedValue);
+            Assert.That(converted, Is.True);
+            Assert.That(convertedValue, Is.EqualTo(expectedValue));
+            Assert.That(convertedValue, Is.TypeOf(expectedValue.GetType()));
+        }
+
+        [Test]
+        [TestCaseSource(nameof(ErrorTestCaseSource))]
+        public void TestTryCoerceToNumericTypeErrors(object input, IFormatProvider formatProvider)
+        {
+            bool converted = input.TryCoerceToNumericType(formatProvider, out object convertedValue);
+            Assert.That(converted, Is.False, $"convertedValue: {convertedValue}");
+        }
+
+        [Test]
+        [TestCaseSource(nameof(GoodTestCaseSource))]
         public void TestTryParseToNumericType(string input, IFormatProvider formatProvider, object expectedValue)
         {
             bool converted = input.TryParseToNumericType(formatProvider, out object convertedValue);
@@ -60,24 +78,6 @@ namespace DotLiquid.Tests.Util
         [Test]
         [TestCaseSource(nameof(ErrorTestCaseSource))]
         public void TestTryParseToNumericTypeErrors(string input, IFormatProvider formatProvider)
-        {
-            bool converted = input.TryParseToNumericType(formatProvider, out object convertedValue);
-            Assert.That(converted, Is.False, $"convertedValue: {convertedValue}");
-        }
-
-        [Test]
-        [TestCaseSource(nameof(GoodTestCaseSource))]
-        public void TestTryParseObjectToNumericType(object input, IFormatProvider formatProvider, object expectedValue)
-        {
-            bool converted = input.TryParseToNumericType(formatProvider, out object convertedValue);
-            Assert.That(converted, Is.True);
-            Assert.That(convertedValue, Is.EqualTo(expectedValue));
-            Assert.That(convertedValue, Is.TypeOf(expectedValue.GetType()));
-        }
-
-        [Test]
-        [TestCaseSource(nameof(ErrorTestCaseSource))]
-        public void TestTryParseObjectToNumericTypeErrors(object input, IFormatProvider formatProvider)
         {
             bool converted = input.TryParseToNumericType(formatProvider, out object convertedValue);
             Assert.That(converted, Is.False, $"convertedValue: {convertedValue}");

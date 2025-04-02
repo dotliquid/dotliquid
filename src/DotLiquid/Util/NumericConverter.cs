@@ -61,7 +61,7 @@ namespace DotLiquid.Util
             object result = defaultValue;
             if (value != null)
             {
-                bool converted = value.TryParseToNumericType(formatProvider, out object convertedValue);
+                bool converted = value.TryCoerceToNumericType(formatProvider, out object convertedValue);
                 if (converted)
                 {
                     result = convertedValue;
@@ -71,13 +71,13 @@ namespace DotLiquid.Util
         }
 
         /// <summary>
-        /// Try to parse an object into a numeric type.
+        /// Try to coerce an object into a numeric type.
         /// </summary>
         /// <param name="value">The string to parse.</param>
         /// <param name="formatProvider">The format provider for converting floating point numbers.</param>
         /// <param name="convertedValue">The coerced value as int, long, double or decimal type, or null if parsing fails.</param>
         /// <returns>true if parsing was successful; Otherwise, false.</returns>
-        public static bool TryParseToNumericType(this object value, IFormatProvider formatProvider, out object convertedValue)
+        public static bool TryCoerceToNumericType(this object value, IFormatProvider formatProvider, out object convertedValue)
         {
             if (value != null)
             {

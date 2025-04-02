@@ -69,6 +69,7 @@ namespace DotLiquid.Tests
         public void TestWithCustomTag()
         {
             Template.RegisterTag<Block>("testtag");
+            Assert.That(Template.GetTagType("testtag"), Is.EqualTo(typeof(Block)));
             Assert.DoesNotThrow(() => Template.Parse("{% testtag %} {% endtesttag %}"));
         }
 

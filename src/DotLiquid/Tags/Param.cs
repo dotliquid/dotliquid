@@ -82,11 +82,7 @@ namespace DotLiquid.Tags
                 value = String.Empty; // String.Empty will ensure the InvariantCulture is returned
             try
             {
-#if CORE
-                context.CurrentCulture = new CultureInfo(value);
-#else
                 context.CurrentCulture = CultureInfo.GetCultureInfo(value);
-#endif
             }
             catch (CultureNotFoundException exception)
             {

@@ -194,11 +194,11 @@ namespace DotLiquid
             // Check for interfaces
             return ValueTypeTransformerCache.GetOrAdd(type, (key) =>
             {
-                foreach (var interfaceType in type.GetTypeInfo().ImplementedInterfaces)
+                foreach (var interfaceType in type.GetInterfaces())
                 {
                     if (ValueTypeTransformers.TryGetValue(interfaceType, out transformer))
                         return transformer;
-                    if (interfaceType.GetTypeInfo().IsGenericType && ValueTypeTransformers.TryGetValue(interfaceType.GetGenericTypeDefinition(), out transformer))
+                    if (interfaceType.IsGenericType && ValueTypeTransformers.TryGetValue(interfaceType.GetGenericTypeDefinition(), out transformer))
                         return transformer;
                 }
 
@@ -218,12 +218,11 @@ namespace DotLiquid
                 return transformer;
 
             // Check for interfaces
-            var interfaces = type.GetTypeInfo().ImplementedInterfaces;
-            foreach (var interfaceType in interfaces)
+            foreach (var interfaceType in type.GetInterfaces())
             {
                 if (SafeTypeTransformers.TryGetValue(interfaceType, out transformer))
                     return transformer;
-                if (interfaceType.GetTypeInfo().IsGenericType && SafeTypeTransformers.TryGetValue(
+                if (interfaceType.IsGenericType && SafeTypeTransformers.TryGetValue(
                     interfaceType.GetGenericTypeDefinition(), out transformer))
                     return transformer;
             }

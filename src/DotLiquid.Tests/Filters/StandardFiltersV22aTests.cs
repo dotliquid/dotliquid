@@ -142,14 +142,11 @@ namespace DotLiquid.Tests.Filters
         [Test]
         public void TestAbsFloatingPointTypes()
         {
-            Assert.That(Abs(10), Is.EqualTo(10).And.TypeOf(typeof(double)));
-            Assert.That(Abs(-5), Is.EqualTo(5).And.TypeOf(typeof(double)));
-            Assert.That(Abs(19.86), Is.EqualTo(19.86).And.TypeOf(typeof(double)));
-            Assert.That(Abs(-19.86m), Is.EqualTo(19.86m).And.TypeOf(typeof(double)));
-            Assert.That(Abs(-19.86m), Is.EqualTo(19.86).And.TypeOf(typeof(double)));
-            Assert.That(Abs("10"), Is.EqualTo(10).And.TypeOf(typeof(double)));
-            Assert.That(Abs(-5), Is.EqualTo(5).And.TypeOf(typeof(double)));
-            Assert.That(Abs("30.60"), Is.EqualTo(30.60).And.TypeOf(typeof(double)));
+            Assert.That(Abs(-30.6m), Is.EqualTo(30.6m).And.TypeOf(typeof(double)));
+            Assert.That(Abs(-30.6f), Is.EqualTo(30.6m).And.TypeOf(typeof(double)));
+            Assert.That(Abs(-30.6), Is.EqualTo(30.6m).And.TypeOf(typeof(double)));
+
+            Assert.That(Abs("-30.60"), Is.EqualTo(30.6m).And.TypeOf(typeof(double)));
         }
 
         [Test]

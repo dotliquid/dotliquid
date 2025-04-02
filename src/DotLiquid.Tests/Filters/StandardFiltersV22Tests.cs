@@ -54,6 +54,26 @@ namespace DotLiquid.Tests.Filters
         }
 
         [Test]
+        public void TestRoundTypes()
+        {
+            Assert.That(Round(1.2345678f, 2.0), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
+            Assert.That(Round(1.2345678, 2.0), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
+            Assert.That(Round(1.2345678m, 2.0), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
+
+            Assert.That(Round(1.2345678f, 2.0f), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
+            Assert.That(Round(1.2345678, 2.0f), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
+            Assert.That(Round(1.2345678m, 2.0f), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
+
+            Assert.That(Round(1.2345678f, 2.0m), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
+            Assert.That(Round(1.2345678, 2.0m), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
+            Assert.That(Round(1.2345678m, 2.0m), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
+
+            Assert.That(Round(1.2345678f, 2), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
+            Assert.That(Round(1.2345678, 2), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
+            Assert.That(Round(1.2345678m, 2), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
+        }
+
+        [Test]
         public void TestRoundHandlesBadParams()
         {
             Assert.That(Round("1.2345678", "two"), Is.Null);

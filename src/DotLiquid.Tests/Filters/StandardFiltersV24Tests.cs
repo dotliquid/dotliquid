@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests.Filters
@@ -59,6 +60,26 @@ namespace DotLiquid.Tests.Filters
         {
             Assert.That(TruncateWords("    one    two three    four  ", 2), Is.EqualTo("one two..."));
             Assert.That(TruncateWords("one  two\tthree\nfour", 3), Is.EqualTo("one two three..."));
+        }
+
+        [Test]
+        public void TestRoundTypes()
+        {
+            Assert.That(Round(1.2345678f, 2.0), Is.EqualTo(1.23).And.TypeOf(typeof(double)));
+            Assert.That(Round(1.2345678, 2.0), Is.EqualTo(1.23).And.TypeOf(typeof(double)));
+            Assert.That(Round(1.2345678m, 2.0), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
+
+            Assert.That(Round(1.2345678f, 2.0f), Is.EqualTo(1.23).And.TypeOf(typeof(double)));
+            Assert.That(Round(1.2345678, 2.0f), Is.EqualTo(1.23).And.TypeOf(typeof(double)));
+            Assert.That(Round(1.2345678m, 2.0f), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
+
+            Assert.That(Round(1.2345678f, 2.0m), Is.EqualTo(1.23).And.TypeOf(typeof(double)));
+            Assert.That(Round(1.2345678, 2.0m), Is.EqualTo(1.23).And.TypeOf(typeof(double)));
+            Assert.That(Round(1.2345678m, 2.0m), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
+
+            Assert.That(Round(1.2345678f, 2), Is.EqualTo(1.23).And.TypeOf(typeof(double)));
+            Assert.That(Round(1.2345678, 2), Is.EqualTo(1.23).And.TypeOf(typeof(double)));
+            Assert.That(Round(1.2345678m, 2), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
         }
 
         [Test]

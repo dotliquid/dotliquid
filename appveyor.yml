@@ -18,7 +18,9 @@ install:
 
     choco install codecov -y
 
-    choco install dotnetcore-runtime.install --version=3.1.32 -y
+    dotnet --list-runtimes | find "Microsoft.NETCore.App 3.1" >nul
+
+    if %errorlevel% neq 0 ( choco install dotnetcore-runtime.install --version=3.1.32 -y )
 
     dotnet restore src/DotLiquid.sln
 cache:

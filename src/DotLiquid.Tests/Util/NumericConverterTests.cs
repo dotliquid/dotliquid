@@ -11,19 +11,20 @@ namespace DotLiquid.Tests.Util
     public class NumericConverterTests
     {
         [Test]
-        public void TestCoerceToDecimal()
+        public void TestCoerceToReal()
         {
-            Assert.That(15.CoerceToDecimal(CultureInfo.InvariantCulture, 0), Is.EqualTo(15m));
-            Assert.That(15m.CoerceToDecimal(CultureInfo.InvariantCulture, 0), Is.EqualTo(15m));
-            Assert.That("15".CoerceToDecimal(CultureInfo.InvariantCulture, 0), Is.EqualTo(15m));
-            Assert.That("-15".CoerceToDecimal(CultureInfo.InvariantCulture, 0), Is.EqualTo(-15m));
+            Assert.That(15.CoerceToReal(CultureInfo.InvariantCulture, 0), Is.EqualTo(15m).And.TypeOf(typeof(decimal)));
+            Assert.That(15m.CoerceToReal(CultureInfo.InvariantCulture, 0), Is.EqualTo(15m).And.TypeOf(typeof(decimal)));
+            Assert.That("15".CoerceToReal(CultureInfo.InvariantCulture, 0), Is.EqualTo(15m).And.TypeOf(typeof(decimal)));
+            Assert.That("-15".CoerceToReal(CultureInfo.InvariantCulture, 0), Is.EqualTo(-15m).And.TypeOf(typeof(decimal)));
         }
 
         [Test]
-        public void TestCoerceToDecimalOverflow()
+        public void TestCoerceToRealOverflow()
         {
-            string largePositiveValue = $"{double.Parse("1e203"):F}";
-            Assert.That(largePositiveValue.CoerceToDecimal(CultureInfo.InvariantCulture, 15m), Is.EqualTo(15m));
+            double largeValue = double.Parse("1e203");
+            string largePositiveValue = $"{largeValue:F}";
+            Assert.That(largePositiveValue.CoerceToReal(CultureInfo.InvariantCulture, 15m), Is.EqualTo(largeValue).And.TypeOf(typeof(double)));
         }
 
         [Test]

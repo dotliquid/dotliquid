@@ -18,15 +18,15 @@ namespace DotLiquid.Util
         private static bool IsNumeric(object o) => IsReal(o) || IsInteger(o);
 
         /// <summary>
-        /// Coerce an object into a decimal value.
+        /// Coerce an object into a decimal value, or a double there's an overflow.
         /// </summary>
         /// <param name="value">The string to coerce.</param>
         /// <param name="formatProvider">The format provider for converting floating point numbers.</param>
         /// <param name="defaultValue">The value to return if coercion fails.</param>
-        /// <returns>The coerced value as decimal type, or <paramref name="defaultValue"/> if coercion fails.</returns>
-        public static decimal CoerceToDecimal(this object value, IFormatProvider formatProvider, decimal defaultValue)
+        /// <returns>The coerced value as decimal or double type, or <paramref name="defaultValue"/> if coercion fails.</returns>
+        public static object CoerceToReal(this object value, IFormatProvider formatProvider, decimal defaultValue)
         {
-            decimal result = defaultValue;
+            object result = defaultValue;
             if (value != null)
             {
                 object convertedObject = value.CoerceToNumericType(formatProvider, defaultValue);
@@ -42,7 +42,15 @@ namespace DotLiquid.Util
                     }
                     catch (OverflowException)
                     {
-                        // Ignore - conversion failed
+                        // Try to fit it in a double
+                        try
+                        {
+                            result = Convert.ToDouble(convertedObject);
+                        }
+                        catch (OverflowException)
+                        {
+                            // Ignore - conversion failed
+                        }
                     }
                 }
             }

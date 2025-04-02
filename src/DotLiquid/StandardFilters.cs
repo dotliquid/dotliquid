@@ -683,20 +683,34 @@ namespace DotLiquid
         /// <remarks>Behaviour differs from Ruby implementation for negative places values.
         /// This will treat it as any other invalid places value, and round to closest integer.</remarks>
         [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
-        public static decimal Round(Context context, object input, object places = null)
+        public static object Round(Context context, object input, object places = null)
         {
             int decimals = 0;
             if (places != null)
             {
-                decimal placesValue = places.CoerceToDecimal(context.FormatProvider, 0m);
-                const decimal MinDecimalPlaces = 0m;
-                const decimal MaxDecimalPlaces = 28m;
-                placesValue = Math.Max(MinDecimalPlaces, Math.Min(MaxDecimalPlaces, placesValue));
-                decimals = (int)Math.Floor(placesValue);
+                object placesValue = places.CoerceToReal(context.FormatProvider, 0m);
+                if (placesValue is decimal placesDecimal)
+                {
+                    const decimal MinDecimalPlaces = 0m;
+                    const decimal MaxDecimalPlaces = 28m;
+                    placesDecimal = Math.Max(MinDecimalPlaces, Math.Min(MaxDecimalPlaces, placesDecimal));
+                    decimals = (int)Math.Floor(placesDecimal);
+                }
+                else
+                {
+                    double placesDouble = (double)placesValue;
+                    const double MinDecimalPlaces = 0;
+                    const double MaxDecimalPlaces = 28;
+                    placesDouble = Math.Max(MinDecimalPlaces, Math.Min(MaxDecimalPlaces, placesDouble));
+                    decimals = (int)Math.Floor(placesDouble);
+                }
             }
 
-            decimal inputValue = input.CoerceToDecimal(context.FormatProvider, 0m);
-            return Math.Round(inputValue, decimals);
+            object inputValue = input.CoerceToReal(context.FormatProvider, 0m);
+            if (inputValue is decimal inputDecimal)
+                return Math.Round(inputDecimal, decimals);
+            else
+                return Math.Round((double)inputValue, decimals);
         }
 
         /// <summary>
@@ -879,12 +893,17 @@ namespace DotLiquid
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="atLeast">Value to apply if more than input</param>
+        /// <returns>The larger of the input values.</returns>
         [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
-        public static decimal AtLeast(Context context, object input, object atLeast)
+        public static object AtLeast(Context context, object input, object atLeast)
         {
-            decimal val1 = input.CoerceToDecimal(context.FormatProvider, 0);
-            decimal val2 = atLeast.CoerceToDecimal(context.FormatProvider, 0);
-            return Math.Max(val1, val2);
+            object val1 = input.CoerceToReal(context.FormatProvider, 0);
+            object val2 = atLeast.CoerceToReal(context.FormatProvider, 0);
+
+            if (val1 is decimal val1Decimal && val2 is decimal val2Decimal)
+                return Math.Max(val1Decimal, val2Decimal);
+            else
+                return Math.Max((double)val1, (double)val2);
         }
 
         /// <summary>
@@ -893,12 +912,17 @@ namespace DotLiquid
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="atMost">Value to apply if less than input</param>
+        /// <returns>The smaller of the input values.</returns>
         [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
-        public static decimal AtMost(Context context, object input, object atMost)
+        public static object AtMost(Context context, object input, object atMost)
         {
-            decimal val1 = input.CoerceToDecimal(context.FormatProvider, 0);
-            decimal val2 = atMost.CoerceToDecimal(context.FormatProvider, 0);
-            return Math.Min(val1, val2);
+            object val1 = input.CoerceToReal(context.FormatProvider, 0);
+            object val2 = atMost.CoerceToReal(context.FormatProvider, 0);
+
+            if (val1 is decimal val1Decimal && val2 is decimal val2Decimal)
+                return Math.Min(val1Decimal, val2Decimal);
+            else
+                return Math.Min((double)val1, (double)val2);
         }
 
         /// <summary>

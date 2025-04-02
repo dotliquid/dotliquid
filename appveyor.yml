@@ -30,17 +30,19 @@ nuget:
   project_feed: true
 build:
   project: src/DotLiquid.sln
-  publish_nuget: true
-  publish_nuget_symbols: true
-  use_snupkg_format: true
   verbosity: minimal
+after_build:
+- ps: >-
+    New-Item -Path build\pkg -ItemType Directory
+
+    dotnet pack src\DotLiquid\DotLiquid.csproj --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg --output build\pkg --no-build
 test_script:
 - cmd: >-
     opencover.console -target:"C:\Program Files\dotnet\dotnet.exe" -targetargs:"test src\DotLiquid.Tests\DotLiquid.Tests.csproj /clp:ErrorsOnly" -output:TestsCoverage.xml -filter:"+[DotLiquid]*" -register:user -returntargetcode -oldstyle
     
     codecov -f TestsCoverage.xml
 artifacts:
-- path: '**\*.*nupkg'
+- path: build\pkg\*.*nupkg
   name: Nuget Package
 - path: TestsCoverage.xml
 deploy:
@@ -48,6 +50,6 @@ deploy:
   api_key:
     secure: ****************************************************************
   skip_symbols: false
-  artifact: .*\.s?nupkg/
+  artifact: /build/.*\.s?nupkg/
   on:
     branch: master

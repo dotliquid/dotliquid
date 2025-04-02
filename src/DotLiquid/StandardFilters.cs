@@ -683,7 +683,7 @@ namespace DotLiquid
         /// <remarks>Behaviour differs from Ruby implementation for negative places values.
         /// This will treat it as any other invalid places value, and round to closest integer.</remarks>
         [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
-        public static object Round(Context context, object input, object places = null)
+        public static decimal Round(Context context, object input, object places = null)
         {
             int decimals = 0;
             if (places != null)
@@ -880,7 +880,7 @@ namespace DotLiquid
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="atLeast">Value to apply if more than input</param>
         [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
-        public static object AtLeast(Context context, object input, object atLeast)
+        public static decimal AtLeast(Context context, object input, object atLeast)
         {
             decimal val1 = input.CoerceToDecimal(context.FormatProvider, 0);
             decimal val2 = atLeast.CoerceToDecimal(context.FormatProvider, 0);
@@ -894,7 +894,7 @@ namespace DotLiquid
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="atMost">Value to apply if less than input</param>
         [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
-        public static object AtMost(Context context, object input, object atMost)
+        public static decimal AtMost(Context context, object input, object atMost)
         {
             decimal val1 = input.CoerceToDecimal(context.FormatProvider, 0);
             decimal val2 = atMost.CoerceToDecimal(context.FormatProvider, 0);

@@ -77,10 +77,8 @@ namespace DotLiquid.Tests.Filters
         }
 
         [Test]
-        public void TestAtLeastFloatingPointTypes()
+        public void TestAtLeastTypes()
         {
-            Assert.That(AtLeast("notNumber", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
-            Assert.That(AtLeast(5, "notNumber"), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
             Assert.That(AtLeast(5, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
             Assert.That(AtLeast(3, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
             Assert.That(AtLeast(6, 5), Is.EqualTo(6).And.TypeOf(typeof(decimal)));
@@ -89,6 +87,13 @@ namespace DotLiquid.Tests.Filters
             Assert.That(AtLeast(3.56, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
             Assert.That(AtLeast("10", 5), Is.EqualTo(10).And.TypeOf(typeof(decimal)));
             Assert.That(AtLeast("4", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+        }
+
+        [Test]
+        public void TestAtLeastBadParams()
+        {
+            Assert.That(AtLeast("notNumber", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(AtLeast(5, "notNumber"), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
             Assert.That(AtLeast("10a", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
             Assert.That(AtLeast("4b", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
             Assert.That(AtLeast(null, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
@@ -96,10 +101,8 @@ namespace DotLiquid.Tests.Filters
         }
 
         [Test]
-        public void TestAtMostFloatingPointTypes()
+        public void TestAtMostTypes()
         {
-            Assert.That(AtMost("notNumber", 5), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
-            Assert.That(AtMost(5, "notNumber"), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
             Assert.That(AtMost(5, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
             Assert.That(AtMost(3, 5), Is.EqualTo(3).And.TypeOf(typeof(decimal)));
             Assert.That(AtMost(6, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
@@ -108,6 +111,13 @@ namespace DotLiquid.Tests.Filters
             Assert.That(AtMost(3.56, 5), Is.EqualTo(3.56).And.TypeOf(typeof(decimal)));
             Assert.That(AtMost("10", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
             Assert.That(AtMost("4", 5), Is.EqualTo(4).And.TypeOf(typeof(decimal)));
+        }
+
+        [Test]
+        public void TestAtMostBadParams()
+        {
+            Assert.That(AtMost("notNumber", 5), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
+            Assert.That(AtMost(5, "notNumber"), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
             Assert.That(AtMost("4a", 5), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
             Assert.That(AtMost("10b", 5), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
             Assert.That(AtMost(null, 5), Is.EqualTo(0).And.TypeOf(typeof(decimal)));

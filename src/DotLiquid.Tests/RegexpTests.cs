@@ -12,14 +12,13 @@ namespace DotLiquid.Tests
     [TestFixture]
     public class RegexpTests
     {
-#if !NETCOREAPP1_0
         [Test]
         public void TestAllRegexesAreCompiled()
         {
-            var assembly = typeof (Template).GetTypeInfo().Assembly;
+            var assembly = typeof(Template).Assembly;
             foreach (Type parent in assembly.GetTypes())
             {
-                foreach (var t in parent.GetTypeInfo().GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
+                foreach (var t in parent.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic))
                 {
                     if (t.FieldType == typeof(Regex))
                     {
@@ -28,7 +27,6 @@ namespace DotLiquid.Tests
                 }
             }
         }
-#endif
 
         private static List<string> Run(string input, string pattern)
         {

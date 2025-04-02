@@ -27,11 +27,7 @@ namespace DotLiquid.Util
 
         public static LiquidTypeAttribute GetLiquidTypeAttribute(Type type)
         {
-            return _typeAttributeCache.GetValue(type, (key) => type
-#if NETSTANDARD1_3
-                .GetTypeInfo()
-#endif
-                .GetCustomAttribute<LiquidTypeAttribute>());
+            return _typeAttributeCache.GetValue(type, (key) => type.GetCustomAttribute<LiquidTypeAttribute>());
         }
     }
 }

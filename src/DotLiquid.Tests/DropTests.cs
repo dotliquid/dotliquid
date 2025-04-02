@@ -145,7 +145,6 @@ namespace DotLiquid.Tests
             }
         }
 
-#if !CORE
         internal class DataRowDrop : Drop
         {
             private readonly System.Data.DataRow _dataRow;
@@ -162,7 +161,6 @@ namespace DotLiquid.Tests
                 return null;
             }
         }
-#endif
 
         internal class CamelCaseDrop : Drop
         {
@@ -380,7 +378,6 @@ namespace DotLiquid.Tests
             Assert.That(Template.Parse("{{ nulldrop.a_method }}").Render(Hash.FromAnonymousObject(new { nulldrop = new NullDrop() })), Is.EqualTo(""));
         }
 
-#if !CORE
         [Test]
         public void TestDataRowDrop()
         {
@@ -395,7 +392,6 @@ namespace DotLiquid.Tests
             Template tpl = Template.Parse(" {{ row.column1 }} ");
             Assert.That(tpl.Render(Hash.FromAnonymousObject(new { row = new DataRowDrop(dataRow) })), Is.EqualTo(" Hello "));
         }
-#endif
 
         [Test]
         public void TestRubyNamingConventionPrintsHelpfulErrorIfMissingPropertyWouldMatchCSharpNamingConvention()
@@ -446,7 +442,6 @@ namespace DotLiquid.Tests
                 namingConvention: new RubyNamingConvention());
         }
 
-#if !CORE
         [Test]
         public void TestDropRootCatchall()
         {
@@ -466,6 +461,5 @@ namespace DotLiquid.Tests
                 namingConvention: new RubyNamingConvention());
 
         }
-#endif
     }
 }

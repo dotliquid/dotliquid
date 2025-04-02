@@ -149,14 +149,23 @@ namespace DotLiquid.Tests.Filters
         public void TestCeilIntegerTypes()
         {
             long valueInt64 = ((long)Int32.MaxValue) + 1;
+            Assert.That(Ceil("1"), Is.EqualTo(1).And.TypeOf(typeof(int)));
+            Assert.That(Ceil($"{valueInt64}"), Is.EqualTo(valueInt64).And.TypeOf(typeof(long)));
 
-            Assert.That(Ceil(1), Is.EqualTo(1).And.TypeOf(typeof(int)));
-            Assert.That(Ceil(valueInt64), Is.EqualTo(valueInt64).And.TypeOf(typeof(long)));
+            Assert.That(Ceil((byte)1), Is.EqualTo(1).And.TypeOf(typeof(byte)));
+            Assert.That(Ceil((sbyte)1), Is.EqualTo(1).And.TypeOf(typeof(sbyte)));
+            Assert.That(Ceil((ushort)1), Is.EqualTo(1).And.TypeOf(typeof(ushort)));
+            Assert.That(Ceil((short)1), Is.EqualTo(1).And.TypeOf(typeof(short)));
+            Assert.That(Ceil((uint)1), Is.EqualTo(1).And.TypeOf(typeof(uint)));
+            Assert.That(Ceil((int)1), Is.EqualTo(1).And.TypeOf(typeof(int)));
+            Assert.That(Ceil((ulong)1), Is.EqualTo(1).And.TypeOf(typeof(ulong)));
+            Assert.That(Ceil((long)1), Is.EqualTo(1).And.TypeOf(typeof(long)));
         }
 
         [Test]
         public void TestCeilFloatingPointTypes()
         {
+            Assert.That(Ceil(1.9f), Is.EqualTo(2).And.TypeOf(typeof(double)));
             Assert.That(Ceil(1.9), Is.EqualTo(2).And.TypeOf(typeof(double)));
             Assert.That(Ceil(1.9m), Is.EqualTo(2).And.TypeOf(typeof(decimal)));
             Assert.That(Ceil("1.9"), Is.EqualTo(2).And.TypeOf(typeof(decimal)));
@@ -174,14 +183,23 @@ namespace DotLiquid.Tests.Filters
         public void TestFloorIntegerTypes()
         {
             long valueInt64 = ((long)Int32.MaxValue) + 1;
+            Assert.That(Floor("1"), Is.EqualTo(1).And.TypeOf(typeof(int)));
+            Assert.That(Floor($"{valueInt64}"), Is.EqualTo(valueInt64).And.TypeOf(typeof(long)));
 
-            Assert.That(Floor(1), Is.EqualTo(1).And.TypeOf(typeof(int)));
-            Assert.That(Floor(valueInt64), Is.EqualTo(valueInt64).And.TypeOf(typeof(long)));
+            Assert.That(Floor((byte)1), Is.EqualTo(1).And.TypeOf(typeof(byte)));
+            Assert.That(Floor((sbyte)1), Is.EqualTo(1).And.TypeOf(typeof(sbyte)));
+            Assert.That(Floor((ushort)1), Is.EqualTo(1).And.TypeOf(typeof(ushort)));
+            Assert.That(Floor((short)1), Is.EqualTo(1).And.TypeOf(typeof(short)));
+            Assert.That(Floor((uint)1), Is.EqualTo(1).And.TypeOf(typeof(uint)));
+            Assert.That(Floor((int)1), Is.EqualTo(1).And.TypeOf(typeof(int)));
+            Assert.That(Floor((ulong)1), Is.EqualTo(1).And.TypeOf(typeof(ulong)));
+            Assert.That(Floor((long)1), Is.EqualTo(1).And.TypeOf(typeof(long)));
         }
 
         [Test]
         public void TestFloorFloatingPointTypes()
         {
+            Assert.That(Floor(1.9f), Is.EqualTo(1).And.TypeOf(typeof(double)));
             Assert.That(Floor(1.9), Is.EqualTo(1).And.TypeOf(typeof(double)));
             Assert.That(Floor(1.9m), Is.EqualTo(1).And.TypeOf(typeof(decimal)));
             Assert.That(Floor("1.9"), Is.EqualTo(1).And.TypeOf(typeof(decimal)));

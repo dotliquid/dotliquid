@@ -20,6 +20,9 @@ namespace DotLiquid
     /// <see href="https://shopify.github.io/liquid/filters/"/>
     public static class StandardFilters
     {
+        private static bool IsReal(object o) => o is double || o is float || o is decimal;
+        private static bool IsInteger(object o) => o is int || o is uint || o is long || o is ulong || o is short || o is ushort || o is byte || o is sbyte;
+
         private static readonly Lazy<Regex> StripHtmlBlocks = new Lazy<Regex>(() => R.C(@"<script.*?</script>|<!--.*?-->|<style.*?</style>", RegexOptions.Singleline | RegexOptions.IgnoreCase), LazyThreadSafetyMode.ExecutionAndPublication);
         private static readonly Lazy<Regex> StripHtmlTags = new Lazy<Regex>(() => R.C(@"<.*?>", RegexOptions.Singleline), LazyThreadSafetyMode.ExecutionAndPublication);
         private static string Space = " ";
@@ -746,9 +749,9 @@ namespace DotLiquid
             }
 
             if (input is decimal inputDecimal) { return Math.Ceiling(inputDecimal); }
+            else if (input is float inputFloat) { return Math.Ceiling(inputFloat); }
             else if (input is double inputDouble) { return Math.Ceiling(inputDouble); }
-            else if (input is int inputInt32) { return inputInt32; }
-            else if (input is long inputInt64) { return inputInt64; }
+            else if (IsInteger(input)) { return input; }
             else return 0;
         }
 
@@ -769,9 +772,9 @@ namespace DotLiquid
             }
 
             if (input is decimal inputDecimal) { return Math.Floor(inputDecimal); }
+            else if (input is float inputFloat) { return Math.Floor(inputFloat); }
             else if (input is double inputDouble) { return Math.Floor(inputDouble); }
-            else if (input is int inputInt32) { return inputInt32; }
-            else if (input is long inputInt64) { return inputInt64; }
+            else if (IsInteger(input)) { return input; }
             else return 0;
         }
 
@@ -806,8 +809,6 @@ namespace DotLiquid
         {
             return !string.IsNullOrWhiteSpace(input) ? input : defaultValue;
         }
-
-        private static bool IsReal(object o) => o is double || o is float || o is decimal;
 
         internal static object DoMathsOperation(Context context, object input, object operand, Func<Expression, Expression, BinaryExpression> operation)
         {

@@ -161,8 +161,17 @@ namespace DotLiquid.Tests.Filters
             long valueInt64 = ((long)Int32.MinValue) - 1;
             long absValueInt64 = Math.Abs(valueInt64);
 
-            Assert.That(Abs(-1), Is.EqualTo(1).And.TypeOf(typeof(double)));
-            Assert.That(Abs(valueInt64), Is.EqualTo(absValueInt64).And.TypeOf(typeof(double)));
+            Assert.That(Abs("-1"), Is.EqualTo(1).And.TypeOf(typeof(double)));
+            Assert.That(Abs($"{valueInt64}"), Is.EqualTo(absValueInt64).And.TypeOf(typeof(double)));
+
+            Assert.That(Abs((byte)1), Is.EqualTo(1).And.TypeOf(typeof(double)));
+            Assert.That(Abs((sbyte)-1), Is.EqualTo(1).And.TypeOf(typeof(double)));
+            Assert.That(Abs((ushort)1), Is.EqualTo(1).And.TypeOf(typeof(double)));
+            Assert.That(Abs((short)-1), Is.EqualTo(1).And.TypeOf(typeof(double)));
+            Assert.That(Abs((uint)1), Is.EqualTo(1).And.TypeOf(typeof(double)));
+            Assert.That(Abs((int)-1), Is.EqualTo(1).And.TypeOf(typeof(double)));
+            Assert.That(Abs((ulong)1), Is.EqualTo(1).And.TypeOf(typeof(double)));
+            Assert.That(Abs((long)-1), Is.EqualTo(1).And.TypeOf(typeof(double)));
         }
 
         [Test]

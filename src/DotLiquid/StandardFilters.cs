@@ -863,9 +863,13 @@ namespace DotLiquid
             }
 
             if (input is decimal inputDecimal) { return Math.Abs(inputDecimal); }
+            else if (input is double inputFloat) { return Math.Abs(inputFloat); }
             else if (input is double inputDouble) { return Math.Abs(inputDouble); }
+            else if (input is sbyte inputInt8) { return Math.Abs(inputInt8); }
+            else if (input is short inputInt16) { return Math.Abs(inputInt16); }
             else if (input is int inputInt32) { return Math.Abs(inputInt32); }
             else if (input is long inputInt64) { return Math.Abs(inputInt64); }
+            else if (IsInteger(input)) { return input; }
             else return 0;
         }
 

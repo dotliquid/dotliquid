@@ -903,7 +903,7 @@ namespace DotLiquid
             if (val1 is decimal val1Decimal && val2 is decimal val2Decimal)
                 return Math.Max(val1Decimal, val2Decimal);
             else
-                return Math.Max((double)val1, (double)val2);
+                return Math.Max(Convert.ToDouble(val1), Convert.ToDouble(val2));
         }
 
         /// <summary>
@@ -922,7 +922,7 @@ namespace DotLiquid
             if (val1 is decimal val1Decimal && val2 is decimal val2Decimal)
                 return Math.Min(val1Decimal, val2Decimal);
             else
-                return Math.Min((double)val1, (double)val2);
+                return Math.Min(Convert.ToDouble(val1), Convert.ToDouble(val2));
         }
 
         /// <summary>

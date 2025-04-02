@@ -18,9 +18,9 @@ namespace DotLiquid.Util
         private static bool IsNumeric(object o) => IsReal(o) || IsInteger(o);
 
         /// <summary>
-        /// Coerce an object into a decimal value, or a double there's an overflow.
+        /// Coerce an object into a decimal or double value
         /// </summary>
-        /// <param name="value">The string to coerce.</param>
+        /// <param name="value">The value to coerce. This can be a numeric type, or a string representation of a numeric type.</param>
         /// <param name="formatProvider">The format provider for converting floating point numbers.</param>
         /// <param name="defaultValue">The value to return if coercion fails.</param>
         /// <returns>The coerced value as decimal or double type, or <paramref name="defaultValue"/> if coercion fails.</returns>
@@ -30,9 +30,13 @@ namespace DotLiquid.Util
             if (value != null)
             {
                 object convertedObject = value.CoerceToNumericType(formatProvider, defaultValue);
-                if (convertedObject is decimal convertedValue)
+                if (convertedObject is decimal convertedDecimal)
                 {
-                    result = convertedValue;
+                    result = convertedDecimal;
+                }
+                else if (convertedObject is double convertedDouble)
+                {
+                    result = convertedDouble;
                 }
                 else
                 {
@@ -42,15 +46,7 @@ namespace DotLiquid.Util
                     }
                     catch (OverflowException)
                     {
-                        // Try to fit it in a double
-                        try
-                        {
-                            result = Convert.ToDouble(convertedObject);
-                        }
-                        catch (OverflowException)
-                        {
-                            // Ignore - conversion failed
-                        }
+                        // Ignore - conversion failed
                     }
                 }
             }

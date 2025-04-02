@@ -83,8 +83,9 @@ namespace DotLiquid.Tests.Filters
             Assert.That(AtLeast(3, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
             Assert.That(AtLeast(6, 5), Is.EqualTo(6).And.TypeOf(typeof(decimal)));
             Assert.That(AtLeast(10, 5), Is.EqualTo(10).And.TypeOf(typeof(decimal)));
-            Assert.That(AtLeast(9.85, 5), Is.EqualTo(9.85).And.TypeOf(typeof(decimal)));
-            Assert.That(AtLeast(3.56, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(AtLeast(9.85, 5), Is.EqualTo(9.85).And.TypeOf(typeof(double)));
+            Assert.That(AtLeast(9.85m, 5), Is.EqualTo(9.85).And.TypeOf(typeof(decimal)));
+            Assert.That(AtLeast(3.56, 5), Is.EqualTo(5).And.TypeOf(typeof(double)));
             Assert.That(AtLeast("10", 5), Is.EqualTo(10).And.TypeOf(typeof(decimal)));
             Assert.That(AtLeast("4", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
         }
@@ -107,8 +108,9 @@ namespace DotLiquid.Tests.Filters
             Assert.That(AtMost(3, 5), Is.EqualTo(3).And.TypeOf(typeof(decimal)));
             Assert.That(AtMost(6, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
             Assert.That(AtMost(10, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
-            Assert.That(AtMost(9.85, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
-            Assert.That(AtMost(3.56, 5), Is.EqualTo(3.56).And.TypeOf(typeof(decimal)));
+            Assert.That(AtMost(9.85, 5), Is.EqualTo(5).And.TypeOf(typeof(double)));
+            Assert.That(AtMost(9.85m, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(AtMost(3.56, 5), Is.EqualTo(3.56).And.TypeOf(typeof(double)));
             Assert.That(AtMost("10", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
             Assert.That(AtMost("4", 5), Is.EqualTo(4).And.TypeOf(typeof(decimal)));
         }

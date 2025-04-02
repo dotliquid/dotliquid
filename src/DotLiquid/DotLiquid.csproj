@@ -33,12 +33,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SonarAnalyzer.CSharp" Version="5.11.0.1761" PrivateAssets="all" />
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.7.0.110445" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="logo_nuget.png" Pack="true" PackagePath="images\"/>
-    <None Include="readme_nuget.md" Pack="true" PackagePath="docs\"/>
+    <None Include="logo_nuget.png" Pack="true" PackagePath="images\" />
+    <None Include="readme_nuget.md" Pack="true" PackagePath="docs\" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">

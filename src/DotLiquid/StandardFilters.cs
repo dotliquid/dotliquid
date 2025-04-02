@@ -345,7 +345,7 @@ namespace DotLiquid
             return SortInternal(StringComparer.OrdinalIgnoreCase, input, property);
         }
 
-        internal static IEnumerable SortInternal(StringComparer stringComparer, object input, string property = null)
+        internal static IEnumerable SortInternal(StringComparer comparer, object input, string property = null)
         {
             if (input == null)
                 return null;
@@ -363,7 +363,6 @@ namespace DotLiquid
             if (!ary.Any())
                 return ary;
 
-            var comparer = stringComparer;
             if (string.IsNullOrEmpty(property))
             {
                 ary.Sort((a, b) => comparer.Compare(a, b));

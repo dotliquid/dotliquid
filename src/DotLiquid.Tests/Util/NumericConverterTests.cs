@@ -15,8 +15,11 @@ namespace DotLiquid.Tests.Util
         {
             Assert.That(15.CoerceToReal(CultureInfo.InvariantCulture, 0), Is.EqualTo(15m).And.TypeOf(typeof(decimal)));
             Assert.That(15m.CoerceToReal(CultureInfo.InvariantCulture, 0), Is.EqualTo(15m).And.TypeOf(typeof(decimal)));
+            Assert.That(15.0f.CoerceToReal(CultureInfo.InvariantCulture, 0), Is.EqualTo(15).And.TypeOf(typeof(double)));
+            Assert.That(15.0.CoerceToReal(CultureInfo.InvariantCulture, 0), Is.EqualTo(15).And.TypeOf(typeof(double)));
             Assert.That("15".CoerceToReal(CultureInfo.InvariantCulture, 0), Is.EqualTo(15m).And.TypeOf(typeof(decimal)));
             Assert.That("-15".CoerceToReal(CultureInfo.InvariantCulture, 0), Is.EqualTo(-15m).And.TypeOf(typeof(decimal)));
+            Assert.That("15.0".CoerceToReal(CultureInfo.InvariantCulture, 0), Is.EqualTo(15m).And.TypeOf(typeof(decimal)));
         }
 
         [Test]

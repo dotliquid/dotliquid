@@ -38,16 +38,17 @@ namespace DotLiquid.Util
                 {
                     result = convertedDouble;
                 }
+                else if (convertedObject is float convertedFloat)
+                {
+                    // https://docs.microsoft.com/en-us/dotnet/standard/base-types/conversion-tables
+                    // Float be widened to double
+                    result = Convert.ToDouble(convertedFloat);
+                }
                 else
                 {
-                    try
-                    {
-                        result = Convert.ToDecimal(convertedObject);
-                    }
-                    catch (OverflowException)
-                    {
-                        // Ignore - conversion failed
-                    }
+                    // https://docs.microsoft.com/en-us/dotnet/standard/base-types/conversion-tables
+                    // All integer types can be widened to decimal
+                    result = Convert.ToDecimal(convertedObject);
                 }
             }
             return result;

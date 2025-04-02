@@ -40,7 +40,7 @@ test_script:
     
     codecov -f TestsCoverage.xml
 artifacts:
-- path: '*.*nupkg'
+- path: '**\*.*nupkg'
   name: Nuget Package
 - path: TestsCoverage.xml
 deploy:

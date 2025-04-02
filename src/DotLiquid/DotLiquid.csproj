@@ -11,8 +11,11 @@
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotLiquid</PackageId>
+    <Version>1.0.0</Version>
+    <PackageVersion>1.0.0</PackageVersion>
     <PackageTags>template;templating;language;liquid;markup</PackageTags>
     <PackageIcon>images\logo_nuget.png</PackageIcon>
+    <PackageReadmeFile>docs\readme_nuget.md</PackageReadmeFile>
     <PackageIconUrl>https://raw.githubusercontent.com/dotliquid/dotliquid/master/src/DotLiquid/logo_nuget.png</PackageIconUrl>
     <PackageProjectUrl>https://dotliquid.org</PackageProjectUrl>
     <PackageLicenseExpression>Apache-2.0 OR MS-PL</PackageLicenseExpression>
@@ -24,20 +27,18 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
     <DebugType>portable</DebugType>
     <DebugSymbols>True</DebugSymbols>
     <DocumentationFile>bin\Debug\$(TargetFramework)\DotLiquid.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SonarAnalyzer.CSharp" Version="5.11.0.1761" />
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="5.11.0.1761" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="logo_nuget.png" Pack="true" PackagePath="images\"/>
+    <None Include="readme_nuget.md" Pack="true" PackagePath="docs\"/>
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">

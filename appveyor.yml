@@ -1,14 +1,17 @@
 # Build script for dotliquid is presently stored securely on AppVeyor.
 # Below is ignored and kept for informational purposes only
-version: 2.2.{build}
+version: 2.4.{build}
 image: Visual Studio 2022
 configuration: Release
-assembly_info:
+dotnet_csproj:
   patch: true
-  file: AssemblyInfo.*
+  file: '**\*.csproj'
+  version: '{version}'
+  version_prefix: '{version}'
+  package_version: '{version}-beta'
   assembly_version: '{version}'
-  assembly_file_version: '{version}'
-  assembly_informational_version: '{version}-$(APPVEYOR_REPO_COMMIT)'
+  file_version: '{version}'
+  informational_version: '{version}-$(APPVEYOR_REPO_COMMIT)'
 install:
 - cmd: >-
     choco install opencover.portable -y
@@ -25,19 +28,17 @@ nuget:
   project_feed: true
 build:
   project: src/DotLiquid.sln
+  publish_nuget: true
+  publish_nuget_symbols: true
+  use_snupkg_format: true
   verbosity: minimal
-after_build:
-- ps: >-
-    New-Item -Path build\pkg -ItemType Directory
-
-    nuget pack src/DotLiquid/DotLiquid.nuspec -Symbols -SymbolPackageFormat snupkg -Version "$($env:APPVEYOR_BUILD_VERSION)" -OutputDirectory build\pkg
 test_script:
 - cmd: >-
     opencover.console -target:"C:\Program Files\dotnet\dotnet.exe" -targetargs:"test src\DotLiquid.Tests\DotLiquid.Tests.csproj /clp:ErrorsOnly" -output:TestsCoverage.xml -filter:"+[DotLiquid]*" -register:user -returntargetcode -oldstyle
     
     codecov -f TestsCoverage.xml
 artifacts:
-- path: build\pkg\*.*nupkg
+- path: '*.*nupkg'
   name: Nuget Package
 - path: TestsCoverage.xml
 deploy:

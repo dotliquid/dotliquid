@@ -40,7 +40,7 @@ namespace DotLiquid.Tags
             using (TextWriter temp = new StringWriter(result.FormatProvider))
             {
                 base.Render(context, temp);
-                context.Scopes.Last()[_to] = temp.ToString();
+                context.Scopes[context.Scopes.Count - 1][_to] = temp.ToString();
             }
         }
     }

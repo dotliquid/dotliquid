@@ -275,7 +275,7 @@ namespace DotLiquid
             if (SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid22)
                 throw new FilterNotFoundException(method); // this will be caught and rethrown in caller with correct message
 
-            return args.First();
+            return args[0];
         }
 
         /// <summary>
@@ -407,7 +407,7 @@ namespace DotLiquid
                         switch (obj)
                         {
                             case null:
-                            case bool boolObj when boolObj == false:
+                            case bool boolObj when !boolObj:
                             case string stringObj when string.IsNullOrWhiteSpace(stringObj):
                             case IEnumerable enumerableObj when !enumerableObj.Any():
                                 return true;
@@ -511,7 +511,7 @@ namespace DotLiquid
 
                 if (scope == null)
                 {
-                    scope = Environments.LastOrDefault() ?? Scopes.Last();
+                    scope = Environments.LastOrDefault() ?? Scopes[Scopes.Count - 1];
                     foundVariable = TryEvaluateHashOrArrayLikeObject(scope, key, out foundValue);
                 }
             }
@@ -762,7 +762,7 @@ namespace DotLiquid
         {
             Dictionary<string, object> tempAssigns = new Dictionary<string, object>(Template.NamingConvention.StringComparer);
 
-            Hash lastScope = Scopes.Last();
+            Hash lastScope = Scopes[Scopes.Count - 1];
             foreach (string k in lastScope.Keys)
                 foreach (IIndexable env in Environments)
                     if (env.ContainsKey(k))

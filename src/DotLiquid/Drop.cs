@@ -25,7 +25,7 @@ namespace DotLiquid
             CachedProperties = GetMemberDictionary(GetPropertiesWithoutDuplicateNames(type, mi => filterMemberCallback(mi)));
         }
 
-        private Dictionary<string, T> GetMemberDictionary<T>(IEnumerable<T> members) where T : MemberInfo
+        private static Dictionary<string, T> GetMemberDictionary<T>(IEnumerable<T> members) where T : MemberInfo
         {
             return members.ToDictionary(mi => Template.NamingConvention.GetMemberName(mi.Name), Template.NamingConvention.StringComparer);
         }
@@ -158,9 +158,9 @@ namespace DotLiquid
             get { return InvokeDrop(method); }
         }
 
-#region IIndexable
+        #region IIndexable
         /// <inheritdoc />
-        public virtual bool ContainsKey(object name) { return true; }
+        public virtual bool ContainsKey(object key) { return true; }
 
 #endregion
 
@@ -189,7 +189,7 @@ namespace DotLiquid
             {
                 string rubyMethod = Template.NamingConvention.GetMemberName(method);
 
-                if (TypeResolution.CachedMethods.TryGetValue(rubyMethod, out MethodInfo mi) || TypeResolution.CachedProperties.TryGetValue(rubyMethod, out PropertyInfo pi))
+                if (TypeResolution.CachedMethods.ContainsKey(rubyMethod) || TypeResolution.CachedProperties.ContainsKey(rubyMethod))
                 {
                     return string.Format(Liquid.ResourceManager.GetString("DropWrongNamingConventionMessage"), rubyMethod);
                 }

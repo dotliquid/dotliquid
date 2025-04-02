@@ -8,7 +8,7 @@ namespace DotLiquid.Util
 {
     public static class ObjectExtensionMethods
     {
-        private class SafeTypeInsensitiveEqualityComparer : IEqualityComparer<object>
+        private sealed class SafeTypeInsensitiveEqualityComparer : IEqualityComparer<object>
         {
             bool IEqualityComparer<object>.Equals(object x, object y) => SafeTypeInsensitiveEqual(x, y);
             int IEqualityComparer<object>.GetHashCode(object obj) => throw new NotImplementedException();
@@ -175,7 +175,7 @@ namespace DotLiquid.Util
         public static bool IsFalsy(this object any)
         {
             return any == null
-                || (any is bool _bool && _bool == false)
+                || (any is bool _bool && !_bool)
                 || (any is string _string && "false".Equals(_string, StringComparison.OrdinalIgnoreCase));
         }
     }

@@ -47,7 +47,7 @@ namespace DotLiquid.Tags
             if (!Params.ContainsKey(paramName))
                 throw new SyntaxException(
                     message: "ParamTagSyntaxException",
-                    args: new string[] { syntaxMatch.Groups[1].Value, Params.Keys.ToString() });
+                    syntaxMatch.Groups[1].Value, Params.Keys.ToString());
 
             // Save the Param and the Value (which could be a variable or literal).
             this.param = Params[paramName];
@@ -61,7 +61,7 @@ namespace DotLiquid.Tags
         /// </summary>
         /// <exception cref="SyntaxException">For unknown parameters or invalid options for a known parameter.</exception>
         /// <exception cref="FilterNotFoundException">If a non-safelisted filter class is encountered.</exception>
-        public override void Render(Context context, TextWriter _)
+        public override void Render(Context context, TextWriter result)
         {
             // Apply the parameter
             param(context, context[this.paramValue].ToString());
@@ -73,7 +73,7 @@ namespace DotLiquid.Tags
             if (!"ruby".Equals(value, StringComparison.OrdinalIgnoreCase) && !"dotnet".Equals(value, StringComparison.OrdinalIgnoreCase))
                 throw new SyntaxException("ParamOptionSyntaxException", "date_format", value, "dotnet, ruby");
 
-            context.UseRubyDateFormat = String.Equals("dotnet", value, StringComparison.OrdinalIgnoreCase) ? false : true;
+            context.UseRubyDateFormat = !String.Equals("dotnet", value, StringComparison.OrdinalIgnoreCase);
         }
 
         private static void SetCulture(Context context, string value)
@@ -102,7 +102,7 @@ namespace DotLiquid.Tags
         private static void AddUsing(Context context, string value)
         {
             if (Template.TryGetSafelistedFilter(value, out var filterClassType))
-                context.AddFilters(new[] { filterClassType });
+                context.AddFilters(filterClassType);
             else
                 throw new SyntaxException("ParamOptionSyntaxException", "using", value, string.Join(",", string.Join(",", Template.GetSafelistedFilterAliases())));
         }

@@ -162,7 +162,7 @@ namespace DotLiquid
                 }
                 return inputString.Substring(Convert.ToInt32(start), Convert.ToInt32(len));
             }
-            else if (input is IEnumerable enumerableInput)
+            else if (input is IEnumerable)
             {
                 return StandardFilters.Slice(input, start, len);
             }

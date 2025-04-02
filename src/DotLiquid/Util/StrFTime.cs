@@ -8,7 +8,7 @@ namespace DotLiquid.Util
 {
     public static class StrFTime
     {
-        private class DateFormatInvalidException : Exceptions.LiquidException
+        private sealed class DateFormatInvalidException : Exceptions.LiquidException
         {
             public DateFormatInvalidException() : base() { }
         }
@@ -193,9 +193,9 @@ namespace DotLiquid.Util
         /// <param name="culture">the CurrentCulture to be used when formatting</param>
         private static String SpecifierEvaluator(String specifier, IEnumerable<String> flags, int? width, String directive, object source, CultureInfo culture)
         {
-            var result = specifier;
             directive = PreProcessDirective(directive, flags, width);
 
+            string result;
             if (Formats.ContainsKey(directive))
                 result = Formats[directive].Invoke(source, culture);
             else if (DateFormats.ContainsKey(directive) && source is DateTimeOffset dateTimeOffset)

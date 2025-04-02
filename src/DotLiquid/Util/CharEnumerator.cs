@@ -6,21 +6,19 @@ using System.Text;
 namespace DotLiquid.Util
 {
     /// <summary>
-    /// CharEnumerator is a similar implementation to the native class by the same name but is
-    /// (a) compatible with .net standard 1.3
-    /// (b) exposes additional properties like Position (Stream-like) Next (to peek) etc.
+    /// CharEnumerator is a similar implementation to the native class by the same name but it
+    /// exposes additional properties like Position (Stream-like) Next (to peek) etc.
     /// </summary>
     internal class CharEnumerator : IEnumerator<char>
     {
         private readonly String str;
-        private int index;
+        private int index = -1;
 
         internal CharEnumerator(String str)
         {
             if (str == null)
                 throw new ArgumentException("String must not be null", nameof(str));
             this.str = str;
-            this.index = -1;
         }
 
         public bool MoveNext()

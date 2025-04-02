@@ -400,7 +400,7 @@ namespace DotLiquid
             // Note that liquid assumes that contained complex elements are all following the same schema.
             // Hence here we only check if the first element has the property requested for the map.
             if (listedInput.All(element => element is IDictionary)
-                && ((IDictionary)listedInput.First()).Contains(key: property))
+                && ((IDictionary)listedInput[0]).Contains(key: property))
                 return listedInput.Select(element => ((IDictionary)element)[property]);
 
             return listedInput.Select(element => ResolveObjectPropertyValue(element, property));
@@ -843,15 +843,12 @@ namespace DotLiquid
         /// <param name="atLeast">Value to apply if more than input</param>
         public static object AtLeast(Context context, object input, object atLeast)
         {
-            double n;
-            var inputNumber = Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
-
-            double min;
-            var atLeastNumber = Double.TryParse(atLeast.ToString(), NumberStyles.Number, context.CurrentCulture, out min);
+            var inputNumber = Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out double n);
+            var atLeastNumber = Double.TryParse(atLeast.ToString(), NumberStyles.Number, context.CurrentCulture, out double min);
 
             if (inputNumber && atLeastNumber)
             {
-                return (double)((double)min > (double)n ? min : n);
+                return (min > n ? min : n);
             }
             else
             {
@@ -867,15 +864,12 @@ namespace DotLiquid
         /// <param name="atMost">Value to apply if less than input</param>
         public static object AtMost(Context context, object input, object atMost)
         {
-            double n;
-            var inputNumber = Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
-
-            double max;
-            var atMostNumber = Double.TryParse(atMost.ToString(), NumberStyles.Number, context.CurrentCulture, out max);
+            var inputNumber = Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out double n);
+            var atMostNumber = Double.TryParse(atMost.ToString(), NumberStyles.Number, context.CurrentCulture, out double max);
 
             if (inputNumber && atMostNumber)
             {
-                return (double)((double)max < (double)n ? max : n);
+                return (max < n ? max : n);
             }
             else
             {

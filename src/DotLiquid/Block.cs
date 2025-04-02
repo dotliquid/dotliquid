@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -134,7 +134,7 @@ namespace DotLiquid
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
-        public Variable CreateVariable(string token)
+        public static Variable CreateVariable(string token)
         {
             Match match = ContentOfVariable.Match(token);
             if (match.Success)
@@ -166,7 +166,7 @@ namespace DotLiquid
         /// <param name="list"></param>
         /// <param name="context"></param>
         /// <param name="result"></param>
-        protected void RenderAll(List<object> list, Context context, TextWriter result)
+        protected static void RenderAll(List<object> list, Context context, TextWriter result)
         {
             foreach (var token in list)
             {

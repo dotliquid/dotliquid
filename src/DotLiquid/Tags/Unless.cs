@@ -15,7 +15,7 @@ namespace DotLiquid.Tags
             context.Stack(() =>
             {
                 // First condition is interpreted backwards (if not)
-                Condition block = Blocks.First();
+                Condition block = Blocks[0];
                 if (!block.Evaluate(context, result.FormatProvider))
                 {
                     RenderAll(block.Attachment, context, result);

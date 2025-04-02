@@ -11,12 +11,10 @@ namespace DotLiquid.Util
     /// </summary>
     public static class ExpressionUtility
     {
-        private static readonly Dictionary<Type, Type[]> NumericTypePromotions;
+        private static readonly Dictionary<Type, Type[]> NumericTypePromotions = new Dictionary<Type, Type[]>();
 
         static ExpressionUtility()
         {
-            NumericTypePromotions = new Dictionary<Type, Type[]>();
-
             void Add(Type key, params Type[] types) => NumericTypePromotions[key] = types;
             // Using the promotion table at
             // https://docs.microsoft.com/en-us/dotnet/standard/base-types/conversion-tables

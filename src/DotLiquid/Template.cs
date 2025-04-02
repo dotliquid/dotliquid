@@ -28,16 +28,24 @@ namespace DotLiquid
     /// </summary>
     public class Template
     {
+        /// <inheritdoc />
+        private sealed class StreamWriterWithFormatProvider : StreamWriter
+        {
+            public StreamWriterWithFormatProvider(Stream stream, IFormatProvider formatProvider) : base(stream) => FormatProvider = formatProvider;
+
+            public override IFormatProvider FormatProvider { get; }
+        }
+
         /// <summary>
         /// Naming convention used for template parsing
         /// </summary>
         /// <remarks>Default is Ruby</remarks>
-        public static INamingConvention NamingConvention { get; set; }
+        public static INamingConvention NamingConvention { get; set; } = new RubyNamingConvention();
 
         /// <summary>
         /// Filesystem used for template reading
         /// </summary>
-        public static IFileSystem FileSystem { get; set; }
+        public static IFileSystem FileSystem { get; set; } = new BlankFileSystem();
 
         /// <summary>
         /// Liquid syntax flag used for backward compatibility
@@ -49,28 +57,17 @@ namespace DotLiquid
         /// </summary>
         public static bool DefaultIsThreadSafe { get; set; }
 
-        private static Dictionary<string, Tuple<ITagFactory, Type>> Tags { get; }
+        private static Dictionary<string, Tuple<ITagFactory, Type>> Tags { get; } = new Dictionary<string, Tuple<ITagFactory, Type>>();
 
         /// <summary>
         /// TimeOut used for all Regex in DotLiquid
         /// </summary>
-        public static TimeSpan RegexTimeOut { get; set; }
+        public static TimeSpan RegexTimeOut { get; set; } = TimeSpan.FromSeconds(10);
 
-        private static readonly Dictionary<Type, Func<object, object>> SafeTypeTransformers;
-        private static readonly Dictionary<Type, Func<object, object>> ValueTypeTransformers;
-        private static readonly ConcurrentDictionary<Type, Func<object, object>> ValueTypeTransformerCache;
+        private static readonly Dictionary<Type, Func<object, object>> SafeTypeTransformers = new Dictionary<Type, Func<object, object>>();
+        private static readonly Dictionary<Type, Func<object, object>> ValueTypeTransformers = new Dictionary<Type, Func<object, object>>();
+        private static readonly ConcurrentDictionary<Type, Func<object, object>> ValueTypeTransformerCache = new ConcurrentDictionary<Type, Func<object, object>>();
         private static readonly IDictionary<string, Type> SafelistedFilters = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
-
-        static Template()
-        {
-            RegexTimeOut = TimeSpan.FromSeconds(10);
-            NamingConvention = new RubyNamingConvention();
-            FileSystem = new BlankFileSystem();
-            Tags = new Dictionary<string, Tuple<ITagFactory, Type>>();
-            SafeTypeTransformers = new Dictionary<Type, Func<object, object>>();
-            ValueTypeTransformers = new Dictionary<Type, Func<object, object>>();
-            ValueTypeTransformerCache = new ConcurrentDictionary<Type, Func<object, object>>();
-        }
 
         /// <summary>
         /// Register a tag
@@ -194,7 +191,7 @@ namespace DotLiquid
             // Check for interfaces
             return ValueTypeTransformerCache.GetOrAdd(type, (key) =>
             {
-                foreach (var interfaceType in type.GetInterfaces())
+                foreach (var interfaceType in key.GetInterfaces())
                 {
                     if (ValueTypeTransformers.TryGetValue(interfaceType, out transformer))
                         return transformer;
@@ -383,7 +380,6 @@ namespace DotLiquid
             }
         }
 
-
         /// <summary>
         /// Renders the template using the specified parameters and returns a string containing the result.
         /// </summary>
@@ -415,14 +411,6 @@ namespace DotLiquid
 
             this.RenderInternal(writer, parameters);
             return writer.ToString();
-        }
-
-        /// <inheritdoc />
-        private class StreamWriterWithFormatProvider : StreamWriter
-        {
-            public StreamWriterWithFormatProvider(Stream stream, IFormatProvider formatProvider) : base(stream) => FormatProvider = formatProvider;
-
-            public override IFormatProvider FormatProvider { get; }
         }
 
         /// <summary>

@@ -149,7 +149,7 @@ namespace DotLiquid.Tags
             });
         }
 
-        public bool IsExtending(Template template)
+        public static bool IsExtending(Template template)
         {
             return template.Root.NodeList.Any(node => node is Extends);
         }

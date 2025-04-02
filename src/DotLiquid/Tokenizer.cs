@@ -159,7 +159,7 @@ namespace DotLiquid
 
                     if (nextVariable.Length > 0)
                         yield return nextVariable.ToString();
-                };
+                }
             }
         }
 
@@ -240,7 +240,7 @@ namespace DotLiquid
                             break;
                     }
                 }
-            };
+            }
 
             // Somehow we reached the end without finding the end character(s)
             return false;
@@ -259,7 +259,7 @@ namespace DotLiquid
             {
                 if (markupEnumerator.Current == endChar)
                     return true;
-            };
+            }
 
             return false;
         }
@@ -280,7 +280,7 @@ namespace DotLiquid
 
                 if (!ReadWordChar(sb, markupEnumerator))
                     return false;
-            };
+            }
             return true;
         }
 

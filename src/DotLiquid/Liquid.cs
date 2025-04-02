@@ -30,7 +30,7 @@ namespace DotLiquid
         public static readonly string VariableParser = string.Format(R.Q(@"\[[^\]]+\]|{0}+\??"), VariableSegment);
         public static readonly string LiteralShorthand = R.Q(@"^(?:\{\{\{\s?)(.*?)(?:\s*\}\}\})$");
         public static readonly string CommentShorthand = R.Q(@"^(?:\{\s?\#\s?)(.*?)(?:\s*\#\s?\})$");
-        public static bool UseRubyDateFormat = false;
+        public static bool UseRubyDateFormat { get; set; } = false;
 
         internal static readonly string DirectorySeparators = @"[\\/]";
         internal static readonly string LimitRelativePath = @"^(?![\\\/\.])(?:[^<>:;,?""*|\x00-\x1F\/\\]+|[\/\\](?!\.))+(?<!\/)$"; /* Blocks hidden files in linux and directory traversal .. */

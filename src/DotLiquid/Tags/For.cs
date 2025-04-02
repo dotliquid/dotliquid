@@ -255,9 +255,9 @@ namespace DotLiquid.Tags
             return null;
         }
 
-        public override bool ContainsKey(object name)
+        public override bool ContainsKey(object key)
         {
-            string method = name.ToString();
+            string method = key.ToString();
             return method.SafeTypeInsensitiveEqual(0L) || method.Equals("Key") || method.Equals("itemName")
                 || method.SafeTypeInsensitiveEqual(1L) || method.Equals("Value") || value.ContainsKey(method);
         }

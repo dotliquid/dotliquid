@@ -5,9 +5,7 @@ namespace DotLiquid.Exceptions
     /// <summary>
     /// An exception that is thrown when an invalid or unknown syntax is encountered in a template.
     /// </summary>
-#if !CORE
     [Serializable]
-#endif
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Sonar Code Smell", "S3925:'ISerializable' should be implemented correctly", Justification = "ISerializable not required")]
     public class SyntaxException : LiquidException
     {

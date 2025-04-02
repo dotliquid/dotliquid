@@ -1,3 +1,4 @@
+using System;
 using System.Globalization;
 using System.IO;
 using System.Net;
@@ -182,6 +183,35 @@ namespace DotLiquid.Tests
             {
                 Assert.That(reader.ReadToEnd(), Is.EqualTo("worked"));
             }
+        }
+
+        [Test]
+        public void TestRenderNullArgumentsThrowsException()
+        {
+            var template = Template.Parse("{{test}}");
+            var renderParameters = new RenderParameters(CultureInfo.InvariantCulture);
+            Assert.Multiple(() =>
+            {
+                Assert.Throws<ArgumentNullException>(() => template.Render(stream: null, renderParameters));
+                Assert.Throws<ArgumentNullException>(() => template.Render(writer: null, renderParameters));
+                Assert.Throws<ArgumentNullException>(() => template.Render(parameters: null));
+
+                using (Stream stream = new MemoryStream())
+                {
+                    Assert.Throws<ArgumentNullException>(() => template.Render(stream, parameters: null));
+                }
+
+                using (TextWriter writer = new StringWriter(CultureInfo.InvariantCulture))
+                {
+                    Assert.Throws<ArgumentNullException>(() => template.Render(writer, parameters: null));
+                }
+            });
+        }
+
+        [Test]
+        public void TestGetTagTypeUnknownTag()
+        {
+            Assert.That(Template.GetTagType("unknown"), Is.Null);
         }
 
         public class MySimpleType

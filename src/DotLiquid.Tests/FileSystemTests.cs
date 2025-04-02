@@ -74,7 +74,7 @@ namespace DotLiquid.Tests
         [Test]
         public void TestEmbeddedResource()
         {
-            var assembly = typeof(FileSystemTests).GetTypeInfo().Assembly;
+            var assembly = typeof(FileSystemTests).Assembly;
             EmbeddedFileSystem fileSystem = new EmbeddedFileSystem(assembly, "DotLiquid.Tests.Embedded");
             foreach (var validPath in validPaths)
                 Assert.That(

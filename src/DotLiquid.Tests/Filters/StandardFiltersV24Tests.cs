@@ -171,6 +171,12 @@ namespace DotLiquid.Tests.Filters
 
             resultType = NumericConverter.GetBinaryResultType(t2, t1);
             Assert.That(AtLeast(val2, val1), Is.EqualTo(2).And.TypeOf(resultType));
+
+            resultType = NumericConverter.GetBinaryResultType(t1, t1);
+            Assert.That(AtLeast(val1, val1), Is.EqualTo(1).And.TypeOf(resultType));
+
+            resultType = NumericConverter.GetBinaryResultType(t2, t2);
+            Assert.That(AtLeast(val2, val2), Is.EqualTo(2).And.TypeOf(resultType));
         }
 
         [Test]
@@ -198,6 +204,12 @@ namespace DotLiquid.Tests.Filters
 
             resultType = NumericConverter.GetBinaryResultType(t2, t1);
             Assert.That(AtMost(val2, val1), Is.EqualTo(1).And.TypeOf(resultType));
+
+            resultType = NumericConverter.GetBinaryResultType(t1, t1);
+            Assert.That(AtMost(val1, val1), Is.EqualTo(1).And.TypeOf(resultType));
+
+            resultType = NumericConverter.GetBinaryResultType(t2, t2);
+            Assert.That(AtMost(val2, val2), Is.EqualTo(2).And.TypeOf(resultType));
         }
 
         [Test]

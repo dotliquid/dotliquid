@@ -26,7 +26,6 @@ namespace DotLiquid.Tests.Util
             { typeof(byte), (Convert.ToDouble(byte.MaxValue), Convert.ToDouble(byte.MinValue) ) },
             { typeof(sbyte), (Convert.ToDouble(sbyte.MaxValue), Convert.ToDouble(sbyte.MinValue) ) }
         };
-       
 
         [Test]
         public void TestCoerceToReal()

@@ -775,7 +775,7 @@ namespace DotLiquid
 
             if (input is string inputString)
             {
-                input = inputString.CoerceToNumericType(context.FormatProvider, 0);
+                input = NumericConverter.CoerceToNumericType(inputString, context.FormatProvider, 0);
             }
 
             if (input is decimal inputDecimal) { return Math.Ceiling(inputDecimal); }
@@ -798,7 +798,7 @@ namespace DotLiquid
 
             if (input is string inputString)
             {
-                input = inputString.CoerceToNumericType(context.FormatProvider, 0);
+                input = NumericConverter.CoerceToNumericType(inputString, context.FormatProvider, 0);
             }
 
             if (input is decimal inputDecimal) { return Math.Floor(inputDecimal); }
@@ -879,7 +879,7 @@ namespace DotLiquid
 
             if (input is string inputString)
             {
-                input = inputString.CoerceToNumericType(context.FormatProvider, 0);
+                input = NumericConverter.CoerceToNumericType(inputString, context.FormatProvider, 0);
             }
 
             if (input is decimal inputDecimal) { return Math.Abs(inputDecimal); }
@@ -903,8 +903,8 @@ namespace DotLiquid
         [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object AtLeast(Context context, object input, object atLeast)
         {
-            object val1 = input.CoerceToNumericType(context.FormatProvider, 0);
-            object val2 = atLeast.CoerceToNumericType(context.FormatProvider, 0);
+            object val1 = NumericConverter.CoerceToNumericType(input, context.FormatProvider, 0);
+            object val2 = NumericConverter.CoerceToNumericType(atLeast, context.FormatProvider, 0);
             Type resultType = NumericConverter.GetBinaryResultType(val1.GetType(), val2.GetType());
 
             switch (resultType)
@@ -946,8 +946,8 @@ namespace DotLiquid
         [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object AtMost(Context context, object input, object atMost)
         {
-            object val1 = input.CoerceToNumericType(context.FormatProvider, 0);
-            object val2 = atMost.CoerceToNumericType(context.FormatProvider, 0);
+            object val1 = NumericConverter.CoerceToNumericType(input, context.FormatProvider, 0);
+            object val2 = NumericConverter.CoerceToNumericType(atMost, context.FormatProvider, 0);
             Type resultType = NumericConverter.GetBinaryResultType(val1.GetType(), val2.GetType());
 
             switch (resultType)
@@ -1045,7 +1045,7 @@ namespace DotLiquid
             {
                 if (value != null)
                 {
-                    object valueToAdd = value.CoerceToNumericType(context.FormatProvider, 0);
+                    object valueToAdd = NumericConverter.CoerceToNumericType(value, context.FormatProvider, 0);
                     sum = StandardFilters.DoMathsOperation(context, sum, valueToAdd, Expression.AddChecked);
                 }
             }

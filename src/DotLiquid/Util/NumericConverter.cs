@@ -84,51 +84,13 @@ namespace DotLiquid.Util
         }
 
         /// <summary>
-        /// Coerce an object into a decimal or double value
-        /// </summary>
-        /// <param name="value">The value to coerce. This can be a numeric type, or a string representation of a numeric type.</param>
-        /// <param name="formatProvider">The format provider for converting floating point numbers.</param>
-        /// <param name="defaultValue">The value to return if coercion fails.</param>
-        /// <returns>The coerced value as decimal or double type, or <paramref name="defaultValue"/> if coercion fails.</returns>
-        public static object CoerceToReal(this object value, IFormatProvider formatProvider, decimal defaultValue)
-        {
-            object result = defaultValue;
-            if (value != null)
-            {
-                object convertedObject = value.CoerceToNumericType(formatProvider, defaultValue);
-                if (convertedObject is decimal convertedDecimal)
-                {
-                    result = convertedDecimal;
-                }
-                else if (convertedObject is double convertedDouble)
-                {
-                    result = convertedDouble;
-                }
-                else if (convertedObject is float convertedFloat)
-                {
-                    // https://docs.microsoft.com/en-us/dotnet/standard/base-types/conversion-tables
-                    // Float be widened to double
-                    result = Convert.ToDouble(convertedFloat);
-                }
-                else
-                {
-                    // https://docs.microsoft.com/en-us/dotnet/standard/base-types/conversion-tables
-                    // All integer types can be widened to decimal
-                    result = Convert.ToDecimal(convertedObject);
-                }
-            }
-
-            return result;
-        }
-
-        /// <summary>
         /// Coerce an object into a numeric type.
         /// </summary>
         /// <param name="value">The string to coerce.</param>
         /// <param name="formatProvider">The format provider for converting floating point numbers.</param>
         /// <param name="defaultValue">The value to return if coercion fails.</param>
         /// <returns>The coerced value as int, long, double or decimal type, or <paramref name="defaultValue"/> if coercion fails.</returns>
-        public static object CoerceToNumericType(this object value, IFormatProvider formatProvider, object defaultValue)
+        public static object CoerceToNumericType(object value, IFormatProvider formatProvider, object defaultValue)
         {
             if (NumericConverter.TryCoerceToNumericType(value, formatProvider, out object convertedValue))
             {
@@ -145,7 +107,7 @@ namespace DotLiquid.Util
         /// <param name="formatProvider">The format provider for converting floating point numbers.</param>
         /// <param name="convertedValue">The coerced value as int, long, double or decimal type, or null if parsing fails.</param>
         /// <returns>true if parsing was successful; Otherwise, false.</returns>
-        public static bool TryCoerceToNumericType(this object value, IFormatProvider formatProvider, out object convertedValue)
+        public static bool TryCoerceToNumericType(object value, IFormatProvider formatProvider, out object convertedValue)
         {
             if (value != null)
             {
@@ -171,7 +133,7 @@ namespace DotLiquid.Util
         /// <param name="formatProvider">The format provider for converting floating point numbers.</param>
         /// <param name="convertedValue">The coerced value as int, long, double or decimal type, or null if parsing fails.</param>
         /// <returns>true if parsing was successful; Otherwise, false.</returns>
-        public static bool TryParseToNumericType(this string value, IFormatProvider formatProvider, out object convertedValue)
+        public static bool TryParseToNumericType(string value, IFormatProvider formatProvider, out object convertedValue)
         {
             if (value != null)
             {

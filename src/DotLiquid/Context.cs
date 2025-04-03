@@ -442,8 +442,7 @@ namespace DotLiquid
                         break;
                     default:
                         // Numeric values.
-                        bool converted = NumericConverter.TryParseToNumericType(key, FormatProvider, out object numericValue);
-                        if (converted)
+                        if (NumericConverter.TryParseToNumericType(key, FormatProvider, out object numericValue))
                             return numericValue;
                         break;
                 }

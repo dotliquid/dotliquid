@@ -65,21 +65,24 @@ namespace DotLiquid.Tests.Filters
         [Test]
         public void TestRoundTypes()
         {
+            Assert.That(Round("1.2345678", 2.0), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
             Assert.That(Round(1.2345678f, 2.0), Is.EqualTo(1.23).And.TypeOf(typeof(double)));
             Assert.That(Round(1.2345678, 2.0), Is.EqualTo(1.23).And.TypeOf(typeof(double)));
             Assert.That(Round(1.2345678m, 2.0), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
 
-            Assert.That(Round(1.2345678f, 2.0f), Is.EqualTo(1.23).And.TypeOf(typeof(double)));
-            Assert.That(Round(1.2345678, 2.0f), Is.EqualTo(1.23).And.TypeOf(typeof(double)));
-            Assert.That(Round(1.2345678m, 2.0f), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
-
-            Assert.That(Round(1.2345678f, 2.0m), Is.EqualTo(1.23).And.TypeOf(typeof(double)));
-            Assert.That(Round(1.2345678, 2.0m), Is.EqualTo(1.23).And.TypeOf(typeof(double)));
-            Assert.That(Round(1.2345678m, 2.0m), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
-
-            Assert.That(Round(1.2345678f, 2), Is.EqualTo(1.23).And.TypeOf(typeof(double)));
             Assert.That(Round(1.2345678, 2), Is.EqualTo(1.23).And.TypeOf(typeof(double)));
-            Assert.That(Round(1.2345678m, 2), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
+            Assert.That(Round(1.2345678, 2.0f), Is.EqualTo(1.23).And.TypeOf(typeof(double)));
+            Assert.That(Round(1.2345678, 2.0m), Is.EqualTo(1.23).And.TypeOf(typeof(double)));
+            Assert.That(Round(1.2345678m, "2.0"), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
+
+            Assert.That(Round((byte)1, 2), Is.EqualTo(1).And.TypeOf(typeof(byte)));
+            Assert.That(Round((sbyte)-1, 2), Is.EqualTo(-1).And.TypeOf(typeof(sbyte)));
+            Assert.That(Round((ushort)1, 2), Is.EqualTo(1).And.TypeOf(typeof(ushort)));
+            Assert.That(Round((short)-1, 2), Is.EqualTo(-1).And.TypeOf(typeof(short)));
+            Assert.That(Round((uint)1, 2), Is.EqualTo(1).And.TypeOf(typeof(uint)));
+            Assert.That(Round((int)-1, 2), Is.EqualTo(-1).And.TypeOf(typeof(int)));
+            Assert.That(Round((ulong)1, 2), Is.EqualTo(1).And.TypeOf(typeof(ulong)));
+            Assert.That(Round((long)-1, 2), Is.EqualTo(-1).And.TypeOf(typeof(long)));
         }
 
         [Test]

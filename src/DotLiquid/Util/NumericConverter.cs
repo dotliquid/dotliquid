@@ -51,6 +51,7 @@ namespace DotLiquid.Util
                     result = Convert.ToDecimal(convertedObject);
                 }
             }
+
             return result;
         }
 
@@ -63,16 +64,12 @@ namespace DotLiquid.Util
         /// <returns>The coerced value as int, long, double or decimal type, or <paramref name="defaultValue"/> if coercion fails.</returns>
         public static object CoerceToNumericType(this object value, IFormatProvider formatProvider, object defaultValue)
         {
-            object result = defaultValue;
-            if (value != null)
+            if (NumericConverter.TryCoerceToNumericType(value, formatProvider, out object convertedValue))
             {
-                bool converted = value.TryCoerceToNumericType(formatProvider, out object convertedValue);
-                if (converted)
-                {
-                    result = convertedValue;
-                }
+                return convertedValue;
             }
-            return result;
+
+            return defaultValue;
         }
 
         /// <summary>
@@ -86,14 +83,14 @@ namespace DotLiquid.Util
         {
             if (value != null)
             {
-                if (IsNumeric(value))
+                if (NumericConverter.IsNumeric(value))
                 {
                     convertedValue = value;
                     return true;
                 }
                 else if (value is string stringValue)
                 {
-                    return stringValue.TryParseToNumericType(formatProvider, out convertedValue);
+                    return NumericConverter.TryParseToNumericType(stringValue, formatProvider, out convertedValue);
                 }
             }
 

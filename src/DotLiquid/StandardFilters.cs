@@ -685,32 +685,25 @@ namespace DotLiquid
         [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object Round(Context context, object input, object places = null)
         {
-            int decimals = 0;
-            if (places != null)
-            {
-                object placesValue = places.CoerceToReal(context.FormatProvider, 0m);
-                if (placesValue is decimal placesDecimal)
-                {
-                    const decimal MinDecimalPlaces = 0m;
-                    const decimal MaxDecimalPlaces = 28m;
-                    placesDecimal = Math.Max(MinDecimalPlaces, Math.Min(MaxDecimalPlaces, placesDecimal));
-                    decimals = (int)Math.Floor(placesDecimal);
-                }
-                else
-                {
-                    double placesDouble = (double)placesValue;
-                    const double MinDecimalPlaces = 0;
-                    const double MaxDecimalPlaces = 28;
-                    placesDouble = Math.Max(MinDecimalPlaces, Math.Min(MaxDecimalPlaces, placesDouble));
-                    decimals = (int)Math.Floor(placesDouble);
-                }
-            }
+            // Math.Round can handle at most 28 decimals, so clamp place into [0, 28].
+            const int MaxDecimalPlaces = 28;
+            int decimals = Convert.ToInt32(
+                StandardFilters.Floor(context,
+                    StandardFilters.AtLeast(context, 0,
+                        StandardFilters.AtMost(context, MaxDecimalPlaces, places))));
 
-            object inputValue = input.CoerceToReal(context.FormatProvider, 0m);
+
+            object inputValue = NumericConverter.CoerceToNumericType(input, context.FormatProvider, 0);
             if (inputValue is decimal inputDecimal)
                 return Math.Round(inputDecimal, decimals);
+            else if (inputValue is double inputDouble)
+                return Math.Round(inputDouble, decimals);
+            else if (inputValue is float inputFloat)
+                // Math.Round() only supports double or decimal, so float will be widened to double
+                return Math.Round(inputFloat, decimals);
             else
-                return Math.Round((double)inputValue, decimals);
+                // Must be an integer already
+                return inputValue;
         }
 
         /// <summary>

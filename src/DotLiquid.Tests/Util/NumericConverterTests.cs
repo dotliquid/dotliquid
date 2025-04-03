@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using DotLiquid.Tests.Helpers;
 using DotLiquid.Util;
 using NUnit.Framework;
 
@@ -105,7 +106,7 @@ namespace DotLiquid.Tests.Util
         }
 
         [Test]
-        [TestCaseSource(nameof(GetNumericTypeCombinations))]
+        [TestCaseSource(typeof(NumericHelper), nameof(NumericHelper.GetNumericTypeCombinations))]
         public void TestNumericCombinationsResultInUpgrade(ValueTuple<Type, Type> types)
         {
             var t1 = types.Item1;
@@ -204,21 +205,6 @@ namespace DotLiquid.Tests.Util
             yield return new object[] { null, invariantFormatProvider };
             yield return new object[] { string.Empty, invariantFormatProvider };
             yield return new object[] { "banana", invariantFormatProvider };
-        }
-
-        public static IEnumerable<(Type, Type)> GetNumericTypeCombinations()
-        {
-            var testTypes = new HashSet<Type> { typeof(decimal), typeof(double), typeof(float), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(short), typeof(ushort), typeof(byte), typeof(sbyte) };
-            var testAgainst = new HashSet<Type>(testTypes.ToArray());
-
-            foreach (var t1 in testTypes)
-            {
-                foreach (var t2 in testAgainst)
-                {
-                    yield return (t1, t2);
-                }
-                testAgainst.Remove(t1); // All combinations are tested, no need to test other objects against it.
-            }
         }
     }
 }

@@ -1,5 +1,7 @@
 using System;
 using System.Globalization;
+using DotLiquid.Tests.Helpers;
+using DotLiquid.Util;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
@@ -148,20 +150,19 @@ namespace DotLiquid.Tests.Filters
         }
 
         [Test]
-        public void TestAtLeastTypes()
+        [TestCaseSource(typeof(NumericHelper), nameof(NumericHelper.GetNumericTypeCombinations))]
+        public void TestAtLeastTypes(ValueTuple<Type, Type> types)
         {
-            Assert.Multiple(() =>
-            {
-                Assert.That(AtLeast(5, 5), Is.EqualTo(5).And.TypeOf(typeof(int)));
-                Assert.That(AtLeast(3, 5), Is.EqualTo(5).And.TypeOf(typeof(int)));
-                Assert.That(AtLeast(6, 5), Is.EqualTo(6).And.TypeOf(typeof(int)));
-                Assert.That(AtLeast(10, 5), Is.EqualTo(10).And.TypeOf(typeof(int)));
-                Assert.That(AtLeast(9.85, 5), Is.EqualTo(9.85).And.TypeOf(typeof(double)));
-                Assert.That(AtLeast(9.85m, 5), Is.EqualTo(9.85).And.TypeOf(typeof(decimal)));
-                Assert.That(AtLeast(3.56, 5), Is.EqualTo(5).And.TypeOf(typeof(double)));
-                Assert.That(AtLeast("10", 5), Is.EqualTo(10).And.TypeOf(typeof(int)));
-                Assert.That(AtLeast("4", 5), Is.EqualTo(5).And.TypeOf(typeof(int)));
-            });
+            var t1 = types.Item1;
+            var t2 = types.Item2;
+            var val1 = Convert.ChangeType(1, t1);
+            var val2 = Convert.ChangeType(2, t2);
+
+            var resultType = NumericConverter.GetBinaryResultType(t1, t2);
+            Assert.That(AtLeast(val1, val2), Is.EqualTo(2).And.TypeOf(resultType));
+
+            resultType = NumericConverter.GetBinaryResultType(t2, t1);
+            Assert.That(AtLeast(val2, val1), Is.EqualTo(2).And.TypeOf(resultType));
         }
 
         [Test]
@@ -176,20 +177,19 @@ namespace DotLiquid.Tests.Filters
         }
 
         [Test]
-        public void TestAtMostTypes()
+        [TestCaseSource(typeof(NumericHelper), nameof(NumericHelper.GetNumericTypeCombinations))]
+        public void TestAtMostTypes(ValueTuple<Type, Type> types)
         {
-            Assert.Multiple(() =>
-            {
-                Assert.That(AtMost(5, 5), Is.EqualTo(5).And.TypeOf(typeof(int)));
-                Assert.That(AtMost(3, 5), Is.EqualTo(3).And.TypeOf(typeof(int)));
-                Assert.That(AtMost(6, 5), Is.EqualTo(5).And.TypeOf(typeof(int)));
-                Assert.That(AtMost(10, 5), Is.EqualTo(5).And.TypeOf(typeof(int)));
-                Assert.That(AtMost(9.85, 5), Is.EqualTo(5).And.TypeOf(typeof(double)));
-                Assert.That(AtMost(9.85m, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
-                Assert.That(AtMost(3.56, 5), Is.EqualTo(3.56).And.TypeOf(typeof(double)));
-                Assert.That(AtMost("10", 5), Is.EqualTo(5).And.TypeOf(typeof(int)));
-                Assert.That(AtMost("4", 5), Is.EqualTo(4).And.TypeOf(typeof(int)));
-            });
+            var t1 = types.Item1;
+            var t2 = types.Item2;
+            var val1 = Convert.ChangeType(1, t1);
+            var val2 = Convert.ChangeType(2, t2);
+
+            var resultType = NumericConverter.GetBinaryResultType(t1, t2);
+            Assert.That(AtMost(val1, val2), Is.EqualTo(1).And.TypeOf(resultType));
+
+            resultType = NumericConverter.GetBinaryResultType(t2, t1);
+            Assert.That(AtMost(val2, val1), Is.EqualTo(1).And.TypeOf(resultType));
         }
 
         [Test]

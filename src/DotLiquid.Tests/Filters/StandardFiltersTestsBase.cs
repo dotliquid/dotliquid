@@ -13,7 +13,7 @@ namespace DotLiquid.Tests.Filters
         public abstract IFormatProvider FormatProvider { get; }
         public abstract SyntaxCompatibility SyntaxCompatibilityLevel { get; }
         public abstract CapitalizeDelegate Capitalize { get; }
-        public abstract MathDelegate Divide { get; }
+        public abstract MathDelegate DividedBy { get; }
         public abstract MathDelegate Plus { get; }
         public abstract MathDelegate Minus { get; }
         public abstract MathDelegate Modulo { get; }
@@ -59,24 +59,37 @@ namespace DotLiquid.Tests.Filters
         [Test]
         public void TestCapitalize()
         {
-            Assert.That(Capitalize(input: null), Is.EqualTo(null));
-            Assert.That(Capitalize(input: ""), Is.EqualTo(""));
-            Assert.That(Capitalize(input: " "), Is.EqualTo(" "));
+            Assert.Multiple(() =>
+            {
+                Assert.That(Capitalize(input: null), Is.EqualTo(null));
+                Assert.That(Capitalize(input: ""), Is.EqualTo(""));
+                Assert.That(Capitalize(input: " "), Is.EqualTo(" "));
+            });
         }
 
         [Test]
         public void TestDividedBy()
         {
-            Assert.That(Divide(input: 12, operand: 3), Is.EqualTo(4));
-            Assert.That(Divide(input: 14, operand: 3), Is.EqualTo(4));
-            Assert.That(Divide(input: 15, operand: 3), Is.EqualTo(5));
-            Assert.That(Divide(input: null, operand: 3), Is.Null);
-            Assert.That(Divide(input: 4, operand: null), Is.Null);
+            Assert.Multiple(() =>
+            {
+                Assert.That(DividedBy(input: 12, operand: 3), Is.EqualTo(4).And.TypeOf(typeof(int)));
+                Assert.That(DividedBy(input: 12, operand: 3.0), Is.EqualTo(4).And.TypeOf(typeof(decimal)));
+                Assert.That(DividedBy(input: 14, operand: 3), Is.EqualTo(4).And.TypeOf(typeof(int)));
+                Assert.That(DividedBy(input: 14, operand: 4.0), Is.EqualTo(3.5).And.TypeOf(typeof(decimal)));
+                Assert.That(DividedBy(input: 15, operand: 3), Is.EqualTo(5).And.TypeOf(typeof(int)));
+            });
+        }
 
-            // Ensure we preserve floating point behavior for division by zero, and don't start throwing exceptions.
-            Assert.That(Divide(input: 1.0, operand: 0.0), Is.EqualTo(double.PositiveInfinity));
-            Assert.That(Divide(input: -1.0, operand: 0.0), Is.EqualTo(double.NegativeInfinity));
-            Assert.That(Divide(input: 0.0, operand: 0.0), Is.EqualTo(double.NaN));
+        [Test]
+        public void TestDividedByZeroReal()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(DividedBy(input: 0.0, operand: 0.0), Is.NaN);
+
+                Assert.That(DividedBy(input: 1.0, operand: 0.0), Is.EqualTo(double.PositiveInfinity));
+                Assert.That(DividedBy(input: -1.0, operand: 0.0), Is.EqualTo(double.NegativeInfinity));
+            });
         }
 
         [Test]
@@ -112,60 +125,82 @@ namespace DotLiquid.Tests.Filters
         {
             Assert.Multiple(() =>
             {
-                Assert.That(Modulo(input: 3, operand: 2), Is.EqualTo(1));
+                Assert.That(Modulo(input: 3, operand: 2), Is.EqualTo(1).And.TypeOf(typeof(int)));
                 Assert.That(Modulo(input: 148387.77, operand: 10), Is.EqualTo(7.77));
                 Assert.That(Modulo(input: 3455.32, operand: 10), Is.EqualTo(5.32));
                 Assert.That(Modulo(input: 23423.12, operand: 10), Is.EqualTo(3.12));
-                Assert.That(Modulo(input: null, operand: 3), Is.Null);
-                Assert.That(Modulo(input: 4, operand: null), Is.Null);
+            });
+        }
+
+        [Test]
+        public void TestModuloZeroReal()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(Modulo(input: 0.0, operand: 0.0), Is.NaN);
+                Assert.That(Modulo(input: 1.0, operand: 0.0), Is.NaN);
+                Assert.That(Modulo(input: -1.0, operand: 0.0), Is.NaN);
+
             });
         }
 
         [Test]
         public void TestRemoveFirst()
         {
-            Assert.That(RemoveFirst(input: null, @string: "a"), Is.Null);
-            Assert.That(RemoveFirst(input: "", @string: "a"), Is.EqualTo(""));
-            Assert.That(RemoveFirst(input: "a a a a", @string: null), Is.EqualTo("a a a a"));
-            Assert.That(RemoveFirst(input: "a a a a", @string: ""), Is.EqualTo("a a a a"));
-            Assert.That(RemoveFirst(input: "a a a a", @string: "a "), Is.EqualTo("a a a"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(RemoveFirst(input: null, @string: "a"), Is.Null);
+                Assert.That(RemoveFirst(input: "", @string: "a"), Is.EqualTo(""));
+                Assert.That(RemoveFirst(input: "a a a a", @string: null), Is.EqualTo("a a a a"));
+                Assert.That(RemoveFirst(input: "a a a a", @string: ""), Is.EqualTo("a a a a"));
+                Assert.That(RemoveFirst(input: "a a a a", @string: "a "), Is.EqualTo("a a a"));
+            });
         }
 
         [Test]
         public void TestReplace()
         {
-            Assert.That(actual: Replace(null, "a", "b"), Is.Null);
-            Assert.That(actual: Replace("", "a", "b"), Is.EqualTo(expected: ""));
-            Assert.That(actual: Replace("a a a a", null, "b"), Is.EqualTo(expected: "a a a a"));
-            Assert.That(actual: Replace("a a a a", "", "b"), Is.EqualTo(expected: "a a a a"));
-            Assert.That(actual: Replace("a a a a", "a", "b"), Is.EqualTo(expected: "b b b b"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(actual: Replace(null, "a", "b"), Is.Null);
+                Assert.That(actual: Replace("", "a", "b"), Is.EqualTo(expected: ""));
+                Assert.That(actual: Replace("a a a a", null, "b"), Is.EqualTo(expected: "a a a a"));
+                Assert.That(actual: Replace("a a a a", "", "b"), Is.EqualTo(expected: "a a a a"));
+                Assert.That(actual: Replace("a a a a", "a", "b"), Is.EqualTo(expected: "b b b b"));
 
-            Assert.That(actual: Replace("Tesvalue\"", "\"", "\\\""), Is.EqualTo(expected: "Tesvalue\\\""));
-            Helper.AssertTemplateResult(expected: "Tesvalue\\\"", template: "{{ 'Tesvalue\"' | replace: '\"', '\\\"' }}", syntax: SyntaxCompatibilityLevel);
-            Helper.AssertTemplateResult(
-                expected: "Tesvalue\\\"",
-                template: "{{ context | replace: '\"', '\\\"' }}",
-                localVariables: Hash.FromAnonymousObject(new { context = "Tesvalue\"" }),
-                syntax: SyntaxCompatibilityLevel);
+                Assert.That(actual: Replace("Tesvalue\"", "\"", "\\\""), Is.EqualTo(expected: "Tesvalue\\\""));
+                Helper.AssertTemplateResult(expected: "Tesvalue\\\"", template: "{{ 'Tesvalue\"' | replace: '\"', '\\\"' }}", syntax: SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult(
+                    expected: "Tesvalue\\\"",
+                    template: "{{ context | replace: '\"', '\\\"' }}",
+                    localVariables: Hash.FromAnonymousObject(new { context = "Tesvalue\"" }),
+                    syntax: SyntaxCompatibilityLevel);
+            });
         }
 
         [Test]
         public void TestReplaceFirst()
         {
-            Assert.That(ReplaceFirst(input: null, @string: "a", replacement: "b"), Is.Null);
-            Assert.That(ReplaceFirst(input: "", @string: "a", replacement: "b"), Is.EqualTo(""));
-            Assert.That(ReplaceFirst(input: "a a a a", @string: "a", replacement: "b"), Is.EqualTo("b a a a"));
-            Helper.AssertTemplateResult(expected: "b a a a", template: "{{ 'a a a a' | replace_first: 'a', 'b' }}", syntax: SyntaxCompatibilityLevel);
+            Assert.Multiple(() =>
+            {
+                Assert.That(ReplaceFirst(input: null, @string: "a", replacement: "b"), Is.Null);
+                Assert.That(ReplaceFirst(input: "", @string: "a", replacement: "b"), Is.EqualTo(""));
+                Assert.That(ReplaceFirst(input: "a a a a", @string: "a", replacement: "b"), Is.EqualTo("b a a a"));
+                Helper.AssertTemplateResult(expected: "b a a a", template: "{{ 'a a a a' | replace_first: 'a', 'b' }}", syntax: SyntaxCompatibilityLevel);
+            });
         }
 
         [Test]
         public void TestRound()
         {
-            Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round: 3 }}", syntax: SyntaxCompatibilityLevel);
-            Helper.AssertTemplateResult("1", "{{ 1 | round }}", syntax: SyntaxCompatibilityLevel);
-            Helper.AssertTemplateResult("1", "{{ 1.234678 | round }}", syntax: SyntaxCompatibilityLevel);
+            Assert.Multiple(() =>
+            {
+                Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round: 3 }}", syntax: SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("1", "{{ 1 | round }}", syntax: SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("1", "{{ 1.234678 | round }}", syntax: SyntaxCompatibilityLevel);
 
-            Helper.AssertTemplateResult("1", "{{ 1.234678 | round: nonesuch }}", syntax: SyntaxCompatibilityLevel);
+                Helper.AssertTemplateResult("1", "{{ 1.234678 | round: nonesuch }}", syntax: SyntaxCompatibilityLevel);
+            });
         }
 
         [Test]

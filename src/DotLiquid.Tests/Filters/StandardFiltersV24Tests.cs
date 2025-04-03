@@ -11,7 +11,7 @@ namespace DotLiquid.Tests.Filters
         public override IFormatProvider FormatProvider => CultureInfo.InvariantCulture;
         public override SyntaxCompatibility SyntaxCompatibilityLevel => SyntaxCompatibility.DotLiquid24;
         public override CapitalizeDelegate Capitalize => i => StandardFilters.Capitalize(i);
-        public override MathDelegate Divide => (i, o) => StandardFilters.DividedBy(_context, i, o);
+        public override MathDelegate DividedBy => (i, o) => StandardFilters.DividedBy(_context, i, o);
         public override MathDelegate Plus => (i, o) => StandardFilters.Plus(_context, i, o);
         public override MathDelegate Minus => (i, o) => StandardFilters.Minus(_context, i, o);
         public override MathDelegate Modulo => (i, o) => StandardFilters.Modulo(_context, i, o);
@@ -34,6 +34,53 @@ namespace DotLiquid.Tests.Filters
                 return s == null ? StandardFilters.TruncateWords(i, w.Value) : StandardFilters.TruncateWords(i, w.Value, s);
             return StandardFilters.TruncateWords(i);
         };
+
+        [Test]
+        public void TestDividedByStringIsParsed()
+        {
+            Assert.That(DividedBy(input: "12", operand: 3), Is.EqualTo(4));
+            Assert.That(DividedBy(input: 12, operand: "3"), Is.EqualTo(4));
+        }
+
+        [Test]
+        public void TestDividedByBadValues()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(DividedBy(input: 1.0, operand: null), Is.EqualTo(double.PositiveInfinity));
+                Assert.That(DividedBy(input: null, operand: 3), Is.Zero);
+            });
+        }
+
+        [Test]
+        public void TestDividedByZeroInteger()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(DividedBy(input: 1, operand: 0), Is.EqualTo(double.PositiveInfinity));
+                Assert.That(DividedBy(input: -1, operand: 0), Is.EqualTo(double.NegativeInfinity));
+            });
+        }
+
+        [Test]
+        public void TestModuloBadValues()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(Modulo(input: 1.0, operand: null), Is.NaN);
+                Assert.That(Modulo(input: null, operand: 3), Is.Zero);
+            });
+        }
+
+        [Test]
+        public void TestModuloZeroInteger()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(Modulo(input: 1, operand: 0), Is.NaN);
+                Assert.That(Modulo(input: -1, operand: 0), Is.NaN);
+            });
+        }
 
         [Test]
         public void TestReplaceFirstInvalidSearchPrepends()
@@ -103,51 +150,57 @@ namespace DotLiquid.Tests.Filters
         [Test]
         public void TestAtLeastTypes()
         {
-            Assert.That(AtLeast(5, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
-            Assert.That(AtLeast(3, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
-            Assert.That(AtLeast(6, 5), Is.EqualTo(6).And.TypeOf(typeof(decimal)));
-            Assert.That(AtLeast(10, 5), Is.EqualTo(10).And.TypeOf(typeof(decimal)));
-            Assert.That(AtLeast(9.85, 5), Is.EqualTo(9.85).And.TypeOf(typeof(double)));
-            Assert.That(AtLeast(9.85m, 5), Is.EqualTo(9.85).And.TypeOf(typeof(decimal)));
-            Assert.That(AtLeast(3.56, 5), Is.EqualTo(5).And.TypeOf(typeof(double)));
-            Assert.That(AtLeast("10", 5), Is.EqualTo(10).And.TypeOf(typeof(decimal)));
-            Assert.That(AtLeast("4", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.Multiple(() =>
+            {
+                Assert.That(AtLeast(5, 5), Is.EqualTo(5).And.TypeOf(typeof(int)));
+                Assert.That(AtLeast(3, 5), Is.EqualTo(5).And.TypeOf(typeof(int)));
+                Assert.That(AtLeast(6, 5), Is.EqualTo(6).And.TypeOf(typeof(int)));
+                Assert.That(AtLeast(10, 5), Is.EqualTo(10).And.TypeOf(typeof(int)));
+                Assert.That(AtLeast(9.85, 5), Is.EqualTo(9.85).And.TypeOf(typeof(double)));
+                Assert.That(AtLeast(9.85m, 5), Is.EqualTo(9.85).And.TypeOf(typeof(decimal)));
+                Assert.That(AtLeast(3.56, 5), Is.EqualTo(5).And.TypeOf(typeof(double)));
+                Assert.That(AtLeast("10", 5), Is.EqualTo(10).And.TypeOf(typeof(int)));
+                Assert.That(AtLeast("4", 5), Is.EqualTo(5).And.TypeOf(typeof(int)));
+            });
         }
 
         [Test]
         public void TestAtLeastBadParams()
         {
-            Assert.That(AtLeast("notNumber", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
-            Assert.That(AtLeast(5, "notNumber"), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
-            Assert.That(AtLeast("10a", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
-            Assert.That(AtLeast("4b", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
-            Assert.That(AtLeast(null, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
-            Assert.That(AtLeast(5, null), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+            Assert.That(AtLeast("notNumber", 5), Is.EqualTo(5));
+            Assert.That(AtLeast(5, "notNumber"), Is.EqualTo(5));
+            Assert.That(AtLeast("10a", 5), Is.EqualTo(5));
+            Assert.That(AtLeast("4b", 5), Is.EqualTo(5));
+            Assert.That(AtLeast(null, 5), Is.EqualTo(5));
+            Assert.That(AtLeast(5, null), Is.EqualTo(5));
         }
 
         [Test]
         public void TestAtMostTypes()
         {
-            Assert.That(AtMost(5, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
-            Assert.That(AtMost(3, 5), Is.EqualTo(3).And.TypeOf(typeof(decimal)));
-            Assert.That(AtMost(6, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
-            Assert.That(AtMost(10, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
-            Assert.That(AtMost(9.85, 5), Is.EqualTo(5).And.TypeOf(typeof(double)));
-            Assert.That(AtMost(9.85m, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
-            Assert.That(AtMost(3.56, 5), Is.EqualTo(3.56).And.TypeOf(typeof(double)));
-            Assert.That(AtMost("10", 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
-            Assert.That(AtMost("4", 5), Is.EqualTo(4).And.TypeOf(typeof(decimal)));
+            Assert.Multiple(() =>
+            {
+                Assert.That(AtMost(5, 5), Is.EqualTo(5).And.TypeOf(typeof(int)));
+                Assert.That(AtMost(3, 5), Is.EqualTo(3).And.TypeOf(typeof(int)));
+                Assert.That(AtMost(6, 5), Is.EqualTo(5).And.TypeOf(typeof(int)));
+                Assert.That(AtMost(10, 5), Is.EqualTo(5).And.TypeOf(typeof(int)));
+                Assert.That(AtMost(9.85, 5), Is.EqualTo(5).And.TypeOf(typeof(double)));
+                Assert.That(AtMost(9.85m, 5), Is.EqualTo(5).And.TypeOf(typeof(decimal)));
+                Assert.That(AtMost(3.56, 5), Is.EqualTo(3.56).And.TypeOf(typeof(double)));
+                Assert.That(AtMost("10", 5), Is.EqualTo(5).And.TypeOf(typeof(int)));
+                Assert.That(AtMost("4", 5), Is.EqualTo(4).And.TypeOf(typeof(int)));
+            });
         }
 
         [Test]
         public void TestAtMostBadParams()
         {
-            Assert.That(AtMost("notNumber", 5), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
-            Assert.That(AtMost(5, "notNumber"), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
-            Assert.That(AtMost("4a", 5), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
-            Assert.That(AtMost("10b", 5), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
-            Assert.That(AtMost(null, 5), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
-            Assert.That(AtMost(5, null), Is.EqualTo(0).And.TypeOf(typeof(decimal)));
+            Assert.That(AtMost("notNumber", 5), Is.EqualTo(0));
+            Assert.That(AtMost(5, "notNumber"), Is.EqualTo(0));
+            Assert.That(AtMost("4a", 5), Is.EqualTo(0));
+            Assert.That(AtMost("10b", 5), Is.EqualTo(0));
+            Assert.That(AtMost(null, 5), Is.EqualTo(0));
+            Assert.That(AtMost(5, null), Is.EqualTo(0));
         }
 
         [Test]

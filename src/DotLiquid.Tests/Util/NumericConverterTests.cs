@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using DotLiquid.Util;
 using NUnit.Framework;
 
@@ -10,6 +11,22 @@ namespace DotLiquid.Tests.Util
     [TestFixture]
     public class NumericConverterTests
     {
+        private static Dictionary<Type, (double, double)> TypeLimits = new Dictionary<Type, (double, double)>()
+        {
+            { typeof(decimal), (Convert.ToDouble(decimal.MaxValue), Convert.ToDouble(decimal.MinValue) ) },
+            { typeof(double), (double.MaxValue, double.MinValue ) },
+            { typeof(float), (Convert.ToDouble(float.MaxValue), Convert.ToDouble(float.MinValue) ) },
+            { typeof(int), (Convert.ToDouble(int.MaxValue), Convert.ToDouble(int.MinValue) ) },
+            { typeof(uint), (Convert.ToDouble(uint.MaxValue), Convert.ToDouble(uint.MinValue) ) },
+            { typeof(long), (Convert.ToDouble(long.MaxValue), Convert.ToDouble(long.MinValue) ) },
+            { typeof(ulong), (Convert.ToDouble(ulong.MaxValue), Convert.ToDouble(ulong.MinValue) ) },
+            { typeof(short), (Convert.ToDouble(short.MaxValue), Convert.ToDouble(short.MinValue) ) },
+            { typeof(ushort), (Convert.ToDouble(ushort.MaxValue), Convert.ToDouble(ushort.MinValue) ) },
+            { typeof(byte), (Convert.ToDouble(byte.MaxValue), Convert.ToDouble(byte.MinValue) ) },
+            { typeof(sbyte), (Convert.ToDouble(sbyte.MaxValue), Convert.ToDouble(sbyte.MinValue) ) }
+        };
+       
+
         [Test]
         public void TestCoerceToReal()
         {
@@ -87,7 +104,22 @@ namespace DotLiquid.Tests.Util
             Assert.That(converted, Is.False, $"convertedValue: {convertedValue}");
         }
 
-        static IEnumerable GoodTestCaseSource()
+        [Test]
+        [TestCaseSource(nameof(GetNumericTypeCombinations))]
+        public void TestNumericCombinationsResultInUpgrade(ValueTuple<Type, Type> types)
+        {
+            var t1 = types.Item1;
+            var t2 = types.Item2;
+            var result = NumericConverter.GetBinaryResultType(t1, t2);
+            Assert.That(result, Is.Not.Null);
+            Assert.That(NumericConverter.GetBinaryResultType(t2, t1), Is.EqualTo(result));
+            Assert.That(TypeLimits[result].Item1 >= TypeLimits[t1].Item1, Is.True);
+            Assert.That(TypeLimits[result].Item1 >= TypeLimits[t2].Item1, Is.True);
+            Assert.That(TypeLimits[result].Item2 <= TypeLimits[t1].Item2, Is.True);
+            Assert.That(TypeLimits[result].Item2 <= TypeLimits[t1].Item2, Is.True);
+        }
+
+        private static IEnumerable GoodTestCaseSource()
         {
             IFormatProvider invariantFormatProvider = CultureInfo.InvariantCulture;
             IFormatProvider frenchFormatProvider = new CultureInfo("fr-FR");
@@ -106,7 +138,7 @@ namespace DotLiquid.Tests.Util
             // Note: For fallback to happen, the number must be big enough to contain 2 separators,
             // otherwise it will be interprested as a French floating point number.
             yield return new object[] { String.Format(invariantFormatProvider, "{0:#,##0}", 12567890),
-                frenchFormatProvider, 12567890 }; 
+                frenchFormatProvider, 12567890 };
 
             // Int64
             yield return new object[] { $"{Int64.MaxValue}", null, Int64.MaxValue };
@@ -153,7 +185,7 @@ namespace DotLiquid.Tests.Util
             double largeNegativeValue = double.Parse("-1e203");
             yield return new object[] { $"{largePositiveValue:F}", null, largePositiveValue };
             yield return new object[] { $"{largePositiveValue:F}", invariantFormatProvider, largePositiveValue };
-            yield return new object[] { $"{largeNegativeValue:F}", invariantFormatProvider, largeNegativeValue};
+            yield return new object[] { $"{largeNegativeValue:F}", invariantFormatProvider, largeNegativeValue };
 
             // Double with thousands separator
             yield return new object[] { String.Format(invariantFormatProvider, "{0:#,##0.00}", largePositiveValue),
@@ -164,7 +196,7 @@ namespace DotLiquid.Tests.Util
                 frenchFormatProvider, largePositiveValue };
         }
 
-        static IEnumerable ErrorTestCaseSource()
+        private static IEnumerable ErrorTestCaseSource()
         {
             IFormatProvider invariantFormatProvider = CultureInfo.InvariantCulture;
 
@@ -173,5 +205,20 @@ namespace DotLiquid.Tests.Util
             yield return new object[] { string.Empty, invariantFormatProvider };
             yield return new object[] { "banana", invariantFormatProvider };
         }
+
+        public static IEnumerable<(Type, Type)> GetNumericTypeCombinations()
+        {
+            var testTypes = new HashSet<Type> { typeof(decimal), typeof(double), typeof(float), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(short), typeof(ushort), typeof(byte), typeof(sbyte) };
+            var testAgainst = new HashSet<Type>(testTypes.ToArray());
+
+            foreach (var t1 in testTypes)
+            {
+                foreach (var t2 in testAgainst)
+                {
+                    yield return (t1, t2);
+                }
+                testAgainst.Remove(t1); // All combinations are tested, no need to test other objects against it.
+            }
+        }
     }
-    }
+}

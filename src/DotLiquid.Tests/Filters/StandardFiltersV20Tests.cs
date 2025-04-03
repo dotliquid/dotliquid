@@ -11,10 +11,10 @@ namespace DotLiquid.Tests.Filters
         public override IFormatProvider FormatProvider => CultureInfo.InvariantCulture;
         public override SyntaxCompatibility SyntaxCompatibilityLevel => SyntaxCompatibility.DotLiquid20;
         public override CapitalizeDelegate Capitalize => i => LegacyFilters.Capitalize(_context, i);
-        public override MathDelegate Divide => (i, o) => StandardFilters.DividedBy(_context, i, o);
+        public override MathDelegate DividedBy => (i, o) => LegacyFilters.DividedBy(_context, i, o);
         public override MathDelegate Plus => (i, o) => LegacyFilters.Plus(_context, i, o);
-        public override MathDelegate Minus => (i, o) => StandardFilters.Minus(_context, i, o);
-        public override MathDelegate Modulo => (i, o) => StandardFilters.Modulo(_context, i, o);
+        public override MathDelegate Minus => (i, o) => LegacyFilters.Minus(_context, i, o);
+        public override MathDelegate Modulo => (i, o) => LegacyFilters.Modulo(_context, i, o);
         public override RemoveFirstDelegate RemoveFirst => (a, b) => LegacyFilters.RemoveFirst(a, b);
         public override ReplaceDelegate Replace => (i, s, r) => LegacyFilters.Replace(i, s, r);
         public override ReplaceFirstDelegate ReplaceFirst => (a, b, c) => LegacyFilters.ReplaceFirst(a, b, c);
@@ -45,8 +45,48 @@ namespace DotLiquid.Tests.Filters
         [Test]
         public void TestDividedByStringThrowsException()
         {
-            Assert.Throws<InvalidOperationException>(() => Divide(input: "12", operand: 3));
-            Assert.Throws<InvalidOperationException>(() => Divide(input: 12, operand: "3"));
+            Assert.Throws<InvalidOperationException>(() => DividedBy(input: "12", operand: 3));
+            Assert.Throws<InvalidOperationException>(() => DividedBy(input: 12, operand: "3"));
+        }
+
+        [Test]
+        public void TestDividedByBadValues()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(DividedBy(input: 1.0, operand: null), Is.Null);
+                Assert.That(DividedBy(input: null, operand: 3), Is.Null);
+            });
+        }
+
+        [Test]
+        public void TestDividedByZeroIntegerThrowsException()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.Throws<DivideByZeroException>(() => DividedBy(input: 1, operand: 0));
+                Assert.Throws<DivideByZeroException>(() => DividedBy(input: -1, operand: 0));
+            });
+        }
+
+        [Test]
+        public void TestModuloBadValues()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(Modulo(input: 1.0, operand: null), Is.Null);
+                Assert.That(Modulo(input: null, operand: 3), Is.Null);
+            });
+        }
+
+        [Test]
+        public void TestModuloZeroIntegerThrowsException()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.Throws<DivideByZeroException>(() => Modulo(input: 1, operand: 0));
+                Assert.Throws<DivideByZeroException>(() => Modulo(input: -1, operand: 0));
+            });
         }
 
         [Test]

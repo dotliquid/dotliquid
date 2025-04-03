@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using DotLiquid.Exceptions;
+using DotLiquid.Tests.Util;
 using Newtonsoft.Json;
 using NUnit.Framework;
 
@@ -937,7 +938,7 @@ namespace DotLiquid.Tests
         public void TestAllTypesIndexer_Issue474()
         {
             var zero = 0;
-            var typesToTest = Util.ExpressionUtilityTest.GetNumericCombinations().Select(item => item.Item1).Distinct().ToList();
+            var typesToTest = NumericConverterTests.GetNumericTypeCombinations().Select(item => item.Item1).Distinct().ToList();
             var arrayOfZeroTypes = typesToTest.Select(type => Convert.ChangeType(zero, type)).ToList();
 
             var template = @"{% for idx in numerics -%}

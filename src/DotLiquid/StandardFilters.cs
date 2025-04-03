@@ -20,8 +20,60 @@ namespace DotLiquid
     /// <see href="https://shopify.github.io/liquid/filters/"/>
     public static class StandardFilters
     {
-        private static bool IsReal(object o) => o is double || o is float || o is decimal;
-        private static bool IsInteger(object o) => o is int || o is uint || o is long || o is ulong || o is short || o is ushort || o is byte || o is sbyte;
+        private static object DoMathsOperation(Context context, object input, object operand, Func<Expression, Expression, BinaryExpression> operation)
+        {
+            input = NumericConverter.CoerceToNumericType(input, context.FormatProvider, 0);
+            operand = NumericConverter.CoerceToNumericType(operand, context.FormatProvider, 0);
+
+            // NOTE(David Burg): Try for maximal precision if the input and operand fit the decimal's range.
+            // This avoids rounding errors in financial arithmetic.
+            // E.g.: 0.1 | Plus 10 | Minus 10 to remain 0.1, not 0.0999999999999996
+            // Otherwise revert to maximum range (possible precision loss).
+            if (NumericConverter.IsReal(input) || NumericConverter.IsReal(operand))
+            {
+                try
+                {
+                    input = Convert.ToDecimal(input);
+                    operand = Convert.ToDecimal(operand);
+                }
+                catch (OverflowException)
+                {
+                    input = Convert.ToDouble(input);
+                    operand = Convert.ToDouble(operand);
+                }
+            }
+
+            try
+            {
+                try
+                {
+                    return ExpressionUtility
+                        .CreateExpression(
+                            body: operation,
+                            leftType: input.GetType(),
+                            rightType: operand.GetType())
+                        .DynamicInvoke(input, operand);
+                }
+                catch (TargetInvocationException ex) when (ex?.InnerException is OverflowException || ex?.InnerException is DivideByZeroException)
+                {
+                    // Retry as Doubles
+                    input = Convert.ToDouble(input);
+                    operand = Convert.ToDouble(operand);
+
+                    return ExpressionUtility
+                        .CreateExpression(
+                            body: operation,
+                            leftType: input.GetType(),
+                            rightType: operand.GetType())
+                        .DynamicInvoke(input, operand);
+                }
+            }
+            catch (TargetInvocationException ex2)
+            {
+                System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex2.InnerException).Throw();
+                throw;
+            }
+        }
 
         private static readonly Lazy<Regex> StripHtmlBlocks = new Lazy<Regex>(() => R.C(@"<script.*?</script>|<!--.*?-->|<style.*?</style>", RegexOptions.Singleline | RegexOptions.IgnoreCase), LazyThreadSafetyMode.ExecutionAndPublication);
         private static readonly Lazy<Regex> StripHtmlTags = new Lazy<Regex>(() => R.C(@"<.*?>", RegexOptions.Singleline), LazyThreadSafetyMode.ExecutionAndPublication);
@@ -296,7 +348,7 @@ namespace DotLiquid
             var culture = languageTag == null ? context.CurrentCulture : new CultureInfo(languageTag.Trim());
 
             // Attempt to convert to a currency using the context current culture.
-            if (IsReal(input))
+            if (NumericConverter.IsReal(input))
                 return Convert.ToDecimal(input).ToString("C", culture);
             if (decimal.TryParse(input.ToString(), NumberStyles.Currency, context.CurrentCulture, out decimal amount))
                 return amount.ToString("C", culture);
@@ -647,10 +699,10 @@ namespace DotLiquid
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="operand">Number to be added to input</param>
-        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid21)]
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object Plus(Context context, object input, object operand)
         {
-            return DoMathsOperation(context, input, operand, Expression.AddChecked);
+            return StandardFilters.DoMathsOperation(context, input, operand, Expression.AddChecked);
         }
 
         /// <summary>
@@ -659,9 +711,10 @@ namespace DotLiquid
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="operand">Number to be subtracted from input</param>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object Minus(Context context, object input, object operand)
         {
-            return DoMathsOperation(context, input, operand, Expression.SubtractChecked);
+            return StandardFilters.DoMathsOperation(context, input, operand, Expression.SubtractChecked);
         }
 
         /// <summary>
@@ -670,8 +723,11 @@ namespace DotLiquid
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="operand">Number to multiple input by</param>
-        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid21)]
-        public static object Times(Context context, object input, object operand) => DoMathsOperation(context, input, operand, Expression.MultiplyChecked);
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
+        public static object Times(Context context, object input, object operand)
+        {
+            return StandardFilters.DoMathsOperation(context, input, operand, Expression.MultiplyChecked);
+        }
 
         /// <summary>
         /// Rounds a decimal value to the specified places
@@ -725,7 +781,7 @@ namespace DotLiquid
             if (input is decimal inputDecimal) { return Math.Ceiling(inputDecimal); }
             else if (input is float inputFloat) { return Math.Ceiling(inputFloat); }
             else if (input is double inputDouble) { return Math.Ceiling(inputDouble); }
-            else if (IsInteger(input)) { return input; }
+            else if (NumericConverter.IsInteger(input)) { return input; }
             else return 0;
         }
 
@@ -748,7 +804,7 @@ namespace DotLiquid
             if (input is decimal inputDecimal) { return Math.Floor(inputDecimal); }
             else if (input is float inputFloat) { return Math.Floor(inputFloat); }
             else if (input is double inputDouble) { return Math.Floor(inputDouble); }
-            else if (IsInteger(input)) { return input; }
+            else if (NumericConverter.IsInteger(input)) { return input; }
             else return 0;
         }
 
@@ -758,9 +814,12 @@ namespace DotLiquid
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="operand">Number to divide input by</param>
+        /// <returns>The result of the division of the same type as the divisor.</returns>
+        /// <remarks>If you divide by an integer, the result will be an integer, and if you divide by a float, the result will be a float.</remarks>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object DividedBy(Context context, object input, object operand)
         {
-            return DoMathsOperation(context, input, operand, Expression.Divide);
+            return StandardFilters.DoMathsOperation(context, input, operand, Expression.Divide);
         }
 
         /// <summary>
@@ -769,9 +828,10 @@ namespace DotLiquid
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="operand">Number to divide input by</param>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object Modulo(Context context, object input, object operand)
         {
-            return DoMathsOperation(context, input, operand, Expression.Modulo);
+            return StandardFilters.DoMathsOperation(context, input, operand, Expression.Modulo);
         }
 
         /// <summary>
@@ -782,53 +842,6 @@ namespace DotLiquid
         public static string Default(string input, string @defaultValue)
         {
             return !string.IsNullOrWhiteSpace(input) ? input : defaultValue;
-        }
-
-        internal static object DoMathsOperation(Context context, object input, object operand, Func<Expression, Expression, BinaryExpression> operation)
-        {
-            if (input == null || operand == null)
-                return null;
-
-            // NOTE(David Burg): Try for maximal precision if the input and operand fit the decimal's range.
-            // This avoids rounding errors in financial arithmetic.
-            // E.g.: 0.1 | Plus 10 | Minus 10 to remain 0.1, not 0.0999999999999996
-            // Otherwise revert to maximum range (possible precision loss).
-            var shouldConvertStrings = context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21 && ((input is string) || (operand is string));
-            if (IsReal(input) || IsReal(operand) || shouldConvertStrings)
-            {
-                try
-                {
-                    input = Convert.ToDecimal(input);
-                    operand = Convert.ToDecimal(operand);
-
-                    return ExpressionUtility
-                        .CreateExpression(
-                            body: operation,
-                            leftType: input.GetType(),
-                            rightType: operand.GetType())
-                        .DynamicInvoke(input, operand);
-                }
-                catch (Exception ex) when (ex is OverflowException || ex is DivideByZeroException || (ex is TargetInvocationException && (ex?.InnerException is OverflowException || ex?.InnerException is DivideByZeroException)))
-                {
-                    input = Convert.ToDouble(input);
-                    operand = Convert.ToDouble(operand);
-                }
-            }
-
-            try
-            {
-                return ExpressionUtility
-                    .CreateExpression(
-                        body: operation,
-                        leftType: input.GetType(),
-                        rightType: operand.GetType())
-                    .DynamicInvoke(input, operand);
-            }
-            catch (TargetInvocationException ex)
-            {
-                System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
-                throw;
-            }
         }
 
         /// <summary>
@@ -876,7 +889,7 @@ namespace DotLiquid
             else if (input is short inputInt16) { return Math.Abs(inputInt16); }
             else if (input is int inputInt32) { return Math.Abs(inputInt32); }
             else if (input is long inputInt64) { return Math.Abs(inputInt64); }
-            else if (IsInteger(input)) { return input; }
+            else if (NumericConverter.IsInteger(input)) { return input; }
             else return 0;
         }
 
@@ -890,13 +903,37 @@ namespace DotLiquid
         [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object AtLeast(Context context, object input, object atLeast)
         {
-            object val1 = input.CoerceToReal(context.FormatProvider, 0);
-            object val2 = atLeast.CoerceToReal(context.FormatProvider, 0);
+            object val1 = input.CoerceToNumericType(context.FormatProvider, 0);
+            object val2 = atLeast.CoerceToNumericType(context.FormatProvider, 0);
+            Type resultType = NumericConverter.GetBinaryResultType(val1.GetType(), val2.GetType());
 
-            if (val1 is decimal val1Decimal && val2 is decimal val2Decimal)
-                return Math.Max(val1Decimal, val2Decimal);
-            else
-                return Math.Max(Convert.ToDouble(val1), Convert.ToDouble(val2));
+            switch (resultType)
+            {
+                case Type t when t == typeof(decimal):
+                    return Math.Max(Convert.ToDecimal(val1), Convert.ToDecimal(val2));
+                case Type t when t == typeof(double):
+                    return Math.Max(Convert.ToDouble(val1), Convert.ToDouble(val2));
+                case Type t when t == typeof(float):
+                    return Math.Max(Convert.ToSingle(val1), Convert.ToSingle(val2));
+                case Type t when t == typeof(ulong):
+                    return Math.Max(Convert.ToUInt64(val1), Convert.ToUInt64(val2));
+                case Type t when t == typeof(long):
+                    return Math.Max(Convert.ToInt64(val1), Convert.ToInt64(val2));
+                case Type t when t == typeof(uint):
+                    return Math.Max(Convert.ToUInt32(val1), Convert.ToUInt32(val2));
+                case Type t when t == typeof(int):
+                    return Math.Max(Convert.ToInt32(val1), Convert.ToInt32(val2));
+                case Type t when t == typeof(ushort):
+                    return Math.Max(Convert.ToUInt16(val1), Convert.ToUInt16(val2));
+                case Type t when t == typeof(short):
+                    return Math.Max(Convert.ToInt16(val1), Convert.ToInt16(val2));
+                case Type t when t == typeof(byte):
+                    return Math.Max(Convert.ToByte(val1), Convert.ToByte(val2));
+                case Type t when t == typeof(sbyte):
+                    return Math.Max(Convert.ToSByte(val1), Convert.ToSByte(val2));
+                default:
+                    return 0;
+            }
         }
 
         /// <summary>
@@ -909,13 +946,37 @@ namespace DotLiquid
         [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object AtMost(Context context, object input, object atMost)
         {
-            object val1 = input.CoerceToReal(context.FormatProvider, 0);
-            object val2 = atMost.CoerceToReal(context.FormatProvider, 0);
+            object val1 = input.CoerceToNumericType(context.FormatProvider, 0);
+            object val2 = atMost.CoerceToNumericType(context.FormatProvider, 0);
+            Type resultType = NumericConverter.GetBinaryResultType(val1.GetType(), val2.GetType());
 
-            if (val1 is decimal val1Decimal && val2 is decimal val2Decimal)
-                return Math.Min(val1Decimal, val2Decimal);
-            else
-                return Math.Min(Convert.ToDouble(val1), Convert.ToDouble(val2));
+            switch (resultType)
+            {
+                case Type t when t == typeof(decimal):
+                    return Math.Min(Convert.ToDecimal(val1), Convert.ToDecimal(val2));
+                case Type t when t == typeof(double):
+                    return Math.Min(Convert.ToDouble(val1), Convert.ToDouble(val2));
+                case Type t when t == typeof(float):
+                    return Math.Min(Convert.ToSingle(val1), Convert.ToSingle(val2));
+                case Type t when t == typeof(ulong):
+                    return Math.Min(Convert.ToUInt64(val1), Convert.ToUInt64(val2));
+                case Type t when t == typeof(long):
+                    return Math.Min(Convert.ToInt64(val1), Convert.ToInt64(val2));
+                case Type t when t == typeof(uint):
+                    return Math.Min(Convert.ToUInt32(val1), Convert.ToUInt32(val2));
+                case Type t when t == typeof(int):
+                    return Math.Min(Convert.ToInt32(val1), Convert.ToInt32(val2));
+                case Type t when t == typeof(ushort):
+                    return Math.Min(Convert.ToUInt16(val1), Convert.ToUInt16(val2));
+                case Type t when t == typeof(short):
+                    return Math.Min(Convert.ToInt16(val1), Convert.ToInt16(val2));
+                case Type t when t == typeof(byte):
+                    return Math.Min(Convert.ToByte(val1), Convert.ToByte(val2));
+                case Type t when t == typeof(sbyte):
+                    return Math.Min(Convert.ToSByte(val1), Convert.ToSByte(val2));
+                default:
+                    return 0;
+            }
         }
 
         /// <summary>
@@ -985,7 +1046,7 @@ namespace DotLiquid
                 if (value != null)
                 {
                     object valueToAdd = value.CoerceToNumericType(context.FormatProvider, 0);
-                    sum = DoMathsOperation(context, sum, valueToAdd, Expression.AddChecked);
+                    sum = StandardFilters.DoMathsOperation(context, sum, valueToAdd, Expression.AddChecked);
                 }
             }
 

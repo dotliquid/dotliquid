@@ -1,9 +1,11 @@
+using DotLiquid.Util;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -15,6 +17,53 @@ namespace DotLiquid
     /// </summary>
     public static class LegacyFilters
     {
+        private static object DoMathsOperation(Context context, object input, object operand, Func<Expression, Expression, BinaryExpression> operation)
+        {
+            if (input == null || operand == null)
+                return null;
+
+            // NOTE(David Burg): Try for maximal precision if the input and operand fit the decimal's range.
+            // This avoids rounding errors in financial arithmetic.
+            // E.g.: 0.1 | Plus 10 | Minus 10 to remain 0.1, not 0.0999999999999996
+            // Otherwise revert to maximum range (possible precision loss).
+            var shouldConvertStrings = context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21 && ((input is string) || (operand is string));
+            if (NumericConverter.IsReal(input) || NumericConverter.IsReal(operand) || shouldConvertStrings)
+            {
+                try
+                {
+                    input = Convert.ToDecimal(input);
+                    operand = Convert.ToDecimal(operand);
+
+                    return ExpressionUtility
+                        .CreateExpression(
+                            body: operation,
+                            leftType: input.GetType(),
+                            rightType: operand.GetType())
+                        .DynamicInvoke(input, operand);
+                }
+                catch (Exception ex) when (ex is OverflowException || ex is DivideByZeroException || (ex is TargetInvocationException && (ex?.InnerException is OverflowException || ex?.InnerException is DivideByZeroException)))
+                {
+                    input = Convert.ToDouble(input);
+                    operand = Convert.ToDouble(operand);
+                }
+            }
+
+            try
+            {
+                return ExpressionUtility
+                    .CreateExpression(
+                        body: operation,
+                        leftType: input.GetType(),
+                        rightType: operand.GetType())
+                    .DynamicInvoke(input, operand);
+            }
+            catch (TargetInvocationException ex)
+            {
+                System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+                throw;
+            }
+        }
+
         /// <summary>
         /// capitalize words in the input sentence
         /// </summary>
@@ -224,6 +273,43 @@ namespace DotLiquid
         }
 
         /// <summary>
+        /// Division
+        /// </summary>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="operand">Number to divide input by</param>
+        [LiquidFilter(MaxVersion = SyntaxCompatibility.DotLiquid22a)]
+        public static object DividedBy(Context context, object input, object operand)
+        {
+            return LegacyFilters.DoMathsOperation(context, input, operand, Expression.Divide);
+        }
+
+        /// <summary>
+        /// Performs an arithmetic remainder operation on the input
+        /// </summary>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="operand">Number to divide input by</param>
+        [LiquidFilter(MaxVersion = SyntaxCompatibility.DotLiquid22a)]
+        public static object Modulo(Context context, object input, object operand)
+        {
+            return LegacyFilters.DoMathsOperation(context, input, operand, Expression.Modulo);
+        }
+
+
+        /// <summary>
+        /// Subtraction
+        /// </summary>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="operand">Number to be subtracted from input</param>
+        [LiquidFilter(MaxVersion = SyntaxCompatibility.DotLiquid22a)]
+        public static object Minus(Context context, object input, object operand)
+        {
+            return LegacyFilters.DoMathsOperation(context, input, operand, Expression.SubtractChecked);
+        }
+
+        /// <summary>
         /// Addition
         /// </summary>
         /// <param name="context">The DotLiquid context</param>
@@ -234,7 +320,19 @@ namespace DotLiquid
         {
             return input is string
                 ? string.Concat(input, operand)
-                : StandardFilters.DoMathsOperation(context, input, operand, Expression.AddChecked);
+                : LegacyFilters.DoMathsOperation(context, input, operand, Expression.AddChecked);
+        }
+
+        /// <summary>
+        /// Addition
+        /// </summary>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="operand">Number to be added to input</param>
+        [LiquidFilter(Alias = nameof(Plus), MinVersion = SyntaxCompatibility.DotLiquid21, MaxVersion = SyntaxCompatibility.DotLiquid22a)]
+        public static object PlusV21(Context context, object input, object operand)
+        {
+            return LegacyFilters.DoMathsOperation(context, input, operand, Expression.AddChecked);
         }
 
         /// <summary>
@@ -306,7 +404,19 @@ namespace DotLiquid
         {
             return input is string @string && (operand is int || operand is long)
                 ? Enumerable.Repeat(@string, Convert.ToInt32(operand))
-                : StandardFilters.DoMathsOperation(context, input, operand, Expression.MultiplyChecked);
+                : LegacyFilters.DoMathsOperation(context, input, operand, Expression.MultiplyChecked);
+        }
+
+        /// <summary>
+        /// Multiplication
+        /// </summary>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="operand">Number to multiple input by</param>
+        [LiquidFilter(Alias = nameof(Times), MinVersion = SyntaxCompatibility.DotLiquid21, MaxVersion = SyntaxCompatibility.DotLiquid22a)]
+        public static object TimesV21(Context context, object input, object operand)
+        {
+            return LegacyFilters.DoMathsOperation(context, input, operand, Expression.MultiplyChecked);
         }
 
         /// <summary>

@@ -124,6 +124,14 @@ namespace DotLiquid.Tests.Filters
         }
 
         [Test]
+        public void TestTimesIntegerOverflow()
+        {
+            Assert.Throws<OverflowException>(() =>
+                Times(input: ulong.MaxValue, operand: ulong.MaxValue)
+            );
+        }
+
+        [Test]
         public void TestRemoveFirstRegexFails()
         {
             Assert.That(RemoveFirst(input: "Mr. Jones", @string: "."), Is.EqualTo(expected: "Mr Jones"));

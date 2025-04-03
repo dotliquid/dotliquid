@@ -108,6 +108,14 @@ namespace DotLiquid.Tests.Filters
         }
 
         [Test]
+        public void TestTimesIntegerOverflow()
+        {
+            Assert.Throws<OverflowException>(() =>
+                Times(input: ulong.MaxValue, operand: ulong.MaxValue)
+            );
+        }
+
+        [Test]
         public void TestTruncateWordsLessOneWordAllowed()
         {
             Assert.That(TruncateWords("Ground control to Major Tom.", 0), Is.EqualTo("..."));

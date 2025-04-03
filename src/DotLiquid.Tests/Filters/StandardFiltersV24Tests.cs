@@ -98,6 +98,14 @@ namespace DotLiquid.Tests.Filters
         }
 
         [Test]
+        public void TestTimesIntegerOverflow()
+        {
+            // Integers will be promoted to double on Overflow
+            var expectedResult = ((double)ulong.MaxValue) * ((double)ulong.MaxValue);
+            Assert.That(Times(input: ulong.MaxValue, operand: ulong.MaxValue), Is.EqualTo(expectedResult));
+        }
+
+        [Test]
         public void TestTruncateWordsLessOneWordIgnored()
         {
             Assert.That(TruncateWords("Ground control to Major Tom.", 0), Is.EqualTo("Ground..."));

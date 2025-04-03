@@ -106,6 +106,9 @@ namespace DotLiquid.Tests.Filters
 
                 // Test that mix of 32-bit and 64-bit int returns 64-bit
                 Assert.That(Plus(input: int.MaxValue, operand: (long)1), Is.EqualTo(2147483648));
+
+                // Test that we can work with values that don't fit in Decimal
+                Assert.That(Plus(input: double.MaxValue, operand: double.MaxValue), Is.EqualTo(double.PositiveInfinity));
             });
         }
 
@@ -117,6 +120,19 @@ namespace DotLiquid.Tests.Filters
                 Assert.That(Minus(input: 5, operand: 1), Is.EqualTo(4));
                 Assert.That(Minus(input: 2, operand: 3.5), Is.EqualTo(-1.5));
                 Assert.That(Minus(input: 3.5, operand: 2), Is.EqualTo(1.5));
+            });
+        }
+
+        [Test]
+        public void TestTimesRealOverflow()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.That(Times(input: double.MaxValue, operand: double.MaxValue), Is.EqualTo(double.PositiveInfinity));
+
+                // Decimal will be promoted to double on Overflow
+                var expectedResult = ((double)decimal.MaxValue) * ((double)decimal.MaxValue);
+                Assert.That(Times(input: decimal.MaxValue, operand: decimal.MaxValue), Is.EqualTo(expectedResult));
             });
         }
 

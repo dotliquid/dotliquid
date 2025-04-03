@@ -101,6 +101,14 @@ namespace DotLiquid.Tests.Filters
         }
 
         [Test]
+        public void TestTimesIntegerOverflow()
+        {
+            Assert.Throws<OverflowException>(() =>
+                Times(input: ulong.MaxValue, operand: ulong.MaxValue)
+            );
+        }
+
+        [Test]
         public void TestRoundTypes()
         {
             Assert.That(Round("1.2345678", 2.0), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));

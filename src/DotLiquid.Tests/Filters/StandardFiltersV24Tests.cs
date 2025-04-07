@@ -248,29 +248,44 @@ namespace DotLiquid.Tests.Filters
         {
             long valueInt64 = ((long)Int32.MinValue) - 1;
             long absValueInt64 = Math.Abs(valueInt64);
+            Assert.Multiple(() =>
+            {
+                Assert.That(Abs("-1"), Is.EqualTo(1).And.TypeOf(typeof(int)));
+                Assert.That(Abs($"{valueInt64}"), Is.EqualTo(absValueInt64).And.TypeOf(typeof(long)));
+                Assert.That(Abs($"{ulong.MaxValue}"), Is.EqualTo(ulong.MaxValue).And.TypeOf(typeof(decimal)));
 
-            Assert.That(Abs("-1"), Is.EqualTo(1).And.TypeOf(typeof(int)));
-            Assert.That(Abs($"{valueInt64}"), Is.EqualTo(absValueInt64).And.TypeOf(typeof(long)));
-            Assert.That(Abs($"{ulong.MaxValue}"), Is.EqualTo(ulong.MaxValue).And.TypeOf(typeof(decimal)));
+                Assert.That(Abs((byte)1), Is.EqualTo(1).And.TypeOf(typeof(byte)));
+                Assert.That(Abs((sbyte)-1), Is.EqualTo(1).And.TypeOf(typeof(int)));
+                Assert.That(Abs((ushort)1), Is.EqualTo(1).And.TypeOf(typeof(ushort)));
+                Assert.That(Abs((short)-1), Is.EqualTo(1).And.TypeOf(typeof(int)));
+                Assert.That(Abs((uint)1), Is.EqualTo(1).And.TypeOf(typeof(uint)));
+                Assert.That(Abs((int)-1), Is.EqualTo(1).And.TypeOf(typeof(int)));
+                Assert.That(Abs((ulong)1), Is.EqualTo(1).And.TypeOf(typeof(ulong)));
+                Assert.That(Abs((long)-1), Is.EqualTo(1).And.TypeOf(typeof(long)));
 
-            Assert.That(Abs((byte)1), Is.EqualTo(1).And.TypeOf(typeof(byte)));
-            Assert.That(Abs((sbyte)-1), Is.EqualTo(1).And.TypeOf(typeof(sbyte)));
-            Assert.That(Abs((ushort)1), Is.EqualTo(1).And.TypeOf(typeof(ushort)));
-            Assert.That(Abs((short)-1), Is.EqualTo(1).And.TypeOf(typeof(short)));
-            Assert.That(Abs((uint)1), Is.EqualTo(1).And.TypeOf(typeof(uint)));
-            Assert.That(Abs((int)-1), Is.EqualTo(1).And.TypeOf(typeof(int)));
-            Assert.That(Abs((ulong)1), Is.EqualTo(1).And.TypeOf(typeof(ulong)));
-            Assert.That(Abs((long)-1), Is.EqualTo(1).And.TypeOf(typeof(long)));
+                Assert.That(Abs(sbyte.MinValue), Is.EqualTo(128).And.TypeOf(typeof(int)));
+                Assert.That(Abs(short.MinValue), Is.EqualTo(32768).And.TypeOf(typeof(int)));
+                Assert.That(Abs(int.MinValue + 1), Is.EqualTo(int.MaxValue).And.TypeOf(typeof(int)));
+                Assert.That(Abs(int.MinValue), Is.EqualTo(-1 * (long)int.MinValue).And.TypeOf(typeof(long)));
+                Assert.That(Abs(long.MinValue), Is.EqualTo(-1 * (decimal)long.MinValue).And.TypeOf(typeof(decimal)));
+            });
         }
 
         [Test]
         public void TestAbsFloatingPointTypes()
         {
-            Assert.That(Abs(-30.6m), Is.EqualTo(30.6m).And.TypeOf(typeof(decimal)));
-            Assert.That(Abs(-30.6f), Is.EqualTo(30.6m).And.TypeOf(typeof(float)));
-            Assert.That(Abs(-30.6), Is.EqualTo(30.6m).And.TypeOf(typeof(double)));
+            Assert.Multiple(() =>
+            {
+                Assert.That(Abs(-30.6m), Is.EqualTo(30.6m).And.TypeOf(typeof(decimal)));
+                Assert.That(Abs(-30.6f), Is.EqualTo(30.6m).And.TypeOf(typeof(float)));
+                Assert.That(Abs(-30.6), Is.EqualTo(30.6m).And.TypeOf(typeof(double)));
 
-            Assert.That(Abs("-30.60"), Is.EqualTo(30.6m).And.TypeOf(typeof(decimal)));
+                Assert.That(Abs("-30.60"), Is.EqualTo(30.6m).And.TypeOf(typeof(decimal)));
+
+                Assert.That(Abs(decimal.MinValue), Is.EqualTo(-1 * decimal.MinValue).And.TypeOf(typeof(decimal)));
+                Assert.That(Abs(float.MinValue), Is.EqualTo(-1 * float.MinValue).And.TypeOf(typeof(float)));
+                Assert.That(Abs(double.MinValue), Is.EqualTo(-1 * double.MinValue).And.TypeOf(typeof(double)));
+            });
         }
 
         [Test]

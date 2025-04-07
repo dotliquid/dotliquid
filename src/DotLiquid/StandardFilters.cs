@@ -875,22 +875,24 @@ namespace DotLiquid
         [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object Abs(Context context, object input)
         {
-            if (input == null) return 0;
-
-            if (input is string inputString)
+            dynamic value = NumericConverter.CoerceToNumericType(input, context.FormatProvider, 0);
+            if (value >= 0)
             {
-                input = NumericConverter.CoerceToNumericType(inputString, context.FormatProvider, 0);
+                return value;
             }
 
-            if (input is decimal inputDecimal) { return Math.Abs(inputDecimal); }
-            else if (input is float inputFloat) { return Math.Abs(inputFloat); }
-            else if (input is double inputDouble) { return Math.Abs(inputDouble); }
-            else if (input is sbyte inputInt8) { return Math.Abs(inputInt8); }
-            else if (input is short inputInt16) { return Math.Abs(inputInt16); }
-            else if (input is int inputInt32) { return Math.Abs(inputInt32); }
-            else if (input is long inputInt64) { return Math.Abs(inputInt64); }
-            else if (NumericConverter.IsInteger(input)) { return input; }
-            else return 0;
+            // Try multiplying my -1 to get the absolute value.
+            dynamic minusOne = Convert.ChangeType(-1, value.GetType());
+            var result = (minusOne * value);
+            if (result >= 0)
+            {
+                return result;
+            }
+
+            // This is a special case where the value is the minimum value of the integer type
+            // and multiplying by -1 would silently overflow.
+            var promotedType = NumericConverter.NumericTypePromotions[value.GetType()][0];
+            return (minusOne * Convert.ChangeType(value, promotedType));
         }
 
         /// <summary>
@@ -911,7 +913,7 @@ namespace DotLiquid
             }
             catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException)
             {
-                // Not all combinations of types can be compared - try converting to Decimal
+                // Not all combinations of types can be compared dynamically - try converting to Decimal
                 try
                 {
                     var comp1 = Convert.ToDecimal(val1);

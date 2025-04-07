@@ -38,6 +38,19 @@ namespace DotLiquid.Tests.Filters
         };
 
         [Test]
+        [TestCaseSource(typeof(NumericHelper), nameof(NumericHelper.GetNumericTypeCombinations))]
+        public void TestDividedByTypeCombinations(ValueTuple<Type, Type> types)
+        {
+            var t1 = types.Item1;
+            var t2 = types.Item2;
+            var val1 = Convert.ChangeType(2, t1);
+            var val2 = Convert.ChangeType(2, t2);
+
+            Assert.That(DividedBy(val1, val2), Is.EqualTo(1));
+            Assert.That(DividedBy(val2, val1), Is.EqualTo(1));
+        }
+
+        [Test]
         public void TestDividedByStringIsParsed()
         {
             Assert.That(DividedBy(input: "12", operand: 3), Is.EqualTo(4));
@@ -65,6 +78,32 @@ namespace DotLiquid.Tests.Filters
         }
 
         [Test]
+        [TestCaseSource(typeof(NumericHelper), nameof(NumericHelper.GetNumericTypeCombinations))]
+        public void TestMinusTypeCombinations(ValueTuple<Type, Type> types)
+        {
+            var t1 = types.Item1;
+            var t2 = types.Item2;
+            var val1 = Convert.ChangeType(2, t1);
+            var val2 = Convert.ChangeType(2, t2);
+
+            Assert.That(Minus(val1, val2), Is.EqualTo(0));
+            Assert.That(Minus(val2, val1), Is.EqualTo(0));
+        }
+
+        [Test]
+        [TestCaseSource(typeof(NumericHelper), nameof(NumericHelper.GetNumericTypeCombinations))]
+        public void TestModuloTypeCombinations(ValueTuple<Type, Type> types)
+        {
+            var t1 = types.Item1;
+            var t2 = types.Item2;
+            var val1 = Convert.ChangeType(2, t1);
+            var val2 = Convert.ChangeType(2, t2);
+
+            Assert.That(Modulo(val1, val2), Is.EqualTo(0));
+            Assert.That(Modulo(val2, val1), Is.EqualTo(0));
+        }
+
+        [Test]
         public void TestModuloBadValues()
         {
             Assert.Multiple(() =>
@@ -85,6 +124,19 @@ namespace DotLiquid.Tests.Filters
         }
 
         [Test]
+        [TestCaseSource(typeof(NumericHelper), nameof(NumericHelper.GetNumericTypeCombinations))]
+        public void TestPlusTypeCombinations(ValueTuple<Type, Type> types)
+        {
+            var t1 = types.Item1;
+            var t2 = types.Item2;
+            var val1 = Convert.ChangeType(1, t1);
+            var val2 = Convert.ChangeType(2, t2);
+
+            Assert.That(Plus(val1, val2), Is.EqualTo(3));
+            Assert.That(Plus(val2, val1), Is.EqualTo(3));
+        }
+
+        [Test]
         public void TestReplaceFirstInvalidSearchPrepends()
         {
             Assert.That(ReplaceFirst(input: "a a a a", @string: null, replacement: "b"), Is.EqualTo("ba a a a"));
@@ -95,6 +147,19 @@ namespace DotLiquid.Tests.Filters
         public void TestSplitNullReturnsEmptyArray()
         {
             Assert.That(Split(null, null), Has.Exactly(0).Items);
+        }
+
+        [Test]
+        [TestCaseSource(typeof(NumericHelper), nameof(NumericHelper.GetNumericTypeCombinations))]
+        public void TestTimesTypeCombinations(ValueTuple<Type, Type> types)
+        {
+            var t1 = types.Item1;
+            var t2 = types.Item2;
+            var val1 = Convert.ChangeType(1, t1);
+            var val2 = Convert.ChangeType(2, t2);
+
+            Assert.That(Times(val1, val2), Is.EqualTo(2));
+            Assert.That(Times(val2, val1), Is.EqualTo(2));
         }
 
         [Test]
@@ -294,6 +359,32 @@ namespace DotLiquid.Tests.Filters
             Assert.That(Abs("notNumber"), Is.EqualTo(0).And.TypeOf(typeof(int)));
             Assert.That(Abs("30.60a"), Is.EqualTo(0).And.TypeOf(typeof(int)));
             Assert.That(Abs(null), Is.EqualTo(0).And.TypeOf(typeof(int)));
+        }
+
+        [Test]
+        [TestCaseSource(typeof(NumericHelper), nameof(NumericHelper.GetNumericTypeCombinations))]
+        public void TestAtLeastTypeCombinations(ValueTuple<Type, Type> types)
+        {
+            var t1 = types.Item1;
+            var t2 = types.Item2;
+            var val1 = Convert.ChangeType(1, t1);
+            var val2 = Convert.ChangeType(2, t2);
+
+            Assert.That(AtLeast(val1, val2), Is.EqualTo(2));
+            Assert.That(AtLeast(val2, val1), Is.EqualTo(2));
+        }
+
+        [Test]
+        [TestCaseSource(typeof(NumericHelper), nameof(NumericHelper.GetNumericTypeCombinations))]
+        public void TestAtMostTypeCombinations(ValueTuple<Type, Type> types)
+        {
+            var t1 = types.Item1;
+            var t2 = types.Item2;
+            var val1 = Convert.ChangeType(1, t1);
+            var val2 = Convert.ChangeType(2, t2);
+
+            Assert.That(AtMost(val1, val2), Is.EqualTo(1));
+            Assert.That(AtMost(val2, val1), Is.EqualTo(1));
         }
 
         [Test]

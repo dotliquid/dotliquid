@@ -25,6 +25,17 @@ namespace DotLiquid
             input = NumericConverter.CoerceToNumericType(input, context.FormatProvider, 0);
             operand = NumericConverter.CoerceToNumericType(operand, context.FormatProvider, 0);
 
+            // NOTE(Rodney Richardson): Operators are not defined when input and operand are
+            // both Byte or both SByte and will cause an InvalidOperationException to be thrown.
+            // Promote types to avoid the exception.
+            if ((input is byte && operand is byte) ||
+                (input is sbyte && operand is sbyte))
+            {
+                var promotedType = NumericConverter.NumericTypePromotions[input.GetType()][0];
+                input = Convert.ChangeType(input, promotedType);
+                operand = Convert.ChangeType(operand, promotedType);
+            }
+
             // NOTE(David Burg): Try for maximal precision if the input and operand fit the decimal's range.
             // This avoids rounding errors in financial arithmetic.
             // E.g.: 0.1 | Plus 10 | Minus 10 to remain 0.1, not 0.0999999999999996

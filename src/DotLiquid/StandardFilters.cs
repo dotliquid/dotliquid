@@ -36,26 +36,51 @@ namespace DotLiquid
                 operand = Convert.ChangeType(operand, promotedType);
             }
 
-            // NOTE(David Burg): Try for maximal precision if the input and operand fit the decimal's range.
-            // This avoids rounding errors in financial arithmetic.
-            // E.g.: 0.1 | Plus 10 | Minus 10 to remain 0.1, not 0.0999999999999996
-            // Otherwise revert to maximum range (possible precision loss).
-            if (NumericConverter.IsReal(input) || NumericConverter.IsReal(operand))
-            {
-                try
-                {
-                    input = Convert.ToDecimal(input);
-                    operand = Convert.ToDecimal(operand);
-                }
-                catch (OverflowException)
-                {
-                    input = Convert.ToDouble(input);
-                    operand = Convert.ToDouble(operand);
-                }
-            }
-
             try
             {
+                // NOTE(David Burg): Try for maximal precision if the input and operand fit the decimal's range.
+                // This avoids rounding errors in financial arithmetic.
+                // E.g.: 0.1 | Plus 10 | Minus 10 to remain 0.1, not 0.0999999999999996
+                // Otherwise revert to maximum range (possible precision loss).
+                if (NumericConverter.IsReal(input) || NumericConverter.IsReal(operand))
+                {
+                    try
+                    {
+                        input = Convert.ToDecimal(input);
+                        operand = Convert.ToDecimal(operand);
+                    }
+                    catch (OverflowException)
+                    {
+                        input = Convert.ToDouble(input);
+                        operand = Convert.ToDouble(operand);
+                    }
+                }
+                else
+                {
+                    // input and operand are both integers
+                    try
+                    {
+                        return ExpressionUtility
+                            .CreateExpression(
+                                body: operation,
+                                leftType: input.GetType(),
+                                rightType: operand.GetType())
+                            .DynamicInvoke(input, operand);
+                    }
+                    catch (TargetInvocationException ex) when (ex?.InnerException is OverflowException)
+                    {
+                        // Retry as Decimal
+                        input = Convert.ToDecimal(input);
+                        operand = Convert.ToDecimal(operand);
+                    }
+                    catch (TargetInvocationException ex) when (ex?.InnerException is DivideByZeroException)
+                    {
+                        // Retry as Double (to handle division by zero)
+                        input = Convert.ToDouble(input);
+                        operand = Convert.ToDouble(operand);
+                    }
+                }
+
                 try
                 {
                     return ExpressionUtility
@@ -67,7 +92,12 @@ namespace DotLiquid
                 }
                 catch (TargetInvocationException ex) when (ex?.InnerException is OverflowException || ex?.InnerException is DivideByZeroException)
                 {
-                    // Retry as Doubles
+                    // Retry as Doubles (if they weren't already)
+                    if (input is double && operand is double)
+                    {
+                        throw;
+                    }
+
                     input = Convert.ToDouble(input);
                     operand = Convert.ToDouble(operand);
 

@@ -903,36 +903,28 @@ namespace DotLiquid
         [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object AtLeast(Context context, object input, object atLeast)
         {
-            object val1 = NumericConverter.CoerceToNumericType(input, context.FormatProvider, 0);
-            object val2 = NumericConverter.CoerceToNumericType(atLeast, context.FormatProvider, 0);
-            Type resultType = NumericConverter.GetBinaryResultType(val1.GetType(), val2.GetType());
-
-            switch (resultType)
+            dynamic val1 = NumericConverter.CoerceToNumericType(input, context.FormatProvider, 0);
+            dynamic val2 = NumericConverter.CoerceToNumericType(atLeast, context.FormatProvider, 0);
+            try
             {
-                case Type t when t == typeof(decimal):
-                    return Math.Max(Convert.ToDecimal(val1), Convert.ToDecimal(val2));
-                case Type t when t == typeof(double):
-                    return Math.Max(Convert.ToDouble(val1), Convert.ToDouble(val2));
-                case Type t when t == typeof(float):
-                    return Math.Max(Convert.ToSingle(val1), Convert.ToSingle(val2));
-                case Type t when t == typeof(ulong):
-                    return Math.Max(Convert.ToUInt64(val1), Convert.ToUInt64(val2));
-                case Type t when t == typeof(long):
-                    return Math.Max(Convert.ToInt64(val1), Convert.ToInt64(val2));
-                case Type t when t == typeof(uint):
-                    return Math.Max(Convert.ToUInt32(val1), Convert.ToUInt32(val2));
-                case Type t when t == typeof(int):
-                    return Math.Max(Convert.ToInt32(val1), Convert.ToInt32(val2));
-                case Type t when t == typeof(ushort):
-                    return Math.Max(Convert.ToUInt16(val1), Convert.ToUInt16(val2));
-                case Type t when t == typeof(short):
-                    return Math.Max(Convert.ToInt16(val1), Convert.ToInt16(val2));
-                case Type t when t == typeof(byte):
-                    return Math.Max(Convert.ToByte(val1), Convert.ToByte(val2));
-                case Type t when t == typeof(sbyte):
-                    return Math.Max(Convert.ToSByte(val1), Convert.ToSByte(val2));
-                default:
-                    return 0;
+                return (val1 >= val2) ? val1 : val2;
+            }
+            catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException)
+            {
+                // Not all combinations of types can be compared - try converting to Decimal
+                try
+                {
+                    var comp1 = Convert.ToDecimal(val1);
+                    var comp2 = Convert.ToDecimal(val2);
+                    return (comp1 >= comp2) ? val1 : val2;
+                }
+                catch (OverflowException)
+                {
+                    // Not all types can be converted to Decimal - try Double instead.
+                    var comp1 = Convert.ToDouble(val1);
+                    var comp2 = Convert.ToDouble(val2);
+                    return (comp1 >= comp2) ? val1 : val2;
+                }
             }
         }
 
@@ -946,36 +938,28 @@ namespace DotLiquid
         [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object AtMost(Context context, object input, object atMost)
         {
-            object val1 = NumericConverter.CoerceToNumericType(input, context.FormatProvider, 0);
-            object val2 = NumericConverter.CoerceToNumericType(atMost, context.FormatProvider, 0);
-            Type resultType = NumericConverter.GetBinaryResultType(val1.GetType(), val2.GetType());
-
-            switch (resultType)
+            dynamic val1 = NumericConverter.CoerceToNumericType(input, context.FormatProvider, 0);
+            dynamic val2 = NumericConverter.CoerceToNumericType(atMost, context.FormatProvider, 0);
+            try
             {
-                case Type t when t == typeof(decimal):
-                    return Math.Min(Convert.ToDecimal(val1), Convert.ToDecimal(val2));
-                case Type t when t == typeof(double):
-                    return Math.Min(Convert.ToDouble(val1), Convert.ToDouble(val2));
-                case Type t when t == typeof(float):
-                    return Math.Min(Convert.ToSingle(val1), Convert.ToSingle(val2));
-                case Type t when t == typeof(ulong):
-                    return Math.Min(Convert.ToUInt64(val1), Convert.ToUInt64(val2));
-                case Type t when t == typeof(long):
-                    return Math.Min(Convert.ToInt64(val1), Convert.ToInt64(val2));
-                case Type t when t == typeof(uint):
-                    return Math.Min(Convert.ToUInt32(val1), Convert.ToUInt32(val2));
-                case Type t when t == typeof(int):
-                    return Math.Min(Convert.ToInt32(val1), Convert.ToInt32(val2));
-                case Type t when t == typeof(ushort):
-                    return Math.Min(Convert.ToUInt16(val1), Convert.ToUInt16(val2));
-                case Type t when t == typeof(short):
-                    return Math.Min(Convert.ToInt16(val1), Convert.ToInt16(val2));
-                case Type t when t == typeof(byte):
-                    return Math.Min(Convert.ToByte(val1), Convert.ToByte(val2));
-                case Type t when t == typeof(sbyte):
-                    return Math.Min(Convert.ToSByte(val1), Convert.ToSByte(val2));
-                default:
-                    return 0;
+                return (val1 <= val2) ? val1 : val2;
+            }
+            catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException)
+            {
+                // Not all combinations of types can be compared - try converting to Decimal
+                try
+                {
+                    var comp1 = Convert.ToDecimal(val1);
+                    var comp2 = Convert.ToDecimal(val2);
+                    return (comp1 <= comp2) ? val1 : val2;
+                }
+                catch (OverflowException)
+                {
+                    // Not all types can be converted to Decimal - try Double instead.
+                    var comp1 = Convert.ToDouble(val1);
+                    var comp2 = Convert.ToDouble(val2);
+                    return (comp1 <= comp2) ? val1 : val2;
+                }
             }
         }
 

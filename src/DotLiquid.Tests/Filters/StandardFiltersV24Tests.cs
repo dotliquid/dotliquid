@@ -167,16 +167,26 @@ namespace DotLiquid.Tests.Filters
             var val2 = Convert.ChangeType(2, t2);
 
             var resultType = NumericConverter.GetBinaryResultType(t1, t2);
-            Assert.That(AtLeast(val1, val2), Is.EqualTo(2).And.TypeOf(resultType));
+            Assert.That(AtLeast(val1, val2), Is.EqualTo(2).And.TypeOf(t2));
 
             resultType = NumericConverter.GetBinaryResultType(t2, t1);
-            Assert.That(AtLeast(val2, val1), Is.EqualTo(2).And.TypeOf(resultType));
+            Assert.That(AtLeast(val2, val1), Is.EqualTo(2).And.TypeOf(t2));
 
             resultType = NumericConverter.GetBinaryResultType(t1, t1);
-            Assert.That(AtLeast(val1, val1), Is.EqualTo(1).And.TypeOf(resultType));
+            Assert.That(AtLeast(val1, val1), Is.EqualTo(1).And.TypeOf(t1));
 
             resultType = NumericConverter.GetBinaryResultType(t2, t2);
-            Assert.That(AtLeast(val2, val2), Is.EqualTo(2).And.TypeOf(resultType));
+            Assert.That(AtLeast(val2, val2), Is.EqualTo(2).And.TypeOf(t2));
+        }
+
+        [Test]
+        public void TestAtLeastEdgeCases()
+        {
+            // We can't compare decimal and double using comparison operators
+            Assert.That(AtLeast(1.2, decimal.MaxValue), Is.EqualTo(decimal.MaxValue).And.TypeOf(typeof(decimal)));
+
+            // We can't compare decimal and double using comparison operators, and double.MaxValue will overflow decimal
+            Assert.That(AtLeast(double.MaxValue, decimal.MaxValue), Is.EqualTo(double.MaxValue).And.TypeOf(typeof(double)));
         }
 
         [Test]
@@ -200,16 +210,26 @@ namespace DotLiquid.Tests.Filters
             var val2 = Convert.ChangeType(2, t2);
 
             var resultType = NumericConverter.GetBinaryResultType(t1, t2);
-            Assert.That(AtMost(val1, val2), Is.EqualTo(1).And.TypeOf(resultType));
+            Assert.That(AtMost(val1, val2), Is.EqualTo(1).And.TypeOf(t1));
 
             resultType = NumericConverter.GetBinaryResultType(t2, t1);
-            Assert.That(AtMost(val2, val1), Is.EqualTo(1).And.TypeOf(resultType));
+            Assert.That(AtMost(val2, val1), Is.EqualTo(1).And.TypeOf(t1));
 
             resultType = NumericConverter.GetBinaryResultType(t1, t1);
-            Assert.That(AtMost(val1, val1), Is.EqualTo(1).And.TypeOf(resultType));
+            Assert.That(AtMost(val1, val1), Is.EqualTo(1).And.TypeOf(t1));
 
             resultType = NumericConverter.GetBinaryResultType(t2, t2);
-            Assert.That(AtMost(val2, val2), Is.EqualTo(2).And.TypeOf(resultType));
+            Assert.That(AtMost(val2, val2), Is.EqualTo(2).And.TypeOf(t2));
+        }
+
+        [Test]
+        public void TestAtMostEdgeCases()
+        {
+            // We can't compare decimal and double using comparison operators
+            Assert.That(AtMost(1.2, decimal.MaxValue), Is.EqualTo(1.2).And.TypeOf(typeof(double)));
+
+            // We can't compare decimal and double using comparison operators, and double.MaxValue will overflow decimal
+            Assert.That(AtMost(double.MaxValue, decimal.MaxValue), Is.EqualTo(decimal.MaxValue).And.TypeOf(typeof(decimal)));
         }
 
         [Test]
@@ -231,6 +251,7 @@ namespace DotLiquid.Tests.Filters
 
             Assert.That(Abs("-1"), Is.EqualTo(1).And.TypeOf(typeof(int)));
             Assert.That(Abs($"{valueInt64}"), Is.EqualTo(absValueInt64).And.TypeOf(typeof(long)));
+            Assert.That(Abs($"{ulong.MaxValue}"), Is.EqualTo(ulong.MaxValue).And.TypeOf(typeof(decimal)));
 
             Assert.That(Abs((byte)1), Is.EqualTo(1).And.TypeOf(typeof(byte)));
             Assert.That(Abs((sbyte)-1), Is.EqualTo(1).And.TypeOf(typeof(sbyte)));

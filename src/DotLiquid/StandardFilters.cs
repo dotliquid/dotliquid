@@ -67,13 +67,13 @@ namespace DotLiquid
                                 rightType: operand.GetType())
                             .DynamicInvoke(input, operand);
                     }
-                    catch (TargetInvocationException ex) when (ex?.InnerException is OverflowException)
+                    catch (TargetInvocationException ex) when (ex.InnerException is OverflowException)
                     {
                         // Retry as Decimal
                         input = Convert.ToDecimal(input);
                         operand = Convert.ToDecimal(operand);
                     }
-                    catch (TargetInvocationException ex) when (ex?.InnerException is DivideByZeroException)
+                    catch (TargetInvocationException ex) when (ex.InnerException is DivideByZeroException)
                     {
                         // Retry as Double (to handle division by zero)
                         input = Convert.ToDouble(input);
@@ -90,7 +90,7 @@ namespace DotLiquid
                             rightType: operand.GetType())
                         .DynamicInvoke(input, operand);
                 }
-                catch (TargetInvocationException ex) when (ex?.InnerException is OverflowException || ex?.InnerException is DivideByZeroException)
+                catch (TargetInvocationException ex) when (ex.InnerException is OverflowException || ex.InnerException is DivideByZeroException)
                 {
                     // Retry as Doubles (if they weren't already)
                     if (input is double && operand is double)

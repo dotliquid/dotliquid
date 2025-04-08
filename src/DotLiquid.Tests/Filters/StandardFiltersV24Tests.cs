@@ -163,11 +163,14 @@ namespace DotLiquid.Tests.Filters
         }
 
         [Test]
-        public void TestTimesIntegerOverflow()
+        public void TestTimesEdgeCases()
         {
             // Integers will be promoted to double on Overflow
-            var expectedResult = ((double)ulong.MaxValue) * ((double)ulong.MaxValue);
-            Assert.That(Times(input: ulong.MaxValue, operand: ulong.MaxValue), Is.EqualTo(expectedResult));
+            var expectedResult1 = ((double)ulong.MaxValue) * ((double)ulong.MaxValue);
+            Assert.That(Times(input: ulong.MaxValue, operand: ulong.MaxValue), Is.EqualTo(expectedResult1));
+
+            // double will Overflow, but end up as PositiveInfinity
+            Assert.That(Times(input: double.MaxValue, operand: double.MaxValue), Is.EqualTo(double.PositiveInfinity));
         }
 
         [Test]
@@ -205,6 +208,15 @@ namespace DotLiquid.Tests.Filters
             Assert.That(Round((int)-1, 2), Is.EqualTo(-1).And.TypeOf(typeof(int)));
             Assert.That(Round((ulong)1, 2), Is.EqualTo(1).And.TypeOf(typeof(ulong)));
             Assert.That(Round((long)-1, 2), Is.EqualTo(-1).And.TypeOf(typeof(long)));
+
+            Assert.That(Round(1.2345m, (byte)2), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
+            Assert.That(Round(1.2345m, (sbyte)2), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
+            Assert.That(Round(1.2345m, (ushort)2), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
+            Assert.That(Round(1.2345m, (short)2), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
+            Assert.That(Round(1.2345m, (uint)2), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
+            Assert.That(Round(1.2345m, (int)2), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
+            Assert.That(Round(1.2345m, (ulong)2), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
+            Assert.That(Round(1.2345m, (long)2), Is.EqualTo(1.23).And.TypeOf(typeof(decimal)));
         }
 
         [Test]

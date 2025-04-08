@@ -27,7 +27,7 @@ namespace DotLiquid
 
             // NOTE(Rodney Richardson): Operators are not defined when input and operand are
             // both Byte or both SByte and will cause an InvalidOperationException to be thrown.
-            // Promote types to avoid the exception.
+            // Promote types now to avoid the exception.
             if ((input is byte && operand is byte) ||
                 (input is sbyte && operand is sbyte))
             {
@@ -69,13 +69,13 @@ namespace DotLiquid
                     }
                     catch (TargetInvocationException ex) when (ex.InnerException is OverflowException)
                     {
-                        // Retry as Decimal
-                        input = Convert.ToDecimal(input);
-                        operand = Convert.ToDecimal(operand);
+                        // Retry as promoted types
+                        input = Convert.ChangeType(input, NumericConverter.NumericTypePromotions[input.GetType()][0]);
+                        operand = Convert.ChangeType(operand, NumericConverter.NumericTypePromotions[operand.GetType()][0]);
                     }
                     catch (TargetInvocationException ex) when (ex.InnerException is DivideByZeroException)
                     {
-                        // Retry as Double (to handle division by zero)
+                        // Retry as Double (which handles division by zero)
                         input = Convert.ToDouble(input);
                         operand = Convert.ToDouble(operand);
                     }
@@ -92,12 +92,6 @@ namespace DotLiquid
                 }
                 catch (TargetInvocationException ex) when (ex.InnerException is OverflowException || ex.InnerException is DivideByZeroException)
                 {
-                    // Retry as Doubles (if they weren't already)
-                    if (input is double && operand is double)
-                    {
-                        throw;
-                    }
-
                     input = Convert.ToDouble(input);
                     operand = Convert.ToDouble(operand);
 
@@ -782,25 +776,22 @@ namespace DotLiquid
         [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object Round(Context context, object input, object places = null)
         {
-            // Math.Round can handle at most 28 decimals, so clamp place into [0, 28].
-            const int MaxDecimalPlaces = 28;
-            int decimals = Convert.ToInt32(
-                StandardFilters.Floor(context,
-                    StandardFilters.AtLeast(context, 0,
-                        StandardFilters.AtMost(context, MaxDecimalPlaces, places))));
+            // Math.Round can handle at most 28 decimals, so clamp places into [0, 28].
+            var placesValue = Convert.ToDouble(NumericConverter.CoerceToNumericType(places, context.FormatProvider, 0.0));
+#if NET6_0_OR_GREATER
+            int decimals = (int)Math.Clamp(placesValue, 0, 28);
+#else
+            int decimals = (int)Math.Max(0, Math.Min(28, placesValue));
+#endif
 
+            dynamic inputValue = NumericConverter.CoerceToNumericType(input, context.FormatProvider, 0);
+            if (NumericConverter.IsReal(inputValue))
+            {
+                return Math.Round(inputValue, decimals);
+            }
 
-            object inputValue = NumericConverter.CoerceToNumericType(input, context.FormatProvider, 0);
-            if (inputValue is decimal inputDecimal)
-                return Math.Round(inputDecimal, decimals);
-            else if (inputValue is double inputDouble)
-                return Math.Round(inputDouble, decimals);
-            else if (inputValue is float inputFloat)
-                // Math.Round() only supports double or decimal, so float will be widened to double
-                return Math.Round(inputFloat, decimals);
-            else
-                // Must be an integer already
-                return inputValue;
+            // inputValue is an integer already.
+            return inputValue;
         }
 
         /// <summary>
@@ -923,7 +914,7 @@ namespace DotLiquid
             }
 
             // Try multiplying my -1 to get the absolute value.
-            dynamic minusOne = Convert.ChangeType(-1, value.GetType());
+            var minusOne = -1;
             var result = (minusOne * value);
             if (result >= 0)
             {

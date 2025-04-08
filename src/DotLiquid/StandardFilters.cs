@@ -803,18 +803,14 @@ namespace DotLiquid
         [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object Ceil(Context context, object input)
         {
-            if (input == null) return 0;
-
-            if (input is string inputString)
+            dynamic inputValue = NumericConverter.CoerceToNumericType(input, context.FormatProvider, 0);
+            if (NumericConverter.IsReal(inputValue))
             {
-                input = NumericConverter.CoerceToNumericType(inputString, context.FormatProvider, 0);
+                return Math.Ceiling(inputValue);
             }
 
-            if (input is decimal inputDecimal) { return Math.Ceiling(inputDecimal); }
-            else if (input is float inputFloat) { return Math.Ceiling(inputFloat); }
-            else if (input is double inputDouble) { return Math.Ceiling(inputDouble); }
-            else if (NumericConverter.IsInteger(input)) { return input; }
-            else return 0;
+            // inputValue is an integer already.
+            return inputValue;
         }
 
         /// <summary>
@@ -826,18 +822,14 @@ namespace DotLiquid
         [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object Floor(Context context, object input)
         {
-            if (input == null) return 0;
-
-            if (input is string inputString)
+            dynamic inputValue = NumericConverter.CoerceToNumericType(input, context.FormatProvider, 0);
+            if (NumericConverter.IsReal(inputValue))
             {
-                input = NumericConverter.CoerceToNumericType(inputString, context.FormatProvider, 0);
+                return Math.Floor(inputValue);
             }
 
-            if (input is decimal inputDecimal) { return Math.Floor(inputDecimal); }
-            else if (input is float inputFloat) { return Math.Floor(inputFloat); }
-            else if (input is double inputDouble) { return Math.Floor(inputDouble); }
-            else if (NumericConverter.IsInteger(input)) { return input; }
-            else return 0;
+            // inputValue is an integer already.
+            return inputValue;
         }
 
         /// <summary>
@@ -1063,8 +1055,11 @@ namespace DotLiquid
             {
                 if (value != null)
                 {
-                    object valueToAdd = NumericConverter.CoerceToNumericType(value, context.FormatProvider, 0);
-                    sum = StandardFilters.DoMathsOperation(context, sum, valueToAdd, Expression.AddChecked);
+                    dynamic valueToAdd = NumericConverter.CoerceToNumericType(value, context.FormatProvider, 0);
+                    if (valueToAdd != 0)
+                    {
+                        sum = StandardFilters.DoMathsOperation(context, sum, (object)valueToAdd, Expression.AddChecked);
+                    }
                 }
             }
 

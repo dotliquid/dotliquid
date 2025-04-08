@@ -23,33 +23,6 @@ namespace DotLiquid
         private static readonly Lazy<Regex> StripHtmlBlocks = new Lazy<Regex>(() => R.C(@"<script.*?</script>|<!--.*?-->|<style.*?</style>", RegexOptions.Singleline | RegexOptions.IgnoreCase), LazyThreadSafetyMode.ExecutionAndPublication);
         private static readonly Lazy<Regex> StripHtmlTags = new Lazy<Regex>(() => R.C(@"<.*?>", RegexOptions.Singleline), LazyThreadSafetyMode.ExecutionAndPublication);
         private static string Space = " ";
-#if NETSTANDARD1_3
-        private class StringAwareObjectComparer : IComparer
-        {
-            private readonly StringComparer _stringComparer;
-
-            public StringAwareObjectComparer(StringComparer stringComparer)
-            {
-                _stringComparer = stringComparer;
-            }
-
-            public int Compare(Object x, Object y)
-            {
-                if (x == y)
-                    return 0;
-                if (x == null)
-                    return -1;
-                if (y == null)
-                    return 1;
-
-                if (x is string textX && y is string textY)
-                    return _stringComparer.Compare(textX, textY);
-
-                return Comparer<object>.Default.Compare(x, y);
-            }
-        }
-#endif
-
         /// <summary>
         /// Return the size of an array or of an string
         /// </summary>
@@ -372,7 +345,7 @@ namespace DotLiquid
             return SortInternal(StringComparer.OrdinalIgnoreCase, input, property);
         }
 
-        internal static IEnumerable SortInternal(StringComparer stringComparer, object input, string property = null)
+        internal static IEnumerable SortInternal(StringComparer comparer, object input, string property = null)
         {
             if (input == null)
                 return null;
@@ -389,12 +362,6 @@ namespace DotLiquid
 
             if (!ary.Any())
                 return ary;
-
-#if NETSTANDARD1_3
-            var comparer = new StringAwareObjectComparer(stringComparer);
-#else
-            var comparer = stringComparer;
-#endif 
 
             if (string.IsNullOrEmpty(property))
             {
@@ -460,13 +427,35 @@ namespace DotLiquid
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="string">Substring to be replaced</param>
         /// <param name="replacement">Replacement string to be inserted</param>
-        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid22)]
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static string ReplaceFirst(string input, string @string, string replacement = "")
         {
-            if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(@string))
+            if (string.IsNullOrEmpty(input))
                 return input;
-                int position = input.IndexOf(@string);
-                return position < 0 ? input : input.Remove(position, @string.Length).Insert(position, replacement);
+
+            if (string.IsNullOrEmpty(@string))
+                return input.Insert(0, replacement ?? string.Empty);
+
+            int position = input.IndexOf(@string);
+            return position < 0 ? input : input.Remove(position, @string.Length).Insert(position, replacement ?? string.Empty);
+        }
+
+        /// <summary>
+        /// Replace the last occurrence of a string with another
+        /// </summary>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="string">Substring to be replaced</param>
+        /// <param name="replacement">Replacement string to be inserted</param>
+        public static string ReplaceLast(string input, string @string, string replacement)
+        {
+            if (string.IsNullOrEmpty(input))
+                return input;
+
+            if (string.IsNullOrEmpty(@string))
+                return input.Insert(input.Length, replacement ?? string.Empty);
+
+            int position = input.LastIndexOf(@string);
+            return position < 0 ? input : input.Remove(position, @string.Length).Insert(position, replacement ?? string.Empty);
         }
 
         /// <summary>
@@ -486,13 +475,15 @@ namespace DotLiquid
         /// </summary>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="string">String to be removed from input</param>
-        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid22)]
-        public static string RemoveFirst(string input, string @string)
-        {
-            return input.IsNullOrWhiteSpace()
-                ? input
-                : ReplaceFirst(input: input, @string: @string, replacement: string.Empty);
-        }
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
+        public static string RemoveFirst(string input, string @string) => ReplaceFirst(input: input, @string: @string, replacement: string.Empty);
+
+        /// <summary>
+        /// Remove the last occurrence of a substring
+        /// </summary>
+        /// <param name="input">Input to be transformed by this filter</param>
+        /// <param name="string">String to be removed from input</param>
+        public static string RemoveLast(string input, string @string) => ReplaceLast(input: input, @string: @string, replacement: string.Empty);
 
         /// <summary>
         /// Add one string to another
@@ -570,7 +561,7 @@ namespace DotLiquid
             }
             else if ((input is decimal) || (input is double) || (input is float) || (input is int) || (input is uint) || (input is long) || (input is ulong) || (input is short) || (input is ushort))
             {
-#if CORE
+#if NET6_0_OR_GREATER || NETSTANDARD2_0_OR_GREATER
                 dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(input)).ToLocalTime();
 #else
                 dateTimeOffset = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero).AddSeconds(Convert.ToDouble(input)).ToLocalTime();
@@ -964,10 +955,9 @@ namespace DotLiquid
                     indexable = safeTypeTransformer(obj) as DropBase;
                 else
                 {
-                    var liquidTypeAttribute = TypeUtility.GetLiquidTypeAttribute(type);
-                    if (liquidTypeAttribute != null)
+                    if (DropProxy.TryFromLiquidType(obj, type, out var drop))
                     {
-                        indexable = new DropProxy(obj, liquidTypeAttribute.AllowedMembers);
+                        indexable = drop;
                     }
                     else if (TypeUtility.IsAnonymousType(type) && obj.GetType().GetRuntimeProperty(propertyName) != null)
                     {

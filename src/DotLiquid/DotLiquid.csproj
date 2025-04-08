@@ -5,16 +5,20 @@
     <AssemblyTitle>DotLiquid</AssemblyTitle>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Authors>Tim Jones;Alessandro Petrelli</Authors>
-    <TargetFrameworks>netstandard1.3;netstandard2.0;net45;net6.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net45;net6.0</TargetFrameworks>
     <AssemblyName>DotLiquid</AssemblyName>
     <AssemblyOriginatorKeyFile>../Formosatek-OpenSource.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotLiquid</PackageId>
+    <Version>1.0.0</Version>
+    <PackageVersion>1.0.0</PackageVersion>
     <PackageTags>template;templating;language;liquid;markup</PackageTags>
-    <PackageIconUrl>https://github.com/formosatek/dotliquid/raw/master/build/logo_nuget.png</PackageIconUrl>
-    <PackageProjectUrl>http://dotliquidmarkup.org</PackageProjectUrl>
-    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
+    <PackageIcon>images\logo_nuget.png</PackageIcon>
+    <PackageReadmeFile>docs\readme_nuget.md</PackageReadmeFile>
+    <PackageIconUrl>https://raw.githubusercontent.com/dotliquid/dotliquid/master/src/DotLiquid/logo_nuget.png</PackageIconUrl>
+    <PackageProjectUrl>https://dotliquid.org</PackageProjectUrl>
+    <PackageLicenseExpression>Apache-2.0 OR MS-PL</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/dotliquid/dotliquid</RepositoryUrl>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
@@ -23,27 +27,19 @@
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
     <DebugType>portable</DebugType>
     <DebugSymbols>True</DebugSymbols>
     <DocumentationFile>bin\Debug\$(TargetFramework)\DotLiquid.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SonarAnalyzer.CSharp" Version="5.11.0.1761" />
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.7.0.110445" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="LICENSE.txt">
-      <Pack>true</Pack>
-    </None>
+    <None Include="logo_nuget.png" Pack="true" PackagePath="images\" />
+    <None Include="readme_nuget.md" Pack="true" PackagePath="docs\" />
   </ItemGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <DefineConstants>$(DefineConstants);CORE</DefineConstants>
-  </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <Reference Include="System" />

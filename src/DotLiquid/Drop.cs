@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -87,7 +87,7 @@ namespace DotLiquid
                 var declaringTypes = duplicates.Select(d => d.DeclaringType)
                                                .ToList();
 
-                var mostDerived = declaringTypes.Single(t => !declaringTypes.Any(o => t.GetTypeInfo().IsAssignableFrom(o.GetTypeInfo()) && (o != t)));
+                var mostDerived = declaringTypes.Single(t => !declaringTypes.Any(o => t.IsAssignableFrom(o) && (o != t)));
 
                 foreach (var duplicate in duplicates)
                 {
@@ -159,7 +159,7 @@ namespace DotLiquid
         }
 
 #region IIndexable
-
+        /// <inheritdoc />
         public virtual bool ContainsKey(object name) { return true; }
 
 #endregion
@@ -211,13 +211,44 @@ namespace DotLiquid
                 return pi.GetValue(GetObject(), null);
             return BeforeMethod(method);
         }
+
+        #region Static Methods
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DotLiquid.DropBase">DropBase</see> class for types not derived from DropBase
+        /// </summary>
+        /// <param name="obj">The object to create a proxy for</param>
+        public static DropBase FromSafeType(object obj)
+            => TryFromSafeType(obj, out var drop) ? drop : throw new DotLiquid.Exceptions.ArgumentException(Liquid.ResourceManager.GetString("MissingLiquidTypeAttributeError"), obj.ToString());
+
+        internal static bool TryFromSafeType(object obj, out DropBase drop)
+        {
+            var objType = obj.GetType();
+            var safeTypeTransformer = Template.GetSafeTypeTransformer(objType);
+            if (safeTypeTransformer != null)
+            {
+                if (safeTypeTransformer(obj) is DropBase transformed)
+                {
+                    drop = transformed;
+                    return true;
+                }
+            }
+            else if (DropProxy.TryFromLiquidType(obj, objType, out var dropProxy))
+            {
+                drop = dropProxy;
+                return true;
+            }
+
+            drop = null;
+            return false;
+        }
+        #endregion
     }
 
     public abstract class Drop : DropBase
     {
         internal override object GetObject() { return this; }
 
-        internal override TypeResolution CreateTypeResolution(Type type) { return new TypeResolution(type, mi => mi.DeclaringType.GetTypeInfo().BaseType != null && typeof(Drop).GetTypeInfo().IsAssignableFrom(mi.DeclaringType.GetTypeInfo().BaseType.GetTypeInfo())); }
+        internal override TypeResolution CreateTypeResolution(Type type) { return new TypeResolution(type, mi => mi.DeclaringType.BaseType != null && typeof(Drop).IsAssignableFrom(mi.DeclaringType.BaseType)); }
     }
 
     /// <summary>
@@ -253,6 +284,19 @@ namespace DotLiquid
             : this(obj, allowedMembers)
         {
             _value = value;
+        }
+
+        internal static bool TryFromLiquidType(object obj, Type objType, out DropProxy drop)
+        {
+            var liquidTypeAttribute = TypeUtility.GetLiquidTypeAttribute(objType);
+            if (liquidTypeAttribute != null)
+            {
+                drop = new DropProxy(obj, liquidTypeAttribute.AllowedMembers);
+                return true;
+            }
+
+            drop = null;
+            return false;
         }
 
         #region IValueTypeConvertible

@@ -13,9 +13,9 @@ namespace DotLiquid.Tests.Filters
         public override MathDelegate Plus => (i, o) => StandardFilters.Plus(_context, i, o);
         public override MathDelegate Minus => (i, o) => StandardFilters.Minus(_context, i, o);
         public override MathDelegate Modulo => (i, o) => StandardFilters.Modulo(_context, i, o);
-        public override RemoveFirstDelegate RemoveFirst => (a, b) => StandardFilters.RemoveFirst(a, b);
+        public override RemoveFirstDelegate RemoveFirst => (a, b) => LegacyFilters.RemoveFirstV21(a, b);
         public override ReplaceDelegate Replace => (i, s, r) => StandardFilters.Replace(i, s, r);
-        public override ReplaceFirstDelegate ReplaceFirst => (a, b, c) => StandardFilters.ReplaceFirst(a, b, c);
+        public override ReplaceFirstDelegate ReplaceFirst => (i, s, r) => LegacyFilters.ReplaceFirstV21(i, s, r);
         public override SliceDelegate Slice => (a, b, c) => c.HasValue ? StandardFilters.Slice(a, b, c.Value) : StandardFilters.Slice(a, b);
         public override SplitDelegate Split => (i, p) => LegacyFilters.Split(i, p);
         public override MathDelegate Times => (i, o) => StandardFilters.Times(_context, i, o);
@@ -35,6 +35,13 @@ namespace DotLiquid.Tests.Filters
             {
                 SyntaxCompatibilityLevel = SyntaxCompatibilityLevel
             };
+        }
+
+        [Test]
+        public void TestReplaceFirstInvalidSearchReturnsInput()
+        {
+            Assert.That(ReplaceFirst(input: "a a a a", @string: null, replacement: "b"), Is.EqualTo("a a a a"));
+            Assert.That(ReplaceFirst(input: "a a a a", @string: "", replacement: "b"), Is.EqualTo("a a a a"));
         }
 
         [Test]

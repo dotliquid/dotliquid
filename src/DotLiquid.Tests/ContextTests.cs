@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using DotLiquid.Exceptions;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -1085,6 +1086,15 @@ namespace DotLiquid.Tests
             Assert.That(context.SyntaxCompatibilityLevel, Is.EqualTo(Template.DefaultSyntaxCompatibilityLevel));
             Assert.That(context.UseRubyDateFormat, Is.EqualTo(Liquid.UseRubyDateFormat));
             Assert.That(context.CurrentCulture.Name, Is.EqualTo("jp-JP"));
+        }
+
+        //
+        [Test]
+        public void TestConstructorNullHandling()
+        {
+            Assert.Throws<ArgumentNullException>(() => {
+                _ = new Context(environments: null, outerScope: new Hash(), registers: new Hash(), errorsOutputMode: ErrorsOutputMode.Display, maxIterations: 1, formatProvider: CultureInfo.CurrentCulture, cancellationToken: CancellationToken.None);
+            });
         }
 
         /// <summary>

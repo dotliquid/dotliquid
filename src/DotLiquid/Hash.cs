@@ -10,7 +10,7 @@ namespace DotLiquid
     /// <summary>
     /// Represents a collection of keys and values and is a DotLiquid safe type
     /// </summary>
-    public class Hash : IDictionary<string, object>, IDictionary
+    public class Hash : IDictionary<string, object>, IDictionary, IIndexable
     {
         #region Static fields
 
@@ -63,16 +63,14 @@ namespace DotLiquid
             }
 
             propertyList
-                .AddRange(type.GetTypeInfo().DeclaredProperties
+                .AddRange(type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public)
                     .Where(
                         p =>
                             p.CanRead &&
-                            p.GetMethod.IsPublic &&
-                            !p.GetMethod.IsStatic &&
                             propertyList.All(p1 => p1.Name != p.Name))
                     .ToList());
 
-            AddBaseClassProperties(type.GetTypeInfo().BaseType, propertyList);
+            AddBaseClassProperties(type.BaseType, propertyList);
         }
 
         private static Action<object, Hash> GenerateMapper(Type type, bool includeBaseClassProperties)
@@ -88,8 +86,8 @@ namespace DotLiquid
             );
 
             //Add properties
-            var propertyList = type.GetTypeInfo().DeclaredProperties
-                .Where(p => p.CanRead && p.GetMethod.IsPublic && !p.GetMethod.IsStatic).ToList();
+            var propertyList = type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public)
+                .Where(p => p.CanRead).ToList();
 
             //Add properties from base class
             if (includeBaseClassProperties) AddBaseClassProperties(type, propertyList);
@@ -100,7 +98,7 @@ namespace DotLiquid
                     Expression.Assign(
                         Expression.MakeIndex(
                             hashParam,
-                            typeof(Hash).GetTypeInfo().GetDeclaredProperty("Item"),
+                            typeof(Hash).GetProperty("Item"),
                             new[] { Expression.Constant(property.Name, typeof(string)) }
                         ),
                         Expression.Convert(
@@ -377,7 +375,14 @@ namespace DotLiquid
         {
             get { return _nestedDictionary.Values; }
         }
+        #endregion
 
+        #region IIndexable
+        /// <inheritdoc />
+        object IIndexable.this[object key] => ((IDictionary)this)[key];
+
+        /// <inheritdoc />
+        public bool ContainsKey(object key) => Contains(key);
         #endregion
     }
 }

@@ -145,7 +145,6 @@ namespace DotLiquid.Tests
             }
         }
 
-#if !CORE
         internal class DataRowDrop : Drop
         {
             private readonly System.Data.DataRow _dataRow;
@@ -162,7 +161,6 @@ namespace DotLiquid.Tests
                 return null;
             }
         }
-#endif
 
         internal class CamelCaseDrop : Drop
         {
@@ -170,6 +168,11 @@ namespace DotLiquid.Tests
             {
                 get { return 1; }
             }
+        }
+
+        internal class MethodDrop : Drop
+        {
+            public int ProductID() => 1;
         }
 
         internal static class ProductFilter
@@ -375,7 +378,6 @@ namespace DotLiquid.Tests
             Assert.That(Template.Parse("{{ nulldrop.a_method }}").Render(Hash.FromAnonymousObject(new { nulldrop = new NullDrop() })), Is.EqualTo(""));
         }
 
-#if !CORE
         [Test]
         public void TestDataRowDrop()
         {
@@ -390,7 +392,6 @@ namespace DotLiquid.Tests
             Template tpl = Template.Parse(" {{ row.column1 }} ");
             Assert.That(tpl.Render(Hash.FromAnonymousObject(new { row = new DataRowDrop(dataRow) })), Is.EqualTo(" Hello "));
         }
-#endif
 
         [Test]
         public void TestRubyNamingConventionPrintsHelpfulErrorIfMissingPropertyWouldMatchCSharpNamingConvention()
@@ -419,6 +420,46 @@ namespace DotLiquid.Tests
                     template: "{{ value.name }}|{{ value.get_class_name }}",
                     localVariables: Hash.FromAnonymousObject(new { value = new ConflictingChildDrop() }));
             });
+        }
+
+        [Test]
+        public void TestDropRootKeys()
+        {
+            Helper.AssertTemplateResult(
+                expected: "1",
+                template: "{{ product_id }}",
+                localVariables: new CamelCaseDrop(),
+                namingConvention: new RubyNamingConvention());
+        }
+
+        [Test]
+        public void TestDropRootMethods()
+        {
+            Helper.AssertTemplateResult(
+                expected: "1",
+                template: "{{ product_id }}",
+                localVariables: new MethodDrop(),
+                namingConvention: new RubyNamingConvention());
+        }
+
+        [Test]
+        public void TestDropRootCatchall()
+        {
+            var dataTable = new System.Data.DataTable();
+            dataTable.Columns.Add("Column1");
+            dataTable.Columns.Add("Column2");
+
+            var dataRow = dataTable.NewRow();
+            dataRow["Column1"] = "Hello";
+            dataRow["Column2"] = "World";
+
+            Template tpl = Template.Parse("");
+            Helper.AssertTemplateResult(
+                expected: " Hello ",
+                template: " {{ column1 }} ",
+                localVariables: new DataRowDrop(dataRow),
+                namingConvention: new RubyNamingConvention());
+
         }
     }
 }

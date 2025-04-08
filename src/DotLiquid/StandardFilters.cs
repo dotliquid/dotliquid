@@ -861,7 +861,7 @@ namespace DotLiquid
                             rightType: operand.GetType())
                         .DynamicInvoke(input, operand);
                 }
-                catch (TargetInvocationException ex) when (ex.InnerException is OverflowException || ex.InnerException is DivideByZeroException)
+                catch (TargetInvocationException ex) when (ex.InnerException is OverflowException)
                 {
                     // Retry as Double as a last resort
                     input = Convert.ToDouble(initialInput);

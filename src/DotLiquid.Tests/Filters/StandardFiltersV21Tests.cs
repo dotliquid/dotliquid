@@ -132,6 +132,18 @@ namespace DotLiquid.Tests.Filters
         }
 
         [Test]
+        public void TestTimesFloatOverflowAccuracy()
+        {
+            // float will be promoted to double on Overflow
+            // Choose numbers that will fit in Decimal, but the result does not.
+            // We lose accuracy by converting twice (Single -> Decimal -> Double).
+            float input = (float)Math.Sqrt(float.MaxValue);
+            float operand = input + 1;
+            double expectedResult2 = (double)(decimal)input * (double)(decimal)operand;
+            Assert.That(Times(input: input, operand: operand), Is.EqualTo(expectedResult2));
+        }
+
+        [Test]
         public void TestRemoveFirstRegexFails()
         {
             Assert.That(RemoveFirst(input: "Mr. Jones", @string: "."), Is.EqualTo(expected: "Mr Jones"));

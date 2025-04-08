@@ -68,6 +68,12 @@ namespace DotLiquid.Tests.Filters
         }
 
         [Test]
+        public void TestDoMathsOperationPrecision()
+        {
+            Helper.AssertTemplateResult("0.1", "{{ 0.1 | plus: 10 | minus: 10 }}", syntax: _context.SyntaxCompatibilityLevel);
+        }
+
+        [Test]
         public void TestDividedBy()
         {
             Assert.Multiple(() =>

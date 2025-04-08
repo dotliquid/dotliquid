@@ -20,96 +20,6 @@ namespace DotLiquid
     /// <see href="https://shopify.github.io/liquid/filters/"/>
     public static class StandardFilters
     {
-        private static object DoMathsOperation(Context context, object input, object operand, Func<Expression, Expression, BinaryExpression> operation)
-        {
-            input = NumericConverter.CoerceToNumericType(input, context.FormatProvider, 0);
-            operand = NumericConverter.CoerceToNumericType(operand, context.FormatProvider, 0);
-
-            // NOTE(Rodney Richardson): Operators are not defined when input and operand are
-            // both Byte or both SByte and will cause an InvalidOperationException to be thrown.
-            // Promote types now to avoid the exception.
-            if ((input is byte && operand is byte) ||
-                (input is sbyte && operand is sbyte))
-            {
-                var promotedType = NumericConverter.NumericTypePromotions[input.GetType()][0];
-                input = Convert.ChangeType(input, promotedType);
-                operand = Convert.ChangeType(operand, promotedType);
-            }
-
-            try
-            {
-                // NOTE(David Burg): Try for maximal precision if the input and operand fit the decimal's range.
-                // This avoids rounding errors in financial arithmetic.
-                // E.g.: 0.1 | Plus 10 | Minus 10 to remain 0.1, not 0.0999999999999996
-                // Otherwise revert to maximum range (possible precision loss).
-                if (NumericConverter.IsReal(input) || NumericConverter.IsReal(operand))
-                {
-                    try
-                    {
-                        input = Convert.ToDecimal(input);
-                        operand = Convert.ToDecimal(operand);
-                    }
-                    catch (OverflowException)
-                    {
-                        input = Convert.ToDouble(input);
-                        operand = Convert.ToDouble(operand);
-                    }
-                }
-                else
-                {
-                    // input and operand are both integers
-                    try
-                    {
-                        return ExpressionUtility
-                            .CreateExpression(
-                                body: operation,
-                                leftType: input.GetType(),
-                                rightType: operand.GetType())
-                            .DynamicInvoke(input, operand);
-                    }
-                    catch (TargetInvocationException ex) when (ex.InnerException is OverflowException)
-                    {
-                        // Retry as promoted types
-                        input = Convert.ChangeType(input, NumericConverter.NumericTypePromotions[input.GetType()][0]);
-                        operand = Convert.ChangeType(operand, NumericConverter.NumericTypePromotions[operand.GetType()][0]);
-                    }
-                    catch (TargetInvocationException ex) when (ex.InnerException is DivideByZeroException)
-                    {
-                        // Retry as Double (which handles division by zero)
-                        input = Convert.ToDouble(input);
-                        operand = Convert.ToDouble(operand);
-                    }
-                }
-
-                try
-                {
-                    return ExpressionUtility
-                        .CreateExpression(
-                            body: operation,
-                            leftType: input.GetType(),
-                            rightType: operand.GetType())
-                        .DynamicInvoke(input, operand);
-                }
-                catch (TargetInvocationException ex) when (ex.InnerException is OverflowException || ex.InnerException is DivideByZeroException)
-                {
-                    input = Convert.ToDouble(input);
-                    operand = Convert.ToDouble(operand);
-
-                    return ExpressionUtility
-                        .CreateExpression(
-                            body: operation,
-                            leftType: input.GetType(),
-                            rightType: operand.GetType())
-                        .DynamicInvoke(input, operand);
-                }
-            }
-            catch (TargetInvocationException ex2)
-            {
-                System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex2.InnerException).Throw();
-                throw;
-            }
-        }
-
         private static readonly Lazy<Regex> StripHtmlBlocks = new Lazy<Regex>(() => R.C(@"<script.*?</script>|<!--.*?-->|<style.*?</style>", RegexOptions.Singleline | RegexOptions.IgnoreCase), LazyThreadSafetyMode.ExecutionAndPublication);
         private static readonly Lazy<Regex> StripHtmlTags = new Lazy<Regex>(() => R.C(@"<.*?>", RegexOptions.Singleline), LazyThreadSafetyMode.ExecutionAndPublication);
         private static string Space = " ";
@@ -866,6 +776,96 @@ namespace DotLiquid
         public static string Default(string input, string @defaultValue)
         {
             return !string.IsNullOrWhiteSpace(input) ? input : defaultValue;
+        }
+
+        private static object DoMathsOperation(Context context, object input, object operand, Func<Expression, Expression, BinaryExpression> operation)
+        {
+            input = NumericConverter.CoerceToNumericType(input, context.FormatProvider, 0);
+            operand = NumericConverter.CoerceToNumericType(operand, context.FormatProvider, 0);
+
+            // NOTE(Rodney Richardson): Operators are not defined when input and operand are
+            // both Byte or both SByte and will cause an InvalidOperationException to be thrown.
+            // Promote types now to avoid the exception.
+            if ((input is byte && operand is byte) ||
+                (input is sbyte && operand is sbyte))
+            {
+                var promotedType = NumericConverter.NumericTypePromotions[input.GetType()][0];
+                input = Convert.ChangeType(input, promotedType);
+                operand = Convert.ChangeType(operand, promotedType);
+            }
+
+            try
+            {
+                // NOTE(David Burg): Try for maximal precision if the input and operand fit the decimal's range.
+                // This avoids rounding errors in financial arithmetic.
+                // E.g.: 0.1 | Plus 10 | Minus 10 to remain 0.1, not 0.0999999999999996
+                // Otherwise revert to maximum range (possible precision loss).
+                if (NumericConverter.IsReal(input) || NumericConverter.IsReal(operand))
+                {
+                    try
+                    {
+                        input = Convert.ToDecimal(input);
+                        operand = Convert.ToDecimal(operand);
+                    }
+                    catch (OverflowException)
+                    {
+                        input = Convert.ToDouble(input);
+                        operand = Convert.ToDouble(operand);
+                    }
+                }
+                else
+                {
+                    // input and operand are both integers
+                    try
+                    {
+                        return ExpressionUtility
+                            .CreateExpression(
+                                body: operation,
+                                leftType: input.GetType(),
+                                rightType: operand.GetType())
+                            .DynamicInvoke(input, operand);
+                    }
+                    catch (TargetInvocationException ex) when (ex.InnerException is OverflowException)
+                    {
+                        // Retry as promoted types
+                        input = Convert.ChangeType(input, NumericConverter.NumericTypePromotions[input.GetType()][0]);
+                        operand = Convert.ChangeType(operand, NumericConverter.NumericTypePromotions[operand.GetType()][0]);
+                    }
+                    catch (TargetInvocationException ex) when (ex.InnerException is DivideByZeroException)
+                    {
+                        // Retry as Double (which handles division by zero)
+                        input = Convert.ToDouble(input);
+                        operand = Convert.ToDouble(operand);
+                    }
+                }
+
+                try
+                {
+                    return ExpressionUtility
+                        .CreateExpression(
+                            body: operation,
+                            leftType: input.GetType(),
+                            rightType: operand.GetType())
+                        .DynamicInvoke(input, operand);
+                }
+                catch (TargetInvocationException ex) when (ex.InnerException is OverflowException || ex.InnerException is DivideByZeroException)
+                {
+                    input = Convert.ToDouble(input);
+                    operand = Convert.ToDouble(operand);
+
+                    return ExpressionUtility
+                        .CreateExpression(
+                            body: operation,
+                            leftType: input.GetType(),
+                            rightType: operand.GetType())
+                        .DynamicInvoke(input, operand);
+                }
+            }
+            catch (TargetInvocationException ex2)
+            {
+                System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex2.InnerException).Throw();
+                throw;
+            }
         }
 
         /// <summary>

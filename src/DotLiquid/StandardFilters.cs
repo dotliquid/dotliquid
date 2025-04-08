@@ -783,16 +783,9 @@ namespace DotLiquid
             input = NumericConverter.CoerceToNumericType(input, context.FormatProvider, 0);
             operand = NumericConverter.CoerceToNumericType(operand, context.FormatProvider, 0);
 
-            // NOTE(Rodney Richardson): Operators are not defined when input and operand are
-            // both Byte or both SByte and will cause an InvalidOperationException to be thrown.
-            // Promote types now to avoid the exception.
-            if ((input is byte && operand is byte) ||
-                (input is sbyte && operand is sbyte))
-            {
-                var promotedType = NumericConverter.NumericTypePromotions[input.GetType()][0];
-                input = Convert.ChangeType(input, promotedType);
-                operand = Convert.ChangeType(operand, promotedType);
-            }
+            // Hold on to these values to prevent multiple type conversions
+            var initialInput = input;
+            var initialOperand = operand;
 
             try
             {
@@ -809,13 +802,24 @@ namespace DotLiquid
                     }
                     catch (OverflowException)
                     {
-                        input = Convert.ToDouble(input);
-                        operand = Convert.ToDouble(operand);
+                        input = Convert.ToDouble(initialInput);
+                        operand = Convert.ToDouble(initialOperand);
                     }
                 }
 
                 try
                 {
+                    // NOTE(Rodney Richardson): Operators are not defined when input and operand are
+                    // both Byte or both SByte and will cause an InvalidOperationException to be thrown.
+                    // Promote types now to avoid the exception.
+                    if ((input is byte && operand is byte) ||
+                        (input is sbyte && operand is sbyte))
+                    {
+                        var promotedType = NumericConverter.NumericTypePromotions[input.GetType()][0];
+                        input = Convert.ChangeType(input, promotedType);
+                        operand = Convert.ChangeType(operand, promotedType);
+                    }
+
                     // Try to invoke the operation
                     return ExpressionUtility
                         .CreateExpression(
@@ -826,15 +830,25 @@ namespace DotLiquid
                 }
                 catch (TargetInvocationException ex) when (ex.InnerException is OverflowException)
                 {
-                    // Promote to a larger type to handle the overflow
-                    input = Convert.ChangeType(input, NumericConverter.NumericTypePromotions[input.GetType()][0]);
-                    operand = Convert.ChangeType(operand, NumericConverter.NumericTypePromotions[operand.GetType()][0]);
+                    // Real types have already been converted to the same type, so we only have to check one.
+                    if (NumericConverter.IsReal(input))
+                    {
+                        // Promote Decimal to Double, as Single may have an overflow without throwing an exception
+                        input = Convert.ToDouble(initialInput);
+                        operand = Convert.ToDouble(initialOperand);
+                    }
+                    else
+                    {
+                        // Promote integers to the next larger type to handle the overflow
+                        input = Convert.ChangeType(input, NumericConverter.NumericTypePromotions[input.GetType()][0]);
+                        operand = Convert.ChangeType(operand, NumericConverter.NumericTypePromotions[operand.GetType()][0]);
+                    }
                 }
                 catch (TargetInvocationException ex) when (ex.InnerException is DivideByZeroException)
                 {
                     // Retry as Double which handles division by zero
-                    input = Convert.ToDouble(input);
-                    operand = Convert.ToDouble(operand);
+                    input = Convert.ToDouble(initialInput);
+                    operand = Convert.ToDouble(initialOperand);
                 }
 
                 try
@@ -850,8 +864,8 @@ namespace DotLiquid
                 catch (TargetInvocationException ex) when (ex.InnerException is OverflowException || ex.InnerException is DivideByZeroException)
                 {
                     // Retry as Double as a last resort
-                    input = Convert.ToDouble(input);
-                    operand = Convert.ToDouble(operand);
+                    input = Convert.ToDouble(initialInput);
+                    operand = Convert.ToDouble(initialOperand);
 
                     return ExpressionUtility
                         .CreateExpression(
@@ -861,9 +875,9 @@ namespace DotLiquid
                         .DynamicInvoke(input, operand);
                 }
             }
-            catch (TargetInvocationException ex2)
+            catch (TargetInvocationException ex)
             {
-                System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex2.InnerException).Throw();
+                System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
                 throw;
             }
         }
@@ -905,18 +919,14 @@ namespace DotLiquid
                 return value;
             }
 
-            // Try multiplying my -1 to get the absolute value.
-            var minusOne = -1;
-            var result = (minusOne * value);
-            if (result >= 0)
+            // Multiply by -1 to get the absolute value.
+            // (-1 * value) doesn't work for MinValue of signed integers, so use Times instead.
+            if (NumericConverter.IsInteger(value))
             {
-                return result;
+                return StandardFilters.Times(context, value, -1);
             }
 
-            // This is a special case where the value is the minimum value of the integer type
-            // and multiplying by -1 would silently overflow.
-            var promotedType = NumericConverter.NumericTypePromotions[value.GetType()][0];
-            return (minusOne * Convert.ChangeType(value, promotedType));
+            return (-1 * value);
         }
 
         /// <summary>

@@ -171,6 +171,11 @@ namespace DotLiquid.Tests.Filters
 
             // double will Overflow, but end up as PositiveInfinity
             Assert.That(Times(input: double.MaxValue, operand: double.MaxValue), Is.EqualTo(double.PositiveInfinity));
+
+            // Check type promotion occurs
+            Assert.That(Times(input: sbyte.MinValue, operand: (sbyte)-1), Is.EqualTo(128));
+            Assert.That(Times(input: short.MinValue, operand: (short)-1), Is.EqualTo(32768));
+            Assert.That(Times(input: int.MinValue, operand: -1), Is.EqualTo(2147483648));
         }
 
         [Test]
@@ -264,6 +269,9 @@ namespace DotLiquid.Tests.Filters
 
             // We can't compare decimal and double using comparison operators, and double.MaxValue will overflow decimal
             Assert.That(AtLeast(double.MaxValue, decimal.MaxValue), Is.EqualTo(double.MaxValue).And.TypeOf(typeof(double)));
+
+            // Swap parameter order
+            Assert.That(AtLeast(decimal.MaxValue, double.MaxValue), Is.EqualTo(double.MaxValue).And.TypeOf(typeof(double)));
         }
 
         [Test]
@@ -307,6 +315,9 @@ namespace DotLiquid.Tests.Filters
 
             // We can't compare decimal and double using comparison operators, and double.MaxValue will overflow decimal
             Assert.That(AtMost(double.MaxValue, decimal.MaxValue), Is.EqualTo(decimal.MaxValue).And.TypeOf(typeof(decimal)));
+
+            // Swap parameter order
+            Assert.That(AtMost(decimal.MaxValue, double.MaxValue), Is.EqualTo(decimal.MaxValue).And.TypeOf(typeof(decimal)));
         }
 
         [Test]

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using DotLiquid.Util;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests.Filters
@@ -137,8 +138,18 @@ namespace DotLiquid.Tests.Filters
                 Assert.That(Times(input: double.MaxValue, operand: double.MaxValue), Is.EqualTo(double.PositiveInfinity));
 
                 // Decimal will be promoted to double on Overflow
-                var expectedResult = ((double)decimal.MaxValue) * ((double)decimal.MaxValue);
-                Assert.That(Times(input: decimal.MaxValue, operand: decimal.MaxValue), Is.EqualTo(expectedResult));
+                var expectedResult1 = ((double)decimal.MaxValue) * ((double)decimal.MaxValue);
+                Assert.That(Times(input: decimal.MaxValue, operand: decimal.MaxValue), Is.EqualTo(expectedResult1));
+
+                // float will be promoted to double on Overflow
+                // Choose numbers that will fit in Decimal, but the result does not.
+                // Ensure that we don't lose accuracy by converting twice (Single -> Decimal -> Double).
+                float input = (float)Math.Sqrt(float.MaxValue);
+                float operand = input + 1;
+                double expectedResult2 = (double)input * (double)operand;
+                Assert.That(Times(input: input, operand: operand), Is.EqualTo(expectedResult2));
+                double twiceConvertedResult2 = (double)(decimal)input * (double)(decimal)operand;
+                Assert.That(twiceConvertedResult2, Is.Not.EqualTo(expectedResult2));
             });
         }
 

@@ -813,34 +813,33 @@ namespace DotLiquid
                         operand = Convert.ToDouble(operand);
                     }
                 }
-                else
+
+                try
                 {
-                    // input and operand are both integers
-                    try
-                    {
-                        return ExpressionUtility
-                            .CreateExpression(
-                                body: operation,
-                                leftType: input.GetType(),
-                                rightType: operand.GetType())
-                            .DynamicInvoke(input, operand);
-                    }
-                    catch (TargetInvocationException ex) when (ex.InnerException is OverflowException)
-                    {
-                        // Retry as promoted types
-                        input = Convert.ChangeType(input, NumericConverter.NumericTypePromotions[input.GetType()][0]);
-                        operand = Convert.ChangeType(operand, NumericConverter.NumericTypePromotions[operand.GetType()][0]);
-                    }
-                    catch (TargetInvocationException ex) when (ex.InnerException is DivideByZeroException)
-                    {
-                        // Retry as Double (which handles division by zero)
-                        input = Convert.ToDouble(input);
-                        operand = Convert.ToDouble(operand);
-                    }
+                    // Try to invoke the operation
+                    return ExpressionUtility
+                        .CreateExpression(
+                            body: operation,
+                            leftType: input.GetType(),
+                            rightType: operand.GetType())
+                        .DynamicInvoke(input, operand);
+                }
+                catch (TargetInvocationException ex) when (ex.InnerException is OverflowException)
+                {
+                    // Promote to a larger type to handle the overflow
+                    input = Convert.ChangeType(input, NumericConverter.NumericTypePromotions[input.GetType()][0]);
+                    operand = Convert.ChangeType(operand, NumericConverter.NumericTypePromotions[operand.GetType()][0]);
+                }
+                catch (TargetInvocationException ex) when (ex.InnerException is DivideByZeroException)
+                {
+                    // Retry as Double which handles division by zero
+                    input = Convert.ToDouble(input);
+                    operand = Convert.ToDouble(operand);
                 }
 
                 try
                 {
+                    // Retry with a different type
                     return ExpressionUtility
                         .CreateExpression(
                             body: operation,
@@ -850,6 +849,7 @@ namespace DotLiquid
                 }
                 catch (TargetInvocationException ex) when (ex.InnerException is OverflowException || ex.InnerException is DivideByZeroException)
                 {
+                    // Retry as Double as a last resort
                     input = Convert.ToDouble(input);
                     operand = Convert.ToDouble(operand);
 

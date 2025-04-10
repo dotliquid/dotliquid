@@ -947,20 +947,22 @@ namespace DotLiquid
             }
             catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException)
             {
-                // Not all combinations of types can be compared dynamically - try converting to Decimal
+                // Not all combinations of types can be compared dynamically
+                // - try converting to Decimal or Double if that fails
+                dynamic comp1;
+                dynamic comp2;
                 try
                 {
-                    var comp1 = Convert.ToDecimal(val1);
-                    var comp2 = Convert.ToDecimal(val2);
-                    return (comp1 >= comp2) ? val1 : val2;
+                    comp1 = Convert.ToDecimal(val1);
+                    comp2 = Convert.ToDecimal(val2);
                 }
                 catch (OverflowException)
                 {
-                    // Not all types can be converted to Decimal - try Double instead.
-                    var comp1 = Convert.ToDouble(val1);
-                    var comp2 = Convert.ToDouble(val2);
-                    return (comp1 >= comp2) ? val1 : val2;
+                    comp1 = Convert.ToDouble(val1);
+                    comp2 = Convert.ToDouble(val2);
                 }
+
+                return (comp1 >= comp2) ? val1 : val2;
             }
         }
 
@@ -982,20 +984,22 @@ namespace DotLiquid
             }
             catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException)
             {
-                // Not all combinations of types can be compared - try converting to Decimal
+                // Not all combinations of types can be compared dynamically
+                // - try converting to Decimal or Double if that fails
+                dynamic comp1;
+                dynamic comp2;
                 try
                 {
-                    var comp1 = Convert.ToDecimal(val1);
-                    var comp2 = Convert.ToDecimal(val2);
-                    return (comp1 <= comp2) ? val1 : val2;
+                    comp1 = Convert.ToDecimal(val1);
+                    comp2 = Convert.ToDecimal(val2);
                 }
                 catch (OverflowException)
                 {
-                    // Not all types can be converted to Decimal - try Double instead.
-                    var comp1 = Convert.ToDouble(val1);
-                    var comp2 = Convert.ToDouble(val2);
-                    return (comp1 <= comp2) ? val1 : val2;
+                    comp1 = Convert.ToDouble(val1);
+                    comp2 = Convert.ToDouble(val2);
                 }
+
+                return (comp1 <= comp2) ? val1 : val2;
             }
         }
 

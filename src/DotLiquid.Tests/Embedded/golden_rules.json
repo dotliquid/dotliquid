@@ -4,9 +4,7 @@
         "filters, find index,", // not yet implemented
         "filters, has,", // not yet implemented
         "filters, reject,", // not yet implemented
-        "filters, replace last,", // not yet implemented
         "filters, sum,", // not yet implemented
-        "filters, truncatewords,", // implemented as truncate_words so these will fail for now
         "tags, doc,", // not yet implemented
         "tags, echo,", // not yet implemented
         "tags, inline comment,", // not yet implemented

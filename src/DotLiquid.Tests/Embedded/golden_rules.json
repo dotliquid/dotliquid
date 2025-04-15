@@ -83,6 +83,7 @@
         "filters, divided by, undefined argument",
         "filters, divided by, undefined left value",
         "filters, floor, undefined left value",
+        "filters, map, argument is explicit nil",
         "filters, map, undefined argument",
         "filters, minus, undefined argument",
         "filters, minus, undefined left value",

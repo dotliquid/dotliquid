@@ -32,7 +32,7 @@ namespace DotLiquid.Tests.Model
         public bool IsInvalid { get; set; }
 
         [JsonProperty("tags")]
-        public List<GoldenLiquidTag> Tags { get; set; }
+        public List<string> Tags { get; set; }
 
         public override string ToString()
         {

@@ -411,9 +411,9 @@ PaulGeorge",
             var hash = Hash.FromAnonymousObject(new
             {
                 ary = new[] {
-                    new Helpers.DataObject { PropAllowed = "a", PropDisallowed = "x" },
-                    new Helpers.DataObject { PropAllowed = "b", PropDisallowed = "y" },
-                    new Helpers.DataObject { PropAllowed = "c", PropDisallowed = "z" },
+                    new DataObject { PropAllowed = "a", PropDisallowed = "x" },
+                    new DataObject { PropAllowed = "b", PropDisallowed = "y" },
+                    new DataObject { PropAllowed = "c", PropDisallowed = "z" },
                 }
             });
 
@@ -423,9 +423,9 @@ PaulGeorge",
             hash = Hash.FromAnonymousObject(new
             {
                 ary = new[] {
-                    new Helpers.DataObjectDrop { Prop = "a" },
-                    new Helpers.DataObjectDrop { Prop = "b" },
-                    new Helpers.DataObjectDrop { Prop = "c" },
+                    new DataObjectDrop { Prop = "a" },
+                    new DataObjectDrop { Prop = "b" },
+                    new DataObjectDrop { Prop = "c" },
                 }
             });
 
@@ -444,7 +444,7 @@ PaulGeorge",
             Assert.That(StandardFilters.Map(new[] { new { a = 1 } }, "no_prop"), Is.EqualTo(nullObjectArray).AsCollection);
 
             // Drop
-            Assert.That(StandardFilters.Map(new[] { new Helpers.DataObjectDrop { Prop = "a" } }, "no_prop"), Is.EqualTo(nullObjectArray).AsCollection);
+            Assert.That(StandardFilters.Map(new[] { new DataObjectDrop { Prop = "a" } }, "no_prop"), Is.EqualTo(nullObjectArray).AsCollection);
 
             // Dictionary
             Assert.That(StandardFilters.Map(Hash.FromDictionary(new Dictionary<string, object>() { { "a", 1 } }), "no_prop"), Is.EqualTo(nullObjectArray).AsCollection);
@@ -463,8 +463,8 @@ PaulGeorge",
         {
             var hash = Hash.FromAnonymousObject(new
             {
-                safe = new[] { new Helpers.DataObjectRegistered { PropAllowed = "a", PropDisallowed = "x" } },
-                attr = new[] { new Helpers.DataObject { PropAllowed = "a", PropDisallowed = "x" } }
+                safe = new[] { new DataObjectRegistered { PropAllowed = "a", PropDisallowed = "x" } },
+                attr = new[] { new DataObject { PropAllowed = "a", PropDisallowed = "x" } }
             });
 
             Helper.AssertTemplateResult("", "{{ safe | map:'prop_disallowed' | join:'' }}", hash);

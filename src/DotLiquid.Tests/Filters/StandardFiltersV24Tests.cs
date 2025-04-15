@@ -2,7 +2,6 @@ using System;
 using System.Globalization;
 using DotLiquid.Tests.Helpers;
 using DotLiquid.Util;
-using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests.Filters

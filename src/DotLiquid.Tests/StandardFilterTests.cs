@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Dynamic;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
 using DotLiquid.NamingConventions;
+using DotLiquid.Tests.Helpers;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -11,6 +13,46 @@ namespace DotLiquid.Tests
     [TestFixture]
     public class StandardFilterTests
     {
+        #region Classes used in tests
+
+        private class Package : IIndexable, ILiquidizable
+        {
+            private readonly int numberOfPiecesPerPackage;
+
+            private readonly string test;
+
+            public Package(int numberOfPiecesPerPackage, string test)
+            {
+                this.numberOfPiecesPerPackage = numberOfPiecesPerPackage;
+                this.test = test;
+            }
+
+            public object this[object key] => key as string == "numberOfPiecesPerPackage"
+                ? this.numberOfPiecesPerPackage as object
+                : key as string == "test"
+                    ? test
+                    : null;
+
+            public bool ContainsKey(object key)
+            {
+                return new List<string> { nameof(numberOfPiecesPerPackage), nameof(test) }
+                    .Contains(key);
+            }
+
+            public object ToLiquid()
+            {
+                return this;
+            }
+        };
+
+        private class ProductDrop : Drop
+        {
+            public string Title { get; set; }
+            public string Type { get; set; }
+        }
+
+        #endregion
+
         private Context _contextV20;
         private Context _contextV20EnUS;
         private Context _contextV21;
@@ -369,9 +411,9 @@ PaulGeorge",
             var hash = Hash.FromAnonymousObject(new
             {
                 ary = new[] {
-                    new Helper.DataObject { PropAllowed = "a", PropDisallowed = "x" },
-                    new Helper.DataObject { PropAllowed = "b", PropDisallowed = "y" },
-                    new Helper.DataObject { PropAllowed = "c", PropDisallowed = "z" },
+                    new Helpers.DataObject { PropAllowed = "a", PropDisallowed = "x" },
+                    new Helpers.DataObject { PropAllowed = "b", PropDisallowed = "y" },
+                    new Helpers.DataObject { PropAllowed = "c", PropDisallowed = "z" },
                 }
             });
 
@@ -381,9 +423,9 @@ PaulGeorge",
             hash = Hash.FromAnonymousObject(new
             {
                 ary = new[] {
-                    new Helper.DataObjectDrop { Prop = "a" },
-                    new Helper.DataObjectDrop { Prop = "b" },
-                    new Helper.DataObjectDrop { Prop = "c" },
+                    new Helpers.DataObjectDrop { Prop = "a" },
+                    new Helpers.DataObjectDrop { Prop = "b" },
+                    new Helpers.DataObjectDrop { Prop = "c" },
                 }
             });
 
@@ -402,7 +444,7 @@ PaulGeorge",
             Assert.That(StandardFilters.Map(new[] { new { a = 1 } }, "no_prop"), Is.EqualTo(nullObjectArray).AsCollection);
 
             // Drop
-            Assert.That(StandardFilters.Map(new[] { new Helper.DataObjectDrop { Prop = "a" } }, "no_prop"), Is.EqualTo(nullObjectArray).AsCollection);
+            Assert.That(StandardFilters.Map(new[] { new Helpers.DataObjectDrop { Prop = "a" } }, "no_prop"), Is.EqualTo(nullObjectArray).AsCollection);
 
             // Dictionary
             Assert.That(StandardFilters.Map(Hash.FromDictionary(new Dictionary<string, object>() { { "a", 1 } }), "no_prop"), Is.EqualTo(nullObjectArray).AsCollection);
@@ -421,8 +463,8 @@ PaulGeorge",
         {
             var hash = Hash.FromAnonymousObject(new
             {
-                safe = new[] { new Helper.DataObjectRegistered { PropAllowed = "a", PropDisallowed = "x" } },
-                attr = new[] { new Helper.DataObject { PropAllowed = "a", PropDisallowed = "x" } }
+                safe = new[] { new Helpers.DataObjectRegistered { PropAllowed = "a", PropDisallowed = "x" } },
+                attr = new[] { new Helpers.DataObject { PropAllowed = "a", PropDisallowed = "x" } }
             });
 
             Helper.AssertTemplateResult("", "{{ safe | map:'prop_disallowed' | join:'' }}", hash);
@@ -528,36 +570,6 @@ PaulGeorge",
 }",
                 localVariables: hash);
         }
-
-        private class Package : IIndexable, ILiquidizable
-        {
-            private readonly int numberOfPiecesPerPackage;
-
-            private readonly string test;
-
-            public Package(int numberOfPiecesPerPackage, string test)
-            {
-                this.numberOfPiecesPerPackage = numberOfPiecesPerPackage;
-                this.test = test;
-            }
-
-            public object this[object key] => key as string == "numberOfPiecesPerPackage"
-                ? this.numberOfPiecesPerPackage as object
-                : key as string == "test"
-                    ? test
-                    : null;
-
-            public bool ContainsKey(object key)
-            {
-                return new List<string> { nameof(numberOfPiecesPerPackage), nameof(test) }
-                    .Contains(key);
-            }
-
-            public object ToLiquid()
-            {
-                return this;
-            }
-        };
 
         [Test]
         public void TestMapIndexable()
@@ -1717,12 +1729,6 @@ Cheapest products:
                 Assert.That(StandardFilters.Base64UrlSafeDecode(null), Is.EqualTo(string.Empty));
                 Assert.That(StandardFilters.Base64UrlSafeDecode(string.Empty), Is.EqualTo(string.Empty));
             });
-        }
-
-        private class ProductDrop : Drop
-        {
-            public string Title { get; set; }
-            public string Type { get; set; }
         }
     }
 }

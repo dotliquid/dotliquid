@@ -9,6 +9,8 @@ namespace DotLiquid.Tests
     [TestFixture]
     public class ExceptionHandlingTests
     {
+        #region Classes used in tests
+
         private class ExceptionDrop : Drop
         {
             public void ArgumentException()
@@ -26,6 +28,8 @@ namespace DotLiquid.Tests
                 throw new InterruptException("interrupted");
             }
         }
+
+        #endregion
 
         [Test]
         public void TestSyntaxException()

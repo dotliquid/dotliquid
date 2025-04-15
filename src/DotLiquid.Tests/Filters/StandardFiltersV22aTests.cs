@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using DotLiquid.Tests.Helpers;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests.Filters

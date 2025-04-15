@@ -87,7 +87,7 @@ namespace DotLiquid
                 var declaringTypes = duplicates.Select(d => d.DeclaringType)
                                                .ToList();
 
-                var mostDerived = declaringTypes.Single(t => !declaringTypes.Any(o => t.GetTypeInfo().IsAssignableFrom(o.GetTypeInfo()) && (o != t)));
+                var mostDerived = declaringTypes.Single(t => !declaringTypes.Any(o => t.IsAssignableFrom(o) && (o != t)));
 
                 foreach (var duplicate in duplicates)
                 {
@@ -248,7 +248,7 @@ namespace DotLiquid
     {
         internal override object GetObject() { return this; }
 
-        internal override TypeResolution CreateTypeResolution(Type type) { return new TypeResolution(type, mi => mi.DeclaringType.GetTypeInfo().BaseType != null && typeof(Drop).GetTypeInfo().IsAssignableFrom(mi.DeclaringType.GetTypeInfo().BaseType.GetTypeInfo())); }
+        internal override TypeResolution CreateTypeResolution(Type type) { return new TypeResolution(type, mi => mi.DeclaringType.BaseType != null && typeof(Drop).IsAssignableFrom(mi.DeclaringType.BaseType)); }
     }
 
     /// <summary>

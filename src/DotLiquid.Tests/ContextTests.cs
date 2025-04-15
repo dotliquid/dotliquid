@@ -331,8 +331,6 @@ namespace DotLiquid.Tests
         }
 #endif
 
-        private enum TestEnum { Yes, No }
-
         [Test]
         public void TestGetVariable_Enum()
         {

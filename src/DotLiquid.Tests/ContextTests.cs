@@ -377,7 +377,7 @@ namespace DotLiquid.Tests
         {
             Assert.DoesNotThrow(() => Template.Parse("{{ does_not_exist }}").Render(new RenderParameters(CultureInfo.InvariantCulture)
             {
-                RethrowErrors = true
+                ErrorsOutputMode = ErrorsOutputMode.Rethrow
             }));
         }
 

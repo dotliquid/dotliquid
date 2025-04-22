@@ -123,7 +123,10 @@ namespace DotLiquid
         public static Hash FromDictionary(IDictionary<string, object> dictionary)
         {
             var hash = new Hash();
-            hash.Merge(dictionary);
+            if (dictionary != null && dictionary.Count > 0)
+            {
+                hash.Merge(dictionary);
+            }
             return hash;
         }
 

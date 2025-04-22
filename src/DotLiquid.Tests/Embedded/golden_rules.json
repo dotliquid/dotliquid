@@ -38,6 +38,7 @@
         "filters, strip, right padded",
         "filters, strip newlines, reference implementation test 1",
         "filters, strip newlines, reference implementation test 2",
+        "filters, truncatewords, reference implementation test 3",
         // Default filter allow_false attribute is not yet implemented
         "filters, default, allow false",
         "filters, default, allow false from context",
@@ -97,6 +98,7 @@
         "filters, times, undefined argument",
         "filters, times, undefined left value",
         "filters, truncate, undefined first argument",
+        "filters, truncatewords, undefined first argument",
         "filters, where, both arguments are undefined",
         "filters, where, first argument is undefined",
         "filters, where, both arguments are undefined",

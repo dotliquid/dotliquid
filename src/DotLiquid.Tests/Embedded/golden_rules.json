@@ -111,7 +111,7 @@
         // Contains Not Implemented Tags/Filters
         "whitespace control, don't suppress whitespace only blocks containing echo",
         "tags, comment, comment inside liquid tag",
-        // Unclassified Failures
+        // Unsorted Exceptions
         "filters, compact, array of objects with key property",
         "filters, concat, left value is not array-like",
         "filters, concat, nested left value gets flattened",

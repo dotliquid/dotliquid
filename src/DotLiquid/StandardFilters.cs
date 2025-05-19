@@ -1059,13 +1059,15 @@ namespace DotLiquid
             // If propertyName is specified, expect a list of objects with a numeric property of the same name
             if (propertyName != null)
             {
-                IEnumerable<object> values = input.Cast<object>()
+                IEnumerable<object> propertyValues = input.Cast<object>()
                     .Select(source => source.ResolveObjectPropertyValue(propertyName));
-                return Sum(context, values);
+                return Sum(context, propertyValues);
             }
 
+            // Flatten values to handle nested arrays
             object sum = 0;
-            foreach (object value in input)
+            var values = input.Flatten().Cast<object>();
+            foreach (object value in values)
             {
                 if (value != null)
                 {

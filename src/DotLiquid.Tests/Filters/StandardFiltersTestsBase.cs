@@ -343,6 +343,13 @@ namespace DotLiquid.Tests.Filters
         public void TestSum_Numeric()
         {
             int[] intArray = new int[] { 1, 2, 3, 4, 5 };
+            object[] nestedArray = new object[] {
+                1, new object[] {
+                    2, 3, new object[] {
+                        4, 5
+                    }
+                }
+            };
             decimal[] decimalArray = new decimal[] { 1.1m, 2.2m, 3.3m, 4.4m, 5.5m };
             string[] stringArray = new string[] { "1", "2", "-3", (4.4).ToString(_context.CurrentCulture), (5.1).ToString(_context.CurrentCulture) };
             object[] mixedArray = new object[] {
@@ -353,6 +360,7 @@ namespace DotLiquid.Tests.Filters
             };
 
             Assert.That(Sum(intArray), Is.EqualTo(15));
+            Assert.That(Sum(nestedArray), Is.EqualTo(15));
             Assert.That(Sum(decimalArray), Is.EqualTo(16.5m));
             Assert.That(Sum(stringArray), Is.EqualTo(9.5));
             Assert.That(Sum(mixedArray), Is.EqualTo(12m));

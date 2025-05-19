@@ -93,7 +93,7 @@ namespace DotLiquid
         [LiquidFilter(MaxVersion = SyntaxCompatibility.DotLiquid22a)]
         public static IEnumerable Concat(IEnumerable left, IEnumerable right)
         {
-            // If either side is null, return the other side flattened.
+            // If either side is null, return the other side.
             if (left == null)
                 return right;
             else if (right == null)

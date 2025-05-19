@@ -293,7 +293,7 @@ namespace DotLiquid
             var culture = languageTag == null ? context.CurrentCulture : new CultureInfo(languageTag.Trim());
 
             // Attempt to convert to a currency using the context current culture.
-            if (IsReal(input))
+            if (NumericConverter.IsReal(input))
                 return Convert.ToDecimal(input).ToString("C", culture);
             if (decimal.TryParse(input.ToString(), NumberStyles.Currency, context.CurrentCulture, out decimal amount))
                 return amount.ToString("C", culture);
@@ -644,10 +644,10 @@ namespace DotLiquid
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="operand">Number to be added to input</param>
-        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid21)]
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object Plus(Context context, object input, object operand)
         {
-            return DoMathsOperation(context, input, operand, Expression.AddChecked);
+            return StandardFilters.DoMathsOperation(context, input, operand, Expression.AddChecked);
         }
 
         /// <summary>
@@ -656,9 +656,10 @@ namespace DotLiquid
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="operand">Number to be subtracted from input</param>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object Minus(Context context, object input, object operand)
         {
-            return DoMathsOperation(context, input, operand, Expression.SubtractChecked);
+            return StandardFilters.DoMathsOperation(context, input, operand, Expression.SubtractChecked);
         }
 
         /// <summary>
@@ -667,27 +668,40 @@ namespace DotLiquid
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="operand">Number to multiple input by</param>
-        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid21)]
-        public static object Times(Context context, object input, object operand) => DoMathsOperation(context, input, operand, Expression.MultiplyChecked);
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
+        public static object Times(Context context, object input, object operand)
+        {
+            return StandardFilters.DoMathsOperation(context, input, operand, Expression.MultiplyChecked);
+        }
 
         /// <summary>
         /// Rounds a decimal value to the specified places
         /// </summary>
+        /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="places">Number of decimal places for rounding</param>
-        /// <returns>The rounded value; null if an exception have occurred</returns>
-        public static object Round(object input, object places = null)
+        /// <returns>The rounded value; zero if input is invalid, or rounded to 0 decimals if places is invalid</returns>
+        /// <remarks>Behaviour differs from Ruby implementation for negative places values.
+        /// This will treat it as any other invalid places value, and round to closest integer.</remarks>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
+        public static object Round(Context context, object input, object places = null)
         {
-            try
+            // Math.Round can handle at most 28 decimals, so clamp places into [0, 28].
+            var placesValue = Convert.ToDouble(NumericConverter.CoerceToNumericType(places, context.FormatProvider, 0.0));
+#if NET6_0_OR_GREATER
+            int decimals = (int)Math.Clamp(placesValue, 0, 28);
+#else
+            int decimals = (int)Math.Max(0, Math.Min(28, placesValue));
+#endif
+
+            dynamic inputValue = NumericConverter.CoerceToNumericType(input, context.FormatProvider, 0);
+            if (NumericConverter.IsReal(inputValue))
             {
-                var p = places == null ? 0 : Convert.ToInt32(places);
-                var i = Convert.ToDecimal(input);
-                return Math.Round(i, p);
+                return Math.Round(inputValue, decimals);
             }
-            catch (Exception)
-            {
-                return null;
-            }
+
+            // inputValue is an integer already.
+            return inputValue;
         }
 
         /// <summary>
@@ -695,13 +709,18 @@ namespace DotLiquid
         /// </summary>
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
-        /// <returns>The rounded value; null if an exception have occurred</returns>
+        /// <returns>The rounded value; zero if an exception has occurred</returns>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object Ceil(Context context, object input)
         {
-            if (decimal.TryParse(input.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
-                return Math.Ceiling(d);
-            else
-                return null;
+            dynamic inputValue = NumericConverter.CoerceToNumericType(input, context.FormatProvider, 0);
+            if (NumericConverter.IsReal(inputValue))
+            {
+                return Math.Ceiling(inputValue);
+            }
+
+            // inputValue is an integer already.
+            return inputValue;
         }
 
         /// <summary>
@@ -709,13 +728,18 @@ namespace DotLiquid
         /// </summary>
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
-        /// <returns>The rounded value; null if an exception have occurred</returns>
+        /// <returns>The rounded value; zero if an exception has occurred</returns>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object Floor(Context context, object input)
         {
-            if (decimal.TryParse(input.ToString(), NumberStyles.Any, context.CurrentCulture, out decimal d))
-                return Math.Floor(d);
-            else
-                return null;
+            dynamic inputValue = NumericConverter.CoerceToNumericType(input, context.FormatProvider, 0);
+            if (NumericConverter.IsReal(inputValue))
+            {
+                return Math.Floor(inputValue);
+            }
+
+            // inputValue is an integer already.
+            return inputValue;
         }
 
         /// <summary>
@@ -724,9 +748,12 @@ namespace DotLiquid
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="operand">Number to divide input by</param>
+        /// <returns>The result of the division of the same type as the divisor.</returns>
+        /// <remarks>If you divide by an integer, the result will be an integer, and if you divide by a float, the result will be a float.</remarks>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object DividedBy(Context context, object input, object operand)
         {
-            return DoMathsOperation(context, input, operand, Expression.Divide);
+            return StandardFilters.DoMathsOperation(context, input, operand, Expression.Divide);
         }
 
         /// <summary>
@@ -735,9 +762,10 @@ namespace DotLiquid
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="operand">Number to divide input by</param>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object Modulo(Context context, object input, object operand)
         {
-            return DoMathsOperation(context, input, operand, Expression.Modulo);
+            return StandardFilters.DoMathsOperation(context, input, operand, Expression.Modulo);
         }
 
         /// <summary>
@@ -750,24 +778,94 @@ namespace DotLiquid
             return !string.IsNullOrWhiteSpace(input) ? input : defaultValue;
         }
 
-        private static bool IsReal(object o) => o is double || o is float || o is decimal;
-
-        internal static object DoMathsOperation(Context context, object input, object operand, Func<Expression, Expression, BinaryExpression> operation)
+        private static object DoMathsOperation(Context context, object input, object operand, Func<Expression, Expression, BinaryExpression> operation)
         {
-            if (input == null || operand == null)
-                return null;
+            input = NumericConverter.CoerceToNumericType(input, context.FormatProvider, 0);
+            operand = NumericConverter.CoerceToNumericType(operand, context.FormatProvider, 0);
 
-            // NOTE(David Burg): Try for maximal precision if the input and operand fit the decimal's range.
-            // This avoids rounding errors in financial arithmetic.
-            // E.g.: 0.1 | Plus 10 | Minus 10 to remain 0.1, not 0.0999999999999996
-            // Otherwise revert to maximum range (possible precision loss).
-            var shouldConvertStrings = context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21 && ((input is string) || (operand is string));
-            if (IsReal(input) || IsReal(operand) || shouldConvertStrings)
+            // Hold on to these values to prevent multiple type conversions
+            var initialInput = input;
+            var initialOperand = operand;
+
+            try
             {
+                // NOTE(David Burg): Try for maximal precision if the input and operand fit the decimal's range.
+                // This avoids rounding errors in financial arithmetic.
+                // E.g.: 0.1 | Plus 10 | Minus 10 to remain 0.1, not 0.0999999999999996
+                // Otherwise revert to maximum range (possible precision loss).
+                if (NumericConverter.IsReal(input) || NumericConverter.IsReal(operand))
+                {
+                    try
+                    {
+                        input = Convert.ToDecimal(input);
+                        operand = Convert.ToDecimal(operand);
+                    }
+                    catch (OverflowException)
+                    {
+                        input = Convert.ToDouble(initialInput);
+                        operand = Convert.ToDouble(initialOperand);
+                    }
+                }
+
                 try
                 {
-                    input = Convert.ToDecimal(input);
-                    operand = Convert.ToDecimal(operand);
+                    // NOTE(Rodney Richardson): Operators are not defined when input and operand are
+                    // both Byte or both SByte and will cause an InvalidOperationException to be thrown.
+                    // Promote types now to avoid the exception.
+                    if ((input is byte && operand is byte) ||
+                        (input is sbyte && operand is sbyte))
+                    {
+                        var promotedType = NumericConverter.NumericTypePromotions[input.GetType()][0];
+                        input = Convert.ChangeType(input, promotedType);
+                        operand = Convert.ChangeType(operand, promotedType);
+                    }
+
+                    // Try to invoke the operation
+                    return ExpressionUtility
+                        .CreateExpression(
+                            body: operation,
+                            leftType: input.GetType(),
+                            rightType: operand.GetType())
+                        .DynamicInvoke(input, operand);
+                }
+                catch (TargetInvocationException ex) when (ex.InnerException is OverflowException)
+                {
+                    // Real types have already been converted to the same type, so we only have to check one.
+                    if (NumericConverter.IsReal(input))
+                    {
+                        // Promote Decimal to Double, as Single may have an overflow without throwing an exception
+                        input = Convert.ToDouble(initialInput);
+                        operand = Convert.ToDouble(initialOperand);
+                    }
+                    else
+                    {
+                        // Promote integers to the next larger type to handle the overflow
+                        input = Convert.ChangeType(input, NumericConverter.NumericTypePromotions[input.GetType()][0]);
+                        operand = Convert.ChangeType(operand, NumericConverter.NumericTypePromotions[operand.GetType()][0]);
+                    }
+                }
+                catch (TargetInvocationException ex) when (ex.InnerException is DivideByZeroException)
+                {
+                    // Retry as Double which handles division by zero
+                    input = Convert.ToDouble(initialInput);
+                    operand = Convert.ToDouble(initialOperand);
+                }
+
+                try
+                {
+                    // Retry with a different type
+                    return ExpressionUtility
+                        .CreateExpression(
+                            body: operation,
+                            leftType: input.GetType(),
+                            rightType: operand.GetType())
+                        .DynamicInvoke(input, operand);
+                }
+                catch (TargetInvocationException ex) when (ex.InnerException is OverflowException)
+                {
+                    // Retry as Double as a last resort
+                    input = Convert.ToDouble(initialInput);
+                    operand = Convert.ToDouble(initialOperand);
 
                     return ExpressionUtility
                         .CreateExpression(
@@ -776,21 +874,6 @@ namespace DotLiquid
                             rightType: operand.GetType())
                         .DynamicInvoke(input, operand);
                 }
-                catch (Exception ex) when (ex is OverflowException || ex is DivideByZeroException || (ex is TargetInvocationException && (ex?.InnerException is OverflowException || ex?.InnerException is DivideByZeroException)))
-                {
-                    input = Convert.ToDouble(input);
-                    operand = Convert.ToDouble(operand);
-                }
-            }
-
-            try
-            {
-                return ExpressionUtility
-                    .CreateExpression(
-                        body: operation,
-                        leftType: input.GetType(),
-                        rightType: operand.GetType())
-                    .DynamicInvoke(input, operand);
             }
             catch (TargetInvocationException ex)
             {
@@ -827,10 +910,23 @@ namespace DotLiquid
         /// </summary>
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
-        public static double Abs(Context context, object input)
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
+        public static object Abs(Context context, object input)
         {
-            Double n;
-            return Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n) ? Math.Abs(n) : 0;
+            dynamic value = NumericConverter.CoerceToNumericType(input, context.FormatProvider, 0);
+            if (value >= 0)
+            {
+                return value;
+            }
+
+            // Multiply by -1 to get the absolute value.
+            // (-1 * value) doesn't work for MinValue of signed integers, so use Times instead.
+            if (NumericConverter.IsInteger(value))
+            {
+                return StandardFilters.Times(context, value, -1);
+            }
+
+            return (-1 * value);
         }
 
         /// <summary>
@@ -839,21 +935,34 @@ namespace DotLiquid
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="atLeast">Value to apply if more than input</param>
+        /// <returns>The larger of the input values.</returns>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object AtLeast(Context context, object input, object atLeast)
         {
-            double n;
-            var inputNumber = Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
-
-            double min;
-            var atLeastNumber = Double.TryParse(atLeast.ToString(), NumberStyles.Number, context.CurrentCulture, out min);
-
-            if (inputNumber && atLeastNumber)
+            dynamic val1 = NumericConverter.CoerceToNumericType(input, context.FormatProvider, 0);
+            dynamic val2 = NumericConverter.CoerceToNumericType(atLeast, context.FormatProvider, 0);
+            try
             {
-                return (double)((double)min > (double)n ? min : n);
+                return (val1 >= val2) ? val1 : val2;
             }
-            else
+            catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException)
             {
-                return input;
+                // Not all combinations of types can be compared dynamically
+                // - try converting to Decimal or Double if that fails
+                dynamic comp1;
+                dynamic comp2;
+                try
+                {
+                    comp1 = Convert.ToDecimal(val1);
+                    comp2 = Convert.ToDecimal(val2);
+                }
+                catch (OverflowException)
+                {
+                    comp1 = Convert.ToDouble(val1);
+                    comp2 = Convert.ToDouble(val2);
+                }
+
+                return (comp1 >= comp2) ? val1 : val2;
             }
         }
 
@@ -863,21 +972,34 @@ namespace DotLiquid
         /// <param name="context">The DotLiquid context</param>
         /// <param name="input">Input to be transformed by this filter</param>
         /// <param name="atMost">Value to apply if less than input</param>
+        /// <returns>The smaller of the input values.</returns>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static object AtMost(Context context, object input, object atMost)
         {
-            double n;
-            var inputNumber = Double.TryParse(input.ToString(), NumberStyles.Number, context.CurrentCulture, out n);
-
-            double max;
-            var atMostNumber = Double.TryParse(atMost.ToString(), NumberStyles.Number, context.CurrentCulture, out max);
-
-            if (inputNumber && atMostNumber)
+            dynamic val1 = NumericConverter.CoerceToNumericType(input, context.FormatProvider, 0);
+            dynamic val2 = NumericConverter.CoerceToNumericType(atMost, context.FormatProvider, 0);
+            try
             {
-                return (double)((double)max < (double)n ? max : n);
+                return (val1 <= val2) ? val1 : val2;
             }
-            else
+            catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException)
             {
-                return input;
+                // Not all combinations of types can be compared dynamically
+                // - try converting to Decimal or Double if that fails
+                dynamic comp1;
+                dynamic comp2;
+                try
+                {
+                    comp1 = Convert.ToDecimal(val1);
+                    comp2 = Convert.ToDecimal(val2);
+                }
+                catch (OverflowException)
+                {
+                    comp1 = Convert.ToDouble(val1);
+                    comp2 = Convert.ToDouble(val2);
+                }
+
+                return (comp1 <= comp2) ? val1 : val2;
             }
         }
 
@@ -920,6 +1042,44 @@ namespace DotLiquid
                 throw new ArgumentNullException(paramName: nameof(propertyName), message: $"'{nameof(propertyName)}' cannot be null or empty.");
 
             return input.Cast<object>().Where(source => source.HasMatchingProperty(propertyName, targetValue));
+        }
+
+        /// <summary>
+        /// Sums all items in an array. If <paramref name="propertyName"/> is supplied, it sums the property values./> 
+        /// </summary>
+        /// <param name="context">The DotLiquid context</param>
+        /// <param name="input">An array of numerics values, or objects with a numeric property, to be summed.</param>
+        /// <param name="propertyName">The name of a numeric property to sum. </param>
+        /// <returns>The sum of the input values.</returns>
+        public static object Sum(Context context, IEnumerable input, string propertyName=null)
+        {
+            if (input == null)
+                return 0;
+
+            // If propertyName is specified, expect a list of objects with a numeric property of the same name
+            if (propertyName != null)
+            {
+                IEnumerable<object> propertyValues = input.Cast<object>()
+                    .Select(source => source.ResolveObjectPropertyValue(propertyName));
+                return Sum(context, propertyValues);
+            }
+
+            // Flatten values to handle nested arrays
+            object sum = 0;
+            var values = input.Flatten().Cast<object>();
+            foreach (object value in values)
+            {
+                if (value != null)
+                {
+                    dynamic valueToAdd = NumericConverter.CoerceToNumericType(value, context.FormatProvider, 0);
+                    if (valueToAdd != 0)
+                    {
+                        sum = StandardFilters.DoMathsOperation(context, sum, (object)valueToAdd, Expression.AddChecked);
+                    }
+                }
+            }
+
+            return sum;
         }
 
         /// <summary>
@@ -976,19 +1136,31 @@ namespace DotLiquid
         /// <remarks>
         /// Will not remove duplicate entries from the concatenated array
         /// unless you also use the uniq filter.
+        /// Will flatten the arrays before concatenating them.
         /// </remarks>
         /// <param name="left">left hand (start) of the new concatenated array</param>
         /// <param name="right">array to be appended to left</param>
         /// <see href="https://shopify.github.io/liquid/filters/concat/"/>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static IEnumerable Concat(IEnumerable left, IEnumerable right)
         {
-            // If either side is null, return the other side.
-            if (left == null)
-                return right;
-            else if (right == null)
-                return left;
+            // If either side is null, return the other side flattened.
+            if (left == null && right == null)
+                return null;
 
-            return left.Cast<object>().ToList().Concat(right.Cast<object>());
+            // Don't treat strings as char arrays
+            if (left is String)
+                left = new List<object> { left };
+            if (right is String)
+                right = new List<object> { right };
+
+            // If either side is null, return the other side flattened.
+            if (left == null)
+                return right.Flatten();
+            else if (right == null)
+                return left.Flatten();
+
+            return left.Flatten().Cast<object>().Concat(right.Flatten().Cast<object>());
         }
 
         /// <summary>

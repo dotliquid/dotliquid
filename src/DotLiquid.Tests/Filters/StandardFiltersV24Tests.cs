@@ -2,7 +2,6 @@ using System;
 using System.Globalization;
 using DotLiquid.Tests.Helpers;
 using DotLiquid.Util;
-using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests.Filters
@@ -13,6 +12,7 @@ namespace DotLiquid.Tests.Filters
         public override IFormatProvider FormatProvider => CultureInfo.InvariantCulture;
         public override SyntaxCompatibility SyntaxCompatibilityLevel => SyntaxCompatibility.DotLiquid24;
         public override CapitalizeDelegate Capitalize => i => StandardFilters.Capitalize(i);
+        public override ConcatDelegate Concat => (l, r) => StandardFilters.Concat(l, r);
         public override MathDelegate DividedBy => (i, o) => StandardFilters.DividedBy(_context, i, o);
         public override MathDelegate Plus => (i, o) => StandardFilters.Plus(_context, i, o);
         public override MathDelegate Minus => (i, o) => StandardFilters.Minus(_context, i, o);
@@ -38,6 +38,48 @@ namespace DotLiquid.Tests.Filters
         };
 
         [Test]
+        public void TestConcat_Nested()
+        {
+            object[] nestedArray = new object[] {
+                "a",
+                new object[] {
+                    "b",
+                    "c",
+                    new object[] {
+                        "d",
+                        "e"
+                    }
+                },
+            };
+            string[] stringArray = new string[] { "x", "y", "z" };
+
+            string[] flattenedArray = new string[] { "a", "b", "c", "d", "e" };
+            string[] nestedThenStringArray = new string[] { "a", "b", "c", "d", "e", "x", "y", "z" };
+            string[] stringThenNestedArray = new string[] { "x", "y", "z", "a", "b", "c", "d", "e" };
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(Concat(nestedArray, stringArray), Is.EquivalentTo(nestedThenStringArray));
+                Assert.That(Concat(stringArray, nestedArray), Is.EquivalentTo(stringThenNestedArray));
+
+                Assert.That(Concat(nestedArray, null), Is.EquivalentTo(flattenedArray));
+                Assert.That(Concat(null, nestedArray), Is.EquivalentTo(flattenedArray));
+                Assert.That(Concat(null, null), Is.Null);
+            });
+        }
+
+        [Test]
+        public void TestConcat_String()
+        {
+            string string1 = "abc";
+            string string2 = "def";
+            string[] stringArray = new string[] { "x", "y", "z" };
+
+            Assert.That(Concat(string1, string2), Is.EquivalentTo(new object[] { "abc", "def" }));
+            Assert.That(Concat(string1, stringArray), Is.EquivalentTo(new object[] { "abc", "x", "y", "z" }));
+        }
+
+        [Test]
         [TestCaseSource(typeof(NumericHelper), nameof(NumericHelper.GetNumericTypeCombinations))]
         public void TestDividedByTypeCombinations(ValueTuple<Type, Type> types)
         {
@@ -46,15 +88,21 @@ namespace DotLiquid.Tests.Filters
             var val1 = Convert.ChangeType(2, t1);
             var val2 = Convert.ChangeType(2, t2);
 
-            Assert.That(DividedBy(val1, val2), Is.EqualTo(1));
-            Assert.That(DividedBy(val2, val1), Is.EqualTo(1));
+            Assert.Multiple(() =>
+            {
+                Assert.That(DividedBy(val1, val2), Is.EqualTo(1));
+                Assert.That(DividedBy(val2, val1), Is.EqualTo(1));
+            });
         }
 
         [Test]
         public void TestDividedByStringIsParsed()
         {
-            Assert.That(DividedBy(input: "12", operand: 3), Is.EqualTo(4));
-            Assert.That(DividedBy(input: 12, operand: "3"), Is.EqualTo(4));
+            Assert.Multiple(() =>
+            {
+                Assert.That(DividedBy(input: "12", operand: 3), Is.EqualTo(4));
+                Assert.That(DividedBy(input: 12, operand: "3"), Is.EqualTo(4));
+            });
         }
 
         [Test]
@@ -86,8 +134,11 @@ namespace DotLiquid.Tests.Filters
             var val1 = Convert.ChangeType(2, t1);
             var val2 = Convert.ChangeType(2, t2);
 
-            Assert.That(Minus(val1, val2), Is.EqualTo(0));
-            Assert.That(Minus(val2, val1), Is.EqualTo(0));
+            Assert.Multiple(() =>
+            {
+                Assert.That(Minus(val1, val2), Is.EqualTo(0));
+                Assert.That(Minus(val2, val1), Is.EqualTo(0));
+            });
         }
 
         [Test]
@@ -99,8 +150,11 @@ namespace DotLiquid.Tests.Filters
             var val1 = Convert.ChangeType(2, t1);
             var val2 = Convert.ChangeType(2, t2);
 
-            Assert.That(Modulo(val1, val2), Is.EqualTo(0));
-            Assert.That(Modulo(val2, val1), Is.EqualTo(0));
+            Assert.Multiple(() =>
+            {
+                Assert.That(Modulo(val1, val2), Is.EqualTo(0));
+                Assert.That(Modulo(val2, val1), Is.EqualTo(0));
+            });
         }
 
         [Test]

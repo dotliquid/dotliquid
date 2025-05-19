@@ -1136,19 +1136,31 @@ namespace DotLiquid
         /// <remarks>
         /// Will not remove duplicate entries from the concatenated array
         /// unless you also use the uniq filter.
+        /// Will flatten the arrays before concatenating them.
         /// </remarks>
         /// <param name="left">left hand (start) of the new concatenated array</param>
         /// <param name="right">array to be appended to left</param>
         /// <see href="https://shopify.github.io/liquid/filters/concat/"/>
+        [LiquidFilter(MinVersion = SyntaxCompatibility.DotLiquid24)]
         public static IEnumerable Concat(IEnumerable left, IEnumerable right)
         {
-            // If either side is null, return the other side.
-            if (left == null)
-                return right;
-            else if (right == null)
-                return left;
+            // If either side is null, return the other side flattened.
+            if (left == null && right == null)
+                return null;
 
-            return left.Cast<object>().ToList().Concat(right.Cast<object>());
+            // Don't treat strings as char arrays
+            if (left is String)
+                left = new List<object> { left };
+            if (right is String)
+                right = new List<object> { right };
+
+            // If either side is null, return the other side flattened.
+            if (left == null)
+                return right.Flatten();
+            else if (right == null)
+                return left.Flatten();
+
+            return left.Flatten().Cast<object>().Concat(right.Flatten().Cast<object>());
         }
 
         /// <summary>

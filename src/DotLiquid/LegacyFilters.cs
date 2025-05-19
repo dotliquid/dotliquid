@@ -80,6 +80,29 @@ namespace DotLiquid
         public static string CapitalizeV21(string input) => ExtendedFilters.UpcaseFirst(input);
 
         /// <summary>
+        /// Concatenates (joins together) multiple arrays.
+        /// The resulting array contains all the items from the input arrays.
+        /// </summary>
+        /// <remarks>
+        /// Will not remove duplicate entries from the concatenated array
+        /// unless you also use the uniq filter.
+        /// </remarks>
+        /// <param name="left">left hand (start) of the new concatenated array</param>
+        /// <param name="right">array to be appended to left</param>
+        /// <see href="https://shopify.github.io/liquid/filters/concat/"/>
+        [LiquidFilter(MaxVersion = SyntaxCompatibility.DotLiquid22a)]
+        public static IEnumerable Concat(IEnumerable left, IEnumerable right)
+        {
+            // If either side is null, return the other side flattened.
+            if (left == null)
+                return right;
+            else if (right == null)
+                return left;
+
+            return left.Cast<object>().ToList().Concat(right.Cast<object>());
+        }
+
+        /// <summary>
         /// Sort elements of the array
         /// </summary>
         /// <param name="input">The object to sort</param>

@@ -14,6 +14,7 @@ namespace DotLiquid.Tests.Filters
         public abstract IFormatProvider FormatProvider { get; }
         public abstract SyntaxCompatibility SyntaxCompatibilityLevel { get; }
         public abstract CapitalizeDelegate Capitalize { get; }
+        public abstract ConcatDelegate Concat { get; }
         public abstract MathDelegate DividedBy { get; }
         public abstract MathDelegate Plus { get; }
         public abstract MathDelegate Minus { get; }
@@ -34,6 +35,7 @@ namespace DotLiquid.Tests.Filters
         public abstract TruncateWordsDelegate TruncateWords { get; }
 
         public delegate string CapitalizeDelegate(string input);
+        public delegate IEnumerable ConcatDelegate(IEnumerable left, IEnumerable right);
         public delegate object MathDelegate(object input, object operand);
         public delegate string RemoveFirstDelegate(string input, string @string);
         public delegate string ReplaceDelegate(string input, string @string, string replacement);
@@ -65,6 +67,22 @@ namespace DotLiquid.Tests.Filters
                 Assert.That(Capitalize(input: null), Is.EqualTo(null));
                 Assert.That(Capitalize(input: ""), Is.EqualTo(""));
                 Assert.That(Capitalize(input: " "), Is.EqualTo(" "));
+            });
+        }
+
+        [Test]
+        public void TestConcat()
+        {
+            var array1 = new String[] { "one", "two" };
+            var array2 = new String[] { "alpha", "bravo" };
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(Concat(null, null), Is.EqualTo(null));
+                Assert.That(Concat(array1, null), Is.EqualTo(array1).AsCollection);
+                Assert.That(Concat(null, array1), Is.EqualTo(array1).AsCollection);
+                Assert.That(Concat(array1, array2), Is.EqualTo(new[] { "one", "two", "alpha", "bravo" }).AsCollection);
+                Assert.That(Concat(new[] { 1, 2 }, new[] { 3, 4 }), Is.EqualTo(new[] { 1, 2, 3, 4 }).AsCollection);
             });
         }
 

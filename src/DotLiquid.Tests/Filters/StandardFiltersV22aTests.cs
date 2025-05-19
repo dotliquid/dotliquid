@@ -10,6 +10,7 @@ namespace DotLiquid.Tests.Filters
         public override IFormatProvider FormatProvider => CultureInfo.InvariantCulture;
         public override SyntaxCompatibility SyntaxCompatibilityLevel => SyntaxCompatibility.DotLiquid22a;
         public override CapitalizeDelegate Capitalize => i => StandardFilters.Capitalize(i);
+        public override ConcatDelegate Concat => (l, r) => LegacyFilters.Concat(l, r);
         public override MathDelegate DividedBy => (i, o) => LegacyFilters.DividedBy(_context, i, o);
         public override MathDelegate Plus => (i, o) => LegacyFilters.PlusV21(_context, i, o);
         public override MathDelegate Minus => (i, o) => LegacyFilters.Minus(_context, i, o);
@@ -39,6 +40,56 @@ namespace DotLiquid.Tests.Filters
         {
             Assert.That(ReplaceFirst(input: "a a a a", @string: null, replacement: "b"), Is.EqualTo("a a a a"));
             Assert.That(ReplaceFirst(input: "a a a a", @string: "", replacement: "b"), Is.EqualTo("a a a a"));
+        }
+
+        [Test]
+        public void TestConcat_Nested()
+        {
+            object[] nestedArray = new object[] {
+                "a",
+                new object[] {
+                    "b",
+                    "c",
+                    new object[] {
+                        "d",
+                        "e"
+                    }
+                },
+            };
+            string[] stringArray = new string[] { "x", "y", "z" };
+
+            object[] nestedThenStringArray = new object[] {
+                "a",
+                new object[] { "b", "c", new object[] { "d", "e" } },
+                "x",
+                "y",
+                "z"
+            };
+            object[] stringThenNestedArray = new object[] {
+                "x",
+                "y",
+                "z",
+                "a",
+                new object[] { "b", "c", new object[] { "d", "e" } },
+            };
+
+            Assert.That(Concat(nestedArray, stringArray), Is.EquivalentTo(nestedThenStringArray));
+            Assert.That(Concat(stringArray, nestedArray), Is.EquivalentTo(stringThenNestedArray));
+
+            Assert.That(Concat(nestedArray, null), Is.EqualTo(nestedArray));
+            Assert.That(Concat(null, nestedArray), Is.EqualTo(nestedArray));
+            Assert.That(Concat(null, null), Is.Null);
+        }
+
+        [Test]
+        public void TestConcat_String()
+        {
+            string string1 = "abc";
+            string string2 = "def";
+            string[] stringArray = new string[] { "x", "y", "z" };
+
+            Assert.That(Concat(string1, string2), Is.EquivalentTo(new object[] { 'a', 'b', 'c', 'd', 'e', 'f' }));
+            Assert.That(Concat(string1, stringArray), Is.EquivalentTo(new object[] { 'a', 'b', 'c', "x", "y", "z" }));
         }
 
         [Test]

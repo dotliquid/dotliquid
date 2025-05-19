@@ -1546,19 +1546,6 @@ Cheapest products:
         }
 
         [Test]
-        public void TestConcat()
-        {
-            var array1 = new String[] { "one", "two" };
-            var array2 = new String[] { "alpha", "bravo" };
-
-            Assert.That(StandardFilters.Concat(null, null), Is.EqualTo(null));
-            Assert.That(StandardFilters.Concat(array1, null), Is.EqualTo(array1).AsCollection);
-            Assert.That(StandardFilters.Concat(null, array1), Is.EqualTo(array1).AsCollection);
-            Assert.That(StandardFilters.Concat(array1, array2), Is.EqualTo(new[] { "one", "two", "alpha", "bravo" }).AsCollection);
-            Assert.That(StandardFilters.Concat(new[] { 1, 2 }, new[] { 3, 4 }), Is.EqualTo(new[] { 1, 2, 3, 4 }).AsCollection);
-        }
-
-        [Test]
         public void TestConcat_LiquidSample_SingleFilter()
         {
             Helper.AssertTemplateResult(

@@ -47,9 +47,7 @@
         // Non-integer arguments for numeric methods
         "liquid.golden.range_objects - end is not a number",
         "liquid.golden.range_objects - start is not a number",
-
         // Undefined Arguments
-        "liquid.golden.concat_filter - undefined argument is an error",
         "liquid.golden.map_filter - undefined argument",
         "liquid.golden.remove_filter - undefined argument",
         "liquid.golden.replace_filter - undefined first argument",
@@ -72,8 +70,6 @@
         "liquid.golden.whitespace_control - don't suppress whitespace only blocks containing echo",
         // Unsorted Exceptions
         "liquid.golden.compact_filter - array of objects with key property",
-        "liquid.golden.concat_filter - left value is not array-like",
-        "liquid.golden.concat_filter - nested left value gets flattened",
         "liquid.golden.default_filter - empty array",
         "liquid.golden.default_filter - empty object",
         "liquid.golden.default_filter - empty",
@@ -170,7 +166,7 @@
         "liquid.golden.whitespace_control - suppress whitespace surrounding an empty capture block"
     ],
     "alternate_test_expectations": {
-        // DotLiquid allows strings, and treats invalid values as zero
+        // DotLiquid converts strings to numeric, and treats invalid values as zero
         "liquid.golden.divided_by_filter - arg string not a number": "∞",
         "liquid.golden.divided_by_filter - divied by zero": "∞",
         "liquid.golden.divided_by_filter - float division": "2.8571428571428571428571428571",
@@ -188,6 +184,8 @@
         "liquid.golden.plus_filter - integer value and float arg": "12",
         "liquid.golden.plus_filter - string not a number": "2",
         "liquid.golden.round_filter - argument is a negative": "6",
+        // DotLiquid treats undefined arguments as null
+        "liquid.golden.concat_filter - undefined argument is an error": "a#b",
         // With Rails/ActiveSupport these work similar to DotLiquid
         "liquid.golden.first_filter - first of a string": "h",
         "liquid.golden.last_filter - last of a string": "o",

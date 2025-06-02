@@ -77,13 +77,13 @@ namespace DotLiquid.Tests
             Assert.That(template.Render(new RenderParameters(CultureInfo.InvariantCulture)
             {
                 LocalVariables = assigns,
-                RethrowErrors = true
+                ErrorsOutputMode = ErrorsOutputMode.Rethrow
             }), Is.EqualTo("Hello Tobi"));
             assigns.Remove("test");
             Exception ex = Assert.Throws<Exception>(() => template.Render(new RenderParameters(CultureInfo.InvariantCulture)
             {
                 LocalVariables = assigns,
-                RethrowErrors = true
+                ErrorsOutputMode = ErrorsOutputMode.Rethrow
             }));
             Assert.That(ex.Message, Is.EqualTo("Unknown variable 'test'"));
         }

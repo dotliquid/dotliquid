@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.IO;
+using DotLiquid.Tests.Helpers;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests

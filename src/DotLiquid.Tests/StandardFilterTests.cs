@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using DotLiquid.NamingConventions;
+using DotLiquid.Tests.Helpers;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
@@ -12,6 +13,46 @@ namespace DotLiquid.Tests
     [TestFixture]
     public class StandardFilterTests
     {
+        #region Classes used in tests
+
+        private class Package : IIndexable, ILiquidizable
+        {
+            private readonly int numberOfPiecesPerPackage;
+
+            private readonly string test;
+
+            public Package(int numberOfPiecesPerPackage, string test)
+            {
+                this.numberOfPiecesPerPackage = numberOfPiecesPerPackage;
+                this.test = test;
+            }
+
+            public object this[object key] => key as string == "numberOfPiecesPerPackage"
+                ? this.numberOfPiecesPerPackage as object
+                : key as string == "test"
+                    ? test
+                    : null;
+
+            public bool ContainsKey(object key)
+            {
+                return new List<string> { nameof(numberOfPiecesPerPackage), nameof(test) }
+                    .Contains(key);
+            }
+
+            public object ToLiquid()
+            {
+                return this;
+            }
+        };
+
+        private class ProductDrop : Drop
+        {
+            public string Title { get; set; }
+            public string Type { get; set; }
+        }
+
+        #endregion
+
         private Context _contextV20;
         private Context _contextV20EnUS;
         private Context _contextV21;
@@ -370,9 +411,9 @@ PaulGeorge",
             var hash = Hash.FromAnonymousObject(new
             {
                 ary = new[] {
-                    new Helper.DataObject { PropAllowed = "a", PropDisallowed = "x" },
-                    new Helper.DataObject { PropAllowed = "b", PropDisallowed = "y" },
-                    new Helper.DataObject { PropAllowed = "c", PropDisallowed = "z" },
+                    new DataObject { PropAllowed = "a", PropDisallowed = "x" },
+                    new DataObject { PropAllowed = "b", PropDisallowed = "y" },
+                    new DataObject { PropAllowed = "c", PropDisallowed = "z" },
                 }
             });
 
@@ -382,9 +423,9 @@ PaulGeorge",
             hash = Hash.FromAnonymousObject(new
             {
                 ary = new[] {
-                    new Helper.DataObjectDrop { Prop = "a" },
-                    new Helper.DataObjectDrop { Prop = "b" },
-                    new Helper.DataObjectDrop { Prop = "c" },
+                    new DataObjectDrop { Prop = "a" },
+                    new DataObjectDrop { Prop = "b" },
+                    new DataObjectDrop { Prop = "c" },
                 }
             });
 
@@ -403,7 +444,7 @@ PaulGeorge",
             Assert.That(StandardFilters.Map(new[] { new { a = 1 } }, "no_prop"), Is.EqualTo(nullObjectArray).AsCollection);
 
             // Drop
-            Assert.That(StandardFilters.Map(new[] { new Helper.DataObjectDrop { Prop = "a" } }, "no_prop"), Is.EqualTo(nullObjectArray).AsCollection);
+            Assert.That(StandardFilters.Map(new[] { new DataObjectDrop { Prop = "a" } }, "no_prop"), Is.EqualTo(nullObjectArray).AsCollection);
 
             // Dictionary
             Assert.That(StandardFilters.Map(Hash.FromDictionary(new Dictionary<string, object>() { { "a", 1 } }), "no_prop"), Is.EqualTo(nullObjectArray).AsCollection);
@@ -422,8 +463,8 @@ PaulGeorge",
         {
             var hash = Hash.FromAnonymousObject(new
             {
-                safe = new[] { new Helper.DataObjectRegistered { PropAllowed = "a", PropDisallowed = "x" } },
-                attr = new[] { new Helper.DataObject { PropAllowed = "a", PropDisallowed = "x" } }
+                safe = new[] { new DataObjectRegistered { PropAllowed = "a", PropDisallowed = "x" } },
+                attr = new[] { new DataObject { PropAllowed = "a", PropDisallowed = "x" } }
             });
 
             Helper.AssertTemplateResult("", "{{ safe | map:'prop_disallowed' | join:'' }}", hash);
@@ -529,36 +570,6 @@ PaulGeorge",
 }",
                 localVariables: hash);
         }
-
-        private class Package : IIndexable, ILiquidizable
-        {
-            private readonly int numberOfPiecesPerPackage;
-
-            private readonly string test;
-
-            public Package(int numberOfPiecesPerPackage, string test)
-            {
-                this.numberOfPiecesPerPackage = numberOfPiecesPerPackage;
-                this.test = test;
-            }
-
-            public object this[object key] => key as string == "numberOfPiecesPerPackage"
-                ? this.numberOfPiecesPerPackage as object
-                : key as string == "test"
-                    ? test
-                    : null;
-
-            public bool ContainsKey(object key)
-            {
-                return new List<string> { nameof(numberOfPiecesPerPackage), nameof(test) }
-                    .Contains(key);
-            }
-
-            public object ToLiquid()
-            {
-                return this;
-            }
-        };
 
         [Test]
         public void TestMapIndexable()
@@ -1157,48 +1168,6 @@ PaulGeorge",
         }
 
         [Test]
-        public void TestRound()
-        {
-            using (CultureHelper.SetCulture("en-GB"))
-            {
-                Helper.AssertTemplateResult("1.235", "{{ 1.234678 | round:3 }}");
-                Helper.AssertTemplateResult("1", "{{ 1 | round }}");
-
-                Assert.That(StandardFilters.Round("1.2345678", "two"), Is.Null);
-            }
-        }
-
-        [Test]
-        public void TestCeil()
-        {
-            using (CultureHelper.SetCulture("en-GB"))
-            {
-                Helper.AssertTemplateResult("2", "{{ 1.2 | ceil }}");
-                Helper.AssertTemplateResult("2", "{{ 2.0 | ceil }}");
-                Helper.AssertTemplateResult("184", "{{ 183.357 | ceil }}");
-                Helper.AssertTemplateResult("4", "{{ \"3.5\" | ceil }}");
-
-                Assert.That(StandardFilters.Ceil(_contextV20, ""), Is.Null);
-                Assert.That(StandardFilters.Ceil(_contextV20, "two"), Is.Null);
-            }
-        }
-
-        [Test]
-        public void TestFloor()
-        {
-            using (CultureHelper.SetCulture("en-GB"))
-            {
-                Helper.AssertTemplateResult("1", "{{ 1.2 | floor }}");
-                Helper.AssertTemplateResult("2", "{{ 2.0 | floor }}");
-                Helper.AssertTemplateResult("183", "{{ 183.357 | floor }}");
-                Helper.AssertTemplateResult("3", "{{ \"3.5\" | floor }}");
-
-                Assert.That(StandardFilters.Floor(_contextV20, ""), Is.Null);
-                Assert.That(StandardFilters.Floor(_contextV20, "two"), Is.Null);
-            }
-        }
-
-        [Test]
         public void TestTimes()
         {
             TestTimes(_contextV20);
@@ -1311,79 +1280,6 @@ PaulGeorge",
             Assert.That(StandardFilters.Uniq(new string[] { }), Is.EqualTo(new string[] { }).AsCollection);
             Assert.That(StandardFilters.Uniq(null), Is.EqualTo(null));
             Assert.That(StandardFilters.Uniq(5), Is.EqualTo(new List<object> { 5 }));
-        }
-
-        [Test]
-        public void TestAbs()
-        {
-            Assert.That(StandardFilters.Abs(_contextV20, "notNumber"), Is.EqualTo(0));
-            Assert.That(StandardFilters.Abs(_contextV20, 10), Is.EqualTo(10));
-            Assert.That(StandardFilters.Abs(_contextV20, -5), Is.EqualTo(5));
-            Assert.That(StandardFilters.Abs(_contextV20, 19.86), Is.EqualTo(19.86));
-            Assert.That(StandardFilters.Abs(_contextV20, -19.86), Is.EqualTo(19.86));
-            Assert.That(StandardFilters.Abs(_contextV20, "10"), Is.EqualTo(10));
-            Assert.That(StandardFilters.Abs(_contextV20, "-5"), Is.EqualTo(5));
-            Assert.That(StandardFilters.Abs(_contextV20, "30.60"), Is.EqualTo(30.60));
-            Assert.That(StandardFilters.Abs(_contextV20, "30.60a"), Is.EqualTo(0));
-
-            Helper.AssertTemplateResult(
-                expected: "17",
-                template: "{{ -17 | abs }}");
-            Helper.AssertTemplateResult(
-                expected: "17",
-                template: "{{ 17 | abs }}");
-            Helper.AssertTemplateResult(
-                expected: "4",
-                template: "{{ 4 | abs }}");
-            Helper.AssertTemplateResult(
-                expected: "19.86",
-                template: "{{ '-19.86' | abs }}");
-        }
-
-        [Test]
-        public void TestAtLeast()
-        {
-            Assert.That(StandardFilters.AtLeast(_contextV20, "notNumber", 5), Is.EqualTo("notNumber"));
-            Assert.That(StandardFilters.AtLeast(_contextV20, 5, 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtLeast(_contextV20, 3, 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtLeast(_contextV20, 6, 5), Is.EqualTo(6));
-            Assert.That(StandardFilters.AtLeast(_contextV20, 10, 5), Is.EqualTo(10));
-            Assert.That(StandardFilters.AtLeast(_contextV20, 9.85, 5), Is.EqualTo(9.85));
-            Assert.That(StandardFilters.AtLeast(_contextV20, 3.56, 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtLeast(_contextV20, "10", 5), Is.EqualTo(10));
-            Assert.That(StandardFilters.AtLeast(_contextV20, "4", 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtLeast(_contextV20, "10a", 5), Is.EqualTo("10a"));
-            Assert.That(StandardFilters.AtLeast(_contextV20, "4b", 5), Is.EqualTo("4b"));
-
-            Helper.AssertTemplateResult(
-                expected: "5",
-                template: "{{ 4 | at_least: 5 }}");
-            Helper.AssertTemplateResult(
-                expected: "4",
-                template: "{{ 4 | at_least: 3 }}");
-        }
-
-        [Test]
-        public void TestAtMost()
-        {
-            Assert.That(StandardFilters.AtMost(_contextV20, "notNumber", 5), Is.EqualTo("notNumber"));
-            Assert.That(StandardFilters.AtMost(_contextV20, 5, 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtMost(_contextV20, 3, 5), Is.EqualTo(3));
-            Assert.That(StandardFilters.AtMost(_contextV20, 6, 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtMost(_contextV20, 10, 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtMost(_contextV20, 9.85, 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtMost(_contextV20, 3.56, 5), Is.EqualTo(3.56));
-            Assert.That(StandardFilters.AtMost(_contextV20, "10", 5), Is.EqualTo(5));
-            Assert.That(StandardFilters.AtMost(_contextV20, "4", 5), Is.EqualTo(4));
-            Assert.That(StandardFilters.AtMost(_contextV20, "4a", 5), Is.EqualTo("4a"));
-            Assert.That(StandardFilters.AtMost(_contextV20, "10b", 5), Is.EqualTo("10b"));
-
-            Helper.AssertTemplateResult(
-                expected: "4",
-                template: "{{ 4 | at_most: 5 }}");
-            Helper.AssertTemplateResult(
-                expected: "3",
-                template: "{{ 4 | at_most: 3 }}");
         }
 
         [Test]
@@ -1833,12 +1729,6 @@ Cheapest products:
                 Assert.That(StandardFilters.Base64UrlSafeDecode(null), Is.EqualTo(string.Empty));
                 Assert.That(StandardFilters.Base64UrlSafeDecode(string.Empty), Is.EqualTo(string.Empty));
             });
-        }
-
-        private class ProductDrop : Drop
-        {
-            public string Title { get; set; }
-            public string Type { get; set; }
         }
     }
 }

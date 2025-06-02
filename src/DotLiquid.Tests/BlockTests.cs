@@ -76,7 +76,9 @@ namespace DotLiquid.Tests
         [Test]
         public void TestWithCustomTagFactory()
         {
-            Template.RegisterTagFactory(new CustomTagFactory());
+            Template.RegisterTagFactory(new Helpers.CustomTagFactory());
+            Assert.That(Template.GetTagType("custom"), Is.Null);
+
             Template result = null;
             Assert.DoesNotThrow(() => result = Template.Parse("{% custom %}"));
             Assert.That(result.Render(), Is.EqualTo("I am a custom tag" + Environment.NewLine));

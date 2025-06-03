@@ -11,6 +11,17 @@ namespace DotLiquid.Util
     /// </summary>
     public static class ExpressionUtility
     {
+        /// <summary>
+        /// Converts the specified expressions to the target result type if their current types differ from the result
+        /// type.
+        /// </summary>
+        /// <param name="lhs">The left-hand side expression to be cast.</param>
+        /// <param name="rhs">The right-hand side expression to be cast.</param>
+        /// <param name="leftType">The current type of the left-hand side expression.</param>
+        /// <param name="rightType">The current type of the right-hand side expression.</param>
+        /// <param name="resultType">The target type to which the expressions should be cast.</param>
+        /// <param name="castLhs">When this method returns, contains the left-hand side expression cast to the target type, if necessary.</param>
+        /// <param name="castRhs">When this method returns, contains the right-hand side expression cast to the target type, if necessary.</param>
         private static void Cast(Expression lhs, Expression rhs, Type leftType, Type rightType, Type resultType, out Expression castLhs, out Expression castRhs)
         {
             castLhs = leftType == resultType ? lhs : Expression.Convert(lhs, resultType);

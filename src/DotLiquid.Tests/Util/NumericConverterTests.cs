@@ -99,6 +99,32 @@ namespace DotLiquid.Tests.Util
             Assert.That(TypeLimits[result].Item2 <= TypeLimits[t1].Item2, Is.True);
         }
 
+        [Test]
+        public void TestStringTypeThrows()
+        {
+            var ex = Assert.Throws<ArgumentException>(() => NumericConverter.GetBinaryResultType(typeof(string), typeof(int)));
+            Assert.That(ex.ParamName, Is.EqualTo("left"));
+
+            ex = Assert.Throws<ArgumentException>(() => NumericConverter.GetBinaryResultType(typeof(int), typeof(string)));
+            Assert.That(ex.ParamName, Is.EqualTo("right"));
+
+            ex = Assert.Throws<ArgumentException>(() => NumericConverter.GetBinaryResultType(typeof(string), typeof(string)));
+            Assert.That(ex.ParamName, Is.EqualTo("left"));
+        }
+
+        [Test]
+        public void TestNullParameterThrows()
+        {
+            var ex = Assert.Throws<ArgumentNullException>(() => NumericConverter.GetBinaryResultType(null, typeof(int)));
+            Assert.That(ex.ParamName, Is.EqualTo("left"));
+
+            ex = Assert.Throws<ArgumentNullException>(() => NumericConverter.GetBinaryResultType(typeof(int), null));
+            Assert.That(ex.ParamName, Is.EqualTo("right"));
+
+            ex = Assert.Throws<ArgumentNullException>(() => NumericConverter.GetBinaryResultType(null, null));
+            Assert.That(ex.ParamName, Is.EqualTo("left"));
+        }
+
         private static IEnumerable GoodTestCaseSource()
         {
             IFormatProvider invariantFormatProvider = CultureInfo.InvariantCulture;

@@ -17,6 +17,13 @@ on:
         - cron: "30 2 * * 1"
     workflow_dispatch: # Allow manual execution
 
+# Concurrency control: separate by workflow name and branch/PR
+concurrency:
+    # For PRs, use head ref to allow multiple PRs to run simultaneously
+    # For pushes, use the branch ref
+    group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+    cancel-in-progress: true
+
 jobs:
     analyze:
         name: CodeQL Security Scan

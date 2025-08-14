@@ -2,9 +2,9 @@ name: Security Scanning
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, master]
   pull_request:
-    branches: [main]
+    branches: [main, master]
   schedule:
     # Run security scans daily at 2 AM UTC
     - cron: "0 2 * * *"
@@ -14,8 +14,11 @@ permissions:
   contents: read
   actions: read
 
+# Concurrency control: separate by workflow name and branch/PR
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  # For PRs, use head ref to allow multiple PRs to run simultaneously
+  # For pushes, use the branch ref
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
   cancel-in-progress: true
 
 jobs:

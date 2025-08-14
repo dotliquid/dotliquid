@@ -1,0 +1,214 @@
+name: "Continuous Integration"
+
+on:
+    push:
+        branches: [master, main]
+        paths-ignore:
+            - '**.md'
+            - '.gitignore'
+            - 'LICENSE'
+            - 'docs/**'
+    pull_request:
+        branches: [master, main]
+        types: [opened, synchronize, reopened]
+    workflow_dispatch: # Allow manual execution
+        inputs:
+            run_extended_tests:
+                description: 'Run extended test suite'
+                required: false
+                default: false
+                type: boolean
+
+# Concurrency control: separate by workflow name and branch/PR
+concurrency:
+    # For PRs, use head ref to allow multiple PRs to run simultaneously
+    # For pushes, use the branch ref
+    group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    # Build and test across multiple platforms and frameworks
+    build-and-test:
+        name: Build & Test • ${{ matrix.os }} • ${{ matrix.framework }}
+        runs-on: ${{ matrix.os }}
+        timeout-minutes: 20
+        
+        strategy:
+            fail-fast: false
+            matrix:
+                os: [ubuntu-latest, windows-latest, macos-latest]
+                framework: [net6.0, net7.0, net8.0]
+                exclude:
+                    # Optimize CI time by excluding some combinations
+                    - os: macos-latest
+                      framework: net7.0
+        
+        env:
+            DOTNET_NOLOGO: true
+            DOTNET_CLI_TELEMETRY_OPTOUT: true
+            NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+        
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0  # Full history for better analysis
+            
+            - name: Setup .NET SDK
+              uses: actions/setup-dotnet@v4
+              with:
+                  dotnet-version: |
+                      6.0.x
+                      7.0.x
+                      8.0.x
+                  dotnet-quality: 'ga'
+            
+            # Cache NuGet packages
+            - name: Cache NuGet packages
+              uses: actions/cache@v4
+              with:
+                  path: ${{ github.workspace }}/.nuget/packages
+                  key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}-${{ hashFiles('**/packages.lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}-
+                      ${{ runner.os }}-nuget-
+            
+            - name: Restore dependencies
+              run: dotnet restore src/DotLiquid.sln
+            
+            - name: Build solution
+              run: dotnet build src/DotLiquid.sln --configuration Release --no-restore --warnaserror
+            
+            # Run tests with coverage
+            - name: Run tests with coverage
+              run: |
+                  dotnet test src/DotLiquid.Tests/DotLiquid.Tests.csproj \
+                      --configuration Release \
+                      --no-build \
+                      --framework ${{ matrix.framework }} \
+                      --verbosity normal \
+                      --logger "trx;LogFileName=${{ matrix.framework }}-${{ matrix.os }}.trx" \
+                      --logger "console;verbosity=detailed" \
+                      --collect:"XPlat Code Coverage" \
+                      --results-directory ./TestResults \
+                      -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+              shell: bash
+            
+            # Upload test results
+            - name: Upload test results
+              uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: test-results-${{ matrix.framework }}-${{ matrix.os }}
+                  path: |
+                      TestResults/**/*.trx
+                      TestResults/**/*.xml
+                  retention-days: 7
+            
+            # Upload coverage reports
+            - name: Upload coverage to Codecov
+              uses: codecov/codecov-action@v4
+              if: matrix.os == 'ubuntu-latest'  # Only upload once per framework
+              with:
+                  files: ./TestResults/**/coverage.opencover.xml
+                  flags: ${{ matrix.framework }}
+                  name: ${{ matrix.framework }}-coverage
+                  fail_ci_if_error: false
+    
+    # Publish test reports
+    test-report:
+        name: Test Report
+        runs-on: ubuntu-latest
+        needs: build-and-test
+        if: always()
+        permissions:
+            checks: write
+            pull-requests: write
+        
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+            
+            - name: Download all test results
+              uses: actions/download-artifact@v4
+              with:
+                  path: test-artifacts
+                  pattern: test-results-*
+            
+            - name: Publish test report
+              uses: dorny/test-reporter@v1
+              with:
+                  name: 'Test Results Summary'
+                  path: 'test-artifacts/**/[Tt]est[Rr]esults/**/*.trx'
+                  reporter: dotnet-trx
+                  list-suites: 'all'
+                  list-tests: 'all'
+                  max-annotations: 50
+                  fail-on-error: true
+                  fail-on-empty: true
+    
+    # Package validation
+    package-validation:
+        name: Package Validation
+        runs-on: ubuntu-latest
+        needs: build-and-test
+        
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+            
+            - name: Setup .NET SDK
+              uses: actions/setup-dotnet@v4
+              with:
+                  dotnet-version: '8.0.x'
+            
+            - name: Pack NuGet package
+              run: |
+                  dotnet pack src/DotLiquid/DotLiquid.csproj \
+                      --configuration Release \
+                      --output ./artifacts \
+                      --include-symbols \
+                      --include-source \
+                      /p:SymbolPackageFormat=snupkg
+            
+            - name: Validate NuGet package
+              run: |
+                  # Install dotnet-validate tool
+                  dotnet tool install --global dotnet-validate --version 0.0.1-preview.304
+                  
+                  # Validate the package
+                  for package in ./artifacts/*.nupkg; do
+                      if [[ ! "$package" == *.symbols.nupkg ]]; then
+                          echo "Validating $package"
+                          dotnet-validate package local "$package"
+                      fi
+                  done
+            
+            - name: Upload NuGet packages
+              uses: actions/upload-artifact@v4
+              with:
+                  name: nuget-packages
+                  path: |
+                      artifacts/*.nupkg
+                      artifacts/*.snupkg
+                  retention-days: 7
+    
+    # Summary job for branch protection
+    ci-success:
+        name: Quality Gate
+        runs-on: ubuntu-latest
+        needs: [build-and-test, test-report, package-validation]
+        if: always()
+        
+        steps:
+            - name: Check if all jobs succeeded
+              run: |
+                  if [[ "${{ contains(needs.*.result, 'failure') }}" == "true" ]]; then
+                      echo "❌ One or more CI jobs failed"
+                      exit 1
+                  elif [[ "${{ contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
+                      echo "⚠️ One or more CI jobs were cancelled"
+                      exit 1
+                  else
+                      echo "✅ All CI jobs completed successfully"
+                  fi

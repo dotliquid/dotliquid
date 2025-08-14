@@ -1,0 +1,247 @@
+name: "Continuous Deployment"
+
+on:
+    push:
+        branches: [master, main]
+        tags:
+            - 'v*'  # Also trigger on version tags like v1.0.0
+    workflow_run:
+        workflows: ["Continuous Integration"]
+        types:
+            - completed
+        branches: [master, main]
+    workflow_dispatch:
+        inputs:
+            package_version:
+                description: 'Package version to publish (leave empty to use latest)'
+                required: false
+                type: string
+
+env:
+    DOTNET_NOLOGO: true
+    DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+# Concurrency control: separate by workflow name and branch/PR
+concurrency:
+    # CD should only run one at a time per branch
+    # Using workflow name + ref to ensure unique groups
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: false  # Don't cancel CD runs, let them complete
+
+jobs:
+    publish-nuget:
+        name: Publish to NuGet
+        runs-on: ubuntu-latest
+        # Only run if CI was successful or manually triggered
+        if: |
+            github.event_name == 'workflow_dispatch' ||
+            github.event_name == 'push' ||
+            (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+        
+        permissions:
+            contents: read
+            packages: write
+            
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0  # Full history for version determination
+            
+            - name: Setup .NET SDK
+              uses: actions/setup-dotnet@v4
+              with:
+                  dotnet-version: '8.0.x'
+                  dotnet-quality: 'ga'
+            
+            # Download artifacts from CI workflow if triggered by workflow_run
+            - name: Download NuGet artifacts from CI
+              if: github.event_name == 'workflow_run'
+              uses: actions/download-artifact@v4
+              with:
+                  name: nuget-packages
+                  path: ./artifacts
+                  run-id: ${{ github.event.workflow_run.id }}
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+            
+            # Build and pack if triggered by push or manual dispatch
+            - name: Build and Pack NuGet package
+              if: github.event_name != 'workflow_run'
+              run: |
+                  # Restore dependencies
+                  dotnet restore src/DotLiquid.sln
+                  
+                  # Build in Release mode
+                  dotnet build src/DotLiquid.sln --configuration Release --no-restore
+                  
+                  # Pack the NuGet package with symbols
+                  dotnet pack src/DotLiquid/DotLiquid.csproj \
+                      --configuration Release \
+                      --no-build \
+                      --output ./artifacts \
+                      --include-symbols \
+                      --include-source \
+                      /p:SymbolPackageFormat=snupkg
+            
+            # List available packages
+            - name: List NuGet packages
+              run: |
+                  echo "📦 Available NuGet packages:"
+                  ls -la ./artifacts/*.nupkg || echo "No packages found"
+                  ls -la ./artifacts/*.snupkg || echo "No symbol packages found"
+            
+            # Validate package before publishing
+            - name: Validate NuGet package
+              run: |
+                  # Install validation tool if not present
+                  dotnet tool install --global dotnet-validate --version 0.0.1-preview.304 2>/dev/null || true
+                  
+                  # Validate each package
+                  for package in ./artifacts/*.nupkg; do
+                      if [[ ! "$package" == *.symbols.nupkg ]] && [[ -f "$package" ]]; then
+                          echo "Validating $package"
+                          dotnet-validate package local "$package"
+                      fi
+                  done
+            
+            # Determine if we should publish (check version)
+            - name: Check package version
+              id: version_check
+              run: |
+                  # Get the version from the main package
+                  PACKAGE_FILE=$(ls ./artifacts/DotLiquid*.nupkg | grep -v symbols | head -n 1)
+                  
+                  if [[ -z "$PACKAGE_FILE" ]]; then
+                      echo "❌ No NuGet package found"
+                      exit 1
+                  fi
+                  
+                  # Extract version from package name
+                  PACKAGE_VERSION=$(basename "$PACKAGE_FILE" | sed 's/DotLiquid\.\([0-9.]*\)\.nupkg/\1/')
+                  echo "Package version: $PACKAGE_VERSION"
+                  echo "package_version=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
+                  
+                  # Check if version already exists on NuGet
+                  echo "Checking if version $PACKAGE_VERSION exists on NuGet.org..."
+                  
+                  if curl -s "https://api.nuget.org/v3-flatcontainer/dotliquid-net6/index.json" | grep -q "\"$PACKAGE_VERSION\""; then
+                      echo "⚠️ Version $PACKAGE_VERSION already exists on NuGet.org"
+                      echo "skip_publish=true" >> $GITHUB_OUTPUT
+                  else
+                      echo "✅ Version $PACKAGE_VERSION is new and can be published"
+                      echo "skip_publish=false" >> $GITHUB_OUTPUT
+                  fi
+            
+            # Publish to NuGet.org
+            - name: Publish to NuGet.org
+              if: steps.version_check.outputs.skip_publish != 'true'
+              env:
+                  NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+              run: |
+                  if [[ -z "$NUGET_API_KEY" ]]; then
+                      echo "⚠️ NUGET_API_KEY secret is not configured. Skipping publish."
+                      echo "To enable publishing, add NUGET_API_KEY to repository secrets."
+                      exit 0
+                  fi
+                  
+                  # Publish main package
+                  for package in ./artifacts/*.nupkg; do
+                      if [[ ! "$package" == *.symbols.nupkg ]] && [[ -f "$package" ]]; then
+                          echo "📤 Publishing $package to NuGet.org..."
+                          dotnet nuget push "$package" \
+                              --api-key "$NUGET_API_KEY" \
+                              --source https://api.nuget.org/v3/index.json \
+                              --skip-duplicate
+                      fi
+                  done
+                  
+                  # Publish symbols package
+                  for package in ./artifacts/*.snupkg; do
+                      if [[ -f "$package" ]]; then
+                          echo "📤 Publishing symbols $package to NuGet.org..."
+                          dotnet nuget push "$package" \
+                              --api-key "$NUGET_API_KEY" \
+                              --source https://api.nuget.org/v3/index.json \
+                              --skip-duplicate || true  # Symbol push failures are non-critical
+                      fi
+                  done
+                  
+                  echo "✅ Package published successfully to NuGet.org"
+            
+            # Also publish to GitHub Packages
+            - name: Publish to GitHub Packages
+              if: steps.version_check.outputs.skip_publish != 'true'
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  # Configure GitHub Packages source
+                  dotnet nuget add source \
+                      --username ${{ github.actor }} \
+                      --password "$GITHUB_TOKEN" \
+                      --store-password-in-clear-text \
+                      --name github \
+                      "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+                      2>/dev/null || true
+                  
+                  # Publish to GitHub Packages
+                  for package in ./artifacts/*.nupkg; do
+                      if [[ ! "$package" == *.symbols.nupkg ]] && [[ -f "$package" ]]; then
+                          echo "📤 Publishing $package to GitHub Packages..."
+                          dotnet nuget push "$package" \
+                              --source github \
+                              --skip-duplicate || true  # GitHub Packages might have different availability
+                      fi
+                  done
+            
+            # Create GitHub Release
+            - name: Create GitHub Release
+              if: steps.version_check.outputs.skip_publish != 'true' && github.event_name == 'push'
+              uses: softprops/action-gh-release@v1
+              with:
+                  tag_name: v${{ steps.version_check.outputs.package_version }}
+                  name: Release v${{ steps.version_check.outputs.package_version }}
+                  body: |
+                      ## DotLiquid-Net6 v${{ steps.version_check.outputs.package_version }}
+                      
+                      ### 📦 Package
+                      - [NuGet Package](https://www.nuget.org/packages/DotLiquid-Net6/${{ steps.version_check.outputs.package_version }})
+                      - [GitHub Package](https://github.com/${{ github.repository }}/packages)
+                      
+                      ### 🔧 Installation
+                      ```bash
+                      dotnet add package DotLiquid-Net6 --version ${{ steps.version_check.outputs.package_version }}
+                      ```
+                      
+                      ### 📝 Changes
+                      See [commit history](https://github.com/${{ github.repository }}/compare/v${{ steps.version_check.outputs.package_version }}...HEAD) for details.
+                  files: |
+                      ./artifacts/*.nupkg
+                      ./artifacts/*.snupkg
+                  draft: false
+                  prerelease: false
+                  generate_release_notes: true
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            
+            # Report status
+            - name: Deployment Summary
+              if: always()
+              run: |
+                  echo "## 📊 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  
+                  if [[ "${{ steps.version_check.outputs.skip_publish }}" == "true" ]]; then
+                      echo "⚠️ **Status**: Skipped (version already exists)" >> $GITHUB_STEP_SUMMARY
+                  elif [[ "${{ job.status }}" == "success" ]]; then
+                      echo "✅ **Status**: Success" >> $GITHUB_STEP_SUMMARY
+                      echo "📦 **Version**: ${{ steps.version_check.outputs.package_version }}" >> $GITHUB_STEP_SUMMARY
+                      echo "🔗 **NuGet**: [View Package](https://www.nuget.org/packages/DotLiquid-Net6/${{ steps.version_check.outputs.package_version }})" >> $GITHUB_STEP_SUMMARY
+                  else
+                      echo "❌ **Status**: Failed" >> $GITHUB_STEP_SUMMARY
+                  fi
+                  
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "### Triggered by" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Event**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Actor**: @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY

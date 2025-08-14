@@ -44,23 +44,23 @@ jobs:
             # Check out and get latest version of repo, either using submodules or not
             - name: Checkout repository (with submodules)
               if: ${{ inputs.use_submodules == true }}
-              uses: actions/checkout@v3
+              uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
               with:
                   submodules: "true"
                   token: ${{ secrets.PLATFORM_PAT_TOKEN }}
 
             - name: Checkout repository
               if: ${{ inputs.use_submodules == false }}
-              uses: actions/checkout@v3
+              uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
 
             # Install dependencies for .NET using default or specified version
             - name: Setup .NET Core
-              uses: actions/setup-dotnet@v3
+              uses: actions/setup-dotnet@55ec9447dda3d1cf6bd587150f3262f30ee10815 # v3
               with:
                   dotnet-version: |
-                    6.0.x
-                    7.0.x
-                    8.0.x
+                      6.0.x
+                      7.0.x
+                      8.0.x
 
             # Build the project or solution. SonarQube will analyse outputs if enabled during this step.
             - name: Build and restore
@@ -102,7 +102,7 @@ jobs:
 
             # Test report is generated and uploaded to the Git action run
             - name: Show test report
-              uses: dorny/test-reporter@v1
+              uses: dorny/test-reporter@3188139d042123384f6775005b5568feb630933b # v2
               if: ${{ inputs.run_tests == true }}
               with:
                   name: ${{ env.TEST_PROJECT_NAME}}
@@ -124,7 +124,7 @@ jobs:
             # An issue is created and assigned to the user if either the build fails, one or more unit
             # tests fails or if the SonarQube quality gate fails
             - name: Create issue when build fails
-              uses: dacbd/create-issue-action@main
+              uses: dacbd/create-issue-action@fec641442c0897e734fad173cfe83ae21a2284a3 # main
               with:
                   token: ${{ github.token }}
                   title: .NET build failure
@@ -134,3 +134,4 @@ jobs:
                       [Codebase](https://github.com/${{ github.repository }}/tree/${{ github.sha }})
                       Workflow name - `${{ github.workflow }}`
                   assignees: ${{github.actor}}
+

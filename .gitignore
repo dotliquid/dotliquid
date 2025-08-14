@@ -68,6 +68,8 @@ node_modules/
 # Task files
 tasks.json
 tasks/ 
+.tasks/
+taskfile.yml
 
 # AI
 .claude

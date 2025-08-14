@@ -22,7 +22,9 @@ namespace DotLiquid.Tests
                 {
                     if (t.FieldType == typeof(Regex))
                     {
+#pragma warning disable NUnit2021 // The comparison is intentional to check regex options
                         Assert.AreNotEqual(0, RegexOptions.Compiled & ((Regex) t.GetValue(null)).Options);
+#pragma warning restore NUnit2021
                     }
                 }
             }

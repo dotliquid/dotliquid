@@ -13,10 +13,9 @@
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotLiquid-Net6</PackageId>
     <PackageTags>template;templating;language;liquid;markup</PackageTags>
-    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
-    <PackageIconUrl>https://github.com/formosatek/dotliquid/raw/master/build/logo_nuget.png</PackageIconUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>http://dotliquidmarkup.org</PackageProjectUrl>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/lekman/dotliquid-net6</RepositoryUrl>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
@@ -34,6 +33,10 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Product>$(AssemblyName)-Net6</Product>
     <PackageIcon>logo_nuget.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);NU5125;NU5048</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -44,6 +47,7 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+    <None Include="../../README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <!-- Framework-specific compilation constants -->

@@ -722,15 +722,14 @@ namespace DotLiquid.Tests
             // The expected values are expressed in en-US, so ensure the template runs with that Culture.
             using (CultureHelper.SetCulture("en-US"))
             {
-                Helper.AssertTemplateResult(
-                    expected: "1/1/0001 12:00:00 AM",
-                    template: "{{context}}",
-                    localVariables: Hash.FromAnonymousObject(new { context = DateTime.MinValue }));
+                // DateTime formatting can vary between .NET versions/OS, so we'll use a more flexible approach
+                var minDateResult = Template.Parse("{{context}}").Render(Hash.FromAnonymousObject(new { context = DateTime.MinValue }));
+                // Accept both "1/1/0001 12:00:00 AM" and "1/1/0001 12:00:00AM" formats
+                Assert.That(minDateResult, Does.Match(@"1/1/0001 12:00:00\s?AM"));
 
-                Helper.AssertTemplateResult(
-                    expected: "9/10/2013 12:10:32 AM +01:00",
-                    template: "{{context}}",
-                    localVariables: Hash.FromAnonymousObject(new { context = new DateTimeOffset(2013, 9, 10, 0, 10, 32, new TimeSpan(1, 0, 0)) }));
+                var dateOffsetResult = Template.Parse("{{context}}").Render(Hash.FromAnonymousObject(new { context = new DateTimeOffset(2013, 9, 10, 0, 10, 32, new TimeSpan(1, 0, 0)) }));
+                // Accept both with and without space before AM/PM
+                Assert.That(dateOffsetResult, Does.Match(@"9/10/2013 12:10:32\s?AM \+01:00"));
             }
 
             Helper.AssertTemplateResult(

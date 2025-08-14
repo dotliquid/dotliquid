@@ -1,42 +1,162 @@
-name: "Code Analysis"
+name: "CodeQL Security Analysis"
 
 on:
     push:
-        branches: [master]
+        branches: [master, main]
+        paths:
+            - '**.cs'
+            - '**.csproj'
+            - '.github/workflows/codeql-analysis.yml'
     pull_request:
-        # The branches below must be a subset of the branches above
-        branches: [master]
-    #schedule:
-    #    - cron: "40 1 * * 4"
-    workflow_dispatch: # Allow on demand execution
+        branches: [master, main]
+        paths:
+            - '**.cs'
+            - '**.csproj'
+    schedule:
+        # Run at 2:30 AM UTC every Monday (weekly security scan)
+        - cron: "30 2 * * 1"
+    workflow_dispatch: # Allow manual execution
 
 jobs:
     analyze:
-        name: Build Verification
-        runs-on: ubuntu-latest
+        name: CodeQL Security Scan
+        runs-on: ${{ matrix.os }}
+        timeout-minutes: 30
         permissions:
             actions: read
             contents: read
             security-events: write
+            packages: read
 
         strategy:
             fail-fast: false
             matrix:
-                language: ["csharp"]
+                os: [ubuntu-latest]
+                language: ['csharp']
+                dotnet: ['8.0.x']
+                # For multi-OS testing, uncomment below:
+                # os: [ubuntu-latest, windows-latest]
+                # include:
+                #   - os: windows-latest
+                #     dotnet: '8.0.x'
 
         steps:
             - name: Checkout repository
-              uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 2  # Shallow clone for better performance
 
-            # Initializes the CodeQL tools for scanning.
+            # Setup .NET SDK for consistent builds
+            - name: Setup .NET SDK
+              uses: actions/setup-dotnet@v4
+              with:
+                  dotnet-version: |
+                      6.0.x
+                      7.0.x
+                      8.0.x
+                  dotnet-quality: 'ga'  # Use GA releases only
+
+            # Initialize CodeQL with enhanced security queries
             - name: Initialize CodeQL
-              uses: github/codeql-action/init@8dca8a82e2fa1a2c8908956f711300f9c4a4f4f6 # v2
+              uses: github/codeql-action/init@v3
               with:
                   languages: ${{ matrix.language }}
+                  # Enhanced security and quality queries
+                  queries: +security-and-quality
+                  # Include experimental queries for additional coverage
+                  # queries: +security-experimental
+                  config: |
+                      paths-ignore:
+                        - '**/bin/**'
+                        - '**/obj/**'
+                        - '**/packages/**'
+                        - '**/*.Tests/**'
 
-            # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
-            - name: Autobuild
-              uses: github/codeql-action/autobuild@8dca8a82e2fa1a2c8908956f711300f9c4a4f4f6 # v2
+            # Cache NuGet packages for faster builds
+            - name: Cache NuGet packages
+              uses: actions/cache@v4
+              with:
+                  path: ~/.nuget/packages
+                  key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json', '**/*.csproj') }}
+                  restore-keys: |
+                      ${{ runner.os }}-nuget-
 
+            # Manual build for better control over the process
+            - name: Build solution
+              run: |
+                  dotnet restore src/DotLiquid.sln
+                  dotnet build src/DotLiquid.sln --configuration Release --no-restore
+
+            # Perform CodeQL Analysis with enhanced security checks
             - name: Perform CodeQL Analysis
-              uses: github/codeql-action/analyze@8dca8a82e2fa1a2c8908956f711300f9c4a4f4f6 # v2
+              uses: github/codeql-action/analyze@v3
+              with:
+                  category: "/language:${{ matrix.language }}"
+                  # Upload results even if the analysis fails
+                  upload: always
+                  # Add additional query suites
+                  add-snippets: true
+                  
+    # Additional security scanning with .NET built-in tools
+    security-scan:
+        name: .NET Security Vulnerability Scan
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup .NET SDK
+              uses: actions/setup-dotnet@v4
+              with:
+                  dotnet-version: '8.0.x'
+
+            - name: Restore dependencies
+              run: dotnet restore src/DotLiquid.sln
+
+            - name: Check for vulnerable packages
+              run: |
+                  echo "Checking for known vulnerabilities in NuGet packages..."
+                  dotnet list src/DotLiquid.sln package --vulnerable --include-transitive
+                  
+                  # Fail if vulnerabilities are found
+                  if dotnet list src/DotLiquid.sln package --vulnerable --include-transitive 2>/dev/null | grep -q "has the following vulnerable packages"; then
+                      echo "❌ Vulnerable packages detected!"
+                      dotnet list src/DotLiquid.sln package --vulnerable --include-transitive
+                      exit 1
+                  else
+                      echo "✅ No vulnerable packages detected"
+                  fi
+
+            - name: Check for outdated packages
+              run: |
+                  echo "Checking for outdated packages..."
+                  dotnet list src/DotLiquid.sln package --outdated
+
+    # Dependency review for PRs (GitHub Advanced Security feature)
+    dependency-review:
+        name: Dependency Review
+        runs-on: ubuntu-latest
+        if: github.event_name == 'pull_request'
+        permissions:
+            contents: read
+            pull-requests: write
+        
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              
+            - name: Dependency Review
+              uses: actions/dependency-review-action@v4
+              with:
+                  # Fail on high or critical vulnerabilities
+                  fail-on-severity: high
+                  # Warn about licenses
+                  license-check: true
+                  # Check for vulnerable dependencies
+                  vulnerability-check: true
+                  # Allowed licenses (customize as needed)
+                  allow-licenses: MIT, Apache-2.0, BSD-3-Clause, BSD-2-Clause, ISC, MS-PL
+                  # Comment on PR with results
+                  comment-summary-in-pr: always

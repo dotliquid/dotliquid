@@ -30,9 +30,9 @@ on:
                 default: false
                 type: boolean
             dotnet_version:
-                description: Set to full version of .NET to use. By default 6.0.x
+                description: Set to full version of .NET to use. By default 8.0.x
                 required: false
-                default: 6.0.x
+                default: 8.0.x
                 type: string
 
 jobs:
@@ -44,20 +44,23 @@ jobs:
             # Check out and get latest version of repo, either using submodules or not
             - name: Checkout repository (with submodules)
               if: ${{ inputs.use_submodules == true }}
-              uses: actions/checkout@v2
+              uses: actions/checkout@v3
               with:
                   submodules: "true"
                   token: ${{ secrets.PLATFORM_PAT_TOKEN }}
 
             - name: Checkout repository
               if: ${{ inputs.use_submodules == false }}
-              uses: actions/checkout@v2
+              uses: actions/checkout@v3
 
             # Install dependencies for .NET using default or specified version
             - name: Setup .NET Core
-              uses: actions/setup-dotnet@v1
+              uses: actions/setup-dotnet@v3
               with:
-                  dotnet-version: ${{ inputs.dotnet_version }}
+                  dotnet-version: |
+                    6.0.x
+                    7.0.x
+                    8.0.x
 
             # Build the project or solution. SonarQube will analyse outputs if enabled during this step.
             - name: Build and restore

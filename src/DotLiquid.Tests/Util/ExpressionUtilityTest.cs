@@ -2,6 +2,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace DotLiquid.Tests.Util
 {
@@ -55,6 +56,26 @@ namespace DotLiquid.Tests.Util
             Assert.That(typeLimits[result].Item1 >= typeLimits[t2].Item1, Is.True);
             Assert.That(typeLimits[result].Item2 <= typeLimits[t1].Item2, Is.True);
             Assert.That(typeLimits[result].Item2 <= typeLimits[t1].Item2, Is.True);
+        }
+
+        /// <summary>
+        /// Repeated calls to CreateExpression with the same operation/operand types must reuse a cached
+        /// compiled delegate instead of re-compiling an Expression.Lambda every time. This guards against
+        /// regressions to an unbounded compile-per-call cost (e.g. when a maths filter is applied within a loop).
+        /// </summary>
+        [Test]
+        public void TestCreateExpressionCachesCompiledDelegate()
+        {
+            Func<Expression, Expression, BinaryExpression> operation = Expression.AddChecked;
+
+            var first = DotLiquid.Util.ExpressionUtility.CreateExpression(operation, typeof(int), typeof(int));
+            var second = DotLiquid.Util.ExpressionUtility.CreateExpression(operation, typeof(int), typeof(int));
+
+            Assert.That(second, Is.SameAs(first), "Expected the same compiled delegate instance to be returned for repeated calls with identical operation/operand types.");
+
+            // A different operand type combination must still produce a working, independently cached delegate.
+            var third = DotLiquid.Util.ExpressionUtility.CreateExpression(operation, typeof(long), typeof(long));
+            Assert.That(third, Is.Not.SameAs(first));
         }
     }
 }

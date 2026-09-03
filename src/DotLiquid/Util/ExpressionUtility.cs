@@ -91,6 +91,12 @@ namespace DotLiquid.Util
              , Type leftType
              , Type rightType)
         {
+            // Skip the cache for instance-method delegates, since different targets can share a MethodInfo but produce different bodies.
+            if (body.Target != null)
+            {
+                return CompileExpression(body, leftType, rightType);
+            }
+
             // Level 1: left-type cache for this operation (e.g. Expression.AddChecked, a static framework method).
             var delegatesByLeftType = CompiledExpressionCache.GetOrAdd(
                 body.GetMethodInfo(),

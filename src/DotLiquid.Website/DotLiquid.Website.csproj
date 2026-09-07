@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web" DefaultTargets="Build;Publish">
+<Project Sdk="Microsoft.NET.Sdk.Web" DefaultTargets="Build;Publish">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Title>DotLiquid.Website</Title>
     <AssemblyName>DotLiquid.Website</AssemblyName>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
@@ -26,14 +26,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.TagHelpers" Version="2.3.0" />
     <PackageReference Include="TagHelperSamples.Markdown" Version="2.0.49" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- Explicitly add System.Text.RegularExpressions 4.3.1 to avoid vulnerable 4.3.0 transitive dependency -->
-    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
 
 </Project>

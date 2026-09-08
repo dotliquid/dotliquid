@@ -5,7 +5,7 @@
     <AssemblyTitle>DotLiquid</AssemblyTitle>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Authors>Tim Jones;Alessandro Petrelli</Authors>
-    <TargetFrameworks>netstandard2.0;net45;net6.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net462;net8.0;net10.0</TargetFrameworks>
     <AssemblyName>DotLiquid</AssemblyName>
     <AssemblyOriginatorKeyFile>../Formosatek-OpenSource.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
@@ -33,7 +33,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.7.0.110445" PrivateAssets="all" />
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.10.0.116381" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,7 +41,7 @@
     <None Include="readme_nuget.md" Pack="true" PackagePath="docs\" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>

@@ -1,12 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net462;netcoreapp3.1;net6.0</TargetFrameworks>
+    <TargetFrameworks>net462;netcoreapp3.1;net6.0;net8.0</TargetFrameworks>
     <AssemblyName>DotLiquid.Tests</AssemblyName>
     <AssemblyOriginatorKeyFile>../Formosatek-OpenSource.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotLiquid.Tests</PackageId>
+    <!-- netcoreapp3.1 runtime may not be installed; roll forward to whatever newer major runtime is available. -->
+    <RollForward Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">Major</RollForward>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
@@ -36,18 +38,13 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1'">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="NUnit" Version="3.14.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
-    <PackageReference Include="NUnit" Version="4.3.2" />
-    <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
-    <Reference Include="Microsoft.CSharp" />
+  <ItemGroup Condition=" '$(TargetFramework)' != 'netcoreapp3.1' ">
     <PackageReference Include="NUnit" Version="4.3.2" />
     <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
   </ItemGroup>

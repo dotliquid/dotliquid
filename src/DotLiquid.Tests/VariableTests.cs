@@ -151,15 +151,39 @@ namespace DotLiquid.Tests
             }
         }
 
-        private static string RenderVariable(object data)
+        private static string RenderVariable(object data, SyntaxCompatibility? syntaxCompatibilityLevel = null)
         {
-            Variable variable = new Variable("{{data}}");
+            Variable variable = new Variable("data");
             Context context = new Context(CultureInfo.CurrentCulture);
+            if (syntaxCompatibilityLevel.HasValue)
+                context.SyntaxCompatibilityLevel = syntaxCompatibilityLevel.Value;
             context["data"] = data;
             using (TextWriter writer = new StringWriter(CultureInfo.InvariantCulture))
             {
                 variable.Render(context, writer);
                 return writer.ToString();
+            }
+        }
+
+        [Test]
+        public void TestVariableStringConversion_Decimal_SyntaxCompatibility()
+        {
+            using (CultureHelper.SetCulture("en-US"))
+            {
+                Assert.Multiple(() =>
+                {
+                    // DotLiquid 2.0-2.2 (legacy) behavior: trailing zeroes are always trimmed
+                    Assert.That(RenderVariable(5m, SyntaxCompatibility.DotLiquid20), Is.EqualTo("5"));
+                    Assert.That(RenderVariable(5.0m, SyntaxCompatibility.DotLiquid20), Is.EqualTo("5"));
+                    Assert.That(RenderVariable(5.00m, SyntaxCompatibility.DotLiquid20), Is.EqualTo("5"));
+                    Assert.That(RenderVariable(5.10m, SyntaxCompatibility.DotLiquid20), Is.EqualTo("5.1"));
+
+                    // DotLiquid 2.4+ behavior: preserves the decimal's declared scale, always showing at least one decimal place
+                    Assert.That(RenderVariable(5m, SyntaxCompatibility.DotLiquid24), Is.EqualTo("5"));
+                    Assert.That(RenderVariable(5.0m, SyntaxCompatibility.DotLiquid24), Is.EqualTo("5.0"));
+                    Assert.That(RenderVariable(5.00m, SyntaxCompatibility.DotLiquid24), Is.EqualTo("5.0"));
+                    Assert.That(RenderVariable(5.10m, SyntaxCompatibility.DotLiquid24), Is.EqualTo("5.1"));
+                });
             }
         }
 

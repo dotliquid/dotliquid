@@ -1,7 +1,7 @@
 # Build script for dotliquid is presently stored securely on AppVeyor.
 # Below is ignored and kept for informational purposes only
 version: 2.4.{build}
-image: Visual Studio 2022
+image: Visual Studio 2026
 configuration: Release
 dotnet_csproj:
   patch: true

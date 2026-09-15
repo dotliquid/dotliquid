@@ -6,9 +6,9 @@ namespace DotLiquid.Tests.Model
 {
     internal class GoldenLiquid
     {
-        public string Version { get; set; }
+        public string Description { get; set; }
 
-        [JsonProperty("test_groups")]
-        public List<GoldenLiquidGroup> TestGroups { get; set; }
+        [JsonProperty("tests")]
+        public List<GoldenLiquidTest> Tests { get; set; }
     }
 }

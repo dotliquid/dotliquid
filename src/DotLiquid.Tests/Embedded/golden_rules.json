@@ -211,12 +211,7 @@
     "alternate_test_expectations": {
         "liquid.golden.divided_by_filter - float division": "2.8571428571428571428571428571",
         "liquid.golden.divided_by_filter - integer value and float arg": "5",
-        "liquid.golden.divided_by_filter - render": "5 5",
         "liquid.golden.divided_by_filter - zero divided by float": "0",
-        "liquid.golden.minus_filter - integer value and float arg": "8",
-        "liquid.golden.modulo_filter - integer value and float arg": "0",
-        "liquid.golden.modulo_filter - string value and argument": "0",
-        "liquid.golden.plus_filter - integer value and float arg": "12",
         // With Rails/ActiveSupport these work similar to DotLiquid
         "liquid.golden.first_filter - first of a string": "h",
         "liquid.golden.last_filter - last of a string": "o",

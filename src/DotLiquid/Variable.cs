@@ -68,12 +68,21 @@ namespace DotLiquid
             // This is not a desirable default for Liquid as it confuses the users as to why '12.5 |times 10' becomes '125.0'.
             // So we overwrite the default serialization behavior to specify a format with maximum significant precision.
             // Decimal type has a maximum of 29 significant digits.
-            string ToFormattedString(object obj, IFormatProvider formatProvider) =>
-                (obj is decimal decimalValue)
-                    ? decimalValue.ToString(format: "0.#############################", provider: formatProvider)
-                    : obj is IFormattable ifo
-                        ? ifo.ToString(format: null, formatProvider: formatProvider)
-                        : (obj?.ToString() ?? "");
+            // NOTE (microalps): Desirable result for v2.4 is the same as reference liquid implementation, which is to always show at least one decimal place for decimal values.
+            string ToFormattedString(object obj) {
+                if (obj is decimal decOutput)
+                {
+                    if (context.SyntaxCompatibilityLevel < SyntaxCompatibility.DotLiquid24)
+                        return decOutput.ToString(format: "0.#############################", provider: result.FormatProvider);
+                    return GetScale(decOutput) == 0
+                        ? decOutput.ToString(result.FormatProvider)
+                        : decOutput.ToString(format: "0.0############################", provider: result.FormatProvider);
+                }
+                else if (obj is IFormattable ifo)
+                    return ifo.ToString(format: null, result.FormatProvider);
+                else
+                    return (obj?.ToString() ?? "");
+            }
 
             object output = RenderInternal(context);
 
@@ -91,15 +100,25 @@ namespace DotLiquid
                 if (!(output is string outputString))
                 {
                     if (output is IEnumerable enumerable)
-                        outputString = string.Join(string.Empty, enumerable.Cast<object>().Select(o => ToFormattedString(o, result.FormatProvider)).ToArray());
+                        outputString = string.Join(string.Empty, enumerable.Cast<object>().Select(ToFormattedString).ToArray());
                     else if (output is bool)
                         outputString = output.ToString().ToLower();
                     else
-                        outputString = ToFormattedString(output, result.FormatProvider);
+                        outputString = ToFormattedString(output);
                 }
 
                 result.Write(outputString);
             }
+        }
+
+        private static int GetScale(decimal value)
+        {
+#if NET8_0_OR_GREATER
+            return value.Scale;
+#else
+            // Extract bits and shift to get scale (bits[3] contains scale info)
+            return (Decimal.GetBits(value)[3] >> 16) & 0x7F;
+#endif
         }
 
         private object RenderInternal(Context context)

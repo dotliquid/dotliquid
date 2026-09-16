@@ -12,6 +12,7 @@
     <PackageVersion Include="SonarAnalyzer.CSharp" Version="10.34.0.3385" />
     <PackageVersion Include="System.Drawing.Common" Version="4.7.3" />
     <PackageVersion Include="System.Net.Http" Version="4.3.4" />
+    <PackageVersion Include="System.Runtime.InteropServices.RuntimeInformation" Version="4.3.0" />
     <PackageVersion Include="System.Security.Cryptography.Xml" Version="4.7.1" />
     <PackageVersion Include="System.Text.Encodings.Web" Version="4.5.1" />
     <PackageVersion Include="System.Text.RegularExpressions" Version="4.3.1" />

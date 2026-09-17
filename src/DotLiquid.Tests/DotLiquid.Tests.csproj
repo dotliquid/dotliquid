@@ -33,7 +33,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Runtime.InteropServices.RuntimeInformation" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
   </ItemGroup>

@@ -102,7 +102,6 @@ namespace DotLiquid.Tests.Util
             return localResult;
         }
 
-
         [TestCase("%c", ExpectedResult = "Sun Jan 08 14:32:14 2012")] // Date and time representation (Thu Aug 23 14:55:02 2001)
         public string TestToStrFTime_DateTimeFormat(string format)
         {
@@ -196,6 +195,26 @@ namespace DotLiquid.Tests.Util
             Assert.Throws<FormatException>(() => TimeOnly.FromDateTime(dateTimeOffset.DateTime).ToStrFTime(format, EN_GB));
 #endif
             return DateTime.Parse("2012-12-31").ToStrFTime(format, EN_GB);
+        }
+
+        [TestCase("%E")]
+        [TestCase("%f")]
+        [TestCase("%i")]
+        [TestCase("%J")]
+        [TestCase("%K")]
+        [TestCase("%o")]
+        [TestCase("%O")]
+        [TestCase("%q")]
+        [TestCase("%Q")]
+        public void TestToStrFTime_NotSpecified(string format)
+        {
+            var dateTimeOffset = DateTimeOffset.UtcNow;
+            Assert.That(dateTimeOffset.ToStrFTime(format, EN_GB), Is.EqualTo(format));
+            Assert.That(dateTimeOffset.DateTime.ToStrFTime(format, EN_GB), Is.EqualTo(format));
+#if NET6_0_OR_GREATER
+            Assert.That(DateOnly.FromDateTime(dateTimeOffset.DateTime).ToStrFTime(format, EN_GB), Is.EqualTo(format));
+            Assert.That(TimeOnly.FromDateTime(dateTimeOffset.DateTime).ToStrFTime(format, EN_GB), Is.EqualTo(format));
+#endif
         }
 
         [Test]

@@ -22,8 +22,6 @@ install:
 cache:
 - C:\ProgramData\chocolatey\bin -> appveyor.yml
 - C:\ProgramData\chocolatey\lib -> appveyor.yml
-nuget:
-  project_feed: true
 build:
   project: src/DotLiquid.sln
   verbosity: minimal

@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="TagHelperSamples.Markdown" Version="2.0.49" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="TagHelperSamples.Markdown" />
+    <PackageReference Include="Newtonsoft.Json" />
   </ItemGroup>
 </Project>

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <DefineConstants>$(DefineConstants);CORE</DefineConstants>
     <AssemblyName>DotLiquid.Website.Tests</AssemblyName>
     <PackageId>DotLiquid.Website.Tests</PackageId>

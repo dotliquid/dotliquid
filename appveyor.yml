@@ -18,7 +18,7 @@ install:
 
     choco install codecov -y
 
-    choco install dotnet-6.0-sdk -y
+    dotnet --list-sdks | find "6.0." >nul || choco install dotnet-6.0-sdk -y
     
     dotnet restore src/DotLiquid.sln
 cache:

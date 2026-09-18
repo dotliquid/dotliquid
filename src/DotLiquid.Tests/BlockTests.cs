@@ -1,4 +1,5 @@
 using System;
+using DotLiquid.Exceptions;
 using DotLiquid.Tags;
 using DotLiquid.Tests.Framework;
 using NUnit.Framework;
@@ -8,6 +9,35 @@ namespace DotLiquid.Tests
     [TestFixture]
     public class BlockTests
     {
+        [Test]
+        public void TestCreateVariableUnterminated()
+        {
+            Block block = new Block();
+            Assert.Throws<SyntaxException>(() => block.CreateVariable("{{"));
+        }
+
+        [Test]
+        public void TestCreateVariableDoubleQuotesWithNewline()
+        {
+            Block block = new Block();
+            Variable variable = block.CreateVariable("{{ \"hello\r\n \" }}");
+            Assert.That(variable.Name, Is.EqualTo("\"hello\r\n \""));
+        }
+
+        [Test]
+        public void TestCreateVariableSingleQuotesWithNewline()
+        {
+            Block block = new Block();
+            Variable variable = block.CreateVariable("{{ 'hello \r\n' }}");
+            Assert.That(variable.Name, Is.EqualTo("'hello \r\n'"));
+        }
+
+        [Test]
+        public void TestUnterminated()
+        {
+            Assert.Throws<SyntaxException>(() => Template.Parse("{{"));
+        }
+
         [Test]
         public void TestBlankspace()
         {

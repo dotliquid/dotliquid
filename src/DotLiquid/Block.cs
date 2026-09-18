@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -15,7 +15,7 @@ namespace DotLiquid
     {
         private static readonly Regex IsTag = R.B(@"^{0}", Liquid.TagStart);
         private static readonly Regex IsVariable = R.B(@"^{0}", Liquid.VariableStart);
-        private static readonly Regex ContentOfVariable = R.B(@"^{0}(.*){1}$", Liquid.VariableStart, Liquid.VariableEnd);
+        private static readonly Regex ContentOfVariable = R.B(@"^{0}([\s\S]*){1}$", Liquid.VariableStart, Liquid.VariableEnd);
 
         internal static readonly Regex FullToken = R.B(@"^{0}\s*(\w+)\s*(.*)?{1}$", Liquid.TagStart, Liquid.TagEnd);
 

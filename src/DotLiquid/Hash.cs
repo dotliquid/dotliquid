@@ -186,10 +186,7 @@ namespace DotLiquid
             if (_lambda != null)
                 return _lambda(this, key);
 
-            if (_defaultValue != null)
-                return _defaultValue;
-
-            return null;
+            return _defaultValue;
         }
 
         /// <summary>

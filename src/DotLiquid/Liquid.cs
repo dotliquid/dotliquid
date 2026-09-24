@@ -34,6 +34,7 @@ namespace DotLiquid
 
         internal static readonly string DirectorySeparators = @"[\\/]";
         internal static readonly string LimitRelativePath = @"^(?![\\\/\.])(?:[^<>:;,?""*|\x00-\x1F\/\\]+|[\/\\](?!\.))+(?<!\/)$"; /* Blocks hidden files in linux and directory traversal .. */
+        internal static readonly char[] AsciiWhitespaceChars = new char[] { '\t', '\n', '\v', '\f', '\r', ' ' };
         private static readonly Lazy<Regex> LazyDirectorySeparatorsRegex = new Lazy<Regex>(() => R.C(DirectorySeparators), LazyThreadSafetyMode.ExecutionAndPublication);
         private static readonly Lazy<Regex> LazyLimitRelativePathRegex = new Lazy<Regex>(() => R.C(LimitRelativePath), LazyThreadSafetyMode.ExecutionAndPublication);
         private static readonly Lazy<Regex> LazyVariableSegmentRegex = new Lazy<Regex>(() => R.B(R.Q(@"\A\s*(?<Variable>{0}+)\s*\Z"), Liquid.VariableSegment), LazyThreadSafetyMode.ExecutionAndPublication);
@@ -68,8 +69,6 @@ namespace DotLiquid
             Template.RegisterTag<Tags.Param>("param");
 
             Template.RegisterTag<Tags.Html.TableRow>("tablerow");
-
-            Template.RegisterFilter(typeof(StandardFilters));
 
             // Safe list optional filters so that they can be enabled by Designers.
             Template.SafelistFilter(typeof(ExtendedFilters));

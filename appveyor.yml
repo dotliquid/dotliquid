@@ -12,15 +12,19 @@ dotnet_csproj:
   assembly_version: '{version}'
   file_version: '{version}'
   informational_version: '{version}-$(APPVEYOR_REPO_COMMIT)'
+environment:
+  DOTNET_NOLOGO: 1
 install:
-- cmd: >-
+- ps: >-
     choco install opencover.portable -y
 
     choco install codecov -y
 
-    dotnet --list-sdks | find "6.0." >nul || choco install dotnet-6.0-sdk -y
-    
-    dotnet restore src/DotLiquid.sln
+    Invoke-WebRequest -Uri 'https://dot.net/v1/dotnet-install.ps1' -UseBasicParsing -OutFile "$env:temp\dotnet-install.ps1"
+
+    & $env:temp\dotnet-install.ps1 -Architecture x64 -Channel '6.0' -InstallDir "$env:ProgramFiles\dotnet"
+
+    dotnet restore .\src\DotLiquid.sln
 cache:
 - C:\ProgramData\chocolatey\bin -> appveyor.yml
 - C:\ProgramData\chocolatey\lib -> appveyor.yml

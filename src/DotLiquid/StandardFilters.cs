@@ -728,12 +728,19 @@ namespace DotLiquid
         /// <param name="operand">Number to be added to input</param>
         public static object Plus(Context context, object input, object operand)
         {
-            if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21)
-                return DoMathsOperation(context, input, operand, Expression.AddChecked);
+            try
+            {
+                if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21)
+                    return DoMathsOperation(context, input, operand, Expression.AddChecked);
 
-            return input is string
-                ? string.Concat(input, operand)
-                : DoMathsOperation(context, input, operand, Expression.AddChecked);
+                return input is string
+                    ? string.Concat(input, operand)
+                    : DoMathsOperation(context, input, operand, Expression.AddChecked);
+            }
+            catch (OverflowException) when (input is int)
+            {
+                return DoMathsOperation(context, Convert.ToInt64(input), operand, Expression.AddChecked);
+            }
         }
 
         /// <summary>
@@ -744,7 +751,14 @@ namespace DotLiquid
         /// <param name="operand">Number to be subtracted from input</param>
         public static object Minus(Context context, object input, object operand)
         {
-            return DoMathsOperation(context, input, operand, Expression.SubtractChecked);
+            try
+            {
+                return DoMathsOperation(context, input, operand, Expression.SubtractChecked);
+            }
+            catch (OverflowException) when (input is int)
+            {
+                return DoMathsOperation(context, Convert.ToInt64(input), operand, Expression.SubtractChecked);
+            }
         }
 
         /// <summary>
@@ -755,12 +769,19 @@ namespace DotLiquid
         /// <param name="operand">Number to multiple input by</param>
         public static object Times(Context context, object input, object operand)
         {
-            if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21)
-                return DoMathsOperation(context, input, operand, Expression.MultiplyChecked);
+            try
+            {
+                if (context.SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid21)
+                    return DoMathsOperation(context, input, operand, Expression.MultiplyChecked);
 
-            return input is string && (operand is int || operand is long)
-                ? Enumerable.Repeat((string)input, Convert.ToInt32(operand))
-                : DoMathsOperation(context, input, operand, Expression.MultiplyChecked);
+                return input is string && (operand is int || operand is long)
+                    ? Enumerable.Repeat((string)input, Convert.ToInt32(operand))
+                    : DoMathsOperation(context, input, operand, Expression.MultiplyChecked);
+            }
+            catch (OverflowException) when (input is int)
+            {
+                return DoMathsOperation(context, Convert.ToInt64(input), operand, Expression.MultiplyChecked);
+            }
         }
 
         /// <summary>

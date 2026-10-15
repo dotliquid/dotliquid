@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using DotLiquid.Exceptions;
 using DotLiquid.NamingConventions;
+using DotLiquid.Tests.Helpers;
 
 namespace DotLiquid.Tests
 {

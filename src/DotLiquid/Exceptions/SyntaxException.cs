@@ -1,4 +1,5 @@
 using System;
+using DotLiquid.Util;
 
 namespace DotLiquid.Exceptions
 {

@@ -1,3 +1,4 @@
+using DotLiquid.Tests.Helpers;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;

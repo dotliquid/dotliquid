@@ -8,6 +8,8 @@ namespace DotLiquid.Tests
     [TestFixture]
     public class OutputTests
     {
+        #region Classes and functions used in tests
+
         private static class FunnyFilter
         {
             public static string MakeFunny(string input)
@@ -40,6 +42,24 @@ namespace DotLiquid.Tests
                 return string.Format("<a href=\"{0}\">{1}</a>", url, name);
             }
         }
+
+        private class ActionDisposable : IDisposable
+        {
+            private readonly Action _Action;
+
+            public ActionDisposable(Action action) => _Action = action;
+
+            public void Dispose() => _Action();
+        }
+
+        IDisposable SetCulture(CultureInfo ci)
+        {
+            var old = CultureInfo.CurrentCulture;
+            CultureInfo.CurrentCulture = ci;
+            return new ActionDisposable(() => CultureInfo.CurrentCulture = old);
+        }
+
+        #endregion
 
         private Hash _assigns;
 
@@ -94,22 +114,6 @@ namespace DotLiquid.Tests
                 NumberFormat = nfi
             };
             Assert.That(Render(c), Is.EqualTo("3.145"));
-        }
-
-        private class ActionDisposable : IDisposable
-        {
-            private readonly Action _Action;
-
-            public ActionDisposable(Action action) => _Action = action;
-
-            public void Dispose() => _Action();
-        }
-
-        IDisposable SetCulture(CultureInfo ci)
-        {
-            var old = CultureInfo.CurrentCulture;
-            CultureInfo.CurrentCulture = ci;
-            return new ActionDisposable(() => CultureInfo.CurrentCulture = old);
         }
 
         [Test]

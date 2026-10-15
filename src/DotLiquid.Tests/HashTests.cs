@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DotLiquid.Tests.Helpers;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests.Ns1
@@ -25,24 +26,28 @@ namespace DotLiquid.Tests
     [TestFixture]
     public class HashTests
     {
-        public class TestBaseClass
+        #region Classes used in tests
+
+        private class TestBaseClass
         {
             public string TestBaseClassProp { get; set; }
 
             public virtual string TestOverridableProp { get; set; }
         }
 
-        public class TestMiddleClass : TestBaseClass
+        private class TestMiddleClass : TestBaseClass
         {
             public string TestMiddleClassProp { get; set; }
         }
 
-        public class TestChildClass : TestMiddleClass
+        private class TestChildClass : TestMiddleClass
         {
             public string TestClassProp { get; set; }
 
             public override string TestOverridableProp { get; set; }
         }
+
+        #endregion
 
         #region Mapper Cache Tests
         /// <summary>

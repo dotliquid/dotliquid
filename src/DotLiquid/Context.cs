@@ -443,38 +443,48 @@ namespace DotLiquid
                                 Convert.ToInt32(Resolve(match.Groups[2].Value)));
                         break;
                     default:
-                        // Integer.
-                        match = IntegerRegex.Match(key);
-                        if (match.Success)
+                        // Numeric values.
+                        if (SyntaxCompatibilityLevel >= SyntaxCompatibility.DotLiquid24)
                         {
-                            try
-                            {
-                                return Convert.ToInt32(match.Groups[1].Value);
-                            }
-                            catch (OverflowException)
-                            {
-                                return Convert.ToInt64(match.Groups[1].Value);
-                            }
+                            if (NumericConverter.TryParseToNumericType(key, FormatProvider, out object numericValue))
+                                return numericValue;
                         }
-
-                        // Floating point numbers.
-                        match = NumericRegex.Match(key);
-                        if (match.Success)
+                        else
                         {
-                            // For cultures with "," as the decimal separator, allow
-                            // both "," and "." to be used as the separator.
-                            // First try to parse using current culture.
-                            // If that fails, try to parse using invariant culture.
-                            // Also, first try higher precision decimal.
-                            // If that fails, try to parse as double (precision float).
-                            // Double is less precise but has a larger range.
-                            if (decimal.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, FormatProvider, out decimal parsedDecimalCurrentCulture))
-                                return parsedDecimalCurrentCulture;
-                            if (decimal.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, CultureInfo.InvariantCulture, out decimal parsedDecimalInvariantCulture))
-                                return parsedDecimalInvariantCulture;
-                            if (double.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, FormatProvider, out double parsedDouble))
-                                return parsedDouble;
-                            return double.Parse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, CultureInfo.InvariantCulture);
+                            // Legacy behaviour before v2.4
+                            // Integer.
+                            match = IntegerRegex.Match(key);
+                            if (match.Success)
+                            {
+                                try
+                                {
+                                    return Convert.ToInt32(match.Groups[1].Value);
+                                }
+                                catch (OverflowException)
+                                {
+                                    return Convert.ToInt64(match.Groups[1].Value);
+                                }
+                            }
+
+                            // Floating point numbers.
+                            match = NumericRegex.Match(key);
+                            if (match.Success)
+                            {
+                                // For cultures with "," as the decimal separator, allow
+                                // both "," and "." to be used as the separator.
+                                // First try to parse using current culture.
+                                // If that fails, try to parse using invariant culture.
+                                // Also, first try higher precision decimal.
+                                // If that fails, try to parse as double (precision float).
+                                // Double is less precise but has a larger range.
+                                if (decimal.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, FormatProvider, out decimal parsedDecimalCurrentCulture))
+                                    return parsedDecimalCurrentCulture;
+                                if (decimal.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, CultureInfo.InvariantCulture, out decimal parsedDecimalInvariantCulture))
+                                    return parsedDecimalInvariantCulture;
+                                if (double.TryParse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, FormatProvider, out double parsedDouble))
+                                    return parsedDouble;
+                                return double.Parse(match.Groups[1].Value, NumberStyles.Number | NumberStyles.Float, CultureInfo.InvariantCulture);
+                            }
                         }
                         break;
                 }

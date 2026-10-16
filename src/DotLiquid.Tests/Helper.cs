@@ -75,7 +75,7 @@ namespace DotLiquid.Tests
                 SyntaxCompatibilityLevel = syntax,
                 Filters = localFilters
             };
-            Assert.That(Template.Parse(template).Render(parameters), Is.EqualTo(expected));
+            Assert.That(Template.Parse(template).Render(parameters), Is.EqualTo(expected), $"Template: {template}");
         }
 
         public static void AssertTemplateResult(string expected, string template, IIndexable localVariables, SyntaxCompatibility syntax = SyntaxCompatibility.DotLiquid20)

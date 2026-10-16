@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Golden Liquid",
+  "description": "Golden Liquid Test Suite",
+  "type": "object",
+  "properties": {
+    "tests": {
+      "description": "Individual test cases",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/test_case"
+      }
+    }
+  },
+  "required": ["tests"],
+  "$defs": {
+    "test_case": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/test_case_name"
+        },
+        "template": {
+          "$ref": "#/$defs/template"
+        },
+        "data": {
+          "$ref": "#/$defs/data"
+        },
+        "templates": {
+          "$ref": "#/$defs/templates"
+        },
+        "result": {
+          "$ref": "#/$defs/test_case_result"
+        },
+        "results": {
+          "$ref": "#/$defs/test_case_results"
+        },
+        "invalid": {
+          "$ref": "#/$defs/invalid"
+        },
+        "tags": {
+          "$ref": "#/$defs/tags"
+        }
+      },
+      "required": ["name", "template"],
+      "oneOf": [
+        {
+          "required": ["result"],
+          "properties": {
+            "invalid": false,
+            "results": false
+          }
+        },
+        {
+          "required": ["results"],
+          "properties": {
+            "invalid": false,
+            "result": false
+          }
+        },
+        {
+          "required": ["invalid"],
+          "properties": {
+            "result": false,
+            "results": false
+          }
+        }
+      ]
+    },
+    "test_case_name": {
+      "description": "The name of the test case",
+      "type": "string",
+      "pattern": "^\\S.*\\S$"
+    },
+    "test_case_result": {
+      "type": "string",
+      "description": "The expected result of rendering the template with the given context data"
+    },
+    "test_case_results": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/test_case_result" },
+      "minItems": 2,
+      "description": "An array of possible expected results of rendering the template with the given context data"
+    },
+    "template": {
+      "description": "The Liquid template",
+      "type": "string"
+    },
+    "data": {
+      "description": "Render context data"
+    },
+    "templates": {
+      "type": "object",
+      "description": "Snippets or partial templates that can be included or rendered.",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "invalid": {
+      "type": "boolean",
+      "const": true,
+      "description": "The flag indicating that the template is invalid"
+    },
+    "tags": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "# tag",
+          "abs filter",
+          "absent",
+          "append filter",
+          "assign tag",
+          "at_least filter",
+          "at_most filter",
+          "base64_decode filter",
+          "base64_encode filter",
+          "base64_url_safe_decode filter",
+          "base64_url_safe_encode filter",
+          "break tag",
+          "capitalize filter",
+          "capture tag",
+          "case tag",
+          "ceil filter",
+          "comment tag",
+          "compact filter",
+          "concat filter",
+          "continue tag",
+          "cycle tag",
+          "date filter",
+          "decrement tag",
+          "default filter",
+          "divided_by filter",
+          "doc tag",
+          "downcase filter",
+          "echo tag",
+          "escape filter",
+          "escape_once filter",
+          "find filter",
+          "find_index filter",
+          "first filter",
+          "floor filter",
+          "for tag",
+          "has filter",
+          "if tag",
+          "ifchanged tag",
+          "include tag",
+          "increment tag",
+          "join filter",
+          "last filter",
+          "liquid tag",
+          "lstrip filter",
+          "map filter",
+          "minus filter",
+          "modulo filter",
+          "newline_to_br filter",
+          "plus filter",
+          "prepend filter",
+          "reject filter",
+          "remove filter",
+          "remove_first filter",
+          "remove_last filter",
+          "render tag",
+          "replace filter",
+          "replace_first filter",
+          "replace_last filter",
+          "reverse filter",
+          "round filter",
+          "rstrip filter",
+          "size filter",
+          "slice filter",
+          "sort filter",
+          "sort_natural filter",
+          "split filter",
+          "strict",
+          "strip filter",
+          "strip_html filter",
+          "strip_newlines filter",
+          "sum filter",
+          "tablerow tag",
+          "times filter",
+          "truncate filter",
+          "truncatewords filter",
+          "uniq filter",
+          "unless tag",
+          "upcase filter",
+          "url_decode filter",
+          "url_encode filter",
+          "where filter"
+        ]
+      }
+    }
+  }
+}

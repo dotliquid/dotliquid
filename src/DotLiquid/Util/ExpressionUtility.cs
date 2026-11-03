@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace DotLiquid.Util
 {
@@ -12,6 +15,14 @@ namespace DotLiquid.Util
     public static class ExpressionUtility
     {
         private static readonly Dictionary<Type, Type[]> NumericTypePromotions;
+
+        /// <summary>
+        /// Cache of compiled binary operation delegates, keyed by operation method, left operand type and right operand type,
+        /// avoiding recompiling an Expression.Lambda on every filter call. Uses nested ConditionalWeakTables keyed on the
+        /// operand Types (rather than a flat dictionary) so entries don't pin arbitrary/dynamic operand Types in memory forever.
+        /// </summary>
+        private static readonly ConcurrentDictionary<MethodInfo, ConditionalWeakTable<Type, ConditionalWeakTable<Type, Delegate>>> CompiledExpressionCache
+            = new ConcurrentDictionary<MethodInfo, ConditionalWeakTable<Type, ConditionalWeakTable<Type, Delegate>>>();
 
         static ExpressionUtility()
         {
@@ -76,6 +87,33 @@ namespace DotLiquid.Util
         /// <exception cref="System.ArgumentException"></exception>
         /// <returns>Compiled function delegate</returns>
         public static Delegate CreateExpression
+            (Func<Expression, Expression, BinaryExpression> body
+             , Type leftType
+             , Type rightType)
+        {
+            // Skip the cache for instance-method delegates, since different targets can share a MethodInfo but produce different bodies.
+            if (body.Target != null)
+            {
+                return CompileExpression(body, leftType, rightType);
+            }
+
+            // Level 1: left-type cache for this operation (e.g. Expression.AddChecked, a static framework method).
+            var delegatesByLeftType = CompiledExpressionCache.GetOrAdd(
+                body.GetMethodInfo(),
+                _ => new ConditionalWeakTable<Type, ConditionalWeakTable<Type, Delegate>>());
+
+            // Level 2: right-type cache for this left operand type.
+            var delegatesByRightType = delegatesByLeftType.GetValue(
+                leftType,
+                _ => new ConditionalWeakTable<Type, Delegate>());
+
+            // Level 3: compiled delegate for this (operation, leftType, rightType), compiling on a miss.
+            return delegatesByRightType.GetValue(
+                rightType,
+                _ => CompileExpression(body, leftType, rightType));
+        }
+
+        private static Delegate CompileExpression
             (Func<Expression, Expression, BinaryExpression> body
              , Type leftType
              , Type rightType)

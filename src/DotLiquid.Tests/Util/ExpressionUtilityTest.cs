@@ -2,6 +2,8 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace DotLiquid.Tests.Util
 {
@@ -55,6 +57,67 @@ namespace DotLiquid.Tests.Util
             Assert.That(typeLimits[result].Item1 >= typeLimits[t2].Item1, Is.True);
             Assert.That(typeLimits[result].Item2 <= typeLimits[t1].Item2, Is.True);
             Assert.That(typeLimits[result].Item2 <= typeLimits[t1].Item2, Is.True);
+        }
+
+        /// <summary>
+        /// Repeated calls to CreateExpression with the same operation/operand types must reuse a cached
+        /// compiled delegate instead of re-compiling an Expression.Lambda every time. This guards against
+        /// regressions to an unbounded compile-per-call cost (e.g. when a maths filter is applied within a loop).
+        /// </summary>
+        [Test]
+        public void TestCreateExpressionCachesCompiledDelegate()
+        {
+            Func<Expression, Expression, BinaryExpression> operation = Expression.AddChecked;
+
+            var first = DotLiquid.Util.ExpressionUtility.CreateExpression(operation, typeof(int), typeof(int));
+            var second = DotLiquid.Util.ExpressionUtility.CreateExpression(operation, typeof(int), typeof(int));
+
+            Assert.That(second, Is.SameAs(first), "Expected the same compiled delegate instance to be returned for repeated calls with identical operation/operand types.");
+
+            // A different operand type combination must still produce a working, independently cached delegate.
+            var third = DotLiquid.Util.ExpressionUtility.CreateExpression(operation, typeof(long), typeof(long));
+            Assert.That(third, Is.Not.SameAs(first));
+        }
+
+        /// <summary>
+        /// Instance-method delegates share the same MethodInfo regardless of the delegate's target instance, but
+        /// different target instances can produce different expression bodies. Caching solely by MethodInfo would
+        /// cause the wrong (stale) compiled delegate to be returned for a different target. This test ensures such
+        /// delegates skip the cache and are compiled correctly for each distinct target/body.
+        /// </summary>
+        [Test]
+        public void TestCreateExpressionSkipsCacheForInstanceMethodDelegates()
+        {
+            var addFactory = new BinaryExpressionFactory(useAdd: true);
+            var subtractFactory = new BinaryExpressionFactory(useAdd: false);
+
+            Func<Expression, Expression, BinaryExpression> addOperation = addFactory.CreateBinaryExpression;
+            Func<Expression, Expression, BinaryExpression> subtractOperation = subtractFactory.CreateBinaryExpression;
+
+            // Both delegates target the same instance method (MethodInfo), but different target instances,
+            // and therefore must compile to different, independently correct delegates.
+            Assert.That(addOperation.GetMethodInfo(), Is.EqualTo(subtractOperation.GetMethodInfo()));
+
+            var addDelegate = DotLiquid.Util.ExpressionUtility.CreateExpression(addOperation, typeof(int), typeof(int));
+            var subtractDelegate = DotLiquid.Util.ExpressionUtility.CreateExpression(subtractOperation, typeof(int), typeof(int));
+
+            Assert.That(addDelegate.DynamicInvoke(3, 4), Is.EqualTo(7));
+            Assert.That(subtractDelegate.DynamicInvoke(3, 4), Is.EqualTo(-1));
+        }
+
+        private class BinaryExpressionFactory
+        {
+            private readonly bool _useAdd;
+
+            public BinaryExpressionFactory(bool useAdd)
+            {
+                _useAdd = useAdd;
+            }
+
+            public BinaryExpression CreateBinaryExpression(Expression lhs, Expression rhs)
+            {
+                return _useAdd ? Expression.Add(lhs, rhs) : Expression.Subtract(lhs, rhs);
+            }
         }
     }
 }

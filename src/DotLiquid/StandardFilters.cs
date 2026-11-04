@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -22,6 +23,10 @@ namespace DotLiquid
     {
         private static readonly Lazy<Regex> StripHtmlBlocks = new Lazy<Regex>(() => R.C(@"<script.*?</script>|<!--.*?-->|<style.*?</style>", RegexOptions.Singleline | RegexOptions.IgnoreCase), LazyThreadSafetyMode.ExecutionAndPublication);
         private static readonly Lazy<Regex> StripHtmlTags = new Lazy<Regex>(() => R.C(@"<.*?>", RegexOptions.Singleline), LazyThreadSafetyMode.ExecutionAndPublication);
+
+        // A fresh CultureInfo rebuilds its NumberFormatInfo from the OS/ICU on first use, which costs far more than
+        // formatting the number. The instances are only read (passed to ToString), so reuse one per language tag.
+        private static readonly ConcurrentDictionary<string, CultureInfo> CurrencyCultures = new ConcurrentDictionary<string, CultureInfo>(StringComparer.Ordinal);
 
 #if NETSTANDARD1_3
         private class StringAwareObjectComparer : IComparer
@@ -364,7 +369,7 @@ namespace DotLiquid
             if (input == null) return null;
 
             // Check for null only, allow an empty string as it represent the InvariantCulture
-            var culture = languageTag == null ? context.CurrentCulture : new CultureInfo(languageTag.Trim());
+            var culture = languageTag == null ? context.CurrentCulture : CurrencyCultures.GetOrAdd(languageTag.Trim(), tag => new CultureInfo(tag));
 
             // Attempt to convert to a currency using the context current culture.
             if (IsReal(input))

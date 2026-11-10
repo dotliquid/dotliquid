@@ -50,7 +50,7 @@
                 <ul>
                     <li><a href="http://timjones.io">Tim Jones</a></li>
                 </ul>
-                <cache>
+				<cache expires-after="@TimeSpan.FromHours(1)">
                     @await Component.InvokeAsync("Contributors")
                 </cache>
             </div>

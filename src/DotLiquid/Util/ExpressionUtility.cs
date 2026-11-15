@@ -11,60 +11,21 @@ namespace DotLiquid.Util
     /// </summary>
     public static class ExpressionUtility
     {
-        private static readonly Dictionary<Type, Type[]> NumericTypePromotions;
-
-        static ExpressionUtility()
-        {
-            NumericTypePromotions = new Dictionary<Type, Type[]>();
-
-            void Add(Type key, params Type[] types) => NumericTypePromotions[key] = types;
-            // Using the promotion table at
-            // https://docs.microsoft.com/en-us/dotnet/standard/base-types/conversion-tables
-
-            Add(typeof(Byte), typeof(UInt16), typeof(Int16), typeof(UInt32), typeof(Int32), typeof(UInt64), typeof(Int64), typeof(Decimal), typeof(Single), typeof(double));
-            Add(typeof(SByte), typeof(Int16), typeof(Int32), typeof(Int64), typeof(Decimal), typeof(Single), typeof(double));
-            Add(typeof(Int16), typeof(Int32), typeof(Int64), typeof(Decimal), typeof(Single), typeof(double));
-            Add(typeof(UInt16), typeof(UInt32), typeof(Int32), typeof(UInt64), typeof(Int64), typeof(Decimal), typeof(Single), typeof(double));
-            Add(typeof(Char), typeof(UInt16), typeof(UInt32), typeof(Int32), typeof(UInt64), typeof(Int64), typeof(Decimal), typeof(Single), typeof(double));
-            Add(typeof(Int32), typeof(Int64), typeof(Decimal), typeof(Single), typeof(double));
-            Add(typeof(UInt32), typeof(Int64), typeof(UInt64), typeof(Decimal), typeof(Single), typeof(double));
-            Add(typeof(Int64), typeof(Decimal), typeof(Single), typeof(double));
-            Add(typeof(UInt64), typeof(Decimal), typeof(Single), typeof(double));
-            Add(typeof(Single), typeof(Double));
-            Add(typeof(Decimal), typeof(Single), typeof(Double));
-            Add(typeof(Double));
-
-        }
-
         /// <summary>
-        /// Perform the implicit conversions as set out in the C# spec docs at
-        /// https://docs.microsoft.com/en-us/dotnet/standard/base-types/conversion-tables
+        /// Converts the specified expressions to the target result type if their current types differ from the result
+        /// type.
         /// </summary>
-        /// <param name="left"></param>
-        /// <param name="right"></param>
-        /// <returns></returns>
-        internal static Type BinaryNumericResultType(Type left, Type right)
-        {
-            if (left == right)
-                return left;
-
-            if (!NumericTypePromotions.ContainsKey(left))
-                throw new System.ArgumentException("Argument is not numeric", nameof(left));
-            if (!NumericTypePromotions.ContainsKey(right))
-                throw new System.ArgumentException("Argument is not numeric", nameof(right));
-
-            // Test left to right promotion
-            if (NumericTypePromotions[right].Contains(left))
-                return left;
-            if (NumericTypePromotions[left].Contains(right))
-                return right;
-            return NumericTypePromotions[right].First(p => NumericTypePromotions[left].Contains(p));
-        }
-
+        /// <param name="lhs">The left-hand side expression to be cast.</param>
+        /// <param name="rhs">The right-hand side expression to be cast.</param>
+        /// <param name="leftType">The current type of the left-hand side expression.</param>
+        /// <param name="rightType">The current type of the right-hand side expression.</param>
+        /// <param name="resultType">The target type to which the expressions should be cast.</param>
+        /// <param name="castLhs">When this method returns, contains the left-hand side expression cast to the target type, if necessary.</param>
+        /// <param name="castRhs">When this method returns, contains the right-hand side expression cast to the target type, if necessary.</param>
         private static void Cast(Expression lhs, Expression rhs, Type leftType, Type rightType, Type resultType, out Expression castLhs, out Expression castRhs)
         {
-            castLhs = leftType == resultType ? lhs : (Expression)Expression.Convert(lhs, resultType);
-            castRhs = rightType == resultType ? rhs : (Expression)Expression.Convert(rhs, resultType);
+            castLhs = leftType == resultType ? lhs : Expression.Convert(lhs, resultType);
+            castRhs = rightType == resultType ? rhs : Expression.Convert(rhs, resultType);
         }
 
         /// <summary>
@@ -86,7 +47,7 @@ namespace DotLiquid.Util
             {
                 try
                 {
-                    var resultType = BinaryNumericResultType( leftType, rightType );
+                    var resultType = NumericConverter.GetBinaryResultType(leftType, rightType);
                     Cast(lhs, rhs, leftType, rightType, resultType, out var castLhs, out var castRhs);
                     return Expression.Lambda(body(castLhs, castRhs), lhs, rhs).Compile();
                 }

@@ -140,7 +140,7 @@ namespace DotLiquid
         /// <param name="input">Input to be transformed by this filter</param>
         public static string Downcase(string input)
         {
-            return input == null ? input : input.ToLower();
+            return input == null ? input : input.ToLowerInvariant();
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace DotLiquid
         {
             return input == null
                 ? input
-                : input.ToUpper();
+                : input.ToUpperInvariant();
         }
 
         /// <summary>
@@ -194,7 +194,7 @@ namespace DotLiquid
                 return input;
 
             var trimmed = input.TrimStart();
-            return input.Substring(0, input.Length - trimmed.Length) + char.ToUpper(trimmed[0]) + trimmed.Substring(1).ToLower();
+            return input.Substring(0, input.Length - trimmed.Length) + char.ToUpperInvariant(trimmed[0]) + trimmed.Substring(1).ToLowerInvariant();
         }
 
         /// <summary>

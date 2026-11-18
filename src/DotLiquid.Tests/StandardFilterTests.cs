@@ -66,6 +66,27 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        public void TestUpcaseDowncaseAreCultureInvariant()
+        {
+            // In Turkish, "i".ToUpper() is "İ" and "I".ToLower() is "ı".
+            using (CultureHelper.SetCulture("tr-TR"))
+            {
+                Assert.That(StandardFilters.Upcase("title"), Is.EqualTo("TITLE"));
+                Assert.That(StandardFilters.Downcase("TITLE"), Is.EqualTo("title"));
+            }
+        }
+
+        [Test]
+        public void TestCapitalizeV22IsCultureInvariant()
+        {
+            using (CultureHelper.SetCulture("tr-TR"))
+            {
+                Assert.That(StandardFilters.Capitalize(context: _contextV22, input: "iNDIA"), Is.EqualTo("India"));
+                Assert.That(StandardFilters.Capitalize(context: _contextV22, input: "indIA"), Is.EqualTo("India"));
+            }
+        }
+
+        [Test]
         public void TestTruncate()
         {
             Assert.That(actual: StandardFilters.Truncate(null), Is.EqualTo(expected: null));

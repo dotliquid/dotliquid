@@ -1,4 +1,5 @@
 using System.Globalization;
+using DotLiquid.Tests.Helpers;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 

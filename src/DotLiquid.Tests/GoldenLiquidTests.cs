@@ -6,13 +6,14 @@ using System.Globalization;
 using System;
 using System.Reflection;
 using DotLiquid.Tests.Model;
-using DotLiquid.Tests.Util;
+using DotLiquid.Tests.Helpers;
 
 namespace DotLiquid.Tests
 {
     public class GoldenLiquidTests
     {
         #region Static Variables For Test Cases
+
         private static GoldenLiquidRules rules;
 
         internal static GoldenLiquidRules Rules
@@ -78,12 +79,17 @@ namespace DotLiquid.Tests
             // Deserialize the JSON content
             return JsonConvert.DeserializeObject<T>(jsonContent);
         }
+
         #endregion
 
-        internal static class RubyFilters
+        #region Classes used in tests
+
+        private static class RubyFilters
         {
             public static string[] Split(string input, string pattern) => ExtendedFilters.RubySplit(input, pattern);
         }
+
+        #endregion
 
         [Test]
         [TestCaseSource(nameof(GoldenTestsPassing))]

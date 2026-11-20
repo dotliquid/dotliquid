@@ -2,13 +2,53 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Net;
+using DotLiquid.Tests.Helpers;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests
 {
     [TestFixture]
-    public class TemplateTests
+    public partial class TemplateTests
     {
+        #region Classes and functions used in tests
+
+        private class NestedMySimpleType
+        {
+            public string Name { get; set; }
+
+            public NestedMySimpleType Nested { get; set; }
+
+            public override string ToString()
+            {
+                return "Foo";
+            }
+        }
+
+        private interface IMySimpleInterface2
+        {
+            string Name { get; }
+        }
+
+        private class MySimpleType2 : IMySimpleInterface2
+        {
+            public string Name { get; set; }
+        }
+
+        private class MyUnsafeType2
+        {
+            public string Name { get; set; }
+        }
+
+        private interface MyGenericInterface<T>
+        {
+            T Value { get; set; }
+        }
+
+        private class MyGenericImpl<T> : MyGenericInterface<T>
+        {
+            public T Value { get; set; }
+        }
+
         private System.Collections.Generic.List<string> TokenizeValidateBackwardCompatibility(string input)
         {
             var v20 = Tokenizer.Tokenize(input, SyntaxCompatibility.DotLiquid20);
@@ -16,6 +56,8 @@ namespace DotLiquid.Tests
             Assert.That(v22, Is.EqualTo(v20).AsCollection);
             return v22;
         }
+
+        #endregion
 
         [Test]
         public void TestTokenizeStrings()
@@ -157,7 +199,7 @@ namespace DotLiquid.Tests
         }
 
         [Test]
-        public void TestRenderToStreamWriter()
+        public void TestRenderToTextWriter()
         {
             Template template = Template.Parse("{{test}}");
 
@@ -209,19 +251,89 @@ namespace DotLiquid.Tests
         }
 
         [Test]
+        public void TestRenderEmptyDocument()
+        {
+            Template template = Template.Parse(null);
+            Assert.That(template.Render(CultureInfo.CurrentCulture), Is.EqualTo(String.Empty));
+        }
+
+        [Test]
+        public void TestRenderNoRoot()
+        {
+            Template template = Template.Parse(null);
+            template.Root = null;
+
+            Assert.That(template.Render(CultureInfo.CurrentCulture), Is.EqualTo(String.Empty));
+        }
+
+        [Test]
+        public void TestRenderToNullStream()
+        {
+            Template template = Template.Parse("{{test}}");
+            Stream stream = null;
+            Assert.Throws<ArgumentNullException>(() => template.Render(stream, new RenderParameters(CultureInfo.InvariantCulture)));
+        }
+
+        [Test]
+        public void TestRenderToNullTextWriter()
+        {
+            Template template = Template.Parse("{{test}}");
+            TextWriter writer = null;
+            Assert.Throws<ArgumentNullException>(() => template.Render(writer, new RenderParameters(CultureInfo.InvariantCulture)));
+        }
+
+        [Test]
+        public void TestRenderNullParameters()
+        {
+            Template template = Template.Parse("{{test}}");
+            RenderParameters parameters = null;
+            Assert.Throws<ArgumentNullException>(() => template.Render(parameters));
+        }
+
+        [Test]
+        public void TestRenderToStreamNullParameters()
+        {
+            Template template = Template.Parse("{{test}}");
+            using (Stream stream = new MemoryStream())
+            {
+                Assert.Throws<ArgumentNullException>(() => template.Render(stream, null));
+            }
+        }
+
+        [Test]
+        public void TestRenderToTextWriterNullParameters()
+        {
+            Template template = Template.Parse("{{test}}");
+            using (TextWriter writer = new StringWriter(CultureInfo.InvariantCulture))
+            {
+                Assert.Throws<ArgumentNullException>(() => template.Render(writer, null));
+            }
+        }
+
+        [Test]
         public void TestGetTagTypeUnknownTag()
         {
             Assert.That(Template.GetTagType("unknown"), Is.Null);
         }
 
-        public class MySimpleType
+        [Test]
+        public void TestIsRawTag()
         {
-            public string Name { get; set; }
+            // Trigger the Liquid static constructor to register default Tags.
+            Assert.That(Liquid.ArgumentSeparator, Is.Not.Null);
+            Template.RegisterTagFactory(new CustomTagFactory());
+            Template.RegisterTagFactory(new CustomRawTagFactory());
 
-            public override string ToString()
-            {
-                return "Foo";
-            }
+            Assert.That(Template.IsRawTag("comment"), Is.True);
+            Assert.That(Template.IsRawTag("raw"), Is.True);
+
+            Assert.That(Template.IsRawTag("if"), Is.False);
+            Assert.That(Template.IsRawTag("include"), Is.False);
+
+            Assert.That(Template.IsRawTag("custom"), Is.False);
+            Assert.That(Template.IsRawTag("customraw"), Is.False);
+
+            Assert.That(Template.IsRawTag("unknown"), Is.False);
         }
 
         [Test]
@@ -288,18 +400,6 @@ namespace DotLiquid.Tests
             Assert.That(output, Is.EqualTo("FooBar"));
         }
 
-        public class NestedMySimpleType
-        {
-            public string Name { get; set; }
-
-            public NestedMySimpleType Nested { get; set; }
-
-            public override string ToString()
-            {
-                return "Foo";
-            }
-        }
-
         [Test]
         public void TestNestedRegisterRegisterSafeTypeWithValueTypeTransformer()
         {
@@ -339,16 +439,6 @@ namespace DotLiquid.Tests
             Assert.That(output, Is.EqualTo("&lt;html&gt; Some &lt;b&gt;bold&lt;/b&gt; text."));
         }
 
-        public interface IMySimpleInterface2
-        {
-            string Name { get; }
-        }
-
-        public class MySimpleType2 : IMySimpleInterface2
-        {
-            public string Name { get; set; }
-        }
-
         [Test]
         public void TestRegisterSimpleTypeTransformIntoAnonymousType()
         {
@@ -373,11 +463,6 @@ namespace DotLiquid.Tests
             Assert.That(output, Is.EqualTo("worked"));
         }
 
-        public class MyUnsafeType2
-        {
-            public string Name { get; set; }
-        }
-
         [Test]
         public void TestRegisterSimpleTypeTransformIntoUnsafeType()
         {
@@ -388,16 +473,6 @@ namespace DotLiquid.Tests
             var output = template.Render(Hash.FromAnonymousObject(new { context = new MySimpleType2 { Name = "worked" } }));
 
             Assert.That(output, Is.EqualTo(""));
-        }
-
-        public interface MyGenericInterface<T>
-        {
-            T Value { get; set; }
-        }
-
-        public class MyGenericImpl<T> : MyGenericInterface<T>
-        {
-            public T Value { get; set; }
         }
 
         [Test]

@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using DotLiquid.Exceptions;
 using DotLiquid.Tags;
+using DotLiquid.Tests.Helpers;
 using NUnit.Framework;
 
 namespace DotLiquid.Tests.Tags
